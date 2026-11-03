@@ -31,7 +31,8 @@ import validate_town as VT  # noqa: E402
 
 import chr_core  # noqa: E402
 import chr_tex  # noqa: E402
-from chr_roster import ROSTER  # noqa: E402
+from chr_roster import ROSTER as _R1, ROSTER_V2  # noqa: E402
+ROSTER = _R1 + ROSTER_V2
 
 fails, warns, info = VT.fails, VT.warns, VT.info
 F, W = VT.F, VT.W

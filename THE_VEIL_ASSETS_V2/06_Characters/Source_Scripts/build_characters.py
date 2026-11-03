@@ -33,7 +33,7 @@ import numpy as np  # noqa: E402
 import chr_core  # noqa: E402
 import chr_body  # noqa: E402
 import chr_tex  # noqa: E402
-from chr_roster import ROSTER  # noqa: E402
+from chr_roster import ROSTER, ROSTER_V2  # noqa: E402
 
 
 def rel(p):
@@ -72,7 +72,7 @@ def main():
                          "convention": "metres, +Y up, character faces +Z, origin between the feet; rest = relaxed A-pose; "
                                        "bone rest rotations are identity; names = Godot SkeletonProfileHumanoid",
                          "rest_joints": {}}
-    for c in ROSTER:
+    for c in ROSTER + ROSTER_V2:
         body = chr_body.Body(c).build()
         at = chr_tex.paint(c, body.meta)
         img = at.image()
@@ -88,7 +88,7 @@ def main():
         st = export(c, body, chr_core.BONES, glb, mat, buf.getvalue(), extras)
         manifest.append(dict(name=f"CHR_{c['name']}", character=c["name"], title=c["title"], role=c["role"], glb=rel(glb),
                              texture=rel(png), texture_size="256x256", material=rel(os.path.join(V2, MATS[mat]["tres"])),
-                             height_m=c["height"], rigged=True, skeleton="VEIL_Humanoid (23 bones)", **st))
+                             height_m=c["height"], rigged=True, skeleton="VEIL_Humanoid (23 bones)", revision=c.get("rev", 1), **st))
         rig["rest_joints"][c["name"]] = {b: [round(float(v), 4) for v in body.J[b]] for b, _ in chr_core.BONES}
         if c.get("fp_arms"):
             fb = chr_body.fp_arms(c)

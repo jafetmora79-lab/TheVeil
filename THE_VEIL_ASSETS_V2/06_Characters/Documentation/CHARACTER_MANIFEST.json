@@ -13,6 +13,7 @@
    "height_m": 1.78,
    "rigged": true,
    "skeleton": "VEIL_Humanoid (23 bones)",
+   "revision": 1,
    "triangles": 1064,
    "vertices": 1029,
    "bones": 23,
@@ -74,6 +75,7 @@
    "height_m": 1.74,
    "rigged": true,
    "skeleton": "VEIL_Humanoid (23 bones)",
+   "revision": 1,
    "triangles": 1112,
    "vertices": 1125,
    "bones": 23,
@@ -104,6 +106,7 @@
    "height_m": 1.83,
    "rigged": true,
    "skeleton": "VEIL_Humanoid (23 bones)",
+   "revision": 1,
    "triangles": 1086,
    "vertices": 1073,
    "bones": 23,
@@ -134,6 +137,7 @@
    "height_m": 1.6,
    "rigged": true,
    "skeleton": "VEIL_Humanoid (23 bones)",
+   "revision": 1,
    "triangles": 1206,
    "vertices": 1246,
    "bones": 23,
@@ -164,6 +168,7 @@
    "height_m": 1.68,
    "rigged": true,
    "skeleton": "VEIL_Humanoid (23 bones)",
+   "revision": 1,
    "triangles": 1143,
    "vertices": 1107,
    "bones": 23,
@@ -194,6 +199,7 @@
    "height_m": 1.76,
    "rigged": true,
    "skeleton": "VEIL_Humanoid (23 bones)",
+   "revision": 1,
    "triangles": 1114,
    "vertices": 1107,
    "bones": 23,
@@ -224,6 +230,7 @@
    "height_m": 1.65,
    "rigged": true,
    "skeleton": "VEIL_Humanoid (23 bones)",
+   "revision": 1,
    "triangles": 1082,
    "vertices": 994,
    "bones": 23,
@@ -254,6 +261,7 @@
    "height_m": 1.72,
    "rigged": true,
    "skeleton": "VEIL_Humanoid (23 bones)",
+   "revision": 1,
    "triangles": 1290,
    "vertices": 1289,
    "bones": 23,
@@ -266,6 +274,68 @@
     0.643,
     1.749,
     0.194
+   ],
+   "sockets": [
+    "LeftHand_ItemSocket",
+    "RightHand_ItemSocket"
+   ]
+  },
+  {
+   "name": "CHR_Eddie_v2",
+   "character": "Eddie_v2",
+   "title": "Eddie - game-shop clerk (34) - rev 2",
+   "role": "Sarcastic, witty, loyal clerk at Greyhaven's independent video game shop.",
+   "glb": "06_Characters/Commercial_NPCs/CHR_Eddie_v2.glb",
+   "texture": "06_Characters/Textures/T_Chr_Eddie_v2.png",
+   "texture_size": "256x256",
+   "material": "06_Characters/Materials/M_Chr_Eddie_v2.tres",
+   "height_m": 1.8,
+   "rigged": true,
+   "skeleton": "VEIL_Humanoid (23 bones)",
+   "revision": 2,
+   "triangles": 2162,
+   "vertices": 2320,
+   "bones": 23,
+   "bounds_min": [
+    -0.494,
+    0.0,
+    -0.161
+   ],
+   "bounds_max": [
+    0.491,
+    1.803,
+    0.361
+   ],
+   "sockets": [
+    "LeftHand_ItemSocket",
+    "RightHand_ItemSocket"
+   ]
+  },
+  {
+   "name": "CHR_Marcus_v2",
+   "character": "Marcus_v2",
+   "title": "Marcus - Noah's father (43) - rev 2",
+   "role": "Protective, impulsive father searching for his missing son Noah; exhausted and worried.",
+   "glb": "06_Characters/Marcus/CHR_Marcus_v2.glb",
+   "texture": "06_Characters/Textures/T_Chr_Marcus_v2.png",
+   "texture_size": "256x256",
+   "material": "06_Characters/Materials/M_Chr_Marcus_v2.tres",
+   "height_m": 1.82,
+   "rigged": true,
+   "skeleton": "VEIL_Humanoid (23 bones)",
+   "revision": 2,
+   "triangles": 1988,
+   "vertices": 1972,
+   "bones": 23,
+   "bounds_min": [
+    -0.791,
+    0.0,
+    -0.207
+   ],
+   "bounds_max": [
+    0.79,
+    1.817,
+    0.322
    ],
    "sockets": [
     "LeftHand_ItemSocket",

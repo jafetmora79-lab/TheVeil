@@ -28,6 +28,8 @@ REG = {
     "belt": (128, 192, 64, 16), "gear": (128, 208, 32, 32), "metal": (160, 208, 32, 16), "patch": (160, 224, 32, 16),
     "fabric2": (0, 192, 64, 64), "fabric3": (64, 192, 64, 64), "bag": (192, 192, 64, 32), "strap": (192, 224, 64, 16),
     "badge": (192, 240, 16, 16), "plastic": (208, 240, 16, 16), "paper": (224, 240, 32, 16), "tooth": (192, 176, 32, 16),
+    # v2 regions (reuse areas v1 characters leave empty)
+    "jacket": (128, 128, 64, 64), "brow": (192, 176, 32, 16),
 }
 
 
@@ -68,31 +70,56 @@ class Body:
         self.stoop = math.radians(g.get("stoop", 0.0))
         self.J = {}
         self.extra_nodes = []
+        self.v2 = bool(g.get("v2"))
+        if self.v2:
+            # v2 proportions: the head takes what it needs from the top, the rest of the body is re-proportioned
+            # below the neck (oversized heads without stretching the character past its height)
+            f = c["face"]
+            hh = f.get("head_h", 0.25)
+            self.head_base_v2 = H - (hh - 0.045) - c.get("hair", {}).get("thick", 0.012) - g.get("hair_top", 0.0)
+            self.neck_y = self.head_base_v2 - g.get("neck_len", 0.035)
+            self.hips_y = g.get("leg_ratio", 0.62) * self.neck_y
+            self.T = self.neck_y - self.hips_y
+
+    def Y(self, f):
+        """Heights are authored as fractions of a 1-unit reference body (v1 = f * H). v2 bodies remap the torso band
+        (f >= 0.465) between hips and neck, and the legs (f < 0.465) between the ground and the hips."""
+        if not self.v2:
+            return f * self.H
+        if f >= 0.465:
+            return self.hips_y + (f - 0.53) / 0.305 * self.T
+        return f / 0.53 * self.hips_y
 
     # ------------------------------------------------------------------ skeleton
     def zoff(self, y):
         """forward lean of the upper body (stoop) as a function of height"""
-        y0 = 0.60 * self.H
+        y0 = self.Y(0.60)
         return math.tan(self.stoop) * max(0.0, y - y0) * 0.9
 
     def skeleton(self):
         H, g = self.H, self.g
         J = self.J
         J["Root"] = v3(0, 0, 0)
-        J["Hips"] = v3(0, 0.53 * H, 0)
-        J["Spine"] = v3(0, 0.60 * H, self.zoff(0.60 * H))
-        J["Chest"] = v3(0, 0.68 * H, self.zoff(0.68 * H))
-        J["UpperChest"] = v3(0, 0.755 * H, self.zoff(0.755 * H))
-        J["Neck"] = v3(0, 0.835 * H, self.zoff(0.835 * H) + g.get("neck_fwd", 0.0))
-        self.head_base = 0.872 * H
-        self.head_z = self.zoff(0.872 * H) + g.get("neck_fwd", 0.0) * 1.6
+        J["Hips"] = v3(0, self.Y(0.53), 0)
+        J["Spine"] = v3(0, self.Y(0.60), self.zoff(self.Y(0.60)))
+        J["Chest"] = v3(0, self.Y(0.68), self.zoff(self.Y(0.68)))
+        J["UpperChest"] = v3(0, self.Y(0.755), self.zoff(self.Y(0.755)))
+        J["Neck"] = v3(0, self.Y(0.835), self.zoff(self.Y(0.835)) + g.get("neck_fwd", 0.0))
+        self.head_base = self.Y(0.872)
+        self.head_z = self.zoff(self.Y(0.872)) + g.get("neck_fwd", 0.0) * 1.6
+        if self.v2:
+            self.head_base = self.head_base_v2
+            self.head_z = self.zoff(self.head_base) + g.get("neck_fwd", 0.0) * 1.6
         J["Head"] = v3(0, self.head_base, self.head_z)
         tilt = math.radians(g.get("shoulder_tilt", 0.0))
         sw = g["shoulder_w"]
         alpha = math.radians(g.get("arm_angle", 50.0))
         Lu, Lf = g.get("upper_arm", 0.175) * H, g.get("forearm", 0.155) * H
+        if self.v2:
+            Lu = g.get("upper_arm", 0.175) / 0.305 * self.T * g.get("arm_len", 1.0)
+            Lf = g.get("forearm", 0.155) / 0.305 * self.T * g.get("arm_len", 1.0)
         for side, sx in (("Left", 1), ("Right", -1)):
-            ys = 0.805 * H + sx * math.sin(tilt) * sw
+            ys = self.Y(0.805) + sx * math.sin(tilt) * sw
             zs = self.zoff(ys) - 0.005
             J[side + "Shoulder"] = v3(sx * 0.035, ys - 0.01, zs)
             S = v3(sx * sw, ys, zs)
@@ -104,9 +131,9 @@ class Body:
             Wr = E + df * Lf
             J[side + "Hand"] = Wr
             hx = g.get("leg_spread", 0.095)
-            Hp = v3(sx * hx, 0.50 * H, 0.0)
-            K = v3(sx * hx * 0.94, 0.275 * H, 0.012)
-            A = v3(sx * hx * 0.88, 0.05 * H, -0.012)
+            Hp = v3(sx * hx, self.Y(0.50), 0.0)
+            K = v3(sx * hx * 0.94, self.Y(0.275), 0.012)
+            A = v3(sx * hx * 0.88, self.Y(0.05), -0.012)
             J[side + "UpperLeg"], J[side + "LowerLeg"], J[side + "Foot"] = Hp, K, A
             sl = g.get("shoe_len", 0.28)
             J[side + "Toes"] = v3(A[0], 0.025, A[2] - 0.06 + sl * 0.62)
@@ -118,14 +145,14 @@ class Body:
         b = g.get("belly", 0.0)
         sw = g["shoulder_w"]
         return [  # (y, rx, rz, zc)
-            (0.465 * H, g["hip_w"] * 0.62, g["hip_d"] * 0.70, -0.005),
-            (0.52 * H, g["hip_w"], g["hip_d"], 0.0),
-            (0.60 * H, g["waist_w"], g["waist_d"] + b * 0.6, b * 0.35),
-            (0.655 * H, (g["waist_w"] + g["chest_w"]) / 2 + b * 0.25, (g["waist_d"] + g["chest_d"]) / 2 + b, b * 0.6),
-            (0.725 * H, g["chest_w"], g["chest_d"] + b * 0.35, 0.012 + b * 0.25 + g.get("bust", 0.0) * 0.5),
-            (0.78 * H, sw * 0.93, g["chest_d"] * 0.88, 0.006),
-            (0.818 * H, sw * 0.80, g["chest_d"] * 0.62, -0.004),
-            (0.842 * H, g["neck_r"] * 1.55, g["neck_r"] * 1.35, -0.01),
+            (self.Y(0.465), g["hip_w"] * 0.62, g["hip_d"] * 0.70, -0.005),
+            (self.Y(0.52), g["hip_w"], g["hip_d"], 0.0),
+            (self.Y(0.60), g["waist_w"], g["waist_d"] + b * 0.6, b * 0.35),
+            (self.Y(0.655), (g["waist_w"] + g["chest_w"]) / 2 + b * 0.25, (g["waist_d"] + g["chest_d"]) / 2 + b, b * 0.6),
+            (self.Y(0.725), g["chest_w"], g["chest_d"] + b * 0.35, 0.012 + b * 0.25 + g.get("bust", 0.0) * 0.5),
+            (self.Y(0.78), sw * 0.93, g["chest_d"] * 0.88, 0.006),
+            (self.Y(0.818), sw * 0.80, g["chest_d"] * 0.62, -0.004),
+            (self.Y(0.842), g["neck_r"] * 1.55, g["neck_r"] * 1.35, -0.01),
         ]
 
     def torso_at(self, y):
@@ -184,7 +211,7 @@ class Body:
         # neck
         J = self.J
         nr = self.g["neck_r"]
-        y0, y1 = 0.832 * H, self.head_base + 0.03
+        y0, y1 = self.Y(0.832), self.head_base + 0.03
         a, b = tube_frame(v3(0, 1, 0))
         rings = [ring(v3(0, y, self.zoff(y) + self.g.get("neck_fwd", 0) * (y - y0) / (y1 - y0) * 1.6), a, b, nr * s, nr * s * 1.02, 8)
                  for y, s in ((y0, 1.05), ((y0 + y1) / 2, 0.97), (y1, 0.95))]
@@ -194,6 +221,8 @@ class Body:
     # ------------------------------------------------------------------ head
     def head_table(self):
         f = self.c["face"]
+        if f.get("v2"):
+            return self.head_table_v2()
         jaw, cran, chin = f.get("jaw", 1.0), f.get("cranium", 1.0), f.get("chin", 1.0)
         return [  # (t, rx, rz, cz) rx in head widths, rz/cz in head depths
             (0.00, 0.17 * f.get("chin_w", 1.0), 0.15, 0.30 * chin),
@@ -222,6 +251,8 @@ class Body:
         return v3((rx * W + off) * se(math.sin(th), sq), y, z + (rz * D + off) * se(math.cos(th), sq))
 
     def head(self, n=12):
+        if self.c["face"].get("v2"):
+            return self.head_v2()
         tab = self.head_table()
         a, b = tube_frame(v3(0, 1, 0))
         rings = []
@@ -366,6 +397,8 @@ class Body:
     # ------------------------------------------------------------------ limbs
     def arm(self, side, J, fp=False, front=(0, 0, 1)):
         g, H = self.g, self.H
+        if g.get("arm_profile"):
+            return self.arm_v2(side, J, front)
         S, E, Wr = J[side + "UpperArm"], J[side + "LowerArm"], J[side + "Hand"]
         d, df = nrm(E - S), nrm(Wr - E)
         ru, re, rf, rw = g.get("arm_r", 0.05), g.get("elbow_r", 0.042), g.get("forearm_r", 0.043), g.get("wrist_r", 0.033)
@@ -391,6 +424,8 @@ class Body:
 
     def hand(self, side, Wr, hd, J, fp=False):
         g = self.g
+        if g.get("fingers"):
+            return self.hand_v2(side, Wr, hd, fp)
         s = g.get("hand_s", 1.15)
         sx = 1 if Wr[0] > 0 else -1          # palm faces the body centre-line (thigh / held object)
         if fp:
@@ -435,6 +470,8 @@ class Body:
 
     def leg(self, side, J, start_y=None):
         g, H = self.g, self.H
+        if g.get("pants"):
+            return self.leg_v2(side, J)
         Hp, K, A = J[side + "UpperLeg"], J[side + "LowerLeg"], J[side + "Foot"]
         rt, rk, rc, ra = g.get("thigh_r", 0.085), g.get("knee_r", 0.062), g.get("calf_r", 0.063), g.get("ankle_r", 0.046)
         shoe_h = g.get("shoe_h", 0.085)
@@ -465,6 +502,8 @@ class Body:
 
     def shoe(self, side, J):
         g = self.g
+        if g.get("chunky"):
+            return self.shoe_v2(side, J)
         A = J[side + "Foot"]
         sl, sw, sh = g.get("shoe_len", 0.28), g.get("shoe_w", 0.105), g.get("shoe_h", 0.085)
         boot = g.get("boots", 0.0)
@@ -484,11 +523,11 @@ class Body:
         n = 12
         a, b = tube_frame(v3(0, -1, 0))
         rings, ws = [], []
-        top_y = 0.60 * H
-        prof = [(top_y, 1.03), (0.52 * H, 1.06), (0.40 * H, 1.12), (sk["hem"] * H, sk.get("flare", 1.22))]
+        top_y = self.Y(0.60)
+        prof = [(top_y, 1.03), (self.Y(0.52), 1.06), (self.Y(0.40), 1.12), (self.Y(sk["hem"]), sk.get("flare", 1.22))]
         for k, (y, s) in enumerate(prof):
-            rx, rz, zc = self.torso_at(max(y, 0.52 * H))
-            if y < 0.52 * H:
+            rx, rz, zc = self.torso_at(max(y, self.Y(0.52)))
+            if y < self.Y(0.52):
                 rx, rz = self.g["hip_w"], self.g["hip_d"]
             pts = []
             wl = []
@@ -512,7 +551,7 @@ class Body:
         for acc in self.c.get("acc", []):
             kind = acc[0]
             if kind == "belt":
-                y, hgt = acc[1] * H, acc[2]
+                y, hgt = self.Y(acc[1]), acc[2]
                 n = 12
                 a, b = tube_frame(v3(0, 1, 0))
                 rings = []
@@ -523,7 +562,7 @@ class Body:
                 self.belt_y = y
             elif kind in ("pouch", "radio_belt", "flashlight", "cuffs", "keys"):
                 th = acc[1]
-                y = getattr(self, "belt_y", 0.53 * H)
+                y = getattr(self, "belt_y", self.Y(0.53))
                 p = self.torso_pt(y, th, 0.012)
                 out = nrm(v3(math.sin(th), 0, math.cos(th)))
                 M = np.column_stack([nrm(np.cross(v3(0, 1, 0), out)), v3(0, 1, 0), out])
@@ -536,7 +575,7 @@ class Body:
                     self.m.box(p + out * 0.02 + v3(0, 0.05 + 0.045, 0), (0.008, 0.06, 0.008), {"Hips": 1.0}, rr("plastic"), M=M)
             elif kind == "radio_chest":
                 th = acc[1]
-                y = 0.745 * H
+                y = self.Y(0.745)
                 p = self.torso_pt(y, th, 0.006)
                 out = nrm(v3(math.sin(th), 0.15, math.cos(th)))
                 M = np.column_stack([nrm(np.cross(v3(0, 1, 0), out)), v3(0, 1, 0), out])
@@ -544,51 +583,52 @@ class Body:
                 self.m.box(p + out * 0.02 + v3(0, 0.07, 0), (0.008, 0.05, 0.008), {"UpperChest": 1.0}, rr("plastic"), M=M)
             elif kind == "badge":
                 th = acc[1]
-                p = self.torso_pt(0.745 * H, th, 0.004)
+                p = self.torso_pt(self.Y(0.745), th, 0.004)
                 out = nrm(v3(math.sin(th), 0.1, math.cos(th)))
                 M = np.column_stack([nrm(np.cross(v3(0, 1, 0), out)), v3(0, 1, 0), out])
                 self.m.box(p + out * 0.004, (0.04, 0.045, 0.008), {"UpperChest": 1.0}, rr("badge"), M=M, skip=("-z",))
             elif kind == "hood":
-                y = 0.84 * H
-                rx, rz, zc = self.torso_at(0.81 * H)
+                y = self.Y(0.84)
+                rx, rz, zc = self.torso_at(self.Y(0.81))
                 self.m.box(v3(0, y, zc - rz * 0.85 - 0.035), (self.g["shoulder_w"] * 1.05, 0.10, 0.08), blend(("UpperChest", 0.7), ("Neck", 0.3)),
                            rr("fabric2"), taper=(0.75, 0.6))
             elif kind == "collar":
                 for sx in (1, -1):
-                    p = self.torso_pt(0.835 * H, sx * 0.9, 0.0)
+                    p = self.torso_pt(self.Y(0.835), sx * 0.9, 0.0)
                     out = nrm(v3(sx * 0.8, 0.5, 0.45))
                     a_, b_, d_ = frame(out)
                     M = np.column_stack([nrm(np.cross(v3(0, 1, 0), out)), v3(0, 1, 0), out])
                     self.m.box(p + v3(0, 0.02, 0.0), (0.075, 0.055, 0.022), blend(("UpperChest", 0.8), ("Neck", 0.2)), rr("fabric2"), M=M,
                                taper=(0.7, 1.0))
             elif kind == "front_pocket":
-                y = acc[1] * H
+                y = self.Y(acc[1])
                 p = self.torso_pt(y, 0.0, 0.004)
                 self.m.box(p + v3(0, 0, 0.008), (acc[2], acc[3], 0.016), {"Spine": 1.0}, rr("fabric2"), skip=("-z",))
             elif kind == "bag_hip":
                 th = acc[1]
-                p = self.torso_pt(0.50 * H, th, 0.02)
+                p = self.torso_pt(self.Y(0.50), th, 0.02)
                 out = nrm(v3(math.sin(th), 0, math.cos(th)))
                 M = np.column_stack([nrm(np.cross(v3(0, 1, 0), out)), v3(0, 1, 0), out])
                 self.m.box(p + out * 0.05 + v3(0, -0.03, 0), (0.30, 0.24, 0.085), {"Hips": 1.0}, rr("bag"), M=M)
                 self.m.box(p + out * 0.095 + v3(0, 0.02, 0), (0.30, 0.13, 0.012), {"Hips": 1.0}, rr("fabric3"), M=M, skip=("-z",))
+            elif kind == "shell":
+                self.shell_jacket(**acc[1])
             elif kind == "glasses":
-                self.glasses(acc[1] if len(acc) > 1 else 0.046)
+                self.glasses(acc[1] if len(acc) > 1 else 0.046, *acc[2:])
             elif kind == "name_tag":
                 pass   # painted
 
-    def glasses(self, lens_w):
+    def glasses(self, lens_w, lh=0.032, bar=0.006, spread=0.36):
         W, Hh, D = self.head_dims()
         w = {"Head": 1.0}
         rect = rr("glasses")
-        lh = 0.032
-        bar = 0.006
+        et = self.c["face"].get("eye_t", 0.50)
         for sx in (1, -1):
-            c = self.head_pt(0.50, sx * 0.36, 0.024)
-            c[2] = max(c[2], self.head_pt(0.50, 0.0)[2] + 0.004)
+            c = self.head_pt(et, sx * spread, 0.024)
+            c[2] = max(c[2], self.head_pt(et, 0.0)[2] + 0.004)
             for (dx, dy, sw_, sh_) in ((0, lh / 2, lens_w, bar), (0, -lh / 2, lens_w, bar), (lens_w / 2, 0, bar, lh), (-lens_w / 2, 0, bar, lh)):
                 self.m.box(c + v3(dx, dy, 0), (sw_, sh_, bar), w, rect)
-            ear = self.head_pt(0.50, sx * math.pi / 2 * 0.95, 0.008)
+            ear = self.head_pt(et, sx * math.pi / 2 * 0.95, 0.008)
             outer = c + v3(sx * lens_w / 2, lh / 2 - bar, 0)
             mid = (outer + ear) / 2
             ln = np.linalg.norm(ear - outer)
@@ -597,7 +637,7 @@ class Body:
             if np.linalg.det(M) < 0:
                 M[:, 0] *= -1
             self.m.box(mid, (bar, bar, ln), w, rect, M=M)
-        self.m.box(self.head_pt(0.50, 0.0, 0.03) + v3(0, lh / 2 - bar, 0), (0.024, bar, bar), w, rect)
+        self.m.box(self.head_pt(et, 0.0, 0.03) + v3(0, lh / 2 - bar, 0), (0.024, bar, bar), w, rect)
 
     # ------------------------------------------------------------------ build
     def build(self):
@@ -634,3 +674,7 @@ def fp_arms(c):
         # so mirror by swapping labels for the palm orientation only.
         b.arm(side, J, fp=True, front=(0, 1, 0))
     return b
+
+
+import chr_body_v2  # noqa: E402
+chr_body_v2.install(Body)

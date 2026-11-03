@@ -104,7 +104,7 @@ class SkinMesh:
             self.quad(pts, uv, w)
 
     # --- smooth loft of rings ---------------------------------------------------------
-    def loft(self, rings, weights, rect, u_wrap=True, cap_top=None, cap_bot=None, v_range=(0.0, 1.0)):
+    def loft(self, rings, weights, rect, u_wrap=True, cap_top=None, cap_bot=None, v_range=(0.0, 1.0), closed=True):
         """rings: list of arrays (n, 3) sharing segment count n (closed loops, CCW seen from the +axis end).
         weights: list (per ring) of either a dict or a list of n dicts. Smooth normals across the loft; a seam
         column is duplicated for the uv wrap. rect: (u0, v0, u1, v1) atlas rect; u runs around, v along rings.
@@ -115,8 +115,9 @@ class SkinMesh:
         u0, v0, u1, v1 = rect
         # normals: average of adjacent face normals (grid)
         Nn = np.zeros((m, n, 3))
+        segs = n if closed else n - 1
         for i in range(m - 1):
-            for j in range(n):
+            for j in range(segs):
                 a, b = R[i][j], R[i][(j + 1) % n]
                 c, d = R[i + 1][(j + 1) % n], R[i + 1][j]
                 fn = np.cross(c - a, d - b)
@@ -129,17 +130,18 @@ class SkinMesh:
             L.append(L[-1] + np.linalg.norm(cen[i] - cen[i - 1]) + 1e-6)
         L = np.array(L) / L[-1]
         vr0, vr1 = v_range
-        ids = np.zeros((m, n + 1), int)
+        cols = n + 1 if closed else n
+        ids = np.zeros((m, cols), int)
         for i in range(m):
             wi = weights[i]
-            for j in range(n + 1):
+            for j in range(cols):
                 jj = j % n
                 w = wi[jj] if isinstance(wi, list) else wi
-                u = u0 + (u1 - u0) * (j / n)
+                u = u0 + (u1 - u0) * (j / (n if closed else n - 1))
                 v = v1 - (v1 - v0) * (vr0 + (vr1 - vr0) * L[i])
                 ids[i, j] = self.vert(R[i][jj], Nn[i, jj], (u, v), w)
         for i in range(m - 1):
-            for j in range(n):
+            for j in range(segs):
                 a, b, c, d = ids[i, j], ids[i, j + 1], ids[i + 1, j + 1], ids[i + 1, j]
                 self.tri(a, b, c)
                 self.tri(a, c, d)
