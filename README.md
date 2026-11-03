@@ -2,6 +2,19 @@
 
 A Godot 4.3 desktop opening built from the existing Greyhaven town, residential scenes, furniture, and character placeholders. Starts Friday at **6:42 PM**. No supernatural mist or monsters appear.
 
+## Play in a browser
+
+[Play the browser opening](https://the-veil-opening-finn.velvetymyna.chatgpt.site). This is a single-threaded WebGL2 export. Desktop Chrome, Edge or Firefox with WebGL2 enabled is required. Click the canvas to capture the mouse; Escape releases it. This is the same guided-driving prototype, not a new environment or a second implementation.
+
+To rebuild with the official Godot 4.3 Web export templates installed:
+
+```sh
+godot --headless --path /path/to/TheVeil --export-release Web /absolute/export/index.html
+python opening/build_web.py /absolute/export
+```
+
+The postprocessor wraps gzip transport for the engine and game pack, keeping each file below common static-host limits. The original asset files are unaffected. Serve the export over HTTPS (or localhost for development). Full browser playthrough is still unverified: the cloud QA browser reported missing WebGL2 on the preview environment.
+
 ## Run
 
 1. Download/clone branch `work/opening-prototype` with all assets:
@@ -17,7 +30,7 @@ Command line after import:
 godot --path /path/to/TheVeil
 ```
 
-This is source for the Godot editor, not a packaged Windows executable or a browser game. The existing GitHub Pages asset gallery remains separate and unchanged.
+This is source for the Godot editor, not a packaged Windows executable ; the browser export is hosted separately. The existing GitHub Pages asset gallery remains separate and unchanged.
 
 ## Controls
 

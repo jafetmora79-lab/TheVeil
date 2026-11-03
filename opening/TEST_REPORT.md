@@ -48,3 +48,10 @@ Both the main-scene headless run and smoke test print the Godot dummy-renderer d
 ## Preservation
 
 All changes are confined to the new gameplay/configuration/documentation files, `.gitignore`, and `docs/.gdignore`. Asset import settings regenerated during local Godot validation were restored before commit. Existing asset models, textures, scene files, generator scripts and gallery HTML are unchanged. Work is committed only to `work/opening-prototype`; Claude's branch is neither merged into nor updated by this work.
+
+## Browser export follow-up
+
+- Added a Godot 4.3 single-threaded Web preset and click-to-capture mouse input for browser user-gesture requirements.
+- Official Godot 4.3 export templates successfully produced the release Web build. Prepared gzip transport files round-trip to the original declared pack/engine lengths (13,761,376 and 35,376,909 bytes).
+- The cloud-browser HTTP preview displayed Godot's missing-feature notice for WebGL2 and Secure Context. No browser gameplay or visual playthrough is claimed. HTTPS hosting addresses the secure-context requirement; the browser still needs WebGL2 support.
+- The browser build reuses the existing opening source and assets. Claude's branch and the gallery remain unchanged.

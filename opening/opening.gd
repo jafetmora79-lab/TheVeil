@@ -115,6 +115,8 @@ func _label(parent: Node, pos: Vector2, size: int) -> Label:
 	return label
 
 func _unhandled_input(event: InputEvent) -> void:
+	if event is InputEventMouseButton and event.pressed and event.button_index == MOUSE_BUTTON_LEFT:
+		Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
 	if event.is_action_pressed("pause"):
 		Input.mouse_mode = Input.MOUSE_MODE_VISIBLE if Input.mouse_mode == Input.MOUSE_MODE_CAPTURED else Input.MOUSE_MODE_CAPTURED
 	if event.is_action_pressed("restart"):
@@ -127,7 +129,7 @@ func _unhandled_input(event: InputEvent) -> void:
 
 func _process(delta: float) -> void:
 	if Input.mouse_mode != Input.MOUSE_MODE_CAPTURED:
-		prompt.text = "PAUSED • Esc to resume • R restart"
+		prompt.text = "PAUSED • Click to play / Esc to resume • R restart"
 		return
 	wake_time -= delta
 	title.visible = wake_time > 0 or progress.complete
