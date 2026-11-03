@@ -1,0 +1,14 @@
+[gd_scene load_steps=3 format=3]
+
+[ext_resource type="PackedScene" path="res://THE_VEIL_ASSETS_V2/02_Town/Godot_Scenes/Greyhaven_Town.tscn" id="1_town"]
+[ext_resource type="PackedScene" path="res://THE_VEIL_ASSETS_V2/03_Residential/Residential_Scenes/Greyhaven_Residential.tscn" id="2_res"]
+
+[node name="Greyhaven_With_Houses" type="Node3D"]
+
+[node name="Greyhaven_Town" parent="." instance=ExtResource("1_town")]
+
+[node name="Greyhaven_Residential" parent="." instance=ExtResource("2_res")]
+
+[node name="TOWN_BuildingZones" parent="Greyhaven_Town/BuildingZones"]
+visible = false
+metadata/note = "Pack 02 zone preview boxes hidden here (the Pack 02 scene itself is unchanged)"

@@ -1,0 +1,13 @@
+newmtl M_Furn_WoodDark
+Ka 0 0 0
+Kd 1 1 1
+Ks 0 0 0
+illum 1
+map_Kd ../../../01_Textures/Furniture/T_Furn_WoodDark.png
+
+newmtl M_Furn_WoodLight
+Ka 0 0 0
+Kd 1 1 1
+Ks 0 0 0
+illum 1
+map_Kd ../../../01_Textures/Furniture/T_Furn_WoodLight.png

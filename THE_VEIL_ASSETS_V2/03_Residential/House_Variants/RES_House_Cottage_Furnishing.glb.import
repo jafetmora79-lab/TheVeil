@@ -119,6 +119,10 @@ _subresources={
 "use_external/enabled": true,
 "use_external/path": "res://THE_VEIL_ASSETS_V2/03_Residential/Materials/M_Res_Porcelain.tres"
 },
+"M_Int_TilesBathroom": {
+"use_external/enabled": true,
+"use_external/path": "res://THE_VEIL_ASSETS_V2/Materials_Godot/Interiors/M_Int_TilesBathroom.tres"
+},
 "M_Furn_WoodLight": {
 "use_external/enabled": true,
 "use_external/path": "res://THE_VEIL_ASSETS_V2/Materials_Godot/Furniture/M_Furn_WoodLight.tres"

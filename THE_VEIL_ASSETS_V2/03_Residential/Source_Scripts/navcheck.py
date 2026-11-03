@@ -200,25 +200,57 @@ var results = []
 func _init():
 	pass
 
+var opendeg = {}
+
 func open_all(n):
 	for c in n.get_children():
 		open_all(c)
-	if n.name.begins_with("INT_Door_") or n.name.begins_with("INT_SlidingDoor_") or n.name.begins_with("INT_GarageDoor_"):
-		var ex = {}
-		if n.has_meta("extras"):
-			ex = n.get_meta("extras")
-		if n.name.begins_with("INT_Door_"):
+	var nm = String(n.name)
+	if n is CollisionObject3D or n is CollisionShape3D:   # colliders ride on their pivot
+		return
+	if nm.begins_with("INT_Door_") or nm.begins_with("INT_SlidingDoor_") or nm.begins_with("INT_GarageDoor_"):
+		var ex = opendeg.get(n.get_instance_id(), {})
+		if nm.begins_with("INT_Door_"):
 			n.rotate_y(deg_to_rad(float(ex.get("open_deg", 95.0))))
-		elif n.name.begins_with("INT_GarageDoor_"):
-			n.position.y += 2.1
+		elif nm.begins_with("INT_GarageDoor_"):
+			n.position.y += float(ex.get("distance", 2.1))
 		else:
 			n.position += n.transform.basis.x * float(ex.get("distance", 0.8))
 
-func count_meta(n, acc):
-	if n.has_meta("extras"):
-		acc[0] += 1
+# interaction metadata lives on the .tscn root (Godot 4.3 drops glTF node extras on import):
+# every entry must resolve to a node of the instanced scene
+func link_meta(inst):
+	var acc = [0, 0, []]
+	link_rec(inst, acc)
+	return acc
+
+func link_rec(n, acc):
+	if n.has_meta("veil_interactables"):
+		var r = link_one(n)
+		acc[0] += r[0]
+		acc[1] += r[1]
+		acc[2].append_array(r[2])
+		return
 	for c in n.get_children():
-		count_meta(c, acc)
+		link_rec(c, acc)
+
+func link_one(inst):
+	var found = 0
+	var missing = []
+	var items = inst.get_meta("veil_interactables")
+	for it in items:
+		var path = String(it["node"])
+		var nd = null
+		if path.contains("/"):
+			nd = inst.get_node_or_null(NodePath(path))
+		else:
+			nd = inst.find_child(path, true, false)
+		if nd == null:
+			missing.append(path)
+		else:
+			found += 1
+			opendeg[nd.get_instance_id()] = it
+	return [found, items.size(), missing]
 
 func _physics_process(_d):
 	frames += 1
@@ -230,7 +262,7 @@ func _physics_process(_d):
 				continue
 			var inst = ps.instantiate()
 			get_root().add_child(inst)
-			inst.position = Vector3(j["offset"][0], 0, j["offset"][2])
+			inst.position = Vector3(j["offset"][0], j["offset"][1], j["offset"][2])
 			if j.has("extra"):     # furnishing (static batch) placed in the same frame
 				var fx = load(j["extra"])
 				if fx != null:
@@ -248,9 +280,10 @@ func _physics_process(_d):
 					sb.add_child(c)
 					sb.position = o + Vector3((r[0] + r[2]) / 2.0, -0.1, (r[1] + r[3]) / 2.0)
 					get_root().add_child(sb)
-			var acc = [0]
-			count_meta(inst, acc)
-			print("TOUR META %s nodes_with_extras=%d" % [j["name"], acc[0]])
+			var lm = link_meta(inst)
+			print("TOUR META %s interactables_linked=%d/%d" % [j["name"], lm[0], lm[1]])
+			for m in lm[2]:
+				print("TOUR METAMISSING %s %s" % [j["name"], m])
 			open_all(inst)
 			j["inst"] = inst
 		return false
@@ -278,6 +311,7 @@ func _physics_process(_d):
 			body.global_position = a - Vector3(0, 0.05, 0)
 			body.velocity = Vector3.ZERO
 			var reached = false
+			var hit = ""
 			for i in 480:
 				var to = b - body.global_position
 				to.y = 0
@@ -289,12 +323,16 @@ func _physics_process(_d):
 				if body.is_on_floor():
 					body.velocity.y = -0.5
 				body.move_and_slide()
+				for ci in body.get_slide_collision_count():
+					var col = body.get_slide_collision(ci)
+					if col.get_normal().y < 0.7:
+						hit = str(col.get_collider().name) + "<" + str(col.get_collider().get_parent().name)
 				if body.global_position.y < -6.0:
 					break
 			if reached and abs(body.global_position.y - (b.y - 0.1)) < 0.75:
 				ok += 1
 			else:
-				bad.append("%s (stopped at %s, wanted %s)" % [leg[2], str((body.global_position - off).snapped(Vector3(0.01, 0.01, 0.01))), str((b - off).snapped(Vector3(0.01, 0.01, 0.01)))])
+				bad.append("%s (blocked by %s; stopped at %s, wanted %s)" % [leg[2], hit, str((body.global_position - off).snapped(Vector3(0.01, 0.01, 0.01))), str((b - off).snapped(Vector3(0.01, 0.01, 0.01)))])
 		body.queue_free()
 		print("TOUR RESULT %s legs_ok=%d/%d" % [j["name"], ok, j["legs"].size()])
 		for s in bad:
@@ -352,6 +390,18 @@ class FloorGrid:
                 w &= ~((self.X > a - RADIUS - 0.05) & (self.X < c + RADIUS + 0.05) & (self.Z > b - RADIUS - 0.05) & (self.Z < d + RADIUS + 0.05))
         for (a, b, c, d) in furniture:
             w &= ~((self.X > a - RADIUS) & (self.X < c + RADIUS) & (self.Z > b - RADIUS) & (self.Z < d + RADIUS))
+        # open hinged leaves (95 deg, resting along the room wall) are obstacles too
+        for dr in meta["doors"]:
+            if "hinge" not in dr or abs(dr["center"][1] - y) > 0.3:
+                continue
+            hx, hz = dr["hinge"]
+            yaw2 = dr["yaw"] + math.radians(dr["open_deg"])
+            ex, ez = hx + dr["leaf"] * math.cos(yaw2), hz - dr["leaf"] * math.sin(yaw2)
+            vx, vz = ex - hx, ez - hz
+            L2 = vx * vx + vz * vz
+            t = np.clip(((self.X - hx) * vx + (self.Z - hz) * vz) / L2, 0, 1)
+            dist = np.hypot(self.X - (hx + t * vx), self.Z - (hz + t * vz))
+            w &= ~(dist < RADIUS + 0.03)
         self.w = w
 
     def cell(self, p):

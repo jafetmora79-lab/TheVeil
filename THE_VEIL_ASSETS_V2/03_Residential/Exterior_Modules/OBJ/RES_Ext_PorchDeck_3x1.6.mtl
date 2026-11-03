@@ -1,0 +1,21 @@
+newmtl M_Arch_WoodPlanksAged
+Ka 0 0 0
+Kd 1 1 1
+Ks 0 0 0
+illum 1
+map_Kd ../../../01_Textures/Architecture/T_Arch_WoodPlanksAged.png
+
+newmtl M_Arch_TrimPainted
+Ka 0 0 0
+Kd 1 1 1
+Ks 0 0 0
+illum 1
+map_Kd ../../../01_Textures/Architecture/T_Arch_TrimPainted.png
+
+newmtl M_Res_Lattice
+Ka 0 0 0
+Kd 1 1 1
+Ks 0 0 0
+illum 1
+map_Kd ../../Textures/T_Res_Lattice.png
+map_d ../../Textures/T_Res_Lattice.png

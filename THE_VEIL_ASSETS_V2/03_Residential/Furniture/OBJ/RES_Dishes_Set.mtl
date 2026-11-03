@@ -1,0 +1,13 @@
+newmtl M_Res_Porcelain
+Ka 0 0 0
+Kd 1 1 1
+Ks 0 0 0
+illum 1
+map_Kd ../../Textures/T_Res_Porcelain.png
+
+newmtl M_Town_PaintNavy
+Ka 0 0 0
+Kd 1 1 1
+Ks 0 0 0
+illum 1
+map_Kd ../../../02_Town/Textures/T_Town_PaintNavy.png

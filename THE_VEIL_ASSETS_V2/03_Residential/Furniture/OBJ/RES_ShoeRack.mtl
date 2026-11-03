@@ -1,0 +1,27 @@
+newmtl M_Furn_WoodLight
+Ka 0 0 0
+Kd 1 1 1
+Ks 0 0 0
+illum 1
+map_Kd ../../../01_Textures/Furniture/T_Furn_WoodLight.png
+
+newmtl M_Furn_Rubber
+Ka 0 0 0
+Kd 1 1 1
+Ks 0 0 0
+illum 1
+map_Kd ../../../01_Textures/Furniture/T_Furn_Rubber.png
+
+newmtl M_Furn_LeatherWorn
+Ka 0 0 0
+Kd 1 1 1
+Ks 0 0 0
+illum 1
+map_Kd ../../../01_Textures/Furniture/T_Furn_LeatherWorn.png
+
+newmtl M_Furn_Denim
+Ka 0 0 0
+Kd 1 1 1
+Ks 0 0 0
+illum 1
+map_Kd ../../../01_Textures/Furniture/T_Furn_Denim.png

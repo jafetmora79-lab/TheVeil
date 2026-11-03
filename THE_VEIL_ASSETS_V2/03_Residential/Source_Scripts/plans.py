@@ -164,7 +164,7 @@ FARMHOUSE = dict(
         DX("HAL", "F", -0.4, name="Front"), DX("MUD", "B", 2.2, w=0.9, h=2.1, style="back", name="Back"),
         D("HAL", "PAR", 5.0, w=1.4, h=2.2, kind="arch", name="Parlor"), D("HAL", "DIN", 8.6, into="DIN", name="Dining"),
         D("HAL", "KIT", 9.45, into="KIT", name="Kitchen"), D("KIT", "STU", 3.0, into="STU", name="Study"),
-        D("KIT", "MUD", 2.2, into="MUD", name="Mud"), D("MUD", "BATH", 11.6, w=0.8, into="BATH", name="Bath"),
+        D("KIT", "MUD", 2.2, w=1.0, into="MUD", name="Mud"), D("MUD", "BATH", 11.6, w=0.8, into="BATH", name="Bath"),
         D("UHAL", "BED1", 4.0, into="BED1", name="Bed1"), D("UHAL", "BED2", 9.2, into="BED2", name="Bed2"),
         D("UHAL", "BATH2", 3.9, w=0.8, into="BATH2", name="Bath2"), D("UHAL", "STOR", 9.5, w=0.8, into="STOR", name="Storage"),
     ],
@@ -335,7 +335,7 @@ COTTAGE = dict(
     doors=[
         DX("LIV", "F", -1.6, name="Front"), DX("HALL", "B", 0.9, w=0.9, h=2.1, style="back", name="Back"),
         D("LIV", "BED", 5.2, into="BED", name="Bed"), D("LIV", "KIT", -2.0, w=1.4, h=2.2, kind="arch", name="LivKit"),
-        D("KIT", "BATH", 8.2, w=0.8, into="KIT", name="Bath"), D("KIT", "HALL", 10.4, w=0.85, into="HALL", name="KitHall"),
+        D("KIT", "BATH", 8.5, w=0.8, into="KIT", name="Bath"), D("KIT", "HALL", 10.4, w=0.85, into="HALL", name="KitHall"),
         D("HALL", "BED2", 10.4, w=0.85, into="BED2", name="Bed2"),
     ],
     windows=[
@@ -435,3 +435,154 @@ PLAYER_HOME = dict(
 
 PLANS = {"Ranch": RANCH, "TwoStorey": TWO_STOREY, "Farmhouse": FARMHOUSE, "Bungalow": BUNGALOW, "Abandoned": ABANDONED,
          "SplitLevel": SPLIT_LEVEL, "Cottage": COTTAGE, "MillWorker": MILL, "PlayerHome": PLAYER_HOME}
+
+
+# Door swings chosen by an automated search: with the leaf open at 95 deg,
+# every hall, stair foot and room stays walkable for a 0.35 m capsule.  name -> (hinge, swings into)
+DOOR_SWINGS = {
+    "PlayerHome": {
+        "Bedroom": ["r", "BED"],
+        "GarageDoorInside": ["l", "GAR"]
+    },
+    "Bungalow": {
+        "Front": ["r", "LIV"]
+    },
+    "Farmhouse": {
+        "Kitchen": ["r", "KIT"],
+        "Bed2": [
+            "r",
+            "BED2"
+        ],
+        "Front": [
+            "r",
+            "HAL"
+        ]
+    },
+    "MillWorker": {
+        "Kitchen": [
+            "l",
+            "PAR"
+        ],
+        "Bed1": [
+            "r",
+            "UHAL"
+        ]
+    },
+    "Cottage": {
+        "Back": ["l", "OUT"],
+        "KitHall": ["l", "KIT"]
+    },
+    "TwoStorey": {
+        "Back": [
+            "l",
+            "OUT"
+        ],
+        "Kitchen": [
+            "r",
+            "KIT"
+        ],
+        "Bed2": [
+            "r",
+            "UHAL"
+        ],
+        "Bed3": [
+            "l",
+            "UHAL"
+        ],
+        "Front": [
+            "r",
+            "FOY"
+        ]
+    }
+}
+for _k, _sw in DOOR_SWINGS.items():
+    for _d in PLANS[_k]["doors"]:
+        if _d.get("name") in _sw:
+            _d["hinge"], _d["into"] = _sw[_d["name"]]
+
+
+# ----------------------------------------------------------------------------
+# Mirroring (true left/right reflection of a plan - never negative node scale,
+# which Godot physics does not support)
+# ----------------------------------------------------------------------------
+def _mr(r):
+    x0, z0, x1, z1 = r
+    return (-x1, z0, -x0, z1)
+
+
+def mirror_plan(p):
+    import copy
+    q = copy.deepcopy(p)
+    q["name"] = p["name"] + "_Mirror"
+    rooms = {r["id"]: r["rect"] for r in p["rooms"]}
+    swap = {"L": "R", "R": "L", "F": "F", "B": "B", "x0": "x1", "x1": "x0", "z0": "z0", "z1": "z1", "l": "r", "r": "l",
+            "+x": "-x", "-x": "+x", "+z": "+z", "-z": "-z"}
+    for r in q["rooms"]:
+        r["rect"] = _mr(r["rect"])
+        if "walk" in r:
+            r["walk"] = _mr(r["walk"])
+    for d in q.get("doors", []):
+        if "room" in d:
+            if d["side"] in "FB":
+                d["at"] = -d["at"]
+            d["side"] = swap[d["side"]]
+        else:
+            ra, rb = rooms[d["a"]], rooms[d["b"]]
+            shares_x_edge = abs(ra[2] - rb[0]) < 1e-6 or abs(rb[2] - ra[0]) < 1e-6
+            if not shares_x_edge:
+                d["at"] = -d["at"]
+    for w in q.get("windows", []):
+        if w["side"] in "FB":
+            w["at"] = -w["at"]
+        w["side"] = swap[w["side"]]
+    for st in q.get("stairs", []):
+        st["rect"] = _mr(st["rect"])
+        st["dir"] = swap[st["dir"]]
+        st["open"] = tuple(swap[o] for o in st.get("open", ("r",)))
+    for po in q.get("porches", []):
+        po["rect"] = _mr(po["rect"])
+        if po.get("steps"):
+            side, c, w = po["steps"]
+            po["steps"] = (swap[side], -c if side == "z0" else c, w)
+        po["rails"] = tuple(swap[r] for r in po.get("rails", ("x0", "x1", "z0")))
+        if po.get("columns") is not None:
+            po["columns"] = [(-x, z) for (x, z) in po["columns"]]
+        if po.get("roof"):
+            po["roof"] = _mirror_roof(po["roof"], swap)
+    q["roofs"] = [_mirror_roof(rf, swap) for rf in q.get("roofs", [])]
+    q["chimneys"] = [(-c[0],) + tuple(c[1:]) for c in q.get("chimneys", [])]
+    if q.get("garage_x") is not None:
+        q["garage_x"] = -q["garage_x"]
+    if q.get("driveway_flare"):
+        q["driveway_flare"] = [(-x, z) for (x, z) in reversed(q["driveway_flare"])]
+    q["mirrored"] = True
+    _fix_mirror_hinges(p, q)
+    return q
+
+
+def _fix_mirror_hinges(p, q):
+    """A wall's run direction can reverse under mirroring, which silently flips the l/r hinge convention.
+    Build both plans and pick, per door, the hinge whose leaf pivot is the true reflection of the original."""
+    import house
+    ha = house.House(p).build()
+    hb = house.House(q).build()
+    want = {d["name"]: (-d["hinge"][0], d["hinge"][1]) for d in ha.meta["doors"] if "hinge" in d}
+    got = {d["name"]: tuple(d["hinge"]) for d in hb.meta["doors"] if "hinge" in d}
+    names = [d["name"] for d in hb.meta["doors"]]
+    doors = [d for d in q.get("doors", []) if d.get("kind", "door") not in ("arch", "garage", "slider")]
+    for name, w in want.items():
+        g = got.get(name)
+        if g is None or abs(g[0] - w[0]) + abs(g[1] - w[1]) < 1e-3:
+            continue
+        # match the plan entry by its generated name
+        for d in q.get("doors", []):
+            if "INT_Door_" + d.get("name", "") == name:
+                d["hinge"] = "r" if d.get("hinge", "l") == "l" else "l"
+
+
+def _mirror_roof(rf, swap):
+    rf = list(rf)
+    rf[1] = _mr(rf[1])
+    if rf[0] == "shed":
+        rf[4] = swap[rf[4]]
+    return tuple(rf)

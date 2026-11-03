@@ -75,6 +75,10 @@ _subresources={
 "use_external/enabled": true,
 "use_external/path": "res://THE_VEIL_ASSETS_V2/Materials_Godot/Roads/M_Road_RoadPatch.tres"
 },
+"M_Road_SidewalkConcrete": {
+"use_external/enabled": true,
+"use_external/path": "res://THE_VEIL_ASSETS_V2/Materials_Godot/Roads/M_Road_SidewalkConcrete.tres"
+},
 "M_Int_WallpaperFaded": {
 "use_external/enabled": true,
 "use_external/path": "res://THE_VEIL_ASSETS_V2/Materials_Godot/Interiors/M_Int_WallpaperFaded.tres"

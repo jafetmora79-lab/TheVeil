@@ -186,6 +186,8 @@ class House:
             self.build_roof(rf)
         for ch in self.p.get("chimneys", []):
             arch.chimney(self.ext, self.col, *ch[:5], mat=mat_of(self.cw.get("chimney", "Arch_BrickRed")))
+        if self.p.get("driveway_flare"):     # flared concrete apron from the Pack 02 driveway to the garage
+            self.ext.ground_poly(m01("Road_SidewalkConcrete"), self.p["driveway_flare"], y=0.006)
         for extra in self.p.get("extras", []):
             extra(self)
         self.add_lights()

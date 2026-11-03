@@ -1,0 +1,27 @@
+newmtl M_Furn_WoodLight
+Ka 0 0 0
+Kd 1 1 1
+Ks 0 0 0
+illum 1
+map_Kd ../../../01_Textures/Furniture/T_Furn_WoodLight.png
+
+newmtl M_Int_DrywallLight
+Ka 0 0 0
+Kd 1 1 1
+Ks 0 0 0
+illum 1
+map_Kd ../../../01_Textures/Interiors/T_Int_DrywallLight.png
+
+newmtl M_Res_FabricPlaid
+Ka 0 0 0
+Kd 1 1 1
+Ks 0 0 0
+illum 1
+map_Kd ../../Textures/T_Res_FabricPlaid.png
+
+newmtl M_Town_PaintWhite
+Ka 0 0 0
+Kd 1 1 1
+Ks 0 0 0
+illum 1
+map_Kd ../../../02_Town/Textures/T_Town_PaintWhite.png
