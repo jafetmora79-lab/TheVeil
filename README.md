@@ -13,7 +13,9 @@ godot --headless --path /path/to/TheVeil --export-release Web /absolute/export/i
 python opening/build_web.py /absolute/export
 ```
 
-The postprocessor wraps gzip transport for the engine and game pack, keeping each file below common static-host limits. The original asset files are unaffected. Serve the export over HTTPS (or localhost for development). Full browser playthrough is still unverified: the cloud QA browser reported missing WebGL2 on the preview environment.
+Before postprocessing, test the exported pack itself with `godot --headless --main-pack /absolute/export/index.pck --script /absolute/TheVeil/opening/tests/smoke.gd`. This catches missing exported dependencies that a source-project test cannot detect.
+
+The postprocessor checks required script inclusion and wraps gzip transport for the engine and game pack, keeping each file below common static-host limits. The original asset files are unaffected. Serve the export over HTTPS (or localhost for development). Full browser playthrough is still unverified: the cloud QA browser reported missing WebGL2 on the preview environment.
 
 ## Run
 
