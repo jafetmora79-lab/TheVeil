@@ -1,0 +1,348 @@
+[gd_scene load_steps=3 format=3]
+
+[ext_resource type="PackedScene" path="res://THE_VEIL_ASSETS_V2/03_Residential/House_Variants/RES_House_TwoStorey.glb" id="1_house"]
+[ext_resource type="PackedScene" path="res://THE_VEIL_ASSETS_V2/03_Residential/House_Variants/RES_House_TwoStorey_Furnishing.glb" id="2_furnishing"]
+
+[node name="RES_House_TwoStorey" type="Node3D"]
+metadata/veil_house = {
+"name": "RES_House_TwoStorey",
+"design": "TwoStorey",
+"colorway": "A",
+"mirrored": false,
+"title": "Two-storey suburban family house",
+"rooms": [{
+"id": "FOY",
+"type": "hall",
+"level": 0,
+"rect": [-1.2, 3.4, 1.2, 9.4],
+"floor_y": 0.6
+}, {
+"id": "LIV",
+"type": "living",
+"level": 0,
+"rect": [-4.5, 3.4, -1.2, 8.4],
+"floor_y": 0.6
+}, {
+"id": "DIN",
+"type": "dining",
+"level": 0,
+"rect": [-4.5, 8.4, -1.2, 11.4],
+"floor_y": 0.6
+}, {
+"id": "DEN",
+"type": "study",
+"level": 0,
+"rect": [1.2, 3.4, 4.5, 6.9],
+"floor_y": 0.6
+}, {
+"id": "KIT",
+"type": "kitchen",
+"level": 0,
+"rect": [1.2, 6.9, 4.5, 11.4],
+"floor_y": 0.6
+}, {
+"id": "BHAL",
+"type": "hall",
+"level": 0,
+"rect": [-1.2, 9.4, 1.2, 11.4],
+"floor_y": 0.6
+}, {
+"id": "UHAL",
+"type": "hall",
+"level": 1,
+"rect": [-1.2, 3.4, 1.2, 11.4],
+"floor_y": 3.6
+}, {
+"id": "BED1",
+"type": "bedroom",
+"level": 1,
+"rect": [-4.5, 3.4, -1.2, 7.6],
+"floor_y": 3.6
+}, {
+"id": "BED2",
+"type": "bedroom",
+"level": 1,
+"rect": [-4.5, 7.6, -1.2, 11.4],
+"floor_y": 3.6
+}, {
+"id": "BED3",
+"type": "bedroom",
+"level": 1,
+"rect": [1.2, 3.4, 4.5, 7.4],
+"floor_y": 3.6
+}, {
+"id": "BATH2",
+"type": "bathroom",
+"level": 1,
+"rect": [1.2, 7.4, 4.5, 11.4],
+"floor_y": 3.6
+}, {
+"id": "BREC",
+"type": "basement",
+"level": -1,
+"rect": [-4.5, 3.4, 1.2, 11.4],
+"floor_y": -2.1
+}, {
+"id": "BUTIL",
+"type": "laundry",
+"level": -1,
+"rect": [1.2, 3.4, 4.5, 11.4],
+"floor_y": -2.1
+}],
+"doors": [{
+"name": "INT_Door_Front",
+"kind": "door",
+"rooms": ["OUT", "FOY"],
+"exterior": true,
+"center": [-0.3, 0.6, 3.4]
+}, {
+"name": "INT_Door_Back",
+"kind": "door",
+"rooms": ["OUT", "BHAL"],
+"exterior": true,
+"center": [0.0, 0.6, 11.4]
+}, {
+"name": "INT_Arch_FoyBack",
+"kind": "arch",
+"rooms": ["BHAL", "FOY"],
+"exterior": false,
+"center": [0.0, 0.6, 9.4]
+}, {
+"name": "INT_Arch_FoyLiv",
+"kind": "arch",
+"rooms": ["LIV", "FOY"],
+"exterior": false,
+"center": [-1.2, 0.6, 5.0]
+}, {
+"name": "INT_Arch_LivDin",
+"kind": "arch",
+"rooms": ["DIN", "LIV"],
+"exterior": false,
+"center": [-2.85, 0.6, 8.4]
+}, {
+"name": "INT_Door_DinBack",
+"kind": "door",
+"rooms": ["BHAL", "DIN"],
+"exterior": false,
+"center": [-1.2, 0.6, 10.4]
+}, {
+"name": "INT_Door_Den",
+"kind": "door",
+"rooms": ["KIT", "DEN"],
+"exterior": false,
+"center": [2.85, 0.6, 6.9]
+}, {
+"name": "INT_Door_Kitchen",
+"kind": "door",
+"rooms": ["BHAL", "KIT"],
+"exterior": false,
+"center": [1.2, 0.6, 10.4]
+}, {
+"name": "INT_Door_Bed1",
+"kind": "door",
+"rooms": ["BED1", "UHAL"],
+"exterior": false,
+"center": [-1.2, 3.6, 4.3]
+}, {
+"name": "INT_Door_Bed2",
+"kind": "door",
+"rooms": ["BED2", "UHAL"],
+"exterior": false,
+"center": [-1.2, 3.6, 10.3]
+}, {
+"name": "INT_Door_Bed3",
+"kind": "door",
+"rooms": ["BED3", "UHAL"],
+"exterior": false,
+"center": [1.2, 3.6, 4.3]
+}, {
+"name": "INT_Door_Bath",
+"kind": "door",
+"rooms": ["BATH2", "UHAL"],
+"exterior": false,
+"center": [1.2, 3.6, 10.3]
+}, {
+"name": "INT_Door_Utility",
+"kind": "door",
+"rooms": ["BUTIL", "BREC"],
+"exterior": false,
+"center": [1.2, -2.1, 9.8]
+}],
+"stairs": 2,
+"windows": 16,
+"lights": ["FOY", "LIV", "DIN", "DEN", "KIT", "BHAL", "UHAL", "BED1", "BED2", "BED3", "BATH2", "BREC", "BUTIL"],
+"furniture_pieces": 44
+}
+metadata/veil_interactables = [{
+"node": "INT_Door_Front",
+"pos": [-0.79, 0.61, 3.47],
+"veil_interact": "hinge",
+"axis": "y",
+"open_deg": -95.0,
+"width": 0.98,
+"height": 2.13
+}, {
+"node": "INT_Door_Back",
+"pos": [-0.44, 0.61, 11.47],
+"veil_interact": "hinge",
+"axis": "y",
+"open_deg": -95.0,
+"width": 0.88,
+"height": 2.08
+}, {
+"node": "INT_Door_DinBack",
+"pos": [-1.23, 0.61, 10.84],
+"veil_interact": "hinge",
+"axis": "y",
+"open_deg": 95.0,
+"width": 0.88,
+"height": 2.08
+}, {
+"node": "INT_Door_Den",
+"pos": [2.41, 0.61, 6.87],
+"veil_interact": "hinge",
+"axis": "y",
+"open_deg": 95.0,
+"width": 0.88,
+"height": 2.08
+}, {
+"node": "INT_Door_Kitchen",
+"pos": [1.23, 0.61, 10.84],
+"veil_interact": "hinge",
+"axis": "y",
+"open_deg": -95.0,
+"width": 0.88,
+"height": 2.08
+}, {
+"node": "INT_Door_Bed1",
+"pos": [-1.23, 3.61, 3.86],
+"veil_interact": "hinge",
+"axis": "y",
+"open_deg": -95.0,
+"width": 0.88,
+"height": 2.08
+}, {
+"node": "INT_Door_Bed2",
+"pos": [-1.17, 3.61, 10.74],
+"veil_interact": "hinge",
+"axis": "y",
+"open_deg": -95.0,
+"width": 0.88,
+"height": 2.08
+}, {
+"node": "INT_Door_Bed3",
+"pos": [1.17, 3.61, 4.69],
+"veil_interact": "hinge",
+"axis": "y",
+"open_deg": 95.0,
+"width": 0.78,
+"height": 2.08
+}, {
+"node": "INT_Door_Bath",
+"pos": [1.23, 3.61, 10.69],
+"veil_interact": "hinge",
+"axis": "y",
+"open_deg": -95.0,
+"width": 0.78,
+"height": 2.08
+}, {
+"node": "INT_Door_Utility",
+"pos": [1.23, -2.09, 10.24],
+"veil_interact": "hinge",
+"axis": "y",
+"open_deg": -95.0,
+"width": 0.88,
+"height": 2.08
+}, {
+"node": "INT_LightSwitch_FOY",
+"pos": [0.42, 1.8, 3.505],
+"veil_interact": "switch",
+"room": "FOY"
+}, {
+"node": "INT_LightSwitch_FOY_Toggle",
+"pos": [0.42, 1.8, 3.517],
+"veil_interact": "toggle",
+"axis": "x",
+"open_deg": 25
+}, {
+"node": "INT_LightSwitch_BHAL",
+"pos": [-0.67, 1.8, 11.295],
+"veil_interact": "switch",
+"room": "BHAL"
+}, {
+"node": "INT_LightSwitch_BHAL_Toggle",
+"pos": [-0.67, 1.8, 11.283],
+"veil_interact": "toggle",
+"axis": "x",
+"open_deg": 25
+}, {
+"node": "INT_LightSwitch_LIV",
+"pos": [-3.87, 1.8, 8.335],
+"veil_interact": "switch",
+"room": "LIV"
+}, {
+"node": "INT_LightSwitch_LIV_Toggle",
+"pos": [-3.87, 1.8, 8.323],
+"veil_interact": "toggle",
+"axis": "x",
+"open_deg": 25
+}, {
+"node": "INT_LightSwitch_DIN",
+"pos": [-1.265, 1.8, 11.07],
+"veil_interact": "switch",
+"room": "DIN"
+}, {
+"node": "INT_LightSwitch_DIN_Toggle",
+"pos": [-1.277, 1.8, 11.07],
+"veil_interact": "toggle",
+"axis": "x",
+"open_deg": 25
+}, {
+"node": "INT_LightSwitch_DEN",
+"pos": [2.18, 1.8, 6.835],
+"veil_interact": "switch",
+"room": "DEN"
+}, {
+"node": "INT_LightSwitch_DEN_Toggle",
+"pos": [2.18, 1.8, 6.823],
+"veil_interact": "toggle",
+"axis": "x",
+"open_deg": 25
+}, {
+"node": "INT_LightSwitch_KIT",
+"pos": [1.265, 1.8, 9.73],
+"veil_interact": "switch",
+"room": "KIT"
+}, {
+"node": "INT_LightSwitch_KIT_Toggle",
+"pos": [1.277, 1.8, 9.73],
+"veil_interact": "toggle",
+"axis": "x",
+"open_deg": 25
+}, {
+"node": "INT_LightSwitch_UHAL",
+"pos": [-1.135, 4.8, 3.63],
+"veil_interact": "switch",
+"room": "UHAL"
+}, {
+"node": "INT_LightSwitch_UHAL_Toggle",
+"pos": [-1.123, 4.8, 3.63],
+"veil_interact": "toggle",
+"axis": "x",
+"open_deg": 25
+}, {
+"node": "INT_LightSwitch_BREC",
+"pos": [1.135, -0.9, 10.47],
+"veil_interact": "switch",
+"room": "BREC"
+}, {
+"node": "INT_LightSwitch_BREC_Toggle",
+"pos": [1.123, -0.9, 10.47],
+"veil_interact": "toggle",
+"axis": "x",
+"open_deg": 25
+}]
+
+[node name="House" parent="." instance=ExtResource("1_house")]
+
+[node name="Furnishing" parent="." instance=ExtResource("2_furnishing")]

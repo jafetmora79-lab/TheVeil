@@ -1,0 +1,154 @@
+newmtl M_Arch_SidingBlue
+Ka 0 0 0
+Kd 1 1 1
+Ks 0 0 0
+illum 1
+map_Kd ../../../01_Textures/Architecture/T_Arch_SidingBlue.png
+
+newmtl M_Arch_TrimPainted
+Ka 0 0 0
+Kd 1 1 1
+Ks 0 0 0
+illum 1
+map_Kd ../../../01_Textures/Architecture/T_Arch_TrimPainted.png
+
+newmtl M_Arch_BrickWeatheredBrown
+Ka 0 0 0
+Kd 1 1 1
+Ks 0 0 0
+illum 1
+map_Kd ../../../01_Textures/Architecture/T_Arch_BrickWeatheredBrown.png
+
+newmtl M_Town_VentGrille
+Ka 0 0 0
+Kd 1 1 1
+Ks 0 0 0
+illum 1
+map_Kd ../../../02_Town/Textures/T_Town_VentGrille.png
+
+newmtl M_Furn_WoodDark
+Ka 0 0 0
+Kd 1 1 1
+Ks 0 0 0
+illum 1
+map_Kd ../../../01_Textures/Furniture/T_Furn_WoodDark.png
+
+newmtl M_Arch_WindowGlassDirty
+Ka 0 0 0
+Kd 1 1 1
+Ks 0 0 0
+illum 1
+map_Kd ../../../01_Textures/Architecture/T_Arch_WindowGlassDirty.png
+map_d ../../../01_Textures/Architecture/T_Arch_WindowGlassDirty.png
+
+newmtl M_Arch_WoodPlanksAged
+Ka 0 0 0
+Kd 1 1 1
+Ks 0 0 0
+illum 1
+map_Kd ../../../01_Textures/Architecture/T_Arch_WoodPlanksAged.png
+
+newmtl M_Res_Lattice
+Ka 0 0 0
+Kd 1 1 1
+Ks 0 0 0
+illum 1
+map_Kd ../../Textures/T_Res_Lattice.png
+map_d ../../Textures/T_Res_Lattice.png
+
+newmtl M_Arch_RoofShinglesDarkGray
+Ka 0 0 0
+Kd 1 1 1
+Ks 0 0 0
+illum 1
+map_Kd ../../../01_Textures/Architecture/T_Arch_RoofShinglesDarkGray.png
+
+newmtl M_Town_PaintWhite
+Ka 0 0 0
+Kd 1 1 1
+Ks 0 0 0
+illum 1
+map_Kd ../../../02_Town/Textures/T_Town_PaintWhite.png
+
+newmtl M_Int_WallpaperFaded
+Ka 0 0 0
+Kd 1 1 1
+Ks 0 0 0
+illum 1
+map_Kd ../../../01_Textures/Interiors/T_Int_WallpaperFaded.png
+
+newmtl M_Int_DrywallLight
+Ka 0 0 0
+Kd 1 1 1
+Ks 0 0 0
+illum 1
+map_Kd ../../../01_Textures/Interiors/T_Int_DrywallLight.png
+
+newmtl M_Int_TilesBathroom
+Ka 0 0 0
+Kd 1 1 1
+Ks 0 0 0
+illum 1
+map_Kd ../../../01_Textures/Interiors/T_Int_TilesBathroom.png
+
+newmtl M_Int_WallpaperPatterned
+Ka 0 0 0
+Kd 1 1 1
+Ks 0 0 0
+illum 1
+map_Kd ../../../01_Textures/Interiors/T_Int_WallpaperPatterned.png
+
+newmtl M_Furn_WoodPainted
+Ka 0 0 0
+Kd 1 1 1
+Ks 0 0 0
+illum 1
+map_Kd ../../../01_Textures/Furniture/T_Furn_WoodPainted.png
+
+newmtl M_Int_FloorboardsOld
+Ka 0 0 0
+Kd 1 1 1
+Ks 0 0 0
+illum 1
+map_Kd ../../../01_Textures/Interiors/T_Int_FloorboardsOld.png
+
+newmtl M_Int_Linoleum
+Ka 0 0 0
+Kd 1 1 1
+Ks 0 0 0
+illum 1
+map_Kd ../../../01_Textures/Interiors/T_Int_Linoleum.png
+
+newmtl M_Int_CarpetWorn
+Ka 0 0 0
+Kd 1 1 1
+Ks 0 0 0
+illum 1
+map_Kd ../../../01_Textures/Interiors/T_Int_CarpetWorn.png
+
+newmtl M_Res_BulbGlow
+Ka 0 0 0
+Kd 1 1 1
+Ks 0 0 0
+illum 1
+
+newmtl M_Furn_MetalBrushed
+Ka 0 0 0
+Kd 1 1 1
+Ks 0 0 0
+illum 1
+map_Kd ../../../01_Textures/Furniture/T_Furn_MetalBrushed.png
+
+newmtl M_Res_DetailAtlas
+Ka 0 0 0
+Kd 1 1 1
+Ks 0 0 0
+illum 1
+map_Kd ../../Textures/T_Res_DetailAtlas.png
+
+newmtl M_Furn_PlasticDirty
+Ka 0 0 0
+Kd 1 1 1
+Ks 0 0 0
+illum 1
+map_Kd ../../../01_Textures/Furniture/T_Furn_PlasticDirty.png

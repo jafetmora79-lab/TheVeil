@@ -1,0 +1,41 @@
+[remap]
+
+importer="scene"
+importer_version=1
+type="PackedScene"
+path="res://.godot/imported/RES_Ext_Wall_2m_Green.glb-aecc9d1235e815f9b66ed121c5fa7ef7.scn"
+
+[deps]
+
+source_file="res://THE_VEIL_ASSETS_V2/03_Residential/Exterior_Modules/RES_Ext_Wall_2m_Green.glb"
+dest_files=["res://.godot/imported/RES_Ext_Wall_2m_Green.glb-aecc9d1235e815f9b66ed121c5fa7ef7.scn"]
+
+[params]
+
+nodes/root_type=""
+nodes/root_name=""
+nodes/apply_root_scale=true
+nodes/root_scale=1.0
+meshes/ensure_tangents=false
+meshes/generate_lods=false
+meshes/create_shadow_meshes=true
+meshes/light_baking=1
+meshes/lightmap_texel_size=0.2
+meshes/force_disable_compression=false
+skins/use_named_skins=true
+animation/import=false
+import_script/path=""
+_subresources={
+"materials": {
+"M_Arch_SidingGreen": {
+"use_external/enabled": true,
+"use_external/path": "res://THE_VEIL_ASSETS_V2/Materials_Godot/Architecture/M_Arch_SidingGreen.tres"
+},
+"M_Int_DrywallLight": {
+"use_external/enabled": true,
+"use_external/path": "res://THE_VEIL_ASSETS_V2/Materials_Godot/Interiors/M_Int_DrywallLight.tres"
+}
+}
+}
+gltf/naming_version=1
+gltf/embedded_image_handling=1

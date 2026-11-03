@@ -273,7 +273,7 @@ L["Farmhouse"] = [
 L["Bungalow"] = [
     ("RES_Rug_Oval", "LIV", "c", (-2.0, 5.1), 0), ("RES_Sofa_Plaid", "LIV", "wall", "L", 5.1),
     ("RES_CoffeeTable_Wood", "LIV", "c", (-3.0, 5.1), 90), ("RES_TVStand", "LIV", "wall", "R", 6.2),
-    ("RES_TV_CRT_Small", "LIV", "on", 3, (0, -0.05), 0), ("RES_Armchair_Recliner", "LIV", "c", (-1.3, 4.0), -120),
+    ("RES_TV_CRT_Small", "LIV", "on", 3, (0, -0.05), 0), ("RES_Armchair_Recliner", "LIV", "c", (-0.75, 4.05), -90),
     ("RES_Lamp_Floor", "LIV", "c", (-4.1, 6.6), 0), ("RES_Curtains_Gingham", "LIV", "mount", "F", -0.6, 0.0),
     ("RES_DiningTable_Rect", "DIN", "c", (-2.95, 9.6), 90), ("RES_DiningChair_Wood", "DIN", "c", (-3.55, 9.3), 90),
     ("RES_DiningChair_Wood", "DIN", "c", (-2.35, 9.9), -90), ("RES_Bookshelf_Low", "DIN", "wall", "L", 8.2),
@@ -305,7 +305,7 @@ L["SplitLevel"] = [
     ("RES_Sofa_Loveseat_Leather", "DEN", "wall", "L", 7.8), ("RES_TV_CRT_Small", "DEN", "c", (1.55, 7.8), -90),
     ("RES_Bookshelf_Low", "DEN", "wall", "B", 0.3), ("RES_Workbench", "GAR", "wall", "B", 5.0), ("RES_Shelving_Metal", "GAR", "wall", "R", 6.5),
     ("RES_WashingMachine", "LAU", "wall", "B", 6.4), ("RES_Dryer", "LAU", "wall", "B", 4.3), ("RES_WaterHeater", "LAU", "wall", "R", 9.0),
-    ("RES_Bed_Double", "BED1", "wall", "L", 4.6), ("RES_Nightstand", "BED1", "wall", "F", 1.5),
+    ("RES_Bed_Double", "BED1", "wall", "B", 0.45), ("RES_Nightstand", "BED1", "wall", "B", -0.7),
     ("RES_Bed_Single", "BED2", "wall", "R", 4.6), ("RES_Dresser", "BED2", "wall", "F", 5.5),
     ("RES_Bed_Single", "BED3", "wall", "L", 8.2), ("RES_Desk", "BED3", "wall", "B", 0.5),
     ("RES_Bathtub", "BATH", "wall", "R", 7.8, dict(yaw=0)), ("RES_Toilet", "BATH", "wall", "B", 5.6), ("RES_BathSink_Vanity", "BATH", "wall", "F", 6.0, dict(off=0.0)),
@@ -318,8 +318,9 @@ L["Cottage"] = [
     ("RES_Fridge_Retro", "KIT", "wall", "L", 8.0), ("RES_Counter_Sink", "KIT", "wall", "B", -1.8), ("RES_Stove_Harvest", "KIT", "wall", "B", -3.0),
     ("RES_DiningTable_Round", "KIT", "c", (-1.55, 9.3), 0),
     ("RES_Bed_Double", "BED", "wall", "R", 4.9), ("RES_Nightstand", "BED", "wall", "R", 3.4), ("RES_Wardrobe", "BED", "wall", "B", 1.6, dict(off=0.0)),
-    ("RES_ShowerStall", "BATH", "wall", "B", 1.3),
-    ("RES_Toilet", "BATH", "wall", "R", 7.6), ("RES_Bed_Single", "BED2", "wall", "R", 8.4),
+    ("RES_ShowerStall", "BATH", "wall", "F", 1.3),
+    ("RES_Toilet", "BATH", "wall", "B", 1.3), ("RES_BathSink_Pedestal", "BATH", "wall", "F", 0.4),
+    ("RES_Bed_Single", "BED2", "wall", "R", 8.4),
 ]
 
 L["MillWorker"] = [
@@ -368,14 +369,14 @@ L["PlayerHome"] = [
     ("RES_WallCalendar", "KIT", "mount", "R", 7.4),                        # 27
     ("RES_TrashCan_Pedal", "KIT", "wall", "R", 10.9),                       # 28
     # bedroom: where the player wakes - unmade bed, alarm clock 6:47 PM, desk with PC, posters, dresser
-    ("RES_Bed_Double_Unmade", "BED", "wall", "R", 6.6),                    # 29
-    ("RES_Nightstand", "BED", "wall", "R", 5.2),                            # 30
+    ("RES_Bed_Double_Unmade", "BED", "wall", "R", 6.9),                    # 29
+    ("RES_Nightstand", "BED", "wall", "R", 5.5),                            # 30
     ("RES_AlarmClock", "BED", "on", 30, (0.0, 0.05), 0),                   # 31
     ("RES_Lamp_Table", "BED", "on", 30, (0.12, -0.05), 0),                 # 32
-    ("RES_Desk_Computer", "BED", "wall", "B", 0.7),  # 33
-    ("RES_DeskChair_Office", "BED", "c", (0.7, 7.4), 180),                 # 34
+    ("RES_Desk_Computer", "BED", "wall", "F", 0.9),  # 33  under the front window
+    ("RES_DeskChair_Office", "BED", "c", (0.9, 5.6), 0),                   # 34
     ("RES_Dresser", "BED", "wall", "L", 5.8),  # 35
-    ("RES_Poster_Band", "BED", "mount", "L", 7.4, 1.7),                    # 36
+    ("RES_Poster_Band", "BED", "mount", "B", 1.3, 1.7),                    # 36
     ("RES_Blanket_Folded", "BED", "on", 35, (0.2, 0.0), 0),                # 37
     # bathroom
     ("RES_Bathtub", "BATH", "wall", "B", 0.6),                              # 38

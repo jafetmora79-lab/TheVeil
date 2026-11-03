@@ -1,0 +1,93 @@
+[remap]
+
+importer="scene"
+importer_version=1
+type="PackedScene"
+path="res://.godot/imported/RES_Ext_Garage_Attached_4x6.glb-8a28a79e8346f07148351d1f511965aa.scn"
+
+[deps]
+
+source_file="res://THE_VEIL_ASSETS_V2/03_Residential/Exterior_Modules/RES_Ext_Garage_Attached_4x6.glb"
+dest_files=["res://.godot/imported/RES_Ext_Garage_Attached_4x6.glb-8a28a79e8346f07148351d1f511965aa.scn"]
+
+[params]
+
+nodes/root_type=""
+nodes/root_name=""
+nodes/apply_root_scale=true
+nodes/root_scale=1.0
+meshes/ensure_tangents=false
+meshes/generate_lods=false
+meshes/create_shadow_meshes=true
+meshes/light_baking=1
+meshes/lightmap_texel_size=0.2
+meshes/force_disable_compression=false
+skins/use_named_skins=true
+animation/import=false
+import_script/path=""
+_subresources={
+"materials": {
+"M_Arch_SidingWhite": {
+"use_external/enabled": true,
+"use_external/path": "res://THE_VEIL_ASSETS_V2/Materials_Godot/Architecture/M_Arch_SidingWhite.tres"
+},
+"M_Arch_TrimPainted": {
+"use_external/enabled": true,
+"use_external/path": "res://THE_VEIL_ASSETS_V2/Materials_Godot/Architecture/M_Arch_TrimPainted.tres"
+},
+"M_Arch_WindowGlassDirty": {
+"use_external/enabled": true,
+"use_external/path": "res://THE_VEIL_ASSETS_V2/Materials_Godot/Architecture/M_Arch_WindowGlassDirty.tres"
+},
+"M_Furn_WoodDark": {
+"use_external/enabled": true,
+"use_external/path": "res://THE_VEIL_ASSETS_V2/Materials_Godot/Furniture/M_Furn_WoodDark.tres"
+},
+"M_Arch_RoofShinglesDarkGray": {
+"use_external/enabled": true,
+"use_external/path": "res://THE_VEIL_ASSETS_V2/Materials_Godot/Architecture/M_Arch_RoofShinglesDarkGray.tres"
+},
+"M_Town_PaintWhite": {
+"use_external/enabled": true,
+"use_external/path": "res://THE_VEIL_ASSETS_V2/02_Town/Materials/M_Town_PaintWhite.tres"
+},
+"M_Com_StorageConcrete": {
+"use_external/enabled": true,
+"use_external/path": "res://THE_VEIL_ASSETS_V2/Materials_Godot/Commercial/M_Com_StorageConcrete.tres"
+},
+"M_Int_BasementConcrete": {
+"use_external/enabled": true,
+"use_external/path": "res://THE_VEIL_ASSETS_V2/Materials_Godot/Interiors/M_Int_BasementConcrete.tres"
+},
+"M_Int_DrywallLight": {
+"use_external/enabled": true,
+"use_external/path": "res://THE_VEIL_ASSETS_V2/Materials_Godot/Interiors/M_Int_DrywallLight.tres"
+},
+"M_Res_BulbGlow": {
+"use_external/enabled": true,
+"use_external/path": "res://THE_VEIL_ASSETS_V2/03_Residential/Materials/M_Res_BulbGlow.tres"
+},
+"M_Res_GarageDoor": {
+"use_external/enabled": true,
+"use_external/path": "res://THE_VEIL_ASSETS_V2/03_Residential/Materials/M_Res_GarageDoor.tres"
+},
+"M_Furn_MetalBrushed": {
+"use_external/enabled": true,
+"use_external/path": "res://THE_VEIL_ASSETS_V2/Materials_Godot/Furniture/M_Furn_MetalBrushed.tres"
+},
+"M_Furn_WoodPainted": {
+"use_external/enabled": true,
+"use_external/path": "res://THE_VEIL_ASSETS_V2/Materials_Godot/Furniture/M_Furn_WoodPainted.tres"
+},
+"M_Res_DetailAtlas": {
+"use_external/enabled": true,
+"use_external/path": "res://THE_VEIL_ASSETS_V2/03_Residential/Materials/M_Res_DetailAtlas.tres"
+},
+"M_Furn_PlasticDirty": {
+"use_external/enabled": true,
+"use_external/path": "res://THE_VEIL_ASSETS_V2/Materials_Godot/Furniture/M_Furn_PlasticDirty.tres"
+}
+}
+}
+gltf/naming_version=1
+gltf/embedded_image_handling=1

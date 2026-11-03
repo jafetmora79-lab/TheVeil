@@ -1,0 +1,976 @@
+{
+ "lots": [
+  {
+   "zone": "HOUSE_01",
+   "zone_type": "residential_house",
+   "variant": "RES_House_Ranch_Mirror",
+   "design": "Ranch",
+   "colorway": "A",
+   "mirrored": true,
+   "shift": 0.0,
+   "yaw": 3.141593,
+   "origin": [
+    -48.0,
+    0.15,
+    -64.0
+   ],
+   "zone_size": [
+    12.0,
+    12.0
+   ],
+   "scene": "03_Residential/House_Variants/RES_House_Ranch_Mirror.tscn",
+   "front_door_world": [
+    -47.7,
+    -66.4
+   ],
+   "walkway": [
+    [
+     -0.3,
+     -0.6
+    ],
+    [
+     1.5,
+     -0.6
+    ]
+   ]
+  },
+  {
+   "zone": "HOUSE_02",
+   "zone_type": "residential_house",
+   "variant": "RES_House_TwoStorey",
+   "design": "TwoStorey",
+   "colorway": "A",
+   "mirrored": false,
+   "shift": 0.0,
+   "yaw": 3.141593,
+   "origin": [
+    -31.5,
+    0.15,
+    -64.0
+   ],
+   "zone_size": [
+    13.0,
+    12.0
+   ],
+   "scene": "03_Residential/House_Variants/RES_House_TwoStorey.tscn",
+   "front_door_world": [
+    -31.2,
+    -67.4
+   ],
+   "walkway": [
+    [
+     -3.0,
+     0.5
+    ],
+    [
+     -2.0,
+     0.5
+    ]
+   ]
+  },
+  {
+   "zone": "HOUSE_03",
+   "zone_type": "residential_house",
+   "variant": "RES_House_Ranch_B",
+   "design": "Ranch",
+   "colorway": "B",
+   "mirrored": false,
+   "shift": -0.5,
+   "yaw": 3.141593,
+   "origin": [
+    -14.0,
+    0.15,
+    -64.0
+   ],
+   "zone_size": [
+    13.0,
+    12.0
+   ],
+   "scene": "03_Residential/House_Variants/RES_House_Ranch_B.tscn",
+   "front_door_world": [
+    -14.3,
+    -66.4
+   ],
+   "walkway": [
+    [
+     -0.2,
+     -0.6
+    ],
+    [
+     -2.0,
+     -0.6
+    ]
+   ]
+  },
+  {
+   "zone": "HOUSE_04",
+   "zone_type": "residential_house",
+   "variant": "RES_House_Cottage",
+   "design": "Cottage",
+   "colorway": "A",
+   "mirrored": false,
+   "shift": 0.0,
+   "yaw": 3.141593,
+   "origin": [
+    14.0,
+    0.15,
+    -64.0
+   ],
+   "zone_size": [
+    12.0,
+    12.0
+   ],
+   "scene": "03_Residential/House_Variants/RES_House_Cottage.tscn",
+   "front_door_world": [
+    15.6,
+    -67.4
+   ],
+   "walkway": [
+    [
+     -1.6,
+     0.7
+    ],
+    [
+     1.5,
+     0.7
+    ]
+   ]
+  },
+  {
+   "zone": "HOUSE_05",
+   "zone_type": "residential_house",
+   "variant": "RES_House_TwoStorey_B",
+   "design": "TwoStorey",
+   "colorway": "B",
+   "mirrored": false,
+   "shift": 0.0,
+   "yaw": 3.141593,
+   "origin": [
+    30.5,
+    0.15,
+    -64.0
+   ],
+   "zone_size": [
+    13.0,
+    12.0
+   ],
+   "scene": "03_Residential/House_Variants/RES_House_TwoStorey_B.tscn",
+   "front_door_world": [
+    30.8,
+    -67.4
+   ],
+   "walkway": [
+    [
+     -3.0,
+     0.5
+    ],
+    [
+     -2.0,
+     0.5
+    ]
+   ]
+  },
+  {
+   "zone": "HOUSE_06",
+   "zone_type": "residential_house",
+   "variant": "RES_House_Bungalow_Mirror",
+   "design": "Bungalow",
+   "colorway": "A",
+   "mirrored": true,
+   "shift": 0.0,
+   "yaw": 3.141593,
+   "origin": [
+    47.5,
+    0.15,
+    -64.0
+   ],
+   "zone_size": [
+    13.0,
+    12.0
+   ],
+   "scene": "03_Residential/House_Variants/RES_House_Bungalow_Mirror.tscn",
+   "front_door_world": [
+    44.9,
+    -67.2
+   ],
+   "walkway": [
+    [
+     2.6,
+     -0.1
+    ],
+    [
+     1.8,
+     -0.1
+    ],
+    [
+     1.8,
+     -3.1
+    ],
+    [
+     -2.0,
+     -3.1
+    ]
+   ]
+  },
+  {
+   "zone": "HOUSE_07",
+   "zone_type": "residential_house",
+   "variant": "RES_House_Bungalow_B_Mirror",
+   "design": "Bungalow",
+   "colorway": "B",
+   "mirrored": true,
+   "shift": 0.25,
+   "yaw": -0.0,
+   "origin": [
+    -47.75,
+    0.15,
+    -92.0
+   ],
+   "zone_size": [
+    12.0,
+    12.0
+   ],
+   "scene": "03_Residential/House_Variants/RES_House_Bungalow_B_Mirror.tscn",
+   "front_door_world": [
+    -45.15,
+    -88.8
+   ],
+   "walkway": [
+    [
+     2.85,
+     -0.1
+    ],
+    [
+     -1.5,
+     -0.1
+    ]
+   ]
+  },
+  {
+   "zone": "HOUSE_08",
+   "zone_type": "residential_house",
+   "variant": "RES_House_Cottage_B",
+   "design": "Cottage",
+   "colorway": "B",
+   "mirrored": false,
+   "shift": -0.15,
+   "yaw": -0.0,
+   "origin": [
+    -31.65,
+    0.15,
+    -92.0
+   ],
+   "zone_size": [
+    13.0,
+    12.0
+   ],
+   "scene": "03_Residential/House_Variants/RES_House_Cottage_B.tscn",
+   "front_door_world": [
+    -33.25,
+    -88.6
+   ],
+   "walkway": [
+    [
+     -1.75,
+     0.7
+    ],
+    [
+     -1.0,
+     0.7
+    ]
+   ]
+  },
+  {
+   "zone": "HOUSE_09",
+   "zone_type": "residential_house",
+   "variant": "RES_House_Ranch_C_Mirror",
+   "design": "Ranch",
+   "colorway": "C",
+   "mirrored": true,
+   "shift": 0.5,
+   "yaw": -0.0,
+   "origin": [
+    -14.0,
+    0.15,
+    -92.0
+   ],
+   "zone_size": [
+    13.0,
+    12.0
+   ],
+   "scene": "03_Residential/House_Variants/RES_House_Ranch_C_Mirror.tscn",
+   "front_door_world": [
+    -14.3,
+    -89.6
+   ],
+   "walkway": [
+    [
+     0.2,
+     -0.6
+    ],
+    [
+     2.0,
+     -0.6
+    ]
+   ]
+  },
+  {
+   "zone": "HOUSE_10",
+   "zone_type": "residential_house",
+   "variant": "RES_House_MillWorker",
+   "design": "MillWorker",
+   "colorway": "A",
+   "mirrored": false,
+   "shift": -1.65,
+   "yaw": 3.141593,
+   "origin": [
+    -46.35,
+    0.15,
+    -116.0
+   ],
+   "zone_size": [
+    12.0,
+    12.0
+   ],
+   "scene": "03_Residential/House_Variants/RES_House_MillWorker.tscn",
+   "front_door_world": [
+    -46.95,
+    -119.2
+   ],
+   "walkway": [
+    [
+     -1.05,
+     0.1
+    ],
+    [
+     1.5,
+     0.1
+    ]
+   ]
+  },
+  {
+   "zone": "HOUSE_11",
+   "zone_type": "residential_house",
+   "variant": "RES_House_Cottage_B_Mirror",
+   "design": "Cottage",
+   "colorway": "B",
+   "mirrored": true,
+   "shift": 0.1,
+   "yaw": 3.141593,
+   "origin": [
+    -31.6,
+    0.15,
+    -116.0
+   ],
+   "zone_size": [
+    13.0,
+    12.0
+   ],
+   "scene": "03_Residential/House_Variants/RES_House_Cottage_B_Mirror.tscn",
+   "front_door_world": [
+    -33.2,
+    -119.4
+   ],
+   "walkway": [
+    [
+     1.7,
+     0.7
+    ],
+    [
+     1.0,
+     0.7
+    ]
+   ]
+  },
+  {
+   "zone": "HOUSE_12",
+   "zone_type": "residential_house",
+   "variant": "RES_House_TwoStorey_Mirror",
+   "design": "TwoStorey",
+   "colorway": "A",
+   "mirrored": true,
+   "shift": 0.0,
+   "yaw": 3.141593,
+   "origin": [
+    -14.5,
+    0.15,
+    -116.0
+   ],
+   "zone_size": [
+    13.0,
+    12.0
+   ],
+   "scene": "03_Residential/House_Variants/RES_House_TwoStorey_Mirror.tscn",
+   "front_door_world": [
+    -14.8,
+    -119.4
+   ],
+   "walkway": [
+    [
+     3.0,
+     0.5
+    ],
+    [
+     -2.0,
+     0.5
+    ]
+   ]
+  },
+  {
+   "zone": "HOUSE_13",
+   "zone_type": "residential_house",
+   "variant": "RES_House_Ranch",
+   "design": "Ranch",
+   "colorway": "A",
+   "mirrored": false,
+   "shift": 0.0,
+   "yaw": -0.0,
+   "origin": [
+    14.0,
+    0.15,
+    -92.0
+   ],
+   "zone_size": [
+    12.0,
+    12.0
+   ],
+   "scene": "03_Residential/House_Variants/RES_House_Ranch.tscn",
+   "front_door_world": [
+    14.3,
+    -89.6
+   ],
+   "walkway": [
+    [
+     0.3,
+     -0.6
+    ],
+    [
+     -1.5,
+     -0.6
+    ]
+   ]
+  },
+  {
+   "zone": "PLAYER_HOME",
+   "zone_type": "residential_house",
+   "variant": "RES_PlayerHome",
+   "design": "PlayerHome",
+   "colorway": "A",
+   "mirrored": false,
+   "shift": 0.0,
+   "yaw": -0.0,
+   "origin": [
+    30.5,
+    0.15,
+    -92.0
+   ],
+   "zone_size": [
+    13.0,
+    12.0
+   ],
+   "scene": "03_Residential/Player_Home/Player_Home.tscn",
+   "front_door_world": [
+    27.9,
+    -89.8
+   ],
+   "walkway": [
+    [
+     -2.6,
+     -0.5
+    ],
+    [
+     -1.0,
+     -0.5
+    ]
+   ]
+  },
+  {
+   "zone": "HOUSE_15",
+   "zone_type": "residential_house",
+   "variant": "RES_House_Cottage",
+   "design": "Cottage",
+   "colorway": "A",
+   "mirrored": false,
+   "shift": 0.0,
+   "yaw": -0.0,
+   "origin": [
+    47.5,
+    0.15,
+    -92.0
+   ],
+   "zone_size": [
+    13.0,
+    12.0
+   ],
+   "scene": "03_Residential/House_Variants/RES_House_Cottage.tscn",
+   "front_door_world": [
+    45.9,
+    -88.6
+   ],
+   "walkway": [
+    [
+     -1.6,
+     0.7
+    ],
+    [
+     -1.6,
+     0.8
+    ],
+    [
+     2.0,
+     0.8
+    ]
+   ]
+  },
+  {
+   "zone": "HOUSE_16",
+   "zone_type": "residential_house",
+   "variant": "RES_House_MillWorker_B",
+   "design": "MillWorker",
+   "colorway": "B",
+   "mirrored": false,
+   "shift": -1.65,
+   "yaw": 3.141593,
+   "origin": [
+    15.65,
+    0.15,
+    -116.0
+   ],
+   "zone_size": [
+    12.0,
+    12.0
+   ],
+   "scene": "03_Residential/House_Variants/RES_House_MillWorker_B.tscn",
+   "front_door_world": [
+    15.05,
+    -119.2
+   ],
+   "walkway": [
+    [
+     -1.05,
+     0.1
+    ],
+    [
+     1.5,
+     0.1
+    ]
+   ]
+  },
+  {
+   "zone": "HOUSE_17",
+   "zone_type": "residential_house",
+   "variant": "RES_House_TwoStorey_B",
+   "design": "TwoStorey",
+   "colorway": "B",
+   "mirrored": false,
+   "shift": 0.0,
+   "yaw": 3.141593,
+   "origin": [
+    30.5,
+    0.15,
+    -116.0
+   ],
+   "zone_size": [
+    13.0,
+    12.0
+   ],
+   "scene": "03_Residential/House_Variants/RES_House_TwoStorey_B.tscn",
+   "front_door_world": [
+    30.8,
+    -119.4
+   ],
+   "walkway": [
+    [
+     -3.0,
+     0.5
+    ],
+    [
+     -2.0,
+     0.5
+    ]
+   ]
+  },
+  {
+   "zone": "HOUSE_18",
+   "zone_type": "residential_house",
+   "variant": "RES_House_Ranch_B",
+   "design": "Ranch",
+   "colorway": "B",
+   "mirrored": false,
+   "shift": -0.5,
+   "yaw": 3.141593,
+   "origin": [
+    48.0,
+    0.15,
+    -116.0
+   ],
+   "zone_size": [
+    13.0,
+    12.0
+   ],
+   "scene": "03_Residential/House_Variants/RES_House_Ranch_B.tscn",
+   "front_door_world": [
+    47.7,
+    -118.4
+   ],
+   "walkway": [
+    [
+     -0.2,
+     -0.6
+    ],
+    [
+     -2.0,
+     -0.6
+    ]
+   ]
+  },
+  {
+   "zone": "HOUSE_19",
+   "zone_type": "residential_house",
+   "variant": "RES_House_SplitLevel_Mirror",
+   "design": "SplitLevel",
+   "colorway": "A",
+   "mirrored": true,
+   "shift": 0.0,
+   "yaw": -3.141593,
+   "origin": [
+    -78.0,
+    0.15,
+    -116.0
+   ],
+   "zone_size": [
+    16.0,
+    12.0
+   ],
+   "scene": "03_Residential/House_Variants/RES_House_SplitLevel_Mirror.tscn",
+   "front_door_world": [
+    -82.0,
+    -119.0
+   ],
+   "walkway": [
+    [
+     4.0,
+     0.3
+    ],
+    [
+     -3.5,
+     0.3
+    ]
+   ]
+  },
+  {
+   "zone": "HOUSE_20",
+   "zone_type": "residential_house",
+   "variant": "RES_House_Abandoned",
+   "design": "Abandoned",
+   "colorway": "A",
+   "mirrored": false,
+   "shift": 0.1,
+   "yaw": 0.0,
+   "origin": [
+    -77.9,
+    0.15,
+    -92.0
+   ],
+   "zone_size": [
+    16.0,
+    12.0
+   ],
+   "scene": "03_Residential/House_Variants/RES_House_Abandoned.tscn",
+   "front_door_world": [
+    -79.7,
+    -88.6
+   ],
+   "walkway": [
+    [
+     -1.7,
+     0.3
+    ],
+    [
+     -3.5,
+     0.3
+    ]
+   ]
+  },
+  {
+   "zone": "HOUSE_21",
+   "zone_type": "residential_house",
+   "variant": "RES_House_SplitLevel_B",
+   "design": "SplitLevel",
+   "colorway": "B",
+   "mirrored": false,
+   "shift": 0.0,
+   "yaw": -1.570796,
+   "origin": [
+    -74.0,
+    0.15,
+    -68.0
+   ],
+   "zone_size": [
+    16.0,
+    12.0
+   ],
+   "scene": "03_Residential/House_Variants/RES_House_SplitLevel_B.tscn",
+   "front_door_world": [
+    -77.0,
+    -72.0
+   ],
+   "walkway": [
+    [
+     -4.0,
+     0.3
+    ],
+    [
+     -1.0,
+     0.3
+    ],
+    [
+     -1.0,
+     0.8
+    ],
+    [
+     3.5,
+     0.8
+    ]
+   ]
+  },
+  {
+   "zone": "HOUSE_22",
+   "zone_type": "residential_house",
+   "variant": "RES_House_Ranch_C",
+   "design": "Ranch",
+   "colorway": "C",
+   "mirrored": false,
+   "shift": -2.35,
+   "yaw": 1.570796,
+   "origin": [
+    74.0,
+    0.15,
+    -65.65
+   ],
+   "zone_size": [
+    16.0,
+    12.0
+   ],
+   "scene": "03_Residential/House_Variants/RES_House_Ranch_C.tscn",
+   "front_door_world": [
+    76.4,
+    -65.95
+   ],
+   "walkway": [
+    [
+     -2.05,
+     -0.6
+    ],
+    [
+     -3.5,
+     -0.6
+    ]
+   ]
+  },
+  {
+   "zone": "HOUSE_23",
+   "zone_type": "residential_house",
+   "variant": "RES_House_Bungalow_B",
+   "design": "Bungalow",
+   "colorway": "B",
+   "mirrored": false,
+   "shift": 0.25,
+   "yaw": 1.570796,
+   "origin": [
+    74.0,
+    0.15,
+    -88.25
+   ],
+   "zone_size": [
+    16.0,
+    12.0
+   ],
+   "scene": "03_Residential/House_Variants/RES_House_Bungalow_B.tscn",
+   "front_door_world": [
+    77.2,
+    -85.65
+   ],
+   "walkway": [
+    [
+     -2.35,
+     -0.1
+    ],
+    [
+     3.5,
+     -0.1
+    ]
+   ]
+  },
+  {
+   "zone": "FARMHOUSE",
+   "zone_type": "residential_sparse",
+   "variant": "RES_House_Farmhouse",
+   "design": "Farmhouse",
+   "colorway": "A",
+   "mirrored": false,
+   "shift": 0.0,
+   "yaw": 3.141593,
+   "origin": [
+    158.0,
+    0.15,
+    -84.0
+   ],
+   "zone_size": [
+    14,
+    14
+   ],
+   "scene": "03_Residential/House_Variants/RES_House_Farmhouse.tscn",
+   "front_door_world": [
+    158.4,
+    -87.0
+   ],
+   "walkway": [
+    [
+     0.0,
+     -0.1
+    ]
+   ]
+  },
+  {
+   "zone": "MILL_HOUSE",
+   "zone_type": "residential_sparse",
+   "variant": "RES_House_MillWorker",
+   "design": "MillWorker",
+   "colorway": "A",
+   "mirrored": false,
+   "shift": 0.0,
+   "yaw": 0.0,
+   "origin": [
+    -92.0,
+    0.15,
+    14.0
+   ],
+   "zone_size": [
+    12,
+    12
+   ],
+   "scene": "03_Residential/House_Variants/RES_House_MillWorker.tscn",
+   "front_door_world": [
+    -91.4,
+    17.2
+   ],
+   "walkway": [
+    [
+     0.6,
+     0.1
+    ],
+    [
+     0.6,
+     -0.4
+    ],
+    [
+     0.5,
+     -0.4
+    ]
+   ]
+  }
+ ],
+ "lot_connections": [
+  {
+   "zone": "HOUSE_01",
+   "slabs": 3
+  },
+  {
+   "zone": "HOUSE_02",
+   "slabs": 3
+  },
+  {
+   "zone": "HOUSE_03",
+   "slabs": 3
+  },
+  {
+   "zone": "HOUSE_04",
+   "slabs": 3
+  },
+  {
+   "zone": "HOUSE_05",
+   "slabs": 3
+  },
+  {
+   "zone": "HOUSE_06",
+   "slabs": 5
+  },
+  {
+   "zone": "HOUSE_07",
+   "slabs": 3
+  },
+  {
+   "zone": "HOUSE_08",
+   "slabs": 3
+  },
+  {
+   "zone": "HOUSE_09",
+   "slabs": 3
+  },
+  {
+   "zone": "HOUSE_10",
+   "slabs": 3
+  },
+  {
+   "zone": "HOUSE_11",
+   "slabs": 3
+  },
+  {
+   "zone": "HOUSE_12",
+   "slabs": 3
+  },
+  {
+   "zone": "HOUSE_13",
+   "slabs": 3
+  },
+  {
+   "zone": "PLAYER_HOME",
+   "slabs": 3
+  },
+  {
+   "zone": "HOUSE_15",
+   "slabs": 4
+  },
+  {
+   "zone": "HOUSE_16",
+   "slabs": 3
+  },
+  {
+   "zone": "HOUSE_17",
+   "slabs": 3
+  },
+  {
+   "zone": "HOUSE_18",
+   "slabs": 3
+  },
+  {
+   "zone": "HOUSE_19",
+   "slabs": 4
+  },
+  {
+   "zone": "HOUSE_20",
+   "slabs": 3
+  },
+  {
+   "zone": "HOUSE_21",
+   "slabs": 6
+  },
+  {
+   "zone": "HOUSE_22",
+   "slabs": 3
+  },
+  {
+   "zone": "HOUSE_23",
+   "slabs": 3
+  },
+  {
+   "zone": "FARMHOUSE",
+   "slabs": 2
+  },
+  {
+   "zone": "MILL_HOUSE",
+   "slabs": 4
+  }
+ ]
+}

@@ -1,0 +1,13 @@
+newmtl M_Town_PaintRed
+Ka 0 0 0
+Kd 1 1 1
+Ks 0 0 0
+illum 1
+map_Kd ../../../02_Town/Textures/T_Town_PaintRed.png
+
+newmtl M_Furn_PlasticDirty
+Ka 0 0 0
+Kd 1 1 1
+Ks 0 0 0
+illum 1
+map_Kd ../../../01_Textures/Furniture/T_Furn_PlasticDirty.png

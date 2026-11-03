@@ -1,0 +1,827 @@
+[gd_scene load_steps=52 format=3]
+
+[ext_resource type="PackedScene" path="res://THE_VEIL_ASSETS_V2/03_Residential/House_Variants/RES_PlayerHome.glb" id="1_house"]
+[ext_resource type="PackedScene" path="res://THE_VEIL_ASSETS_V2/03_Residential/Furniture/RES_AlarmClock.glb" id="2_RES_AlarmClock"]
+[ext_resource type="PackedScene" path="res://THE_VEIL_ASSETS_V2/03_Residential/Furniture/RES_Armchair_Recliner.glb" id="3_RES_Armchair_Recliner"]
+[ext_resource type="PackedScene" path="res://THE_VEIL_ASSETS_V2/03_Residential/Furniture/RES_BathSink_Pedestal.glb" id="4_RES_BathSink_Pedestal"]
+[ext_resource type="PackedScene" path="res://THE_VEIL_ASSETS_V2/03_Residential/Furniture/RES_Bathtub.glb" id="5_RES_Bathtub"]
+[ext_resource type="PackedScene" path="res://THE_VEIL_ASSETS_V2/03_Residential/Furniture/RES_Bed_Double_Unmade.glb" id="6_RES_Bed_Double_Unmade"]
+[ext_resource type="PackedScene" path="res://THE_VEIL_ASSETS_V2/03_Residential/Furniture/RES_Blanket_Folded.glb" id="7_RES_Blanket_Folded"]
+[ext_resource type="PackedScene" path="res://THE_VEIL_ASSETS_V2/03_Residential/Furniture/RES_CardboardBox_Stack.glb" id="8_RES_CardboardBox_Stack"]
+[ext_resource type="PackedScene" path="res://THE_VEIL_ASSETS_V2/03_Residential/Furniture/RES_CerealBox.glb" id="9_RES_CerealBox"]
+[ext_resource type="PackedScene" path="res://THE_VEIL_ASSETS_V2/03_Residential/Furniture/RES_CoatRack_Wall.glb" id="10_RES_CoatRack_Wall"]
+[ext_resource type="PackedScene" path="res://THE_VEIL_ASSETS_V2/03_Residential/Furniture/RES_CoffeeTable_Wood.glb" id="11_RES_CoffeeTable_Wood"]
+[ext_resource type="PackedScene" path="res://THE_VEIL_ASSETS_V2/03_Residential/Furniture/RES_Counter_Base_1.2.glb" id="12_RES_Counter_Base_1.2"]
+[ext_resource type="PackedScene" path="res://THE_VEIL_ASSETS_V2/03_Residential/Furniture/RES_Counter_Sink.glb" id="13_RES_Counter_Sink"]
+[ext_resource type="PackedScene" path="res://THE_VEIL_ASSETS_V2/03_Residential/Furniture/RES_Curtains_Gingham.glb" id="14_RES_Curtains_Gingham"]
+[ext_resource type="PackedScene" path="res://THE_VEIL_ASSETS_V2/03_Residential/Furniture/RES_DeskChair_Office.glb" id="15_RES_DeskChair_Office"]
+[ext_resource type="PackedScene" path="res://THE_VEIL_ASSETS_V2/03_Residential/Furniture/RES_Desk_Computer.glb" id="16_RES_Desk_Computer"]
+[ext_resource type="PackedScene" path="res://THE_VEIL_ASSETS_V2/03_Residential/Furniture/RES_DiningChair_Wood.glb" id="17_RES_DiningChair_Wood"]
+[ext_resource type="PackedScene" path="res://THE_VEIL_ASSETS_V2/03_Residential/Furniture/RES_DiningTable_Round.glb" id="18_RES_DiningTable_Round"]
+[ext_resource type="PackedScene" path="res://THE_VEIL_ASSETS_V2/03_Residential/Furniture/RES_DishRack.glb" id="19_RES_DishRack"]
+[ext_resource type="PackedScene" path="res://THE_VEIL_ASSETS_V2/03_Residential/Furniture/RES_Dishes_Set.glb" id="20_RES_Dishes_Set"]
+[ext_resource type="PackedScene" path="res://THE_VEIL_ASSETS_V2/03_Residential/Furniture/RES_Dresser.glb" id="21_RES_Dresser"]
+[ext_resource type="PackedScene" path="res://THE_VEIL_ASSETS_V2/03_Residential/Furniture/RES_ElectricalPanel.glb" id="22_RES_ElectricalPanel"]
+[ext_resource type="PackedScene" path="res://THE_VEIL_ASSETS_V2/03_Residential/Furniture/RES_Fridge_Retro.glb" id="23_RES_Fridge_Retro"]
+[ext_resource type="PackedScene" path="res://THE_VEIL_ASSETS_V2/03_Residential/Furniture/RES_GameConsole.glb" id="24_RES_GameConsole"]
+[ext_resource type="PackedScene" path="res://THE_VEIL_ASSETS_V2/03_Residential/Furniture/RES_Kettle.glb" id="25_RES_Kettle"]
+[ext_resource type="PackedScene" path="res://THE_VEIL_ASSETS_V2/03_Residential/Furniture/RES_Lamp_Floor.glb" id="26_RES_Lamp_Floor"]
+[ext_resource type="PackedScene" path="res://THE_VEIL_ASSETS_V2/03_Residential/Furniture/RES_Lamp_Table.glb" id="27_RES_Lamp_Table"]
+[ext_resource type="PackedScene" path="res://THE_VEIL_ASSETS_V2/03_Residential/Furniture/RES_MedicineCabinet.glb" id="28_RES_MedicineCabinet"]
+[ext_resource type="PackedScene" path="res://THE_VEIL_ASSETS_V2/03_Residential/Furniture/RES_Newspaper.glb" id="29_RES_Newspaper"]
+[ext_resource type="PackedScene" path="res://THE_VEIL_ASSETS_V2/03_Residential/Furniture/RES_Nightstand.glb" id="30_RES_Nightstand"]
+[ext_resource type="PackedScene" path="res://THE_VEIL_ASSETS_V2/03_Residential/Furniture/RES_Picture_Family.glb" id="31_RES_Picture_Family"]
+[ext_resource type="PackedScene" path="res://THE_VEIL_ASSETS_V2/03_Residential/Furniture/RES_Poster_Band.glb" id="32_RES_Poster_Band"]
+[ext_resource type="PackedScene" path="res://THE_VEIL_ASSETS_V2/03_Residential/Furniture/RES_Radio.glb" id="33_RES_Radio"]
+[ext_resource type="PackedScene" path="res://THE_VEIL_ASSETS_V2/03_Residential/Furniture/RES_Rug_Oval.glb" id="34_RES_Rug_Oval"]
+[ext_resource type="PackedScene" path="res://THE_VEIL_ASSETS_V2/03_Residential/Furniture/RES_Shelving_Metal.glb" id="35_RES_Shelving_Metal"]
+[ext_resource type="PackedScene" path="res://THE_VEIL_ASSETS_V2/03_Residential/Furniture/RES_ShoeRack.glb" id="36_RES_ShoeRack"]
+[ext_resource type="PackedScene" path="res://THE_VEIL_ASSETS_V2/03_Residential/Furniture/RES_Sofa_Plaid.glb" id="37_RES_Sofa_Plaid"]
+[ext_resource type="PackedScene" path="res://THE_VEIL_ASSETS_V2/03_Residential/Furniture/RES_StorageBin.glb" id="38_RES_StorageBin"]
+[ext_resource type="PackedScene" path="res://THE_VEIL_ASSETS_V2/03_Residential/Furniture/RES_Stove_Electric.glb" id="39_RES_Stove_Electric"]
+[ext_resource type="PackedScene" path="res://THE_VEIL_ASSETS_V2/03_Residential/Furniture/RES_TVStand.glb" id="40_RES_TVStand"]
+[ext_resource type="PackedScene" path="res://THE_VEIL_ASSETS_V2/03_Residential/Furniture/RES_TV_CRT_Small.glb" id="41_RES_TV_CRT_Small"]
+[ext_resource type="PackedScene" path="res://THE_VEIL_ASSETS_V2/03_Residential/Furniture/RES_Toilet.glb" id="42_RES_Toilet"]
+[ext_resource type="PackedScene" path="res://THE_VEIL_ASSETS_V2/03_Residential/Furniture/RES_Toolbox.glb" id="43_RES_Toolbox"]
+[ext_resource type="PackedScene" path="res://THE_VEIL_ASSETS_V2/03_Residential/Furniture/RES_TowelRack.glb" id="44_RES_TowelRack"]
+[ext_resource type="PackedScene" path="res://THE_VEIL_ASSETS_V2/03_Residential/Furniture/RES_TrashCan_Pedal.glb" id="45_RES_TrashCan_Pedal"]
+[ext_resource type="PackedScene" path="res://THE_VEIL_ASSETS_V2/03_Residential/Furniture/RES_WallCabinet_0.8.glb" id="46_RES_WallCabinet_0.8"]
+[ext_resource type="PackedScene" path="res://THE_VEIL_ASSETS_V2/03_Residential/Furniture/RES_WallCalendar.glb" id="47_RES_WallCalendar"]
+[ext_resource type="PackedScene" path="res://THE_VEIL_ASSETS_V2/03_Residential/Furniture/RES_WallClock.glb" id="48_RES_WallClock"]
+[ext_resource type="PackedScene" path="res://THE_VEIL_ASSETS_V2/03_Residential/Furniture/RES_WashingMachine.glb" id="49_RES_WashingMachine"]
+[ext_resource type="PackedScene" path="res://THE_VEIL_ASSETS_V2/03_Residential/Furniture/RES_WaterHeater.glb" id="50_RES_WaterHeater"]
+[ext_resource type="PackedScene" path="res://THE_VEIL_ASSETS_V2/03_Residential/Furniture/RES_Workbench.glb" id="51_RES_Workbench"]
+
+[node name="Player_Home" type="Node3D"]
+metadata/veil_house = {
+"name": "RES_PlayerHome",
+"design": "PlayerHome",
+"colorway": "A",
+"mirrored": false,
+"title": "The protagonist's home",
+"rooms": [{
+"id": "LIV",
+"type": "living",
+"level": 0,
+"rect": [-6.5, 2.2, -1.0, 6.6],
+"floor_y": 0.6
+}, {
+"id": "BED",
+"type": "bedroom",
+"level": 0,
+"rect": [-1.0, 4.6, 2.8, 8.4],
+"floor_y": 0.6
+}, {
+"id": "KIT",
+"type": "kitchen",
+"level": 0,
+"rect": [-6.5, 6.6, -2.6, 11.6],
+"floor_y": 0.6
+}, {
+"id": "HALL",
+"type": "hall",
+"level": 0,
+"rect": [-2.6, 6.6, -1.0, 11.6],
+"floor_y": 0.6
+}, {
+"id": "HALL2",
+"type": "hall",
+"level": 0,
+"rect": [-1.0, 8.4, 2.8, 9.5],
+"floor_y": 0.6
+}, {
+"id": "BATH",
+"type": "bathroom",
+"level": 0,
+"rect": [-1.0, 9.5, 1.4, 11.6],
+"floor_y": 0.6
+}, {
+"id": "LAU",
+"type": "laundry",
+"level": 0,
+"rect": [1.4, 9.5, 2.8, 11.6],
+"floor_y": 0.6
+}, {
+"id": "GAR",
+"type": "garage",
+"level": 0,
+"rect": [2.8, 4.5, 6.5, 11.6],
+"floor_y": 0.02
+}],
+"doors": [{
+"name": "INT_Door_Front",
+"kind": "door",
+"rooms": ["OUT", "LIV"],
+"exterior": true,
+"center": [-2.6, 0.6, 2.2]
+}, {
+"name": "INT_Door_Back",
+"kind": "door",
+"rooms": ["OUT", "LAU"],
+"exterior": true,
+"center": [2.1, 0.6, 11.6]
+}, {
+"name": "INT_GarageDoor_Garage",
+"kind": "garage",
+"rooms": ["OUT", "GAR"],
+"exterior": true,
+"center": [4.65, 0.0, 4.5]
+}, {
+"name": "INT_Arch_LivKit",
+"kind": "arch",
+"rooms": ["KIT", "LIV"],
+"exterior": false,
+"center": [-4.5, 0.6, 6.6]
+}, {
+"name": "INT_Arch_LivHall",
+"kind": "arch",
+"rooms": ["HALL", "LIV"],
+"exterior": false,
+"center": [-1.8, 0.6, 6.6]
+}, {
+"name": "INT_Door_Bedroom",
+"kind": "door",
+"rooms": ["HALL", "BED"],
+"exterior": false,
+"center": [-1.0, 0.6, 7.5]
+}, {
+"name": "INT_Arch_Halls",
+"kind": "arch",
+"rooms": ["HALL2", "HALL"],
+"exterior": false,
+"center": [-1.0, 0.6, 8.95]
+}, {
+"name": "INT_Door_Bathroom",
+"kind": "door",
+"rooms": ["BATH", "HALL2"],
+"exterior": false,
+"center": [0.2, 0.6, 9.5]
+}, {
+"name": "INT_Door_Laundry",
+"kind": "door",
+"rooms": ["LAU", "HALL2"],
+"exterior": false,
+"center": [2.1, 0.6, 9.5]
+}, {
+"name": "INT_Door_GarageDoorInside",
+"kind": "door",
+"rooms": ["GAR", "LAU"],
+"exterior": false,
+"center": [2.8, 0.6, 10.6]
+}],
+"stairs": 0,
+"windows": 8,
+"lights": ["LIV", "BED", "KIT", "HALL", "HALL2", "BATH", "LAU", "GAR"],
+"furniture_pieces": 51,
+"story": "Friday evening, 6:47 pm. The protagonist wakes in the ground-floor bedroom, walks the hall to the living room, takes the car keys from the coat rack by the front door and drives the sedan off the driveway."
+}
+metadata/veil_interactables = [{
+"node": "INT_Door_Front",
+"pos": [-2.11, 0.61, 2.27],
+"veil_interact": "hinge",
+"axis": "y",
+"open_deg": 95.0,
+"width": 0.98,
+"height": 2.13
+}, {
+"node": "INT_WindowSash_window_03",
+"pos": [-6.5, 1.5, 3.85],
+"veil_interact": "slide",
+"axis": "y",
+"distance": 0.54
+}, {
+"node": "INT_WindowSash_window_04",
+"pos": [1.55, 1.5, 4.6],
+"veil_interact": "slide",
+"axis": "y",
+"distance": 0.54
+}, {
+"node": "INT_WindowSash_window_05",
+"pos": [-5.1, 1.7, 11.6],
+"veil_interact": "slide",
+"axis": "y",
+"distance": 0.39
+}, {
+"node": "INT_WindowSash_window_06",
+"pos": [-6.5, 1.5, 7.95],
+"veil_interact": "slide",
+"axis": "y",
+"distance": 0.54
+}, {
+"node": "INT_WindowSash_window_07",
+"pos": [-2.1, 1.75, 11.6],
+"veil_interact": "slide",
+"axis": "y",
+"distance": 0.34
+}, {
+"node": "INT_WindowSash_window_08",
+"pos": [-0.1, 1.95, 11.6],
+"veil_interact": "slide",
+"axis": "y",
+"distance": 0.24
+}, {
+"node": "INT_Door_Back",
+"pos": [1.71, 0.61, 11.53],
+"veil_interact": "hinge",
+"axis": "y",
+"open_deg": 95.0,
+"width": 0.78,
+"height": 2.08
+}, {
+"node": "INT_GarageDoor_Garage",
+"pos": [5.95, 0.02, 4.42],
+"veil_interact": "slide",
+"axis": "y",
+"distance": 2.05,
+"note": "sectional: raise along Y"
+}, {
+"node": "INT_WindowSash_window_11",
+"pos": [6.5, 1.57, 8.4],
+"veil_interact": "slide",
+"axis": "y",
+"distance": 0.19
+}, {
+"node": "INT_Door_Bedroom",
+"pos": [-0.97, 0.61, 7.94],
+"veil_interact": "hinge",
+"axis": "y",
+"open_deg": -95.0,
+"width": 0.88,
+"height": 2.08
+}, {
+"node": "INT_Door_Bathroom",
+"pos": [-0.19, 0.61, 9.53],
+"veil_interact": "hinge",
+"axis": "y",
+"open_deg": -95.0,
+"width": 0.78,
+"height": 2.08
+}, {
+"node": "INT_Door_Laundry",
+"pos": [1.71, 0.61, 9.53],
+"veil_interact": "hinge",
+"axis": "y",
+"open_deg": -95.0,
+"width": 0.78,
+"height": 2.08
+}, {
+"node": "INT_Door_GarageDoorInside",
+"pos": [2.83, 0.61, 11.015],
+"veil_interact": "hinge",
+"axis": "y",
+"open_deg": -95.0,
+"width": 0.83,
+"height": 2.08
+}, {
+"node": "INT_LightSwitch_LIV",
+"pos": [-1.88, 1.8, 2.305],
+"veil_interact": "switch",
+"room": "LIV"
+}, {
+"node": "INT_LightSwitch_LIV_Toggle",
+"pos": [-1.88, 1.8, 2.317],
+"veil_interact": "toggle",
+"axis": "x",
+"open_deg": 25
+}, {
+"node": "INT_LightSwitch_LAU",
+"pos": [1.48, 1.8, 11.495],
+"veil_interact": "switch",
+"room": "LAU"
+}, {
+"node": "INT_LightSwitch_LAU_Toggle",
+"pos": [1.48, 1.8, 11.483],
+"veil_interact": "toggle",
+"axis": "x",
+"open_deg": 25
+}, {
+"node": "INT_LightSwitch_BED",
+"pos": [-0.935, 1.8, 6.83],
+"veil_interact": "switch",
+"room": "BED"
+}, {
+"node": "INT_LightSwitch_BED_Toggle",
+"pos": [-0.923, 1.8, 6.83],
+"veil_interact": "toggle",
+"axis": "x",
+"open_deg": 25
+}, {
+"node": "INT_LightSwitch_HALL",
+"pos": [-1.065, 1.8, 9.645],
+"veil_interact": "switch",
+"room": "HALL"
+}, {
+"node": "INT_LightSwitch_HALL_Toggle",
+"pos": [-1.077, 1.8, 9.645],
+"veil_interact": "toggle",
+"axis": "x",
+"open_deg": 25
+}, {
+"node": "INT_LightSwitch_HALL2",
+"pos": [-0.42, 1.8, 9.435],
+"veil_interact": "switch",
+"room": "HALL2"
+}, {
+"node": "INT_LightSwitch_HALL2_Toggle",
+"pos": [-0.42, 1.8, 9.423],
+"veil_interact": "toggle",
+"axis": "x",
+"open_deg": 25
+}, {
+"node": "Furniture/TVStand_01/RES_TVStand/INT_CabinetDoor_L",
+"pos": [-1.565, 0.67, 2.72],
+"veil_interact": "hinge",
+"axis": "y",
+"open_deg": -100
+}, {
+"node": "Furniture/TVStand_01/RES_TVStand/INT_CabinetDoor_R",
+"pos": [-1.565, 0.67, 3.68],
+"veil_interact": "hinge",
+"axis": "y",
+"open_deg": 100
+}, {
+"node": "Furniture/CoatRack_Wall_01/RES_CoatRack_Wall/INT_Pickup_CarKeys",
+"pos": [-1.155, 2.17, 2.417],
+"veil_interact": "pickup",
+"item": "car_keys"
+}, {
+"node": "Furniture/Fridge_Retro_01/RES_Fridge_Retro/INT_ApplianceDoor_Fridge",
+"pos": [-5.725, 0.66, 7.63],
+"veil_interact": "hinge",
+"axis": "y",
+"open_deg": 100
+}, {
+"node": "Furniture/Counter_Base_1_2_01/RES_Counter_Base_1_2/INT_Drawer_1",
+"pos": [-5.013, 1.3, 10.905],
+"veil_interact": "slide",
+"axis": "z",
+"distance": 0.36
+}, {
+"node": "Furniture/Counter_Base_1_2_01/RES_Counter_Base_1_2/INT_CabinetDoor_1",
+"pos": [-4.83, 0.72, 10.905],
+"veil_interact": "hinge",
+"axis": "y",
+"open_deg": -100
+}, {
+"node": "Furniture/Counter_Base_1_2_01/RES_Counter_Base_1_2/INT_Drawer_2",
+"pos": [-5.4, 1.3, 10.905],
+"veil_interact": "slide",
+"axis": "z",
+"distance": 0.36
+}, {
+"node": "Furniture/Counter_Base_1_2_01/RES_Counter_Base_1_2/INT_CabinetDoor_2",
+"pos": [-5.583, 0.72, 10.905],
+"veil_interact": "hinge",
+"axis": "y",
+"open_deg": 100
+}, {
+"node": "Furniture/Counter_Base_1_2_01/RES_Counter_Base_1_2/INT_Drawer_3",
+"pos": [-5.787, 1.3, 10.905],
+"veil_interact": "slide",
+"axis": "z",
+"distance": 0.36
+}, {
+"node": "Furniture/Counter_Base_1_2_01/RES_Counter_Base_1_2/INT_CabinetDoor_3",
+"pos": [-5.603, 0.72, 10.905],
+"veil_interact": "hinge",
+"axis": "y",
+"open_deg": -100
+}, {
+"node": "Furniture/Counter_Sink_01/RES_Counter_Sink/INT_CabinetDoor_1",
+"pos": [-3.63, 0.72, 10.905],
+"veil_interact": "hinge",
+"axis": "y",
+"open_deg": -100
+}, {
+"node": "Furniture/Counter_Sink_01/RES_Counter_Sink/INT_CabinetDoor_2",
+"pos": [-4.383, 0.72, 10.905],
+"veil_interact": "hinge",
+"axis": "y",
+"open_deg": 100
+}, {
+"node": "Furniture/Counter_Sink_01/RES_Counter_Sink/INT_CabinetDoor_3",
+"pos": [-4.403, 0.72, 10.905],
+"veil_interact": "hinge",
+"axis": "y",
+"open_deg": -100
+}, {
+"node": "Furniture/Stove_Electric_01/RES_Stove_Electric/INT_ApplianceDoor_Oven",
+"pos": [-3.2, 0.7, 10.865],
+"veil_interact": "hinge",
+"axis": "x",
+"open_deg": 85
+}, {
+"node": "Furniture/WallCabinet_0_8_01/RES_WallCabinet_0_8/INT_CabinetDoor_L",
+"pos": [-5.01, 2.06, 11.188],
+"veil_interact": "hinge",
+"axis": "y",
+"open_deg": -100
+}, {
+"node": "Furniture/WallCabinet_0_8_01/RES_WallCabinet_0_8/INT_CabinetDoor_R",
+"pos": [-5.79, 2.06, 11.188],
+"veil_interact": "hinge",
+"axis": "y",
+"open_deg": 100
+}, {
+"node": "Furniture/Nightstand_01/RES_Nightstand/INT_Drawer_1",
+"pos": [2.345, 0.98, 5.5],
+"veil_interact": "slide",
+"axis": "z",
+"distance": 0.225
+}, {
+"node": "Furniture/Nightstand_01/RES_Nightstand/INT_Drawer_2",
+"pos": [2.345, 0.68, 5.5],
+"veil_interact": "slide",
+"axis": "z",
+"distance": 0.225
+}, {
+"node": "Furniture/Desk_Computer_01/RES_Desk_Computer/INT_Drawer_1",
+"pos": [1.28, 1.13, 5.295],
+"veil_interact": "slide",
+"axis": "z",
+"distance": 0.3375
+}, {
+"node": "Furniture/Desk_Computer_01/RES_Desk_Computer/INT_Drawer_2",
+"pos": [1.28, 0.65, 5.295],
+"veil_interact": "slide",
+"axis": "z",
+"distance": 0.3375
+}, {
+"node": "Furniture/Dresser_01/RES_Dresser/INT_Drawer_1",
+"pos": [-0.465, 0.7, 5.8],
+"veil_interact": "slide",
+"axis": "z",
+"distance": 0.3
+}, {
+"node": "Furniture/Dresser_01/RES_Dresser/INT_Drawer_2",
+"pos": [-0.465, 0.943, 5.8],
+"veil_interact": "slide",
+"axis": "z",
+"distance": 0.3
+}, {
+"node": "Furniture/Dresser_01/RES_Dresser/INT_Drawer_3L",
+"pos": [-0.465, 1.187, 6.09],
+"veil_interact": "slide",
+"axis": "z",
+"distance": 0.3
+}, {
+"node": "Furniture/Dresser_01/RES_Dresser/INT_Drawer_3R",
+"pos": [-0.465, 1.187, 5.49],
+"veil_interact": "slide",
+"axis": "z",
+"distance": 0.3
+}, {
+"node": "Furniture/Toilet_01/RES_Toilet/INT_Lid_Toilet",
+"pos": [0.9, 1.02, 9.835],
+"veil_interact": "hinge",
+"axis": "x",
+"open_deg": -95
+}, {
+"node": "Furniture/MedicineCabinet_01/RES_MedicineCabinet/INT_CabinetDoor_Mirror",
+"pos": [1.128, 2.15, 9.95],
+"veil_interact": "hinge",
+"axis": "y",
+"open_deg": -100
+}, {
+"node": "Furniture/Toolbox_01/RES_Toolbox/INT_Lid_Toolbox",
+"pos": [6.155, 1.12, 9.55],
+"veil_interact": "hinge",
+"axis": "x",
+"open_deg": -100
+}, {
+"node": "Furniture/ElectricalPanel_01/RES_ElectricalPanel/INT_CabinetDoor_Panel",
+"pos": [6.248, 1.52, 5.8],
+"veil_interact": "hinge",
+"axis": "y",
+"open_deg": -110
+}, {
+"node": "Furniture/WashingMachine_01/RES_WashingMachine/INT_Lid_Washer",
+"pos": [2.995, 0.94, 8.25],
+"veil_interact": "hinge",
+"axis": "x",
+"open_deg": -95
+}, {
+"node": "Furniture/StorageBin_01/RES_StorageBin/INT_Lid_Bin",
+"pos": [4.15, 0.37, 7.499],
+"veil_interact": "lift",
+"axis": "y",
+"distance": 0.3
+}]
+metadata/veil_wake_path = [[0.15, 0.6, 6.95], [-0.45, 0.6, 7.5], [-1.55, 0.6, 7.5], [-1.8, 0.6, 7.15], [-1.8, 0.6, 6.05], [-3.55, 0.6, 5.95], [-3.65, 0.6, 5.85], [-3.65, 0.6, 3.95], [-2.6, 0.6, 2.75], [-2.6, 0.58, 1.65], [-2.6, 0.58, 1.4], [-2.6, 0.0, -0.5], [-0.95, 0.0, -0.5], [-0.75, 0.0, -1.6]]
+
+[node name="House" parent="." instance=ExtResource("1_house")]
+
+[node name="Furniture" type="Node3D" parent="."]
+
+[node name="Rug_Oval_01" parent="Furniture" instance=ExtResource("34_RES_Rug_Oval")]
+transform = Transform3D(0, 0, 1, 0, 1, 0, -1, 0, 0, -4.1, 0.6, 4.4)
+metadata/room = "LIV"
+
+[node name="Sofa_Plaid_01" parent="Furniture" instance=ExtResource("37_RES_Sofa_Plaid")]
+transform = Transform3D(0, 0, 1, 0, 1, 0, -1, 0, 0, -5.935, 0.6, 4.4)
+metadata/room = "LIV"
+
+[node name="CoffeeTable_Wood_01" parent="Furniture" instance=ExtResource("11_RES_CoffeeTable_Wood")]
+transform = Transform3D(0, 0, 1, 0, 1, 0, -1, 0, 0, -4.7, 0.6, 4.4)
+metadata/room = "LIV"
+
+[node name="Newspaper_01" parent="Furniture" instance=ExtResource("29_RES_Newspaper")]
+transform = Transform3D(-0.25882, 0, 0.96593, 0, 1, 0, -0.96593, 0, -0.25882, -4.5, 1.02, 4.3)
+metadata/room = "LIV"
+
+[node name="TVStand_01" parent="Furniture" instance=ExtResource("40_RES_TVStand")]
+transform = Transform3D(0, 0, -1, 0, 1, 0, 1, 0, 0, -1.34, 0.6, 3.2)
+metadata/room = "LIV"
+
+[node name="TV_CRT_Small_01" parent="Furniture" instance=ExtResource("41_RES_TV_CRT_Small")]
+transform = Transform3D(0, 0, -1, 0, 1, 0, 1, 0, 0, -1.29, 1.15, 3.2)
+metadata/room = "LIV"
+
+[node name="GameConsole_01" parent="Furniture" instance=ExtResource("24_RES_GameConsole")]
+transform = Transform3D(0, 0, -1, 0, 1, 0, 1, 0, 0, -1.9, 0.6, 4)
+metadata/room = "LIV"
+
+[node name="Armchair_Recliner_01" parent="Furniture" instance=ExtResource("3_RES_Armchair_Recliner")]
+transform = Transform3D(-0.57358, 0, -0.81915, 0, 1, 0, 0.81915, 0, -0.57358, -2.6, 0.6, 4.9)
+metadata/room = "LIV"
+
+[node name="Lamp_Floor_01" parent="Furniture" instance=ExtResource("26_RES_Lamp_Floor")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -6.05, 0.6, 2.7)
+metadata/room = "LIV"
+
+[node name="Curtains_Gingham_01" parent="Furniture" instance=ExtResource("14_RES_Curtains_Gingham")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -5, 0.6, 2.362)
+metadata/room = "LIV"
+
+[node name="Picture_Family_01" parent="Furniture" instance=ExtResource("31_RES_Picture_Family")]
+transform = Transform3D(0, 0, 1, 0, 1, 0, -1, 0, 0, -6.383, 2.2, 4.4)
+metadata/room = "LIV"
+
+[node name="CoatRack_Wall_01" parent="Furniture" instance=ExtResource("10_RES_CoatRack_Wall")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1.45, 2.25, 2.362)
+metadata/room = "LIV"
+
+[node name="ShoeRack_01" parent="Furniture" instance=ExtResource("36_RES_ShoeRack")]
+transform = Transform3D(0, 0, -1, 0, 1, 0, 1, 0, 0, -1.265, 0.6, 4.15)
+metadata/room = "LIV"
+
+[node name="WallClock_01" parent="Furniture" instance=ExtResource("48_RES_WallClock")]
+transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, -5.4, 2.5, 6.513)
+metadata/room = "LIV"
+
+[node name="Fridge_Retro_01" parent="Furniture" instance=ExtResource("23_RES_Fridge_Retro")]
+transform = Transform3D(0, 0, 1, 0, 1, 0, -1, 0, 0, -6.025, 0.6, 7.25)
+metadata/room = "KIT"
+
+[node name="Counter_Base_1_2_01" parent="Furniture" instance=ExtResource("12_RES_Counter_Base_1.2")]
+transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, -5.4, 0.6, 11.185)
+metadata/room = "KIT"
+
+[node name="Counter_Sink_01" parent="Furniture" instance=ExtResource("13_RES_Counter_Sink")]
+transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, -4.2, 0.6, 11.185)
+metadata/room = "KIT"
+
+[node name="Stove_Electric_01" parent="Furniture" instance=ExtResource("39_RES_Stove_Electric")]
+transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, -3.2, 0.6, 11.16)
+metadata/room = "KIT"
+
+[node name="WallCabinet_0_8_01" parent="Furniture" instance=ExtResource("46_RES_WallCabinet_0.8")]
+transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, -5.4, 2.05, 11.333)
+metadata/room = "KIT"
+
+[node name="DishRack_01" parent="Furniture" instance=ExtResource("19_RES_DishRack")]
+transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, -4.52, 1.52, 11.185)
+metadata/room = "KIT"
+
+[node name="Kettle_01" parent="Furniture" instance=ExtResource("25_RES_Kettle")]
+transform = Transform3D(-0.86603, 0, -0.5, 0, 1, 0, 0.5, 0, -0.86603, -3.05, 1.7, 11.06)
+metadata/room = "KIT"
+
+[node name="CerealBox_01" parent="Furniture" instance=ExtResource("9_RES_CerealBox")]
+transform = Transform3D(-0.98481, 0, -0.17365, 0, 1, 0, 0.17365, 0, -0.98481, -5.1, 1.52, 11.135)
+metadata/room = "KIT"
+
+[node name="Radio_01" parent="Furniture" instance=ExtResource("33_RES_Radio")]
+transform = Transform3D(-0.99619, 0, 0.08716, 0, 1, 0, -0.08716, 0, -0.99619, -5.65, 1.52, 11.285)
+metadata/room = "KIT"
+
+[node name="DiningTable_Round_01" parent="Furniture" instance=ExtResource("18_RES_DiningTable_Round")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -4.6, 0.6, 8.5)
+metadata/room = "KIT"
+
+[node name="DiningChair_Wood_01" parent="Furniture" instance=ExtResource("17_RES_DiningChair_Wood")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -3.73397, 0.6, 8.25)
+metadata/room = "KIT"
+
+[node name="DiningChair_Wood_02" parent="Furniture" instance=ExtResource("17_RES_DiningChair_Wood")]
+transform = Transform3D(0, 0, 1, 0, 1, 0, -1, 0, 0, -5.425, 0.6, 8.7299)
+metadata/room = "KIT"
+
+[node name="Dishes_Set_01" parent="Furniture" instance=ExtResource("20_RES_Dishes_Set")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -4.45, 1.35, 8.6)
+metadata/room = "KIT"
+
+[node name="WallCalendar_01" parent="Furniture" instance=ExtResource("47_RES_WallCalendar")]
+transform = Transform3D(0, 0, -1, 0, 1, 0, 1, 0, 0, -2.667, 2.1, 7.4)
+metadata/room = "KIT"
+
+[node name="TrashCan_Pedal_01" parent="Furniture" instance=ExtResource("45_RES_TrashCan_Pedal")]
+transform = Transform3D(0, 0, -1, 0, 1, 0, 1, 0, 0, -2.875, 0.6, 10.6)
+metadata/room = "KIT"
+
+[node name="Bed_Double_Unmade_01" parent="Furniture" instance=ExtResource("6_RES_Bed_Double_Unmade")]
+transform = Transform3D(0, 0, -1, 0, 1, 0, 1, 0, 0, 1.675, 0.6, 6.9)
+metadata/room = "BED"
+
+[node name="Nightstand_01" parent="Furniture" instance=ExtResource("30_RES_Nightstand")]
+transform = Transform3D(0, 0, -1, 0, 1, 0, 1, 0, 0, 2.525, 0.6, 5.5)
+metadata/room = "BED"
+
+[node name="AlarmClock_01" parent="Furniture" instance=ExtResource("2_RES_AlarmClock")]
+transform = Transform3D(0, 0, -1, 0, 1, 0, 1, 0, 0, 2.475, 1.18, 5.5)
+metadata/room = "BED"
+
+[node name="Lamp_Table_01" parent="Furniture" instance=ExtResource("27_RES_Lamp_Table")]
+transform = Transform3D(0, 0, -1, 0, 1, 0, 1, 0, 0, 2.575, 1.18, 5.62)
+metadata/room = "BED"
+
+[node name="Desk_Computer_01" parent="Furniture" instance=ExtResource("16_RES_Desk_Computer")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.9, 0.6, 5.015)
+metadata/room = "BED"
+
+[node name="DeskChair_Office_01" parent="Furniture" instance=ExtResource("15_RES_DeskChair_Office")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.9, 0.6, 5.6)
+metadata/room = "BED"
+
+[node name="Dresser_01" parent="Furniture" instance=ExtResource("21_RES_Dresser")]
+transform = Transform3D(0, 0, 1, 0, 1, 0, -1, 0, 0, -0.685, 0.6, 5.8)
+metadata/room = "BED"
+
+[node name="Poster_Band_01" parent="Furniture" instance=ExtResource("32_RES_Poster_Band")]
+transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 1.3, 2.3, 8.333)
+metadata/room = "BED"
+
+[node name="Blanket_Folded_01" parent="Furniture" instance=ExtResource("7_RES_Blanket_Folded")]
+transform = Transform3D(0, 0, 1, 0, 1, 0, -1, 0, 0, -0.685, 1.48, 5.6)
+metadata/room = "BED"
+
+[node name="Bathtub_01" parent="Furniture" instance=ExtResource("5_RES_Bathtub")]
+transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 0.5, 0.6, 11.11)
+metadata/room = "BATH"
+
+[node name="Toilet_01" parent="Furniture" instance=ExtResource("42_RES_Toilet")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.9, 0.6, 9.905)
+metadata/room = "BATH"
+
+[node name="BathSink_Pedestal_01" parent="Furniture" instance=ExtResource("4_RES_BathSink_Pedestal")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.6, 0.6, 9.805)
+metadata/room = "BATH"
+
+[node name="MedicineCabinet_01" parent="Furniture" instance=ExtResource("28_RES_MedicineCabinet")]
+transform = Transform3D(0, 0, -1, 0, 1, 0, 1, 0, 0, 1.268, 2.15, 10.2)
+metadata/room = "BATH"
+
+[node name="TowelRack_01" parent="Furniture" instance=ExtResource("44_RES_TowelRack")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.6, 1.8, 9.612)
+metadata/room = "BATH"
+
+[node name="Workbench_01" parent="Furniture" instance=ExtResource("51_RES_Workbench")]
+transform = Transform3D(0, 0, -1, 0, 1, 0, 1, 0, 0, 6.035, 0.02, 9.4)
+metadata/room = "GAR"
+
+[node name="Toolbox_01" parent="Furniture" instance=ExtResource("43_RES_Toolbox")]
+transform = Transform3D(0, 0, -1, 0, 1, 0, 1, 0, 0, 6.035, 0.92, 9.8)
+metadata/room = "GAR"
+
+[node name="Shelving_Metal_01" parent="Furniture" instance=ExtResource("35_RES_Shelving_Metal")]
+transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 5.6, 0.02, 11.26)
+metadata/room = "GAR"
+
+[node name="WaterHeater_01" parent="Furniture" instance=ExtResource("50_RES_WaterHeater")]
+transform = Transform3D(0, 0, -1, 0, 1, 0, 1, 0, 0, 6.085, 0.02, 7.4)
+metadata/room = "GAR"
+
+[node name="ElectricalPanel_01" parent="Furniture" instance=ExtResource("22_RES_ElectricalPanel")]
+transform = Transform3D(0, 0, -1, 0, 1, 0, 1, 0, 0, 6.348, 1.52, 6)
+metadata/room = "GAR"
+
+[node name="CardboardBox_Stack_01" parent="Furniture" instance=ExtResource("8_RES_CardboardBox_Stack")]
+transform = Transform3D(0.96593, 0, 0.25882, 0, 1, 0, -0.25882, 0, 0.96593, 3.4, 0.02, 7.6)
+metadata/room = "GAR"
+
+[node name="WashingMachine_01" parent="Furniture" instance=ExtResource("49_RES_WashingMachine")]
+transform = Transform3D(0, 0, 1, 0, 1, 0, -1, 0, 0, 3.215, 0.02, 8.25)
+metadata/room = "GAR"
+
+[node name="StorageBin_01" parent="Furniture" instance=ExtResource("38_RES_StorageBin")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 4.15, 0.02, 7.49904)
+metadata/room = "GAR"
+
+[node name="Lights" type="Node3D" parent="."]
+
+[node name="Ceiling_BED" type="OmniLight3D" parent="Lights"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.9, 2.95, 6.5)
+light_color = Color(1, 0.82, 0.6, 1)
+light_energy = 0
+omni_range = 4.5
+shadow_enabled = false
+metadata/note = "off at wake-up; the bedside lamp is the only light on"
+
+[node name="Ceiling_HALL" type="OmniLight3D" parent="Lights"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1.8, 2.95, 9.1)
+light_color = Color(1, 0.82, 0.6, 1)
+light_energy = 0.45
+omni_range = 4
+shadow_enabled = false
+
+[node name="Ceiling_LIV" type="OmniLight3D" parent="Lights"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -3.75, 2.95, 4.4)
+light_color = Color(1, 0.82, 0.6, 1)
+light_energy = 0.7
+omni_range = 6
+shadow_enabled = false
+
+[node name="Ceiling_KIT" type="OmniLight3D" parent="Lights"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -4.55, 2.95, 9.1)
+light_color = Color(1, 0.82, 0.6, 1)
+light_energy = 0.8
+omni_range = 5.5
+shadow_enabled = false
+
+[node name="Lamp_LIV" type="OmniLight3D" parent="Lights"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -6.05, 2.05, 2.7)
+light_color = Color(1, 0.82, 0.6, 1)
+light_energy = 0.9
+omni_range = 4
+shadow_enabled = false
+
+[node name="Lamp_BED" type="OmniLight3D" parent="Lights"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2.575, 1.58, 5.62)
+light_color = Color(1, 0.82, 0.6, 1)
+light_energy = 0.9
+omni_range = 4
+shadow_enabled = false
+
+[node name="Porch" type="OmniLight3D" parent="Lights"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -3.5, 2.78, 1.6)
+light_color = Color(1, 0.82, 0.6, 1)
+light_energy = 0.6
+omni_range = 5
+shadow_enabled = false
+
+[node name="Markers" type="Node3D" parent="."]
+
+[node name="Spawn_WakeUp" type="Marker3D" parent="Markers"]
+transform = Transform3D(-0.03277, 0, 0.99946, 0, 1, 0, -0.99946, 0, -0.03277, 0.15, 0.6, 6.95)
+metadata/note = "player stands up here beside the bed; Friday evening"
+
+[node name="Sedan_Driveway" type="Marker3D" parent="Markers"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.5, 0, -2)
+metadata/note = "Pack 02 journey point 2_SEDAN_ON_DRIVEWAY; -Z (forward) faces the street; driver door on -X"
+
+[node name="Pickup_CarKeys" type="Marker3D" parent="Markers"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1.155, 2.17, 2.417)
+
+[node name="WakePath" type="Node3D" parent="Markers"]
+
+[node name="WP_00_Bed" type="Marker3D" parent="Markers/WakePath"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.15, 0.6, 6.95)
+
+[node name="WP_01_BedroomDoor" type="Marker3D" parent="Markers/WakePath"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.45, 0.6, 7.5)
+
+[node name="WP_02_Hall" type="Marker3D" parent="Markers/WakePath"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1.55, 0.6, 7.5)
+
+[node name="WP_03_HallToLiving" type="Marker3D" parent="Markers/WakePath"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1.8, 0.6, 7.15)
+
+[node name="WP_04_Living" type="Marker3D" parent="Markers/WakePath"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1.8, 0.6, 6.05)
+
+[node name="WP_05_FrontDoorInside_via1" type="Marker3D" parent="Markers/WakePath"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -3.55, 0.6, 5.95)
+
+[node name="WP_06_FrontDoorInside_via2" type="Marker3D" parent="Markers/WakePath"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -3.65, 0.6, 5.85)
+
+[node name="WP_07_FrontDoorInside_via3" type="Marker3D" parent="Markers/WakePath"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -3.65, 0.6, 3.95)
+
+[node name="WP_08_FrontDoorInside" type="Marker3D" parent="Markers/WakePath"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2.6, 0.6, 2.75)
+
+[node name="WP_09_FrontDoorOutside" type="Marker3D" parent="Markers/WakePath"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2.6, 0.58, 1.65)
+
+[node name="WP_10_PorchStepsTop" type="Marker3D" parent="Markers/WakePath"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2.6, 0.58, 1.4)
+
+[node name="WP_11_PorchStepsFoot" type="Marker3D" parent="Markers/WakePath"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2.6, 0, -0.5)
+
+[node name="WP_12_Walkway" type="Marker3D" parent="Markers/WakePath"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.95, 0, -0.5)
+
+[node name="WP_13_SedanDriverDoor" type="Marker3D" parent="Markers/WakePath"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.75, 0, -1.6)

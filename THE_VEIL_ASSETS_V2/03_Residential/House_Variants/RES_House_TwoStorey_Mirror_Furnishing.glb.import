@@ -1,0 +1,153 @@
+[remap]
+
+importer="scene"
+importer_version=1
+type="PackedScene"
+path="res://.godot/imported/RES_House_TwoStorey_Mirror_Furnishing.glb-1e4187bacc5c081ca06f3c1d46fcaf09.scn"
+
+[deps]
+
+source_file="res://THE_VEIL_ASSETS_V2/03_Residential/House_Variants/RES_House_TwoStorey_Mirror_Furnishing.glb"
+dest_files=["res://.godot/imported/RES_House_TwoStorey_Mirror_Furnishing.glb-1e4187bacc5c081ca06f3c1d46fcaf09.scn"]
+
+[params]
+
+nodes/root_type=""
+nodes/root_name=""
+nodes/apply_root_scale=true
+nodes/root_scale=1.0
+meshes/ensure_tangents=false
+meshes/generate_lods=false
+meshes/create_shadow_meshes=true
+meshes/light_baking=1
+meshes/lightmap_texel_size=0.2
+meshes/force_disable_compression=false
+skins/use_named_skins=true
+animation/import=false
+import_script/path=""
+_subresources={
+"materials": {
+"M_Int_CarpetWorn": {
+"use_external/enabled": true,
+"use_external/path": "res://THE_VEIL_ASSETS_V2/Materials_Godot/Interiors/M_Int_CarpetWorn.tres"
+},
+"M_Furn_WoodDark": {
+"use_external/enabled": true,
+"use_external/path": "res://THE_VEIL_ASSETS_V2/Materials_Godot/Furniture/M_Furn_WoodDark.tres"
+},
+"M_Res_FabricPlaid": {
+"use_external/enabled": true,
+"use_external/path": "res://THE_VEIL_ASSETS_V2/03_Residential/Materials/M_Res_FabricPlaid.tres"
+},
+"M_Furn_WoodLight": {
+"use_external/enabled": true,
+"use_external/path": "res://THE_VEIL_ASSETS_V2/Materials_Godot/Furniture/M_Furn_WoodLight.tres"
+},
+"M_Res_DetailAtlas": {
+"use_external/enabled": true,
+"use_external/path": "res://THE_VEIL_ASSETS_V2/03_Residential/Materials/M_Res_DetailAtlas.tres"
+},
+"M_Res_DetailAtlasGlow": {
+"use_external/enabled": true,
+"use_external/path": "res://THE_VEIL_ASSETS_V2/03_Residential/Materials/M_Res_DetailAtlasGlow.tres"
+},
+"M_Road_RoadPatch": {
+"use_external/enabled": true,
+"use_external/path": "res://THE_VEIL_ASSETS_V2/Materials_Godot/Roads/M_Road_RoadPatch.tres"
+},
+"M_Furn_Cardboard": {
+"use_external/enabled": true,
+"use_external/path": "res://THE_VEIL_ASSETS_V2/Materials_Godot/Furniture/M_Furn_Cardboard.tres"
+},
+"M_Furn_MetalBrushed": {
+"use_external/enabled": true,
+"use_external/path": "res://THE_VEIL_ASSETS_V2/Materials_Godot/Furniture/M_Furn_MetalBrushed.tres"
+},
+"M_Res_Lampshade": {
+"use_external/enabled": true,
+"use_external/path": "res://THE_VEIL_ASSETS_V2/03_Residential/Materials/M_Res_Lampshade.tres"
+},
+"M_Res_BulbGlow": {
+"use_external/enabled": true,
+"use_external/path": "res://THE_VEIL_ASSETS_V2/03_Residential/Materials/M_Res_BulbGlow.tres"
+},
+"M_Res_Gingham": {
+"use_external/enabled": true,
+"use_external/path": "res://THE_VEIL_ASSETS_V2/03_Residential/Materials/M_Res_Gingham.tres"
+},
+"M_Furn_Rubber": {
+"use_external/enabled": true,
+"use_external/path": "res://THE_VEIL_ASSETS_V2/Materials_Godot/Furniture/M_Furn_Rubber.tres"
+},
+"M_Furn_FabricUpholstery": {
+"use_external/enabled": true,
+"use_external/path": "res://THE_VEIL_ASSETS_V2/Materials_Godot/Furniture/M_Furn_FabricUpholstery.tres"
+},
+"M_Res_EnamelHarvest": {
+"use_external/enabled": true,
+"use_external/path": "res://THE_VEIL_ASSETS_V2/03_Residential/Materials/M_Res_EnamelHarvest.tres"
+},
+"M_Furn_WoodPainted": {
+"use_external/enabled": true,
+"use_external/path": "res://THE_VEIL_ASSETS_V2/Materials_Godot/Furniture/M_Furn_WoodPainted.tres"
+},
+"M_Res_Formica": {
+"use_external/enabled": true,
+"use_external/path": "res://THE_VEIL_ASSETS_V2/03_Residential/Materials/M_Res_Formica.tres"
+},
+"M_Furn_PlasticDirty": {
+"use_external/enabled": true,
+"use_external/path": "res://THE_VEIL_ASSETS_V2/Materials_Godot/Furniture/M_Furn_PlasticDirty.tres"
+},
+"M_Arch_WindowGlassDirty": {
+"use_external/enabled": true,
+"use_external/path": "res://THE_VEIL_ASSETS_V2/Materials_Godot/Architecture/M_Arch_WindowGlassDirty.tres"
+},
+"M_Town_PaintWhite": {
+"use_external/enabled": true,
+"use_external/path": "res://THE_VEIL_ASSETS_V2/02_Town/Materials/M_Town_PaintWhite.tres"
+},
+"M_Furn_Denim": {
+"use_external/enabled": true,
+"use_external/path": "res://THE_VEIL_ASSETS_V2/Materials_Godot/Furniture/M_Furn_Denim.tres"
+},
+"M_Int_DrywallLight": {
+"use_external/enabled": true,
+"use_external/path": "res://THE_VEIL_ASSETS_V2/Materials_Godot/Interiors/M_Int_DrywallLight.tres"
+},
+"M_Res_Quilt": {
+"use_external/enabled": true,
+"use_external/path": "res://THE_VEIL_ASSETS_V2/03_Residential/Materials/M_Res_Quilt.tres"
+},
+"M_Res_Mirror": {
+"use_external/enabled": true,
+"use_external/path": "res://THE_VEIL_ASSETS_V2/03_Residential/Materials/M_Res_Mirror.tres"
+},
+"M_Res_Porcelain": {
+"use_external/enabled": true,
+"use_external/path": "res://THE_VEIL_ASSETS_V2/03_Residential/Materials/M_Res_Porcelain.tres"
+},
+"M_Furn_LeatherWorn": {
+"use_external/enabled": true,
+"use_external/path": "res://THE_VEIL_ASSETS_V2/Materials_Godot/Furniture/M_Furn_LeatherWorn.tres"
+},
+"M_Com_MetalShelving": {
+"use_external/enabled": true,
+"use_external/path": "res://THE_VEIL_ASSETS_V2/Materials_Godot/Commercial/M_Com_MetalShelving.tres"
+},
+"M_Town_PaintYellow": {
+"use_external/enabled": true,
+"use_external/path": "res://THE_VEIL_ASSETS_V2/02_Town/Materials/M_Town_PaintYellow.tres"
+},
+"M_Com_SignageBacking": {
+"use_external/enabled": true,
+"use_external/path": "res://THE_VEIL_ASSETS_V2/Materials_Godot/Commercial/M_Com_SignageBacking.tres"
+},
+"M_Res_Pegboard": {
+"use_external/enabled": true,
+"use_external/path": "res://THE_VEIL_ASSETS_V2/03_Residential/Materials/M_Res_Pegboard.tres"
+}
+}
+}
+gltf/naming_version=1
+gltf/embedded_image_handling=1

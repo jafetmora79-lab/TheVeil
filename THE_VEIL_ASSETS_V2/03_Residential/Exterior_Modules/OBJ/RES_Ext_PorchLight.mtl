@@ -1,0 +1,12 @@
+newmtl M_Town_PaintBlack
+Ka 0 0 0
+Kd 1 1 1
+Ks 0 0 0
+illum 1
+map_Kd ../../../02_Town/Textures/T_Town_PaintBlack.png
+
+newmtl M_Res_BulbGlow
+Ka 0 0 0
+Kd 1 1 1
+Ks 0 0 0
+illum 1

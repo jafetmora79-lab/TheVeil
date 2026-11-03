@@ -1,0 +1,20 @@
+newmtl M_Res_Porcelain
+Ka 0 0 0
+Kd 1 1 1
+Ks 0 0 0
+illum 1
+map_Kd ../../Textures/T_Res_Porcelain.png
+
+newmtl M_Furn_MetalBrushed
+Ka 0 0 0
+Kd 1 1 1
+Ks 0 0 0
+illum 1
+map_Kd ../../../01_Textures/Furniture/T_Furn_MetalBrushed.png
+
+newmtl M_Res_Gingham
+Ka 0 0 0
+Kd 1 1 1
+Ks 0 0 0
+illum 1
+map_Kd ../../Textures/T_Res_Gingham.png

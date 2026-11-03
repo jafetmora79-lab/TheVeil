@@ -1,0 +1,13 @@
+newmtl M_Arch_BrickRed
+Ka 0 0 0
+Kd 1 1 1
+Ks 0 0 0
+illum 1
+map_Kd ../../../01_Textures/Architecture/T_Arch_BrickRed.png
+
+newmtl M_Int_DrywallLight
+Ka 0 0 0
+Kd 1 1 1
+Ks 0 0 0
+illum 1
+map_Kd ../../../01_Textures/Interiors/T_Int_DrywallLight.png
