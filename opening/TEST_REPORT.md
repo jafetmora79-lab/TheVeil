@@ -55,3 +55,18 @@ All changes are confined to the new gameplay/configuration/documentation files, 
 - Official Godot 4.3 export templates successfully produced the release Web build. Prepared gzip transport files round-trip to the original declared pack/engine lengths (13,761,376 and 35,376,909 bytes).
 - The cloud-browser HTTP preview displayed Godot's missing-feature notice for WebGL2 and Secure Context. No browser gameplay or visual playthrough is claimed. HTTPS hosting addresses the secure-context requirement; the browser still needs WebGL2 support.
 - The browser build reuses the existing opening source and assets. Claude's branch and the gallery remain unchanged.
+
+## Blank browser screen repair
+
+The first Web export omitted `opening/player.gd` and `opening/progress.gd`: the source-project test passed, but the actual exported pack failed with `Preload file ... does not exist`. This prevented the opening script from loading, leaving the default blank viewport. The Web preset now explicitly includes both scripts.
+
+The repaired **exported pack**, without access to source-project resources, was tested with:
+
+```sh
+godot --headless --main-pack /absolute/export/index.pck --quit-after 120
+godot --headless --main-pack /absolute/export/index.pck --script /absolute/TheVeil/opening/tests/smoke.gd
+```
+
+The pack launch had no script/parser errors. The full exported-pack smoke test printed `OPENING_SMOKE: PASS` and exited 0, exercising the same house traversal, targeting, progression, braking and arrival checks. There are UID warnings that fall back to valid text paths and the previously documented dummy-renderer teardown diagnostic; these remain unresolved. Rendered browser playthrough remains unverified in the WebGL2-limited cloud browser.
+
+The transport postprocessor now rejects packs missing either required script remap and includes a pack hash in download URLs so updated game data does not reuse old browser-cached payloads.
