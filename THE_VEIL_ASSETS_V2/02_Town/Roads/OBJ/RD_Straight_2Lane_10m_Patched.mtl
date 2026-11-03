@@ -1,0 +1,36 @@
+newmtl M_Road_Asphalt
+Ka 0 0 0
+Kd 1 1 1
+Ks 0 0 0
+illum 1
+map_Kd ../../../01_Textures/Roads/T_Road_Asphalt.png
+
+newmtl M_Road_CurbConcrete
+Ka 0 0 0
+Kd 1 1 1
+Ks 0 0 0
+illum 1
+map_Kd ../../../01_Textures/Roads/T_Road_CurbConcrete.png
+
+newmtl M_Road_MarkingYellow
+Ka 0 0 0
+Kd 1 1 1
+Ks 0 0 0
+illum 1
+map_Kd ../../../01_Textures/Roads/T_Road_MarkingYellow.png
+map_d ../../../01_Textures/Roads/T_Road_MarkingYellow.png
+
+newmtl M_Road_RoadPatch
+Ka 0 0 0
+Kd 1 1 1
+Ks 0 0 0
+illum 1
+map_Kd ../../../01_Textures/Roads/T_Road_RoadPatch.png
+
+newmtl M_Town_Puddle
+Ka 0 0 0
+Kd 1 1 1
+Ks 0 0 0
+illum 1
+map_Kd ../../Textures/T_Town_Puddle.png
+map_d ../../Textures/T_Town_Puddle.png

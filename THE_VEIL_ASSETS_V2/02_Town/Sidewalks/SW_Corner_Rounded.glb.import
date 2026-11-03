@@ -1,0 +1,45 @@
+[remap]
+
+importer="scene"
+importer_version=1
+type="PackedScene"
+path="res://.godot/imported/SW_Corner_Rounded.glb-05e90e5e47294fc9ede0020a39af7685.scn"
+
+[deps]
+
+source_file="res://THE_VEIL_ASSETS_V2/02_Town/Sidewalks/SW_Corner_Rounded.glb"
+dest_files=["res://.godot/imported/SW_Corner_Rounded.glb-05e90e5e47294fc9ede0020a39af7685.scn"]
+
+[params]
+
+nodes/root_type=""
+nodes/root_name=""
+nodes/apply_root_scale=true
+nodes/root_scale=1.0
+meshes/ensure_tangents=false
+meshes/generate_lods=false
+meshes/create_shadow_meshes=true
+meshes/light_baking=1
+meshes/lightmap_texel_size=0.2
+meshes/force_disable_compression=false
+skins/use_named_skins=true
+animation/import=false
+import_script/path=""
+_subresources={
+"materials": {
+"M_Road_Asphalt": {
+"use_external/enabled": true,
+"use_external/path": "res://THE_VEIL_ASSETS_V2/Materials_Godot/Roads/M_Road_Asphalt.tres"
+},
+"M_Road_CurbConcrete": {
+"use_external/enabled": true,
+"use_external/path": "res://THE_VEIL_ASSETS_V2/Materials_Godot/Roads/M_Road_CurbConcrete.tres"
+},
+"M_Road_SidewalkConcrete": {
+"use_external/enabled": true,
+"use_external/path": "res://THE_VEIL_ASSETS_V2/Materials_Godot/Roads/M_Road_SidewalkConcrete.tres"
+}
+}
+}
+gltf/naming_version=1
+gltf/embedded_image_handling=1

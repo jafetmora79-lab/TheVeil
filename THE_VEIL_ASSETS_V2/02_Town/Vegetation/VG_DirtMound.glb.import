@@ -1,0 +1,37 @@
+[remap]
+
+importer="scene"
+importer_version=1
+type="PackedScene"
+path="res://.godot/imported/VG_DirtMound.glb-57fee304425e8d4319c2c1307c368908.scn"
+
+[deps]
+
+source_file="res://THE_VEIL_ASSETS_V2/02_Town/Vegetation/VG_DirtMound.glb"
+dest_files=["res://.godot/imported/VG_DirtMound.glb-57fee304425e8d4319c2c1307c368908.scn"]
+
+[params]
+
+nodes/root_type=""
+nodes/root_name=""
+nodes/apply_root_scale=true
+nodes/root_scale=1.0
+meshes/ensure_tangents=false
+meshes/generate_lods=false
+meshes/create_shadow_meshes=true
+meshes/light_baking=1
+meshes/lightmap_texel_size=0.2
+meshes/force_disable_compression=false
+skins/use_named_skins=true
+animation/import=false
+import_script/path=""
+_subresources={
+"materials": {
+"M_Grnd_Soil": {
+"use_external/enabled": true,
+"use_external/path": "res://THE_VEIL_ASSETS_V2/Materials_Godot/Ground/M_Grnd_Soil.tres"
+}
+}
+}
+gltf/naming_version=1
+gltf/embedded_image_handling=1

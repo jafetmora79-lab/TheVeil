@@ -1,0 +1,28 @@
+newmtl M_Grnd_TreeBark
+Ka 0 0 0
+Kd 1 1 1
+Ks 0 0 0
+illum 1
+map_Kd ../../../01_Textures/Ground/T_Grnd_TreeBark.png
+
+newmtl M_Grnd_HedgeFoliage
+Ka 0 0 0
+Kd 1 1 1
+Ks 0 0 0
+illum 1
+map_Kd ../../../01_Textures/Ground/T_Grnd_HedgeFoliage.png
+
+newmtl M_Grnd_DeadVegetation
+Ka 0 0 0
+Kd 1 1 1
+Ks 0 0 0
+illum 1
+map_Kd ../../../01_Textures/Ground/T_Grnd_DeadVegetation.png
+
+newmtl M_Town_Ivy
+Ka 0 0 0
+Kd 1 1 1
+Ks 0 0 0
+illum 1
+map_Kd ../../Textures/T_Town_Ivy.png
+map_d ../../Textures/T_Town_Ivy.png

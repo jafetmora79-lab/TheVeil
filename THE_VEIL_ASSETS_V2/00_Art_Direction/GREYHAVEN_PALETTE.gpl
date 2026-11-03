@@ -328,3 +328,41 @@ Columns: 7
  35  25  26	stain_2
  48  34  31	stain_3
  63  45  39	stain_4
+ 62  21  22	paint_red_0
+ 92  31  29	paint_red_1
+125  42  36	paint_red_2
+156  58  44	paint_red_3
+181  82  59	paint_red_4
+ 90  42  18	paint_orange_0
+138  65  22	paint_orange_1
+181  89  28	paint_orange_2
+207 116  40	paint_orange_3
+224 149  74	paint_orange_4
+ 20  28  44	paint_navy_0
+ 29  42  66	paint_navy_1
+ 41  57  90	paint_navy_2
+ 58  77 114	paint_navy_3
+ 83 103 140	paint_navy_4
+ 17  18  20	paint_black_0
+ 27  28  32	paint_black_1
+ 38  40  45	paint_black_2
+ 52  54  60	paint_black_3
+ 70  72  78	paint_black_4
+ 22  48  31	sign_green_0
+ 31  68  43	sign_green_1
+ 43  90  55	sign_green_2
+ 59 112  70	sign_green_3
+ 15  29  26	pine_0
+ 21  42  34	pine_1
+ 29  58  43	pine_2
+ 40  76  53	pine_3
+ 54  95  64	pine_4
+ 74 115  73	pine_5
+ 90  51  80	flower_0
+126  74 110	flower_1
+162 103 143	flower_2
+192 138 170	flower_3
+138 106  58	glow_0
+200 154  82	glow_1
+240 200 120	glow_2
+255 240 192	glow_3

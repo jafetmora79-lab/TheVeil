@@ -1,0 +1,4729 @@
+{
+ "pack": "THE VEIL - Pack 02 Greyhaven Town",
+ "models": [
+  {
+   "name": "RD_Straight_2Lane_10m",
+   "category": "Roads",
+   "glb": "02_Town/Roads/RD_Straight_2Lane_10m.glb",
+   "obj": "02_Town/Roads/OBJ/RD_Straight_2Lane_10m.obj",
+   "triangles": 10,
+   "collision_triangles": 2,
+   "collision": [
+    "colonly"
+   ],
+   "materials": [
+    "M_Road_Asphalt",
+    "M_Road_CurbConcrete",
+    "M_Road_MarkingYellow"
+   ],
+   "bounds_min": [
+    -3.75,
+    0.0,
+    0.0
+   ],
+   "bounds_max": [
+    3.75,
+    0.006,
+    10.0
+   ],
+   "nodes": [
+    "RD_Straight_2Lane_10m_Mesh",
+    "RD_Straight_2Lane_10m_Col-colonly"
+   ],
+   "kind": "segment",
+   "length": 10.0,
+   "width": 7.5,
+   "port_type": "road",
+   "ports": [
+    [
+     [
+      0,
+      0,
+      0
+     ],
+     [
+      0,
+      0,
+      -1
+     ]
+    ],
+    [
+     [
+      0,
+      0,
+      10.0
+     ],
+     [
+      0,
+      0,
+      1
+     ]
+    ]
+   ],
+   "footprint": [
+    -3.75,
+    0,
+    3.75,
+    10.0
+   ]
+  },
+  {
+   "name": "RD_Straight_2Lane_10m_Cracked",
+   "category": "Roads",
+   "glb": "02_Town/Roads/RD_Straight_2Lane_10m_Cracked.glb",
+   "obj": "02_Town/Roads/OBJ/RD_Straight_2Lane_10m_Cracked.obj",
+   "triangles": 10,
+   "collision_triangles": 2,
+   "collision": [
+    "colonly"
+   ],
+   "materials": [
+    "M_Road_AsphaltCracked",
+    "M_Road_CurbConcrete",
+    "M_Road_MarkingYellow"
+   ],
+   "bounds_min": [
+    -3.75,
+    0.0,
+    0.0
+   ],
+   "bounds_max": [
+    3.75,
+    0.006,
+    10.0
+   ],
+   "nodes": [
+    "RD_Straight_2Lane_10m_Cracked_Mesh",
+    "RD_Straight_2Lane_10m_Cracked_Col-colonly"
+   ],
+   "kind": "segment",
+   "length": 10.0,
+   "width": 7.5,
+   "port_type": "road",
+   "ports": [
+    [
+     [
+      0,
+      0,
+      0
+     ],
+     [
+      0,
+      0,
+      -1
+     ]
+    ],
+    [
+     [
+      0,
+      0,
+      10.0
+     ],
+     [
+      0,
+      0,
+      1
+     ]
+    ]
+   ],
+   "footprint": [
+    -3.75,
+    0,
+    3.75,
+    10.0
+   ]
+  },
+  {
+   "name": "RD_Straight_2Lane_10m_Patched",
+   "category": "Roads",
+   "glb": "02_Town/Roads/RD_Straight_2Lane_10m_Patched.glb",
+   "obj": "02_Town/Roads/OBJ/RD_Straight_2Lane_10m_Patched.obj",
+   "triangles": 17,
+   "collision_triangles": 2,
+   "collision": [
+    "colonly"
+   ],
+   "materials": [
+    "M_Road_Asphalt",
+    "M_Road_CurbConcrete",
+    "M_Road_MarkingYellow",
+    "M_Road_RoadPatch",
+    "M_Town_Puddle"
+   ],
+   "bounds_min": [
+    -3.75,
+    0.0,
+    0.0
+   ],
+   "bounds_max": [
+    3.75,
+    0.006,
+    10.0
+   ],
+   "nodes": [
+    "RD_Straight_2Lane_10m_Patched_Mesh",
+    "RD_Straight_2Lane_10m_Patched_Col-colonly"
+   ],
+   "kind": "segment",
+   "length": 10.0,
+   "width": 7.5,
+   "port_type": "road",
+   "ports": [
+    [
+     [
+      0,
+      0,
+      0
+     ],
+     [
+      0,
+      0,
+      -1
+     ]
+    ],
+    [
+     [
+      0,
+      0,
+      10.0
+     ],
+     [
+      0,
+      0,
+      1
+     ]
+    ]
+   ],
+   "footprint": [
+    -3.75,
+    0,
+    3.75,
+    10.0
+   ]
+  },
+  {
+   "name": "RD_Straight_2Lane_10m_Unmarked",
+   "category": "Roads",
+   "glb": "02_Town/Roads/RD_Straight_2Lane_10m_Unmarked.glb",
+   "obj": "02_Town/Roads/OBJ/RD_Straight_2Lane_10m_Unmarked.obj",
+   "triangles": 6,
+   "collision_triangles": 2,
+   "collision": [
+    "colonly"
+   ],
+   "materials": [
+    "M_Road_Asphalt",
+    "M_Road_CurbConcrete"
+   ],
+   "bounds_min": [
+    -3.75,
+    0.0,
+    0.0
+   ],
+   "bounds_max": [
+    3.75,
+    0.0,
+    10.0
+   ],
+   "nodes": [
+    "RD_Straight_2Lane_10m_Unmarked_Mesh",
+    "RD_Straight_2Lane_10m_Unmarked_Col-colonly"
+   ],
+   "kind": "segment",
+   "length": 10.0,
+   "width": 7.5,
+   "port_type": "road",
+   "ports": [
+    [
+     [
+      0,
+      0,
+      0
+     ],
+     [
+      0,
+      0,
+      -1
+     ]
+    ],
+    [
+     [
+      0,
+      0,
+      10.0
+     ],
+     [
+      0,
+      0,
+      1
+     ]
+    ]
+   ],
+   "footprint": [
+    -3.75,
+    0,
+    3.75,
+    10.0
+   ]
+  },
+  {
+   "name": "RD_Intersection_4Way_12m",
+   "category": "Roads",
+   "glb": "02_Town/Roads/RD_Intersection_4Way_12m.glb",
+   "obj": "02_Town/Roads/OBJ/RD_Intersection_4Way_12m.obj",
+   "triangles": 234,
+   "collision_triangles": 226,
+   "collision": [
+    "colonly"
+   ],
+   "materials": [
+    "M_Road_Asphalt",
+    "M_Road_CurbConcrete",
+    "M_Road_SidewalkConcrete"
+   ],
+   "bounds_min": [
+    -6.0,
+    0.0,
+    -6.0
+   ],
+   "bounds_max": [
+    6.0,
+    0.15,
+    6.0
+   ],
+   "nodes": [
+    "RD_Intersection_4Way_12m_Mesh",
+    "RD_Intersection_4Way_12m_Col-colonly"
+   ],
+   "kind": "node",
+   "width": 12.0,
+   "port_type": "urban",
+   "ports": [
+    [
+     [
+      0,
+      0,
+      -6
+     ],
+     [
+      0,
+      0,
+      -1
+     ]
+    ],
+    [
+     [
+      0,
+      0,
+      6
+     ],
+     [
+      0,
+      0,
+      1
+     ]
+    ],
+    [
+     [
+      6,
+      0,
+      0
+     ],
+     [
+      1,
+      0,
+      0
+     ]
+    ],
+    [
+     [
+      -6,
+      0,
+      0
+     ],
+     [
+      -1,
+      0,
+      0
+     ]
+    ]
+   ],
+   "footprint": [
+    -6,
+    -6,
+    6,
+    6
+   ]
+  },
+  {
+   "name": "RD_Intersection_T_12m",
+   "category": "Roads",
+   "glb": "02_Town/Roads/RD_Intersection_T_12m.glb",
+   "obj": "02_Town/Roads/OBJ/RD_Intersection_T_12m.obj",
+   "triangles": 132,
+   "collision_triangles": 124,
+   "collision": [
+    "colonly"
+   ],
+   "materials": [
+    "M_Road_Asphalt",
+    "M_Road_CurbConcrete",
+    "M_Road_SidewalkConcrete"
+   ],
+   "bounds_min": [
+    -6.0,
+    0.0,
+    -6.0
+   ],
+   "bounds_max": [
+    6.0,
+    0.15,
+    6.0
+   ],
+   "nodes": [
+    "RD_Intersection_T_12m_Mesh",
+    "RD_Intersection_T_12m_Col-colonly"
+   ],
+   "kind": "node",
+   "width": 12.0,
+   "port_type": "urban",
+   "ports": [
+    [
+     [
+      0,
+      0,
+      6
+     ],
+     [
+      0,
+      0,
+      1
+     ]
+    ],
+    [
+     [
+      6,
+      0,
+      0
+     ],
+     [
+      1,
+      0,
+      0
+     ]
+    ],
+    [
+     [
+      -6,
+      0,
+      0
+     ],
+     [
+      -1,
+      0,
+      0
+     ]
+    ]
+   ],
+   "footprint": [
+    -6,
+    -6,
+    6,
+    6
+   ]
+  },
+  {
+   "name": "RD_Curve_Gentle_Left_30m",
+   "category": "Roads",
+   "glb": "02_Town/Roads/RD_Curve_Gentle_Left_30m.glb",
+   "obj": "02_Town/Roads/OBJ/RD_Curve_Gentle_Left_30m.obj",
+   "triangles": 228,
+   "collision_triangles": 168,
+   "collision": [
+    "colonly"
+   ],
+   "materials": [
+    "M_Road_Asphalt",
+    "M_Road_Gravel",
+    "M_Grnd_GrassOvergrown",
+    "M_Road_MarkingYellow",
+    "M_Road_MarkingWhite"
+   ],
+   "bounds_min": [
+    -6.0,
+    0.0,
+    0.0
+   ],
+   "bounds_max": [
+    24.0,
+    0.15,
+    30.0
+   ],
+   "nodes": [
+    "RD_Curve_Gentle_Left_30m_Mesh",
+    "RD_Curve_Gentle_Left_30m_Col-colonly"
+   ],
+   "kind": "curve",
+   "radius": 24.0,
+   "port_type": "rural",
+   "ports": [
+    [
+     [
+      0,
+      0,
+      0
+     ],
+     [
+      0,
+      0,
+      -1
+     ]
+    ],
+    [
+     [
+      24.0,
+      0,
+      24.0
+     ],
+     [
+      1,
+      0,
+      0
+     ]
+    ]
+   ],
+   "footprint": [
+    -6,
+    0,
+    24,
+    30
+   ]
+  },
+  {
+   "name": "RD_Curve_Gentle_Right_30m",
+   "category": "Roads",
+   "glb": "02_Town/Roads/RD_Curve_Gentle_Right_30m.glb",
+   "obj": "02_Town/Roads/OBJ/RD_Curve_Gentle_Right_30m.obj",
+   "triangles": 228,
+   "collision_triangles": 168,
+   "collision": [
+    "colonly"
+   ],
+   "materials": [
+    "M_Road_Asphalt",
+    "M_Road_Gravel",
+    "M_Grnd_GrassOvergrown",
+    "M_Road_MarkingYellow",
+    "M_Road_MarkingWhite"
+   ],
+   "bounds_min": [
+    -24.0,
+    0.0,
+    0.0
+   ],
+   "bounds_max": [
+    6.0,
+    0.15,
+    30.0
+   ],
+   "nodes": [
+    "RD_Curve_Gentle_Right_30m_Mesh",
+    "RD_Curve_Gentle_Right_30m_Col-colonly"
+   ],
+   "kind": "curve",
+   "radius": 24.0,
+   "port_type": "rural",
+   "ports": [
+    [
+     [
+      0,
+      0,
+      0
+     ],
+     [
+      0,
+      0,
+      -1
+     ]
+    ],
+    [
+     [
+      -24.0,
+      0,
+      24.0
+     ],
+     [
+      -1,
+      0,
+      0
+     ]
+    ]
+   ],
+   "footprint": [
+    -24,
+    0,
+    6,
+    30
+   ]
+  },
+  {
+   "name": "RD_Corner_Sharp_12m",
+   "category": "Roads",
+   "glb": "02_Town/Roads/RD_Corner_Sharp_12m.glb",
+   "obj": "02_Town/Roads/OBJ/RD_Corner_Sharp_12m.obj",
+   "triangles": 82,
+   "collision_triangles": 76,
+   "collision": [
+    "colonly"
+   ],
+   "materials": [
+    "M_Road_Asphalt",
+    "M_Road_CurbConcrete",
+    "M_Road_SidewalkConcrete"
+   ],
+   "bounds_min": [
+    -6.0,
+    0.0,
+    -6.0
+   ],
+   "bounds_max": [
+    6.0,
+    0.15,
+    6.0
+   ],
+   "nodes": [
+    "RD_Corner_Sharp_12m_Mesh",
+    "RD_Corner_Sharp_12m_Col-colonly"
+   ],
+   "kind": "node",
+   "width": 12.0,
+   "port_type": "urban",
+   "ports": [
+    [
+     [
+      0,
+      0,
+      6
+     ],
+     [
+      0,
+      0,
+      1
+     ]
+    ],
+    [
+     [
+      6,
+      0,
+      0
+     ],
+     [
+      1,
+      0,
+      0
+     ]
+    ]
+   ],
+   "footprint": [
+    -6,
+    -6,
+    6,
+    6
+   ]
+  },
+  {
+   "name": "RD_DeadEnd_12m",
+   "category": "Roads",
+   "glb": "02_Town/Roads/RD_DeadEnd_12m.glb",
+   "obj": "02_Town/Roads/OBJ/RD_DeadEnd_12m.obj",
+   "triangles": 32,
+   "collision_triangles": 28,
+   "collision": [
+    "colonly"
+   ],
+   "materials": [
+    "M_Road_Asphalt",
+    "M_Road_CurbConcrete",
+    "M_Road_SidewalkConcrete"
+   ],
+   "bounds_min": [
+    -6.0,
+    0.0,
+    -6.0
+   ],
+   "bounds_max": [
+    6.0,
+    0.15,
+    6.0
+   ],
+   "nodes": [
+    "RD_DeadEnd_12m_Mesh",
+    "RD_DeadEnd_12m_Col-colonly"
+   ],
+   "kind": "node",
+   "width": 12.0,
+   "port_type": "urban",
+   "ports": [
+    [
+     [
+      0,
+      0,
+      6
+     ],
+     [
+      0,
+      0,
+      1
+     ]
+    ]
+   ],
+   "footprint": [
+    -6,
+    -6,
+    6,
+    6
+   ]
+  },
+  {
+   "name": "RD_Street_Residential_10m",
+   "category": "Roads",
+   "glb": "02_Town/Roads/RD_Street_Residential_10m.glb",
+   "obj": "02_Town/Roads/OBJ/RD_Street_Residential_10m.obj",
+   "triangles": 22,
+   "collision_triangles": 14,
+   "collision": [
+    "colonly"
+   ],
+   "materials": [
+    "M_Road_Asphalt",
+    "M_Road_CurbConcrete",
+    "M_Road_SidewalkConcrete"
+   ],
+   "bounds_min": [
+    -6.0,
+    0.0,
+    0.0
+   ],
+   "bounds_max": [
+    6.0,
+    0.15,
+    10.0
+   ],
+   "nodes": [
+    "RD_Street_Residential_10m_Mesh",
+    "RD_Street_Residential_10m_Col-colonly"
+   ],
+   "kind": "segment",
+   "length": 10.0,
+   "width": 12,
+   "port_type": "urban",
+   "ports": [
+    [
+     [
+      0,
+      0,
+      0
+     ],
+     [
+      0,
+      0,
+      -1
+     ]
+    ],
+    [
+     [
+      0,
+      0,
+      10.0
+     ],
+     [
+      0,
+      0,
+      1
+     ]
+    ]
+   ],
+   "footprint": [
+    -6,
+    0,
+    6,
+    10.0
+   ]
+  },
+  {
+   "name": "RD_Street_Commercial_10m",
+   "category": "Roads",
+   "glb": "02_Town/Roads/RD_Street_Commercial_10m.glb",
+   "obj": "02_Town/Roads/OBJ/RD_Street_Commercial_10m.obj",
+   "triangles": 30,
+   "collision_triangles": 14,
+   "collision": [
+    "colonly"
+   ],
+   "materials": [
+    "M_Road_AsphaltCracked",
+    "M_Road_CurbConcrete",
+    "M_Road_MarkingYellow",
+    "M_Road_MarkingWhite",
+    "M_Com_StorefrontConcrete"
+   ],
+   "bounds_min": [
+    -6.0,
+    0.0,
+    0.0
+   ],
+   "bounds_max": [
+    6.0,
+    0.15,
+    10.0
+   ],
+   "nodes": [
+    "RD_Street_Commercial_10m_Mesh",
+    "RD_Street_Commercial_10m_Col-colonly"
+   ],
+   "kind": "segment",
+   "length": 10.0,
+   "width": 12,
+   "port_type": "urban",
+   "ports": [
+    [
+     [
+      0,
+      0,
+      0
+     ],
+     [
+      0,
+      0,
+      -1
+     ]
+    ],
+    [
+     [
+      0,
+      0,
+      10.0
+     ],
+     [
+      0,
+      0,
+      1
+     ]
+    ]
+   ],
+   "footprint": [
+    -6,
+    0,
+    6,
+    10.0
+   ]
+  },
+  {
+   "name": "RD_ParkingLot_10x20m",
+   "category": "Roads",
+   "glb": "02_Town/Roads/RD_ParkingLot_10x20m.glb",
+   "obj": "02_Town/Roads/OBJ/RD_ParkingLot_10x20m.obj",
+   "triangles": 98,
+   "collision_triangles": 2,
+   "collision": [
+    "colonly"
+   ],
+   "materials": [
+    "M_Road_ParkingLotAsphalt",
+    "M_Road_MarkingWhite",
+    "M_Road_CurbConcrete"
+   ],
+   "bounds_min": [
+    -5.0,
+    0.15,
+    0.0
+   ],
+   "bounds_max": [
+    5.0,
+    0.25,
+    20.0
+   ],
+   "nodes": [
+    "RD_ParkingLot_10x20m_Mesh",
+    "RD_ParkingLot_10x20m_Col-colonly"
+   ],
+   "kind": "lot",
+   "footprint": [
+    -5,
+    0,
+    5,
+    20
+   ]
+  },
+  {
+   "name": "RD_Driveway_3x8m",
+   "category": "Roads",
+   "glb": "02_Town/Roads/RD_Driveway_3x8m.glb",
+   "obj": "02_Town/Roads/OBJ/RD_Driveway_3x8m.obj",
+   "triangles": 9,
+   "collision_triangles": 2,
+   "collision": [
+    "colonly"
+   ],
+   "materials": [
+    "M_Road_SidewalkConcrete",
+    "M_Road_RoadPatch"
+   ],
+   "bounds_min": [
+    -1.5,
+    0.15,
+    0.0
+   ],
+   "bounds_max": [
+    1.5,
+    0.154,
+    8.0
+   ],
+   "nodes": [
+    "RD_Driveway_3x8m_Mesh",
+    "RD_Driveway_3x8m_Col-colonly"
+   ],
+   "kind": "lot",
+   "footprint": [
+    -1.5,
+    0,
+    1.5,
+    8
+   ]
+  },
+  {
+   "name": "RD_Alley_4x10m",
+   "category": "Roads",
+   "glb": "02_Town/Roads/RD_Alley_4x10m.glb",
+   "obj": "02_Town/Roads/OBJ/RD_Alley_4x10m.obj",
+   "triangles": 12,
+   "collision_triangles": 2,
+   "collision": [
+    "colonly"
+   ],
+   "materials": [
+    "M_Road_Gravel",
+    "M_Road_AsphaltCracked",
+    "M_Road_CurbConcrete",
+    "M_Town_Puddle"
+   ],
+   "bounds_min": [
+    -2.0,
+    0.15,
+    0.0
+   ],
+   "bounds_max": [
+    2.0,
+    0.18,
+    10.0
+   ],
+   "nodes": [
+    "RD_Alley_4x10m_Mesh",
+    "RD_Alley_4x10m_Col-colonly"
+   ],
+   "kind": "segment",
+   "length": 10,
+   "width": 4,
+   "port_type": "alley",
+   "ports": [
+    [
+     [
+      0,
+      0.15,
+      0
+     ],
+     [
+      0,
+      0,
+      -1
+     ]
+    ],
+    [
+     [
+      0,
+      0.15,
+      10
+     ],
+     [
+      0,
+      0,
+      1
+     ]
+    ]
+   ],
+   "footprint": [
+    -2,
+    0,
+    2,
+    10
+   ]
+  },
+  {
+   "name": "RD_Shoulder_Rural_10m",
+   "category": "Roads",
+   "glb": "02_Town/Roads/RD_Shoulder_Rural_10m.glb",
+   "obj": "02_Town/Roads/OBJ/RD_Shoulder_Rural_10m.obj",
+   "triangles": 20,
+   "collision_triangles": 12,
+   "collision": [
+    "colonly"
+   ],
+   "materials": [
+    "M_Road_Asphalt",
+    "M_Road_Gravel",
+    "M_Grnd_GrassOvergrown",
+    "M_Road_MarkingWhite",
+    "M_Road_MarkingYellow"
+   ],
+   "bounds_min": [
+    -6.0,
+    0.0,
+    0.0
+   ],
+   "bounds_max": [
+    6.0,
+    0.15,
+    10.0
+   ],
+   "nodes": [
+    "RD_Shoulder_Rural_10m_Mesh",
+    "RD_Shoulder_Rural_10m_Col-colonly"
+   ],
+   "kind": "segment",
+   "length": 10.0,
+   "width": 12,
+   "port_type": "rural",
+   "ports": [
+    [
+     [
+      0,
+      0,
+      0
+     ],
+     [
+      0,
+      0,
+      -1
+     ]
+    ],
+    [
+     [
+      0,
+      0,
+      10.0
+     ],
+     [
+      0,
+      0,
+      1
+     ]
+    ]
+   ],
+   "footprint": [
+    -6,
+    0,
+    6,
+    10.0
+   ]
+  },
+  {
+   "name": "RD_Transition_UrbanToRural_10m",
+   "category": "Roads",
+   "glb": "02_Town/Roads/RD_Transition_UrbanToRural_10m.glb",
+   "obj": "02_Town/Roads/OBJ/RD_Transition_UrbanToRural_10m.obj",
+   "triangles": 42,
+   "collision_triangles": 26,
+   "collision": [
+    "colonly"
+   ],
+   "materials": [
+    "M_Road_Asphalt",
+    "M_Road_MarkingYellow",
+    "M_Road_MarkingWhite",
+    "M_Road_CurbConcrete",
+    "M_Road_SidewalkConcrete",
+    "M_Road_Gravel",
+    "M_Grnd_GrassOvergrown"
+   ],
+   "bounds_min": [
+    -6.0,
+    0.0,
+    0.0
+   ],
+   "bounds_max": [
+    6.0,
+    0.15,
+    10.0
+   ],
+   "nodes": [
+    "RD_Transition_UrbanToRural_10m_Mesh",
+    "RD_Transition_UrbanToRural_10m_Col-colonly"
+   ],
+   "kind": "segment",
+   "length": 10.0,
+   "width": 12,
+   "port_type": "urban>rural",
+   "ports": [
+    [
+     [
+      0,
+      0,
+      0
+     ],
+     [
+      0,
+      0,
+      -1
+     ]
+    ],
+    [
+     [
+      0,
+      0,
+      10.0
+     ],
+     [
+      0,
+      0,
+      1
+     ]
+    ]
+   ],
+   "footprint": [
+    -6,
+    0,
+    6,
+    10.0
+   ]
+  },
+  {
+   "name": "RD_RoadPatch_A",
+   "category": "Roads",
+   "glb": "02_Town/Roads/RD_RoadPatch_A.glb",
+   "obj": "02_Town/Roads/OBJ/RD_RoadPatch_A.obj",
+   "triangles": 2,
+   "collision_triangles": 0,
+   "collision": [
+    "none"
+   ],
+   "materials": [
+    "M_Road_RoadPatch"
+   ],
+   "bounds_min": [
+    -1.0,
+    0.004,
+    -0.7
+   ],
+   "bounds_max": [
+    1.0,
+    0.004,
+    0.7
+   ],
+   "nodes": [
+    "RD_RoadPatch_A_Mesh"
+   ],
+   "kind": "decal"
+  },
+  {
+   "name": "RD_RoadPatch_B",
+   "category": "Roads",
+   "glb": "02_Town/Roads/RD_RoadPatch_B.glb",
+   "obj": "02_Town/Roads/OBJ/RD_RoadPatch_B.obj",
+   "triangles": 5,
+   "collision_triangles": 0,
+   "collision": [
+    "none"
+   ],
+   "materials": [
+    "M_Road_RoadPatch"
+   ],
+   "bounds_min": [
+    -1.316,
+    0.004,
+    -1.416
+   ],
+   "bounds_max": [
+    1.793,
+    0.004,
+    1.574
+   ],
+   "nodes": [
+    "RD_RoadPatch_B_Mesh"
+   ],
+   "kind": "decal"
+  },
+  {
+   "name": "RD_Puddle_A",
+   "category": "Roads",
+   "glb": "02_Town/Roads/RD_Puddle_A.glb",
+   "obj": "02_Town/Roads/OBJ/RD_Puddle_A.obj",
+   "triangles": 2,
+   "collision_triangles": 0,
+   "collision": [
+    "none"
+   ],
+   "materials": [
+    "M_Town_Puddle"
+   ],
+   "bounds_min": [
+    -1.0,
+    0.005,
+    -0.7
+   ],
+   "bounds_max": [
+    1.0,
+    0.005,
+    0.7
+   ],
+   "nodes": [
+    "RD_Puddle_A_Mesh"
+   ],
+   "kind": "decal"
+  },
+  {
+   "name": "RD_Puddle_B",
+   "category": "Roads",
+   "glb": "02_Town/Roads/RD_Puddle_B.glb",
+   "obj": "02_Town/Roads/OBJ/RD_Puddle_B.obj",
+   "triangles": 2,
+   "collision_triangles": 0,
+   "collision": [
+    "none"
+   ],
+   "materials": [
+    "M_Town_Puddle"
+   ],
+   "bounds_min": [
+    -0.6,
+    0.005,
+    -0.4
+   ],
+   "bounds_max": [
+    0.6,
+    0.005,
+    0.4
+   ],
+   "nodes": [
+    "RD_Puddle_B_Mesh"
+   ],
+   "kind": "decal"
+  },
+  {
+   "name": "RD_Marking_DashedCenter_10m",
+   "category": "Roads",
+   "glb": "02_Town/Roads/RD_Marking_DashedCenter_10m.glb",
+   "obj": "02_Town/Roads/OBJ/RD_Marking_DashedCenter_10m.obj",
+   "triangles": 4,
+   "collision_triangles": 0,
+   "collision": [
+    "none"
+   ],
+   "materials": [
+    "M_Road_MarkingYellow"
+   ],
+   "bounds_min": [
+    -0.06,
+    0.006,
+    1.0
+   ],
+   "bounds_max": [
+    0.06,
+    0.006,
+    9.0
+   ],
+   "nodes": [
+    "RD_Marking_DashedCenter_10m_Mesh"
+   ],
+   "kind": "marking"
+  },
+  {
+   "name": "RD_Marking_DoubleYellow_10m",
+   "category": "Roads",
+   "glb": "02_Town/Roads/RD_Marking_DoubleYellow_10m.glb",
+   "obj": "02_Town/Roads/OBJ/RD_Marking_DoubleYellow_10m.obj",
+   "triangles": 4,
+   "collision_triangles": 0,
+   "collision": [
+    "none"
+   ],
+   "materials": [
+    "M_Road_MarkingYellow"
+   ],
+   "bounds_min": [
+    -0.16,
+    0.006,
+    0.0
+   ],
+   "bounds_max": [
+    0.16,
+    0.006,
+    10.0
+   ],
+   "nodes": [
+    "RD_Marking_DoubleYellow_10m_Mesh"
+   ],
+   "kind": "marking"
+  },
+  {
+   "name": "RD_Marking_EdgeLines_10m",
+   "category": "Roads",
+   "glb": "02_Town/Roads/RD_Marking_EdgeLines_10m.glb",
+   "obj": "02_Town/Roads/OBJ/RD_Marking_EdgeLines_10m.obj",
+   "triangles": 4,
+   "collision_triangles": 0,
+   "collision": [
+    "none"
+   ],
+   "materials": [
+    "M_Road_MarkingWhite"
+   ],
+   "bounds_min": [
+    -3.36,
+    0.006,
+    0.0
+   ],
+   "bounds_max": [
+    3.36,
+    0.006,
+    10.0
+   ],
+   "nodes": [
+    "RD_Marking_EdgeLines_10m_Mesh"
+   ],
+   "kind": "marking"
+  },
+  {
+   "name": "RD_Marking_StopBar_3.5m",
+   "category": "Roads",
+   "glb": "02_Town/Roads/RD_Marking_StopBar_3.5m.glb",
+   "obj": "02_Town/Roads/OBJ/RD_Marking_StopBar_3.5m.obj",
+   "triangles": 2,
+   "collision_triangles": 0,
+   "collision": [
+    "none"
+   ],
+   "materials": [
+    "M_Road_MarkingWhite"
+   ],
+   "bounds_min": [
+    0.0,
+    0.006,
+    0.0
+   ],
+   "bounds_max": [
+    3.5,
+    0.006,
+    0.45
+   ],
+   "nodes": [
+    "RD_Marking_StopBar_3.5m_Mesh"
+   ],
+   "kind": "marking"
+  },
+  {
+   "name": "RD_Marking_Arrow_Straight",
+   "category": "Roads",
+   "glb": "02_Town/Roads/RD_Marking_Arrow_Straight.glb",
+   "obj": "02_Town/Roads/OBJ/RD_Marking_Arrow_Straight.obj",
+   "triangles": 5,
+   "collision_triangles": 0,
+   "collision": [
+    "none"
+   ],
+   "materials": [
+    "M_Road_MarkingWhite"
+   ],
+   "bounds_min": [
+    -0.45,
+    0.006,
+    0.0
+   ],
+   "bounds_max": [
+    0.45,
+    0.006,
+    4.0
+   ],
+   "nodes": [
+    "RD_Marking_Arrow_Straight_Mesh"
+   ],
+   "kind": "marking"
+  },
+  {
+   "name": "RD_Marking_ParkingStall_2.5x5m",
+   "category": "Roads",
+   "glb": "02_Town/Roads/RD_Marking_ParkingStall_2.5x5m.glb",
+   "obj": "02_Town/Roads/OBJ/RD_Marking_ParkingStall_2.5x5m.obj",
+   "triangles": 4,
+   "collision_triangles": 0,
+   "collision": [
+    "none"
+   ],
+   "materials": [
+    "M_Road_MarkingWhite"
+   ],
+   "bounds_min": [
+    0.0,
+    0.006,
+    0.0
+   ],
+   "bounds_max": [
+    2.5,
+    0.006,
+    5.0
+   ],
+   "nodes": [
+    "RD_Marking_ParkingStall_2.5x5m_Mesh"
+   ],
+   "kind": "marking"
+  },
+  {
+   "name": "SW_Straight_10m",
+   "category": "Sidewalks",
+   "glb": "02_Town/Sidewalks/SW_Straight_10m.glb",
+   "obj": "02_Town/Sidewalks/OBJ/SW_Straight_10m.obj",
+   "triangles": 8,
+   "collision_triangles": 6,
+   "collision": [
+    "colonly"
+   ],
+   "materials": [
+    "M_Road_CurbConcrete",
+    "M_Road_SidewalkConcrete"
+   ],
+   "bounds_min": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "bounds_max": [
+    2.25,
+    0.15,
+    10.0
+   ],
+   "nodes": [
+    "SW_Straight_10m_Mesh",
+    "SW_Straight_10m_Col-colonly"
+   ],
+   "kind": "sidewalk",
+   "length": 10.0,
+   "width": 2.25,
+   "port_type": "sidewalk",
+   "ports": [
+    [
+     [
+      0,
+      0,
+      0
+     ],
+     [
+      0,
+      0,
+      -1
+     ]
+    ],
+    [
+     [
+      0,
+      0,
+      10.0
+     ],
+     [
+      0,
+      0,
+      1
+     ]
+    ]
+   ],
+   "footprint": [
+    0,
+    0,
+    2.25,
+    10.0
+   ]
+  },
+  {
+   "name": "SW_Straight_5m",
+   "category": "Sidewalks",
+   "glb": "02_Town/Sidewalks/SW_Straight_5m.glb",
+   "obj": "02_Town/Sidewalks/OBJ/SW_Straight_5m.obj",
+   "triangles": 8,
+   "collision_triangles": 6,
+   "collision": [
+    "colonly"
+   ],
+   "materials": [
+    "M_Road_CurbConcrete",
+    "M_Road_SidewalkConcrete"
+   ],
+   "bounds_min": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "bounds_max": [
+    2.25,
+    0.15,
+    5.0
+   ],
+   "nodes": [
+    "SW_Straight_5m_Mesh",
+    "SW_Straight_5m_Col-colonly"
+   ],
+   "kind": "sidewalk",
+   "length": 5.0,
+   "width": 2.25,
+   "port_type": "sidewalk",
+   "ports": [
+    [
+     [
+      0,
+      0,
+      0
+     ],
+     [
+      0,
+      0,
+      -1
+     ]
+    ],
+    [
+     [
+      0,
+      0,
+      5.0
+     ],
+     [
+      0,
+      0,
+      1
+     ]
+    ]
+   ],
+   "footprint": [
+    0,
+    0,
+    2.25,
+    5.0
+   ]
+  },
+  {
+   "name": "SW_Straight_2m",
+   "category": "Sidewalks",
+   "glb": "02_Town/Sidewalks/SW_Straight_2m.glb",
+   "obj": "02_Town/Sidewalks/OBJ/SW_Straight_2m.obj",
+   "triangles": 8,
+   "collision_triangles": 6,
+   "collision": [
+    "colonly"
+   ],
+   "materials": [
+    "M_Road_CurbConcrete",
+    "M_Road_SidewalkConcrete"
+   ],
+   "bounds_min": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "bounds_max": [
+    2.25,
+    0.15,
+    2.0
+   ],
+   "nodes": [
+    "SW_Straight_2m_Mesh",
+    "SW_Straight_2m_Col-colonly"
+   ],
+   "kind": "sidewalk",
+   "length": 2.0,
+   "width": 2.25,
+   "port_type": "sidewalk",
+   "ports": [
+    [
+     [
+      0,
+      0,
+      0
+     ],
+     [
+      0,
+      0,
+      -1
+     ]
+    ],
+    [
+     [
+      0,
+      0,
+      2.0
+     ],
+     [
+      0,
+      0,
+      1
+     ]
+    ]
+   ],
+   "footprint": [
+    0,
+    0,
+    2.25,
+    2.0
+   ]
+  },
+  {
+   "name": "SW_Straight_10m_Cracked",
+   "category": "Sidewalks",
+   "glb": "02_Town/Sidewalks/SW_Straight_10m_Cracked.glb",
+   "obj": "02_Town/Sidewalks/OBJ/SW_Straight_10m_Cracked.obj",
+   "triangles": 80,
+   "collision_triangles": 60,
+   "collision": [
+    "colonly"
+   ],
+   "materials": [
+    "M_Road_CurbConcrete",
+    "M_Road_SidewalkConcrete",
+    "M_Road_ConcreteCracked"
+   ],
+   "bounds_min": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "bounds_max": [
+    2.25,
+    0.15,
+    10.0
+   ],
+   "nodes": [
+    "SW_Straight_10m_Cracked_Mesh",
+    "SW_Straight_10m_Cracked_Col-colonly"
+   ],
+   "kind": "sidewalk",
+   "length": 10.0,
+   "width": 2.25,
+   "port_type": "sidewalk",
+   "ports": [
+    [
+     [
+      0,
+      0,
+      0
+     ],
+     [
+      0,
+      0,
+      -1
+     ]
+    ],
+    [
+     [
+      0,
+      0,
+      10.0
+     ],
+     [
+      0,
+      0,
+      1
+     ]
+    ]
+   ],
+   "footprint": [
+    0,
+    0,
+    2.25,
+    10.0
+   ]
+  },
+  {
+   "name": "SW_DrivewayTransition_10m",
+   "category": "Sidewalks",
+   "glb": "02_Town/Sidewalks/SW_DrivewayTransition_10m.glb",
+   "obj": "02_Town/Sidewalks/OBJ/SW_DrivewayTransition_10m.obj",
+   "triangles": 40,
+   "collision_triangles": 30,
+   "collision": [
+    "colonly"
+   ],
+   "materials": [
+    "M_Road_CurbConcrete",
+    "M_Road_SidewalkConcrete"
+   ],
+   "bounds_min": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "bounds_max": [
+    2.25,
+    0.15,
+    10.0
+   ],
+   "nodes": [
+    "SW_DrivewayTransition_10m_Mesh",
+    "SW_DrivewayTransition_10m_Col-colonly"
+   ],
+   "kind": "sidewalk",
+   "length": 10.0,
+   "width": 2.25,
+   "port_type": "sidewalk",
+   "ports": [
+    [
+     [
+      0,
+      0,
+      0
+     ],
+     [
+      0,
+      0,
+      -1
+     ]
+    ],
+    [
+     [
+      0,
+      0,
+      10.0
+     ],
+     [
+      0,
+      0,
+      1
+     ]
+    ]
+   ],
+   "footprint": [
+    0,
+    0,
+    2.25,
+    10.0
+   ]
+  },
+  {
+   "name": "SW_CurbRamp_10m",
+   "category": "Sidewalks",
+   "glb": "02_Town/Sidewalks/SW_CurbRamp_10m.glb",
+   "obj": "02_Town/Sidewalks/OBJ/SW_CurbRamp_10m.obj",
+   "triangles": 36,
+   "collision_triangles": 26,
+   "collision": [
+    "colonly"
+   ],
+   "materials": [
+    "M_Road_CurbConcrete",
+    "M_Road_SidewalkConcrete"
+   ],
+   "bounds_min": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "bounds_max": [
+    2.25,
+    0.15,
+    10.0
+   ],
+   "nodes": [
+    "SW_CurbRamp_10m_Mesh",
+    "SW_CurbRamp_10m_Col-colonly"
+   ],
+   "kind": "sidewalk",
+   "length": 10.0,
+   "width": 2.25,
+   "port_type": "sidewalk",
+   "ports": [
+    [
+     [
+      0,
+      0,
+      0
+     ],
+     [
+      0,
+      0,
+      -1
+     ]
+    ],
+    [
+     [
+      0,
+      0,
+      10.0
+     ],
+     [
+      0,
+      0,
+      1
+     ]
+    ]
+   ],
+   "footprint": [
+    0,
+    0,
+    2.25,
+    10.0
+   ]
+  },
+  {
+   "name": "SW_StormDrain_10m",
+   "category": "Sidewalks",
+   "glb": "02_Town/Sidewalks/SW_StormDrain_10m.glb",
+   "obj": "02_Town/Sidewalks/OBJ/SW_StormDrain_10m.obj",
+   "triangles": 20,
+   "collision_triangles": 6,
+   "collision": [
+    "colonly"
+   ],
+   "materials": [
+    "M_Road_CurbConcrete",
+    "M_Road_SidewalkConcrete",
+    "M_Road_RoadPatch",
+    "M_Town_DrainGrate"
+   ],
+   "bounds_min": [
+    -0.5,
+    0.0,
+    0.0
+   ],
+   "bounds_max": [
+    2.25,
+    0.15,
+    10.0
+   ],
+   "nodes": [
+    "SW_StormDrain_10m_Mesh",
+    "SW_StormDrain_10m_Col-colonly"
+   ],
+   "kind": "sidewalk",
+   "length": 10.0,
+   "width": 2.25,
+   "port_type": "sidewalk",
+   "ports": [
+    [
+     [
+      0,
+      0,
+      0
+     ],
+     [
+      0,
+      0,
+      -1
+     ]
+    ],
+    [
+     [
+      0,
+      0,
+      10.0
+     ],
+     [
+      0,
+      0,
+      1
+     ]
+    ]
+   ],
+   "footprint": [
+    0,
+    0,
+    2.25,
+    10.0
+   ]
+  },
+  {
+   "name": "SW_Curb_10m",
+   "category": "Sidewalks",
+   "glb": "02_Town/Sidewalks/SW_Curb_10m.glb",
+   "obj": "02_Town/Sidewalks/OBJ/SW_Curb_10m.obj",
+   "triangles": 4,
+   "collision_triangles": 4,
+   "collision": [
+    "colonly"
+   ],
+   "materials": [
+    "M_Road_CurbConcrete"
+   ],
+   "bounds_min": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "bounds_max": [
+    0.25,
+    0.15,
+    10.0
+   ],
+   "nodes": [
+    "SW_Curb_10m_Mesh",
+    "SW_Curb_10m_Col-colonly"
+   ],
+   "kind": "sidewalk",
+   "length": 10.0,
+   "width": 0.25,
+   "port_type": "curb",
+   "ports": [
+    [
+     [
+      0,
+      0,
+      0
+     ],
+     [
+      0,
+      0,
+      -1
+     ]
+    ],
+    [
+     [
+      0,
+      0,
+      10.0
+     ],
+     [
+      0,
+      0,
+      1
+     ]
+    ]
+   ],
+   "footprint": [
+    0,
+    0,
+    0.25,
+    10.0
+   ]
+  },
+  {
+   "name": "SW_Gutter_10m",
+   "category": "Sidewalks",
+   "glb": "02_Town/Sidewalks/SW_Gutter_10m.glb",
+   "obj": "02_Town/Sidewalks/OBJ/SW_Gutter_10m.obj",
+   "triangles": 4,
+   "collision_triangles": 2,
+   "collision": [
+    "colonly"
+   ],
+   "materials": [
+    "M_Road_CurbConcrete"
+   ],
+   "bounds_min": [
+    0.0,
+    -0.03,
+    0.0
+   ],
+   "bounds_max": [
+    0.5,
+    0.0,
+    10.0
+   ],
+   "nodes": [
+    "SW_Gutter_10m_Mesh",
+    "SW_Gutter_10m_Col-colonly"
+   ],
+   "kind": "sidewalk",
+   "length": 10.0,
+   "width": 0.5,
+   "port_type": "gutter",
+   "ports": [
+    [
+     [
+      0,
+      0,
+      0
+     ],
+     [
+      0,
+      0,
+      -1
+     ]
+    ],
+    [
+     [
+      0,
+      0,
+      10.0
+     ],
+     [
+      0,
+      0,
+      1
+     ]
+    ]
+   ],
+   "footprint": [
+    0,
+    0,
+    0.5,
+    10.0
+   ]
+  },
+  {
+   "name": "SW_Corner_Rounded",
+   "category": "Sidewalks",
+   "glb": "02_Town/Sidewalks/SW_Corner_Rounded.glb",
+   "obj": "02_Town/Sidewalks/OBJ/SW_Corner_Rounded.obj",
+   "triangles": 52,
+   "collision_triangles": 54,
+   "collision": [
+    "colonly"
+   ],
+   "materials": [
+    "M_Road_Asphalt",
+    "M_Road_CurbConcrete",
+    "M_Road_SidewalkConcrete"
+   ],
+   "bounds_min": [
+    3.75,
+    0.0,
+    3.75
+   ],
+   "bounds_max": [
+    6.0,
+    0.15,
+    6.0
+   ],
+   "nodes": [
+    "SW_Corner_Rounded_Mesh",
+    "SW_Corner_Rounded_Col-colonly"
+   ],
+   "kind": "sidewalk",
+   "footprint": [
+    3.75,
+    3.75,
+    6.0,
+    6.0
+   ],
+   "note": "Quadrant (+X,+Z) of a 12 m node: curb arc r=1.5 m with ramp"
+  },
+  {
+   "name": "SW_ParkingLotEdge_10m",
+   "category": "Sidewalks",
+   "glb": "02_Town/Sidewalks/SW_ParkingLotEdge_10m.glb",
+   "obj": "02_Town/Sidewalks/OBJ/SW_ParkingLotEdge_10m.obj",
+   "triangles": 8,
+   "collision_triangles": 12,
+   "collision": [
+    "convcolonly"
+   ],
+   "materials": [
+    "M_Road_CurbConcrete",
+    "M_Grnd_GrassDry"
+   ],
+   "bounds_min": [
+    -0.1,
+    0.15,
+    0.0
+   ],
+   "bounds_max": [
+    1.0,
+    0.3,
+    10.0
+   ],
+   "nodes": [
+    "SW_ParkingLotEdge_10m_Mesh",
+    "SW_ParkingLotEdge_10m_Col-convcolonly"
+   ],
+   "kind": "sidewalk",
+   "length": 10.0,
+   "footprint": [
+    -0.1,
+    0,
+    1.0,
+    10.0
+   ],
+   "note": "Raised 15 cm lot-edge curb (car stop) + 0.9 m dry-grass strip"
+  },
+  {
+   "name": "SW_Crosswalk_7m",
+   "category": "Sidewalks",
+   "glb": "02_Town/Sidewalks/SW_Crosswalk_7m.glb",
+   "obj": "02_Town/Sidewalks/OBJ/SW_Crosswalk_7m.obj",
+   "triangles": 16,
+   "collision_triangles": 0,
+   "collision": [
+    "none"
+   ],
+   "materials": [
+    "M_Road_MarkingWhite"
+   ],
+   "bounds_min": [
+    -3.3,
+    0.006,
+    0.15
+   ],
+   "bounds_max": [
+    3.45,
+    0.006,
+    2.1
+   ],
+   "nodes": [
+    "SW_Crosswalk_7m_Mesh"
+   ],
+   "kind": "marking",
+   "footprint": [
+    -3.5,
+    0,
+    3.5,
+    2.25
+   ]
+  },
+  {
+   "name": "SP_Lamp_Residential",
+   "category": "Street_Props",
+   "glb": "02_Town/Street_Props/SP_Lamp_Residential.glb",
+   "obj": "02_Town/Street_Props/OBJ/SP_Lamp_Residential.obj",
+   "triangles": 140,
+   "collision_triangles": 28,
+   "collision": [
+    "convcolonly"
+   ],
+   "materials": [
+    "M_Town_PaintBlack",
+    "M_Town_LampGlow"
+   ],
+   "bounds_min": [
+    -0.28,
+    0.0,
+    -0.28
+   ],
+   "bounds_max": [
+    0.28,
+    5.04,
+    0.28
+   ],
+   "nodes": [
+    "SP_Lamp_Residential_Mesh",
+    "SP_Lamp_Residential_Col-convcolonly",
+    "LightPoint"
+   ],
+   "kind": "prop",
+   "light": [
+    0,
+    4.35,
+    0
+   ]
+  },
+  {
+   "name": "SP_Lamp_Commercial",
+   "category": "Street_Props",
+   "glb": "02_Town/Street_Props/SP_Lamp_Commercial.glb",
+   "obj": "02_Town/Street_Props/OBJ/SP_Lamp_Commercial.obj",
+   "triangles": 124,
+   "collision_triangles": 40,
+   "collision": [
+    "convcolonly"
+   ],
+   "materials": [
+    "M_Road_CurbConcrete",
+    "M_Town_PaintGreen",
+    "M_Town_LampGlow"
+   ],
+   "bounds_min": [
+    -0.25,
+    0.0,
+    -0.25
+   ],
+   "bounds_max": [
+    0.25,
+    6.43,
+    2.25
+   ],
+   "nodes": [
+    "SP_Lamp_Commercial_Mesh",
+    "SP_Lamp_Commercial_Col0-convcolonly",
+    "SP_Lamp_Commercial_Col1-convcolonly",
+    "LightPoint"
+   ],
+   "kind": "prop",
+   "light": [
+    0,
+    6.05,
+    1.85
+   ]
+  },
+  {
+   "name": "SP_UtilityPole_Streetlight",
+   "category": "Street_Props",
+   "glb": "02_Town/Street_Props/SP_UtilityPole_Streetlight.glb",
+   "obj": "02_Town/Street_Props/OBJ/SP_UtilityPole_Streetlight.obj",
+   "triangles": 276,
+   "collision_triangles": 28,
+   "collision": [
+    "convcolonly"
+   ],
+   "materials": [
+    "M_Town_PoleWood",
+    "M_Furn_MetalBrushed",
+    "M_Furn_WoodDark",
+    "M_Furn_PlasticDirty",
+    "M_Town_PaintBlack",
+    "M_Com_SignageBacking",
+    "M_Town_LampGlow"
+   ],
+   "bounds_min": [
+    -1.2,
+    0.0,
+    -0.18
+   ],
+   "bounds_max": [
+    2.52,
+    10.0,
+    0.18
+   ],
+   "nodes": [
+    "SP_UtilityPole_Streetlight_Mesh",
+    "SP_UtilityPole_Streetlight_Col-convcolonly",
+    "LightPoint",
+    "Attach_Power_L",
+    "Attach_Power_C",
+    "Attach_Power_R",
+    "Attach_Tel"
+   ],
+   "kind": "prop",
+   "light": [
+    2.17,
+    6.85,
+    0
+   ]
+  },
+  {
+   "name": "SP_Lamp_Wall",
+   "category": "Street_Props",
+   "glb": "02_Town/Street_Props/SP_Lamp_Wall.glb",
+   "obj": "02_Town/Street_Props/OBJ/SP_Lamp_Wall.obj",
+   "triangles": 58,
+   "collision_triangles": 0,
+   "collision": [
+    "none"
+   ],
+   "materials": [
+    "M_Town_PaintBlack",
+    "M_Town_LampGlow"
+   ],
+   "bounds_min": [
+    -0.1,
+    -0.19,
+    0.0
+   ],
+   "bounds_max": [
+    0.1,
+    0.15,
+    0.38
+   ],
+   "nodes": [
+    "SP_Lamp_Wall_Mesh",
+    "LightPoint"
+   ],
+   "kind": "prop",
+   "light": [
+    0,
+    -0.05,
+    0.28
+   ],
+   "note": "Wall-mounted: origin at the wall surface, 2.1 m mount height recommended"
+  },
+  {
+   "name": "SP_Sign_Stop",
+   "category": "Street_Props",
+   "glb": "02_Town/Street_Props/SP_Sign_Stop.glb",
+   "obj": "02_Town/Street_Props/OBJ/SP_Sign_Stop.obj",
+   "triangles": 54,
+   "collision_triangles": 20,
+   "collision": [
+    "convcolonly"
+   ],
+   "materials": [
+    "M_Furn_MetalBrushed",
+    "M_Town_SignAtlas",
+    "M_Com_SignageBacking"
+   ],
+   "bounds_min": [
+    -0.37,
+    0.0,
+    -0.03
+   ],
+   "bounds_max": [
+    0.37,
+    2.65,
+    0.055
+   ],
+   "nodes": [
+    "SP_Sign_Stop_Mesh",
+    "SP_Sign_Stop_Col-convcolonly"
+   ],
+   "kind": "prop",
+   "desc": "R1-1 style 0.75 m octagon"
+  },
+  {
+   "name": "SP_Sign_SpeedLimit25",
+   "category": "Street_Props",
+   "glb": "02_Town/Street_Props/SP_Sign_SpeedLimit25.glb",
+   "obj": "02_Town/Street_Props/OBJ/SP_Sign_SpeedLimit25.obj",
+   "triangles": 38,
+   "collision_triangles": 20,
+   "collision": [
+    "convcolonly"
+   ],
+   "materials": [
+    "M_Furn_MetalBrushed",
+    "M_Town_SignAtlas",
+    "M_Com_SignageBacking"
+   ],
+   "bounds_min": [
+    -0.3,
+    0.0,
+    -0.03
+   ],
+   "bounds_max": [
+    0.3,
+    2.55,
+    0.055
+   ],
+   "nodes": [
+    "SP_Sign_SpeedLimit25_Mesh",
+    "SP_Sign_SpeedLimit25_Col-convcolonly"
+   ],
+   "kind": "prop",
+   "desc": ""
+  },
+  {
+   "name": "SP_Sign_StreetName",
+   "category": "Street_Props",
+   "glb": "02_Town/Street_Props/SP_Sign_StreetName.glb",
+   "obj": "02_Town/Street_Props/OBJ/SP_Sign_StreetName.obj",
+   "triangles": 56,
+   "collision_triangles": 20,
+   "collision": [
+    "convcolonly"
+   ],
+   "materials": [
+    "M_Furn_MetalBrushed",
+    "M_Town_SignAtlas",
+    "M_Com_SignageBacking"
+   ],
+   "bounds_min": [
+    -0.45,
+    0.0,
+    -0.45
+   ],
+   "bounds_max": [
+    0.45,
+    3.46,
+    0.45
+   ],
+   "nodes": [
+    "SP_Sign_StreetName_Mesh",
+    "SP_Sign_StreetName_Col-convcolonly"
+   ],
+   "kind": "prop",
+   "desc": "Blades: OAK ST (along X), MAIN ST (along Z)"
+  },
+  {
+   "name": "SP_Sign_Yield",
+   "category": "Street_Props",
+   "glb": "02_Town/Street_Props/SP_Sign_Yield.glb",
+   "obj": "02_Town/Street_Props/OBJ/SP_Sign_Yield.obj",
+   "triangles": 34,
+   "collision_triangles": 20,
+   "collision": [
+    "convcolonly"
+   ],
+   "materials": [
+    "M_Furn_MetalBrushed",
+    "M_Town_SignAtlas",
+    "M_Com_SignageBacking"
+   ],
+   "bounds_min": [
+    -0.45,
+    0.0,
+    -0.03
+   ],
+   "bounds_max": [
+    0.45,
+    2.6,
+    0.055
+   ],
+   "nodes": [
+    "SP_Sign_Yield_Mesh",
+    "SP_Sign_Yield_Col-convcolonly"
+   ],
+   "kind": "prop",
+   "desc": ""
+  },
+  {
+   "name": "SP_TrafficLight_MastArm",
+   "category": "Street_Props",
+   "glb": "02_Town/Street_Props/SP_TrafficLight_MastArm.glb",
+   "obj": "02_Town/Street_Props/OBJ/SP_TrafficLight_MastArm.obj",
+   "triangles": 514,
+   "collision_triangles": 40,
+   "collision": [
+    "convcolonly"
+   ],
+   "materials": [
+    "M_Road_CurbConcrete",
+    "M_Town_PaintBlack",
+    "M_Town_PaintYellow",
+    "M_Town_LensRed",
+    "M_Town_LensAmber",
+    "M_Town_LensGreen",
+    "M_Com_SignageBacking"
+   ],
+   "bounds_min": [
+    -0.35,
+    0.0,
+    -0.35
+   ],
+   "bounds_max": [
+    5.28,
+    6.25,
+    0.52
+   ],
+   "nodes": [
+    "SP_TrafficLight_MastArm_Mesh",
+    "SP_TrafficLight_MastArm_Col0-convcolonly",
+    "SP_TrafficLight_MastArm_Col1-convcolonly",
+    "Signal_Arm_1",
+    "Signal_Arm_2"
+   ],
+   "kind": "prop",
+   "desc": "Arm points to +X over the lanes; heads face +Z (oncoming traffic)."
+  },
+  {
+   "name": "SP_Sign_Parking2HR",
+   "category": "Street_Props",
+   "glb": "02_Town/Street_Props/SP_Sign_Parking2HR.glb",
+   "obj": "02_Town/Street_Props/OBJ/SP_Sign_Parking2HR.obj",
+   "triangles": 38,
+   "collision_triangles": 20,
+   "collision": [
+    "convcolonly"
+   ],
+   "materials": [
+    "M_Furn_MetalBrushed",
+    "M_Town_SignAtlas",
+    "M_Com_SignageBacking"
+   ],
+   "bounds_min": [
+    -0.22,
+    0.0,
+    -0.03
+   ],
+   "bounds_max": [
+    0.22,
+    2.4,
+    0.055
+   ],
+   "nodes": [
+    "SP_Sign_Parking2HR_Mesh",
+    "SP_Sign_Parking2HR_Col-convcolonly"
+   ],
+   "kind": "prop",
+   "desc": ""
+  },
+  {
+   "name": "SP_Sign_NoParking",
+   "category": "Street_Props",
+   "glb": "02_Town/Street_Props/SP_Sign_NoParking.glb",
+   "obj": "02_Town/Street_Props/OBJ/SP_Sign_NoParking.obj",
+   "triangles": 38,
+   "collision_triangles": 20,
+   "collision": [
+    "convcolonly"
+   ],
+   "materials": [
+    "M_Furn_MetalBrushed",
+    "M_Town_SignAtlas",
+    "M_Com_SignageBacking"
+   ],
+   "bounds_min": [
+    -0.22,
+    0.0,
+    -0.03
+   ],
+   "bounds_max": [
+    0.22,
+    2.4,
+    0.055
+   ],
+   "nodes": [
+    "SP_Sign_NoParking_Mesh",
+    "SP_Sign_NoParking_Col-convcolonly"
+   ],
+   "kind": "prop",
+   "desc": ""
+  },
+  {
+   "name": "SP_Sign_DeadEnd",
+   "category": "Street_Props",
+   "glb": "02_Town/Street_Props/SP_Sign_DeadEnd.glb",
+   "obj": "02_Town/Street_Props/OBJ/SP_Sign_DeadEnd.obj",
+   "triangles": 38,
+   "collision_triangles": 20,
+   "collision": [
+    "convcolonly"
+   ],
+   "materials": [
+    "M_Furn_MetalBrushed",
+    "M_Town_SignAtlas",
+    "M_Com_SignageBacking"
+   ],
+   "bounds_min": [
+    -0.42,
+    0.0,
+    -0.03
+   ],
+   "bounds_max": [
+    0.42,
+    2.6,
+    0.055
+   ],
+   "nodes": [
+    "SP_Sign_DeadEnd_Mesh",
+    "SP_Sign_DeadEnd_Col-convcolonly"
+   ],
+   "kind": "prop",
+   "desc": ""
+  },
+  {
+   "name": "SP_Sign_OneWay",
+   "category": "Street_Props",
+   "glb": "02_Town/Street_Props/SP_Sign_OneWay.glb",
+   "obj": "02_Town/Street_Props/OBJ/SP_Sign_OneWay.obj",
+   "triangles": 38,
+   "collision_triangles": 20,
+   "collision": [
+    "convcolonly"
+   ],
+   "materials": [
+    "M_Furn_MetalBrushed",
+    "M_Town_SignAtlas",
+    "M_Com_SignageBacking"
+   ],
+   "bounds_min": [
+    -0.45,
+    0.0,
+    -0.03
+   ],
+   "bounds_max": [
+    0.45,
+    2.6,
+    0.055
+   ],
+   "nodes": [
+    "SP_Sign_OneWay_Mesh",
+    "SP_Sign_OneWay_Col-convcolonly"
+   ],
+   "kind": "prop",
+   "desc": ""
+  },
+  {
+   "name": "SP_RoadBarrier",
+   "category": "Street_Props",
+   "glb": "02_Town/Street_Props/SP_RoadBarrier.glb",
+   "obj": "02_Town/Street_Props/OBJ/SP_RoadBarrier.obj",
+   "triangles": 88,
+   "collision_triangles": 12,
+   "collision": [
+    "convcolonly"
+   ],
+   "materials": [
+    "M_Town_PaintWhite",
+    "M_Town_PaintOrange",
+    "M_Town_HazardStripe",
+    "M_Town_LensAmber"
+   ],
+   "bounds_min": [
+    -1.0,
+    -0.006,
+    -0.37
+   ],
+   "bounds_max": [
+    1.0,
+    1.33,
+    0.37
+   ],
+   "nodes": [
+    "SP_RoadBarrier_Mesh",
+    "SP_RoadBarrier_Col-convcolonly"
+   ],
+   "kind": "prop",
+   "interactive": true
+  },
+  {
+   "name": "SP_TrafficCone",
+   "category": "Street_Props",
+   "glb": "02_Town/Street_Props/SP_TrafficCone.glb",
+   "obj": "02_Town/Street_Props/OBJ/SP_TrafficCone.obj",
+   "triangles": 78,
+   "collision_triangles": 28,
+   "collision": [
+    "convcolonly"
+   ],
+   "materials": [
+    "M_Town_PaintBlack",
+    "M_Town_PaintOrange",
+    "M_Town_PaintWhite"
+   ],
+   "bounds_min": [
+    -0.18,
+    0.0,
+    -0.18
+   ],
+   "bounds_max": [
+    0.18,
+    0.7,
+    0.18
+   ],
+   "nodes": [
+    "SP_TrafficCone_Mesh",
+    "SP_TrafficCone_Col-convcolonly"
+   ],
+   "kind": "prop",
+   "interactive": true
+  },
+  {
+   "name": "SP_FireHydrant",
+   "category": "Street_Props",
+   "glb": "02_Town/Street_Props/SP_FireHydrant.glb",
+   "obj": "02_Town/Street_Props/OBJ/SP_FireHydrant.obj",
+   "triangles": 235,
+   "collision_triangles": 28,
+   "collision": [
+    "convcolonly"
+   ],
+   "materials": [
+    "M_Town_PaintRed",
+    "M_Town_PaintWhite",
+    "M_Furn_MetalBrushed"
+   ],
+   "bounds_min": [
+    -0.2,
+    0.0,
+    -0.162
+   ],
+   "bounds_max": [
+    0.2,
+    0.73,
+    0.2
+   ],
+   "nodes": [
+    "SP_FireHydrant_Mesh",
+    "SP_FireHydrant_Col-convcolonly"
+   ],
+   "kind": "prop"
+  },
+  {
+   "name": "SP_Mailbox_Residential",
+   "category": "Street_Props",
+   "glb": "02_Town/Street_Props/SP_Mailbox_Residential.glb",
+   "obj": "02_Town/Street_Props/OBJ/SP_Mailbox_Residential.obj",
+   "triangles": 82,
+   "collision_triangles": 12,
+   "collision": [
+    "convcolonly"
+   ],
+   "materials": [
+    "M_Arch_WoodPlanksAged",
+    "M_Town_PaintBlack",
+    "M_Town_PaintRed",
+    "M_Furn_MetalBrushed"
+   ],
+   "bounds_min": [
+    -0.12,
+    0.0,
+    -0.3
+   ],
+   "bounds_max": [
+    0.13,
+    1.3,
+    0.3
+   ],
+   "nodes": [
+    "SP_Mailbox_Residential_Mesh",
+    "SP_Mailbox_Residential_Col-convcolonly"
+   ],
+   "kind": "prop",
+   "desc": "Door faces +Z (street side)"
+  },
+  {
+   "name": "SP_TrashBin_Public",
+   "category": "Street_Props",
+   "glb": "02_Town/Street_Props/SP_TrashBin_Public.glb",
+   "obj": "02_Town/Street_Props/OBJ/SP_TrashBin_Public.obj",
+   "triangles": 176,
+   "collision_triangles": 28,
+   "collision": [
+    "convcolonly"
+   ],
+   "materials": [
+    "M_Town_PaintGreen",
+    "M_Town_PaintBlack",
+    "M_Road_RoadPatch"
+   ],
+   "bounds_min": [
+    -0.33,
+    0.0,
+    -0.33
+   ],
+   "bounds_max": [
+    0.33,
+    1.05,
+    0.34
+   ],
+   "nodes": [
+    "SP_TrashBin_Public_Mesh",
+    "SP_TrashBin_Public_Col-convcolonly"
+   ],
+   "kind": "prop",
+   "interactive": true
+  },
+  {
+   "name": "SP_Dumpster",
+   "category": "Street_Props",
+   "glb": "02_Town/Street_Props/SP_Dumpster.glb",
+   "obj": "02_Town/Street_Props/OBJ/SP_Dumpster.obj",
+   "triangles": 224,
+   "collision_triangles": 12,
+   "collision": [
+    "convcolonly"
+   ],
+   "materials": [
+    "M_Town_PaintGreen",
+    "M_Road_RoadPatch",
+    "M_Furn_Rubber",
+    "M_Furn_MetalBrushed",
+    "M_Town_PaintBlack"
+   ],
+   "bounds_min": [
+    -0.99,
+    0.01,
+    -0.72
+   ],
+   "bounds_max": [
+    0.99,
+    1.15,
+    0.72
+   ],
+   "nodes": [
+    "SP_Dumpster_Mesh",
+    "SP_Dumpster_Col-convcolonly",
+    "Lid_L",
+    "Lid_R"
+   ],
+   "kind": "prop",
+   "desc": "Lids hinge on their -Z edge (node origin) for animation"
+  },
+  {
+   "name": "SP_NewspaperBox",
+   "category": "Street_Props",
+   "glb": "02_Town/Street_Props/SP_NewspaperBox.glb",
+   "obj": "02_Town/Street_Props/OBJ/SP_NewspaperBox.obj",
+   "triangles": 102,
+   "collision_triangles": 12,
+   "collision": [
+    "convcolonly"
+   ],
+   "materials": [
+    "M_Town_PaintNavy",
+    "M_Arch_WindowGlassDirty",
+    "M_Com_SignageBacking",
+    "M_Town_SignAtlas"
+   ],
+   "bounds_min": [
+    -0.24,
+    0.0,
+    -0.21
+   ],
+   "bounds_max": [
+    0.24,
+    1.08,
+    0.23
+   ],
+   "nodes": [
+    "SP_NewspaperBox_Mesh",
+    "SP_NewspaperBox_Col-convcolonly"
+   ],
+   "kind": "prop",
+   "interactive": true
+  },
+  {
+   "name": "SP_Bench_Wood",
+   "category": "Street_Props",
+   "glb": "02_Town/Street_Props/SP_Bench_Wood.glb",
+   "obj": "02_Town/Street_Props/OBJ/SP_Bench_Wood.obj",
+   "triangles": 120,
+   "collision_triangles": 12,
+   "collision": [
+    "convcolonly"
+   ],
+   "materials": [
+    "M_Town_PaintBlack",
+    "M_Furn_WoodLight"
+   ],
+   "bounds_min": [
+    -0.95,
+    0.0,
+    -0.32
+   ],
+   "bounds_max": [
+    0.95,
+    0.9,
+    0.28
+   ],
+   "nodes": [
+    "SP_Bench_Wood_Mesh",
+    "SP_Bench_Wood_Col-convcolonly"
+   ],
+   "kind": "prop",
+   "desc": "Seat faces -Z; back is on the +Z side"
+  },
+  {
+   "name": "SP_Sign_BusStop",
+   "category": "Street_Props",
+   "glb": "02_Town/Street_Props/SP_Sign_BusStop.glb",
+   "obj": "02_Town/Street_Props/OBJ/SP_Sign_BusStop.obj",
+   "triangles": 48,
+   "collision_triangles": 20,
+   "collision": [
+    "convcolonly"
+   ],
+   "materials": [
+    "M_Furn_MetalBrushed",
+    "M_Town_SignAtlas",
+    "M_Com_SignageBacking",
+    "M_Arch_WindowGlassDirty"
+   ],
+   "bounds_min": [
+    -0.22,
+    0.0,
+    -0.03
+   ],
+   "bounds_max": [
+    0.22,
+    2.8,
+    0.101
+   ],
+   "nodes": [
+    "SP_Sign_BusStop_Mesh",
+    "SP_Sign_BusStop_Col-convcolonly"
+   ],
+   "kind": "prop"
+  },
+  {
+   "name": "SP_BusShelter",
+   "category": "Street_Props",
+   "glb": "02_Town/Street_Props/SP_BusShelter.glb",
+   "obj": "02_Town/Street_Props/OBJ/SP_BusShelter.obj",
+   "triangles": 152,
+   "collision_triangles": 48,
+   "collision": [
+    "convcolonly"
+   ],
+   "materials": [
+    "M_Town_PaintBlack",
+    "M_Com_SignageBacking",
+    "M_Arch_WindowGlassDirty",
+    "M_Furn_WoodLight",
+    "M_Town_SignAtlas"
+   ],
+   "bounds_min": [
+    -1.75,
+    0.0,
+    -0.955
+   ],
+   "bounds_max": [
+    1.75,
+    2.73,
+    1.07
+   ],
+   "nodes": [
+    "SP_BusShelter_Mesh",
+    "SP_BusShelter_Col0-convcolonly",
+    "SP_BusShelter_Col1-convcolonly",
+    "SP_BusShelter_Col2-convcolonly",
+    "SP_BusShelter_Col3-convcolonly"
+   ],
+   "kind": "prop",
+   "desc": "Open side faces +Z (kerb)"
+  },
+  {
+   "name": "SP_BikeRack",
+   "category": "Street_Props",
+   "glb": "02_Town/Street_Props/SP_BikeRack.glb",
+   "obj": "02_Town/Street_Props/OBJ/SP_BikeRack.obj",
+   "triangles": 240,
+   "collision_triangles": 12,
+   "collision": [
+    "convcolonly"
+   ],
+   "materials": [
+    "M_Furn_MetalBrushed"
+   ],
+   "bounds_min": [
+    -0.93,
+    -0.029,
+    -0.026
+   ],
+   "bounds_max": [
+    1.356,
+    0.758,
+    0.026
+   ],
+   "nodes": [
+    "SP_BikeRack_Mesh",
+    "SP_BikeRack_Col-convcolonly"
+   ],
+   "kind": "prop"
+  },
+  {
+   "name": "SP_ParkingMeter",
+   "category": "Street_Props",
+   "glb": "02_Town/Street_Props/SP_ParkingMeter.glb",
+   "obj": "02_Town/Street_Props/OBJ/SP_ParkingMeter.obj",
+   "triangles": 92,
+   "collision_triangles": 12,
+   "collision": [
+    "convcolonly"
+   ],
+   "materials": [
+    "M_Furn_MetalBrushed",
+    "M_Com_SignageBacking",
+    "M_Arch_WindowGlassDirty"
+   ],
+   "bounds_min": [
+    -0.11,
+    0.0,
+    -0.105
+   ],
+   "bounds_max": [
+    0.11,
+    1.5,
+    0.11
+   ],
+   "nodes": [
+    "SP_ParkingMeter_Mesh",
+    "SP_ParkingMeter_Col-convcolonly"
+   ],
+   "kind": "prop"
+  },
+  {
+   "name": "SP_PhoneBooth",
+   "category": "Street_Props",
+   "glb": "02_Town/Street_Props/SP_PhoneBooth.glb",
+   "obj": "02_Town/Street_Props/OBJ/SP_PhoneBooth.obj",
+   "triangles": 162,
+   "collision_triangles": 36,
+   "collision": [
+    "convcolonly"
+   ],
+   "materials": [
+    "M_Furn_MetalBrushed",
+    "M_Road_CurbConcrete",
+    "M_Town_PaintNavy",
+    "M_Town_SignAtlas",
+    "M_Arch_WindowGlassDirty",
+    "M_Town_PaintBlack",
+    "M_Furn_Rubber"
+   ],
+   "bounds_min": [
+    -0.51,
+    0.0,
+    -0.516
+   ],
+   "bounds_max": [
+    0.51,
+    2.5,
+    0.516
+   ],
+   "nodes": [
+    "SP_PhoneBooth_Mesh",
+    "SP_PhoneBooth_Col0-convcolonly",
+    "SP_PhoneBooth_Col1-convcolonly",
+    "SP_PhoneBooth_Col2-convcolonly",
+    "Door"
+   ],
+   "kind": "prop",
+   "interactive": true,
+   "desc": "Door node pivots at its left edge (front, +Z)"
+  },
+  {
+   "name": "SP_ManholeCover",
+   "category": "Street_Props",
+   "glb": "02_Town/Street_Props/SP_ManholeCover.glb",
+   "obj": "02_Town/Street_Props/OBJ/SP_ManholeCover.obj",
+   "triangles": 46,
+   "collision_triangles": 0,
+   "collision": [
+    "none"
+   ],
+   "materials": [
+    "M_Town_ManholeCover",
+    "M_Furn_MetalBrushed"
+   ],
+   "bounds_min": [
+    -0.45,
+    0.0,
+    -0.45
+   ],
+   "bounds_max": [
+    0.45,
+    0.012,
+    0.45
+   ],
+   "nodes": [
+    "SP_ManholeCover_Mesh"
+   ],
+   "kind": "prop",
+   "desc": "Sits 12 mm proud of the road surface"
+  },
+  {
+   "name": "SP_DrainGrate",
+   "category": "Street_Props",
+   "glb": "02_Town/Street_Props/SP_DrainGrate.glb",
+   "obj": "02_Town/Street_Props/OBJ/SP_DrainGrate.obj",
+   "triangles": 10,
+   "collision_triangles": 0,
+   "collision": [
+    "none"
+   ],
+   "materials": [
+    "M_Town_DrainGrate",
+    "M_Furn_MetalBrushed"
+   ],
+   "bounds_min": [
+    -0.31,
+    0.0,
+    -0.21
+   ],
+   "bounds_max": [
+    0.31,
+    0.008,
+    0.21
+   ],
+   "nodes": [
+    "SP_DrainGrate_Mesh"
+   ],
+   "kind": "prop"
+  },
+  {
+   "name": "UT_UtilityPole",
+   "category": "Utilities",
+   "glb": "02_Town/Utilities/UT_UtilityPole.glb",
+   "obj": "02_Town/Utilities/OBJ/UT_UtilityPole.obj",
+   "triangles": 252,
+   "collision_triangles": 28,
+   "collision": [
+    "convcolonly"
+   ],
+   "materials": [
+    "M_Town_PoleWood",
+    "M_Furn_MetalBrushed",
+    "M_Furn_WoodDark",
+    "M_Furn_PlasticDirty",
+    "M_Town_PaintYellow"
+   ],
+   "bounds_min": [
+    -1.2,
+    0.0,
+    -0.15
+   ],
+   "bounds_max": [
+    1.2,
+    10.0,
+    0.16
+   ],
+   "nodes": [
+    "UT_UtilityPole_Mesh",
+    "UT_UtilityPole_Col-convcolonly",
+    "Attach_Power_L",
+    "Attach_Power_C",
+    "Attach_Power_R",
+    "Attach_Tel"
+   ],
+   "kind": "prop",
+   "desc": "Power attach y=9.54 at local x=-1.05/0/1.05 (crossarm along X); telephone y=7.2 on the pole axis. Lines run along local Z: give pole and line the same yaw +-90 deg"
+  },
+  {
+   "name": "UT_Transformer_PoleMount",
+   "category": "Utilities",
+   "glb": "02_Town/Utilities/UT_Transformer_PoleMount.glb",
+   "obj": "02_Town/Utilities/OBJ/UT_Transformer_PoleMount.obj",
+   "triangles": 146,
+   "collision_triangles": 0,
+   "collision": [
+    "none"
+   ],
+   "materials": [
+    "M_Furn_MetalBrushed",
+    "M_Com_SignageBacking",
+    "M_Furn_PlasticDirty"
+   ],
+   "bounds_min": [
+    -0.34,
+    -0.45,
+    -0.05
+   ],
+   "bounds_max": [
+    0.34,
+    0.73,
+    0.754
+   ],
+   "nodes": [
+    "UT_Transformer_PoleMount_Mesh"
+   ],
+   "kind": "prop",
+   "desc": "Mount on a utility pole at ~7.6 m; origin on pole face, can toward +Z"
+  },
+  {
+   "name": "UT_Transformer_PadMount",
+   "category": "Utilities",
+   "glb": "02_Town/Utilities/UT_Transformer_PadMount.glb",
+   "obj": "02_Town/Utilities/OBJ/UT_Transformer_PadMount.obj",
+   "triangles": 60,
+   "collision_triangles": 12,
+   "collision": [
+    "convcolonly"
+   ],
+   "materials": [
+    "M_Road_CurbConcrete",
+    "M_Town_PaintGreen",
+    "M_Town_VentGrille",
+    "M_Furn_MetalBrushed",
+    "M_Town_PaintYellow"
+   ],
+   "bounds_min": [
+    -0.75,
+    0.0,
+    -0.65
+   ],
+   "bounds_max": [
+    0.75,
+    1.3,
+    0.65
+   ],
+   "nodes": [
+    "UT_Transformer_PadMount_Mesh",
+    "UT_Transformer_PadMount_Col-convcolonly"
+   ],
+   "kind": "prop"
+  },
+  {
+   "name": "UT_PowerLine_Span20m",
+   "category": "Utilities",
+   "glb": "02_Town/Utilities/UT_PowerLine_Span20m.glb",
+   "obj": "02_Town/Utilities/OBJ/UT_PowerLine_Span20m.obj",
+   "triangles": 180,
+   "collision_triangles": 0,
+   "collision": [
+    "none"
+   ],
+   "materials": [
+    "M_Town_PaintBlack"
+   ],
+   "bounds_min": [
+    -1.056,
+    8.93,
+    -0.001
+   ],
+   "bounds_max": [
+    1.062,
+    9.55,
+    20.001
+   ],
+   "nodes": [
+    "UT_PowerLine_Span20m_Mesh"
+   ],
+   "kind": "span",
+   "span": 20,
+   "desc": "3 conductors from UT_UtilityPole attach points at z=0 to the next pole at z=20"
+  },
+  {
+   "name": "UT_PowerLine_Span25m",
+   "category": "Utilities",
+   "glb": "02_Town/Utilities/UT_PowerLine_Span25m.glb",
+   "obj": "02_Town/Utilities/OBJ/UT_PowerLine_Span25m.obj",
+   "triangles": 180,
+   "collision_triangles": 0,
+   "collision": [
+    "none"
+   ],
+   "materials": [
+    "M_Town_PaintBlack"
+   ],
+   "bounds_min": [
+    -1.056,
+    8.83,
+    -0.001
+   ],
+   "bounds_max": [
+    1.062,
+    9.55,
+    25.001
+   ],
+   "nodes": [
+    "UT_PowerLine_Span25m_Mesh"
+   ],
+   "kind": "span",
+   "span": 25,
+   "desc": "3 conductors from UT_UtilityPole attach points at z=0 to the next pole at z=25"
+  },
+  {
+   "name": "UT_PowerLine_Span30m",
+   "category": "Utilities",
+   "glb": "02_Town/Utilities/UT_PowerLine_Span30m.glb",
+   "obj": "02_Town/Utilities/OBJ/UT_PowerLine_Span30m.obj",
+   "triangles": 180,
+   "collision_triangles": 0,
+   "collision": [
+    "none"
+   ],
+   "materials": [
+    "M_Town_PaintBlack"
+   ],
+   "bounds_min": [
+    -1.056,
+    8.73,
+    -0.001
+   ],
+   "bounds_max": [
+    1.062,
+    9.55,
+    30.001
+   ],
+   "nodes": [
+    "UT_PowerLine_Span30m_Mesh"
+   ],
+   "kind": "span",
+   "span": 30,
+   "desc": "3 conductors from UT_UtilityPole attach points at z=0 to the next pole at z=30"
+  },
+  {
+   "name": "UT_TelephoneLine_Span25m",
+   "category": "Utilities",
+   "glb": "02_Town/Utilities/UT_TelephoneLine_Span25m.glb",
+   "obj": "02_Town/Utilities/OBJ/UT_TelephoneLine_Span25m.obj",
+   "triangles": 80,
+   "collision_triangles": 0,
+   "collision": [
+    "none"
+   ],
+   "materials": [
+    "M_Town_PaintBlack"
+   ],
+   "bounds_min": [
+    -0.014,
+    6.136,
+    -0.002
+   ],
+   "bounds_max": [
+    0.014,
+    7.214,
+    25.002
+   ],
+   "nodes": [
+    "UT_TelephoneLine_Span25m_Mesh"
+   ],
+   "kind": "span",
+   "span": 25
+  },
+  {
+   "name": "UT_TelephoneLine_Span30m",
+   "category": "Utilities",
+   "glb": "02_Town/Utilities/UT_TelephoneLine_Span30m.glb",
+   "obj": "02_Town/Utilities/OBJ/UT_TelephoneLine_Span30m.obj",
+   "triangles": 80,
+   "collision_triangles": 0,
+   "collision": [
+    "none"
+   ],
+   "materials": [
+    "M_Town_PaintBlack"
+   ],
+   "bounds_min": [
+    -0.014,
+    5.986,
+    -0.002
+   ],
+   "bounds_max": [
+    0.014,
+    7.214,
+    30.002
+   ],
+   "nodes": [
+    "UT_TelephoneLine_Span30m_Mesh"
+   ],
+   "kind": "span",
+   "span": 30
+  },
+  {
+   "name": "UT_JunctionBox",
+   "category": "Utilities",
+   "glb": "02_Town/Utilities/UT_JunctionBox.glb",
+   "obj": "02_Town/Utilities/OBJ/UT_JunctionBox.obj",
+   "triangles": 42,
+   "collision_triangles": 0,
+   "collision": [
+    "none"
+   ],
+   "materials": [
+    "M_Com_SignageBacking",
+    "M_Furn_MetalBrushed"
+   ],
+   "bounds_min": [
+    -0.21,
+    -0.6,
+    0.0
+   ],
+   "bounds_max": [
+    0.21,
+    0.52,
+    0.2
+   ],
+   "nodes": [
+    "UT_JunctionBox_Mesh"
+   ],
+   "kind": "prop",
+   "desc": "Wall/pole mount: origin at mounting surface, ~1.2 m high"
+  },
+  {
+   "name": "UT_ElectricalCabinet",
+   "category": "Utilities",
+   "glb": "02_Town/Utilities/UT_ElectricalCabinet.glb",
+   "obj": "02_Town/Utilities/OBJ/UT_ElectricalCabinet.obj",
+   "triangles": 90,
+   "collision_triangles": 12,
+   "collision": [
+    "convcolonly"
+   ],
+   "materials": [
+    "M_Road_CurbConcrete",
+    "M_Com_SignageBacking",
+    "M_Road_RoadPatch",
+    "M_Town_VentGrille",
+    "M_Furn_MetalBrushed",
+    "M_Town_PaintYellow"
+   ],
+   "bounds_min": [
+    -0.6,
+    0.0,
+    -0.35
+   ],
+   "bounds_max": [
+    0.6,
+    1.5,
+    0.35
+   ],
+   "nodes": [
+    "UT_ElectricalCabinet_Mesh",
+    "UT_ElectricalCabinet_Col-convcolonly"
+   ],
+   "kind": "prop"
+  },
+  {
+   "name": "UT_WaterMeter",
+   "category": "Utilities",
+   "glb": "02_Town/Utilities/UT_WaterMeter.glb",
+   "obj": "02_Town/Utilities/OBJ/UT_WaterMeter.obj",
+   "triangles": 12,
+   "collision_triangles": 0,
+   "collision": [
+    "none"
+   ],
+   "materials": [
+    "M_Road_CurbConcrete",
+    "M_Town_UtilityCover"
+   ],
+   "bounds_min": [
+    -0.25,
+    0.0,
+    -0.18
+   ],
+   "bounds_max": [
+    0.25,
+    0.022,
+    0.18
+   ],
+   "nodes": [
+    "UT_WaterMeter_Mesh"
+   ],
+   "kind": "prop",
+   "desc": "In-ground meter box, 2 cm proud"
+  },
+  {
+   "name": "UT_ACUnit_Exterior",
+   "category": "Utilities",
+   "glb": "02_Town/Utilities/UT_ACUnit_Exterior.glb",
+   "obj": "02_Town/Utilities/OBJ/UT_ACUnit_Exterior.obj",
+   "triangles": 108,
+   "collision_triangles": 12,
+   "collision": [
+    "convcolonly"
+   ],
+   "materials": [
+    "M_Road_CurbConcrete",
+    "M_Com_SignageBacking",
+    "M_Town_VentGrille",
+    "M_Furn_Rubber",
+    "M_Furn_MetalBrushed"
+   ],
+   "bounds_min": [
+    -0.5,
+    0.0,
+    -0.618
+   ],
+   "bounds_max": [
+    0.5,
+    1.2,
+    0.45
+   ],
+   "nodes": [
+    "UT_ACUnit_Exterior_Mesh",
+    "UT_ACUnit_Exterior_Col-convcolonly"
+   ],
+   "kind": "prop",
+   "desc": "Line set runs to the wall on the -Z side"
+  },
+  {
+   "name": "UT_RooftopVent",
+   "category": "Utilities",
+   "glb": "02_Town/Utilities/UT_RooftopVent.glb",
+   "obj": "02_Town/Utilities/OBJ/UT_RooftopVent.obj",
+   "triangles": 78,
+   "collision_triangles": 12,
+   "collision": [
+    "convcolonly"
+   ],
+   "materials": [
+    "M_Com_SignageBacking",
+    "M_Furn_MetalBrushed",
+    "M_Town_VentGrille"
+   ],
+   "bounds_min": [
+    -0.4,
+    0.0,
+    -0.4
+   ],
+   "bounds_max": [
+    0.4,
+    1.02,
+    0.4
+   ],
+   "nodes": [
+    "UT_RooftopVent_Mesh",
+    "UT_RooftopVent_Col-convcolonly"
+   ],
+   "kind": "prop"
+  },
+  {
+   "name": "UT_UtilityAccessCover",
+   "category": "Utilities",
+   "glb": "02_Town/Utilities/UT_UtilityAccessCover.glb",
+   "obj": "02_Town/Utilities/OBJ/UT_UtilityAccessCover.obj",
+   "triangles": 10,
+   "collision_triangles": 0,
+   "collision": [
+    "none"
+   ],
+   "materials": [
+    "M_Town_UtilityCover",
+    "M_Furn_MetalBrushed"
+   ],
+   "bounds_min": [
+    -0.41,
+    0.0,
+    -0.41
+   ],
+   "bounds_max": [
+    0.41,
+    0.01,
+    0.41
+   ],
+   "nodes": [
+    "UT_UtilityAccessCover_Mesh"
+   ],
+   "kind": "prop"
+  },
+  {
+   "name": "VG_Tree_DeciduousSmall",
+   "category": "Vegetation",
+   "glb": "02_Town/Vegetation/VG_Tree_DeciduousSmall.glb",
+   "obj": "02_Town/Vegetation/OBJ/VG_Tree_DeciduousSmall.obj",
+   "triangles": 389,
+   "collision_triangles": 20,
+   "collision": [
+    "convcolonly"
+   ],
+   "materials": [
+    "M_Grnd_TreeBark",
+    "M_Grnd_HedgeFoliage"
+   ],
+   "bounds_min": [
+    -1.727,
+    -0.057,
+    -1.67
+   ],
+   "bounds_max": [
+    1.691,
+    5.106,
+    1.402
+   ],
+   "nodes": [
+    "VG_Tree_DeciduousSmall_Mesh",
+    "VG_Tree_DeciduousSmall_Col-convcolonly"
+   ],
+   "kind": "tree",
+   "height": 5.0
+  },
+  {
+   "name": "VG_Tree_DeciduousLarge",
+   "category": "Vegetation",
+   "glb": "02_Town/Vegetation/VG_Tree_DeciduousLarge.glb",
+   "obj": "02_Town/Vegetation/OBJ/VG_Tree_DeciduousLarge.obj",
+   "triangles": 612,
+   "collision_triangles": 28,
+   "collision": [
+    "convcolonly"
+   ],
+   "materials": [
+    "M_Grnd_TreeBark",
+    "M_Grnd_HedgeFoliage"
+   ],
+   "bounds_min": [
+    -3.863,
+    -0.149,
+    -3.851
+   ],
+   "bounds_max": [
+    3.935,
+    10.198,
+    3.674
+   ],
+   "nodes": [
+    "VG_Tree_DeciduousLarge_Mesh",
+    "VG_Tree_DeciduousLarge_Col-convcolonly"
+   ],
+   "kind": "tree",
+   "height": 10.0
+  },
+  {
+   "name": "VG_Tree_Pine",
+   "category": "Vegetation",
+   "glb": "02_Town/Vegetation/VG_Tree_Pine.glb",
+   "obj": "02_Town/Vegetation/OBJ/VG_Tree_Pine.obj",
+   "triangles": 181,
+   "collision_triangles": 20,
+   "collision": [
+    "convcolonly"
+   ],
+   "materials": [
+    "M_Grnd_TreeBark",
+    "M_Town_PineNeedles"
+   ],
+   "bounds_min": [
+    -2.26,
+    -0.086,
+    -2.108
+   ],
+   "bounds_max": [
+    2.222,
+    8.0,
+    2.298
+   ],
+   "nodes": [
+    "VG_Tree_Pine_Mesh",
+    "VG_Tree_Pine_Col-convcolonly"
+   ],
+   "kind": "tree",
+   "height": 8.0
+  },
+  {
+   "name": "VG_Tree_Dead",
+   "category": "Vegetation",
+   "glb": "02_Town/Vegetation/VG_Tree_Dead.glb",
+   "obj": "02_Town/Vegetation/OBJ/VG_Tree_Dead.obj",
+   "triangles": 213,
+   "collision_triangles": 20,
+   "collision": [
+    "convcolonly"
+   ],
+   "materials": [
+    "M_Grnd_TreeBark",
+    "M_Hor_WoodDarkened"
+   ],
+   "bounds_min": [
+    -0.713,
+    -0.093,
+    -1.425
+   ],
+   "bounds_max": [
+    1.835,
+    6.445,
+    1.073
+   ],
+   "nodes": [
+    "VG_Tree_Dead_Mesh",
+    "VG_Tree_Dead_Col-convcolonly"
+   ],
+   "kind": "tree",
+   "height": 7.0
+  },
+  {
+   "name": "VG_Tree_Overgrown",
+   "category": "Vegetation",
+   "glb": "02_Town/Vegetation/VG_Tree_Overgrown.glb",
+   "obj": "02_Town/Vegetation/OBJ/VG_Tree_Overgrown.obj",
+   "triangles": 532,
+   "collision_triangles": 28,
+   "collision": [
+    "convcolonly"
+   ],
+   "materials": [
+    "M_Grnd_TreeBark",
+    "M_Grnd_HedgeFoliage",
+    "M_Grnd_DeadVegetation",
+    "M_Town_Ivy"
+   ],
+   "bounds_min": [
+    -3.486,
+    -0.134,
+    -2.662
+   ],
+   "bounds_max": [
+    3.464,
+    7.873,
+    3.652
+   ],
+   "nodes": [
+    "VG_Tree_Overgrown_Mesh",
+    "VG_Tree_Overgrown_Col-convcolonly"
+   ],
+   "kind": "tree",
+   "height": 8.0
+  },
+  {
+   "name": "VG_Bush",
+   "category": "Vegetation",
+   "glb": "02_Town/Vegetation/VG_Bush.glb",
+   "obj": "02_Town/Vegetation/OBJ/VG_Bush.obj",
+   "triangles": 240,
+   "collision_triangles": 12,
+   "collision": [
+    "convcolonly"
+   ],
+   "materials": [
+    "M_Grnd_HedgeFoliage"
+   ],
+   "bounds_min": [
+    -0.981,
+    0.212,
+    -0.864
+   ],
+   "bounds_max": [
+    1.123,
+    1.109,
+    0.829
+   ],
+   "nodes": [
+    "VG_Bush_Mesh",
+    "VG_Bush_Col-convcolonly"
+   ],
+   "kind": "plant"
+  },
+  {
+   "name": "VG_Hedge",
+   "category": "Vegetation",
+   "glb": "02_Town/Vegetation/VG_Hedge.glb",
+   "obj": "02_Town/Vegetation/OBJ/VG_Hedge.obj",
+   "triangles": 170,
+   "collision_triangles": 12,
+   "collision": [
+    "convcolonly"
+   ],
+   "materials": [
+    "M_Grnd_HedgeFoliage"
+   ],
+   "bounds_min": [
+    -0.205,
+    0.0,
+    -0.487
+   ],
+   "bounds_max": [
+    1.629,
+    1.14,
+    0.477
+   ],
+   "nodes": [
+    "VG_Hedge_Mesh",
+    "VG_Hedge_Col-convcolonly"
+   ],
+   "kind": "plant"
+  },
+  {
+   "name": "VG_TallGrassClump",
+   "category": "Vegetation",
+   "glb": "02_Town/Vegetation/VG_TallGrassClump.glb",
+   "obj": "02_Town/Vegetation/OBJ/VG_TallGrassClump.obj",
+   "triangles": 6,
+   "collision_triangles": 0,
+   "collision": [
+    "none"
+   ],
+   "materials": [
+    "M_Town_GrassCards"
+   ],
+   "bounds_min": [
+    -0.595,
+    0.0,
+    -0.54
+   ],
+   "bounds_max": [
+    0.397,
+    0.95,
+    0.445
+   ],
+   "nodes": [
+    "VG_TallGrassClump_Mesh"
+   ],
+   "kind": "plant",
+   "desc": "No collision: walk-through"
+  },
+  {
+   "name": "VG_Weeds",
+   "category": "Vegetation",
+   "glb": "02_Town/Vegetation/VG_Weeds.glb",
+   "obj": "02_Town/Vegetation/OBJ/VG_Weeds.obj",
+   "triangles": 6,
+   "collision_triangles": 0,
+   "collision": [
+    "none"
+   ],
+   "materials": [
+    "M_Town_GrassCards"
+   ],
+   "bounds_min": [
+    -0.399,
+    0.0,
+    -0.477
+   ],
+   "bounds_max": [
+    0.515,
+    0.85,
+    0.323
+   ],
+   "nodes": [
+    "VG_Weeds_Mesh"
+   ],
+   "kind": "plant"
+  },
+  {
+   "name": "VG_FlowerPatch",
+   "category": "Vegetation",
+   "glb": "02_Town/Vegetation/VG_FlowerPatch.glb",
+   "obj": "02_Town/Vegetation/OBJ/VG_FlowerPatch.obj",
+   "triangles": 160,
+   "collision_triangles": 0,
+   "collision": [
+    "none"
+   ],
+   "materials": [
+    "M_Town_FlowerBed"
+   ],
+   "bounds_min": [
+    -0.996,
+    -0.109,
+    -0.691
+   ],
+   "bounds_max": [
+    1.401,
+    0.211,
+    0.757
+   ],
+   "nodes": [
+    "VG_FlowerPatch_Mesh"
+   ],
+   "kind": "plant"
+  },
+  {
+   "name": "VG_DeadVegetation",
+   "category": "Vegetation",
+   "glb": "02_Town/Vegetation/VG_DeadVegetation.glb",
+   "obj": "02_Town/Vegetation/OBJ/VG_DeadVegetation.obj",
+   "triangles": 84,
+   "collision_triangles": 0,
+   "collision": [
+    "none"
+   ],
+   "materials": [
+    "M_Grnd_DeadVegetation",
+    "M_Hor_FoliageDead"
+   ],
+   "bounds_min": [
+    -0.672,
+    -0.074,
+    -0.582
+   ],
+   "bounds_max": [
+    0.754,
+    0.9,
+    0.667
+   ],
+   "nodes": [
+    "VG_DeadVegetation_Mesh"
+   ],
+   "kind": "plant"
+  },
+  {
+   "name": "VG_IvyPatch",
+   "category": "Vegetation",
+   "glb": "02_Town/Vegetation/VG_IvyPatch.glb",
+   "obj": "02_Town/Vegetation/OBJ/VG_IvyPatch.obj",
+   "triangles": 32,
+   "collision_triangles": 0,
+   "collision": [
+    "none"
+   ],
+   "materials": [
+    "M_Town_Ivy"
+   ],
+   "bounds_min": [
+    0.0,
+    0.0,
+    0.02
+   ],
+   "bounds_max": [
+    2.0,
+    2.0,
+    0.06
+   ],
+   "nodes": [
+    "VG_IvyPatch_Mesh"
+   ],
+   "kind": "plant",
+   "desc": "2 x 2 m wall ivy; origin at wall base-left, faces +Z"
+  },
+  {
+   "name": "VG_DirtMound",
+   "category": "Vegetation",
+   "glb": "02_Town/Vegetation/VG_DirtMound.glb",
+   "obj": "02_Town/Vegetation/OBJ/VG_DirtMound.obj",
+   "triangles": 80,
+   "collision_triangles": 12,
+   "collision": [
+    "convcolonly"
+   ],
+   "materials": [
+    "M_Grnd_Soil"
+   ],
+   "bounds_min": [
+    -1.219,
+    -0.276,
+    -0.973
+   ],
+   "bounds_max": [
+    1.455,
+    0.6,
+    0.93
+   ],
+   "nodes": [
+    "VG_DirtMound_Mesh",
+    "VG_DirtMound_Col-convcolonly"
+   ],
+   "kind": "ground"
+  },
+  {
+   "name": "VG_RocksSmall",
+   "category": "Vegetation",
+   "glb": "02_Town/Vegetation/VG_RocksSmall.glb",
+   "obj": "02_Town/Vegetation/OBJ/VG_RocksSmall.obj",
+   "triangles": 80,
+   "collision_triangles": 12,
+   "collision": [
+    "convcolonly"
+   ],
+   "materials": [
+    "M_Town_Rock"
+   ],
+   "bounds_min": [
+    -0.585,
+    -0.028,
+    -0.549
+   ],
+   "bounds_max": [
+    0.792,
+    0.516,
+    0.477
+   ],
+   "nodes": [
+    "VG_RocksSmall_Mesh",
+    "VG_RocksSmall_Col-convcolonly"
+   ],
+   "kind": "ground"
+  },
+  {
+   "name": "VG_GravelPile",
+   "category": "Vegetation",
+   "glb": "02_Town/Vegetation/VG_GravelPile.glb",
+   "obj": "02_Town/Vegetation/OBJ/VG_GravelPile.obj",
+   "triangles": 25,
+   "collision_triangles": 28,
+   "collision": [
+    "convcolonly"
+   ],
+   "materials": [
+    "M_Road_Gravel"
+   ],
+   "bounds_min": [
+    -1.128,
+    -0.02,
+    -1.182
+   ],
+   "bounds_max": [
+    1.2,
+    0.73,
+    1.182
+   ],
+   "nodes": [
+    "VG_GravelPile_Mesh",
+    "VG_GravelPile_Col-convcolonly"
+   ],
+   "kind": "ground"
+  },
+  {
+   "name": "VG_FallenLeaves",
+   "category": "Vegetation",
+   "glb": "02_Town/Vegetation/VG_FallenLeaves.glb",
+   "obj": "02_Town/Vegetation/OBJ/VG_FallenLeaves.obj",
+   "triangles": 8,
+   "collision_triangles": 0,
+   "collision": [
+    "none"
+   ],
+   "materials": [
+    "M_Grnd_LeavesFallen"
+   ],
+   "bounds_min": [
+    -1.729,
+    0.012,
+    -1.263
+   ],
+   "bounds_max": [
+    1.442,
+    0.012,
+    1.327
+   ],
+   "nodes": [
+    "VG_FallenLeaves_Mesh"
+   ],
+   "kind": "ground",
+   "desc": "Ground decal, 12 mm proud"
+  },
+  {
+   "name": "VG_TreeStump",
+   "category": "Vegetation",
+   "glb": "02_Town/Vegetation/VG_TreeStump.glb",
+   "obj": "02_Town/Vegetation/OBJ/VG_TreeStump.obj",
+   "triangles": 65,
+   "collision_triangles": 28,
+   "collision": [
+    "convcolonly"
+   ],
+   "materials": [
+    "M_Grnd_TreeBark",
+    "M_Town_StumpTop"
+   ],
+   "bounds_min": [
+    -0.357,
+    -0.062,
+    -0.374
+   ],
+   "bounds_max": [
+    0.38,
+    0.42,
+    0.374
+   ],
+   "nodes": [
+    "VG_TreeStump_Mesh",
+    "VG_TreeStump_Col-convcolonly"
+   ],
+   "kind": "ground"
+  },
+  {
+   "name": "VG_FallenBranch",
+   "category": "Vegetation",
+   "glb": "02_Town/Vegetation/VG_FallenBranch.glb",
+   "obj": "02_Town/Vegetation/OBJ/VG_FallenBranch.obj",
+   "triangles": 64,
+   "collision_triangles": 12,
+   "collision": [
+    "convcolonly"
+   ],
+   "materials": [
+    "M_Grnd_TreeBark"
+   ],
+   "bounds_min": [
+    -1.41,
+    -0.036,
+    -0.513
+   ],
+   "bounds_max": [
+    1.521,
+    0.275,
+    1.024
+   ],
+   "nodes": [
+    "VG_FallenBranch_Mesh",
+    "VG_FallenBranch_Col-convcolonly"
+   ],
+   "kind": "ground"
+  },
+  {
+   "name": "VG_MudPatch",
+   "category": "Vegetation",
+   "glb": "02_Town/Vegetation/VG_MudPatch.glb",
+   "obj": "02_Town/Vegetation/OBJ/VG_MudPatch.obj",
+   "triangles": 8,
+   "collision_triangles": 0,
+   "collision": [
+    "none"
+   ],
+   "materials": [
+    "M_Grnd_Mud"
+   ],
+   "bounds_min": [
+    -1.17,
+    0.01,
+    -1.134
+   ],
+   "bounds_max": [
+    1.093,
+    0.01,
+    1.117
+   ],
+   "nodes": [
+    "VG_MudPatch_Mesh"
+   ],
+   "kind": "ground"
+  },
+  {
+   "name": "FN_Picket_2.5m",
+   "category": "Fences",
+   "glb": "02_Town/Fences/FN_Picket_2.5m.glb",
+   "obj": "02_Town/Fences/OBJ/FN_Picket_2.5m.obj",
+   "triangles": 290,
+   "collision_triangles": 12,
+   "collision": [
+    "convcolonly"
+   ],
+   "materials": [
+    "M_Arch_TrimPainted"
+   ],
+   "bounds_min": [
+    -0.05,
+    0.0,
+    -0.05
+   ],
+   "bounds_max": [
+    2.45,
+    1.11,
+    0.05
+   ],
+   "nodes": [
+    "FN_Picket_2.5m_Mesh",
+    "FN_Picket_2.5m_Col-convcolonly"
+   ],
+   "kind": "fence",
+   "length": 2.5
+  },
+  {
+   "name": "FN_Privacy_2.5m",
+   "category": "Fences",
+   "glb": "02_Town/Fences/FN_Privacy_2.5m.glb",
+   "obj": "02_Town/Fences/OBJ/FN_Privacy_2.5m.obj",
+   "triangles": 138,
+   "collision_triangles": 12,
+   "collision": [
+    "convcolonly"
+   ],
+   "materials": [
+    "M_Arch_WoodPlanksAged"
+   ],
+   "bounds_min": [
+    -0.06,
+    0.0,
+    -0.1
+   ],
+   "bounds_max": [
+    2.445,
+    1.9,
+    0.06
+   ],
+   "nodes": [
+    "FN_Privacy_2.5m_Mesh",
+    "FN_Privacy_2.5m_Col-convcolonly"
+   ],
+   "kind": "fence",
+   "length": 2.5
+  },
+  {
+   "name": "FN_ChainLink_2.5m",
+   "category": "Fences",
+   "glb": "02_Town/Fences/FN_ChainLink_2.5m.glb",
+   "obj": "02_Town/Fences/OBJ/FN_ChainLink_2.5m.obj",
+   "triangles": 48,
+   "collision_triangles": 12,
+   "collision": [
+    "convcolonly"
+   ],
+   "materials": [
+    "M_Furn_MetalBrushed",
+    "M_Town_ChainLink"
+   ],
+   "bounds_min": [
+    -0.04,
+    0.0,
+    -0.035
+   ],
+   "bounds_max": [
+    2.5,
+    1.6,
+    0.035
+   ],
+   "nodes": [
+    "FN_ChainLink_2.5m_Mesh",
+    "FN_ChainLink_2.5m_Col-convcolonly"
+   ],
+   "kind": "fence",
+   "length": 2.5
+  },
+  {
+   "name": "FN_MetalRailing_2.5m",
+   "category": "Fences",
+   "glb": "02_Town/Fences/FN_MetalRailing_2.5m.glb",
+   "obj": "02_Town/Fences/OBJ/FN_MetalRailing_2.5m.obj",
+   "triangles": 200,
+   "collision_triangles": 12,
+   "collision": [
+    "convcolonly"
+   ],
+   "materials": [
+    "M_Town_PaintBlack"
+   ],
+   "bounds_min": [
+    -0.04,
+    0.0,
+    -0.04
+   ],
+   "bounds_max": [
+    2.47,
+    1.1,
+    0.04
+   ],
+   "nodes": [
+    "FN_MetalRailing_2.5m_Mesh",
+    "FN_MetalRailing_2.5m_Col-convcolonly"
+   ],
+   "kind": "fence",
+   "length": 2.5
+  },
+  {
+   "name": "FN_BrickWall_2.5m",
+   "category": "Fences",
+   "glb": "02_Town/Fences/FN_BrickWall_2.5m.glb",
+   "obj": "02_Town/Fences/OBJ/FN_BrickWall_2.5m.obj",
+   "triangles": 40,
+   "collision_triangles": 12,
+   "collision": [
+    "convcolonly"
+   ],
+   "materials": [
+    "M_Arch_BrickRed",
+    "M_Arch_ConcreteFoundation"
+   ],
+   "bounds_min": [
+    -0.24,
+    0.0,
+    -0.24
+   ],
+   "bounds_max": [
+    2.5,
+    1.08,
+    0.24
+   ],
+   "nodes": [
+    "FN_BrickWall_2.5m_Mesh",
+    "FN_BrickWall_2.5m_Col-convcolonly"
+   ],
+   "kind": "fence",
+   "length": 2.5
+  },
+  {
+   "name": "FN_RetainingWall_2.5m",
+   "category": "Fences",
+   "glb": "02_Town/Fences/FN_RetainingWall_2.5m.glb",
+   "obj": "02_Town/Fences/OBJ/FN_RetainingWall_2.5m.obj",
+   "triangles": 12,
+   "collision_triangles": 12,
+   "collision": [
+    "convcolonly"
+   ],
+   "materials": [
+    "M_Arch_ConcreteFoundation"
+   ],
+   "bounds_min": [
+    -0.0,
+    0.0,
+    -0.25
+   ],
+   "bounds_max": [
+    2.5,
+    1.2,
+    0.25
+   ],
+   "nodes": [
+    "FN_RetainingWall_2.5m_Mesh",
+    "FN_RetainingWall_2.5m_Col-convcolonly"
+   ],
+   "kind": "fence",
+   "length": 2.5
+  },
+  {
+   "name": "FN_FenceGate_Privacy_1.25m",
+   "category": "Fences",
+   "glb": "02_Town/Fences/FN_FenceGate_Privacy_1.25m.glb",
+   "obj": "02_Town/Fences/OBJ/FN_FenceGate_Privacy_1.25m.obj",
+   "triangles": 84,
+   "collision_triangles": 24,
+   "collision": [
+    "convcolonly"
+   ],
+   "materials": [
+    "M_Arch_WoodPlanksAged",
+    "M_Furn_MetalBrushed"
+   ],
+   "bounds_min": [
+    -0.06,
+    0.0,
+    -0.06
+   ],
+   "bounds_max": [
+    0.06,
+    1.95,
+    0.06
+   ],
+   "nodes": [
+    "FN_FenceGate_Privacy_1.25m_Mesh",
+    "FN_FenceGate_Privacy_1.25m_Col-convcolonly",
+    "GateLeaf",
+    "GateLeaf_Col-convcolonly"
+   ],
+   "kind": "fence",
+   "length": 1.25,
+   "interactive": true,
+   "desc": "Hinge post at x=0; GateLeaf node pivots on its hinge (rotate Y to open)"
+  },
+  {
+   "name": "FN_GardenGate_1.25m",
+   "category": "Fences",
+   "glb": "02_Town/Fences/FN_GardenGate_1.25m.glb",
+   "obj": "02_Town/Fences/OBJ/FN_GardenGate_1.25m.obj",
+   "triangles": 170,
+   "collision_triangles": 24,
+   "collision": [
+    "convcolonly"
+   ],
+   "materials": [
+    "M_Arch_TrimPainted"
+   ],
+   "bounds_min": [
+    -0.06,
+    0.0,
+    -0.06
+   ],
+   "bounds_max": [
+    0.06,
+    1.22,
+    0.06
+   ],
+   "nodes": [
+    "FN_GardenGate_1.25m_Mesh",
+    "FN_GardenGate_1.25m_Col-convcolonly",
+    "GateLeaf",
+    "GateLeaf_Col-convcolonly"
+   ],
+   "kind": "fence",
+   "length": 1.25,
+   "interactive": true
+  },
+  {
+   "name": "FN_HedgeBoundary_2.5m",
+   "category": "Fences",
+   "glb": "02_Town/Fences/FN_HedgeBoundary_2.5m.glb",
+   "obj": "02_Town/Fences/OBJ/FN_HedgeBoundary_2.5m.obj",
+   "triangles": 250,
+   "collision_triangles": 12,
+   "collision": [
+    "convcolonly"
+   ],
+   "materials": [
+    "M_Grnd_HedgeFoliage"
+   ],
+   "bounds_min": [
+    -0.256,
+    0.0,
+    -0.545
+   ],
+   "bounds_max": [
+    2.69,
+    1.4,
+    0.523
+   ],
+   "nodes": [
+    "FN_HedgeBoundary_2.5m_Mesh",
+    "FN_HedgeBoundary_2.5m_Col-convcolonly"
+   ],
+   "kind": "fence",
+   "length": 2.5
+  },
+  {
+   "name": "FN_Post_Picket",
+   "category": "Fences",
+   "glb": "02_Town/Fences/FN_Post_Picket.glb",
+   "obj": "02_Town/Fences/OBJ/FN_Post_Picket.obj",
+   "triangles": 14,
+   "collision_triangles": 12,
+   "collision": [
+    "convcolonly"
+   ],
+   "materials": [
+    "M_Arch_TrimPainted"
+   ],
+   "bounds_min": [
+    -0.05,
+    0.0,
+    -0.05
+   ],
+   "bounds_max": [
+    0.05,
+    1.11,
+    0.05
+   ],
+   "nodes": [
+    "FN_Post_Picket_Mesh",
+    "FN_Post_Picket_Col-convcolonly"
+   ],
+   "kind": "fence",
+   "length": 0
+  },
+  {
+   "name": "FN_Post_Privacy",
+   "category": "Fences",
+   "glb": "02_Town/Fences/FN_Post_Privacy.glb",
+   "obj": "02_Town/Fences/OBJ/FN_Post_Privacy.obj",
+   "triangles": 10,
+   "collision_triangles": 12,
+   "collision": [
+    "convcolonly"
+   ],
+   "materials": [
+    "M_Arch_WoodPlanksAged"
+   ],
+   "bounds_min": [
+    -0.06,
+    0.0,
+    -0.06
+   ],
+   "bounds_max": [
+    0.06,
+    1.9,
+    0.06
+   ],
+   "nodes": [
+    "FN_Post_Privacy_Mesh",
+    "FN_Post_Privacy_Col-convcolonly"
+   ],
+   "kind": "fence",
+   "length": 0
+  },
+  {
+   "name": "FN_Post_ChainLink",
+   "category": "Fences",
+   "glb": "02_Town/Fences/FN_Post_ChainLink.glb",
+   "obj": "02_Town/Fences/OBJ/FN_Post_ChainLink.obj",
+   "triangles": 16,
+   "collision_triangles": 20,
+   "collision": [
+    "convcolonly"
+   ],
+   "materials": [
+    "M_Furn_MetalBrushed"
+   ],
+   "bounds_min": [
+    -0.035,
+    0.0,
+    -0.03
+   ],
+   "bounds_max": [
+    0.035,
+    1.6,
+    0.03
+   ],
+   "nodes": [
+    "FN_Post_ChainLink_Mesh",
+    "FN_Post_ChainLink_Col-convcolonly"
+   ],
+   "kind": "fence",
+   "length": 0
+  },
+  {
+   "name": "SP_Sign_StreetName_Birch_Elm",
+   "category": "Street_Props",
+   "glb": "02_Town/Street_Props/SP_Sign_StreetName_Birch_Elm.glb",
+   "obj": "02_Town/Street_Props/OBJ/SP_Sign_StreetName_Birch_Elm.obj",
+   "triangles": 56,
+   "collision_triangles": 20,
+   "collision": [
+    "convcolonly"
+   ],
+   "materials": [
+    "M_Furn_MetalBrushed",
+    "M_Town_SignAtlas",
+    "M_Com_SignageBacking"
+   ],
+   "bounds_min": [
+    -0.45,
+    0.0,
+    -0.45
+   ],
+   "bounds_max": [
+    0.45,
+    3.46,
+    0.45
+   ],
+   "nodes": [
+    "SP_Sign_StreetName_Birch_Elm_Mesh",
+    "SP_Sign_StreetName_Birch_Elm_Col-convcolonly"
+   ],
+   "kind": "prop",
+   "desc": "Blades: ELM ST (along X), BIRCH LN (along Z)"
+  },
+  {
+   "name": "SP_Sign_StreetName_Birch_Main",
+   "category": "Street_Props",
+   "glb": "02_Town/Street_Props/SP_Sign_StreetName_Birch_Main.glb",
+   "obj": "02_Town/Street_Props/OBJ/SP_Sign_StreetName_Birch_Main.obj",
+   "triangles": 56,
+   "collision_triangles": 20,
+   "collision": [
+    "convcolonly"
+   ],
+   "materials": [
+    "M_Furn_MetalBrushed",
+    "M_Town_SignAtlas",
+    "M_Com_SignageBacking"
+   ],
+   "bounds_min": [
+    -0.45,
+    0.0,
+    -0.45
+   ],
+   "bounds_max": [
+    0.45,
+    3.46,
+    0.45
+   ],
+   "nodes": [
+    "SP_Sign_StreetName_Birch_Main_Mesh",
+    "SP_Sign_StreetName_Birch_Main_Col-convcolonly"
+   ],
+   "kind": "prop",
+   "desc": "Blades: MAIN ST (along X), BIRCH LN (along Z)"
+  },
+  {
+   "name": "SP_Sign_StreetName_Birch_Maple",
+   "category": "Street_Props",
+   "glb": "02_Town/Street_Props/SP_Sign_StreetName_Birch_Maple.glb",
+   "obj": "02_Town/Street_Props/OBJ/SP_Sign_StreetName_Birch_Maple.obj",
+   "triangles": 56,
+   "collision_triangles": 20,
+   "collision": [
+    "convcolonly"
+   ],
+   "materials": [
+    "M_Furn_MetalBrushed",
+    "M_Town_SignAtlas",
+    "M_Com_SignageBacking"
+   ],
+   "bounds_min": [
+    -0.45,
+    0.0,
+    -0.45
+   ],
+   "bounds_max": [
+    0.45,
+    3.46,
+    0.45
+   ],
+   "nodes": [
+    "SP_Sign_StreetName_Birch_Maple_Mesh",
+    "SP_Sign_StreetName_Birch_Maple_Col-convcolonly"
+   ],
+   "kind": "prop",
+   "desc": "Blades: MAPLE AVE (along X), BIRCH LN (along Z)"
+  },
+  {
+   "name": "SP_Sign_StreetName_Cedar_Elm",
+   "category": "Street_Props",
+   "glb": "02_Town/Street_Props/SP_Sign_StreetName_Cedar_Elm.glb",
+   "obj": "02_Town/Street_Props/OBJ/SP_Sign_StreetName_Cedar_Elm.obj",
+   "triangles": 56,
+   "collision_triangles": 20,
+   "collision": [
+    "convcolonly"
+   ],
+   "materials": [
+    "M_Furn_MetalBrushed",
+    "M_Town_SignAtlas",
+    "M_Com_SignageBacking"
+   ],
+   "bounds_min": [
+    -0.45,
+    0.0,
+    -0.45
+   ],
+   "bounds_max": [
+    0.45,
+    3.46,
+    0.45
+   ],
+   "nodes": [
+    "SP_Sign_StreetName_Cedar_Elm_Mesh",
+    "SP_Sign_StreetName_Cedar_Elm_Col-convcolonly"
+   ],
+   "kind": "prop",
+   "desc": "Blades: ELM ST (along X), CEDAR ST (along Z)"
+  },
+  {
+   "name": "SP_Sign_StreetName_Cedar_Main",
+   "category": "Street_Props",
+   "glb": "02_Town/Street_Props/SP_Sign_StreetName_Cedar_Main.glb",
+   "obj": "02_Town/Street_Props/OBJ/SP_Sign_StreetName_Cedar_Main.obj",
+   "triangles": 56,
+   "collision_triangles": 20,
+   "collision": [
+    "convcolonly"
+   ],
+   "materials": [
+    "M_Furn_MetalBrushed",
+    "M_Town_SignAtlas",
+    "M_Com_SignageBacking"
+   ],
+   "bounds_min": [
+    -0.45,
+    0.0,
+    -0.45
+   ],
+   "bounds_max": [
+    0.45,
+    3.46,
+    0.45
+   ],
+   "nodes": [
+    "SP_Sign_StreetName_Cedar_Main_Mesh",
+    "SP_Sign_StreetName_Cedar_Main_Col-convcolonly"
+   ],
+   "kind": "prop",
+   "desc": "Blades: MAIN ST (along X), CEDAR ST (along Z)"
+  },
+  {
+   "name": "SP_Sign_StreetName_Cedar_Maple",
+   "category": "Street_Props",
+   "glb": "02_Town/Street_Props/SP_Sign_StreetName_Cedar_Maple.glb",
+   "obj": "02_Town/Street_Props/OBJ/SP_Sign_StreetName_Cedar_Maple.obj",
+   "triangles": 56,
+   "collision_triangles": 20,
+   "collision": [
+    "convcolonly"
+   ],
+   "materials": [
+    "M_Furn_MetalBrushed",
+    "M_Town_SignAtlas",
+    "M_Com_SignageBacking"
+   ],
+   "bounds_min": [
+    -0.45,
+    0.0,
+    -0.45
+   ],
+   "bounds_max": [
+    0.45,
+    3.46,
+    0.45
+   ],
+   "nodes": [
+    "SP_Sign_StreetName_Cedar_Maple_Mesh",
+    "SP_Sign_StreetName_Cedar_Maple_Col-convcolonly"
+   ],
+   "kind": "prop",
+   "desc": "Blades: MAPLE AVE (along X), CEDAR ST (along Z)"
+  },
+  {
+   "name": "SP_Sign_StreetName_Oak_Elm",
+   "category": "Street_Props",
+   "glb": "02_Town/Street_Props/SP_Sign_StreetName_Oak_Elm.glb",
+   "obj": "02_Town/Street_Props/OBJ/SP_Sign_StreetName_Oak_Elm.obj",
+   "triangles": 56,
+   "collision_triangles": 20,
+   "collision": [
+    "convcolonly"
+   ],
+   "materials": [
+    "M_Furn_MetalBrushed",
+    "M_Town_SignAtlas",
+    "M_Com_SignageBacking"
+   ],
+   "bounds_min": [
+    -0.45,
+    0.0,
+    -0.45
+   ],
+   "bounds_max": [
+    0.45,
+    3.46,
+    0.45
+   ],
+   "nodes": [
+    "SP_Sign_StreetName_Oak_Elm_Mesh",
+    "SP_Sign_StreetName_Oak_Elm_Col-convcolonly"
+   ],
+   "kind": "prop",
+   "desc": "Blades: ELM ST (along X), OAK ST (along Z)"
+  },
+  {
+   "name": "SP_Sign_StreetName_Oak_Main",
+   "category": "Street_Props",
+   "glb": "02_Town/Street_Props/SP_Sign_StreetName_Oak_Main.glb",
+   "obj": "02_Town/Street_Props/OBJ/SP_Sign_StreetName_Oak_Main.obj",
+   "triangles": 56,
+   "collision_triangles": 20,
+   "collision": [
+    "convcolonly"
+   ],
+   "materials": [
+    "M_Furn_MetalBrushed",
+    "M_Town_SignAtlas",
+    "M_Com_SignageBacking"
+   ],
+   "bounds_min": [
+    -0.45,
+    0.0,
+    -0.45
+   ],
+   "bounds_max": [
+    0.45,
+    3.46,
+    0.45
+   ],
+   "nodes": [
+    "SP_Sign_StreetName_Oak_Main_Mesh",
+    "SP_Sign_StreetName_Oak_Main_Col-convcolonly"
+   ],
+   "kind": "prop",
+   "desc": "Blades: MAIN ST (along X), OAK ST (along Z)"
+  },
+  {
+   "name": "SP_Sign_StreetName_Oak_Maple",
+   "category": "Street_Props",
+   "glb": "02_Town/Street_Props/SP_Sign_StreetName_Oak_Maple.glb",
+   "obj": "02_Town/Street_Props/OBJ/SP_Sign_StreetName_Oak_Maple.obj",
+   "triangles": 56,
+   "collision_triangles": 20,
+   "collision": [
+    "convcolonly"
+   ],
+   "materials": [
+    "M_Furn_MetalBrushed",
+    "M_Town_SignAtlas",
+    "M_Com_SignageBacking"
+   ],
+   "bounds_min": [
+    -0.45,
+    0.0,
+    -0.45
+   ],
+   "bounds_max": [
+    0.45,
+    3.46,
+    0.45
+   ],
+   "nodes": [
+    "SP_Sign_StreetName_Oak_Maple_Mesh",
+    "SP_Sign_StreetName_Oak_Maple_Col-convcolonly"
+   ],
+   "kind": "prop",
+   "desc": "Blades: MAPLE AVE (along X), OAK ST (along Z)"
+  },
+  {
+   "name": "SP_Sign_StreetName_Quarry_Main",
+   "category": "Street_Props",
+   "glb": "02_Town/Street_Props/SP_Sign_StreetName_Quarry_Main.glb",
+   "obj": "02_Town/Street_Props/OBJ/SP_Sign_StreetName_Quarry_Main.obj",
+   "triangles": 56,
+   "collision_triangles": 20,
+   "collision": [
+    "convcolonly"
+   ],
+   "materials": [
+    "M_Furn_MetalBrushed",
+    "M_Town_SignAtlas",
+    "M_Com_SignageBacking"
+   ],
+   "bounds_min": [
+    -0.45,
+    0.0,
+    -0.45
+   ],
+   "bounds_max": [
+    0.45,
+    3.46,
+    0.45
+   ],
+   "nodes": [
+    "SP_Sign_StreetName_Quarry_Main_Mesh",
+    "SP_Sign_StreetName_Quarry_Main_Col-convcolonly"
+   ],
+   "kind": "prop",
+   "desc": "Blades: MAIN ST (along X), QUARRY RD (along Z)"
+  }
+ ],
+ "layout": {
+  "scene": "02_Town/Godot_Scenes/Greyhaven_Town.tscn",
+  "instances": 895,
+  "groups": {
+   "Roads": 95,
+   "Sidewalks": 108,
+   "Lots": 39,
+   "StreetProps": 137,
+   "Markings": 25,
+   "Interactive": 38,
+   "Utilities": 37,
+   "Vegetation": 54,
+   "Fences": 362
+  },
+  "scatter_merged": {
+   "items": 1141,
+   "chunks": 32,
+   "surfaces": 319
+  },
+  "zones": 39,
+  "trees_in_woods": 569,
+  "terrain_rects": 500,
+  "omni_lights": 38,
+  "ext_resources": 128
+ }
+}

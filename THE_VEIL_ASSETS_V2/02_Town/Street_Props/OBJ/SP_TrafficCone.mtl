@@ -1,0 +1,20 @@
+newmtl M_Town_PaintBlack
+Ka 0 0 0
+Kd 1 1 1
+Ks 0 0 0
+illum 1
+map_Kd ../../Textures/T_Town_PaintBlack.png
+
+newmtl M_Town_PaintOrange
+Ka 0 0 0
+Kd 1 1 1
+Ks 0 0 0
+illum 1
+map_Kd ../../Textures/T_Town_PaintOrange.png
+
+newmtl M_Town_PaintWhite
+Ka 0 0 0
+Kd 1 1 1
+Ks 0 0 0
+illum 1
+map_Kd ../../Textures/T_Town_PaintWhite.png

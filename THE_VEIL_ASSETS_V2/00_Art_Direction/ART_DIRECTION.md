@@ -65,3 +65,11 @@ It should never look like a low-resolution photograph.
 - [ ] Top-left light in baked pixel shading
 - [ ] Recognisable shapes at gameplay distance; no static noise
 - [ ] Horror materials only where the story calls for them
+
+## 7. Pack 02 additions
+
+* Eight ramps appended to the master palette for street furniture and plants: `paint_red`, `paint_orange`,
+  `paint_navy`, `paint_black`, `sign_green`, `pine`, `flower`, `glow`. Existing ramps are untouched, so
+  Pack 01 textures rebuild byte-identical.
+* **Signage exception:** the sign atlas runs at ~85 px/m so that 5×7-pixel lettering stays readable. It is the only deliberate deviation from 64 px/m.
+* Models are flat-shaded, chunky low-poly: tapered posts, oversized lantern heads, 25 cm siding/shingle courses, 2.5 m fence sections. Foliage is jittered faceted volumes wearing Pack 01 pixel textures, not alpha photo cards.
