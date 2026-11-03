@@ -1,0 +1,34 @@
+newmtl M_Road_CurbConcrete
+Ka 0 0 0
+Kd 1 1 1
+Ks 0 0 0
+illum 1
+map_Kd ../../../01_Textures/Roads/T_Road_CurbConcrete.png
+
+newmtl M_Town_PaintGreen
+Ka 0 0 0
+Kd 1 1 1
+Ks 0 0 0
+illum 1
+map_Kd ../../Textures/T_Town_PaintGreen.png
+
+newmtl M_Town_VentGrille
+Ka 0 0 0
+Kd 1 1 1
+Ks 0 0 0
+illum 1
+map_Kd ../../Textures/T_Town_VentGrille.png
+
+newmtl M_Furn_MetalBrushed
+Ka 0 0 0
+Kd 1 1 1
+Ks 0 0 0
+illum 1
+map_Kd ../../../01_Textures/Furniture/T_Furn_MetalBrushed.png
+
+newmtl M_Town_PaintYellow
+Ka 0 0 0
+Kd 1 1 1
+Ks 0 0 0
+illum 1
+map_Kd ../../Textures/T_Town_PaintYellow.png

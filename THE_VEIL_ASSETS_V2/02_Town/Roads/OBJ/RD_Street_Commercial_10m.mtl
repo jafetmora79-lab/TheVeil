@@ -1,0 +1,36 @@
+newmtl M_Road_AsphaltCracked
+Ka 0 0 0
+Kd 1 1 1
+Ks 0 0 0
+illum 1
+map_Kd ../../../01_Textures/Roads/T_Road_AsphaltCracked.png
+
+newmtl M_Road_CurbConcrete
+Ka 0 0 0
+Kd 1 1 1
+Ks 0 0 0
+illum 1
+map_Kd ../../../01_Textures/Roads/T_Road_CurbConcrete.png
+
+newmtl M_Road_MarkingYellow
+Ka 0 0 0
+Kd 1 1 1
+Ks 0 0 0
+illum 1
+map_Kd ../../../01_Textures/Roads/T_Road_MarkingYellow.png
+map_d ../../../01_Textures/Roads/T_Road_MarkingYellow.png
+
+newmtl M_Road_MarkingWhite
+Ka 0 0 0
+Kd 1 1 1
+Ks 0 0 0
+illum 1
+map_Kd ../../../01_Textures/Roads/T_Road_MarkingWhite.png
+map_d ../../../01_Textures/Roads/T_Road_MarkingWhite.png
+
+newmtl M_Com_StorefrontConcrete
+Ka 0 0 0
+Kd 1 1 1
+Ks 0 0 0
+illum 1
+map_Kd ../../../01_Textures/Commercial/T_Com_StorefrontConcrete.png

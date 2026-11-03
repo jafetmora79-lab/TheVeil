@@ -1,0 +1,14 @@
+newmtl M_Grnd_DeadVegetation
+Ka 0 0 0
+Kd 1 1 1
+Ks 0 0 0
+illum 1
+map_Kd ../../../01_Textures/Ground/T_Grnd_DeadVegetation.png
+
+newmtl M_Hor_FoliageDead
+Ka 0 0 0
+Kd 1 1 1
+Ks 0 0 0
+illum 1
+map_Kd ../../../01_Textures/Horror/T_Hor_FoliageDead.png
+map_d ../../../01_Textures/Horror/T_Hor_FoliageDead.png

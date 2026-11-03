@@ -1,0 +1,45 @@
+[remap]
+
+importer="scene"
+importer_version=1
+type="PackedScene"
+path="res://.godot/imported/SP_Sign_StreetName_Quarry_Main.glb-c7d85173f281eec34591866883615be7.scn"
+
+[deps]
+
+source_file="res://THE_VEIL_ASSETS_V2/02_Town/Street_Props/SP_Sign_StreetName_Quarry_Main.glb"
+dest_files=["res://.godot/imported/SP_Sign_StreetName_Quarry_Main.glb-c7d85173f281eec34591866883615be7.scn"]
+
+[params]
+
+nodes/root_type=""
+nodes/root_name=""
+nodes/apply_root_scale=true
+nodes/root_scale=1.0
+meshes/ensure_tangents=false
+meshes/generate_lods=false
+meshes/create_shadow_meshes=true
+meshes/light_baking=1
+meshes/lightmap_texel_size=0.2
+meshes/force_disable_compression=false
+skins/use_named_skins=true
+animation/import=false
+import_script/path=""
+_subresources={
+"materials": {
+"M_Furn_MetalBrushed": {
+"use_external/enabled": true,
+"use_external/path": "res://THE_VEIL_ASSETS_V2/Materials_Godot/Furniture/M_Furn_MetalBrushed.tres"
+},
+"M_Town_SignAtlas": {
+"use_external/enabled": true,
+"use_external/path": "res://THE_VEIL_ASSETS_V2/02_Town/Materials/M_Town_SignAtlas.tres"
+},
+"M_Com_SignageBacking": {
+"use_external/enabled": true,
+"use_external/path": "res://THE_VEIL_ASSETS_V2/Materials_Godot/Commercial/M_Com_SignageBacking.tres"
+}
+}
+}
+gltf/naming_version=1
+gltf/embedded_image_handling=1

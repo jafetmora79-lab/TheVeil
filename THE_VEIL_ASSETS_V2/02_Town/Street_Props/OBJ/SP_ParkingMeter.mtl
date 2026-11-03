@@ -1,0 +1,21 @@
+newmtl M_Furn_MetalBrushed
+Ka 0 0 0
+Kd 1 1 1
+Ks 0 0 0
+illum 1
+map_Kd ../../../01_Textures/Furniture/T_Furn_MetalBrushed.png
+
+newmtl M_Com_SignageBacking
+Ka 0 0 0
+Kd 1 1 1
+Ks 0 0 0
+illum 1
+map_Kd ../../../01_Textures/Commercial/T_Com_SignageBacking.png
+
+newmtl M_Arch_WindowGlassDirty
+Ka 0 0 0
+Kd 1 1 1
+Ks 0 0 0
+illum 1
+map_Kd ../../../01_Textures/Architecture/T_Arch_WindowGlassDirty.png
+map_d ../../../01_Textures/Architecture/T_Arch_WindowGlassDirty.png

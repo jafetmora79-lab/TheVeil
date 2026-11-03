@@ -1,0 +1,21 @@
+newmtl M_Road_ParkingLotAsphalt
+Ka 0 0 0
+Kd 1 1 1
+Ks 0 0 0
+illum 1
+map_Kd ../../../01_Textures/Roads/T_Road_ParkingLotAsphalt.png
+
+newmtl M_Road_MarkingWhite
+Ka 0 0 0
+Kd 1 1 1
+Ks 0 0 0
+illum 1
+map_Kd ../../../01_Textures/Roads/T_Road_MarkingWhite.png
+map_d ../../../01_Textures/Roads/T_Road_MarkingWhite.png
+
+newmtl M_Road_CurbConcrete
+Ka 0 0 0
+Kd 1 1 1
+Ks 0 0 0
+illum 1
+map_Kd ../../../01_Textures/Roads/T_Road_CurbConcrete.png

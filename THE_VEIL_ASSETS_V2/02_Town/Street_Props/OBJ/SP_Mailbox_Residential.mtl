@@ -1,0 +1,27 @@
+newmtl M_Arch_WoodPlanksAged
+Ka 0 0 0
+Kd 1 1 1
+Ks 0 0 0
+illum 1
+map_Kd ../../../01_Textures/Architecture/T_Arch_WoodPlanksAged.png
+
+newmtl M_Town_PaintBlack
+Ka 0 0 0
+Kd 1 1 1
+Ks 0 0 0
+illum 1
+map_Kd ../../Textures/T_Town_PaintBlack.png
+
+newmtl M_Town_PaintRed
+Ka 0 0 0
+Kd 1 1 1
+Ks 0 0 0
+illum 1
+map_Kd ../../Textures/T_Town_PaintRed.png
+
+newmtl M_Furn_MetalBrushed
+Ka 0 0 0
+Kd 1 1 1
+Ks 0 0 0
+illum 1
+map_Kd ../../../01_Textures/Furniture/T_Furn_MetalBrushed.png

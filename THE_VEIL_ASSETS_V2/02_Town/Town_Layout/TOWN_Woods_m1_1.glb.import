@@ -1,0 +1,73 @@
+[remap]
+
+importer="scene"
+importer_version=1
+type="PackedScene"
+path="res://.godot/imported/TOWN_Woods_m1_1.glb-8df307b337905189c451fcd28587285e.scn"
+
+[deps]
+
+source_file="res://THE_VEIL_ASSETS_V2/02_Town/Town_Layout/TOWN_Woods_m1_1.glb"
+dest_files=["res://.godot/imported/TOWN_Woods_m1_1.glb-8df307b337905189c451fcd28587285e.scn"]
+
+[params]
+
+nodes/root_type=""
+nodes/root_name=""
+nodes/apply_root_scale=true
+nodes/root_scale=1.0
+meshes/ensure_tangents=false
+meshes/generate_lods=false
+meshes/create_shadow_meshes=true
+meshes/light_baking=1
+meshes/lightmap_texel_size=0.2
+meshes/force_disable_compression=false
+skins/use_named_skins=true
+animation/import=false
+import_script/path=""
+_subresources={
+"materials": {
+"M_Grnd_TreeBark": {
+"use_external/enabled": true,
+"use_external/path": "res://THE_VEIL_ASSETS_V2/Materials_Godot/Ground/M_Grnd_TreeBark.tres"
+},
+"M_Hor_WoodDarkened": {
+"use_external/enabled": true,
+"use_external/path": "res://THE_VEIL_ASSETS_V2/Materials_Godot/Horror/M_Hor_WoodDarkened.tres"
+},
+"M_Town_PineNeedles": {
+"use_external/enabled": true,
+"use_external/path": "res://THE_VEIL_ASSETS_V2/02_Town/Materials/M_Town_PineNeedles.tres"
+},
+"M_Grnd_HedgeFoliage": {
+"use_external/enabled": true,
+"use_external/path": "res://THE_VEIL_ASSETS_V2/Materials_Godot/Ground/M_Grnd_HedgeFoliage.tres"
+},
+"M_Grnd_DeadVegetation": {
+"use_external/enabled": true,
+"use_external/path": "res://THE_VEIL_ASSETS_V2/Materials_Godot/Ground/M_Grnd_DeadVegetation.tres"
+},
+"M_Town_Ivy": {
+"use_external/enabled": true,
+"use_external/path": "res://THE_VEIL_ASSETS_V2/02_Town/Materials/M_Town_Ivy.tres"
+},
+"M_Town_GrassCards": {
+"use_external/enabled": true,
+"use_external/path": "res://THE_VEIL_ASSETS_V2/02_Town/Materials/M_Town_GrassCards.tres"
+},
+"M_Town_Rock": {
+"use_external/enabled": true,
+"use_external/path": "res://THE_VEIL_ASSETS_V2/02_Town/Materials/M_Town_Rock.tres"
+},
+"M_Grnd_Mud": {
+"use_external/enabled": true,
+"use_external/path": "res://THE_VEIL_ASSETS_V2/Materials_Godot/Ground/M_Grnd_Mud.tres"
+},
+"M_Hor_FoliageDead": {
+"use_external/enabled": true,
+"use_external/path": "res://THE_VEIL_ASSETS_V2/Materials_Godot/Horror/M_Hor_FoliageDead.tres"
+}
+}
+}
+gltf/naming_version=1
+gltf/embedded_image_handling=1
