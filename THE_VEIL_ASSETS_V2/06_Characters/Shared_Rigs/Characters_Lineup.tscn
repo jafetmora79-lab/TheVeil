@@ -1,4 +1,4 @@
-[gd_scene load_steps=12 format=3]
+[gd_scene load_steps=14 format=3]
 
 [ext_resource type="PackedScene" path="res://THE_VEIL_ASSETS_V2/06_Characters/Protagonist/CHR_Protagonist.glb" id="1_Protagonist"]
 [ext_resource type="PackedScene" path="res://THE_VEIL_ASSETS_V2/06_Characters/Protagonist/CHR_Protagonist_FP_Arms.glb" id="2_Protagonist"]
@@ -11,38 +11,46 @@
 [ext_resource type="PackedScene" path="res://THE_VEIL_ASSETS_V2/06_Characters/Police/CHR_Police_Officer.glb" id="9_Police_Officer"]
 [ext_resource type="PackedScene" path="res://THE_VEIL_ASSETS_V2/06_Characters/Commercial_NPCs/CHR_Eddie_v2.glb" id="10_Eddie_v2"]
 [ext_resource type="PackedScene" path="res://THE_VEIL_ASSETS_V2/06_Characters/Marcus/CHR_Marcus_v2.glb" id="11_Marcus_v2"]
+[ext_resource type="PackedScene" path="res://THE_VEIL_ASSETS_V2/06_Characters/Commercial_NPCs/CHR_Eddie_v3.glb" id="12_Eddie_v3"]
+[ext_resource type="PackedScene" path="res://THE_VEIL_ASSETS_V2/06_Characters/Marcus/CHR_Marcus_v3.glb" id="13_Marcus_v3"]
 
 [node name="Characters_Lineup" type="Node3D"]
 
 [node name="CHR_Protagonist" parent="." instance=ExtResource("1_Protagonist")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -6.05, 0.0, 0)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -7.15, 0.0, 0)
 
 [node name="CHR_Protagonist_FP_Arms" parent="." instance=ExtResource("2_Protagonist")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -4.95, 1.62, 0)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -6.05, 1.62, 0)
 
 [node name="CHR_Eddie" parent="." instance=ExtResource("3_Eddie")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -3.85, 0.0, 0)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -4.95, 0.0, 0)
 
 [node name="CHR_Marcus" parent="." instance=ExtResource("4_Marcus")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2.75, 0.0, 0)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -3.85, 0.0, 0)
 
 [node name="CHR_Ruth" parent="." instance=ExtResource("5_Ruth")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1.65, 0.0, 0)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2.75, 0.0, 0)
 
 [node name="CHR_Sarah" parent="." instance=ExtResource("6_Sarah")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.55, 0.0, 0)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1.65, 0.0, 0)
 
 [node name="CHR_Frank" parent="." instance=ExtResource("7_Frank")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.55, 0.0, 0)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.55, 0.0, 0)
 
 [node name="CHR_Lena" parent="." instance=ExtResource("8_Lena")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.65, 0.0, 0)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.55, 0.0, 0)
 
 [node name="CHR_Police_Officer" parent="." instance=ExtResource("9_Police_Officer")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2.75, 0.0, 0)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.65, 0.0, 0)
 
 [node name="CHR_Eddie_v2" parent="." instance=ExtResource("10_Eddie_v2")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 3.85, 0.0, 0)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2.75, 0.0, 0)
 
 [node name="CHR_Marcus_v2" parent="." instance=ExtResource("11_Marcus_v2")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 3.85, 0.0, 0)
+
+[node name="CHR_Eddie_v3" parent="." instance=ExtResource("12_Eddie_v3")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 4.95, 0.0, 0)
+
+[node name="CHR_Marcus_v3" parent="." instance=ExtResource("13_Marcus_v3")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 6.05, 0.0, 0)
