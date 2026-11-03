@@ -26,6 +26,9 @@ func _ready() -> void:
 	# Zone labels are production annotations, not part of the inhabited town.
 	$World/Greyhaven_Town/BuildingZones.visible = false
 	_lighting()
+	var web_mesh_count := 0
+	if OS.has_feature("web"):
+		web_mesh_count = _prepare_static_meshes()
 	player = Player.new()
 	add_child(player)
 	player.global_transform = home.get_node("Markers/Spawn_WakeUp").global_transform
@@ -62,6 +65,9 @@ func _ready() -> void:
 	clock.position = Vector3(2.475, 1.27, 5.5)
 	home.get_node("Furniture/AlarmClock_01").visible = false
 	_say("6:42 already. Something to eat, then maybe that horror game.", 7)
+	if OS.has_feature("web"):
+		var message := "Scene initialized: %d static mesh instances; camera at %s. Browser compatibility build." % [web_mesh_count, str(player.camera.global_position)]
+		JavaScriptBridge.eval("window.veilReport && window.veilReport(" + JSON.stringify(message) + ")", true)
 
 func _bind_inputs() -> void:
 	var bindings := {"forward": KEY_W, "back": KEY_S, "left": KEY_A, "right": KEY_D,
@@ -74,7 +80,7 @@ func _bind_inputs() -> void:
 		InputMap.action_add_event(action, event)
 
 func _lighting() -> void:
-	var env := WorldEnvironment.new()
+	var env: WorldEnvironment = $World/Greyhaven_Town/Environment/WorldEnvironment
 	var settings := Environment.new()
 	settings.background_mode = Environment.BG_COLOR
 	settings.background_color = Color("8799ac")
@@ -83,13 +89,33 @@ func _lighting() -> void:
 	settings.ambient_light_energy = 0.65
 	settings.fog_enabled = false
 	env.environment = settings
-	add_child(env)
+	$World/Greyhaven_Town/Environment/EveningSun.visible = false
 	var sun := DirectionalLight3D.new()
 	sun.rotation_degrees = Vector3(-24, -45, 0)
 	sun.light_color = Color("ffd3a2")
 	sun.light_energy = 0.8
 	sun.shadow_enabled = true
 	add_child(sun)
+
+func _prepare_static_meshes() -> int:
+	# Compatibility fallback: decode imported attributes into ordinary vertex arrays.
+	# Cache by source mesh so repeated roads/props still share one GPU resource.
+	var rebuilt: Dictionary = {}
+	var count := 0
+	for node in $World.find_children("*", "MeshInstance3D", true, false):
+		var source: Mesh = node.mesh
+		if source == null or node.skin != null or source.get_blend_shape_count() > 0:
+			continue
+		var key := source.get_instance_id()
+		if not rebuilt.has(key):
+			var plain := ArrayMesh.new()
+			for surface in range(source.get_surface_count()):
+				plain.add_surface_from_arrays(source.surface_get_primitive_type(surface), source.surface_get_arrays(surface))
+				plain.surface_set_material(surface, source.surface_get_material(surface))
+			rebuilt[key] = plain
+		node.mesh = rebuilt[key]
+		count += 1
+	return count
 
 func _ui() -> void:
 	var layer := CanvasLayer.new()

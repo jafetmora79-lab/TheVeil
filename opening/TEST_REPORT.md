@@ -70,3 +70,13 @@ godot --headless --main-pack /absolute/export/index.pck --script /absolute/TheVe
 The pack launch had no script/parser errors. The full exported-pack smoke test printed `OPENING_SMOKE: PASS` and exited 0, exercising the same house traversal, targeting, progression, braking and arrival checks. There are UID warnings that fall back to valid text paths and the previously documented dummy-renderer teardown diagnostic; these remain unresolved. Rendered browser playthrough remains unverified in the WebGL2-limited cloud browser.
 
 The transport postprocessor now rejects packs missing either required script remap and includes a pack hash in download URLs so updated game data does not reuse old browser-cached payloads.
+
+## 3D visibility compatibility mitigation
+
+The user's screenshot after the missing-script repair showed the HUD and town sky but no structures. The exported pack contains 1,596 MeshInstance3D nodes / 4,327 surfaces, including valid house/town meshes and the expected player camera at `(30.65, 2.31, -85.05)`. Thus mesh absence in the archive is not the explanation established by these checks. The exact failure on the user's graphics driver remains unconfirmed.
+
+All sampled static meshes used compressed vertex attributes. As a compatibility mitigation, the Web runtime rebuilds static meshes as ordinary uncompressed ArrayMesh surfaces, caching by original resource and preserving vertices, materials and instancing. Skinned and blend-shape meshes are excluded. No source GLB, texture or asset scene is replaced.
+
+`render_contract.gd`, run against the exported pack with the fallback explicitly invoked, passed checks for 1,593 static instances: identical vertex arrays, identical material references/surface counts, and no compressed vertex attributes after reconstruction. The exported-pack gameplay smoke test also passed. These are data/logic checks, not a claim of visual browser success.
+
+The original town scene already had a WorldEnvironment; the prototype had added a competing environment. Opening lighting now uses the existing environment node and disables the duplicate original sun, ensuring fog is actually off. The HTML page now exposes a Graphics diagnostics panel with initialization status and client errors to support further investigation if the compatibility mitigation does not resolve rendering.

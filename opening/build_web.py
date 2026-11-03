@@ -25,6 +25,25 @@ loader = '''<script>
 // Godot's original loader still receives the uncompressed byte stream and MIME.
 // The transport files are gzip data with .bin names, avoiding host encoding rules.
 document.addEventListener('pointerdown', () => document.getElementById('play-help')?.remove(), {once: true, capture: true});
+const diagnostics = document.createElement('details');
+diagnostics.style.cssText = 'position:fixed;bottom:8px;right:8px;z-index:20;max-width:550px;background:#111e;color:#eee;padding:8px;font:12px monospace';
+const diagnosticsTitle = document.createElement('summary');
+diagnosticsTitle.textContent = 'Graphics diagnostics';
+const diagnosticsText = document.createElement('pre');
+diagnosticsText.style.cssText = 'white-space:pre-wrap;max-height:180px;overflow:auto';
+diagnosticsText.textContent = 'Browser compatibility build: loading scene…';
+diagnostics.append(diagnosticsTitle, diagnosticsText);
+document.body.append(diagnostics);
+window.veilReport = (message) => { diagnosticsText.textContent += '\\n' + String(message); };
+const nativeError = console.error.bind(console);
+let errorCount = 0;
+console.error = (...args) => {
+    nativeError(...args);
+    const message = args.join(' ');
+    if (message.includes('invalid UID') || message.trim().startsWith('at:')) return;
+    if (errorCount++ < 8) { window.veilReport(message); diagnostics.open = true; }
+};
+window.addEventListener('error', (event) => { window.veilReport(event.message); diagnostics.open = true; });
 const nativeFetch = window.fetch.bind(window);
 window.fetch = async (input, init) => {
     const url = typeof input === 'string' ? input : input.url;
