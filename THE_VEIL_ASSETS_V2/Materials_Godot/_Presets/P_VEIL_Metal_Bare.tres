@@ -1,0 +1,8 @@
+[gd_resource type="StandardMaterial3D" format=3]
+
+[resource]
+resource_name = "P_VEIL_Metal_Bare"
+metallic = 0.75
+metallic_specular = 0.5
+roughness = 0.45
+texture_filter = 2

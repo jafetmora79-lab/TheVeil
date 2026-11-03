@@ -1,0 +1,11 @@
+[gd_resource type="StandardMaterial3D" load_steps=2 format=3]
+
+[ext_resource type="Texture2D" path="res://THE_VEIL_ASSETS_V2/01_Textures/Furniture/T_Furn_MetalRusted.png" id="1_albedo"]
+
+[resource]
+resource_name = "M_Furn_MetalRusted"
+albedo_texture = ExtResource("1_albedo")
+metallic = 0.3
+metallic_specular = 0.3
+roughness = 0.9
+texture_filter = 2

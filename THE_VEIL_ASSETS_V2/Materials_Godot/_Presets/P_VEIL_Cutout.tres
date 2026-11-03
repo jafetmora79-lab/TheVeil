@@ -1,0 +1,11 @@
+[gd_resource type="StandardMaterial3D" format=3]
+
+[resource]
+resource_name = "P_VEIL_Cutout"
+transparency = 2
+alpha_scissor_threshold = 0.5
+cull_mode = 2
+metallic_specular = 0.2
+roughness = 0.9
+texture_filter = 2
+texture_repeat = false

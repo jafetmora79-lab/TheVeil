@@ -1,0 +1,11 @@
+[gd_resource type="StandardMaterial3D" load_steps=2 format=3]
+
+[ext_resource type="Texture2D" path="res://THE_VEIL_ASSETS_V2/01_Textures/Roads/T_Road_ParkingLotAsphalt.png" id="1_albedo"]
+
+[resource]
+resource_name = "M_Road_ParkingLotAsphalt"
+albedo_texture = ExtResource("1_albedo")
+metallic_specular = 0.2
+roughness = 0.97
+uv1_scale = Vector3(0.25, 0.25, 1)
+texture_filter = 4

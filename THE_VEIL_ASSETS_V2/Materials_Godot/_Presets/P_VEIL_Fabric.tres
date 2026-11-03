@@ -1,0 +1,7 @@
+[gd_resource type="StandardMaterial3D" format=3]
+
+[resource]
+resource_name = "P_VEIL_Fabric"
+metallic_specular = 0.15
+roughness = 1
+texture_filter = 2

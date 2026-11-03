@@ -1,0 +1,11 @@
+[gd_resource type="StandardMaterial3D" load_steps=2 format=3]
+
+[ext_resource type="Texture2D" path="res://THE_VEIL_ASSETS_V2/01_Textures/Roads/T_Road_MarkingWhite.png" id="1_albedo"]
+
+[resource]
+resource_name = "M_Road_MarkingWhite"
+transparency = 1
+albedo_texture = ExtResource("1_albedo")
+metallic_specular = 0.3
+roughness = 0.8
+texture_filter = 4
