@@ -1,0 +1,330 @@
+GIMP Palette
+Name: THE VEIL - Greyhaven Master
+Columns: 7
+#
+ 20  18  26	ink_0
+ 31  28  39	ink_1
+ 44  40  54	ink_2
+ 12  12  15	tar_0
+ 22  22  26	tar_1
+ 42  42  48	tar_2
+ 69  69  76	tar_3
+111 113 128	paint_white_0
+154 154 159	paint_white_1
+189 186 178	paint_white_2
+214 209 195	paint_white_3
+232 226 208	paint_white_4
+ 51  66  90	paint_blue_0
+ 74  93 116	paint_blue_1
+100 122 142	paint_blue_2
+128 149 166	paint_blue_3
+158 175 188	paint_blue_4
+ 54  70  58	paint_green_0
+ 75  94  76	paint_green_1
+100 120  98	paint_green_2
+127 144 120	paint_green_3
+156 170 145	paint_green_4
+ 79  63  38	paint_mustard_0
+110  90  51	paint_mustard_1
+143 120  65	paint_mustard_2
+172 149  84	paint_mustard_3
+196 174 108	paint_mustard_4
+ 58  53  48	wood_gray_0
+ 81  74  66	wood_gray_1
+107  98  87	wood_gray_2
+133 123 109	wood_gray_3
+160 150 132	wood_gray_4
+110  74  44	wood_light_0
+140  98  57	wood_light_1
+168 124  76	wood_light_2
+194 154 100	wood_light_3
+216 182 130	wood_light_4
+ 62  40  24	wood_warm_0
+ 86  56  33	wood_warm_1
+110  75  45	wood_warm_2
+135  96  59	wood_warm_3
+160 120  76	wood_warm_4
+ 36  22  15	wood_dark_0
+ 53  33  23	wood_dark_1
+ 74  46  31	wood_dark_2
+ 98  64  42	wood_dark_3
+125  86  54	wood_dark_4
+ 18  14  14	wood_charred_0
+ 29  22  21	wood_charred_1
+ 42  32  28	wood_charred_2
+ 58  44  36	wood_charred_3
+ 77  59  46	wood_charred_4
+ 74  34  32	brick_red_0
+106  47  40	brick_red_1
+135  64  47	brick_red_2
+161  85  60	brick_red_3
+184 110  80	brick_red_4
+ 59  42  34	brick_brown_0
+ 85  57  43	brick_brown_1
+110  75  54	brick_brown_2
+135  96  70	brick_brown_3
+156 118  87	brick_brown_4
+110  88  66	brick_buff_0
+138 114  85	brick_buff_1
+166 140 104	brick_buff_2
+190 164 124	brick_buff_3
+210 186 146	brick_buff_4
+ 74  72  69	mortar_0
+ 98  95  90	mortar_1
+123 119 112	mortar_2
+153 148 138	mortar_3
+181 175 162	mortar_4
+ 66  67  70	concrete_0
+ 86  88  91	concrete_1
+108 109 110	concrete_2
+131 130 129	concrete_3
+155 153 147	concrete_4
+179 175 165	concrete_5
+199 194 181	concrete_6
+ 74  42  32	terracotta_0
+106  59  42	terracotta_1
+138  80  56	terracotta_2
+165 103  74	terracotta_3
+187 130  98	terracotta_4
+ 30  31  34	shingle_gray_0
+ 42  43  47	shingle_gray_1
+ 54  56  60	shingle_gray_2
+ 69  71  75	shingle_gray_3
+ 86  88  91	shingle_gray_4
+107 108 109	shingle_gray_5
+ 42  31  24	shingle_brown_0
+ 58  43  32	shingle_brown_1
+ 76  56  41	shingle_brown_2
+ 95  71  51	shingle_brown_3
+115  88  63	shingle_brown_4
+137 109  80	shingle_brown_5
+ 74  84  48	lichen_0
+ 94 106  58	lichen_1
+124 135  74	lichen_2
+157 165  96	lichen_3
+ 28  29  34	asphalt_0
+ 37  38  44	asphalt_1
+ 47  48  55	asphalt_2
+ 58  59  66	asphalt_3
+ 71  72  79	asphalt_4
+ 87  88  94	asphalt_5
+106 106 110	asphalt_6
+122  94  38	road_yellow_0
+160 126  48	road_yellow_1
+191 154  66	road_yellow_2
+214 183  98	road_yellow_3
+142 142 140	road_white_0
+178 176 170	road_white_1
+208 205 196	road_white_2
+230 226 215	road_white_3
+ 74  67  60	stone_warm_0
+ 92  83  74	stone_warm_1
+120 109  96	stone_warm_2
+149 136 118	stone_warm_3
+176 162 140	stone_warm_4
+ 28  46  34	grass_0
+ 40  67  43	grass_1
+ 56  90  51	grass_2
+ 78 114  60	grass_3
+105 138  71	grass_4
+135 159  88	grass_5
+ 78  69  42	grass_dry_0
+107  95  54	grass_dry_1
+136 122  69	grass_dry_2
+163 148  89	grass_dry_3
+188 173 114	grass_dry_4
+ 36  25  19	soil_0
+ 53  38  28	soil_1
+ 74  53  39	soil_2
+ 97  71  52	soil_3
+122  93  69	soil_4
+ 26  20  16	mud_0
+ 39  31  24	mud_1
+ 54  43  33	mud_2
+ 71  57  43	mud_3
+ 92  75  58	mud_4
+122 106  86	mud_5
+ 31  45  26	moss_0
+ 47  67  33	moss_1
+ 68  92  41	moss_2
+ 93 118  54	moss_3
+122 143  72	moss_4
+ 32  28  25	bark_0
+ 48  43  38	bark_1
+ 67  59  51	bark_2
+ 88  80  68	bark_3
+112 101  86	bark_4
+ 17  32  26	hedge_0
+ 25  48  31	hedge_1
+ 36  67  38	hedge_2
+ 51  89  46	hedge_3
+ 71 111  55	hedge_4
+ 95 133  68	hedge_5
+ 43  39  35	dead_0
+ 63  58  50	dead_1
+ 86  80  68	dead_2
+110 102  86	dead_3
+135 126 106	dead_4
+ 86  38  25	leaf_rust_0
+120  55  31	leaf_rust_1
+152  74  39	leaf_rust_2
+176  98  51	leaf_rust_3
+111  85  32	leaf_ochre_0
+145 113  44	leaf_ochre_1
+176 141  60	leaf_ochre_2
+199 166  84	leaf_ochre_3
+ 62  42  29	leaf_brown_0
+ 87  60  40	leaf_brown_1
+112  80  52	leaf_brown_2
+136 102  65	leaf_brown_3
+124 119 110	drywall_0
+147 141 130	drywall_1
+168 162 149	drywall_2
+186 179 165	drywall_3
+201 194 179	drywall_4
+214 207 191	drywall_5
+107  83  82	wallpaper_rose_0
+133 104  99	wallpaper_rose_1
+160 129 119	wallpaper_rose_2
+184 154 139	wallpaper_rose_3
+204 177 158	wallpaper_rose_4
+219 198 176	wallpaper_rose_5
+ 32  50  48	wallpaper_green_0
+ 44  69  65	wallpaper_green_1
+ 61  91  83	wallpaper_green_2
+ 81 112 102	wallpaper_green_3
+103 134 121	wallpaper_green_4
+110  90  52	motif_ochre_0
+140 116  66	motif_ochre_1
+168 143  86	motif_ochre_2
+193 169 110	motif_ochre_3
+ 51  37  42	carpet_0
+ 70  50  56	carpet_1
+ 90  66  71	carpet_2
+110  84  87	carpet_3
+131 105 105	carpet_4
+127 120 103	tile_cream_0
+162 154 131	tile_cream_1
+192 183 157	tile_cream_2
+213 204 178	tile_cream_3
+230 222 198	tile_cream_4
+240 234 218	tile_cream_5
+ 36  62  64	tile_teal_0
+ 51  86  84	tile_teal_1
+ 69 111 106	tile_teal_2
+ 92 137 129	tile_teal_3
+120 161 150	tile_teal_4
+116 131 137	bath_tile_0
+151 166 169	bath_tile_1
+183 196 194	bath_tile_2
+207 217 212	bath_tile_3
+226 233 226	bath_tile_4
+241 244 236	bath_tile_5
+ 63  61  58	grout_0
+ 86  83  78	grout_1
+111 107 100	grout_2
+138 134 125	grout_3
+125 110  74	lino_0
+154 138  98	lino_1
+180 165 124	lino_2
+201 188 149	lino_3
+218 208 173	lino_4
+ 37  21  15	leather_0
+ 58  33  23	leather_1
+ 81  47  32	leather_2
+105  64  43	leather_3
+128  83  58	leather_4
+154 108  78	leather_5
+ 54  52  33	upholstery_0
+ 76  74  46	upholstery_1
+100  97  59	upholstery_2
+125 122  75	upholstery_3
+151 147  94	upholstery_4
+ 22  29  46	denim_0
+ 33  44  68	denim_1
+ 46  61  92	denim_2
+ 67  86 119	denim_3
+100 120 152	denim_4
+147 162 184	denim_5
+124 119 108	plastic_0
+153 146 138	plastic_1
+179 172 158	plastic_2
+200 193 177	plastic_3
+217 211 196	plastic_4
+ 54  58  64	metal_0
+ 74  78  85	metal_1
+ 97 102 108	metal_2
+123 127 132	metal_3
+151 154 156	metal_4
+181 183 182	metal_5
+ 51  26  17	rust_0
+ 81  40  21	rust_1
+113  57  26	rust_2
+144  79  34	rust_3
+170 103  50	rust_4
+192 132  75	rust_5
+ 18  18  20	rubber_0
+ 28  28  31	rubber_1
+ 40  40  44	rubber_2
+ 55  55  60	rubber_3
+ 72  72  77	rubber_4
+ 94  69  43	cardboard_0
+122  90  55	cardboard_1
+149 115  71	cardboard_2
+174 139  89	cardboard_3
+195 162 110	cardboard_4
+ 87  89  83	shelf_paint_0
+113 115 108	shelf_paint_1
+140 141 133	shelf_paint_2
+166 166 156	shelf_paint_3
+189 188 176	shelf_paint_4
+ 27  40  38	door_green_0
+ 38  56  53	door_green_1
+ 52  75  69	door_green_2
+ 69  95  86	door_green_3
+ 87 113 102	door_green_4
+ 64  70  74	sign_backing_0
+ 86  93  96	sign_backing_1
+110 117 118	sign_backing_2
+136 142 141	sign_backing_3
+162 166 162	sign_backing_4
+ 94  76  28	sign_yellow_0
+132 107  38	sign_yellow_1
+168 138  51	sign_yellow_2
+196 166  71	sign_yellow_3
+214 189  99	sign_yellow_4
+138 135 121	ceiling_0
+163 160 145	ceiling_1
+185 181 165	ceiling_2
+203 199 182	ceiling_3
+218 214 197	ceiling_4
+ 31  42  44	glass_0
+ 52  69  74	glass_1
+ 82 102 106	glass_2
+122 144 148	glass_3
+170 191 190	glass_4
+ 54  58  49	damp_0
+ 75  79  66	damp_1
+ 98 101  85	damp_2
+122 123 105	damp_3
+146 145 124	damp_4
+ 18  14  23	corrupt_0
+ 29  22  36	corrupt_1
+ 43  33  51	corrupt_2
+ 61  47  69	corrupt_3
+ 84  67  90	corrupt_4
+ 69  69  71	ash_0
+ 92  92  94	ash_1
+117 116 116	ash_2
+143 141 137	ash_3
+169 166 159	ash_4
+ 65  70  58	residue_0
+ 92  98  76	residue_1
+123 128  99	residue_2
+157 160 130	residue_3
+192 193 162	residue_4
+ 13  10  12	stain_0
+ 24  17  19	stain_1
+ 35  25  26	stain_2
+ 48  34  31	stain_3
+ 63  45  39	stain_4

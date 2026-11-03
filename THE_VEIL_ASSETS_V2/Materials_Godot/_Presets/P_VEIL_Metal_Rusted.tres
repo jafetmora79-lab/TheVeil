@@ -1,0 +1,8 @@
+[gd_resource type="StandardMaterial3D" format=3]
+
+[resource]
+resource_name = "P_VEIL_Metal_Rusted"
+metallic = 0.3
+metallic_specular = 0.3
+roughness = 0.9
+texture_filter = 2

@@ -1,0 +1,2347 @@
+{
+  "pack": "THE VEIL - Asset Pack 01",
+  "texel_density_px_per_m": 64,
+  "res_root": "res://THE_VEIL_ASSETS_V2",
+  "textures": [
+    {
+      "id": "Arch_SidingWhite",
+      "name": "SidingWhite",
+      "category": "Architecture",
+      "file": "01_Textures/Architecture/T_Arch_SidingWhite.png",
+      "width": 128,
+      "height": 128,
+      "resolution": "128x128",
+      "tiles": "seamless U+V",
+      "tiles_code": "uv",
+      "transparency": "none",
+      "channels": "RGB",
+      "intended_material": "Materials_Godot/Architecture/M_Arch_SidingWhite.tres",
+      "preset": "VEIL_Painted",
+      "recommended_uv_scale": [
+        0.5,
+        0.5
+      ],
+      "uv_convention": "meter-UV (1 UV unit = 1 m)",
+      "world_coverage_m": [
+        2.0,
+        2.0
+      ],
+      "texture_filter": "nearest_mipmaps",
+      "description": "Painted lap siding, white; 16px (25cm) boards with lip shadow, butt joints, paint chips."
+    },
+    {
+      "id": "Arch_SidingBlue",
+      "name": "SidingBlue",
+      "category": "Architecture",
+      "file": "01_Textures/Architecture/T_Arch_SidingBlue.png",
+      "width": 128,
+      "height": 128,
+      "resolution": "128x128",
+      "tiles": "seamless U+V",
+      "tiles_code": "uv",
+      "transparency": "none",
+      "channels": "RGB",
+      "intended_material": "Materials_Godot/Architecture/M_Arch_SidingBlue.tres",
+      "preset": "VEIL_Painted",
+      "recommended_uv_scale": [
+        0.5,
+        0.5
+      ],
+      "uv_convention": "meter-UV (1 UV unit = 1 m)",
+      "world_coverage_m": [
+        2.0,
+        2.0
+      ],
+      "texture_filter": "nearest_mipmaps",
+      "description": "Painted lap siding, faded blue."
+    },
+    {
+      "id": "Arch_SidingGreen",
+      "name": "SidingGreen",
+      "category": "Architecture",
+      "file": "01_Textures/Architecture/T_Arch_SidingGreen.png",
+      "width": 128,
+      "height": 128,
+      "resolution": "128x128",
+      "tiles": "seamless U+V",
+      "tiles_code": "uv",
+      "transparency": "none",
+      "channels": "RGB",
+      "intended_material": "Materials_Godot/Architecture/M_Arch_SidingGreen.tres",
+      "preset": "VEIL_Painted",
+      "recommended_uv_scale": [
+        0.5,
+        0.5
+      ],
+      "uv_convention": "meter-UV (1 UV unit = 1 m)",
+      "world_coverage_m": [
+        2.0,
+        2.0
+      ],
+      "texture_filter": "nearest_mipmaps",
+      "description": "Painted lap siding, muted sage green."
+    },
+    {
+      "id": "Arch_WoodPlanksAged",
+      "name": "WoodPlanksAged",
+      "category": "Architecture",
+      "file": "01_Textures/Architecture/T_Arch_WoodPlanksAged.png",
+      "width": 128,
+      "height": 128,
+      "resolution": "128x128",
+      "tiles": "seamless U+V",
+      "tiles_code": "uv",
+      "transparency": "none",
+      "channels": "RGB",
+      "intended_material": "Materials_Godot/Architecture/M_Arch_WoodPlanksAged.tres",
+      "preset": "VEIL_Wood",
+      "recommended_uv_scale": [
+        0.5,
+        0.5
+      ],
+      "uv_convention": "meter-UV (1 UV unit = 1 m)",
+      "world_coverage_m": [
+        2.0,
+        2.0
+      ],
+      "texture_filter": "nearest_mipmaps",
+      "description": "Weathered grey planks with grain, knots, gaps, rusty nails, splits."
+    },
+    {
+      "id": "Arch_BrickRed",
+      "name": "BrickRed",
+      "category": "Architecture",
+      "file": "01_Textures/Architecture/T_Arch_BrickRed.png",
+      "width": 128,
+      "height": 128,
+      "resolution": "128x128",
+      "tiles": "seamless U+V",
+      "tiles_code": "uv",
+      "transparency": "none",
+      "channels": "RGB",
+      "intended_material": "Materials_Godot/Architecture/M_Arch_BrickRed.tres",
+      "preset": "VEIL_Masonry",
+      "recommended_uv_scale": [
+        0.5,
+        0.5
+      ],
+      "uv_convention": "meter-UV (1 UV unit = 1 m)",
+      "world_coverage_m": [
+        2.0,
+        2.0
+      ],
+      "texture_filter": "nearest_mipmaps",
+      "description": "Running-bond red brick, hand-varied widths, recessed mortar."
+    },
+    {
+      "id": "Arch_BrickWeatheredBrown",
+      "name": "BrickWeatheredBrown",
+      "category": "Architecture",
+      "file": "01_Textures/Architecture/T_Arch_BrickWeatheredBrown.png",
+      "width": 128,
+      "height": 128,
+      "resolution": "128x128",
+      "tiles": "seamless U+V",
+      "tiles_code": "uv",
+      "transparency": "none",
+      "channels": "RGB",
+      "intended_material": "Materials_Godot/Architecture/M_Arch_BrickWeatheredBrown.tres",
+      "preset": "VEIL_Masonry",
+      "recommended_uv_scale": [
+        0.5,
+        0.5
+      ],
+      "uv_convention": "meter-UV (1 UV unit = 1 m)",
+      "world_coverage_m": [
+        2.0,
+        2.0
+      ],
+      "texture_filter": "nearest_mipmaps",
+      "description": "Weathered brown brick, chipped corners, eroded mortar, efflorescence."
+    },
+    {
+      "id": "Arch_ConcreteFoundation",
+      "name": "ConcreteFoundation",
+      "category": "Architecture",
+      "file": "01_Textures/Architecture/T_Arch_ConcreteFoundation.png",
+      "width": 128,
+      "height": 128,
+      "resolution": "128x128",
+      "tiles": "seamless U+V",
+      "tiles_code": "uv",
+      "transparency": "none",
+      "channels": "RGB",
+      "intended_material": "Materials_Godot/Architecture/M_Arch_ConcreteFoundation.tres",
+      "preset": "VEIL_Masonry",
+      "recommended_uv_scale": [
+        0.5,
+        0.5
+      ],
+      "uv_convention": "meter-UV (1 UV unit = 1 m)",
+      "world_coverage_m": [
+        2.0,
+        2.0
+      ],
+      "texture_filter": "nearest_mipmaps",
+      "description": "Board-formed poured concrete with form seams, tie holes, pits, hairline cracks."
+    },
+    {
+      "id": "Arch_RoofShinglesDarkGray",
+      "name": "RoofShinglesDarkGray",
+      "category": "Architecture",
+      "file": "01_Textures/Architecture/T_Arch_RoofShinglesDarkGray.png",
+      "width": 128,
+      "height": 128,
+      "resolution": "128x128",
+      "tiles": "seamless U+V",
+      "tiles_code": "uv",
+      "transparency": "none",
+      "channels": "RGB",
+      "intended_material": "Materials_Godot/Architecture/M_Arch_RoofShinglesDarkGray.tres",
+      "preset": "VEIL_Roof",
+      "recommended_uv_scale": [
+        0.5,
+        0.5
+      ],
+      "uv_convention": "meter-UV (1 UV unit = 1 m)",
+      "world_coverage_m": [
+        2.0,
+        2.0
+      ],
+      "texture_filter": "nearest_mipmaps_anisotropic",
+      "description": "3-tab asphalt shingles, dark grey, granule sparkle and slot cuts."
+    },
+    {
+      "id": "Arch_RoofShinglesBrown",
+      "name": "RoofShinglesBrown",
+      "category": "Architecture",
+      "file": "01_Textures/Architecture/T_Arch_RoofShinglesBrown.png",
+      "width": 128,
+      "height": 128,
+      "resolution": "128x128",
+      "tiles": "seamless U+V",
+      "tiles_code": "uv",
+      "transparency": "none",
+      "channels": "RGB",
+      "intended_material": "Materials_Godot/Architecture/M_Arch_RoofShinglesBrown.tres",
+      "preset": "VEIL_Roof",
+      "recommended_uv_scale": [
+        0.5,
+        0.5
+      ],
+      "uv_convention": "meter-UV (1 UV unit = 1 m)",
+      "world_coverage_m": [
+        2.0,
+        2.0
+      ],
+      "texture_filter": "nearest_mipmaps_anisotropic",
+      "description": "Dimensional (laminated) asphalt shingles, brown, random tab widths."
+    },
+    {
+      "id": "Arch_RoofTilesWeathered",
+      "name": "RoofTilesWeathered",
+      "category": "Architecture",
+      "file": "01_Textures/Architecture/T_Arch_RoofTilesWeathered.png",
+      "width": 128,
+      "height": 128,
+      "resolution": "128x128",
+      "tiles": "seamless U+V",
+      "tiles_code": "uv",
+      "transparency": "none",
+      "channels": "RGB",
+      "intended_material": "Materials_Godot/Architecture/M_Arch_RoofTilesWeathered.tres",
+      "preset": "VEIL_Roof",
+      "recommended_uv_scale": [
+        0.5,
+        0.5
+      ],
+      "uv_convention": "meter-UV (1 UV unit = 1 m)",
+      "world_coverage_m": [
+        2.0,
+        2.0
+      ],
+      "texture_filter": "nearest_mipmaps_anisotropic",
+      "description": "Barrel clay tiles, terracotta, lichen colonies, cracked/chipped tiles."
+    },
+    {
+      "id": "Arch_TrimPainted",
+      "name": "TrimPainted",
+      "category": "Architecture",
+      "file": "01_Textures/Architecture/T_Arch_TrimPainted.png",
+      "width": 64,
+      "height": 64,
+      "resolution": "64x64",
+      "tiles": "seamless U+V",
+      "tiles_code": "uv",
+      "transparency": "none",
+      "channels": "RGB",
+      "intended_material": "Materials_Godot/Architecture/M_Arch_TrimPainted.tres",
+      "preset": "VEIL_Painted",
+      "recommended_uv_scale": [
+        1.0,
+        1.0
+      ],
+      "uv_convention": "meter-UV (1 UV unit = 1 m)",
+      "world_coverage_m": [
+        1.0,
+        1.0
+      ],
+      "texture_filter": "nearest_mipmaps",
+      "description": "Cream exterior trim paint over wood; streaks, dirt, small chips."
+    },
+    {
+      "id": "Arch_WindowGlassDirty",
+      "name": "WindowGlassDirty",
+      "category": "Architecture",
+      "file": "01_Textures/Architecture/T_Arch_WindowGlassDirty.png",
+      "width": 64,
+      "height": 64,
+      "resolution": "64x64",
+      "tiles": "no (0..1 unwrap / decal)",
+      "tiles_code": "none",
+      "transparency": "blend",
+      "channels": "RGBA",
+      "intended_material": "Materials_Godot/Architecture/M_Arch_WindowGlassDirty.tres",
+      "preset": "VEIL_Glass",
+      "recommended_uv_scale": [
+        1.0,
+        1.0
+      ],
+      "uv_convention": "0..1 unwrap",
+      "world_coverage_m": null,
+      "texture_filter": "nearest_mipmaps",
+      "description": "One window pane (0..1 UV): tinted glass, reflection bands, edge grime, drips."
+    },
+    {
+      "id": "Road_Asphalt",
+      "name": "Asphalt",
+      "category": "Roads",
+      "file": "01_Textures/Roads/T_Road_Asphalt.png",
+      "width": 256,
+      "height": 256,
+      "resolution": "256x256",
+      "tiles": "seamless U+V",
+      "tiles_code": "uv",
+      "transparency": "none",
+      "channels": "RGB",
+      "intended_material": "Materials_Godot/Roads/M_Road_Asphalt.tres",
+      "preset": "VEIL_Ground",
+      "recommended_uv_scale": [
+        0.25,
+        0.25
+      ],
+      "uv_convention": "meter-UV (1 UV unit = 1 m)",
+      "world_coverage_m": [
+        4.0,
+        4.0
+      ],
+      "texture_filter": "nearest_mipmaps_anisotropic",
+      "description": "Road asphalt with clustered aggregate stones and wear patches."
+    },
+    {
+      "id": "Road_AsphaltCracked",
+      "name": "AsphaltCracked",
+      "category": "Roads",
+      "file": "01_Textures/Roads/T_Road_AsphaltCracked.png",
+      "width": 256,
+      "height": 256,
+      "resolution": "256x256",
+      "tiles": "seamless U+V",
+      "tiles_code": "uv",
+      "transparency": "none",
+      "channels": "RGB",
+      "intended_material": "Materials_Godot/Roads/M_Road_AsphaltCracked.tres",
+      "preset": "VEIL_Ground",
+      "recommended_uv_scale": [
+        0.25,
+        0.25
+      ],
+      "uv_convention": "meter-UV (1 UV unit = 1 m)",
+      "world_coverage_m": [
+        4.0,
+        4.0
+      ],
+      "texture_filter": "nearest_mipmaps_anisotropic",
+      "description": "Asphalt with alligator cracking, long cracks and a small pothole."
+    },
+    {
+      "id": "Road_SidewalkConcrete",
+      "name": "SidewalkConcrete",
+      "category": "Roads",
+      "file": "01_Textures/Roads/T_Road_SidewalkConcrete.png",
+      "width": 128,
+      "height": 128,
+      "resolution": "128x128",
+      "tiles": "seamless U+V",
+      "tiles_code": "uv",
+      "transparency": "none",
+      "channels": "RGB",
+      "intended_material": "Materials_Godot/Roads/M_Road_SidewalkConcrete.tres",
+      "preset": "VEIL_Ground",
+      "recommended_uv_scale": [
+        0.5,
+        0.5
+      ],
+      "uv_convention": "meter-UV (1 UV unit = 1 m)",
+      "world_coverage_m": [
+        2.0,
+        2.0
+      ],
+      "texture_filter": "nearest_mipmaps_anisotropic",
+      "description": "1m sidewalk slabs, tooled joints, trowel margins, broom finish."
+    },
+    {
+      "id": "Road_ConcreteCracked",
+      "name": "ConcreteCracked",
+      "category": "Roads",
+      "file": "01_Textures/Roads/T_Road_ConcreteCracked.png",
+      "width": 128,
+      "height": 128,
+      "resolution": "128x128",
+      "tiles": "seamless U+V",
+      "tiles_code": "uv",
+      "transparency": "none",
+      "channels": "RGB",
+      "intended_material": "Materials_Godot/Roads/M_Road_ConcreteCracked.tres",
+      "preset": "VEIL_Ground",
+      "recommended_uv_scale": [
+        0.5,
+        0.5
+      ],
+      "uv_convention": "meter-UV (1 UV unit = 1 m)",
+      "world_coverage_m": [
+        2.0,
+        2.0
+      ],
+      "texture_filter": "nearest_mipmaps_anisotropic",
+      "description": "Flatwork concrete with crack network and spalls exposing aggregate."
+    },
+    {
+      "id": "Road_CurbConcrete",
+      "name": "CurbConcrete",
+      "category": "Roads",
+      "file": "01_Textures/Roads/T_Road_CurbConcrete.png",
+      "width": 64,
+      "height": 64,
+      "resolution": "64x64",
+      "tiles": "seamless U+V",
+      "tiles_code": "uv",
+      "transparency": "none",
+      "channels": "RGB",
+      "intended_material": "Materials_Godot/Roads/M_Road_CurbConcrete.tres",
+      "preset": "VEIL_Ground",
+      "recommended_uv_scale": [
+        1.0,
+        1.0
+      ],
+      "uv_convention": "meter-UV (1 UV unit = 1 m)",
+      "world_coverage_m": [
+        1.0,
+        1.0
+      ],
+      "texture_filter": "nearest_mipmaps_anisotropic",
+      "description": "Cast concrete curb, joint every 1m (x=32), tyre scuffs, chips."
+    },
+    {
+      "id": "Road_ParkingLotAsphalt",
+      "name": "ParkingLotAsphalt",
+      "category": "Roads",
+      "file": "01_Textures/Roads/T_Road_ParkingLotAsphalt.png",
+      "width": 256,
+      "height": 256,
+      "resolution": "256x256",
+      "tiles": "seamless U+V",
+      "tiles_code": "uv",
+      "transparency": "none",
+      "channels": "RGB",
+      "intended_material": "Materials_Godot/Roads/M_Road_ParkingLotAsphalt.tres",
+      "preset": "VEIL_Ground",
+      "recommended_uv_scale": [
+        0.25,
+        0.25
+      ],
+      "uv_convention": "meter-UV (1 UV unit = 1 m)",
+      "world_coverage_m": [
+        4.0,
+        4.0
+      ],
+      "texture_filter": "nearest_mipmaps_anisotropic",
+      "description": "Lighter worn asphalt with sealcoat patches and oil stains."
+    },
+    {
+      "id": "Road_MarkingYellow",
+      "name": "MarkingYellow",
+      "category": "Roads",
+      "file": "01_Textures/Roads/T_Road_MarkingYellow.png",
+      "width": 64,
+      "height": 64,
+      "resolution": "64x64",
+      "tiles": "seamless U+V",
+      "tiles_code": "uv",
+      "transparency": "blend",
+      "channels": "RGBA",
+      "intended_material": "Materials_Godot/Roads/M_Road_MarkingYellow.tres",
+      "preset": "VEIL_Marking",
+      "recommended_uv_scale": [
+        1.0,
+        1.0
+      ],
+      "uv_convention": "meter-UV (1 UV unit = 1 m)",
+      "world_coverage_m": [
+        1.0,
+        1.0
+      ],
+      "texture_filter": "nearest_mipmaps_anisotropic",
+      "description": "Faded yellow road paint, alpha wear holes. Use on thin quads over asphalt."
+    },
+    {
+      "id": "Road_MarkingWhite",
+      "name": "MarkingWhite",
+      "category": "Roads",
+      "file": "01_Textures/Roads/T_Road_MarkingWhite.png",
+      "width": 64,
+      "height": 64,
+      "resolution": "64x64",
+      "tiles": "seamless U+V",
+      "tiles_code": "uv",
+      "transparency": "blend",
+      "channels": "RGBA",
+      "intended_material": "Materials_Godot/Roads/M_Road_MarkingWhite.tres",
+      "preset": "VEIL_Marking",
+      "recommended_uv_scale": [
+        1.0,
+        1.0
+      ],
+      "uv_convention": "meter-UV (1 UV unit = 1 m)",
+      "world_coverage_m": [
+        1.0,
+        1.0
+      ],
+      "texture_filter": "nearest_mipmaps_anisotropic",
+      "description": "Faded white road paint, alpha wear holes."
+    },
+    {
+      "id": "Road_Gravel",
+      "name": "Gravel",
+      "category": "Roads",
+      "file": "01_Textures/Roads/T_Road_Gravel.png",
+      "width": 128,
+      "height": 128,
+      "resolution": "128x128",
+      "tiles": "seamless U+V",
+      "tiles_code": "uv",
+      "transparency": "none",
+      "channels": "RGB",
+      "intended_material": "Materials_Godot/Roads/M_Road_Gravel.tres",
+      "preset": "VEIL_Ground",
+      "recommended_uv_scale": [
+        0.5,
+        0.5
+      ],
+      "uv_convention": "meter-UV (1 UV unit = 1 m)",
+      "world_coverage_m": [
+        2.0,
+        2.0
+      ],
+      "texture_filter": "nearest_mipmaps_anisotropic",
+      "description": "Mixed warm/cool gravel stones lit from top-left."
+    },
+    {
+      "id": "Road_DirtRoad",
+      "name": "DirtRoad",
+      "category": "Roads",
+      "file": "01_Textures/Roads/T_Road_DirtRoad.png",
+      "width": 256,
+      "height": 256,
+      "resolution": "256x256",
+      "tiles": "seamless U+V",
+      "tiles_code": "uv",
+      "transparency": "none",
+      "channels": "RGB",
+      "intended_material": "Materials_Godot/Roads/M_Road_DirtRoad.tres",
+      "preset": "VEIL_Ground",
+      "recommended_uv_scale": [
+        0.25,
+        0.25
+      ],
+      "uv_convention": "meter-UV (1 UV unit = 1 m)",
+      "world_coverage_m": [
+        4.0,
+        4.0
+      ],
+      "texture_filter": "nearest_mipmaps_anisotropic",
+      "description": "Packed dirt with dry-mud cracking, puddle hollows, pebbles."
+    },
+    {
+      "id": "Road_RoadPatch",
+      "name": "RoadPatch",
+      "category": "Roads",
+      "file": "01_Textures/Roads/T_Road_RoadPatch.png",
+      "width": 128,
+      "height": 128,
+      "resolution": "128x128",
+      "tiles": "seamless U+V",
+      "tiles_code": "uv",
+      "transparency": "none",
+      "channels": "RGB",
+      "intended_material": "Materials_Godot/Roads/M_Road_RoadPatch.tres",
+      "preset": "VEIL_Ground",
+      "recommended_uv_scale": [
+        0.5,
+        0.5
+      ],
+      "uv_convention": "meter-UV (1 UV unit = 1 m)",
+      "world_coverage_m": [
+        2.0,
+        2.0
+      ],
+      "texture_filter": "nearest_mipmaps_anisotropic",
+      "description": "Dark patched asphalt with glossy tar-snake crack sealant."
+    },
+    {
+      "id": "Grnd_GrassShort",
+      "name": "GrassShort",
+      "category": "Ground",
+      "file": "01_Textures/Ground/T_Grnd_GrassShort.png",
+      "width": 128,
+      "height": 128,
+      "resolution": "128x128",
+      "tiles": "seamless U+V",
+      "tiles_code": "uv",
+      "transparency": "none",
+      "channels": "RGB",
+      "intended_material": "Materials_Godot/Ground/M_Grnd_GrassShort.tres",
+      "preset": "VEIL_Ground",
+      "recommended_uv_scale": [
+        0.5,
+        0.5
+      ],
+      "uv_convention": "meter-UV (1 UV unit = 1 m)",
+      "world_coverage_m": [
+        2.0,
+        2.0
+      ],
+      "texture_filter": "nearest_mipmaps_anisotropic",
+      "description": "Mown lawn: short blades on a jittered grid, yellowed patches."
+    },
+    {
+      "id": "Grnd_GrassOvergrown",
+      "name": "GrassOvergrown",
+      "category": "Ground",
+      "file": "01_Textures/Ground/T_Grnd_GrassOvergrown.png",
+      "width": 128,
+      "height": 128,
+      "resolution": "128x128",
+      "tiles": "seamless U+V",
+      "tiles_code": "uv",
+      "transparency": "none",
+      "channels": "RGB",
+      "intended_material": "Materials_Godot/Ground/M_Grnd_GrassOvergrown.tres",
+      "preset": "VEIL_Ground",
+      "recommended_uv_scale": [
+        0.5,
+        0.5
+      ],
+      "uv_convention": "meter-UV (1 UV unit = 1 m)",
+      "world_coverage_m": [
+        2.0,
+        2.0
+      ],
+      "texture_filter": "nearest_mipmaps_anisotropic",
+      "description": "Long leaning blades, deep shadows, sparse weed flowers."
+    },
+    {
+      "id": "Grnd_GrassDry",
+      "name": "GrassDry",
+      "category": "Ground",
+      "file": "01_Textures/Ground/T_Grnd_GrassDry.png",
+      "width": 128,
+      "height": 128,
+      "resolution": "128x128",
+      "tiles": "seamless U+V",
+      "tiles_code": "uv",
+      "transparency": "none",
+      "channels": "RGB",
+      "intended_material": "Materials_Godot/Ground/M_Grnd_GrassDry.tres",
+      "preset": "VEIL_Ground",
+      "recommended_uv_scale": [
+        0.5,
+        0.5
+      ],
+      "uv_convention": "meter-UV (1 UV unit = 1 m)",
+      "world_coverage_m": [
+        2.0,
+        2.0
+      ],
+      "texture_filter": "nearest_mipmaps_anisotropic",
+      "description": "Straw-coloured grass with bare soil patches."
+    },
+    {
+      "id": "Grnd_Mud",
+      "name": "Mud",
+      "category": "Ground",
+      "file": "01_Textures/Ground/T_Grnd_Mud.png",
+      "width": 128,
+      "height": 128,
+      "resolution": "128x128",
+      "tiles": "seamless U+V",
+      "tiles_code": "uv",
+      "transparency": "none",
+      "channels": "RGB",
+      "intended_material": "Materials_Godot/Ground/M_Grnd_Mud.tres",
+      "preset": "VEIL_Ground",
+      "recommended_uv_scale": [
+        0.5,
+        0.5
+      ],
+      "uv_convention": "meter-UV (1 UV unit = 1 m)",
+      "world_coverage_m": [
+        2.0,
+        2.0
+      ],
+      "texture_filter": "nearest_mipmaps_anisotropic",
+      "description": "Wet mud with standing water and sky glints."
+    },
+    {
+      "id": "Grnd_Soil",
+      "name": "Soil",
+      "category": "Ground",
+      "file": "01_Textures/Ground/T_Grnd_Soil.png",
+      "width": 128,
+      "height": 128,
+      "resolution": "128x128",
+      "tiles": "seamless U+V",
+      "tiles_code": "uv",
+      "transparency": "none",
+      "channels": "RGB",
+      "intended_material": "Materials_Godot/Ground/M_Grnd_Soil.tres",
+      "preset": "VEIL_Ground",
+      "recommended_uv_scale": [
+        0.5,
+        0.5
+      ],
+      "uv_convention": "meter-UV (1 UV unit = 1 m)",
+      "world_coverage_m": [
+        2.0,
+        2.0
+      ],
+      "texture_filter": "nearest_mipmaps_anisotropic",
+      "description": "Tilled soil clods, pebbles, root fibres."
+    },
+    {
+      "id": "Grnd_LeavesFallen",
+      "name": "LeavesFallen",
+      "category": "Ground",
+      "file": "01_Textures/Ground/T_Grnd_LeavesFallen.png",
+      "width": 128,
+      "height": 128,
+      "resolution": "128x128",
+      "tiles": "seamless U+V",
+      "tiles_code": "uv",
+      "transparency": "none",
+      "channels": "RGB",
+      "intended_material": "Materials_Godot/Ground/M_Grnd_LeavesFallen.tres",
+      "preset": "VEIL_Ground",
+      "recommended_uv_scale": [
+        0.5,
+        0.5
+      ],
+      "uv_convention": "meter-UV (1 UV unit = 1 m)",
+      "world_coverage_m": [
+        2.0,
+        2.0
+      ],
+      "texture_filter": "nearest_mipmaps_anisotropic",
+      "description": "Layered fallen leaves (rust/ochre/brown) over dark soil."
+    },
+    {
+      "id": "Grnd_Moss",
+      "name": "Moss",
+      "category": "Ground",
+      "file": "01_Textures/Ground/T_Grnd_Moss.png",
+      "width": 64,
+      "height": 64,
+      "resolution": "64x64",
+      "tiles": "seamless U+V",
+      "tiles_code": "uv",
+      "transparency": "none",
+      "channels": "RGB",
+      "intended_material": "Materials_Godot/Ground/M_Grnd_Moss.tres",
+      "preset": "VEIL_Ground",
+      "recommended_uv_scale": [
+        1.0,
+        1.0
+      ],
+      "uv_convention": "meter-UV (1 UV unit = 1 m)",
+      "world_coverage_m": [
+        1.0,
+        1.0
+      ],
+      "texture_filter": "nearest_mipmaps_anisotropic",
+      "description": "Moss cushions with sporophyte tips."
+    },
+    {
+      "id": "Grnd_TreeBark",
+      "name": "TreeBark",
+      "category": "Ground",
+      "file": "01_Textures/Ground/T_Grnd_TreeBark.png",
+      "width": 128,
+      "height": 128,
+      "resolution": "128x128",
+      "tiles": "seamless U+V",
+      "tiles_code": "uv",
+      "transparency": "none",
+      "channels": "RGB",
+      "intended_material": "Materials_Godot/Ground/M_Grnd_TreeBark.tres",
+      "preset": "VEIL_Wood",
+      "recommended_uv_scale": [
+        0.5,
+        0.5
+      ],
+      "uv_convention": "meter-UV (1 UV unit = 1 m)",
+      "world_coverage_m": [
+        2.0,
+        2.0
+      ],
+      "texture_filter": "nearest_mipmaps",
+      "description": "Vertically furrowed bark plates with lichen. V runs up the trunk."
+    },
+    {
+      "id": "Grnd_HedgeFoliage",
+      "name": "HedgeFoliage",
+      "category": "Ground",
+      "file": "01_Textures/Ground/T_Grnd_HedgeFoliage.png",
+      "width": 128,
+      "height": 128,
+      "resolution": "128x128",
+      "tiles": "seamless U+V",
+      "tiles_code": "uv",
+      "transparency": "none",
+      "channels": "RGB",
+      "intended_material": "Materials_Godot/Ground/M_Grnd_HedgeFoliage.tres",
+      "preset": "VEIL_Ground",
+      "recommended_uv_scale": [
+        0.5,
+        0.5
+      ],
+      "uv_convention": "meter-UV (1 UV unit = 1 m)",
+      "world_coverage_m": [
+        2.0,
+        2.0
+      ],
+      "texture_filter": "nearest_mipmaps_anisotropic",
+      "description": "Dense layered leaf clusters for hedge/bush blocks."
+    },
+    {
+      "id": "Grnd_DeadVegetation",
+      "name": "DeadVegetation",
+      "category": "Ground",
+      "file": "01_Textures/Ground/T_Grnd_DeadVegetation.png",
+      "width": 128,
+      "height": 128,
+      "resolution": "128x128",
+      "tiles": "seamless U+V",
+      "tiles_code": "uv",
+      "transparency": "none",
+      "channels": "RGB",
+      "intended_material": "Materials_Godot/Ground/M_Grnd_DeadVegetation.tres",
+      "preset": "VEIL_Ground",
+      "recommended_uv_scale": [
+        0.5,
+        0.5
+      ],
+      "uv_convention": "meter-UV (1 UV unit = 1 m)",
+      "world_coverage_m": [
+        2.0,
+        2.0
+      ],
+      "texture_filter": "nearest_mipmaps_anisotropic",
+      "description": "Mat of dead stalks, twigs and decayed leaves."
+    },
+    {
+      "id": "Int_DrywallLight",
+      "name": "DrywallLight",
+      "category": "Interiors",
+      "file": "01_Textures/Interiors/T_Int_DrywallLight.png",
+      "width": 128,
+      "height": 128,
+      "resolution": "128x128",
+      "tiles": "seamless U+V",
+      "tiles_code": "uv",
+      "transparency": "none",
+      "channels": "RGB",
+      "intended_material": "Materials_Godot/Interiors/M_Int_DrywallLight.tres",
+      "preset": "VEIL_Painted",
+      "recommended_uv_scale": [
+        0.5,
+        0.5
+      ],
+      "uv_convention": "meter-UV (1 UV unit = 1 m)",
+      "world_coverage_m": [
+        2.0,
+        2.0
+      ],
+      "texture_filter": "nearest_mipmaps",
+      "description": "Light painted drywall, orange-peel texture, faint scuffs."
+    },
+    {
+      "id": "Int_WallpaperFaded",
+      "name": "WallpaperFaded",
+      "category": "Interiors",
+      "file": "01_Textures/Interiors/T_Int_WallpaperFaded.png",
+      "width": 128,
+      "height": 128,
+      "resolution": "128x128",
+      "tiles": "seamless U+V",
+      "tiles_code": "uv",
+      "transparency": "none",
+      "channels": "RGB",
+      "intended_material": "Materials_Godot/Interiors/M_Int_WallpaperFaded.tres",
+      "preset": "VEIL_Painted",
+      "recommended_uv_scale": [
+        0.5,
+        0.5
+      ],
+      "uv_convention": "meter-UV (1 UV unit = 1 m)",
+      "world_coverage_m": [
+        2.0,
+        2.0
+      ],
+      "texture_filter": "nearest_mipmaps",
+      "description": "Faded rose striped wallpaper with sprigs; 1m strips, one off-register."
+    },
+    {
+      "id": "Int_WallpaperPatterned",
+      "name": "WallpaperPatterned",
+      "category": "Interiors",
+      "file": "01_Textures/Interiors/T_Int_WallpaperPatterned.png",
+      "width": 128,
+      "height": 128,
+      "resolution": "128x128",
+      "tiles": "seamless U+V",
+      "tiles_code": "uv",
+      "transparency": "none",
+      "channels": "RGB",
+      "intended_material": "Materials_Godot/Interiors/M_Int_WallpaperPatterned.tres",
+      "preset": "VEIL_Painted",
+      "recommended_uv_scale": [
+        0.5,
+        0.5
+      ],
+      "uv_convention": "meter-UV (1 UV unit = 1 m)",
+      "world_coverage_m": [
+        2.0,
+        2.0
+      ],
+      "texture_filter": "nearest_mipmaps",
+      "description": "Green damask wallpaper, hand-authored ochre medallion in half-drop repeat."
+    },
+    {
+      "id": "Int_FloorboardsOld",
+      "name": "FloorboardsOld",
+      "category": "Interiors",
+      "file": "01_Textures/Interiors/T_Int_FloorboardsOld.png",
+      "width": 128,
+      "height": 128,
+      "resolution": "128x128",
+      "tiles": "seamless U+V",
+      "tiles_code": "uv",
+      "transparency": "none",
+      "channels": "RGB",
+      "intended_material": "Materials_Godot/Interiors/M_Int_FloorboardsOld.tres",
+      "preset": "VEIL_Floor",
+      "recommended_uv_scale": [
+        0.5,
+        0.5
+      ],
+      "uv_convention": "meter-UV (1 UV unit = 1 m)",
+      "world_coverage_m": [
+        2.0,
+        2.0
+      ],
+      "texture_filter": "nearest_mipmaps_anisotropic",
+      "description": "Old warm floorboards, mixed widths, staggered joints, nails, worn varnish."
+    },
+    {
+      "id": "Int_CarpetWorn",
+      "name": "CarpetWorn",
+      "category": "Interiors",
+      "file": "01_Textures/Interiors/T_Int_CarpetWorn.png",
+      "width": 128,
+      "height": 128,
+      "resolution": "128x128",
+      "tiles": "seamless U+V",
+      "tiles_code": "uv",
+      "transparency": "none",
+      "channels": "RGB",
+      "intended_material": "Materials_Godot/Interiors/M_Int_CarpetWorn.tres",
+      "preset": "VEIL_Fabric",
+      "recommended_uv_scale": [
+        0.5,
+        0.5
+      ],
+      "uv_convention": "meter-UV (1 UV unit = 1 m)",
+      "world_coverage_m": [
+        2.0,
+        2.0
+      ],
+      "texture_filter": "nearest_mipmaps",
+      "description": "Loop-pile carpet with faint lattice, worn path and stains."
+    },
+    {
+      "id": "Int_TilesKitchen",
+      "name": "TilesKitchen",
+      "category": "Interiors",
+      "file": "01_Textures/Interiors/T_Int_TilesKitchen.png",
+      "width": 128,
+      "height": 128,
+      "resolution": "128x128",
+      "tiles": "seamless U+V",
+      "tiles_code": "uv",
+      "transparency": "none",
+      "channels": "RGB",
+      "intended_material": "Materials_Godot/Interiors/M_Int_TilesKitchen.tres",
+      "preset": "VEIL_Ceramic",
+      "recommended_uv_scale": [
+        0.5,
+        0.5
+      ],
+      "uv_convention": "meter-UV (1 UV unit = 1 m)",
+      "world_coverage_m": [
+        2.0,
+        2.0
+      ],
+      "texture_filter": "nearest_mipmaps_anisotropic",
+      "description": "Cream/teal checker floor tiles, glaze highlights, grimy grout."
+    },
+    {
+      "id": "Int_TilesBathroom",
+      "name": "TilesBathroom",
+      "category": "Interiors",
+      "file": "01_Textures/Interiors/T_Int_TilesBathroom.png",
+      "width": 128,
+      "height": 128,
+      "resolution": "128x128",
+      "tiles": "seamless U+V",
+      "tiles_code": "uv",
+      "transparency": "none",
+      "channels": "RGB",
+      "intended_material": "Materials_Godot/Interiors/M_Int_TilesBathroom.tres",
+      "preset": "VEIL_Ceramic",
+      "recommended_uv_scale": [
+        0.5,
+        0.5
+      ],
+      "uv_convention": "meter-UV (1 UV unit = 1 m)",
+      "world_coverage_m": [
+        2.0,
+        2.0
+      ],
+      "texture_filter": "nearest_mipmaps_anisotropic",
+      "description": "Glossy subway wall tiles, running bond, mildew in grout."
+    },
+    {
+      "id": "Int_Linoleum",
+      "name": "Linoleum",
+      "category": "Interiors",
+      "file": "01_Textures/Interiors/T_Int_Linoleum.png",
+      "width": 128,
+      "height": 128,
+      "resolution": "128x128",
+      "tiles": "seamless U+V",
+      "tiles_code": "uv",
+      "transparency": "none",
+      "channels": "RGB",
+      "intended_material": "Materials_Godot/Interiors/M_Int_Linoleum.tres",
+      "preset": "VEIL_Floor",
+      "recommended_uv_scale": [
+        0.5,
+        0.5
+      ],
+      "uv_convention": "meter-UV (1 UV unit = 1 m)",
+      "world_coverage_m": [
+        2.0,
+        2.0
+      ],
+      "texture_filter": "nearest_mipmaps_anisotropic",
+      "description": "Marbled faux-tile sheet linoleum with heel scuffs."
+    },
+    {
+      "id": "Int_BasementConcrete",
+      "name": "BasementConcrete",
+      "category": "Interiors",
+      "file": "01_Textures/Interiors/T_Int_BasementConcrete.png",
+      "width": 128,
+      "height": 128,
+      "resolution": "128x128",
+      "tiles": "seamless U+V",
+      "tiles_code": "uv",
+      "transparency": "none",
+      "channels": "RGB",
+      "intended_material": "Materials_Godot/Interiors/M_Int_BasementConcrete.tres",
+      "preset": "VEIL_Floor",
+      "recommended_uv_scale": [
+        0.5,
+        0.5
+      ],
+      "uv_convention": "meter-UV (1 UV unit = 1 m)",
+      "world_coverage_m": [
+        2.0,
+        2.0
+      ],
+      "texture_filter": "nearest_mipmaps_anisotropic",
+      "description": "Dark basement slab: trowel swirls, damp tide-lines, efflorescence, cracks."
+    },
+    {
+      "id": "Int_PlasterDamaged",
+      "name": "PlasterDamaged",
+      "category": "Interiors",
+      "file": "01_Textures/Interiors/T_Int_PlasterDamaged.png",
+      "width": 128,
+      "height": 128,
+      "resolution": "128x128",
+      "tiles": "seamless U+V",
+      "tiles_code": "uv",
+      "transparency": "none",
+      "channels": "RGB",
+      "intended_material": "Materials_Godot/Interiors/M_Int_PlasterDamaged.tres",
+      "preset": "VEIL_Masonry",
+      "recommended_uv_scale": [
+        0.5,
+        0.5
+      ],
+      "uv_convention": "meter-UV (1 UV unit = 1 m)",
+      "world_coverage_m": [
+        2.0,
+        2.0
+      ],
+      "texture_filter": "nearest_mipmaps",
+      "description": "Cracked plaster with holes exposing scratch coat and wooden lath."
+    },
+    {
+      "id": "Furn_WoodLight",
+      "name": "WoodLight",
+      "category": "Furniture",
+      "file": "01_Textures/Furniture/T_Furn_WoodLight.png",
+      "width": 64,
+      "height": 64,
+      "resolution": "64x64",
+      "tiles": "seamless U+V",
+      "tiles_code": "uv",
+      "transparency": "none",
+      "channels": "RGB",
+      "intended_material": "Materials_Godot/Furniture/M_Furn_WoodLight.tres",
+      "preset": "VEIL_Wood",
+      "recommended_uv_scale": [
+        1.0,
+        1.0
+      ],
+      "uv_convention": "meter-UV (1 UV unit = 1 m)",
+      "world_coverage_m": [
+        1.0,
+        1.0
+      ],
+      "texture_filter": "nearest_mipmaps",
+      "description": "Light oak-like wood grain."
+    },
+    {
+      "id": "Furn_WoodDark",
+      "name": "WoodDark",
+      "category": "Furniture",
+      "file": "01_Textures/Furniture/T_Furn_WoodDark.png",
+      "width": 64,
+      "height": 64,
+      "resolution": "64x64",
+      "tiles": "seamless U+V",
+      "tiles_code": "uv",
+      "transparency": "none",
+      "channels": "RGB",
+      "intended_material": "Materials_Godot/Furniture/M_Furn_WoodDark.tres",
+      "preset": "VEIL_Wood",
+      "recommended_uv_scale": [
+        1.0,
+        1.0
+      ],
+      "uv_convention": "meter-UV (1 UV unit = 1 m)",
+      "world_coverage_m": [
+        1.0,
+        1.0
+      ],
+      "texture_filter": "nearest_mipmaps",
+      "description": "Dark walnut-like wood with open pores."
+    },
+    {
+      "id": "Furn_WoodPainted",
+      "name": "WoodPainted",
+      "category": "Furniture",
+      "file": "01_Textures/Furniture/T_Furn_WoodPainted.png",
+      "width": 64,
+      "height": 64,
+      "resolution": "64x64",
+      "tiles": "seamless U+V",
+      "tiles_code": "uv",
+      "transparency": "none",
+      "channels": "RGB",
+      "intended_material": "Materials_Godot/Furniture/M_Furn_WoodPainted.tres",
+      "preset": "VEIL_Painted",
+      "recommended_uv_scale": [
+        1.0,
+        1.0
+      ],
+      "uv_convention": "meter-UV (1 UV unit = 1 m)",
+      "world_coverage_m": [
+        1.0,
+        1.0
+      ],
+      "texture_filter": "nearest_mipmaps",
+      "description": "Mustard painted wood, brush strokes, chips to bare wood."
+    },
+    {
+      "id": "Furn_LeatherWorn",
+      "name": "LeatherWorn",
+      "category": "Furniture",
+      "file": "01_Textures/Furniture/T_Furn_LeatherWorn.png",
+      "width": 64,
+      "height": 64,
+      "resolution": "64x64",
+      "tiles": "seamless U+V",
+      "tiles_code": "uv",
+      "transparency": "none",
+      "channels": "RGB",
+      "intended_material": "Materials_Godot/Furniture/M_Furn_LeatherWorn.tres",
+      "preset": "VEIL_Leather",
+      "recommended_uv_scale": [
+        1.0,
+        1.0
+      ],
+      "uv_convention": "meter-UV (1 UV unit = 1 m)",
+      "world_coverage_m": [
+        1.0,
+        1.0
+      ],
+      "texture_filter": "nearest_mipmaps",
+      "description": "Pebbled leather, creases, worn and crazed patches."
+    },
+    {
+      "id": "Furn_FabricUpholstery",
+      "name": "FabricUpholstery",
+      "category": "Furniture",
+      "file": "01_Textures/Furniture/T_Furn_FabricUpholstery.png",
+      "width": 64,
+      "height": 64,
+      "resolution": "64x64",
+      "tiles": "seamless U+V",
+      "tiles_code": "uv",
+      "transparency": "none",
+      "channels": "RGB",
+      "intended_material": "Materials_Godot/Furniture/M_Furn_FabricUpholstery.tres",
+      "preset": "VEIL_Fabric",
+      "recommended_uv_scale": [
+        1.0,
+        1.0
+      ],
+      "uv_convention": "meter-UV (1 UV unit = 1 m)",
+      "world_coverage_m": [
+        1.0,
+        1.0
+      ],
+      "texture_filter": "nearest_mipmaps",
+      "description": "Olive tweed twill with coloured slubs and pilling."
+    },
+    {
+      "id": "Furn_Denim",
+      "name": "Denim",
+      "category": "Furniture",
+      "file": "01_Textures/Furniture/T_Furn_Denim.png",
+      "width": 64,
+      "height": 64,
+      "resolution": "64x64",
+      "tiles": "seamless U+V",
+      "tiles_code": "uv",
+      "transparency": "none",
+      "channels": "RGB",
+      "intended_material": "Materials_Godot/Furniture/M_Furn_Denim.tres",
+      "preset": "VEIL_Fabric",
+      "recommended_uv_scale": [
+        1.0,
+        1.0
+      ],
+      "uv_convention": "meter-UV (1 UV unit = 1 m)",
+      "world_coverage_m": [
+        1.0,
+        1.0
+      ],
+      "texture_filter": "nearest_mipmaps",
+      "description": "Diagonal denim twill with slubs and fading."
+    },
+    {
+      "id": "Furn_PlasticDirty",
+      "name": "PlasticDirty",
+      "category": "Furniture",
+      "file": "01_Textures/Furniture/T_Furn_PlasticDirty.png",
+      "width": 32,
+      "height": 32,
+      "resolution": "32x32",
+      "tiles": "seamless U+V",
+      "tiles_code": "uv",
+      "transparency": "none",
+      "channels": "RGB",
+      "intended_material": "Materials_Godot/Furniture/M_Furn_PlasticDirty.tres",
+      "preset": "VEIL_Plastic",
+      "recommended_uv_scale": [
+        2.0,
+        2.0
+      ],
+      "uv_convention": "meter-UV (1 UV unit = 1 m)",
+      "world_coverage_m": [
+        0.5,
+        0.5
+      ],
+      "texture_filter": "nearest_mipmaps",
+      "description": "Off-white aged plastic, smudges, scratches."
+    },
+    {
+      "id": "Furn_MetalBrushed",
+      "name": "MetalBrushed",
+      "category": "Furniture",
+      "file": "01_Textures/Furniture/T_Furn_MetalBrushed.png",
+      "width": 64,
+      "height": 64,
+      "resolution": "64x64",
+      "tiles": "seamless U+V",
+      "tiles_code": "uv",
+      "transparency": "none",
+      "channels": "RGB",
+      "intended_material": "Materials_Godot/Furniture/M_Furn_MetalBrushed.tres",
+      "preset": "VEIL_Metal_Bare",
+      "recommended_uv_scale": [
+        1.0,
+        1.0
+      ],
+      "uv_convention": "meter-UV (1 UV unit = 1 m)",
+      "world_coverage_m": [
+        1.0,
+        1.0
+      ],
+      "texture_filter": "nearest_mipmaps",
+      "description": "Brushed steel streaks with soft highlight band."
+    },
+    {
+      "id": "Furn_MetalRusted",
+      "name": "MetalRusted",
+      "category": "Furniture",
+      "file": "01_Textures/Furniture/T_Furn_MetalRusted.png",
+      "width": 64,
+      "height": 64,
+      "resolution": "64x64",
+      "tiles": "seamless U+V",
+      "tiles_code": "uv",
+      "transparency": "none",
+      "channels": "RGB",
+      "intended_material": "Materials_Godot/Furniture/M_Furn_MetalRusted.tres",
+      "preset": "VEIL_Metal_Rusted",
+      "recommended_uv_scale": [
+        1.0,
+        1.0
+      ],
+      "uv_convention": "meter-UV (1 UV unit = 1 m)",
+      "world_coverage_m": [
+        1.0,
+        1.0
+      ],
+      "texture_filter": "nearest_mipmaps",
+      "description": "Steel with rust blooms, pitting and rust runs."
+    },
+    {
+      "id": "Furn_Rubber",
+      "name": "Rubber",
+      "category": "Furniture",
+      "file": "01_Textures/Furniture/T_Furn_Rubber.png",
+      "width": 32,
+      "height": 32,
+      "resolution": "32x32",
+      "tiles": "seamless U+V",
+      "tiles_code": "uv",
+      "transparency": "none",
+      "channels": "RGB",
+      "intended_material": "Materials_Godot/Furniture/M_Furn_Rubber.tres",
+      "preset": "VEIL_Rubber",
+      "recommended_uv_scale": [
+        2.0,
+        2.0
+      ],
+      "uv_convention": "meter-UV (1 UV unit = 1 m)",
+      "world_coverage_m": [
+        0.5,
+        0.5
+      ],
+      "texture_filter": "nearest_mipmaps",
+      "description": "Charcoal rubber with diamond grip pattern."
+    },
+    {
+      "id": "Furn_Cardboard",
+      "name": "Cardboard",
+      "category": "Furniture",
+      "file": "01_Textures/Furniture/T_Furn_Cardboard.png",
+      "width": 64,
+      "height": 64,
+      "resolution": "64x64",
+      "tiles": "seamless U+V",
+      "tiles_code": "uv",
+      "transparency": "none",
+      "channels": "RGB",
+      "intended_material": "Materials_Godot/Furniture/M_Furn_Cardboard.tres",
+      "preset": "VEIL_Fabric",
+      "recommended_uv_scale": [
+        1.0,
+        1.0
+      ],
+      "uv_convention": "meter-UV (1 UV unit = 1 m)",
+      "world_coverage_m": [
+        1.0,
+        1.0
+      ],
+      "texture_filter": "nearest_mipmaps",
+      "description": "Kraft cardboard: corrugation, fibres, fold crease, water ring."
+    },
+    {
+      "id": "Com_SupermarketFloorTiles",
+      "name": "SupermarketFloorTiles",
+      "category": "Commercial",
+      "file": "01_Textures/Commercial/T_Com_SupermarketFloorTiles.png",
+      "width": 128,
+      "height": 128,
+      "resolution": "128x128",
+      "tiles": "seamless U+V",
+      "tiles_code": "uv",
+      "transparency": "none",
+      "channels": "RGB",
+      "intended_material": "Materials_Godot/Commercial/M_Com_SupermarketFloorTiles.tres",
+      "preset": "VEIL_Floor",
+      "recommended_uv_scale": [
+        0.5,
+        0.5
+      ],
+      "uv_convention": "meter-UV (1 UV unit = 1 m)",
+      "world_coverage_m": [
+        2.0,
+        2.0
+      ],
+      "texture_filter": "nearest_mipmaps_anisotropic",
+      "description": "VCT floor tiles with chip flecks, wax sheen, scuffs."
+    },
+    {
+      "id": "Com_StorefrontBrick",
+      "name": "StorefrontBrick",
+      "category": "Commercial",
+      "file": "01_Textures/Commercial/T_Com_StorefrontBrick.png",
+      "width": 128,
+      "height": 128,
+      "resolution": "128x128",
+      "tiles": "seamless U+V",
+      "tiles_code": "uv",
+      "transparency": "none",
+      "channels": "RGB",
+      "intended_material": "Materials_Godot/Commercial/M_Com_StorefrontBrick.tres",
+      "preset": "VEIL_Masonry",
+      "recommended_uv_scale": [
+        0.5,
+        0.5
+      ],
+      "uv_convention": "meter-UV (1 UV unit = 1 m)",
+      "world_coverage_m": [
+        2.0,
+        2.0
+      ],
+      "texture_filter": "nearest_mipmaps",
+      "description": "Uniform buff face brick, dark mortar, clean commercial look."
+    },
+    {
+      "id": "Com_StorefrontConcrete",
+      "name": "StorefrontConcrete",
+      "category": "Commercial",
+      "file": "01_Textures/Commercial/T_Com_StorefrontConcrete.png",
+      "width": 128,
+      "height": 128,
+      "resolution": "128x128",
+      "tiles": "seamless U+V",
+      "tiles_code": "uv",
+      "transparency": "none",
+      "channels": "RGB",
+      "intended_material": "Materials_Godot/Commercial/M_Com_StorefrontConcrete.tres",
+      "preset": "VEIL_Masonry",
+      "recommended_uv_scale": [
+        0.5,
+        0.5
+      ],
+      "uv_convention": "meter-UV (1 UV unit = 1 m)",
+      "world_coverage_m": [
+        2.0,
+        2.0
+      ],
+      "texture_filter": "nearest_mipmaps",
+      "description": "2m precast panel: reveal joints, bolt caps, drip stains."
+    },
+    {
+      "id": "Com_CeilingTiles",
+      "name": "CeilingTiles",
+      "category": "Commercial",
+      "file": "01_Textures/Commercial/T_Com_CeilingTiles.png",
+      "width": 128,
+      "height": 128,
+      "resolution": "128x128",
+      "tiles": "seamless U+V",
+      "tiles_code": "uv",
+      "transparency": "none",
+      "channels": "RGB",
+      "intended_material": "Materials_Godot/Commercial/M_Com_CeilingTiles.tres",
+      "preset": "VEIL_Painted",
+      "recommended_uv_scale": [
+        0.5,
+        0.5
+      ],
+      "uv_convention": "meter-UV (1 UV unit = 1 m)",
+      "world_coverage_m": [
+        2.0,
+        2.0
+      ],
+      "texture_filter": "nearest_mipmaps",
+      "description": "Drop-ceiling acoustic tiles with fissures and T-bar grid (1m tiles)."
+    },
+    {
+      "id": "Com_MetalShelving",
+      "name": "MetalShelving",
+      "category": "Commercial",
+      "file": "01_Textures/Commercial/T_Com_MetalShelving.png",
+      "width": 64,
+      "height": 64,
+      "resolution": "64x64",
+      "tiles": "seamless U+V",
+      "tiles_code": "uv",
+      "transparency": "none",
+      "channels": "RGB",
+      "intended_material": "Materials_Godot/Commercial/M_Com_MetalShelving.tres",
+      "preset": "VEIL_Metal_Painted",
+      "recommended_uv_scale": [
+        1.0,
+        1.0
+      ],
+      "uv_convention": "meter-UV (1 UV unit = 1 m)",
+      "world_coverage_m": [
+        1.0,
+        1.0
+      ],
+      "texture_filter": "nearest_mipmaps",
+      "description": "Painted gondola steel with pegboard holes and scratches."
+    },
+    {
+      "id": "Com_MetalDoorPainted",
+      "name": "MetalDoorPainted",
+      "category": "Commercial",
+      "file": "01_Textures/Commercial/T_Com_MetalDoorPainted.png",
+      "width": 64,
+      "height": 128,
+      "resolution": "64x128",
+      "tiles": "no (0..1 unwrap / decal)",
+      "tiles_code": "none",
+      "transparency": "none",
+      "channels": "RGB",
+      "intended_material": "Materials_Godot/Commercial/M_Com_MetalDoorPainted.tres",
+      "preset": "VEIL_Metal_Painted",
+      "recommended_uv_scale": [
+        1.0,
+        1.0
+      ],
+      "uv_convention": "0..1 unwrap",
+      "world_coverage_m": null,
+      "texture_filter": "nearest_mipmaps",
+      "description": "Full 1x2m steel door face (0..1 UV): two recessed panels, latch wear, kick scuffs, rust."
+    },
+    {
+      "id": "Com_GasStationPavement",
+      "name": "GasStationPavement",
+      "category": "Commercial",
+      "file": "01_Textures/Commercial/T_Com_GasStationPavement.png",
+      "width": 256,
+      "height": 256,
+      "resolution": "256x256",
+      "tiles": "seamless U+V",
+      "tiles_code": "uv",
+      "transparency": "none",
+      "channels": "RGB",
+      "intended_material": "Materials_Godot/Commercial/M_Com_GasStationPavement.tres",
+      "preset": "VEIL_Ground",
+      "recommended_uv_scale": [
+        0.25,
+        0.25
+      ],
+      "uv_convention": "meter-UV (1 UV unit = 1 m)",
+      "world_coverage_m": [
+        4.0,
+        4.0
+      ],
+      "texture_filter": "nearest_mipmaps_anisotropic",
+      "description": "2m concrete forecourt slabs with sealed joints, oil stains, tyre marks."
+    },
+    {
+      "id": "Com_SignageBacking",
+      "name": "SignageBacking",
+      "category": "Commercial",
+      "file": "01_Textures/Commercial/T_Com_SignageBacking.png",
+      "width": 64,
+      "height": 64,
+      "resolution": "64x64",
+      "tiles": "seamless U+V",
+      "tiles_code": "uv",
+      "transparency": "none",
+      "channels": "RGB",
+      "intended_material": "Materials_Godot/Commercial/M_Com_SignageBacking.tres",
+      "preset": "VEIL_Metal_Painted",
+      "recommended_uv_scale": [
+        1.0,
+        1.0
+      ],
+      "uv_convention": "meter-UV (1 UV unit = 1 m)",
+      "world_coverage_m": [
+        1.0,
+        1.0
+      ],
+      "texture_filter": "nearest_mipmaps",
+      "description": "Chalky painted sheet metal with riveted seam and rust bleed."
+    },
+    {
+      "id": "Com_StorageConcrete",
+      "name": "StorageConcrete",
+      "category": "Commercial",
+      "file": "01_Textures/Commercial/T_Com_StorageConcrete.png",
+      "width": 128,
+      "height": 128,
+      "resolution": "128x128",
+      "tiles": "seamless U+V",
+      "tiles_code": "uv",
+      "transparency": "none",
+      "channels": "RGB",
+      "intended_material": "Materials_Godot/Commercial/M_Com_StorageConcrete.tres",
+      "preset": "VEIL_Masonry",
+      "recommended_uv_scale": [
+        0.5,
+        0.5
+      ],
+      "uv_convention": "meter-UV (1 UV unit = 1 m)",
+      "world_coverage_m": [
+        2.0,
+        2.0
+      ],
+      "texture_filter": "nearest_mipmaps",
+      "description": "Painted concrete-block (CMU) wall, running bond."
+    },
+    {
+      "id": "Com_IndustrialWallDirty",
+      "name": "IndustrialWallDirty",
+      "category": "Commercial",
+      "file": "01_Textures/Commercial/T_Com_IndustrialWallDirty.png",
+      "width": 128,
+      "height": 128,
+      "resolution": "128x128",
+      "tiles": "seamless U+V",
+      "tiles_code": "uv",
+      "transparency": "none",
+      "channels": "RGB",
+      "intended_material": "Materials_Godot/Commercial/M_Com_IndustrialWallDirty.tres",
+      "preset": "VEIL_Metal_Rusted",
+      "recommended_uv_scale": [
+        0.5,
+        0.5
+      ],
+      "uv_convention": "meter-UV (1 UV unit = 1 m)",
+      "world_coverage_m": [
+        2.0,
+        2.0
+      ],
+      "texture_filter": "nearest_mipmaps",
+      "description": "Corrugated metal cladding, grime and rust streaks, riveted lap seam."
+    },
+    {
+      "id": "Hor_StainOrganicDark",
+      "name": "StainOrganicDark",
+      "category": "Horror",
+      "file": "01_Textures/Horror/T_Hor_StainOrganicDark.png",
+      "width": 64,
+      "height": 64,
+      "resolution": "64x64",
+      "tiles": "no (0..1 unwrap / decal)",
+      "tiles_code": "none",
+      "transparency": "blend",
+      "channels": "RGBA",
+      "intended_material": "Materials_Godot/Horror/M_Hor_StainOrganicDark.tres",
+      "preset": "VEIL_Decal_Blend",
+      "recommended_uv_scale": [
+        1.0,
+        1.0
+      ],
+      "uv_convention": "0..1 unwrap",
+      "world_coverage_m": null,
+      "texture_filter": "nearest_mipmaps",
+      "description": "Decal: unnaturally dark organic stain with droplets and runs."
+    },
+    {
+      "id": "Hor_DampWall",
+      "name": "DampWall",
+      "category": "Horror",
+      "file": "01_Textures/Horror/T_Hor_DampWall.png",
+      "width": 128,
+      "height": 128,
+      "resolution": "128x128",
+      "tiles": "seamless U+V",
+      "tiles_code": "uv",
+      "transparency": "none",
+      "channels": "RGB",
+      "intended_material": "Materials_Godot/Horror/M_Hor_DampWall.tres",
+      "preset": "VEIL_Painted",
+      "recommended_uv_scale": [
+        0.5,
+        0.5
+      ],
+      "uv_convention": "meter-UV (1 UV unit = 1 m)",
+      "world_coverage_m": [
+        2.0,
+        2.0
+      ],
+      "texture_filter": "nearest_mipmaps",
+      "description": "Drywall with damp blotches, tide lines, mildew, blisters."
+    },
+    {
+      "id": "Hor_ResidueStrange",
+      "name": "ResidueStrange",
+      "category": "Horror",
+      "file": "01_Textures/Horror/T_Hor_ResidueStrange.png",
+      "width": 64,
+      "height": 64,
+      "resolution": "64x64",
+      "tiles": "no (0..1 unwrap / decal)",
+      "tiles_code": "none",
+      "transparency": "blend",
+      "channels": "RGBA",
+      "intended_material": "Materials_Godot/Horror/M_Hor_ResidueStrange.tres",
+      "preset": "VEIL_Decal_Blend",
+      "recommended_uv_scale": [
+        1.0,
+        1.0
+      ],
+      "uv_convention": "0..1 unwrap",
+      "world_coverage_m": null,
+      "texture_filter": "nearest_mipmaps",
+      "description": "Decal: pale viscous residue smear with drips."
+    },
+    {
+      "id": "Hor_FoliageDead",
+      "name": "FoliageDead",
+      "category": "Horror",
+      "file": "01_Textures/Horror/T_Hor_FoliageDead.png",
+      "width": 64,
+      "height": 64,
+      "resolution": "64x64",
+      "tiles": "no (0..1 unwrap / decal)",
+      "tiles_code": "none",
+      "transparency": "scissor",
+      "channels": "RGBA",
+      "intended_material": "Materials_Godot/Horror/M_Hor_FoliageDead.tres",
+      "preset": "VEIL_Cutout",
+      "recommended_uv_scale": [
+        1.0,
+        1.0
+      ],
+      "uv_convention": "0..1 unwrap",
+      "world_coverage_m": null,
+      "texture_filter": "nearest_mipmaps",
+      "description": "Cutout card: dead branch with curled leaves (alpha scissor)."
+    },
+    {
+      "id": "Hor_WarningSignWeathered",
+      "name": "WarningSignWeathered",
+      "category": "Horror",
+      "file": "01_Textures/Horror/T_Hor_WarningSignWeathered.png",
+      "width": 64,
+      "height": 64,
+      "resolution": "64x64",
+      "tiles": "no (0..1 unwrap / decal)",
+      "tiles_code": "none",
+      "transparency": "scissor",
+      "channels": "RGBA",
+      "intended_material": "Materials_Godot/Horror/M_Hor_WarningSignWeathered.tres",
+      "preset": "VEIL_Sign",
+      "recommended_uv_scale": [
+        1.0,
+        1.0
+      ],
+      "uv_convention": "0..1 unwrap",
+      "world_coverage_m": null,
+      "texture_filter": "nearest_mipmaps",
+      "description": "Weathered warning plate: hazard triangle, abstract lettering, rust, bolt holes."
+    },
+    {
+      "id": "Hor_GroundMistCorrupted",
+      "name": "GroundMistCorrupted",
+      "category": "Horror",
+      "file": "01_Textures/Horror/T_Hor_GroundMistCorrupted.png",
+      "width": 128,
+      "height": 128,
+      "resolution": "128x128",
+      "tiles": "seamless U+V",
+      "tiles_code": "uv",
+      "transparency": "none",
+      "channels": "RGB",
+      "intended_material": "Materials_Godot/Horror/M_Hor_GroundMistCorrupted.tres",
+      "preset": "VEIL_Ground",
+      "recommended_uv_scale": [
+        0.5,
+        0.5
+      ],
+      "uv_convention": "meter-UV (1 UV unit = 1 m)",
+      "world_coverage_m": [
+        2.0,
+        2.0
+      ],
+      "texture_filter": "nearest_mipmaps_anisotropic",
+      "description": "Post-mist ground: drained ash grass, dark veins, cold dew. Story-beat only."
+    },
+    {
+      "id": "Hor_WoodDarkened",
+      "name": "WoodDarkened",
+      "category": "Horror",
+      "file": "01_Textures/Horror/T_Hor_WoodDarkened.png",
+      "width": 128,
+      "height": 128,
+      "resolution": "128x128",
+      "tiles": "seamless U+V",
+      "tiles_code": "uv",
+      "transparency": "none",
+      "channels": "RGB",
+      "intended_material": "Materials_Godot/Horror/M_Hor_WoodDarkened.tres",
+      "preset": "VEIL_Wood",
+      "recommended_uv_scale": [
+        0.5,
+        0.5
+      ],
+      "uv_convention": "meter-UV (1 UV unit = 1 m)",
+      "world_coverage_m": [
+        2.0,
+        2.0
+      ],
+      "texture_filter": "nearest_mipmaps",
+      "description": "Darkened/rotted planks with damp sheen and fungal spots."
+    },
+    {
+      "id": "Hor_GrimeAbandoned",
+      "name": "GrimeAbandoned",
+      "category": "Horror",
+      "file": "01_Textures/Horror/T_Hor_GrimeAbandoned.png",
+      "width": 128,
+      "height": 128,
+      "resolution": "128x128",
+      "tiles": "seamless U+V",
+      "tiles_code": "uv",
+      "transparency": "blend",
+      "channels": "RGBA",
+      "intended_material": "Materials_Godot/Horror/M_Hor_GrimeAbandoned.tres",
+      "preset": "VEIL_Overlay_Blend",
+      "recommended_uv_scale": [
+        0.5,
+        0.5
+      ],
+      "uv_convention": "meter-UV (1 UV unit = 1 m)",
+      "world_coverage_m": [
+        2.0,
+        2.0
+      ],
+      "texture_filter": "nearest_mipmaps",
+      "description": "Tileable grime overlay (alpha) for next_pass layering on any wall."
+    }
+  ],
+  "atlases": {
+    "ATLAS_Props_Opaque": {
+      "file": "01_Textures/Atlases/T_ATLAS_Props_Opaque.png",
+      "size": [
+        256,
+        256
+      ],
+      "cell": 64,
+      "channels": "RGB",
+      "materials": {
+        "Opaque": "Materials_Godot/Atlases/M_ATLAS_Props_Opaque.tres"
+      },
+      "cells": [
+        {
+          "index": 0,
+          "texture": "Furn_WoodLight",
+          "px": [
+            0,
+            0,
+            64,
+            64
+          ],
+          "uv": [
+            0.0,
+            0.0,
+            0.25,
+            0.25
+          ]
+        },
+        {
+          "index": 1,
+          "texture": "Furn_WoodDark",
+          "px": [
+            64,
+            0,
+            64,
+            64
+          ],
+          "uv": [
+            0.25,
+            0.0,
+            0.5,
+            0.25
+          ]
+        },
+        {
+          "index": 2,
+          "texture": "Furn_WoodPainted",
+          "px": [
+            128,
+            0,
+            64,
+            64
+          ],
+          "uv": [
+            0.5,
+            0.0,
+            0.75,
+            0.25
+          ]
+        },
+        {
+          "index": 3,
+          "texture": "Furn_LeatherWorn",
+          "px": [
+            192,
+            0,
+            64,
+            64
+          ],
+          "uv": [
+            0.75,
+            0.0,
+            1.0,
+            0.25
+          ]
+        },
+        {
+          "index": 4,
+          "texture": "Furn_FabricUpholstery",
+          "px": [
+            0,
+            64,
+            64,
+            64
+          ],
+          "uv": [
+            0.0,
+            0.25,
+            0.25,
+            0.5
+          ]
+        },
+        {
+          "index": 5,
+          "texture": "Furn_Denim",
+          "px": [
+            64,
+            64,
+            64,
+            64
+          ],
+          "uv": [
+            0.25,
+            0.25,
+            0.5,
+            0.5
+          ]
+        },
+        {
+          "index": 6,
+          "texture": "Furn_PlasticDirty",
+          "px": [
+            128,
+            64,
+            64,
+            64
+          ],
+          "uv": [
+            0.5,
+            0.25,
+            0.75,
+            0.5
+          ],
+          "note": "32px texture tiled 2x2 to keep 64 px/m"
+        },
+        {
+          "index": 7,
+          "texture": "Furn_MetalBrushed",
+          "px": [
+            192,
+            64,
+            64,
+            64
+          ],
+          "uv": [
+            0.75,
+            0.25,
+            1.0,
+            0.5
+          ]
+        },
+        {
+          "index": 8,
+          "texture": "Furn_MetalRusted",
+          "px": [
+            0,
+            128,
+            64,
+            64
+          ],
+          "uv": [
+            0.0,
+            0.5,
+            0.25,
+            0.75
+          ]
+        },
+        {
+          "index": 9,
+          "texture": "Furn_Rubber",
+          "px": [
+            64,
+            128,
+            64,
+            64
+          ],
+          "uv": [
+            0.25,
+            0.5,
+            0.5,
+            0.75
+          ],
+          "note": "32px texture tiled 2x2 to keep 64 px/m"
+        },
+        {
+          "index": 10,
+          "texture": "Furn_Cardboard",
+          "px": [
+            128,
+            128,
+            64,
+            64
+          ],
+          "uv": [
+            0.5,
+            0.5,
+            0.75,
+            0.75
+          ]
+        },
+        {
+          "index": 11,
+          "texture": "Com_MetalShelving",
+          "px": [
+            192,
+            128,
+            64,
+            64
+          ],
+          "uv": [
+            0.75,
+            0.5,
+            1.0,
+            0.75
+          ]
+        },
+        {
+          "index": 12,
+          "texture": "Com_SignageBacking",
+          "px": [
+            0,
+            192,
+            64,
+            64
+          ],
+          "uv": [
+            0.0,
+            0.75,
+            0.25,
+            1.0
+          ]
+        },
+        {
+          "index": 13,
+          "texture": "Arch_TrimPainted",
+          "px": [
+            64,
+            192,
+            64,
+            64
+          ],
+          "uv": [
+            0.25,
+            0.75,
+            0.5,
+            1.0
+          ]
+        },
+        {
+          "index": 14,
+          "texture": "RESERVED",
+          "px": [
+            128,
+            192,
+            64,
+            64
+          ],
+          "uv": [
+            0.5,
+            0.75,
+            0.75,
+            1.0
+          ]
+        },
+        {
+          "index": 15,
+          "texture": "RESERVED",
+          "px": [
+            192,
+            192,
+            64,
+            64
+          ],
+          "uv": [
+            0.75,
+            0.75,
+            1.0,
+            1.0
+          ]
+        }
+      ]
+    },
+    "ATLAS_Horror_Decals": {
+      "file": "01_Textures/Atlases/T_ATLAS_Horror_Decals.png",
+      "size": [
+        128,
+        128
+      ],
+      "cell": 64,
+      "channels": "RGBA",
+      "materials": {
+        "Blend": "Materials_Godot/Atlases/M_ATLAS_Horror_Decals_Blend.tres",
+        "Cutout": "Materials_Godot/Atlases/M_ATLAS_Horror_Decals_Cutout.tres"
+      },
+      "cells": [
+        {
+          "index": 0,
+          "texture": "Hor_StainOrganicDark",
+          "px": [
+            0,
+            0,
+            64,
+            64
+          ],
+          "uv": [
+            0.0,
+            0.0,
+            0.5,
+            0.5
+          ]
+        },
+        {
+          "index": 1,
+          "texture": "Hor_ResidueStrange",
+          "px": [
+            64,
+            0,
+            64,
+            64
+          ],
+          "uv": [
+            0.5,
+            0.0,
+            1.0,
+            0.5
+          ]
+        },
+        {
+          "index": 2,
+          "texture": "Hor_FoliageDead",
+          "px": [
+            0,
+            64,
+            64,
+            64
+          ],
+          "uv": [
+            0.0,
+            0.5,
+            0.5,
+            1.0
+          ]
+        },
+        {
+          "index": 3,
+          "texture": "Hor_WarningSignWeathered",
+          "px": [
+            64,
+            64,
+            64,
+            64
+          ],
+          "uv": [
+            0.5,
+            0.5,
+            1.0,
+            1.0
+          ]
+        }
+      ]
+    }
+  },
+  "presets": {
+    "VEIL_Painted": {
+      "roughness": 0.88,
+      "metallic": 0.0,
+      "specular": 0.35,
+      "filter": 2
+    },
+    "VEIL_Wood": {
+      "roughness": 0.85,
+      "metallic": 0.0,
+      "specular": 0.3,
+      "filter": 2
+    },
+    "VEIL_Masonry": {
+      "roughness": 0.95,
+      "metallic": 0.0,
+      "specular": 0.25,
+      "filter": 2
+    },
+    "VEIL_Roof": {
+      "roughness": 0.92,
+      "metallic": 0.0,
+      "specular": 0.3,
+      "filter": 4
+    },
+    "VEIL_Ground": {
+      "roughness": 0.97,
+      "metallic": 0.0,
+      "specular": 0.2,
+      "filter": 4
+    },
+    "VEIL_Floor": {
+      "roughness": 0.75,
+      "metallic": 0.0,
+      "specular": 0.4,
+      "filter": 4
+    },
+    "VEIL_Ceramic": {
+      "roughness": 0.35,
+      "metallic": 0.0,
+      "specular": 0.6,
+      "filter": 4
+    },
+    "VEIL_Fabric": {
+      "roughness": 1.0,
+      "metallic": 0.0,
+      "specular": 0.15,
+      "filter": 2
+    },
+    "VEIL_Leather": {
+      "roughness": 0.6,
+      "metallic": 0.0,
+      "specular": 0.4,
+      "filter": 2
+    },
+    "VEIL_Plastic": {
+      "roughness": 0.55,
+      "metallic": 0.0,
+      "specular": 0.45,
+      "filter": 2
+    },
+    "VEIL_Rubber": {
+      "roughness": 0.9,
+      "metallic": 0.0,
+      "specular": 0.2,
+      "filter": 2
+    },
+    "VEIL_Metal_Bare": {
+      "roughness": 0.45,
+      "metallic": 0.75,
+      "specular": 0.5,
+      "filter": 2
+    },
+    "VEIL_Metal_Painted": {
+      "roughness": 0.7,
+      "metallic": 0.2,
+      "specular": 0.4,
+      "filter": 2
+    },
+    "VEIL_Metal_Rusted": {
+      "roughness": 0.9,
+      "metallic": 0.3,
+      "specular": 0.3,
+      "filter": 2
+    },
+    "VEIL_Glass": {
+      "roughness": 0.12,
+      "metallic": 0.0,
+      "specular": 0.7,
+      "filter": 2,
+      "transparency": "blend",
+      "cull": "disabled"
+    },
+    "VEIL_Decal_Blend": {
+      "roughness": 0.8,
+      "metallic": 0.0,
+      "specular": 0.3,
+      "filter": 2,
+      "transparency": "blend",
+      "repeat": false
+    },
+    "VEIL_Overlay_Blend": {
+      "roughness": 0.9,
+      "metallic": 0.0,
+      "specular": 0.2,
+      "filter": 2,
+      "transparency": "blend"
+    },
+    "VEIL_Marking": {
+      "roughness": 0.8,
+      "metallic": 0.0,
+      "specular": 0.3,
+      "filter": 4,
+      "transparency": "blend"
+    },
+    "VEIL_Cutout": {
+      "roughness": 0.9,
+      "metallic": 0.0,
+      "specular": 0.2,
+      "filter": 2,
+      "transparency": "scissor",
+      "cull": "disabled",
+      "repeat": false
+    },
+    "VEIL_Sign": {
+      "roughness": 0.7,
+      "metallic": 0.2,
+      "specular": 0.4,
+      "filter": 2,
+      "transparency": "scissor",
+      "repeat": false
+    }
+  }
+}
