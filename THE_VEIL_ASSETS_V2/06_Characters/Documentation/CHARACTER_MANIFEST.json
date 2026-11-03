@@ -341,6 +341,101 @@
     "LeftHand_ItemSocket",
     "RightHand_ItemSocket"
    ]
+  },
+  {
+   "name": "CHR_Eddie_v3",
+   "character": "Eddie_v3",
+   "title": "Eddie - game-shop clerk (34) - rev 3 (sculpted)",
+   "role": "Sarcastic, witty, loyal clerk at Greyhaven's independent video game shop.",
+   "glb": "06_Characters/Commercial_NPCs/CHR_Eddie_v3.glb",
+   "texture": "06_Characters/Textures/T_Chr_Eddie_v3.png",
+   "texture_size": "256x256",
+   "material": "06_Characters/Materials/M_Chr_Eddie_v3.tres",
+   "height_m": 1.8,
+   "rigged": true,
+   "skeleton": "VEIL_Humanoid (23 bones)",
+   "revision": 3,
+   "triangles": 7588,
+   "vertices": 22764,
+   "bones": 23,
+   "bounds_min": [
+    -0.424,
+    -0.002,
+    -0.183
+   ],
+   "bounds_max": [
+    0.438,
+    1.795,
+    0.27
+   ],
+   "sockets": [
+    "LeftHand_ItemSocket",
+    "RightHand_ItemSocket"
+   ],
+   "charts": {
+    "skin/any": 1713,
+    "hoodie/arm_R": 466,
+    "sole/any": 234,
+    "shoe_Right/leg_R": 70,
+    "jeans/leg_R": 464,
+    "hoodie/body": 1091,
+    "hair/head": 1194,
+    "face/head": 393,
+    "tee/body": 34,
+    "jeans/body": 10,
+    "jeans/leg_L": 706,
+    "shoe_Left/leg_L": 96,
+    "hoodie/arm_L": 629,
+    "brow/any": 96,
+    "glasses/any": 392
+   }
+  },
+  {
+   "name": "CHR_Marcus_v3",
+   "character": "Marcus_v3",
+   "title": "Marcus - Noah's father (43) - rev 3 (sculpted)",
+   "role": "Protective, impulsive father searching for his missing son Noah; exhausted and worried.",
+   "glb": "06_Characters/Marcus/CHR_Marcus_v3.glb",
+   "texture": "06_Characters/Textures/T_Chr_Marcus_v3.png",
+   "texture_size": "256x256",
+   "material": "06_Characters/Materials/M_Chr_Marcus_v3.tres",
+   "height_m": 1.76,
+   "rigged": true,
+   "skeleton": "VEIL_Humanoid (23 bones)",
+   "revision": 3,
+   "triangles": 7090,
+   "vertices": 21270,
+   "bones": 23,
+   "bounds_min": [
+    -0.622,
+    -0.001,
+    -0.215
+   ],
+   "bounds_max": [
+    0.626,
+    1.753,
+    0.262
+   ],
+   "sockets": [
+    "LeftHand_ItemSocket",
+    "RightHand_ItemSocket"
+   ],
+   "charts": {
+    "skin/any": 1783,
+    "jacket/arm_R": 696,
+    "jacket/body": 1576,
+    "sole/any": 182,
+    "trousers/leg_R": 304,
+    "shoe_Right/leg_R": 96,
+    "face/head": 479,
+    "hair/head": 514,
+    "flannel/body": 50,
+    "trousers/leg_L": 380,
+    "trousers/body": 2,
+    "shoe_Left/leg_L": 114,
+    "jacket/arm_L": 818,
+    "brow/any": 96
+   }
   }
  ]
 }

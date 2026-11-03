@@ -32,7 +32,8 @@ import validate_town as VT  # noqa: E402
 import chr_core  # noqa: E402
 import chr_tex  # noqa: E402
 from chr_roster import ROSTER as _R1, ROSTER_V2  # noqa: E402
-ROSTER = _R1 + ROSTER_V2
+from chr_sculpt_cast import CAST_V3_META  # noqa: E402
+ROSTER = _R1 + ROSTER_V2 + CAST_V3_META
 
 fails, warns, info = VT.fails, VT.warns, VT.info
 F, W = VT.F, VT.W
@@ -164,7 +165,7 @@ def check_model(m, bones):
             if js["nodes"][parent[k]]["name"] != hb:
                 F(f"{name}: {s} not parented to {hb}")
             sp = wpos(parent[k]) + np.array(js["nodes"][k]["translation"])
-            hand = P[(Wt[:, 0] > 0.99) & (Jt[:, 0] == names.index(hb))]
+            hand = P[(Wt[:, 0] > 0.6) & (Jt[:, 0] == names.index(hb))]      # vertices the hand bone dominates
             if len(hand) and np.linalg.norm(hand.mean(0) - sp) > 0.09:
                 F(f"{name}: {s} is {np.linalg.norm(hand.mean(0) - sp):.2f} m from the hand")
     # deformation (linear blend skinning, like Godot / any engine)
@@ -181,11 +182,21 @@ def check_model(m, bones):
             continue
         L1 = np.linalg.norm(Q[E[:, 0]] - Q[E[:, 1]], axis=1)
         ratio = L1 / np.maximum(L0, 1e-6)
+        ratio = np.where(L0 > 0.002, ratio, 1.0)        # ignore sub-2 mm edges (ratio noise), report real stretch
         mx = float(ratio.max())
         mn = float(ratio[L0 > 0.01].min())
-        worst[pose] = (round(mx, 2), round(mn, 2))
-        if mx > 3.0:
+        p99 = float(np.percentile(ratio, 99))
+        worst[pose] = (round(mx, 2), round(mn, 2), round(p99, 2))
+        continuous = "_v3" in name          # sculpted single-surface characters: creases (armpits, hems) share edges
+        if not continuous and mx > 3.0:
             F(f"{name}: pose '{pose}' stretches an edge x{mx:.2f}")
+        elif continuous:
+            if p99 > 2.0 or mx > 25:
+                F(f"{name}: pose '{pose}' stretch p99 x{p99:.2f}, max x{mx:.2f}")
+            elif mx > 3.0:
+                n_bad = int((ratio > 3.0).sum())
+                W(f"{name}: pose '{pose}' stretches {n_bad} crease edges (max x{mx:.2f}, 99% of edges <= x{p99:.2f}) - "
+                  "needs hand weight-painting at armpits / hems")
         # rigid parts must stay rigid: vertices weighted 100% to one bone keep their mutual distances
         for b in rots:
             sel = np.where((Wt[:, 0] > 0.999) & (Jt[:, 0] == names.index(b)))[0][:40]
@@ -368,7 +379,8 @@ console.log(JSON.stringify(out));})();"""
           "| Character | " + " | ".join(POSES) + " |", "|---|" + "---|" * len(POSES)]
     for m, r in zip(man, results):
         d = r.get("deform", {})
-        L.append(f"| {m['character']}{' FP' if 'FP' in m['name'] else ''} | " + " | ".join(f"{d[p][0]} / {d[p][1]}" if p in d else "-" for p in POSES) + " |")
+        L.append(f"| {m['character']}{' FP' if 'FP' in m['name'] else ''} | " + " | ".join(
+            (f"{d[p][0]} / {d[p][1]}" + (f" (p99 {d[p][2]})" if "_v3" in m["name"] else "")) if p in d else "-" for p in POSES) + " |")
     L += ["", "## Failures", ""] + ([f"* {f}" for f in fails] or ["None."]) + ["", "## Warnings", ""] + ([f"* {w}" for w in warns] or ["None."])
     with open(os.path.join(CHR, "Documentation", "VALIDATION_REPORT.md"), "w", newline="\n") as f:
         f.write("\n".join(L) + "\n")

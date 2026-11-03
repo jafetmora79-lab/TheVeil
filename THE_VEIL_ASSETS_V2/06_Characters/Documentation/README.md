@@ -28,6 +28,28 @@ The roster follows `docs/THE_VEIL_MASTER_CONTEXT.md`. Named story characters wer
 
 **Looks are design proposals.** They follow the bible's DESIGN PROPOSAL notes: the protagonist's gray jacket and dark jeans, Eddie's slouch, messy hair and worn hoodie, and so on. Faces, colours and small accessories are this pack's proposals, not new canon.
 
+## Rev 3: sculpted Eddie and Marcus (new construction method, awaiting approval)
+
+* **Models:** `Commercial_NPCs/CHR_Eddie_v3.glb` and `Marcus/CHR_Marcus_v3.glb`. They are built by `chr_sculpt*.py`,
+  not by the primitive-assembly generator.
+* **Method:** each character is a skeleton plus hand-placed organic volumes, smoothly blended into one continuous
+  surface (signed-distance sculpting). That surface is converted to a mesh (marching cubes) and reduced to low-poly
+  (quadric decimation), with denser budgets for the face and hands.
+* **Construction:** clothing is volume over the body, so there is no hidden interior geometry. The face, nose,
+  cheeks, jaw, ears, eye sockets and mouth line are sculpted; the eyebrows and glasses are explicit meshes.
+* **Skinning:** bone-heat diffusion within anatomical groups.
+* **Textures:** 256×256 pixel atlas painted per chart. The face is front-projected, and the eyes and mouth are
+  painted exactly where the sculpt carved them.
+* **Budget:** about 7.1–7.6 k triangles each, one material, the same 23-bone skeleton and socket conventions.
+* **Build dependencies:** scikit-image, scipy, pyfqmr (`pip install scikit-image scipy pyfqmr`). Blender is not
+  required.
+* **Validation:** automated checks pass (`VALIDATION_REPORT.md`). The warnings are localized armpit and hip-crease
+  stretch under extreme 70° test poses. 99% of edges stay within 1.6×, but a few crease edges reach 4–10×. These
+  need hand weight-painting before animation.
+* **Visual inspection:** none. Only the texture atlases were looked at, so the visual result is unverified and
+  needs your review in the gallery.
+* **Backups:** rev 1 and rev 2 models are kept unchanged as backups.
+
 ## Rev 2 art-direction pass: Eddie and Marcus (awaiting approval)
 
 `Commercial_NPCs/CHR_Eddie_v2.glb` and `Marcus/CHR_Marcus_v2.glb` are the redesigned examples for the quirky

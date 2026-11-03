@@ -101,6 +101,35 @@ def main():
                                  material=rel(os.path.join(V2, MATS[mat]["tres"])), height_m=None, rigged=True,
                                  skeleton="VEIL_FP_Arms (9 bones)", **st))
             rig["fp_rest_joints"] = {b: [round(float(v), 4) for v in fb.J[b]] for b, _ in chr_core.FP_BONES}
+    # ---- rev 3: sculpted characters (chr_sculpt*) ----
+    import chr_sculpt_cast
+    import chr_sculpt_tex
+    for fn in chr_sculpt_cast.CAST_V3:
+        sc = fn().build()
+        out = sc.unwrap(chr_sculpt_tex.layout_for(sc.look))
+        at = chr_sculpt_tex.paint(sc, sc.look)
+        img = at.image()
+        png = os.path.join(tdir, f"T_Chr_{sc.name}.png")
+        img.save(png, format="PNG", optimize=True)
+        write_import(png, RES_ROOT + "/" + rel(png))
+        buf = io.BytesIO()
+        img.save(buf, format="PNG", optimize=True)
+        mat = material(sc.name, png)
+        glb = os.path.join(CHR, sc.folder, f"CHR_{sc.name}.glb")
+        os.makedirs(os.path.dirname(glb), exist_ok=True)
+        arrays = (out["P"], out["N"], out["UV"], out["J"], out["W"], out["I"])
+        chr_core.write_glb(glb, f"CHR_{sc.name}", chr_core.BONES, sc.J, arrays, buf.getvalue(), mat, extra_nodes=sc.extra_nodes,
+                           extras={"veil_character": sc.name, "title": sc.title, "role": sc.role, "height_m": sc.height,
+                                   "rest_pose": "A-pose", "forward": "+Z", "construction": "sculpted volumes (rev 3)"})
+        write_glb_import(glb, [mat])
+        Pp = out["P"]
+        manifest.append(dict(name=f"CHR_{sc.name}", character=sc.name, title=sc.title, role=sc.role, glb=rel(glb), texture=rel(png),
+                             texture_size="256x256", material=rel(os.path.join(V2, MATS[mat]["tres"])), height_m=sc.height, rigged=True,
+                             skeleton="VEIL_Humanoid (23 bones)", revision=3, triangles=int(len(out["I"]) // 3), vertices=int(len(Pp)),
+                             bones=len(chr_core.BONES), bounds_min=[round(float(v), 3) for v in Pp.min(0)],
+                             bounds_max=[round(float(v), 3) for v in Pp.max(0)], sockets=[n for n, _, _ in sc.extra_nodes],
+                             charts={f"{k[0]}/{k[1]}": v["tris"] for k, v in sc.charts.items()}))
+        rig["rest_joints"][sc.name] = {b: [round(float(v), 4) for v in sc.J[b]] for b, _ in chr_core.BONES}
     sr = os.path.join(CHR, "Shared_Rigs")
     os.makedirs(sr, exist_ok=True)
     with open(os.path.join(sr, "VEIL_Humanoid_Skeleton.json"), "w", newline="\n") as f:
