@@ -143,3 +143,71 @@ ROSTER = [
          acc=[("belt", 0.535, 0.055), ("radio_belt", 1.25), ("flashlight", -1.2), ("cuffs", 2.4), ("pouch", -2.5),
               ("radio_chest", -0.55), ("badge", 0.45)]),
 ]
+
+
+# ============================================================================================================
+# Rev 2 - art-direction correction (quirky indie-horror). Built with the v2 generator features; the v1 models
+# above stay untouched until these are approved. Only Eddie and Marcus for now (contrasting examples).
+# ============================================================================================================
+ROSTER_V2 = [
+    # Eddie: lanky, slouchy, nerdy, funny. Tall egg head with a long jutting chin, a big droopy nose, ears that
+    # stick out (one higher), one quizzical raised brow, thick glasses, a lopsided swoop of hair, an open
+    # mustard hoodie two sizes too big, baggy jeans and enormous sneakers turned out like a duck.
+    dict(name="Eddie_v2", folder="Commercial_NPCs", title="Eddie - game-shop clerk (34) - rev 2",
+         role="Sarcastic, witty, loyal clerk at Greyhaven's independent video game shop.",
+         height=1.80, rev=2,
+         body=body(v2=True, leg_ratio=0.625, neck_len=0.055, stoop=12, neck_fwd=0.028, hair_top=0.03,
+                   shoulder_w=0.172, shoulder_tilt=-5, chest_w=0.148, chest_d=0.112, waist_w=0.138, waist_d=0.112, hip_w=0.146,
+                   hip_d=0.108, belly=0.018, neck_r=0.040,
+                   arm_profile=True, arm_r=0.044, deltoid=1.12, elbow_r=0.034, forearm_r=0.038, forearm_bulge=1.05, wrist_r=0.029,
+                   arm_len=0.92, arm_angle=63, cuff=1.55,
+                   fingers=True, hand_s=1.42, hand_curl=22, finger_spread=6,
+                   thigh_r=0.074, knee_r=0.052, calf_r=0.055, ankle_r=0.040, leg_spread=0.088,
+                   pants=dict(scale=(1.05, 1.14, 1.22, 1.30, 1.28, 1.34), hem=1.12),
+                   chunky=True, shoe_len=0.33, shoe_w=0.13, shoe_h=0.11, sole_h=0.042, toe_out=16),
+         face=dict(v2=True, head_w=0.188, head_h=0.305, head_d=1.03, jaw=0.84, chin=1.45, chin_w=0.78, cheek=0.92, cranium=1.09,
+                   brow=0.015, forehead=0.035, nape=0.05, eye_t=0.535, eye_sp=0.28, eye_drop=1, mouth_t=0.215, mouth_w=10, mouth_x=1,
+                   ear=1.38, ear_asym=-0.025, ear_out=26, ear_out_asym=9,
+                   nose=dict(len=0.078, w=0.035, h=0.09, t=0.41, bridge=0.42, hook=-10, x=0.004, bulb=0.95),
+                   brows=dict(t=0.635, gap=0.085, span=0.40, thick=0.015, l=(0.035, 0.06, 0.03), r=(0.0, 0.012, -0.008))),
+         hair=dict(style="messy", front_t=0.74, back_t=0.40, thick=0.024, flare=0.012,
+                   tufts=[(0.86, -0.25, 0.11, 0.055, -0.9), (0.90, -0.60, 0.09, 0.05, -0.5), (0.95, 0.10, 0.08, 0.05, 0.9),
+                          (0.97, 0.9, 0.075, 0.045, 0.8), (0.92, 2.7, 0.07, 0.045, 0.6), (0.88, -2.5, 0.06, 0.04, 0.2),
+                          (0.99, 2.0, 0.07, 0.04, 1.6), (0.80, 0.55, 0.06, 0.04, -1.0)]),
+         look=dict(skin="skin_tan", hair="hair_brown", eyes="smirk", brows="geo", mouth="smirk", extras=["eye_bags_light"],
+                   top="hoodie_open", top_ramp="paint_mustard", top_lv=(0, 4), inner_ramp="paint_black", inner_lv=(1, 3),
+                   sleeves="long", legs="jeans", leg_ramp="denim", leg_lv=(1, 4), shoes="sneakers", shoe_lv=(1, 4),
+                   details=["tee_graphic", "name_tag:EDDIE"]),
+         acc=[("shell", dict(gap=46, thick=0.032, hem=0.505, flare=0.028, collar=0.035)), ("hood",),
+              ("glasses", 0.054, 0.042, 0.009, 0.30)]),
+    # Marcus: a wall of a man folded in on himself with worry. Broad sloped shoulders, thick arms, big hands
+    # half-closed, short legs, a wide square head with a slab jaw and a potato nose, heavy brow with eyebrows
+    # pinched up in the middle, bagged eyes and stubble. Weathered canvas work jacket hanging open with a raised
+    # collar over a navy flannel, straight work pants, heavy boots planted wide.
+    dict(name="Marcus_v2", folder="Marcus", title="Marcus - Noah's father (43) - rev 2",
+         role="Protective, impulsive father searching for his missing son Noah; exhausted and worried.",
+         height=1.82, rev=2,
+         body=body(v2=True, leg_ratio=0.575, neck_len=0.018, stoop=7, neck_fwd=0.03, hair_top=0.012,
+                   shoulder_w=0.255, shoulder_tilt=3, chest_w=0.232, chest_d=0.165, waist_w=0.212, waist_d=0.158, hip_w=0.196,
+                   hip_d=0.138, belly=0.035, neck_r=0.078,
+                   arm_profile=True, arm_r=0.068, deltoid=1.22, elbow_r=0.053, forearm_r=0.060, forearm_bulge=1.16, wrist_r=0.043,
+                   arm_len=0.86, arm_angle=47, cuff=1.32,
+                   fingers=True, hand_s=1.55, hand_curl=42, finger_spread=3,
+                   thigh_r=0.102, knee_r=0.072, calf_r=0.076, ankle_r=0.053, leg_spread=0.112,
+                   pants=dict(scale=(1.05, 1.06, 1.1, 1.08, 1.06, 1.12), hem=1.1),
+                   chunky=True, shoe_len=0.32, shoe_w=0.138, shoe_h=0.115, sole_h=0.04, boots=0.065, toe_out=9),
+         face=dict(v2=True, head_w=0.205, head_h=0.282, head_d=0.98, jaw=1.30, chin=0.95, chin_w=1.40, cheek=1.06, cranium=0.95,
+                   brow=0.045, forehead=-0.01, nape=0.0, eye_t=0.52, eye_sp=0.27, mouth_t=0.20, mouth_w=11,
+                   ear=0.95, ear_asym=0.012, ear_out=10, brow_ridge=True,
+                   nose=dict(len=0.056, w=0.054, h=0.078, t=0.40, bridge=0.65, bulb=1.4, hook=2),
+                   brows=dict(t=0.612, gap=0.075, span=0.42, thick=0.021, depth=0.016, l=(0.045, 0.02, -0.012),
+                              r=(0.035, 0.012, -0.018), scale_r=1.1)),
+         hair=dict(style="short", front_t=0.83, back_t=0.40, thick=0.017,
+                   tufts=[(0.95, 0.3, 0.045, 0.04, 0.6), (0.97, -0.4, 0.04, 0.035, 1.1), (0.88, 2.8, 0.045, 0.04, -0.2),
+                          (0.86, -0.15, 0.05, 0.035, -1.2)]),
+         look=dict(skin="skin_brown", hair="hair_black_gray", eyes="worried", brows="geo", mouth="frown", extras=["stubble_heavy", "eye_bags"],
+                   top="jacket_work", top_ramp="wood_warm", top_lv=(1, 4), inner_ramp="paint_navy", inner_lv=(1, 4), inner_pattern="plaid",
+                   sleeves="long", legs="work_pants", leg_ramp="upholstery", leg_lv=(0, 3), shoes="boots", shoe_lv=(0, 3),
+                   details=["jacket_patch", "zipper", "wear"]),
+         acc=[("shell", dict(gap=24, thick=0.034, hem=0.468, flare=0.03, collar=0.065))]),
+]

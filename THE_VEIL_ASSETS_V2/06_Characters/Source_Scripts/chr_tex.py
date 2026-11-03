@@ -90,7 +90,7 @@ class Atlas:
         return Image.fromarray(P.rgb[self.a], "RGB")
 
 
-def cyl(at, reg, ramp, lv, light_bias=0.0, vert=True):
+def cyl(at, reg, ramp, lv, light_bias=0.0, vert=True, th_fn=None):
     """Cylindrically shaded fill of a wrap-around region: u=0 back, 0.5 front; light from top-left-front."""
     x0, y0, w, h = REG[reg]
     Lv = np.array([-0.45, 0.55, 0.70])
@@ -98,7 +98,11 @@ def cyl(at, reg, ramp, lv, light_bias=0.0, vert=True):
     lo, hi = lv
     for i in range(w):
         u = (i + 0.5) / w
-        n = np.array([-math.sin(2 * math.pi * u), 0.0, -math.cos(2 * math.pi * u)])
+        if th_fn is None:
+            n = np.array([-math.sin(2 * math.pi * u), 0.0, -math.cos(2 * math.pi * u)])
+        else:
+            th = th_fn(u)                       # 0 = front, +pi/2 = character's left (+X)
+            n = np.array([math.sin(th), 0.0, math.cos(th)])
         lam = max(0.0, float(n @ Lv))
         for j in range(h):
             vy = 1 - j / max(h - 1, 1)
@@ -194,6 +198,8 @@ def hair_edge(c, th):
 
 
 def paint_head(at, c, meta):
+    if c["face"].get("v2"):
+        return paint_head_v2(at, c, meta)
     L = c["look"]
     sk, hr = L["skin"], L["hair"]
     cyl(at, "head", sk, (1, 4))
@@ -345,6 +351,8 @@ def paint_hair(at, c):
 
 
 def paint_torso(at, c, meta):
+    if "shell" in meta["rows"]:
+        return paint_torso_v2(at, c, meta)
     L = c["look"]
     reg = "torso"
     x0, y0, w, h = REG[reg]
@@ -688,6 +696,12 @@ def paint_misc(at, c):
 def paint(c, meta):
     at = Atlas(c["name"])
     paint_misc(at, c)
+    if c["face"].get("v2"):
+        flat(at, "brow", c["look"]["hair"], 0, edge=False)
+        x0, y0, w, h = REG["brow"]
+        at.rect(x0, y0, w, 2, P(c["look"]["hair"], 1))
+    if "shell" in meta["rows"]:
+        paint_shell(at, c, meta)
     paint_head(at, c, meta)
     paint_hair(at, c)
     paint_torso(at, c, meta)
@@ -695,3 +709,200 @@ def paint(c, meta):
         paint_arm(at, c, meta, side)
         paint_leg(at, c, meta, side)
     return at
+
+
+# ======================================================================= v2 painters (art-direction revision)
+def paint_head_v2(at, c, meta):
+    from chr_body_v2 import head_theta, u_of_theta
+    L = c["look"]
+    f = c["face"]
+    sk, hr = L["skin"], L["hair"]
+    cyl(at, "head", sk, (1, 4), th_fn=lambda u: head_theta(u) - 2 * math.pi)
+    x0, y0, w, h = REG["head"]
+    cx = x0 + w // 2
+    R = lambda t: int(round(head_row(meta, t)))
+    X = lambda th: x0 + u_of_theta(th) * w
+    for i in range(w):
+        u = (i + 0.5) / w
+        th = head_theta(u)
+        e = hair_edge(c, th)
+        if e > 1.5:
+            continue
+        ye = head_row(meta, e - 0.02)
+        for j in range(0, int(ye) - y0 + 1):
+            lv = 2 + (1 if (i * 3 + j * 2) % 7 == 0 else 0) - (1 if j > ye - y0 - 2 else 0)
+            at.a[y0 + j, x0 + i] = P(hr, max(0, lv - (1 if abs(u - 0.5) > 0.3 else 0)))
+    et = f.get("eye_t", 0.53)
+    er = R(et)
+    eyes, mouth = L["eyes"], L["mouth"]
+    esp = f.get("eye_sp", 0.30)
+    shapes = {  # (width, height left, height right, pupil dx, lid rows)
+        "smirk": (6, 3, 2, 1, 1), "worried": (5, 2, 2, 0, 1), "wide": (6, 4, 4, 0, 0), "tired": (6, 2, 2, 0, 2),
+        "stern": (6, 1, 1, 0, 1), "narrow": (5, 1, 1, 0, 1), "alert": (5, 3, 3, 0, 0), "level": (5, 2, 2, 0, 1)}
+    ew, hl, hr_, pdx, lids = shapes.get(eyes, (5, 2, 2, 0, 1))
+    for s_ in (-1, 1):
+        x = int(round(X(s_ * esp)))
+        hgt = hl if s_ > 0 else hr_
+        yy = er + (f.get("eye_drop", 0) if s_ < 0 else 0)
+        at.shift_rect(x - ew // 2 - 1, yy - 2, ew + 2, hgt + 4, -1)                 # socket
+        at.rect(x - ew // 2, yy, ew, hgt, P("eye_white", 1))
+        at.rect(x - ew // 2, yy + hgt - 1, ew, 1, P("eye_white", 0))
+        px_ = x - 1 + (pdx if s_ < 0 else -pdx) - (s_ < 0) * 0
+        at.rect(px_, yy, 2, hgt, P("ink", 0))
+        if hgt >= 3:
+            at.px(px_, yy, P("eye_white", 2))
+        at.rect(x - ew // 2 - 1, yy - 1, ew + 2, 1, P(sk, 0))                       # upper lid line
+        for q in range(lids - 1):
+            at.rect(x - ew // 2, yy + q, ew, 1, P(sk, 1))
+        at.rect(x - ew // 2, yy + hgt, ew, 1, P(sk, 2))
+        if "eye_bags" in L["extras"] or eyes in ("tired", "worried"):
+            at.rect(x - ew // 2, yy + hgt + 1, ew, 1, P(sk, 1))
+            at.rect(x - ew // 2 + 1, yy + hgt + 2, ew - 2, 1, P(sk, 2))
+        if "eye_bags_light" in L["extras"]:
+            at.rect(x - ew // 2 + 1, yy + hgt + 1, ew - 2, 1, P(sk, 2))
+        # brow shadow under the geometric brow
+        at.shift_rect(x - ew // 2 - 1, R(f.get("brows", {}).get("t", 0.615)) + 1, ew + 2, 1, -1)
+        at.shift_rect(int(X(s_ * 0.62)) - 1, er + 4, 4, 5, -1 if s_ > 0 else 0)      # cheek plane
+    # mouth
+    mr = R(f.get("mouth_t", 0.21))
+    mw = f.get("mouth_w", 9)
+    m0 = cx - mw // 2 + f.get("mouth_x", 0)
+    for k in range(mw):
+        dy = 0
+        if mouth == "smirk":
+            dy = -2 if k >= mw - 2 else (-1 if k >= mw - 4 else 0)
+        elif mouth in ("frown", "frown_flat"):
+            dy = 1 if k in (0, mw - 1) else (0 if mouth == "frown_flat" else 0)
+            if mouth == "frown" and k in (1, mw - 2):
+                dy = 1 if k == 1 else 0
+        at.px(m0 + k, mr + dy, P("lip", 0))
+    at.rect(m0 + 1, mr + 1, mw - 3, 1, P("lip", 2))
+    if mouth == "smirk":
+        at.px(m0 + mw - 3, mr, P("paint_white", 3))      # one tooth showing
+    at.shift_rect(cx - 2, mr + 4, 4, 1, -1)
+    nr = R(f.get("nose", {}).get("t", 0.4) - 0.08)
+    at.shift_rect(cx - 3, nr, 6, 1, -1)
+    rng = at.rng
+    ex_ = L["extras"]
+    if "stubble_light" in ex_ or "stubble_heavy" in ex_:
+        heavy = "stubble_heavy" in ex_
+        xl, xr = int(X(-0.95)), int(X(0.95))
+        for y in range(R(0.33), R(0.02) + 1):
+            for x in range(xl, xr + 1):
+                if (x + 2 * y) % (2 if heavy else 3) == 0 and rng.random() < (0.8 if heavy else 0.5):
+                    if not (m0 - 1 <= x <= m0 + mw and mr - 1 <= y <= mr + 2):
+                        at.a[y, x] = P(L["hair"], 2) if heavy else P(sk, 1)
+    if "freckles" in ex_:
+        for _ in range(16):
+            at.shift_px(cx + rng.integers(-14, 15), er + rng.integers(3, 9), -1)
+    for s_ in (-1, 1):                     # sideburns
+        xs = X(s_ * 1.25)
+        at.rect(xs - 1, R(0.66), 3, R(0.44) - R(0.66), P(hr, 1))
+
+
+def paint_shell(at, c, meta):
+    L = c["look"]
+    sh = meta["shell"]
+    reg = sh["region"]
+    x0, y0, w, h = REG[reg]
+    rows = meta["rows"]["shell"]
+    tr, tl = L["top_ramp"], L["top_lv"]
+    g = math.radians(sh["gap"])
+    cyl(at, reg, tr, tl, th_fn=lambda u: g / 2 + (2 * math.pi - g) * u)
+    kind = L["top"]
+    pattern(at, reg, "canvas")
+    hem, lip = int(rows["hem"]), int(rows["lip"])
+    neck, col = int(rows["neck"]), int(rows["collar"])
+    # hem band + inner lip, collar band, shoulder seam
+    at.rect(x0, hem - 3, w, 3, P(tr, tl[0] + 1))
+    at.rect(x0, hem - 3, w, 1, P(tr, tl[0]))
+    at.rect(x0, hem, w, y0 + h - hem, P(tr, tl[0]))
+    at.rect(x0, col, w, neck - col, P(tr, tl[0] + 1))
+    at.rect(x0, neck, w, 1, P(tr, tl[0]))
+    for u in (0.25, 0.5, 0.75):                     # side + back seams
+        seam(at, reg, u, (col, hem))
+    # front edges: zipper teeth (both edges) / hoodie strings
+    for x in (x0, x0 + 1, x0 + w - 2, x0 + w - 1):
+        for y in range(col, hem):
+            if "zipper" in L["details"] and x in (x0, x0 + w - 1):
+                at.px(x, y, P("metal", 3 if y % 2 else 1))
+            else:
+                at.px(x, y, P(tr, tl[0]))
+    chest = int(rows.get("chest", (col + hem) / 2))
+    if kind == "hoodie_open":
+        for x, sx in ((x0 + 4, 1), (x0 + w - 5, -1)):
+            at.rect(x, neck, 1, 8, P("paint_white", 2))
+            at.px(x, neck + 8, P("plastic", 3))
+        # kangaroo-pocket halves near the front edges
+        bel = int(rows.get("belly", hem - 8))
+        for (xa, xb) in ((x0 + 2, x0 + 12), (x0 + w - 12, x0 + w - 2)):
+            at.rect(xa, bel, xb - xa, hem - 3 - bel, P(tr, tl[0] + 2))
+            at.rect(xa, bel, xb - xa, 1, P(tr, tl[0]))
+        for x in range(x0, x0 + w, 2):
+            at.shift_px(x, hem - 2, -1)
+    if kind == "jacket_work":
+        for (xa, sx) in ((x0 + 5, 1), (x0 + w - 13, -1)):
+            at.rect(xa, hem - 11, 8, 7, P(tr, tl[0] + 2))
+            at.rect(xa, hem - 11, 8, 2, P(tr, tl[0]))
+            at.px(xa + 4, hem - 10, P("metal", 3))
+            at.rect(xa, chest - 2, 7, 6, P(tr, tl[0] + 2))
+            at.rect(xa, chest - 2, 7, 2, P(tr, tl[0]))
+        if "jacket_patch" in L["details"]:
+            at.rect(x0 + 6, chest - 8, 5, 4, P("paint_green", 2))
+            at.rect(x0 + 6, chest - 8, 5, 1, P("paint_green", 3))
+    if any(d.startswith("name_tag") for d in L["details"]):
+        ty = chest - 2
+        at.rect(x0 + 5, ty, 9, 4, P("paint_white", 3))
+        at.rect(x0 + 5, ty, 9, 1, P("paint_red", 3))
+        for k in range(6):
+            at.px(x0 + 6 + k + (k // 3), ty + 2, P("ink", 1))
+    # lived-in: folds at the waist, worn lighter patches, a few darker stains
+    folds(at, reg, int(rows.get("waist", hem - 6)), n=7, spread=6)
+    folds(at, reg, chest, n=4, spread=4)
+    for _ in range(40 if "wear" in L["details"] else 14):
+        x = x0 + at.rng.integers(0, w)
+        y = col + at.rng.integers(0, max(1, hem - col))
+        at.shift_rect(x, y, 2, 1, 1)
+    for _ in range(4):
+        at.shift_rect(x0 + at.rng.integers(0, w - 3), col + at.rng.integers(0, max(1, hem - col)), 3, 2, -1)
+
+
+def paint_torso_v2(at, c, meta):
+    """Under an open jacket only the inner garment shows: shirt/tee follows the torso, trousers below the hip."""
+    L = c["look"]
+    reg = "torso"
+    x0, y0, w, h = REG[reg]
+    rows = meta["rows"]["torso"]
+    ir, il = L["inner_ramp"], L["inner_lv"]
+    cyl(at, reg, ir, il)
+    if L.get("inner_pattern") == "plaid":
+        pattern(at, reg, "plaid", rows=(y0, int(rows["hip"])))
+    hip = int(rows["hip"]) + 1
+    lr, ll = L["leg_ramp"], L["leg_lv"]
+    for y in range(hip, y0 + h):
+        for x in range(x0, x0 + w):
+            u = (x - x0 + 0.5) / w
+            lam = max(0, -math.cos(2 * math.pi * u)) * 0.8 + 0.1
+            at.a[y, x] = P(lr, ll[0] + int(round((ll[1] - ll[0]) * lam)))
+    if L["legs"].startswith("jeans"):
+        pattern(at, reg, "twill", rows=(hip, y0 + h))
+    cx = x0 + w // 2
+    at.rect(cx, hip + 2, 1, y0 + h - hip - 2, P(lr, ll[0]))
+    at.rect(x0, hip, w, 2, P("leather", 1))
+    at.rect(cx - 2, hip, 4, 2, P("metal", 4))
+    if "tee_graphic" in L["details"]:
+        gy = int(rows["chest"]) - 3
+        ghost = ["001100", "011110", "110111", "111111", "111111", "101101"]
+        for r_, row in enumerate(ghost):
+            for k_, bit in enumerate(row):
+                if bit == "1":
+                    at.px(cx - 3 + k_, gy + r_, P("paint_white", 3))
+        at.px(cx - 2, gy + 2, P("ink", 0))
+        at.px(cx + 1, gy + 2, P("ink", 0))
+    if L.get("inner_pattern") == "plaid":
+        for y in range(y0 + 4, hip - 2, 5):
+            at.px(cx, y, P("plastic", 3))
+        at.rect(cx - 1, y0, 3, 3, P(ir, il[0]))
+    folds(at, reg, int(rows["waist"]), n=6, spread=5)
+    for u in (0.25, 0.75):
+        seam(at, reg, u, (y0, y0 + h))

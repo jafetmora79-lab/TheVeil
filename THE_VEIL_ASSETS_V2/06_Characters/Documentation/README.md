@@ -28,6 +28,46 @@ The roster follows `docs/THE_VEIL_MASTER_CONTEXT.md`. Named story characters wer
 
 **Looks are design proposals.** They follow the bible's DESIGN PROPOSAL notes: the protagonist's gray jacket and dark jeans, Eddie's slouch, messy hair and worn hoodie, and so on. Faces, colours and small accessories are this pack's proposals, not new canon.
 
+## Rev 2 art-direction pass: Eddie and Marcus (awaiting approval)
+
+`Commercial_NPCs/CHR_Eddie_v2.glb` and `Marcus/CHR_Marcus_v2.glb` are the redesigned examples for the quirky
+indie-horror direction. The v1 models stay untouched until the redesign is approved; a rebuild reproduces them
+byte-identically. The same shared generator built both versions. The v2 features are switched on per character
+in `chr_roster.ROSTER_V2` and implemented in `chr_body_v2.py`:
+
+* **Proportions:** oversized heads (about 0.28–0.31 m), with the body re-proportioned below the neck so the
+  total height stays correct. Per-character leg ratio, neck length, slouch and head lean.
+* **Sculpted heads:**
+  * 16 segments, packed toward the face so it gets twice the texels.
+  * Controls for jaw, chin length and width, cheeks, brow, forehead slope and back of the head.
+  * Geometric eyebrows with per-side shapes (raised quizzical brow or worried pinch).
+  * Ears that stick out, with lobes and asymmetric height and angle.
+  * Large, varied noses (bulb, droop, hook, bridge).
+  * Painted eyes and mouths, bigger and more expressive (smirk with a tooth, worried frown, eye bags).
+* **Arms:** shoulders, deltoids, biceps, elbows, forearm bulge and wrists, not pipes. Sleeve cuffs have real
+  volume.
+* **Hands:** chunky stylised hands with a palm, four two-segment fingers of different lengths and a two-segment
+  thumb, curled per character.
+* **Clothing:**
+  * Jackets and hoodies are volume shells over the torso, with an open front, flared hem with thickness,
+    closed shoulders and a raised collar.
+  * The shirt underneath follows the torso.
+* **Trousers and shoes:** trouser silhouettes (baggy or straight) with thick hems. Chunky shoes and boots with
+  separate soles, turned-out toes.
+
+| | Eddie v2 | Marcus v2 |
+|---|---|---|
+| Silhouette | lanky, sloped shoulders, slouch | broad wall of a man, short legs, hunched |
+| Clothes | oversized open mustard hoodie, baggy jeans, huge duck-footed sneakers | open canvas work jacket with raised collar, navy flannel, straight work pants, heavy boots |
+| Head | tall egg head, long jutting chin, big droopy nose, stick-out ears (one higher), lopsided hair swoop | wide square head, slab jaw, potato nose, heavy brow |
+| Face | thick glasses, one quizzical raised brow, smirk | eyebrows pinched up with worry, bagged eyes, stubble |
+| Hands | relaxed | big, half-closed |
+| Triangles | 2,162 | 1,988 |
+
+Both versions use the same 23-bone skeleton, a 256×256 palette-locked atlas and one material. Both pass the
+full validator (`VALIDATION_REPORT.md`). Marcus's short, thick neck stretches up to 1.96× in the 60° head-turn
+test, which is within the 3.0 limit. Nothing was rendered or visually inspected.
+
 ## Conventions
 
 * **Space:** metres, +Y up, characters face **+Z**, origin between the feet.
