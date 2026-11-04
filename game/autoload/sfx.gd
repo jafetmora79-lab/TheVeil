@@ -66,12 +66,13 @@ func _make(seconds: float, fn: Callable, loop := false) -> AudioStreamWAV:
 	return s
 
 
-func play(id: String, at: Vector3, volume_db := 0.0, pitch := 1.0) -> void:
+## Returns the player (or null) so a sequence can fade it out early.
+func play(id: String, at: Vector3, volume_db := 0.0, pitch := 1.0) -> AudioStreamPlayer3D:
 	if not _streams.has(id):
-		return
+		return null
 	var tree := get_tree()
 	if tree.current_scene == null:
-		return
+		return null
 	var p := AudioStreamPlayer3D.new()
 	p.stream = _streams[id]
 	p.volume_db = volume_db
@@ -81,6 +82,7 @@ func play(id: String, at: Vector3, volume_db := 0.0, pitch := 1.0) -> void:
 	p.global_position = at
 	p.finished.connect(p.queue_free)
 	p.play()
+	return p
 
 
 func loop_at(parent: Node3D, id: String, volume_db := -10.0) -> AudioStreamPlayer3D:

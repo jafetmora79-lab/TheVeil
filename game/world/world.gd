@@ -840,7 +840,7 @@ func _p3_tick(_delta: float) -> void:
 		if not _outdoors():
 			_p3_back_inside()
 	elif _p3_shop_talked and not _p3_npcs_moved and _outdoors():
-		_p3_move_npcs_to_market()
+		_p3_flee_together()
 
 
 func _atmo() -> Node:
@@ -869,6 +869,7 @@ func _p3_start_mist() -> void:
 	Sfx.play("veil_rumble", player.global_position + Vector3(0, 2, 0), -2.0)
 	_stutter_lights(market if market.to_local(player.global_position).z > -0.4 else game_shop)
 	Dialogue.say("p3_fog", false, true)
+	_p3_place_marcus_in_shop()                   # Marcus is in the game shop with Eddie before anything appears
 	var sd: Interactable = interactables.get("shop/entrance")
 	if sd and not sd.is_open:
 		sd.set_open(true)
@@ -915,6 +916,78 @@ func _build_mist_ceiling() -> void:
 
 
 # ------------------------------------------------------------------ the Colossus encounter
+## Front-left claw tips in skeleton space at scale 1 (build_colossus.py LEGS "FL" contact (-6.1, 0, 6.0) and its
+## three claws; tip y 0.11 minus the 0.05 tip radius).
+const FL_TIPS := [Vector3(-5.55, 0.06, 7.06), Vector3(-6.15, 0.06, 7.52), Vector3(-6.7, 0.06, 6.77)]
+const STANCE_RATE := 1.0                 ## Walk_Heavy: a planted foot slides back 1 m per animation second (scale 1)
+var _enc_sounds: Array = []              ## encounter audio, faded out when the encounter ends
+
+
+func _tips_world(sk: Skeleton3D, foot: int) -> Array:
+	var rest := sk.get_bone_global_rest(foot)
+	var pose := sk.get_bone_global_pose(foot)
+	var out: Array = []
+	for tp in FL_TIPS:
+		out.append(sk.global_transform * (pose * (rest.affine_inverse() * tp)))
+	return out
+
+
+func _min_tip_y(sk: Skeleton3D, foot: int) -> float:
+	var y := INF
+	for p in _tips_world(sk, foot):
+		y = minf(y, p.y)
+	return y
+
+
+## The animation time where the foot's swing ends: tips come back down to their stance height.
+func _swing_end(ap: AnimationPlayer, sk: Skeleton3D, foot: int, anim: Animation) -> float:
+	var dt := 1.0 / 60.0
+	var t := 0.0
+	var prev := INF
+	var low := INF
+	var ys: Array = []
+	while t < anim.length:
+		ap.seek(t, true)
+		sk.force_update_all_bone_transforms()
+		var y := _min_tip_y(sk, foot)
+		ys.append([t, y])
+		low = minf(low, y)
+		t += dt
+	for i in range(1, ys.size()):
+		if ys[i - 1][1] > low + 0.05 and ys[i][1] <= low + 0.01:
+			return ys[i][0]
+	return 0.0
+
+
+## Eddie and Marcus react to the impact: startled face, then fear, and they look towards it.
+func _npc_fright(at: Vector3) -> void:
+	for k in ["Eddie", "Marcus"]:
+		if not animators.has(k):
+			continue
+		var a = animators[k]
+		a.set_mood("scared")
+		a.face_towards(at)
+		a.talk(1.0)                                 # a startled flinch of the arms / head
+		var f = faces.get(k)
+		if f:
+			f.set_expression("shocked")
+			f.widen_eyes(2.0)
+	await get_tree().create_timer(1.6).timeout
+	for k in ["Eddie", "Marcus"]:
+		var f = faces.get(k)
+		if f:
+			f.set_expression("scared")
+
+
+func _enc_fade_sounds() -> void:
+	for p in _enc_sounds:
+		if p and is_instance_valid(p):
+			var tw := (p as AudioStreamPlayer3D).create_tween()
+			tw.tween_property(p, "volume_db", -60.0, 0.8)
+			tw.tween_callback(p.queue_free)
+	_enc_sounds.clear()
+
+
 func _colossus_encounter() -> void:
 	_encounter_running = true
 	Game.set_flag("p3_stepped_out")
@@ -934,7 +1007,7 @@ func _colossus_encounter() -> void:
 	player.velocity = Vector3.ZERO
 	hud.allow_pause = false
 	hud.set_hint("")
-	Sfx.play("colossus_call", P + n * 30.0 + Vector3(0, 20, 0), 2.0, 0.8)
+	_enc_sounds.append(Sfx.play("colossus_call", P + n * 14.0 + Vector3(0, 9, 0), 4.0, 0.8))   # close enough to be heard at once
 	var cam := Camera3D.new()
 	cam.name = "EncounterCam"
 	add_child(cam)
@@ -962,19 +1035,17 @@ func _colossus_encounter() -> void:
 	var anim := ap.get_animation("Walk_Heavy")
 	anim.loop_mode = Animation.LOOP_LINEAR
 	ap.play("Walk_Heavy", 0.0)
-	var t_c := 0.0
-	var low := INF
-	var t := 0.0
-	while t < anim.length:                                        # contact frame = lowest point of that foot
-		ap.seek(t, true)
-		var fy := (sk.global_transform * sk.get_bone_global_pose(foot).origin).y
-		if fy < low:
-			low = fy
-			t_c = t
-		t += 1.0 / 30.0
-	ap.seek(t_c, true)
-	var off := (sk.global_transform * sk.get_bone_global_pose(foot).origin) - c.global_position
-	c.global_position = Vector3(L.x - off.x, ground, L.z - off.z)
+	# contact frame = the end of the front-left foot's swing, measured on its claw tips (the foot bone is the wrist,
+	# 2.4 m up the leg; the old "lowest bone" pick landed mid-stance, so the foot never really came down on cue)
+	var t_c := _swing_end(ap, sk, foot, anim)
+	var place := func():
+		ap.seek(t_c, true)
+		sk.force_update_all_bone_transforms()
+		var tips := _tips_world(sk, foot)
+		var mid: Vector3 = (tips[0] + tips[1] + tips[2]) / 3.0
+		var dy := _min_tip_y(sk, foot) - (ground + 0.02)        # claw tips rest on the road (2 cm)
+		c.global_position += Vector3(L.x - mid.x, -dy, L.z - mid.z)
+	place.call()
 	# only the near leg may come down by the store: the other three feet must land farther out over the street;
 	# if this rig's "left" is the other side, walk the other way (mirror) and place again
 	var others := ["Leg_FR_Foot", "Leg_HL_Foot", "Leg_HR_Foot"].map(func(b): return sk.find_bone(b))
@@ -984,38 +1055,46 @@ func _colossus_encounter() -> void:
 	if near_out < (L - P).dot(n) + 2.0:
 		walk_dir = -walk_dir
 		c.rotation.y = atan2(walk_dir.x, walk_dir.z)
-		c.global_position = L
-		ap.seek(t_c, true)
-		off = (sk.global_transform * sk.get_bone_global_pose(foot).origin) - c.global_position
-		c.global_position = Vector3(L.x - off.x, ground, L.z - off.z)
+		place.call()
 		near_out = INF
 		for b in others:
 			near_out = minf(near_out, ((sk.global_transform * sk.get_bone_global_pose(b).origin) - P).dot(n))
 	enc_report["other_feet_min_out_m"] = near_out
-	ap.seek(fposmod(t_c - 0.9, anim.length), true)
-	ap.speed_scale = 0.5                                          # 1.8 s to contact: heavy, slow
+	# the foot comes down along the clip's own swing arc: from late swing (high, in the mist) to contact
+	const DESCENT := 0.75                                         # animation seconds of swing shown (1.5 s real)
+	var t_lift := fposmod(t_c - DESCENT, anim.length)
+	ap.seek(t_lift, true)
+	ap.speed_scale = 0.5
 	# the player instinctively looks at the sound / the darkness ahead
 	var tw0 := create_tween()
 	var b0 := cam.global_basis.get_rotation_quaternion()
 	var b1 := Transform3D(Basis(), cam.global_position).looking_at(L + Vector3(0, 4.0, 0) + side * -1.0, Vector3.UP).basis.get_rotation_quaternion()
 	tw0.tween_method(func(k): cam.global_basis = Basis(b0.slerp(b1, k * k * (3.0 - 2.0 * k))), 0.0, 1.0, 1.5)
-	await get_tree().create_timer(1.8).timeout
-	# --- Stage 2: the footstep (impact)
-	var f_now := sk.global_transform * sk.get_bone_global_pose(foot).origin
-	enc_report["foot_error_m"] = Vector2(f_now.x - L.x, f_now.z - L.z).length()
-	enc_report["foot_height_m"] = f_now.y - ground
+	var guard := 0.0
+	while fposmod(ap.current_animation_position - t_lift, anim.length) < DESCENT - 0.01 and guard < 3.0:
+		await get_tree().process_frame
+		guard += get_process_delta_time()
+	ap.seek(t_c, true)                                            # exactly the contact frame
+	# --- Stage 2: the footstep (impact) - sound, dust and shake on the contact frame
+	sk.force_update_all_bone_transforms()
+	var tips_now := _tips_world(sk, foot)
+	var mid_now: Vector3 = (tips_now[0] + tips_now[1] + tips_now[2]) / 3.0
+	enc_report["foot_error_m"] = Vector2(mid_now.x - L.x, mid_now.z - L.z).length()
+	enc_report["foot_height_m"] = _min_tip_y(sk, foot) - ground
 	enc_report["body_height_m"] = (sk.global_transform * sk.get_bone_global_pose(body_b).origin).y - ground
 	enc_report["ceiling_m"] = CEILING_LAYERS[0]
 	enc_report["leg_distance_m"] = Vector2(L.x - P.x, L.z - P.z).length()
-	ap.speed_scale = 0.06                                         # the foot stays planted
-	Sfx.play("colossus_step", L + Vector3(0, 1, 0), 6.0, 0.7)
+	ap.speed_scale = 0.0                                          # planted: the weight comes down on it
+	_enc_sounds.append(Sfx.play("colossus_step", L + Vector3(0, 1, 0), 6.0, 0.7))
 	_impact_dust(L)
-	_shake(cam, 0.35, 0.06)
+	_shake(cam, 0.35, 0.05)
+	_npc_fright(L)
 	for l in get_tree().get_nodes_in_group("veil_streetlight"):
 		if l is Light3D and l.global_position.distance_to(L) < 45.0:
 			(l as Light3D).visible = false
 			get_tree().create_timer(randf_range(0.3, 1.2)).timeout.connect(func(): if is_instance_valid(l): l.visible = true)
 	await get_tree().create_timer(0.9).timeout
+	enc_report["foot_planted_drift_m"] = Vector2(_tips_world(sk, foot)[1].x - tips_now[1].x, _tips_world(sk, foot)[1].z - tips_now[1].z).length()
 	# --- Stage 3: the protagonist's face (he is frozen; his eyes go up)
 	var d_leg := (L - P) * Vector3(1, 0, 1)
 	d_leg = d_leg.normalized()
@@ -1047,41 +1126,63 @@ func _colossus_encounter() -> void:
 	tg.tween_property(gaze, "global_position", L + Vector3(0, 14.0, 0), 2.6).set_trans(Tween.TRANS_SINE)
 	faces["Protagonist"].set_expression("scared")
 	await get_tree().create_timer(2.8).timeout
-	# --- Stage 4: follow his gaze up the leg, into the mist
+	# --- Stage 4: from his eyes, up the leg into the mist. He is hidden for this shot (the camera sits where his
+	# eyes are, so nothing of him can cut the frame); the view rotates only (one smooth quaternion slerp, no
+	# per-step look_at flips), from a spot that can actually see the leg (moved out from under any awning)
 	key.queue_free()
-	var start := head - d_leg * 0.55 + side * 0.28 + Vector3(0, 0.12, 0)
+	me.visible = false
+	var start := head + d_leg * 0.12
+	var space := get_world_3d().direct_space_state
+	for k in 7:
+		var blocked := false
+		for hgt in [3.0, 7.0, 11.0]:
+			var q := PhysicsRayQueryParameters3D.create(start, L + Vector3(0, hgt, 0), 1, [player.get_rid()])
+			if not space.intersect_ray(q).is_empty():
+				blocked = true
+		if not blocked:
+			break
+		start += d_leg * 0.5
 	cam.global_position = start
-	cam.fov = 58.0
+	cam.fov = 60.0
 	var look_from := L + Vector3(0, 1.0, 0)
-	var look_to := L + Vector3(0, 42.0, 0) + d_leg * 6.0
+	var look_to := L + Vector3(0, 40.0, 0) + d_leg * 6.0
+	var qa := Transform3D(Basis(), start).looking_at(look_from, Vector3.UP).basis.get_rotation_quaternion()
+	var qb := Transform3D(Basis(), start).looking_at(look_to, Vector3.UP).basis.get_rotation_quaternion()
+	cam.global_basis = Basis(qa)
 	var tw := create_tween()
 	tw.tween_method(func(k: float):
 		var e := k * k * (3.0 - 2.0 * k)
-		cam.global_position = start + Vector3(0, -0.15 * e, 0)
-		cam.look_at(look_from.lerp(look_to, e), Vector3.UP)
-		cam.fov = lerpf(58.0, 48.0, e), 0.0, 1.0, 4.2)
+		cam.global_basis = Basis(qa.slerp(qb, e))
+		cam.fov = lerpf(60.0, 50.0, e), 0.0, 1.0, 4.2)
 	tg = create_tween()
 	tg.tween_property(gaze, "global_position", L + Vector3(0, 40.0, 0), 4.0)
 	await tw.finished
 	enc_report["max_look_up_deg"] = rad_to_deg(asin(clampf((look_to - start).normalized().y, -1.0, 1.0)))
-	# --- Stage 5: it moves on. Legs stride through the mist; the body never comes down out of it.
+	# --- Stage 5: it moves on. The body moves at the clip's stance rate (1 m per animation second at scale 1),
+	# so whichever foot is planted stays put while it walks off (no sliding); steps sound on their contacts
 	ap.speed_scale = 0.5
-	var speed: float = float(c.get_meta("walk_speed_mps", 1.0)) * COLOSSUS_SCALE * 0.5
+	var speed: float = STANCE_RATE * COLOSSUS_SCALE * ap.speed_scale
 	var away := c.create_tween()
 	away.tween_property(c, "global_position", c.global_position + walk_dir * speed * 30.0, 30.0)
 	away.tween_callback(c.queue_free)
-	Sfx.play("colossus_step", L + walk_dir * 12.0, 4.0, 0.65)
-	await get_tree().create_timer(2.2).timeout
-	Sfx.play("colossus_step", L + walk_dir * 24.0, 2.0, 0.6)
+	_enc_sounds.append(Sfx.play("colossus_step", L + walk_dir * 6.0, 4.0, 0.65))
+	await get_tree().create_timer(2.0).timeout
+	_enc_sounds.append(Sfx.play("colossus_step", L + walk_dir * 12.0, 2.0, 0.6))
 	await get_tree().create_timer(1.6).timeout                  # frozen for a moment
-	# --- Stage 6: back to the first person, control restored immediately
+	# --- Stage 6: back to the first person, eased (no snap); the encounter's sounds fade out with it
 	gaze.queue_free()
 	me.queue_free()
 	animators.erase("Protagonist")
 	faces.erase("Protagonist")
+	player.set_yaw_pitch(atan2(-d_leg.x, -d_leg.z), deg_to_rad(8.0))
+	var fp := player.camera.global_transform
+	var tb := create_tween()
+	tb.tween_property(cam, "global_transform", fp, 0.7).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
+	tb.parallel().tween_property(cam, "fov", player.camera.fov, 0.7)
+	_enc_fade_sounds()
+	await tb.finished
 	cam.queue_free()
 	player.camera.current = true
-	player.set_yaw_pitch(atan2(-d_leg.x, -d_leg.z), deg_to_rad(8.0))
 	player.controls_enabled = true
 	hud.allow_pause = true
 	_encounter_running = false
@@ -1235,12 +1336,150 @@ func _p3_reach_shop() -> void:
 	await get_tree().create_timer(total + 0.3).timeout
 	Dialogue.say("p3_eddie_go")
 	_p3_shop_talked = true
-	# both head for the back of the shop (they are moved to the supermarket once the player is outside)
+	# both get ready by the front of the shop: they leave with the protagonist (_p3_flee_together)
 	if animators.has("Eddie") and eddie.get_parent() == game_shop:
-		animators["Eddie"].walk_to([Vector3(-0.4, 0.04, 1.7), Vector3(0.0, 0.04, 5.0), Vector3(0.3, 0.04, 7.6)], 1.6)
+		npc_walk("Eddie", Vector3(-1.6, 0.04, 1.7), 1.6)
 	if animators.has("Marcus") and marcus.get_parent() == game_shop:
-		animators["Marcus"].walk_to([Vector3(-3.4, 0.04, 6.8), Vector3(-1.0, 0.04, 7.7)], 1.6)
+		npc_walk("Marcus", Vector3(-2.4, 0.04, 2.4), 1.6)
 	_beacon("market", market.global_transform * Vector3(0, 2.6, -0.9), Color(0.7, 0.85, 1.0))
+
+
+## After the shop talk, once the player is outside: Eddie and Marcus run WITH the protagonist to the supermarket
+## (the existing companion follow, breadcrumbs of the player's own path: no wall clipping, no teleport).
+var _p3_followers: Array = []
+
+
+func _p3_flee_together() -> void:
+	_p3_npcs_moved = true
+	for pair in [[eddie, 1.6], [marcus, 2.8]]:
+		var n: Node3D = pair[0]
+		if n == null:
+			continue
+		n.reparent(self, true)
+		var f := VeilCompanionFollow.new()
+		f.name = "Follow"
+		f.gap = pair[1]
+		f.walk_speed = 2.2                              # a frightened jog
+		f.run_speed = 4.2
+		n.add_child(f)
+		f.setup(n, player)
+		f.start()
+		# the way out is through the shop door: seed the trail with it so nobody cuts through the shop front
+		var din: Vector3 = (game_shop.get_node("Doorways/Entrance_Inside") as Node3D).global_position
+		var dout: Vector3 = (game_shop.get_node("Doorways/Entrance_Outside") as Node3D).global_position
+		if game_shop.to_local(n.global_position).z > 0.2:
+			f.trail = [n.global_position, din, dout]
+		_p3_followers.append(f)
+		if animators.has(String(n.name)):
+			animators[String(n.name)].set_mood("scared")
+
+
+func _p3_stop_following() -> void:
+	for f in _p3_followers:
+		if is_instance_valid(f):
+			f.stop()
+			f.queue_free()
+	_p3_followers.clear()
+	for n in [eddie, marcus]:
+		if n and n.get_parent() != market:
+			n.reparent(market, true)
+
+
+## Walk an NPC (its parent's local frame) to `to` around furniture and walls: npc_route() on the real colliders.
+func npc_walk(speaker: String, to: Vector3, speed := 1.3) -> void:
+	var a = animators.get(speaker)
+	if a == null:
+		return
+	var par := a.root.get_parent_node_3d() as Node3D
+	a.walk_to(npc_route(par, a.root.position, to), speed)
+
+
+## Grid A* (0.3 m cells, a 0.28 m body radius at knee and chest height, layer-1 colliders) in `frame`'s local XZ,
+## then string-pulled with sphere sweeps. Returns frame-local waypoints ending at `to` (straight line if no path).
+func npc_route(frame: Node3D, from: Vector3, to: Vector3) -> Array:
+	var space := get_world_3d().direct_space_state
+	var sph := SphereShape3D.new()
+	sph.radius = 0.28
+	var q := PhysicsShapeQueryParameters3D.new()
+	q.shape = sph
+	q.collision_mask = 1
+	q.exclude = [player.get_rid()]
+	var X := frame.global_transform
+	var y := from.y
+	var CELL := 0.3
+	var lo := Vector2(minf(from.x, to.x) - 6.0, minf(from.z, to.z) - 6.0)
+	var cache := {}
+	var free_at := func(c: Vector2i) -> bool:
+		if cache.has(c):
+			return cache[c]
+		var p := Vector3(lo.x + c.x * CELL, y, lo.y + c.y * CELL)
+		var ok := true
+		for h in [0.5, 1.3]:
+			q.transform = Transform3D(Basis(), X * (p + Vector3(0, h, 0)))
+			if not space.intersect_shape(q, 1).is_empty():
+				ok = false
+				break
+		cache[c] = ok
+		return ok
+	var cell_of := func(p: Vector3) -> Vector2i: return Vector2i(roundi((p.x - lo.x) / CELL), roundi((p.z - lo.y) / CELL))
+	var s: Vector2i = cell_of.call(from)
+	var g: Vector2i = cell_of.call(to)
+	var w := int((maxf(from.x, to.x) + 6.0 - lo.x) / CELL) + 1
+	var hgt := int((maxf(from.z, to.z) + 6.0 - lo.y) / CELL) + 1
+	var open := {s: 0.0}
+	var cost := {s: 0.0}
+	var came := {}
+	var found := false
+	var it := 0
+	while not open.is_empty() and it < 9000:
+		it += 1
+		var cur: Vector2i = s
+		var best := INF
+		for k in open:
+			if open[k] < best:
+				best = open[k]
+				cur = k
+		open.erase(cur)
+		if (cur - g).length_squared() <= 1:
+			g = cur
+			found = true
+			break
+		for d in [Vector2i(1, 0), Vector2i(-1, 0), Vector2i(0, 1), Vector2i(0, -1), Vector2i(1, 1), Vector2i(1, -1), Vector2i(-1, 1), Vector2i(-1, -1)]:
+			var nb: Vector2i = cur + d
+			if nb.x < 0 or nb.y < 0 or nb.x >= w or nb.y >= hgt or not free_at.call(nb):
+				continue
+			if d.x != 0 and d.y != 0 and (not free_at.call(Vector2i(cur.x + d.x, cur.y)) or not free_at.call(Vector2i(cur.x, cur.y + d.y))):
+				continue
+			var nc: float = cost[cur] + (1.414 if d.x != 0 and d.y != 0 else 1.0)
+			if not cost.has(nb) or nc < cost[nb]:
+				cost[nb] = nc
+				came[nb] = cur
+				open[nb] = nc + Vector2(nb - g).length()
+	if not found:
+		return [to]
+	var cells: Array = [g]
+	while cells[0] != s and came.has(cells[0]):
+		cells.push_front(came[cells[0]])
+	var pts: Array = []
+	for c in cells:
+		pts.append(Vector3(lo.x + c.x * CELL, y, lo.y + c.y * CELL))
+	pts[-1] = to
+	# string pulling: keep only the waypoints needed for a clear sphere sweep between them
+	var out: Array = []
+	var i := 0
+	while i < pts.size() - 1:
+		var j := pts.size() - 1
+		while j > i + 1:
+			q.transform = Transform3D(Basis(), X * (pts[i] + Vector3(0, 0.8, 0)))
+			q.motion = X.basis * (pts[j] - pts[i])
+			var r := space.cast_motion(q)
+			q.motion = Vector3.ZERO
+			if r.size() > 0 and r[0] >= 1.0:
+				break
+			j -= 1
+		out.append(pts[j])
+		i = j
+	return out
 
 
 func _p3_move_npcs_to_market() -> void:
@@ -1265,6 +1504,7 @@ func _p3_reach_market() -> void:
 		return
 	if not _p3_npcs_moved:
 		_p3_move_npcs_to_market()
+	_p3_stop_following()                         # they came in with the player
 	Game.set_flag("p3_in_market")
 	_set_auto_doors(true)                       # the power dies with the doors open
 	_doors_powered = false
@@ -1272,10 +1512,8 @@ func _p3_reach_market() -> void:
 		if l is Light3D and String(l.name).begins_with("Light_"):
 			(l as Light3D).light_energy *= 0.35
 	shut_it.prompt_text = "[E] Pull the Doors Shut"
-	if animators.has("Eddie"):
-		animators["Eddie"].walk_to([Vector3(-1.0, 0.04, 4.3)], 1.4)
-	if animators.has("Marcus"):
-		animators["Marcus"].walk_to([Vector3(1.1, 0.04, 4.7)], 1.4)
+	npc_walk("Eddie", Vector3(-1.0, 0.04, 4.3), 1.4)           # around the vestibule wall, carts and baskets
+	npc_walk("Marcus", Vector3(1.1, 0.04, 4.7), 1.4)
 	for d in _auto_doors:
 		_glow(d[0], true, Color(0.7, 0.85, 1.0))
 	Dialogue.say("p3_market", false, true)
@@ -1320,8 +1558,7 @@ func _p3_restore() -> void:
 		hud.set_survival_visible(true)
 		if not Game.has_flag("p3_doors_shut"):
 			_p3_spawn_tentacles()
-	if Game.has_flag("p3_back_inside"):
-		_p3_place_marcus_in_shop()
+	_p3_place_marcus_in_shop()
 	if Game.has_flag("p3_in_shop"):
 		_p3_shop_talked = true
 		_p3_move_npcs_to_market()
