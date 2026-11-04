@@ -180,6 +180,17 @@ func _place_loot() -> void:
 			var top := a.end.y - item.position.y + 0.04
 			bs.size.y = maxf(bs.size.y, top)
 			cs.position.y = bs.size.y * 0.5
+		if c.kind != "slide":
+			# cabinets have a solid collision box: stretch the pickup box forward to the (open) door plane so the
+			# player's ray meets the item at the cabinet front, where one reaches in
+			var closed_front: AABB = c._base * Interactable.aabb_of(part)
+			var front := closed_front.end.z + 0.03 - item.position.z      # piece-local +z is the cabinet front
+			var cs2 := it.get_child(0) as CollisionShape3D
+			var bs2 := cs2.shape as BoxShape3D
+			if front > bs2.size.z * 0.5:
+				var back := cs2.position.z - bs2.size.z * 0.5
+				bs2.size.z = front - back
+				cs2.position.z = back + bs2.size.z * 0.5
 		it.collision_layer = 0
 		it.used.connect(func(_b): looted.emit(id))
 		loot[id] = it

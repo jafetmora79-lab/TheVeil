@@ -139,15 +139,19 @@ func aim(it: Node3D, dirs: Array, frame: Node3D, dist := 1.2) -> bool:
 	return false
 
 
-## From where the player already stands (no teleport), look at the interactable; true if the real ray finds it.
+## From where the player already stands (no teleport), look at the interactable's nearest face (where a player
+## aims); true if the real ray finds it.
 func look(it: Node3D) -> bool:
 	var player = world.player
-	var c: Vector3 = it.global_position
-	for cs in it.get_children():
-		if cs is CollisionShape3D:
-			c = (cs as CollisionShape3D).global_position
 	await frames(2)
 	var eye: Vector3 = player.camera.global_position
+	var c: Vector3 = it.global_position
+	for cs in it.get_children():
+		if cs is CollisionShape3D and (cs as CollisionShape3D).shape is BoxShape3D:
+			var csn := cs as CollisionShape3D
+			var half: Vector3 = (csn.shape as BoxShape3D).size * 0.5 * 0.85
+			var le := csn.global_transform.affine_inverse() * eye
+			c = csn.global_transform * Vector3(clampf(le.x, -half.x, half.x), clampf(le.y, -half.y, half.y), clampf(le.z, -half.z, half.z))
 	var v := (c - eye).normalized()
 	player.set_yaw_pitch(atan2(-v.x, -v.z), asin(clampf(v.y, -1.0, 1.0)))
 	await watch_frames(5)
