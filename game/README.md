@@ -22,6 +22,7 @@ arms are lowered from his reference pose by a runtime bone rotation, because the
 
 * **Engine:** Godot 4.3, Compatibility renderer (OpenGL 3 / WebGL 2).
 * **Project root:** the repository root (`project.godot`), so every asset keeps its `res://THE_VEIL_ASSETS_V2/...` path.
+* **Windows download:** `docs/download/TheVeil_Windows.zip` (unzip, run `TheVeil.exe`). Rebuild with `godot --headless --path . --export-release "Windows Desktop" build/windows/TheVeil.exe` (needs the 4.3 `windows_release_x86_64.exe` template).
 * **Browser build:** `docs/play/` → <https://jafetmora79-lab.github.io/TheVeil/play/>. The asset gallery stays at
   `/TheVeil/`.
 
