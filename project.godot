@@ -1,0 +1,38 @@
+; THE VEIL - Godot 4.3 project (Compatibility renderer).
+; The repository root is the project root, so every asset keeps its res://THE_VEIL_ASSETS_V2/... path.
+
+config_version=5
+
+[application]
+
+config/name="THE VEIL"
+config/description="First-person psychological survival horror. Phase 1: the playable opening."
+run/main_scene="res://game/scenes/MainMenu.tscn"
+config/features=PackedStringArray("4.3", "GL Compatibility")
+boot_splash/bg_color=Color(0.039, 0.043, 0.055, 1)
+boot_splash/show_image=false
+
+[autoload]
+
+Game="*res://game/autoload/game_state.gd"
+Dialogue="*res://game/autoload/dialogue.gd"
+
+[display]
+
+window/size/viewport_width=1280
+window/size/viewport_height=720
+window/stretch/mode="canvas_items"
+window/stretch/aspect="expand"
+
+[physics]
+
+common/physics_ticks_per_second=60
+3d/physics_engine="GodotPhysics3D"
+
+[rendering]
+
+renderer/rendering_method="gl_compatibility"
+renderer/rendering_method.mobile="gl_compatibility"
+textures/vram_compression/import_etc2_astc=true
+environment/defaults/default_clear_color=Color(0.039, 0.043, 0.055, 1)
+anti_aliasing/quality/msaa_3d=0

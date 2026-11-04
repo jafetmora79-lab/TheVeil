@@ -1,0 +1,7 @@
+{
+ "categories": ["key", "tool", "flashlight", "radio", "medical", "note", "puzzle", "weapon", "food", "misc"],
+ "items": {
+  "car_keys": {"name": "Car Keys", "category": "key",
+               "description": "Keys to the old sedan. A worn rubber tag and a house key on the same ring."}
+ }
+}

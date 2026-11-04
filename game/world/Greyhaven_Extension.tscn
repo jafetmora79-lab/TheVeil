@@ -1,0 +1,3899 @@
+[gd_scene load_steps=38 format=3]
+
+[ext_resource type="PackedScene" path="res://THE_VEIL_ASSETS_V2/02_Town/Fences/FN_ChainLink_2.5m.glb" id="1_FN_ChainLink_2.5m"]
+[ext_resource type="PackedScene" path="res://THE_VEIL_ASSETS_V2/02_Town/Fences/FN_GardenGate_1.25m.glb" id="2_FN_GardenGate_1.25m"]
+[ext_resource type="PackedScene" path="res://THE_VEIL_ASSETS_V2/02_Town/Fences/FN_HedgeBoundary_2.5m.glb" id="3_FN_HedgeBoundary_2.5m"]
+[ext_resource type="PackedScene" path="res://THE_VEIL_ASSETS_V2/02_Town/Fences/FN_Picket_2.5m.glb" id="4_FN_Picket_2.5m"]
+[ext_resource type="PackedScene" path="res://THE_VEIL_ASSETS_V2/02_Town/Fences/FN_Post_ChainLink.glb" id="5_FN_Post_ChainLink"]
+[ext_resource type="PackedScene" path="res://THE_VEIL_ASSETS_V2/02_Town/Fences/FN_Post_Picket.glb" id="6_FN_Post_Picket"]
+[ext_resource type="PackedScene" path="res://THE_VEIL_ASSETS_V2/02_Town/Fences/FN_Post_Privacy.glb" id="7_FN_Post_Privacy"]
+[ext_resource type="PackedScene" path="res://THE_VEIL_ASSETS_V2/02_Town/Fences/FN_Privacy_2.5m.glb" id="8_FN_Privacy_2.5m"]
+[ext_resource type="PackedScene" path="res://THE_VEIL_ASSETS_V2/02_Town/Roads/RD_Corner_Sharp_12m.glb" id="9_RD_Corner_Sharp_12m"]
+[ext_resource type="PackedScene" path="res://THE_VEIL_ASSETS_V2/02_Town/Roads/RD_Curve_Gentle_Left_30m.glb" id="10_RD_Curve_Gentle_Left_30m"]
+[ext_resource type="PackedScene" path="res://THE_VEIL_ASSETS_V2/02_Town/Roads/RD_Curve_Gentle_Right_30m.glb" id="11_RD_Curve_Gentle_Right_30"]
+[ext_resource type="PackedScene" path="res://THE_VEIL_ASSETS_V2/02_Town/Roads/RD_DeadEnd_12m.glb" id="12_RD_DeadEnd_12m"]
+[ext_resource type="PackedScene" path="res://THE_VEIL_ASSETS_V2/02_Town/Roads/RD_Driveway_3x8m.glb" id="13_RD_Driveway_3x8m"]
+[ext_resource type="PackedScene" path="res://THE_VEIL_ASSETS_V2/02_Town/Roads/RD_Intersection_T_12m.glb" id="14_RD_Intersection_T_12m"]
+[ext_resource type="PackedScene" path="res://THE_VEIL_ASSETS_V2/02_Town/Roads/RD_Shoulder_Rural_10m.glb" id="15_RD_Shoulder_Rural_10m"]
+[ext_resource type="PackedScene" path="res://THE_VEIL_ASSETS_V2/02_Town/Roads/RD_Straight_2Lane_10m.glb" id="16_RD_Straight_2Lane_10m"]
+[ext_resource type="PackedScene" path="res://THE_VEIL_ASSETS_V2/02_Town/Roads/RD_Straight_2Lane_10m_Unmarked.glb" id="17_RD_Straight_2Lane_10m_Un"]
+[ext_resource type="PackedScene" path="res://THE_VEIL_ASSETS_V2/02_Town/Street_Props/SP_BusShelter.glb" id="18_SP_BusShelter"]
+[ext_resource type="PackedScene" path="res://THE_VEIL_ASSETS_V2/02_Town/Street_Props/SP_FireHydrant.glb" id="19_SP_FireHydrant"]
+[ext_resource type="PackedScene" path="res://THE_VEIL_ASSETS_V2/02_Town/Street_Props/SP_Lamp_Residential.glb" id="20_SP_Lamp_Residential"]
+[ext_resource type="PackedScene" path="res://THE_VEIL_ASSETS_V2/02_Town/Street_Props/SP_Mailbox_Residential.glb" id="21_SP_Mailbox_Residential"]
+[ext_resource type="PackedScene" path="res://THE_VEIL_ASSETS_V2/02_Town/Street_Props/SP_RoadBarrier.glb" id="22_SP_RoadBarrier"]
+[ext_resource type="PackedScene" path="res://THE_VEIL_ASSETS_V2/02_Town/Street_Props/SP_Sign_BusStop.glb" id="23_SP_Sign_BusStop"]
+[ext_resource type="PackedScene" path="res://THE_VEIL_ASSETS_V2/02_Town/Street_Props/SP_Sign_DeadEnd.glb" id="24_SP_Sign_DeadEnd"]
+[ext_resource type="PackedScene" path="res://THE_VEIL_ASSETS_V2/02_Town/Street_Props/SP_Sign_SpeedLimit25.glb" id="25_SP_Sign_SpeedLimit25"]
+[ext_resource type="PackedScene" path="res://THE_VEIL_ASSETS_V2/02_Town/Street_Props/SP_Sign_Stop.glb" id="26_SP_Sign_Stop"]
+[ext_resource type="PackedScene" path="res://THE_VEIL_ASSETS_V2/02_Town/Street_Props/SP_TrafficCone.glb" id="27_SP_TrafficCone"]
+[ext_resource type="PackedScene" path="res://THE_VEIL_ASSETS_V2/02_Town/Street_Props/SP_TrashBin_Public.glb" id="28_SP_TrashBin_Public"]
+[ext_resource type="PackedScene" path="res://THE_VEIL_ASSETS_V2/02_Town/Street_Props/SP_UtilityPole_Streetlight.glb" id="29_SP_UtilityPole_Streetlig"]
+[ext_resource type="PackedScene" path="res://THE_VEIL_ASSETS_V2/02_Town/Sidewalks/SW_DrivewayTransition_10m.glb" id="30_SW_DrivewayTransition_10"]
+[ext_resource type="PackedScene" path="res://THE_VEIL_ASSETS_V2/02_Town/Sidewalks/SW_Straight_10m.glb" id="31_SW_Straight_10m"]
+[ext_resource type="PackedScene" path="res://THE_VEIL_ASSETS_V2/02_Town/Utilities/UT_WaterMeter.glb" id="32_UT_WaterMeter"]
+[ext_resource type="PackedScene" path="res://THE_VEIL_ASSETS_V2/02_Town/Vegetation/VG_Bush.glb" id="33_VG_Bush"]
+[ext_resource type="PackedScene" path="res://THE_VEIL_ASSETS_V2/02_Town/Vegetation/VG_FlowerPatch.glb" id="34_VG_FlowerPatch"]
+[ext_resource type="PackedScene" path="res://THE_VEIL_ASSETS_V2/02_Town/Vegetation/VG_Tree_DeciduousLarge.glb" id="35_VG_Tree_DeciduousLarge"]
+[ext_resource type="PackedScene" path="res://THE_VEIL_ASSETS_V2/02_Town/Vegetation/VG_Tree_DeciduousSmall.glb" id="36_VG_Tree_DeciduousSmall"]
+[ext_resource type="PackedScene" path="res://game/world/generated/TOWN_Ground_Game.glb" id="37_ground"]
+
+[node name="Greyhaven_Extension" type="Node3D"]
+metadata/note = "Generated by game/tools/build_world.py: Route 9 county road, Harlow Ln / Aspen Ct / Fern Ct, regenerated ground + woods for the whole map"
+
+[node name="Terrain" type="Node3D" parent="."]
+
+[node name="Roads" type="Node3D" parent="."]
+
+[node name="Sidewalks" type="Node3D" parent="."]
+
+[node name="Lots" type="Node3D" parent="."]
+
+[node name="Markings" type="Node3D" parent="."]
+
+[node name="StreetProps" type="Node3D" parent="."]
+
+[node name="Utilities" type="Node3D" parent="."]
+
+[node name="Vegetation" type="Node3D" parent="."]
+
+[node name="Woods" type="Node3D" parent="."]
+
+[node name="Fences" type="Node3D" parent="."]
+
+[node name="Interactive" type="Node3D" parent="."]
+
+[node name="Lights" type="Node3D" parent="."]
+
+[node name="TOWN_Ground_Game" parent="Terrain" instance=ExtResource("37_ground")]
+
+[node name="RD_Shoulder_Rural_10m_001" parent="Roads" instance=ExtResource("15_RD_Shoulder_Rural_10m")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 184, 0, 44)
+metadata/tag = "ROUTE_9X:0"
+
+[node name="RD_Shoulder_Rural_10m_002" parent="Roads" instance=ExtResource("15_RD_Shoulder_Rural_10m")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 184, 0, 54)
+metadata/tag = "ROUTE_9X:1"
+
+[node name="RD_Shoulder_Rural_10m_003" parent="Roads" instance=ExtResource("15_RD_Shoulder_Rural_10m")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 184, 0, 64)
+metadata/tag = "ROUTE_9X:2"
+
+[node name="RD_Shoulder_Rural_10m_004" parent="Roads" instance=ExtResource("15_RD_Shoulder_Rural_10m")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 184, 0, 74)
+metadata/tag = "ROUTE_9X:3"
+
+[node name="RD_Shoulder_Rural_10m_005" parent="Roads" instance=ExtResource("15_RD_Shoulder_Rural_10m")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 184, 0, 84)
+metadata/tag = "ROUTE_9X:4"
+
+[node name="RD_Shoulder_Rural_10m_006" parent="Roads" instance=ExtResource("15_RD_Shoulder_Rural_10m")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 184, 0, 94)
+metadata/tag = "ROUTE_9X:5"
+
+[node name="RD_Shoulder_Rural_10m_007" parent="Roads" instance=ExtResource("15_RD_Shoulder_Rural_10m")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 184, 0, 104)
+metadata/tag = "ROUTE_9X:6"
+
+[node name="RD_Shoulder_Rural_10m_008" parent="Roads" instance=ExtResource("15_RD_Shoulder_Rural_10m")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 184, 0, 114)
+metadata/tag = "ROUTE_9X:7"
+
+[node name="RD_Shoulder_Rural_10m_009" parent="Roads" instance=ExtResource("15_RD_Shoulder_Rural_10m")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 184, 0, 124)
+metadata/tag = "ROUTE_9X:8"
+
+[node name="RD_Shoulder_Rural_10m_010" parent="Roads" instance=ExtResource("15_RD_Shoulder_Rural_10m")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 184, 0, 134)
+metadata/tag = "ROUTE_9X:9"
+
+[node name="RD_Shoulder_Rural_10m_011" parent="Roads" instance=ExtResource("15_RD_Shoulder_Rural_10m")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 184, 0, 144)
+metadata/tag = "ROUTE_9X:10"
+
+[node name="RD_Shoulder_Rural_10m_012" parent="Roads" instance=ExtResource("15_RD_Shoulder_Rural_10m")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 184, 0, 154)
+metadata/tag = "ROUTE_9X:11"
+
+[node name="RD_Shoulder_Rural_10m_013" parent="Roads" instance=ExtResource("15_RD_Shoulder_Rural_10m")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 184, 0, 164)
+metadata/tag = "ROUTE_9X:12"
+
+[node name="RD_Shoulder_Rural_10m_014" parent="Roads" instance=ExtResource("15_RD_Shoulder_Rural_10m")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 184, 0, 174)
+metadata/tag = "ROUTE_9X:13"
+
+[node name="RD_Shoulder_Rural_10m_015" parent="Roads" instance=ExtResource("15_RD_Shoulder_Rural_10m")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 184, 0, 184)
+metadata/tag = "ROUTE_9X:14"
+
+[node name="RD_Shoulder_Rural_10m_016" parent="Roads" instance=ExtResource("15_RD_Shoulder_Rural_10m")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 184, 0, 194)
+metadata/tag = "ROUTE_9X:15"
+
+[node name="RD_Shoulder_Rural_10m_017" parent="Roads" instance=ExtResource("15_RD_Shoulder_Rural_10m")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 184, 0, 204)
+metadata/tag = "ROUTE_9X:16"
+
+[node name="RD_Shoulder_Rural_10m_018" parent="Roads" instance=ExtResource("15_RD_Shoulder_Rural_10m")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 184, 0, 214)
+metadata/tag = "ROUTE_9X:17"
+
+[node name="RD_Shoulder_Rural_10m_019" parent="Roads" instance=ExtResource("15_RD_Shoulder_Rural_10m")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 184, 0, 224)
+metadata/tag = "ROUTE_9X:18"
+
+[node name="RD_Shoulder_Rural_10m_020" parent="Roads" instance=ExtResource("15_RD_Shoulder_Rural_10m")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 184, 0, 234)
+metadata/tag = "ROUTE_9X:19"
+
+[node name="RD_Curve_Gentle_Left_30m_001" parent="Roads" instance=ExtResource("10_RD_Curve_Gentle_Left_30m")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 184, 0, 244)
+metadata/tag = "ROUTE_9X:20"
+
+[node name="RD_Shoulder_Rural_10m_021" parent="Roads" instance=ExtResource("15_RD_Shoulder_Rural_10m")]
+transform = Transform3D(0, 0, 1, 0, 1, 0, -1, 0, 0, 208, 0, 268)
+metadata/tag = "ROUTE_9X:21"
+
+[node name="RD_Shoulder_Rural_10m_022" parent="Roads" instance=ExtResource("15_RD_Shoulder_Rural_10m")]
+transform = Transform3D(0, 0, 1, 0, 1, 0, -1, 0, 0, 218, 0, 268)
+metadata/tag = "ROUTE_9X:22"
+
+[node name="RD_Shoulder_Rural_10m_023" parent="Roads" instance=ExtResource("15_RD_Shoulder_Rural_10m")]
+transform = Transform3D(0, 0, 1, 0, 1, 0, -1, 0, 0, 228, 0, 268)
+metadata/tag = "ROUTE_9X:23"
+
+[node name="RD_Shoulder_Rural_10m_024" parent="Roads" instance=ExtResource("15_RD_Shoulder_Rural_10m")]
+transform = Transform3D(0, 0, 1, 0, 1, 0, -1, 0, 0, 238, 0, 268)
+metadata/tag = "ROUTE_9X:24"
+
+[node name="RD_Shoulder_Rural_10m_025" parent="Roads" instance=ExtResource("15_RD_Shoulder_Rural_10m")]
+transform = Transform3D(0, 0, 1, 0, 1, 0, -1, 0, 0, 248, 0, 268)
+metadata/tag = "ROUTE_9X:25"
+
+[node name="RD_Shoulder_Rural_10m_026" parent="Roads" instance=ExtResource("15_RD_Shoulder_Rural_10m")]
+transform = Transform3D(0, 0, 1, 0, 1, 0, -1, 0, 0, 258, 0, 268)
+metadata/tag = "ROUTE_9X:26"
+
+[node name="RD_Shoulder_Rural_10m_027" parent="Roads" instance=ExtResource("15_RD_Shoulder_Rural_10m")]
+transform = Transform3D(0, 0, 1, 0, 1, 0, -1, 0, 0, 268, 0, 268)
+metadata/tag = "ROUTE_9X:27"
+
+[node name="RD_Shoulder_Rural_10m_028" parent="Roads" instance=ExtResource("15_RD_Shoulder_Rural_10m")]
+transform = Transform3D(0, 0, 1, 0, 1, 0, -1, 0, 0, 278, 0, 268)
+metadata/tag = "ROUTE_9X:28"
+
+[node name="RD_Shoulder_Rural_10m_029" parent="Roads" instance=ExtResource("15_RD_Shoulder_Rural_10m")]
+transform = Transform3D(0, 0, 1, 0, 1, 0, -1, 0, 0, 288, 0, 268)
+metadata/tag = "ROUTE_9X:29"
+
+[node name="RD_Shoulder_Rural_10m_030" parent="Roads" instance=ExtResource("15_RD_Shoulder_Rural_10m")]
+transform = Transform3D(0, 0, 1, 0, 1, 0, -1, 0, 0, 298, 0, 268)
+metadata/tag = "ROUTE_9X:30"
+
+[node name="RD_Curve_Gentle_Right_30m_001" parent="Roads" instance=ExtResource("11_RD_Curve_Gentle_Right_30")]
+transform = Transform3D(0, 0, 1, 0, 1, 0, -1, 0, 0, 308, 0, 268)
+metadata/tag = "ROUTE_9X:31"
+
+[node name="RD_Shoulder_Rural_10m_031" parent="Roads" instance=ExtResource("15_RD_Shoulder_Rural_10m")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 332, 0, 292)
+metadata/tag = "ROUTE_9X:32"
+
+[node name="RD_Shoulder_Rural_10m_032" parent="Roads" instance=ExtResource("15_RD_Shoulder_Rural_10m")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 332, 0, 302)
+metadata/tag = "ROUTE_9X:33"
+
+[node name="RD_Shoulder_Rural_10m_033" parent="Roads" instance=ExtResource("15_RD_Shoulder_Rural_10m")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 332, 0, 312)
+metadata/tag = "ROUTE_9X:34"
+
+[node name="RD_Shoulder_Rural_10m_034" parent="Roads" instance=ExtResource("15_RD_Shoulder_Rural_10m")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 332, 0, 322)
+metadata/tag = "ROUTE_9X:35"
+
+[node name="RD_Shoulder_Rural_10m_035" parent="Roads" instance=ExtResource("15_RD_Shoulder_Rural_10m")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 332, 0, 332)
+metadata/tag = "ROUTE_9X:36"
+
+[node name="RD_Shoulder_Rural_10m_036" parent="Roads" instance=ExtResource("15_RD_Shoulder_Rural_10m")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 332, 0, 342)
+metadata/tag = "ROUTE_9X:37"
+
+[node name="RD_Shoulder_Rural_10m_037" parent="Roads" instance=ExtResource("15_RD_Shoulder_Rural_10m")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 332, 0, 352)
+metadata/tag = "ROUTE_9X:38"
+
+[node name="RD_Shoulder_Rural_10m_038" parent="Roads" instance=ExtResource("15_RD_Shoulder_Rural_10m")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 332, 0, 362)
+metadata/tag = "ROUTE_9X:39"
+
+[node name="RD_Shoulder_Rural_10m_039" parent="Roads" instance=ExtResource("15_RD_Shoulder_Rural_10m")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 332, 0, 372)
+metadata/tag = "ROUTE_9X:40"
+
+[node name="RD_Shoulder_Rural_10m_040" parent="Roads" instance=ExtResource("15_RD_Shoulder_Rural_10m")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 332, 0, 382)
+metadata/tag = "ROUTE_9X:41"
+
+[node name="RD_Shoulder_Rural_10m_041" parent="Roads" instance=ExtResource("15_RD_Shoulder_Rural_10m")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 332, 0, 392)
+metadata/tag = "ROUTE_9X:42"
+
+[node name="RD_Shoulder_Rural_10m_042" parent="Roads" instance=ExtResource("15_RD_Shoulder_Rural_10m")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 332, 0, 402)
+metadata/tag = "ROUTE_9X:43"
+
+[node name="RD_Shoulder_Rural_10m_043" parent="Roads" instance=ExtResource("15_RD_Shoulder_Rural_10m")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 332, 0, 412)
+metadata/tag = "ROUTE_9X:44"
+
+[node name="RD_Shoulder_Rural_10m_044" parent="Roads" instance=ExtResource("15_RD_Shoulder_Rural_10m")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 332, 0, 422)
+metadata/tag = "ROUTE_9X:45"
+
+[node name="RD_Intersection_T_12m_001" parent="Roads" instance=ExtResource("14_RD_Intersection_T_12m")]
+transform = Transform3D(0, 0, -1, 0, 1, 0, 1, 0, 0, 332, 0, 438)
+metadata/tag = "N20"
+
+[node name="RD_Intersection_T_12m_002" parent="Roads" instance=ExtResource("14_RD_Intersection_T_12m")]
+transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 200, 0, 438)
+metadata/tag = "N23"
+
+[node name="RD_Corner_Sharp_12m_001" parent="Roads" instance=ExtResource("9_RD_Corner_Sharp_12m")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 68, 0, 438)
+metadata/tag = "N21"
+
+[node name="RD_DeadEnd_12m_001" parent="Roads" instance=ExtResource("12_RD_DeadEnd_12m")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 200, 0, 376)
+metadata/tag = "N24"
+
+[node name="RD_DeadEnd_12m_002" parent="Roads" instance=ExtResource("12_RD_DeadEnd_12m")]
+transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 68, 0, 560)
+metadata/tag = "N22"
+
+[node name="RD_DeadEnd_12m_003" parent="Roads" instance=ExtResource("12_RD_DeadEnd_12m")]
+transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 332, 0, 480)
+metadata/tag = "N25"
+
+[node name="RD_Straight_2Lane_10m_Unmarked_001" parent="Roads" instance=ExtResource("17_RD_Straight_2Lane_10m_Un")]
+transform = Transform3D(0, 0, -1, 0, 1, 0, 1, 0, 0, 326, 0, 438)
+metadata/tag = "HARLOW_E:0"
+
+[node name="SW_DrivewayTransition_10m_001" parent="Sidewalks" instance=ExtResource("30_SW_DrivewayTransition_10")]
+transform = Transform3D(0, 0, -1, 0, 1, 0, 1, 0, 0, 326, 0, 441.75)
+metadata/tag = "HARLOW_E:0:A"
+
+[node name="SW_DrivewayTransition_10m_002" parent="Sidewalks" instance=ExtResource("30_SW_DrivewayTransition_10")]
+transform = Transform3D(0, 0, 1, 0, 1, 0, -1, 0, 0, 316, 0, 434.25)
+metadata/tag = "HARLOW_E:0:B"
+
+[node name="RD_Straight_2Lane_10m_Unmarked_002" parent="Roads" instance=ExtResource("17_RD_Straight_2Lane_10m_Un")]
+transform = Transform3D(0, 0, -1, 0, 1, 0, 1, 0, 0, 316, 0, 438)
+metadata/tag = "HARLOW_E:1"
+
+[node name="SW_Straight_10m_001" parent="Sidewalks" instance=ExtResource("31_SW_Straight_10m")]
+transform = Transform3D(0, 0, -1, 0, 1, 0, 1, 0, 0, 316, 0, 441.75)
+metadata/tag = "HARLOW_E:1:A"
+
+[node name="SW_Straight_10m_002" parent="Sidewalks" instance=ExtResource("31_SW_Straight_10m")]
+transform = Transform3D(0, 0, 1, 0, 1, 0, -1, 0, 0, 306, 0, 434.25)
+metadata/tag = "HARLOW_E:1:B"
+
+[node name="RD_Straight_2Lane_10m_Unmarked_003" parent="Roads" instance=ExtResource("17_RD_Straight_2Lane_10m_Un")]
+transform = Transform3D(0, 0, -1, 0, 1, 0, 1, 0, 0, 306, 0, 438)
+metadata/tag = "HARLOW_E:2"
+
+[node name="SW_DrivewayTransition_10m_003" parent="Sidewalks" instance=ExtResource("30_SW_DrivewayTransition_10")]
+transform = Transform3D(0, 0, -1, 0, 1, 0, 1, 0, 0, 306, 0, 441.75)
+metadata/tag = "HARLOW_E:2:A"
+
+[node name="SW_DrivewayTransition_10m_004" parent="Sidewalks" instance=ExtResource("30_SW_DrivewayTransition_10")]
+transform = Transform3D(0, 0, 1, 0, 1, 0, -1, 0, 0, 296, 0, 434.25)
+metadata/tag = "HARLOW_E:2:B"
+
+[node name="RD_Straight_2Lane_10m_Unmarked_004" parent="Roads" instance=ExtResource("17_RD_Straight_2Lane_10m_Un")]
+transform = Transform3D(0, 0, -1, 0, 1, 0, 1, 0, 0, 296, 0, 438)
+metadata/tag = "HARLOW_E:3"
+
+[node name="SW_Straight_10m_003" parent="Sidewalks" instance=ExtResource("31_SW_Straight_10m")]
+transform = Transform3D(0, 0, -1, 0, 1, 0, 1, 0, 0, 296, 0, 441.75)
+metadata/tag = "HARLOW_E:3:A"
+
+[node name="SW_Straight_10m_004" parent="Sidewalks" instance=ExtResource("31_SW_Straight_10m")]
+transform = Transform3D(0, 0, 1, 0, 1, 0, -1, 0, 0, 286, 0, 434.25)
+metadata/tag = "HARLOW_E:3:B"
+
+[node name="RD_Straight_2Lane_10m_Unmarked_005" parent="Roads" instance=ExtResource("17_RD_Straight_2Lane_10m_Un")]
+transform = Transform3D(0, 0, -1, 0, 1, 0, 1, 0, 0, 286, 0, 438)
+metadata/tag = "HARLOW_E:4"
+
+[node name="SW_DrivewayTransition_10m_005" parent="Sidewalks" instance=ExtResource("30_SW_DrivewayTransition_10")]
+transform = Transform3D(0, 0, -1, 0, 1, 0, 1, 0, 0, 286, 0, 441.75)
+metadata/tag = "HARLOW_E:4:A"
+
+[node name="SW_DrivewayTransition_10m_006" parent="Sidewalks" instance=ExtResource("30_SW_DrivewayTransition_10")]
+transform = Transform3D(0, 0, 1, 0, 1, 0, -1, 0, 0, 276, 0, 434.25)
+metadata/tag = "HARLOW_E:4:B"
+
+[node name="RD_Straight_2Lane_10m_Unmarked_006" parent="Roads" instance=ExtResource("17_RD_Straight_2Lane_10m_Un")]
+transform = Transform3D(0, 0, -1, 0, 1, 0, 1, 0, 0, 276, 0, 438)
+metadata/tag = "HARLOW_E:5"
+
+[node name="SW_Straight_10m_005" parent="Sidewalks" instance=ExtResource("31_SW_Straight_10m")]
+transform = Transform3D(0, 0, -1, 0, 1, 0, 1, 0, 0, 276, 0, 441.75)
+metadata/tag = "HARLOW_E:5:A"
+
+[node name="SW_Straight_10m_006" parent="Sidewalks" instance=ExtResource("31_SW_Straight_10m")]
+transform = Transform3D(0, 0, 1, 0, 1, 0, -1, 0, 0, 266, 0, 434.25)
+metadata/tag = "HARLOW_E:5:B"
+
+[node name="RD_Straight_2Lane_10m_Unmarked_007" parent="Roads" instance=ExtResource("17_RD_Straight_2Lane_10m_Un")]
+transform = Transform3D(0, 0, -1, 0, 1, 0, 1, 0, 0, 266, 0, 438)
+metadata/tag = "HARLOW_E:6"
+
+[node name="SW_Straight_10m_007" parent="Sidewalks" instance=ExtResource("31_SW_Straight_10m")]
+transform = Transform3D(0, 0, -1, 0, 1, 0, 1, 0, 0, 266, 0, 441.75)
+metadata/tag = "HARLOW_E:6:A"
+
+[node name="SW_Straight_10m_008" parent="Sidewalks" instance=ExtResource("31_SW_Straight_10m")]
+transform = Transform3D(0, 0, 1, 0, 1, 0, -1, 0, 0, 256, 0, 434.25)
+metadata/tag = "HARLOW_E:6:B"
+
+[node name="RD_Straight_2Lane_10m_Unmarked_008" parent="Roads" instance=ExtResource("17_RD_Straight_2Lane_10m_Un")]
+transform = Transform3D(0, 0, -1, 0, 1, 0, 1, 0, 0, 256, 0, 438)
+metadata/tag = "HARLOW_E:7"
+
+[node name="SW_DrivewayTransition_10m_007" parent="Sidewalks" instance=ExtResource("30_SW_DrivewayTransition_10")]
+transform = Transform3D(0, 0, -1, 0, 1, 0, 1, 0, 0, 256, 0, 441.75)
+metadata/tag = "HARLOW_E:7:A"
+
+[node name="SW_DrivewayTransition_10m_008" parent="Sidewalks" instance=ExtResource("30_SW_DrivewayTransition_10")]
+transform = Transform3D(0, 0, 1, 0, 1, 0, -1, 0, 0, 246, 0, 434.25)
+metadata/tag = "HARLOW_E:7:B"
+
+[node name="RD_Straight_2Lane_10m_Unmarked_009" parent="Roads" instance=ExtResource("17_RD_Straight_2Lane_10m_Un")]
+transform = Transform3D(0, 0, -1, 0, 1, 0, 1, 0, 0, 246, 0, 438)
+metadata/tag = "HARLOW_E:8"
+
+[node name="SW_Straight_10m_009" parent="Sidewalks" instance=ExtResource("31_SW_Straight_10m")]
+transform = Transform3D(0, 0, -1, 0, 1, 0, 1, 0, 0, 246, 0, 441.75)
+metadata/tag = "HARLOW_E:8:A"
+
+[node name="SW_Straight_10m_010" parent="Sidewalks" instance=ExtResource("31_SW_Straight_10m")]
+transform = Transform3D(0, 0, 1, 0, 1, 0, -1, 0, 0, 236, 0, 434.25)
+metadata/tag = "HARLOW_E:8:B"
+
+[node name="RD_Straight_2Lane_10m_Unmarked_010" parent="Roads" instance=ExtResource("17_RD_Straight_2Lane_10m_Un")]
+transform = Transform3D(0, 0, -1, 0, 1, 0, 1, 0, 0, 236, 0, 438)
+metadata/tag = "HARLOW_E:9"
+
+[node name="SW_DrivewayTransition_10m_009" parent="Sidewalks" instance=ExtResource("30_SW_DrivewayTransition_10")]
+transform = Transform3D(0, 0, -1, 0, 1, 0, 1, 0, 0, 236, 0, 441.75)
+metadata/tag = "HARLOW_E:9:A"
+
+[node name="SW_DrivewayTransition_10m_010" parent="Sidewalks" instance=ExtResource("30_SW_DrivewayTransition_10")]
+transform = Transform3D(0, 0, 1, 0, 1, 0, -1, 0, 0, 226, 0, 434.25)
+metadata/tag = "HARLOW_E:9:B"
+
+[node name="RD_Straight_2Lane_10m_Unmarked_011" parent="Roads" instance=ExtResource("17_RD_Straight_2Lane_10m_Un")]
+transform = Transform3D(0, 0, -1, 0, 1, 0, 1, 0, 0, 226, 0, 438)
+metadata/tag = "HARLOW_E:10"
+
+[node name="SW_Straight_10m_011" parent="Sidewalks" instance=ExtResource("31_SW_Straight_10m")]
+transform = Transform3D(0, 0, -1, 0, 1, 0, 1, 0, 0, 226, 0, 441.75)
+metadata/tag = "HARLOW_E:10:A"
+
+[node name="SW_Straight_10m_012" parent="Sidewalks" instance=ExtResource("31_SW_Straight_10m")]
+transform = Transform3D(0, 0, 1, 0, 1, 0, -1, 0, 0, 216, 0, 434.25)
+metadata/tag = "HARLOW_E:10:B"
+
+[node name="RD_Straight_2Lane_10m_Unmarked_012" parent="Roads" instance=ExtResource("17_RD_Straight_2Lane_10m_Un")]
+transform = Transform3D(0, 0, -1, 0, 1, 0, 1, 0, 0, 216, 0, 438)
+metadata/tag = "HARLOW_E:11"
+
+[node name="SW_DrivewayTransition_10m_011" parent="Sidewalks" instance=ExtResource("30_SW_DrivewayTransition_10")]
+transform = Transform3D(0, 0, -1, 0, 1, 0, 1, 0, 0, 216, 0, 441.75)
+metadata/tag = "HARLOW_E:11:A"
+
+[node name="SW_DrivewayTransition_10m_012" parent="Sidewalks" instance=ExtResource("30_SW_DrivewayTransition_10")]
+transform = Transform3D(0, 0, 1, 0, 1, 0, -1, 0, 0, 206, 0, 434.25)
+metadata/tag = "HARLOW_E:11:B"
+
+[node name="RD_Straight_2Lane_10m_Unmarked_013" parent="Roads" instance=ExtResource("17_RD_Straight_2Lane_10m_Un")]
+transform = Transform3D(0, 0, -1, 0, 1, 0, 1, 0, 0, 194, 0, 438)
+metadata/tag = "HARLOW_W:0"
+
+[node name="SW_DrivewayTransition_10m_013" parent="Sidewalks" instance=ExtResource("30_SW_DrivewayTransition_10")]
+transform = Transform3D(0, 0, -1, 0, 1, 0, 1, 0, 0, 194, 0, 441.75)
+metadata/tag = "HARLOW_W:0:A"
+
+[node name="SW_DrivewayTransition_10m_014" parent="Sidewalks" instance=ExtResource("30_SW_DrivewayTransition_10")]
+transform = Transform3D(0, 0, 1, 0, 1, 0, -1, 0, 0, 184, 0, 434.25)
+metadata/tag = "HARLOW_W:0:B"
+
+[node name="RD_Straight_2Lane_10m_Unmarked_014" parent="Roads" instance=ExtResource("17_RD_Straight_2Lane_10m_Un")]
+transform = Transform3D(0, 0, -1, 0, 1, 0, 1, 0, 0, 184, 0, 438)
+metadata/tag = "HARLOW_W:1"
+
+[node name="SW_Straight_10m_013" parent="Sidewalks" instance=ExtResource("31_SW_Straight_10m")]
+transform = Transform3D(0, 0, -1, 0, 1, 0, 1, 0, 0, 184, 0, 441.75)
+metadata/tag = "HARLOW_W:1:A"
+
+[node name="SW_Straight_10m_014" parent="Sidewalks" instance=ExtResource("31_SW_Straight_10m")]
+transform = Transform3D(0, 0, 1, 0, 1, 0, -1, 0, 0, 174, 0, 434.25)
+metadata/tag = "HARLOW_W:1:B"
+
+[node name="RD_Straight_2Lane_10m_Unmarked_015" parent="Roads" instance=ExtResource("17_RD_Straight_2Lane_10m_Un")]
+transform = Transform3D(0, 0, -1, 0, 1, 0, 1, 0, 0, 174, 0, 438)
+metadata/tag = "HARLOW_W:2"
+
+[node name="SW_DrivewayTransition_10m_015" parent="Sidewalks" instance=ExtResource("30_SW_DrivewayTransition_10")]
+transform = Transform3D(0, 0, -1, 0, 1, 0, 1, 0, 0, 174, 0, 441.75)
+metadata/tag = "HARLOW_W:2:A"
+
+[node name="SW_DrivewayTransition_10m_016" parent="Sidewalks" instance=ExtResource("30_SW_DrivewayTransition_10")]
+transform = Transform3D(0, 0, 1, 0, 1, 0, -1, 0, 0, 164, 0, 434.25)
+metadata/tag = "HARLOW_W:2:B"
+
+[node name="RD_Straight_2Lane_10m_Unmarked_016" parent="Roads" instance=ExtResource("17_RD_Straight_2Lane_10m_Un")]
+transform = Transform3D(0, 0, -1, 0, 1, 0, 1, 0, 0, 164, 0, 438)
+metadata/tag = "HARLOW_W:3"
+
+[node name="SW_Straight_10m_015" parent="Sidewalks" instance=ExtResource("31_SW_Straight_10m")]
+transform = Transform3D(0, 0, -1, 0, 1, 0, 1, 0, 0, 164, 0, 441.75)
+metadata/tag = "HARLOW_W:3:A"
+
+[node name="SW_Straight_10m_016" parent="Sidewalks" instance=ExtResource("31_SW_Straight_10m")]
+transform = Transform3D(0, 0, 1, 0, 1, 0, -1, 0, 0, 154, 0, 434.25)
+metadata/tag = "HARLOW_W:3:B"
+
+[node name="RD_Straight_2Lane_10m_Unmarked_017" parent="Roads" instance=ExtResource("17_RD_Straight_2Lane_10m_Un")]
+transform = Transform3D(0, 0, -1, 0, 1, 0, 1, 0, 0, 154, 0, 438)
+metadata/tag = "HARLOW_W:4"
+
+[node name="SW_DrivewayTransition_10m_017" parent="Sidewalks" instance=ExtResource("30_SW_DrivewayTransition_10")]
+transform = Transform3D(0, 0, -1, 0, 1, 0, 1, 0, 0, 154, 0, 441.75)
+metadata/tag = "HARLOW_W:4:A"
+
+[node name="SW_DrivewayTransition_10m_018" parent="Sidewalks" instance=ExtResource("30_SW_DrivewayTransition_10")]
+transform = Transform3D(0, 0, 1, 0, 1, 0, -1, 0, 0, 144, 0, 434.25)
+metadata/tag = "HARLOW_W:4:B"
+
+[node name="RD_Straight_2Lane_10m_Unmarked_018" parent="Roads" instance=ExtResource("17_RD_Straight_2Lane_10m_Un")]
+transform = Transform3D(0, 0, -1, 0, 1, 0, 1, 0, 0, 144, 0, 438)
+metadata/tag = "HARLOW_W:5"
+
+[node name="SW_Straight_10m_017" parent="Sidewalks" instance=ExtResource("31_SW_Straight_10m")]
+transform = Transform3D(0, 0, -1, 0, 1, 0, 1, 0, 0, 144, 0, 441.75)
+metadata/tag = "HARLOW_W:5:A"
+
+[node name="SW_Straight_10m_018" parent="Sidewalks" instance=ExtResource("31_SW_Straight_10m")]
+transform = Transform3D(0, 0, 1, 0, 1, 0, -1, 0, 0, 134, 0, 434.25)
+metadata/tag = "HARLOW_W:5:B"
+
+[node name="RD_Straight_2Lane_10m_Unmarked_019" parent="Roads" instance=ExtResource("17_RD_Straight_2Lane_10m_Un")]
+transform = Transform3D(0, 0, -1, 0, 1, 0, 1, 0, 0, 134, 0, 438)
+metadata/tag = "HARLOW_W:6"
+
+[node name="SW_Straight_10m_019" parent="Sidewalks" instance=ExtResource("31_SW_Straight_10m")]
+transform = Transform3D(0, 0, -1, 0, 1, 0, 1, 0, 0, 134, 0, 441.75)
+metadata/tag = "HARLOW_W:6:A"
+
+[node name="SW_Straight_10m_020" parent="Sidewalks" instance=ExtResource("31_SW_Straight_10m")]
+transform = Transform3D(0, 0, 1, 0, 1, 0, -1, 0, 0, 124, 0, 434.25)
+metadata/tag = "HARLOW_W:6:B"
+
+[node name="RD_Straight_2Lane_10m_Unmarked_020" parent="Roads" instance=ExtResource("17_RD_Straight_2Lane_10m_Un")]
+transform = Transform3D(0, 0, -1, 0, 1, 0, 1, 0, 0, 124, 0, 438)
+metadata/tag = "HARLOW_W:7"
+
+[node name="SW_DrivewayTransition_10m_019" parent="Sidewalks" instance=ExtResource("30_SW_DrivewayTransition_10")]
+transform = Transform3D(0, 0, -1, 0, 1, 0, 1, 0, 0, 124, 0, 441.75)
+metadata/tag = "HARLOW_W:7:A"
+
+[node name="SW_DrivewayTransition_10m_020" parent="Sidewalks" instance=ExtResource("30_SW_DrivewayTransition_10")]
+transform = Transform3D(0, 0, 1, 0, 1, 0, -1, 0, 0, 114, 0, 434.25)
+metadata/tag = "HARLOW_W:7:B"
+
+[node name="RD_Straight_2Lane_10m_Unmarked_021" parent="Roads" instance=ExtResource("17_RD_Straight_2Lane_10m_Un")]
+transform = Transform3D(0, 0, -1, 0, 1, 0, 1, 0, 0, 114, 0, 438)
+metadata/tag = "HARLOW_W:8"
+
+[node name="SW_Straight_10m_021" parent="Sidewalks" instance=ExtResource("31_SW_Straight_10m")]
+transform = Transform3D(0, 0, -1, 0, 1, 0, 1, 0, 0, 114, 0, 441.75)
+metadata/tag = "HARLOW_W:8:A"
+
+[node name="SW_Straight_10m_022" parent="Sidewalks" instance=ExtResource("31_SW_Straight_10m")]
+transform = Transform3D(0, 0, 1, 0, 1, 0, -1, 0, 0, 104, 0, 434.25)
+metadata/tag = "HARLOW_W:8:B"
+
+[node name="RD_Straight_2Lane_10m_Unmarked_022" parent="Roads" instance=ExtResource("17_RD_Straight_2Lane_10m_Un")]
+transform = Transform3D(0, 0, -1, 0, 1, 0, 1, 0, 0, 104, 0, 438)
+metadata/tag = "HARLOW_W:9"
+
+[node name="SW_DrivewayTransition_10m_021" parent="Sidewalks" instance=ExtResource("30_SW_DrivewayTransition_10")]
+transform = Transform3D(0, 0, -1, 0, 1, 0, 1, 0, 0, 104, 0, 441.75)
+metadata/tag = "HARLOW_W:9:A"
+
+[node name="SW_DrivewayTransition_10m_022" parent="Sidewalks" instance=ExtResource("30_SW_DrivewayTransition_10")]
+transform = Transform3D(0, 0, 1, 0, 1, 0, -1, 0, 0, 94, 0, 434.25)
+metadata/tag = "HARLOW_W:9:B"
+
+[node name="RD_Straight_2Lane_10m_Unmarked_023" parent="Roads" instance=ExtResource("17_RD_Straight_2Lane_10m_Un")]
+transform = Transform3D(0, 0, -1, 0, 1, 0, 1, 0, 0, 94, 0, 438)
+metadata/tag = "HARLOW_W:10"
+
+[node name="SW_Straight_10m_023" parent="Sidewalks" instance=ExtResource("31_SW_Straight_10m")]
+transform = Transform3D(0, 0, -1, 0, 1, 0, 1, 0, 0, 94, 0, 441.75)
+metadata/tag = "HARLOW_W:10:A"
+
+[node name="SW_Straight_10m_024" parent="Sidewalks" instance=ExtResource("31_SW_Straight_10m")]
+transform = Transform3D(0, 0, 1, 0, 1, 0, -1, 0, 0, 84, 0, 434.25)
+metadata/tag = "HARLOW_W:10:B"
+
+[node name="RD_Straight_2Lane_10m_Unmarked_024" parent="Roads" instance=ExtResource("17_RD_Straight_2Lane_10m_Un")]
+transform = Transform3D(0, 0, -1, 0, 1, 0, 1, 0, 0, 84, 0, 438)
+metadata/tag = "HARLOW_W:11"
+
+[node name="SW_DrivewayTransition_10m_023" parent="Sidewalks" instance=ExtResource("30_SW_DrivewayTransition_10")]
+transform = Transform3D(0, 0, -1, 0, 1, 0, 1, 0, 0, 84, 0, 441.75)
+metadata/tag = "HARLOW_W:11:A"
+
+[node name="SW_DrivewayTransition_10m_024" parent="Sidewalks" instance=ExtResource("30_SW_DrivewayTransition_10")]
+transform = Transform3D(0, 0, 1, 0, 1, 0, -1, 0, 0, 74, 0, 434.25)
+metadata/tag = "HARLOW_W:11:B"
+
+[node name="RD_Straight_2Lane_10m_Unmarked_025" parent="Roads" instance=ExtResource("17_RD_Straight_2Lane_10m_Un")]
+transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 200, 0, 432)
+metadata/tag = "ASPEN:0"
+
+[node name="SW_Straight_10m_025" parent="Sidewalks" instance=ExtResource("31_SW_Straight_10m")]
+transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 196.25, 0, 432)
+metadata/tag = "ASPEN:0:A"
+
+[node name="SW_Straight_10m_026" parent="Sidewalks" instance=ExtResource("31_SW_Straight_10m")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 203.75, 0, 422)
+metadata/tag = "ASPEN:0:B"
+
+[node name="RD_Straight_2Lane_10m_Unmarked_026" parent="Roads" instance=ExtResource("17_RD_Straight_2Lane_10m_Un")]
+transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 200, 0, 422)
+metadata/tag = "ASPEN:1"
+
+[node name="SW_DrivewayTransition_10m_025" parent="Sidewalks" instance=ExtResource("30_SW_DrivewayTransition_10")]
+transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 196.25, 0, 422)
+metadata/tag = "ASPEN:1:A"
+
+[node name="SW_DrivewayTransition_10m_026" parent="Sidewalks" instance=ExtResource("30_SW_DrivewayTransition_10")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 203.75, 0, 412)
+metadata/tag = "ASPEN:1:B"
+
+[node name="RD_Straight_2Lane_10m_Unmarked_027" parent="Roads" instance=ExtResource("17_RD_Straight_2Lane_10m_Un")]
+transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 200, 0, 412)
+metadata/tag = "ASPEN:2"
+
+[node name="SW_Straight_10m_027" parent="Sidewalks" instance=ExtResource("31_SW_Straight_10m")]
+transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 196.25, 0, 412)
+metadata/tag = "ASPEN:2:A"
+
+[node name="SW_Straight_10m_028" parent="Sidewalks" instance=ExtResource("31_SW_Straight_10m")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 203.75, 0, 402)
+metadata/tag = "ASPEN:2:B"
+
+[node name="RD_Straight_2Lane_10m_Unmarked_028" parent="Roads" instance=ExtResource("17_RD_Straight_2Lane_10m_Un")]
+transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 200, 0, 402)
+metadata/tag = "ASPEN:3"
+
+[node name="SW_DrivewayTransition_10m_027" parent="Sidewalks" instance=ExtResource("30_SW_DrivewayTransition_10")]
+transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 196.25, 0, 402)
+metadata/tag = "ASPEN:3:A"
+
+[node name="SW_DrivewayTransition_10m_028" parent="Sidewalks" instance=ExtResource("30_SW_DrivewayTransition_10")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 203.75, 0, 392)
+metadata/tag = "ASPEN:3:B"
+
+[node name="RD_Straight_2Lane_10m_Unmarked_029" parent="Roads" instance=ExtResource("17_RD_Straight_2Lane_10m_Un")]
+transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 200, 0, 392)
+metadata/tag = "ASPEN:4"
+
+[node name="SW_Straight_10m_029" parent="Sidewalks" instance=ExtResource("31_SW_Straight_10m")]
+transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 196.25, 0, 392)
+metadata/tag = "ASPEN:4:A"
+
+[node name="SW_Straight_10m_030" parent="Sidewalks" instance=ExtResource("31_SW_Straight_10m")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 203.75, 0, 382)
+metadata/tag = "ASPEN:4:B"
+
+[node name="RD_Straight_2Lane_10m_Unmarked_030" parent="Roads" instance=ExtResource("17_RD_Straight_2Lane_10m_Un")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 68, 0, 444)
+metadata/tag = "FERN:0"
+
+[node name="SW_Straight_10m_031" parent="Sidewalks" instance=ExtResource("31_SW_Straight_10m")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 71.75, 0, 444)
+metadata/tag = "FERN:0:A"
+
+[node name="SW_Straight_10m_032" parent="Sidewalks" instance=ExtResource("31_SW_Straight_10m")]
+transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 64.25, 0, 454)
+metadata/tag = "FERN:0:B"
+
+[node name="RD_Straight_2Lane_10m_Unmarked_031" parent="Roads" instance=ExtResource("17_RD_Straight_2Lane_10m_Un")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 68, 0, 454)
+metadata/tag = "FERN:1"
+
+[node name="SW_DrivewayTransition_10m_029" parent="Sidewalks" instance=ExtResource("30_SW_DrivewayTransition_10")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 71.75, 0, 454)
+metadata/tag = "FERN:1:A"
+
+[node name="SW_DrivewayTransition_10m_030" parent="Sidewalks" instance=ExtResource("30_SW_DrivewayTransition_10")]
+transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 64.25, 0, 464)
+metadata/tag = "FERN:1:B"
+
+[node name="RD_Straight_2Lane_10m_Unmarked_032" parent="Roads" instance=ExtResource("17_RD_Straight_2Lane_10m_Un")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 68, 0, 464)
+metadata/tag = "FERN:2"
+
+[node name="SW_Straight_10m_033" parent="Sidewalks" instance=ExtResource("31_SW_Straight_10m")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 71.75, 0, 464)
+metadata/tag = "FERN:2:A"
+
+[node name="SW_Straight_10m_034" parent="Sidewalks" instance=ExtResource("31_SW_Straight_10m")]
+transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 64.25, 0, 474)
+metadata/tag = "FERN:2:B"
+
+[node name="RD_Straight_2Lane_10m_Unmarked_033" parent="Roads" instance=ExtResource("17_RD_Straight_2Lane_10m_Un")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 68, 0, 474)
+metadata/tag = "FERN:3"
+
+[node name="SW_DrivewayTransition_10m_031" parent="Sidewalks" instance=ExtResource("30_SW_DrivewayTransition_10")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 71.75, 0, 474)
+metadata/tag = "FERN:3:A"
+
+[node name="SW_DrivewayTransition_10m_032" parent="Sidewalks" instance=ExtResource("30_SW_DrivewayTransition_10")]
+transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 64.25, 0, 484)
+metadata/tag = "FERN:3:B"
+
+[node name="RD_Straight_2Lane_10m_Unmarked_034" parent="Roads" instance=ExtResource("17_RD_Straight_2Lane_10m_Un")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 68, 0, 484)
+metadata/tag = "FERN:4"
+
+[node name="SW_DrivewayTransition_10m_033" parent="Sidewalks" instance=ExtResource("30_SW_DrivewayTransition_10")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 71.75, 0, 484)
+metadata/tag = "FERN:4:A"
+
+[node name="SW_DrivewayTransition_10m_034" parent="Sidewalks" instance=ExtResource("30_SW_DrivewayTransition_10")]
+transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 64.25, 0, 494)
+metadata/tag = "FERN:4:B"
+
+[node name="RD_Straight_2Lane_10m_Unmarked_035" parent="Roads" instance=ExtResource("17_RD_Straight_2Lane_10m_Un")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 68, 0, 494)
+metadata/tag = "FERN:5"
+
+[node name="SW_Straight_10m_035" parent="Sidewalks" instance=ExtResource("31_SW_Straight_10m")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 71.75, 0, 494)
+metadata/tag = "FERN:5:A"
+
+[node name="SW_Straight_10m_036" parent="Sidewalks" instance=ExtResource("31_SW_Straight_10m")]
+transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 64.25, 0, 504)
+metadata/tag = "FERN:5:B"
+
+[node name="RD_Straight_2Lane_10m_Unmarked_036" parent="Roads" instance=ExtResource("17_RD_Straight_2Lane_10m_Un")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 68, 0, 504)
+metadata/tag = "FERN:6"
+
+[node name="SW_DrivewayTransition_10m_035" parent="Sidewalks" instance=ExtResource("30_SW_DrivewayTransition_10")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 71.75, 0, 504)
+metadata/tag = "FERN:6:A"
+
+[node name="SW_DrivewayTransition_10m_036" parent="Sidewalks" instance=ExtResource("30_SW_DrivewayTransition_10")]
+transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 64.25, 0, 514)
+metadata/tag = "FERN:6:B"
+
+[node name="RD_Straight_2Lane_10m_Unmarked_037" parent="Roads" instance=ExtResource("17_RD_Straight_2Lane_10m_Un")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 68, 0, 514)
+metadata/tag = "FERN:7"
+
+[node name="SW_Straight_10m_037" parent="Sidewalks" instance=ExtResource("31_SW_Straight_10m")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 71.75, 0, 514)
+metadata/tag = "FERN:7:A"
+
+[node name="SW_Straight_10m_038" parent="Sidewalks" instance=ExtResource("31_SW_Straight_10m")]
+transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 64.25, 0, 524)
+metadata/tag = "FERN:7:B"
+
+[node name="RD_Straight_2Lane_10m_Unmarked_038" parent="Roads" instance=ExtResource("17_RD_Straight_2Lane_10m_Un")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 68, 0, 524)
+metadata/tag = "FERN:8"
+
+[node name="SW_DrivewayTransition_10m_037" parent="Sidewalks" instance=ExtResource("30_SW_DrivewayTransition_10")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 71.75, 0, 524)
+metadata/tag = "FERN:8:A"
+
+[node name="SW_DrivewayTransition_10m_038" parent="Sidewalks" instance=ExtResource("30_SW_DrivewayTransition_10")]
+transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 64.25, 0, 534)
+metadata/tag = "FERN:8:B"
+
+[node name="RD_Straight_2Lane_10m_Unmarked_039" parent="Roads" instance=ExtResource("17_RD_Straight_2Lane_10m_Un")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 68, 0, 534)
+metadata/tag = "FERN:9"
+
+[node name="SW_DrivewayTransition_10m_039" parent="Sidewalks" instance=ExtResource("30_SW_DrivewayTransition_10")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 71.75, 0, 534)
+metadata/tag = "FERN:9:A"
+
+[node name="SW_DrivewayTransition_10m_040" parent="Sidewalks" instance=ExtResource("30_SW_DrivewayTransition_10")]
+transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 64.25, 0, 544)
+metadata/tag = "FERN:9:B"
+
+[node name="RD_Straight_2Lane_10m_Unmarked_040" parent="Roads" instance=ExtResource("17_RD_Straight_2Lane_10m_Un")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 68, 0, 544)
+metadata/tag = "FERN:10"
+
+[node name="SW_Straight_10m_039" parent="Sidewalks" instance=ExtResource("31_SW_Straight_10m")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 71.75, 0, 544)
+metadata/tag = "FERN:10:A"
+
+[node name="SW_Straight_10m_040" parent="Sidewalks" instance=ExtResource("31_SW_Straight_10m")]
+transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 64.25, 0, 554)
+metadata/tag = "FERN:10:B"
+
+[node name="RD_Straight_2Lane_10m_001" parent="Roads" instance=ExtResource("16_RD_Straight_2Lane_10m")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 332, 0, 444)
+metadata/tag = "ROUTE9_S:0"
+
+[node name="SW_Straight_10m_041" parent="Sidewalks" instance=ExtResource("31_SW_Straight_10m")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 335.75, 0, 444)
+metadata/tag = "ROUTE9_S:0:A"
+
+[node name="SW_Straight_10m_042" parent="Sidewalks" instance=ExtResource("31_SW_Straight_10m")]
+transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 328.25, 0, 454)
+metadata/tag = "ROUTE9_S:0:B"
+
+[node name="RD_Straight_2Lane_10m_002" parent="Roads" instance=ExtResource("16_RD_Straight_2Lane_10m")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 332, 0, 454)
+metadata/tag = "ROUTE9_S:1"
+
+[node name="SW_Straight_10m_043" parent="Sidewalks" instance=ExtResource("31_SW_Straight_10m")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 335.75, 0, 454)
+metadata/tag = "ROUTE9_S:1:A"
+
+[node name="SW_Straight_10m_044" parent="Sidewalks" instance=ExtResource("31_SW_Straight_10m")]
+transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 328.25, 0, 464)
+metadata/tag = "ROUTE9_S:1:B"
+
+[node name="RD_Straight_2Lane_10m_003" parent="Roads" instance=ExtResource("16_RD_Straight_2Lane_10m")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 332, 0, 464)
+metadata/tag = "ROUTE9_S:2"
+
+[node name="SW_Straight_10m_045" parent="Sidewalks" instance=ExtResource("31_SW_Straight_10m")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 335.75, 0, 464)
+metadata/tag = "ROUTE9_S:2:A"
+
+[node name="SW_Straight_10m_046" parent="Sidewalks" instance=ExtResource("31_SW_Straight_10m")]
+transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 328.25, 0, 474)
+metadata/tag = "ROUTE9_S:2:B"
+
+[node name="RD_Driveway_3x8m_001" parent="Lots" instance=ExtResource("13_RD_Driveway_3x8m")]
+transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 321, 0, 432)
+metadata/tag = "EXT_HOUSE_01"
+
+[node name="RD_Driveway_3x8m_002" parent="Lots" instance=ExtResource("13_RD_Driveway_3x8m")]
+transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 301, 0, 432)
+metadata/tag = "EXT_HOUSE_02"
+
+[node name="RD_Driveway_3x8m_003" parent="Lots" instance=ExtResource("13_RD_Driveway_3x8m")]
+transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 281, 0, 432)
+metadata/tag = "EXT_HOUSE_03"
+
+[node name="RD_Driveway_3x8m_004" parent="Lots" instance=ExtResource("13_RD_Driveway_3x8m")]
+transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 251, 0, 432)
+metadata/tag = "EXT_HOUSE_04"
+
+[node name="RD_Driveway_3x8m_005" parent="Lots" instance=ExtResource("13_RD_Driveway_3x8m")]
+transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 231, 0, 432)
+metadata/tag = "EXT_HOUSE_05"
+
+[node name="RD_Driveway_3x8m_006" parent="Lots" instance=ExtResource("13_RD_Driveway_3x8m")]
+transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 211, 0, 432)
+metadata/tag = "EXT_HOUSE_06"
+
+[node name="RD_Driveway_3x8m_007" parent="Lots" instance=ExtResource("13_RD_Driveway_3x8m")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 321, 0, 444)
+metadata/tag = "EXT_HOUSE_07"
+
+[node name="RD_Driveway_3x8m_008" parent="Lots" instance=ExtResource("13_RD_Driveway_3x8m")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 301, 0, 444)
+metadata/tag = "EXT_HOUSE_08"
+
+[node name="RD_Driveway_3x8m_009" parent="Lots" instance=ExtResource("13_RD_Driveway_3x8m")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 281, 0, 444)
+metadata/tag = "EXT_HOUSE_09"
+
+[node name="RD_Driveway_3x8m_010" parent="Lots" instance=ExtResource("13_RD_Driveway_3x8m")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 251, 0, 444)
+metadata/tag = "EXT_HOUSE_10"
+
+[node name="RD_Driveway_3x8m_011" parent="Lots" instance=ExtResource("13_RD_Driveway_3x8m")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 231, 0, 444)
+metadata/tag = "EXT_HOUSE_11"
+
+[node name="RD_Driveway_3x8m_012" parent="Lots" instance=ExtResource("13_RD_Driveway_3x8m")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 211, 0, 444)
+metadata/tag = "EXT_HOUSE_12"
+
+[node name="RD_Driveway_3x8m_013" parent="Lots" instance=ExtResource("13_RD_Driveway_3x8m")]
+transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 189, 0, 432)
+metadata/tag = "EXT_HOUSE_13"
+
+[node name="RD_Driveway_3x8m_014" parent="Lots" instance=ExtResource("13_RD_Driveway_3x8m")]
+transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 169, 0, 432)
+metadata/tag = "EXT_HOUSE_14"
+
+[node name="RD_Driveway_3x8m_015" parent="Lots" instance=ExtResource("13_RD_Driveway_3x8m")]
+transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 149, 0, 432)
+metadata/tag = "EXT_HOUSE_15"
+
+[node name="RD_Driveway_3x8m_016" parent="Lots" instance=ExtResource("13_RD_Driveway_3x8m")]
+transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 119, 0, 432)
+metadata/tag = "EXT_HOUSE_16"
+
+[node name="RD_Driveway_3x8m_017" parent="Lots" instance=ExtResource("13_RD_Driveway_3x8m")]
+transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 99, 0, 432)
+metadata/tag = "EXT_HOUSE_17"
+
+[node name="RD_Driveway_3x8m_018" parent="Lots" instance=ExtResource("13_RD_Driveway_3x8m")]
+transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 79, 0, 432)
+metadata/tag = "EXT_HOUSE_18"
+
+[node name="RD_Driveway_3x8m_019" parent="Lots" instance=ExtResource("13_RD_Driveway_3x8m")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 189, 0, 444)
+metadata/tag = "EXT_HOUSE_19"
+
+[node name="RD_Driveway_3x8m_020" parent="Lots" instance=ExtResource("13_RD_Driveway_3x8m")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 169, 0, 444)
+metadata/tag = "EXT_HOUSE_20"
+
+[node name="RD_Driveway_3x8m_021" parent="Lots" instance=ExtResource("13_RD_Driveway_3x8m")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 149, 0, 444)
+metadata/tag = "EXT_HOUSE_21"
+
+[node name="RD_Driveway_3x8m_022" parent="Lots" instance=ExtResource("13_RD_Driveway_3x8m")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 119, 0, 444)
+metadata/tag = "EXT_HOUSE_22"
+
+[node name="RD_Driveway_3x8m_023" parent="Lots" instance=ExtResource("13_RD_Driveway_3x8m")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 99, 0, 444)
+metadata/tag = "EXT_HOUSE_23"
+
+[node name="RD_Driveway_3x8m_024" parent="Lots" instance=ExtResource("13_RD_Driveway_3x8m")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 79, 0, 444)
+metadata/tag = "EXT_HOUSE_24"
+
+[node name="RD_Driveway_3x8m_025" parent="Lots" instance=ExtResource("13_RD_Driveway_3x8m")]
+transform = Transform3D(0, 0, 1, 0, 1, 0, -1, 0, 0, 206, 0, 417)
+metadata/tag = "EXT_HOUSE_25"
+
+[node name="RD_Driveway_3x8m_026" parent="Lots" instance=ExtResource("13_RD_Driveway_3x8m")]
+transform = Transform3D(0, 0, 1, 0, 1, 0, -1, 0, 0, 206, 0, 397)
+metadata/tag = "EXT_HOUSE_26"
+
+[node name="RD_Driveway_3x8m_027" parent="Lots" instance=ExtResource("13_RD_Driveway_3x8m")]
+transform = Transform3D(0, 0, -1, 0, 1, 0, 1, 0, 0, 194, 0, 417)
+metadata/tag = "EXT_HOUSE_27"
+
+[node name="RD_Driveway_3x8m_028" parent="Lots" instance=ExtResource("13_RD_Driveway_3x8m")]
+transform = Transform3D(0, 0, -1, 0, 1, 0, 1, 0, 0, 194, 0, 397)
+metadata/tag = "EXT_HOUSE_28"
+
+[node name="RD_Driveway_3x8m_029" parent="Lots" instance=ExtResource("13_RD_Driveway_3x8m")]
+transform = Transform3D(0, 0, 1, 0, 1, 0, -1, 0, 0, 74, 0, 459)
+metadata/tag = "EXT_HOUSE_29"
+
+[node name="RD_Driveway_3x8m_030" parent="Lots" instance=ExtResource("13_RD_Driveway_3x8m")]
+transform = Transform3D(0, 0, 1, 0, 1, 0, -1, 0, 0, 74, 0, 479)
+metadata/tag = "EXT_HOUSE_30"
+
+[node name="RD_Driveway_3x8m_031" parent="Lots" instance=ExtResource("13_RD_Driveway_3x8m")]
+transform = Transform3D(0, 0, 1, 0, 1, 0, -1, 0, 0, 74, 0, 489)
+metadata/tag = "EXT_HOUSE_31"
+
+[node name="RD_Driveway_3x8m_032" parent="Lots" instance=ExtResource("13_RD_Driveway_3x8m")]
+transform = Transform3D(0, 0, 1, 0, 1, 0, -1, 0, 0, 74, 0, 509)
+metadata/tag = "EXT_HOUSE_32"
+
+[node name="RD_Driveway_3x8m_033" parent="Lots" instance=ExtResource("13_RD_Driveway_3x8m")]
+transform = Transform3D(0, 0, 1, 0, 1, 0, -1, 0, 0, 74, 0, 529)
+metadata/tag = "EXT_HOUSE_33"
+
+[node name="RD_Driveway_3x8m_034" parent="Lots" instance=ExtResource("13_RD_Driveway_3x8m")]
+transform = Transform3D(0, 0, 1, 0, 1, 0, -1, 0, 0, 74, 0, 539)
+metadata/tag = "EXT_HOUSE_34"
+
+[node name="RD_Driveway_3x8m_035" parent="Lots" instance=ExtResource("13_RD_Driveway_3x8m")]
+transform = Transform3D(0, 0, -1, 0, 1, 0, 1, 0, 0, 62, 0, 459)
+metadata/tag = "EXT_HOUSE_35"
+
+[node name="RD_Driveway_3x8m_036" parent="Lots" instance=ExtResource("13_RD_Driveway_3x8m")]
+transform = Transform3D(0, 0, -1, 0, 1, 0, 1, 0, 0, 62, 0, 479)
+metadata/tag = "EXT_HOUSE_36"
+
+[node name="RD_Driveway_3x8m_037" parent="Lots" instance=ExtResource("13_RD_Driveway_3x8m")]
+transform = Transform3D(0, 0, -1, 0, 1, 0, 1, 0, 0, 62, 0, 489)
+metadata/tag = "EXT_HOUSE_37"
+
+[node name="RD_Driveway_3x8m_038" parent="Lots" instance=ExtResource("13_RD_Driveway_3x8m")]
+transform = Transform3D(0, 0, -1, 0, 1, 0, 1, 0, 0, 62, 0, 509)
+metadata/tag = "PLAYER_HOME"
+
+[node name="RD_Driveway_3x8m_039" parent="Lots" instance=ExtResource("13_RD_Driveway_3x8m")]
+transform = Transform3D(0, 0, -1, 0, 1, 0, 1, 0, 0, 62, 0, 529)
+metadata/tag = "EXT_HOUSE_39"
+
+[node name="RD_Driveway_3x8m_040" parent="Lots" instance=ExtResource("13_RD_Driveway_3x8m")]
+transform = Transform3D(0, 0, -1, 0, 1, 0, 1, 0, 0, 62, 0, 539)
+metadata/tag = "EXT_HOUSE_40"
+
+[node name="SP_Lamp_Residential_001" parent="StreetProps" instance=ExtResource("20_SP_Lamp_Residential")]
+transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 324, 0.15, 443.65)
+metadata/tag = "HARLOW_E"
+
+[node name="SP_Lamp_Residential_002" parent="StreetProps" instance=ExtResource("20_SP_Lamp_Residential")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 296, 0.15, 432.35)
+metadata/tag = "HARLOW_E"
+
+[node name="SP_Lamp_Residential_003" parent="StreetProps" instance=ExtResource("20_SP_Lamp_Residential")]
+transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 271, 0.15, 443.65)
+metadata/tag = "HARLOW_E"
+
+[node name="SP_Lamp_Residential_004" parent="StreetProps" instance=ExtResource("20_SP_Lamp_Residential")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 246, 0.15, 432.35)
+metadata/tag = "HARLOW_E"
+
+[node name="SP_Lamp_Residential_005" parent="StreetProps" instance=ExtResource("20_SP_Lamp_Residential")]
+transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 221, 0.15, 443.65)
+metadata/tag = "HARLOW_E"
+
+[node name="SP_Lamp_Residential_006" parent="StreetProps" instance=ExtResource("20_SP_Lamp_Residential")]
+transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 192, 0.15, 443.65)
+metadata/tag = "HARLOW_W"
+
+[node name="SP_Lamp_Residential_007" parent="StreetProps" instance=ExtResource("20_SP_Lamp_Residential")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 164, 0.15, 432.35)
+metadata/tag = "HARLOW_W"
+
+[node name="SP_Lamp_Residential_008" parent="StreetProps" instance=ExtResource("20_SP_Lamp_Residential")]
+transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 139, 0.15, 443.65)
+metadata/tag = "HARLOW_W"
+
+[node name="SP_Lamp_Residential_009" parent="StreetProps" instance=ExtResource("20_SP_Lamp_Residential")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 114, 0.15, 432.35)
+metadata/tag = "HARLOW_W"
+
+[node name="SP_Lamp_Residential_010" parent="StreetProps" instance=ExtResource("20_SP_Lamp_Residential")]
+transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 89, 0.15, 443.65)
+metadata/tag = "HARLOW_W"
+
+[node name="SP_Lamp_Residential_011" parent="StreetProps" instance=ExtResource("20_SP_Lamp_Residential")]
+transform = Transform3D(0, 0, 1, 0, 1, 0, -1, 0, 0, 194.35, 0.15, 430)
+metadata/tag = "ASPEN"
+
+[node name="SP_Lamp_Residential_012" parent="StreetProps" instance=ExtResource("20_SP_Lamp_Residential")]
+transform = Transform3D(0, 0, -1, 0, 1, 0, 1, 0, 0, 205.65, 0.15, 405)
+metadata/tag = "ASPEN"
+
+[node name="SP_Lamp_Residential_013" parent="StreetProps" instance=ExtResource("20_SP_Lamp_Residential")]
+transform = Transform3D(0, 0, -1, 0, 1, 0, 1, 0, 0, 73.65, 0.15, 446)
+metadata/tag = "FERN"
+
+[node name="SP_Lamp_Residential_014" parent="StreetProps" instance=ExtResource("20_SP_Lamp_Residential")]
+transform = Transform3D(0, 0, 1, 0, 1, 0, -1, 0, 0, 62.35, 0.15, 471)
+metadata/tag = "FERN"
+
+[node name="SP_Lamp_Residential_015" parent="StreetProps" instance=ExtResource("20_SP_Lamp_Residential")]
+transform = Transform3D(0, 0, -1, 0, 1, 0, 1, 0, 0, 73.65, 0.15, 496)
+metadata/tag = "FERN"
+
+[node name="SP_Lamp_Residential_016" parent="StreetProps" instance=ExtResource("20_SP_Lamp_Residential")]
+transform = Transform3D(0, 0, 1, 0, 1, 0, -1, 0, 0, 62.35, 0.15, 521)
+metadata/tag = "FERN"
+
+[node name="SP_Lamp_Residential_017" parent="StreetProps" instance=ExtResource("20_SP_Lamp_Residential")]
+transform = Transform3D(0, 0, -1, 0, 1, 0, 1, 0, 0, 73.65, 0.15, 546)
+metadata/tag = "FERN"
+
+[node name="SP_Lamp_Residential_018" parent="StreetProps" instance=ExtResource("20_SP_Lamp_Residential")]
+transform = Transform3D(0, 0, -1, 0, 1, 0, 1, 0, 0, 337.65, 0.15, 446)
+metadata/tag = "ROUTE9_S"
+
+[node name="SP_Lamp_Residential_019" parent="StreetProps" instance=ExtResource("20_SP_Lamp_Residential")]
+transform = Transform3D(0, 0, 1, 0, 1, 0, -1, 0, 0, 326.35, 0.15, 471)
+metadata/tag = "ROUTE9_S"
+
+[node name="SP_Sign_Stop_001" parent="StreetProps" instance=ExtResource("26_SP_Sign_Stop")]
+transform = Transform3D(0, 0, -1, 0, 1, 0, 1, 0, 0, 325.2, 0.15, 442.6)
+metadata/tag = "N20"
+
+[node name="SP_FireHydrant_001" parent="StreetProps" instance=ExtResource("19_SP_FireHydrant")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 326.8, 0.15, 444.8)
+metadata/tag = "N20"
+
+[node name="SP_Sign_Stop_002" parent="StreetProps" instance=ExtResource("26_SP_Sign_Stop")]
+transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 195.4, 0.15, 431.2)
+metadata/tag = "N23"
+
+[node name="SP_FireHydrant_002" parent="StreetProps" instance=ExtResource("19_SP_FireHydrant")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 194.8, 0.15, 444.8)
+metadata/tag = "N23"
+
+[node name="SP_Sign_DeadEnd_001" parent="StreetProps" instance=ExtResource("24_SP_Sign_DeadEnd")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 73.2, 0.15, 552)
+metadata/tag = "N22"
+
+[node name="SP_Sign_DeadEnd_002" parent="StreetProps" instance=ExtResource("24_SP_Sign_DeadEnd")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 205.2, 0.15, 384)
+metadata/tag = "N24"
+
+[node name="SP_BusShelter_001" parent="StreetProps" instance=ExtResource("18_SP_BusShelter")]
+transform = Transform3D(0, 0, -1, 0, 1, 0, 1, 0, 0, 341, 0.15, 422)
+metadata/tag = "N20"
+
+[node name="SP_Sign_BusStop_001" parent="StreetProps" instance=ExtResource("23_SP_Sign_BusStop")]
+transform = Transform3D(0, 0, -1, 0, 1, 0, 1, 0, 0, 339.2, 0.15, 417)
+metadata/tag = "N20"
+
+[node name="SP_TrashBin_Public_001" parent="StreetProps" instance=ExtResource("28_SP_TrashBin_Public")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 340, 0.15, 426.5)
+metadata/tag = "N20"
+
+[node name="SP_Sign_SpeedLimit25_001" parent="StreetProps" instance=ExtResource("25_SP_Sign_SpeedLimit25")]
+transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 320, 0.15, 431)
+metadata/tag = "HARLOW_E"
+
+[node name="SP_RoadBarrier_001" parent="Interactive" instance=ExtResource("22_SP_RoadBarrier")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 332, 0.15, 484)
+metadata/tag = "ROUTE9_END"
+
+[node name="SP_TrafficCone_001" parent="Interactive" instance=ExtResource("27_SP_TrafficCone")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 330, 0.15, 482.5)
+metadata/tag = "ROUTE9_END"
+
+[node name="SP_TrafficCone_002" parent="Interactive" instance=ExtResource("27_SP_TrafficCone")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 332, 0.15, 482.5)
+metadata/tag = "ROUTE9_END"
+
+[node name="SP_TrafficCone_003" parent="Interactive" instance=ExtResource("27_SP_TrafficCone")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 334, 0.15, 482.5)
+metadata/tag = "ROUTE9_END"
+
+[node name="SP_Mailbox_Residential_001" parent="StreetProps" instance=ExtResource("21_SP_Mailbox_Residential")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 318.7, 0.15, 431.5)
+metadata/tag = "EXT_HOUSE_01"
+
+[node name="UT_WaterMeter_001" parent="StreetProps" instance=ExtResource("32_UT_WaterMeter")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 323.4, 0.15, 431.4)
+metadata/tag = "EXT_HOUSE_01"
+
+[node name="VG_Tree_DeciduousSmall_001" parent="Vegetation" instance=ExtResource("36_VG_Tree_DeciduousSmall")]
+transform = Transform3D(0.99389, 0, 0.11033, 0, 1, 0, -0.11033, 0, 0.99389, 312.357, 0.15, 428.8)
+metadata/tag = "EXT_HOUSE_01"
+
+[node name="VG_Bush_001" parent="Vegetation" instance=ExtResource("33_VG_Bush")]
+transform = Transform3D(0.90927, 0, 0.41621, 0, 1, 0, -0.41621, 0, 0.90927, 317.1122, 0.15, 427.1)
+metadata/tag = "EXT_HOUSE_01"
+
+[node name="FN_Picket_2.5m_001" parent="Fences" instance=ExtResource("4_FN_Picket_2.5m")]
+transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 325.75, 0.15, 431.75)
+metadata/tag = "EXT_HOUSE_01"
+
+[node name="FN_Post_Picket_001" parent="Fences" instance=ExtResource("6_FN_Post_Picket")]
+transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 323.25, 0.15, 431.75)
+metadata/tag = "EXT_HOUSE_01"
+
+[node name="FN_Post_Picket_002" parent="Fences" instance=ExtResource("6_FN_Post_Picket")]
+transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 319.25, 0.15, 431.75)
+metadata/tag = "EXT_HOUSE_01"
+
+[node name="FN_GardenGate_1.25m_001" parent="Interactive" instance=ExtResource("2_FN_GardenGate_1.25m")]
+transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 319.25, 0.15, 431.75)
+metadata/tag = "EXT_HOUSE_01"
+
+[node name="FN_Post_Picket_003" parent="Fences" instance=ExtResource("6_FN_Post_Picket")]
+transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 318, 0.15, 431.75)
+metadata/tag = "EXT_HOUSE_01"
+
+[node name="FN_Picket_2.5m_002" parent="Fences" instance=ExtResource("4_FN_Picket_2.5m")]
+transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 318, 0.15, 431.75)
+metadata/tag = "EXT_HOUSE_01"
+
+[node name="FN_Picket_2.5m_003" parent="Fences" instance=ExtResource("4_FN_Picket_2.5m")]
+transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 315.5, 0.15, 431.75)
+metadata/tag = "EXT_HOUSE_01"
+
+[node name="FN_Picket_2.5m_004" parent="Fences" instance=ExtResource("4_FN_Picket_2.5m")]
+transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 313, 0.15, 431.75)
+metadata/tag = "EXT_HOUSE_01"
+
+[node name="FN_Post_Picket_004" parent="Fences" instance=ExtResource("6_FN_Post_Picket")]
+transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 310.5, 0.15, 431.75)
+metadata/tag = "EXT_HOUSE_01"
+
+[node name="FN_Privacy_2.5m_001" parent="Fences" instance=ExtResource("8_FN_Privacy_2.5m")]
+transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 325.75, 0.15, 412.4)
+metadata/tag = "EXT_HOUSE_01"
+
+[node name="FN_Privacy_2.5m_002" parent="Fences" instance=ExtResource("8_FN_Privacy_2.5m")]
+transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 323.25, 0.15, 412.4)
+metadata/tag = "EXT_HOUSE_01"
+
+[node name="FN_Privacy_2.5m_003" parent="Fences" instance=ExtResource("8_FN_Privacy_2.5m")]
+transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 320.75, 0.15, 412.4)
+metadata/tag = "EXT_HOUSE_01"
+
+[node name="FN_Privacy_2.5m_004" parent="Fences" instance=ExtResource("8_FN_Privacy_2.5m")]
+transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 318.25, 0.15, 412.4)
+metadata/tag = "EXT_HOUSE_01"
+
+[node name="FN_Privacy_2.5m_005" parent="Fences" instance=ExtResource("8_FN_Privacy_2.5m")]
+transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 315.75, 0.15, 412.4)
+metadata/tag = "EXT_HOUSE_01"
+
+[node name="FN_Privacy_2.5m_006" parent="Fences" instance=ExtResource("8_FN_Privacy_2.5m")]
+transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 313.25, 0.15, 412.4)
+metadata/tag = "EXT_HOUSE_01"
+
+[node name="FN_Post_Privacy_001" parent="Fences" instance=ExtResource("7_FN_Post_Privacy")]
+transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 310.75, 0.15, 412.4)
+metadata/tag = "EXT_HOUSE_01"
+
+[node name="SP_Mailbox_Residential_002" parent="StreetProps" instance=ExtResource("21_SP_Mailbox_Residential")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 298.7, 0.15, 431.5)
+metadata/tag = "EXT_HOUSE_02"
+
+[node name="UT_WaterMeter_002" parent="StreetProps" instance=ExtResource("32_UT_WaterMeter")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 303.4, 0.15, 431.4)
+metadata/tag = "EXT_HOUSE_02"
+
+[node name="VG_Tree_DeciduousLarge_001" parent="Vegetation" instance=ExtResource("35_VG_Tree_DeciduousLarge")]
+transform = Transform3D(0.38828, 0, -0.92154, 0, 1, 0, 0.92154, 0, 0.38828, 305.357, 0.15, 428.8)
+metadata/tag = "EXT_HOUSE_02"
+
+[node name="FN_Privacy_2.5m_007" parent="Fences" instance=ExtResource("8_FN_Privacy_2.5m")]
+transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 308.607, 0.15, 412.4)
+metadata/tag = "EXT_HOUSE_02"
+
+[node name="FN_Privacy_2.5m_008" parent="Fences" instance=ExtResource("8_FN_Privacy_2.5m")]
+transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 306.107, 0.15, 412.4)
+metadata/tag = "EXT_HOUSE_02"
+
+[node name="FN_Privacy_2.5m_009" parent="Fences" instance=ExtResource("8_FN_Privacy_2.5m")]
+transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 303.607, 0.15, 412.4)
+metadata/tag = "EXT_HOUSE_02"
+
+[node name="FN_Privacy_2.5m_010" parent="Fences" instance=ExtResource("8_FN_Privacy_2.5m")]
+transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 301.107, 0.15, 412.4)
+metadata/tag = "EXT_HOUSE_02"
+
+[node name="FN_Privacy_2.5m_011" parent="Fences" instance=ExtResource("8_FN_Privacy_2.5m")]
+transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 298.607, 0.15, 412.4)
+metadata/tag = "EXT_HOUSE_02"
+
+[node name="FN_Privacy_2.5m_012" parent="Fences" instance=ExtResource("8_FN_Privacy_2.5m")]
+transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 296.107, 0.15, 412.4)
+metadata/tag = "EXT_HOUSE_02"
+
+[node name="FN_Post_Privacy_002" parent="Fences" instance=ExtResource("7_FN_Post_Privacy")]
+transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 293.607, 0.15, 412.4)
+metadata/tag = "EXT_HOUSE_02"
+
+[node name="SP_Mailbox_Residential_003" parent="StreetProps" instance=ExtResource("21_SP_Mailbox_Residential")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 278.7, 0.15, 431.5)
+metadata/tag = "EXT_HOUSE_03"
+
+[node name="UT_WaterMeter_003" parent="StreetProps" instance=ExtResource("32_UT_WaterMeter")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 283.4, 0.15, 431.4)
+metadata/tag = "EXT_HOUSE_03"
+
+[node name="VG_Tree_DeciduousSmall_002" parent="Vegetation" instance=ExtResource("36_VG_Tree_DeciduousSmall")]
+transform = Transform3D(0.84904, 0, 0.52833, 0, 1, 0, -0.52833, 0, 0.84904, 288.214, 0.15, 428.8)
+metadata/tag = "EXT_HOUSE_03"
+
+[node name="FN_Picket_2.5m_005" parent="Fences" instance=ExtResource("4_FN_Picket_2.5m")]
+transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 291.464, 0.15, 431.75)
+metadata/tag = "EXT_HOUSE_03"
+
+[node name="FN_GardenGate_1.25m_002" parent="Interactive" instance=ExtResource("2_FN_GardenGate_1.25m")]
+transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 288.964, 0.15, 431.75)
+metadata/tag = "EXT_HOUSE_03"
+
+[node name="FN_Post_Picket_005" parent="Fences" instance=ExtResource("6_FN_Post_Picket")]
+transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 287.714, 0.15, 431.75)
+metadata/tag = "EXT_HOUSE_03"
+
+[node name="FN_Picket_2.5m_006" parent="Fences" instance=ExtResource("4_FN_Picket_2.5m")]
+transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 287.714, 0.15, 431.75)
+metadata/tag = "EXT_HOUSE_03"
+
+[node name="FN_Post_Picket_006" parent="Fences" instance=ExtResource("6_FN_Post_Picket")]
+transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 285.214, 0.15, 431.75)
+metadata/tag = "EXT_HOUSE_03"
+
+[node name="FN_Post_Picket_007" parent="Fences" instance=ExtResource("6_FN_Post_Picket")]
+transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 279.25, 0.15, 431.75)
+metadata/tag = "EXT_HOUSE_03"
+
+[node name="FN_Picket_2.5m_007" parent="Fences" instance=ExtResource("4_FN_Picket_2.5m")]
+transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 279.25, 0.15, 431.75)
+metadata/tag = "EXT_HOUSE_03"
+
+[node name="FN_Post_Picket_008" parent="Fences" instance=ExtResource("6_FN_Post_Picket")]
+transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 276.75, 0.15, 431.75)
+metadata/tag = "EXT_HOUSE_03"
+
+[node name="FN_ChainLink_2.5m_001" parent="Fences" instance=ExtResource("1_FN_ChainLink_2.5m")]
+transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 291.464, 0.15, 412.4)
+metadata/tag = "EXT_HOUSE_03"
+
+[node name="FN_ChainLink_2.5m_002" parent="Fences" instance=ExtResource("1_FN_ChainLink_2.5m")]
+transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 288.964, 0.15, 412.4)
+metadata/tag = "EXT_HOUSE_03"
+
+[node name="FN_ChainLink_2.5m_003" parent="Fences" instance=ExtResource("1_FN_ChainLink_2.5m")]
+transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 286.464, 0.15, 412.4)
+metadata/tag = "EXT_HOUSE_03"
+
+[node name="FN_ChainLink_2.5m_004" parent="Fences" instance=ExtResource("1_FN_ChainLink_2.5m")]
+transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 283.964, 0.15, 412.4)
+metadata/tag = "EXT_HOUSE_03"
+
+[node name="FN_ChainLink_2.5m_005" parent="Fences" instance=ExtResource("1_FN_ChainLink_2.5m")]
+transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 281.464, 0.15, 412.4)
+metadata/tag = "EXT_HOUSE_03"
+
+[node name="FN_ChainLink_2.5m_006" parent="Fences" instance=ExtResource("1_FN_ChainLink_2.5m")]
+transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 278.964, 0.15, 412.4)
+metadata/tag = "EXT_HOUSE_03"
+
+[node name="FN_Post_ChainLink_001" parent="Fences" instance=ExtResource("5_FN_Post_ChainLink")]
+transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 276.464, 0.15, 412.4)
+metadata/tag = "EXT_HOUSE_03"
+
+[node name="SP_Mailbox_Residential_004" parent="StreetProps" instance=ExtResource("21_SP_Mailbox_Residential")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 248.7, 0.15, 431.5)
+metadata/tag = "EXT_HOUSE_04"
+
+[node name="UT_WaterMeter_004" parent="StreetProps" instance=ExtResource("32_UT_WaterMeter")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 253.4, 0.15, 431.4)
+metadata/tag = "EXT_HOUSE_04"
+
+[node name="VG_Tree_DeciduousLarge_002" parent="Vegetation" instance=ExtResource("35_VG_Tree_DeciduousLarge")]
+transform = Transform3D(-0.62649, 0, -0.77943, 0, 1, 0, 0.77943, 0, -0.62649, 243.786, 0.15, 428.8)
+metadata/tag = "EXT_HOUSE_04"
+
+[node name="VG_Bush_002" parent="Vegetation" instance=ExtResource("33_VG_Bush")]
+transform = Transform3D(0.60649, 0, 0.79509, 0, 1, 0, -0.79509, 0, 0.60649, 244.66, 0.15, 427.1)
+metadata/tag = "EXT_HOUSE_04"
+
+[node name="FN_Picket_2.5m_008" parent="Fences" instance=ExtResource("4_FN_Picket_2.5m")]
+transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 257.179, 0.15, 431.75)
+metadata/tag = "EXT_HOUSE_04"
+
+[node name="FN_GardenGate_1.25m_003" parent="Interactive" instance=ExtResource("2_FN_GardenGate_1.25m")]
+transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 254.679, 0.15, 431.75)
+metadata/tag = "EXT_HOUSE_04"
+
+[node name="FN_Post_Picket_009" parent="Fences" instance=ExtResource("6_FN_Post_Picket")]
+transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 253.429, 0.15, 431.75)
+metadata/tag = "EXT_HOUSE_04"
+
+[node name="FN_Post_Picket_010" parent="Fences" instance=ExtResource("6_FN_Post_Picket")]
+transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 253.429, 0.15, 431.75)
+metadata/tag = "EXT_HOUSE_04"
+
+[node name="FN_Post_Picket_011" parent="Fences" instance=ExtResource("6_FN_Post_Picket")]
+transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 249.25, 0.15, 431.75)
+metadata/tag = "EXT_HOUSE_04"
+
+[node name="FN_Picket_2.5m_009" parent="Fences" instance=ExtResource("4_FN_Picket_2.5m")]
+transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 249.25, 0.15, 431.75)
+metadata/tag = "EXT_HOUSE_04"
+
+[node name="FN_Picket_2.5m_010" parent="Fences" instance=ExtResource("4_FN_Picket_2.5m")]
+transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 246.75, 0.15, 431.75)
+metadata/tag = "EXT_HOUSE_04"
+
+[node name="FN_Picket_2.5m_011" parent="Fences" instance=ExtResource("4_FN_Picket_2.5m")]
+transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 244.25, 0.15, 431.75)
+metadata/tag = "EXT_HOUSE_04"
+
+[node name="FN_Post_Picket_012" parent="Fences" instance=ExtResource("6_FN_Post_Picket")]
+transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 241.75, 0.15, 431.75)
+metadata/tag = "EXT_HOUSE_04"
+
+[node name="FN_Privacy_2.5m_013" parent="Fences" instance=ExtResource("8_FN_Privacy_2.5m")]
+transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 257.179, 0.15, 412.4)
+metadata/tag = "EXT_HOUSE_04"
+
+[node name="FN_Privacy_2.5m_014" parent="Fences" instance=ExtResource("8_FN_Privacy_2.5m")]
+transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 254.679, 0.15, 412.4)
+metadata/tag = "EXT_HOUSE_04"
+
+[node name="FN_Privacy_2.5m_015" parent="Fences" instance=ExtResource("8_FN_Privacy_2.5m")]
+transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 252.179, 0.15, 412.4)
+metadata/tag = "EXT_HOUSE_04"
+
+[node name="FN_Privacy_2.5m_016" parent="Fences" instance=ExtResource("8_FN_Privacy_2.5m")]
+transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 249.679, 0.15, 412.4)
+metadata/tag = "EXT_HOUSE_04"
+
+[node name="FN_Privacy_2.5m_017" parent="Fences" instance=ExtResource("8_FN_Privacy_2.5m")]
+transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 247.179, 0.15, 412.4)
+metadata/tag = "EXT_HOUSE_04"
+
+[node name="FN_Privacy_2.5m_018" parent="Fences" instance=ExtResource("8_FN_Privacy_2.5m")]
+transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 244.679, 0.15, 412.4)
+metadata/tag = "EXT_HOUSE_04"
+
+[node name="FN_Post_Privacy_003" parent="Fences" instance=ExtResource("7_FN_Post_Privacy")]
+transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 242.179, 0.15, 412.4)
+metadata/tag = "EXT_HOUSE_04"
+
+[node name="SP_Mailbox_Residential_005" parent="StreetProps" instance=ExtResource("21_SP_Mailbox_Residential")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 228.7, 0.15, 431.5)
+metadata/tag = "EXT_HOUSE_05"
+
+[node name="UT_WaterMeter_005" parent="StreetProps" instance=ExtResource("32_UT_WaterMeter")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 233.4, 0.15, 431.4)
+metadata/tag = "EXT_HOUSE_05"
+
+[node name="VG_Tree_DeciduousSmall_003" parent="Vegetation" instance=ExtResource("36_VG_Tree_DeciduousSmall")]
+transform = Transform3D(-0.3334, 0, -0.94279, 0, 1, 0, 0.94279, 0, -0.3334, 236.786, 0.15, 428.8)
+metadata/tag = "EXT_HOUSE_05"
+
+[node name="VG_Bush_003" parent="Vegetation" instance=ExtResource("33_VG_Bush")]
+transform = Transform3D(-0.95957, 0, 0.28146, 0, 1, 0, -0.28146, 0, -0.95957, 235.9164, 0.15, 427.1)
+metadata/tag = "EXT_HOUSE_05"
+
+[node name="VG_Bush_004" parent="Vegetation" instance=ExtResource("33_VG_Bush")]
+transform = Transform3D(0.69695, 0, 0.71711, 0, 1, 0, -0.71711, 0, 0.69695, 227.9585, 0.15, 427.1)
+metadata/tag = "EXT_HOUSE_05"
+
+[node name="FN_ChainLink_2.5m_007" parent="Fences" instance=ExtResource("1_FN_ChainLink_2.5m")]
+transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 240.036, 0.15, 412.4)
+metadata/tag = "EXT_HOUSE_05"
+
+[node name="FN_ChainLink_2.5m_008" parent="Fences" instance=ExtResource("1_FN_ChainLink_2.5m")]
+transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 237.536, 0.15, 412.4)
+metadata/tag = "EXT_HOUSE_05"
+
+[node name="FN_ChainLink_2.5m_009" parent="Fences" instance=ExtResource("1_FN_ChainLink_2.5m")]
+transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 235.036, 0.15, 412.4)
+metadata/tag = "EXT_HOUSE_05"
+
+[node name="FN_ChainLink_2.5m_010" parent="Fences" instance=ExtResource("1_FN_ChainLink_2.5m")]
+transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 232.536, 0.15, 412.4)
+metadata/tag = "EXT_HOUSE_05"
+
+[node name="FN_ChainLink_2.5m_011" parent="Fences" instance=ExtResource("1_FN_ChainLink_2.5m")]
+transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 230.036, 0.15, 412.4)
+metadata/tag = "EXT_HOUSE_05"
+
+[node name="FN_ChainLink_2.5m_012" parent="Fences" instance=ExtResource("1_FN_ChainLink_2.5m")]
+transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 227.536, 0.15, 412.4)
+metadata/tag = "EXT_HOUSE_05"
+
+[node name="FN_Post_ChainLink_002" parent="Fences" instance=ExtResource("5_FN_Post_ChainLink")]
+transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 225.036, 0.15, 412.4)
+metadata/tag = "EXT_HOUSE_05"
+
+[node name="SP_Mailbox_Residential_006" parent="StreetProps" instance=ExtResource("21_SP_Mailbox_Residential")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 208.7, 0.15, 431.5)
+metadata/tag = "EXT_HOUSE_06"
+
+[node name="UT_WaterMeter_006" parent="StreetProps" instance=ExtResource("32_UT_WaterMeter")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 213.4, 0.15, 431.4)
+metadata/tag = "EXT_HOUSE_06"
+
+[node name="VG_Tree_DeciduousSmall_004" parent="Vegetation" instance=ExtResource("36_VG_Tree_DeciduousSmall")]
+transform = Transform3D(-0.18554, 0, -0.98264, 0, 1, 0, 0.98264, 0, -0.18554, 219.643, 0.15, 428.8)
+metadata/tag = "EXT_HOUSE_06"
+
+[node name="FN_Privacy_2.5m_019" parent="Fences" instance=ExtResource("8_FN_Privacy_2.5m")]
+transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 222.893, 0.15, 412.4)
+metadata/tag = "EXT_HOUSE_06"
+
+[node name="FN_Privacy_2.5m_020" parent="Fences" instance=ExtResource("8_FN_Privacy_2.5m")]
+transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 220.393, 0.15, 412.4)
+metadata/tag = "EXT_HOUSE_06"
+
+[node name="FN_Privacy_2.5m_021" parent="Fences" instance=ExtResource("8_FN_Privacy_2.5m")]
+transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 217.893, 0.15, 412.4)
+metadata/tag = "EXT_HOUSE_06"
+
+[node name="FN_Privacy_2.5m_022" parent="Fences" instance=ExtResource("8_FN_Privacy_2.5m")]
+transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 215.393, 0.15, 412.4)
+metadata/tag = "EXT_HOUSE_06"
+
+[node name="FN_Privacy_2.5m_023" parent="Fences" instance=ExtResource("8_FN_Privacy_2.5m")]
+transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 212.893, 0.15, 412.4)
+metadata/tag = "EXT_HOUSE_06"
+
+[node name="FN_Privacy_2.5m_024" parent="Fences" instance=ExtResource("8_FN_Privacy_2.5m")]
+transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 210.393, 0.15, 412.4)
+metadata/tag = "EXT_HOUSE_06"
+
+[node name="FN_Post_Privacy_004" parent="Fences" instance=ExtResource("7_FN_Post_Privacy")]
+transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 207.893, 0.15, 412.4)
+metadata/tag = "EXT_HOUSE_06"
+
+[node name="SP_Mailbox_Residential_007" parent="StreetProps" instance=ExtResource("21_SP_Mailbox_Residential")]
+transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 318.7, 0.15, 444.5)
+metadata/tag = "EXT_HOUSE_07"
+
+[node name="UT_WaterMeter_007" parent="StreetProps" instance=ExtResource("32_UT_WaterMeter")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 323.4, 0.15, 444.6)
+metadata/tag = "EXT_HOUSE_07"
+
+[node name="VG_Tree_DeciduousLarge_003" parent="Vegetation" instance=ExtResource("35_VG_Tree_DeciduousLarge")]
+transform = Transform3D(-0.97623, 0, -0.21676, 0, 1, 0, 0.21676, 0, -0.97623, 312.357, 0.15, 447.2)
+metadata/tag = "EXT_HOUSE_07"
+
+[node name="VG_Bush_005" parent="Vegetation" instance=ExtResource("33_VG_Bush")]
+transform = Transform3D(0.35996, 0, -0.93297, 0, 1, 0, 0.93297, 0, 0.35996, 313.9758, 0.15, 448.9)
+metadata/tag = "EXT_HOUSE_07"
+
+[node name="FN_Privacy_2.5m_025" parent="Fences" instance=ExtResource("8_FN_Privacy_2.5m")]
+transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 325.75, 0.15, 463.6)
+metadata/tag = "EXT_HOUSE_07"
+
+[node name="FN_Privacy_2.5m_026" parent="Fences" instance=ExtResource("8_FN_Privacy_2.5m")]
+transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 323.25, 0.15, 463.6)
+metadata/tag = "EXT_HOUSE_07"
+
+[node name="FN_Privacy_2.5m_027" parent="Fences" instance=ExtResource("8_FN_Privacy_2.5m")]
+transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 320.75, 0.15, 463.6)
+metadata/tag = "EXT_HOUSE_07"
+
+[node name="FN_Privacy_2.5m_028" parent="Fences" instance=ExtResource("8_FN_Privacy_2.5m")]
+transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 318.25, 0.15, 463.6)
+metadata/tag = "EXT_HOUSE_07"
+
+[node name="FN_Privacy_2.5m_029" parent="Fences" instance=ExtResource("8_FN_Privacy_2.5m")]
+transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 315.75, 0.15, 463.6)
+metadata/tag = "EXT_HOUSE_07"
+
+[node name="FN_Privacy_2.5m_030" parent="Fences" instance=ExtResource("8_FN_Privacy_2.5m")]
+transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 313.25, 0.15, 463.6)
+metadata/tag = "EXT_HOUSE_07"
+
+[node name="FN_Post_Privacy_005" parent="Fences" instance=ExtResource("7_FN_Post_Privacy")]
+transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 310.75, 0.15, 463.6)
+metadata/tag = "EXT_HOUSE_07"
+
+[node name="SP_Mailbox_Residential_008" parent="StreetProps" instance=ExtResource("21_SP_Mailbox_Residential")]
+transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 298.7, 0.15, 444.5)
+metadata/tag = "EXT_HOUSE_08"
+
+[node name="UT_WaterMeter_008" parent="StreetProps" instance=ExtResource("32_UT_WaterMeter")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 303.4, 0.15, 444.6)
+metadata/tag = "EXT_HOUSE_08"
+
+[node name="VG_Tree_DeciduousSmall_005" parent="Vegetation" instance=ExtResource("36_VG_Tree_DeciduousSmall")]
+transform = Transform3D(0.20928, 0, -0.97786, 0, 1, 0, 0.97786, 0, 0.20928, 305.357, 0.15, 447.2)
+metadata/tag = "EXT_HOUSE_08"
+
+[node name="VG_Bush_006" parent="Vegetation" instance=ExtResource("33_VG_Bush")]
+transform = Transform3D(0.68561, 0, -0.72797, 0, 1, 0, 0.72797, 0, 0.68561, 305.1837, 0.15, 448.9)
+metadata/tag = "EXT_HOUSE_08"
+
+[node name="VG_Bush_007" parent="Vegetation" instance=ExtResource("33_VG_Bush")]
+transform = Transform3D(0.99993, 0, -0.01209, 0, 1, 0, 0.01209, 0, 0.99993, 304.2022, 0.15, 448.9)
+metadata/tag = "EXT_HOUSE_08"
+
+[node name="FN_HedgeBoundary_2.5m_001" parent="Fences" instance=ExtResource("3_FN_HedgeBoundary_2.5m")]
+transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 308.607, 0.15, 444.25)
+metadata/tag = "EXT_HOUSE_08"
+
+[node name="FN_HedgeBoundary_2.5m_002" parent="Fences" instance=ExtResource("3_FN_HedgeBoundary_2.5m")]
+transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 306.107, 0.15, 444.25)
+metadata/tag = "EXT_HOUSE_08"
+
+[node name="FN_HedgeBoundary_2.5m_003" parent="Fences" instance=ExtResource("3_FN_HedgeBoundary_2.5m")]
+transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 299.25, 0.15, 444.25)
+metadata/tag = "EXT_HOUSE_08"
+
+[node name="FN_HedgeBoundary_2.5m_004" parent="Fences" instance=ExtResource("3_FN_HedgeBoundary_2.5m")]
+transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 296.75, 0.15, 444.25)
+metadata/tag = "EXT_HOUSE_08"
+
+[node name="FN_ChainLink_2.5m_013" parent="Fences" instance=ExtResource("1_FN_ChainLink_2.5m")]
+transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 308.607, 0.15, 463.6)
+metadata/tag = "EXT_HOUSE_08"
+
+[node name="FN_ChainLink_2.5m_014" parent="Fences" instance=ExtResource("1_FN_ChainLink_2.5m")]
+transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 306.107, 0.15, 463.6)
+metadata/tag = "EXT_HOUSE_08"
+
+[node name="FN_ChainLink_2.5m_015" parent="Fences" instance=ExtResource("1_FN_ChainLink_2.5m")]
+transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 303.607, 0.15, 463.6)
+metadata/tag = "EXT_HOUSE_08"
+
+[node name="FN_ChainLink_2.5m_016" parent="Fences" instance=ExtResource("1_FN_ChainLink_2.5m")]
+transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 301.107, 0.15, 463.6)
+metadata/tag = "EXT_HOUSE_08"
+
+[node name="FN_ChainLink_2.5m_017" parent="Fences" instance=ExtResource("1_FN_ChainLink_2.5m")]
+transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 298.607, 0.15, 463.6)
+metadata/tag = "EXT_HOUSE_08"
+
+[node name="FN_ChainLink_2.5m_018" parent="Fences" instance=ExtResource("1_FN_ChainLink_2.5m")]
+transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 296.107, 0.15, 463.6)
+metadata/tag = "EXT_HOUSE_08"
+
+[node name="FN_Post_ChainLink_003" parent="Fences" instance=ExtResource("5_FN_Post_ChainLink")]
+transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 293.607, 0.15, 463.6)
+metadata/tag = "EXT_HOUSE_08"
+
+[node name="SP_Mailbox_Residential_009" parent="StreetProps" instance=ExtResource("21_SP_Mailbox_Residential")]
+transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 278.7, 0.15, 444.5)
+metadata/tag = "EXT_HOUSE_09"
+
+[node name="UT_WaterMeter_009" parent="StreetProps" instance=ExtResource("32_UT_WaterMeter")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 283.4, 0.15, 444.6)
+metadata/tag = "EXT_HOUSE_09"
+
+[node name="VG_Tree_DeciduousSmall_006" parent="Vegetation" instance=ExtResource("36_VG_Tree_DeciduousSmall")]
+transform = Transform3D(-0.13143, 0, -0.99133, 0, 1, 0, 0.99133, 0, -0.13143, 288.214, 0.15, 447.2)
+metadata/tag = "EXT_HOUSE_09"
+
+[node name="VG_Bush_008" parent="Vegetation" instance=ExtResource("33_VG_Bush")]
+transform = Transform3D(-0.73212, 0, 0.68117, 0, 1, 0, -0.68117, 0, -0.73212, 287.3632, 0.15, 448.9)
+metadata/tag = "EXT_HOUSE_09"
+
+[node name="VG_FlowerPatch_001" parent="Vegetation" instance=ExtResource("34_VG_FlowerPatch")]
+transform = Transform3D(0.86931, 0, 0.49427, 0, 1, 0, -0.49427, 0, 0.86931, 284.6685, 0.15, 448.9)
+metadata/tag = "EXT_HOUSE_09"
+
+[node name="FN_ChainLink_2.5m_019" parent="Fences" instance=ExtResource("1_FN_ChainLink_2.5m")]
+transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 291.464, 0.15, 463.6)
+metadata/tag = "EXT_HOUSE_09"
+
+[node name="FN_ChainLink_2.5m_020" parent="Fences" instance=ExtResource("1_FN_ChainLink_2.5m")]
+transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 288.964, 0.15, 463.6)
+metadata/tag = "EXT_HOUSE_09"
+
+[node name="FN_ChainLink_2.5m_021" parent="Fences" instance=ExtResource("1_FN_ChainLink_2.5m")]
+transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 286.464, 0.15, 463.6)
+metadata/tag = "EXT_HOUSE_09"
+
+[node name="FN_ChainLink_2.5m_022" parent="Fences" instance=ExtResource("1_FN_ChainLink_2.5m")]
+transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 283.964, 0.15, 463.6)
+metadata/tag = "EXT_HOUSE_09"
+
+[node name="FN_ChainLink_2.5m_023" parent="Fences" instance=ExtResource("1_FN_ChainLink_2.5m")]
+transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 281.464, 0.15, 463.6)
+metadata/tag = "EXT_HOUSE_09"
+
+[node name="FN_ChainLink_2.5m_024" parent="Fences" instance=ExtResource("1_FN_ChainLink_2.5m")]
+transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 278.964, 0.15, 463.6)
+metadata/tag = "EXT_HOUSE_09"
+
+[node name="FN_Post_ChainLink_004" parent="Fences" instance=ExtResource("5_FN_Post_ChainLink")]
+transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 276.464, 0.15, 463.6)
+metadata/tag = "EXT_HOUSE_09"
+
+[node name="SP_Mailbox_Residential_010" parent="StreetProps" instance=ExtResource("21_SP_Mailbox_Residential")]
+transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 248.7, 0.15, 444.5)
+metadata/tag = "EXT_HOUSE_10"
+
+[node name="UT_WaterMeter_010" parent="StreetProps" instance=ExtResource("32_UT_WaterMeter")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 253.4, 0.15, 444.6)
+metadata/tag = "EXT_HOUSE_10"
+
+[node name="VG_Tree_DeciduousSmall_007" parent="Vegetation" instance=ExtResource("36_VG_Tree_DeciduousSmall")]
+transform = Transform3D(-0.87481, 0, -0.48446, 0, 1, 0, 0.48446, 0, -0.87481, 243.786, 0.15, 447.2)
+metadata/tag = "EXT_HOUSE_10"
+
+[node name="VG_Bush_009" parent="Vegetation" instance=ExtResource("33_VG_Bush")]
+transform = Transform3D(0.95246, 0, -0.30467, 0, 1, 0, 0.30467, 0, 0.95246, 247.7444, 0.15, 448.9)
+metadata/tag = "EXT_HOUSE_10"
+
+[node name="FN_HedgeBoundary_2.5m_005" parent="Fences" instance=ExtResource("3_FN_HedgeBoundary_2.5m")]
+transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 257.179, 0.15, 444.25)
+metadata/tag = "EXT_HOUSE_10"
+
+[node name="FN_HedgeBoundary_2.5m_006" parent="Fences" instance=ExtResource("3_FN_HedgeBoundary_2.5m")]
+transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 249.25, 0.15, 444.25)
+metadata/tag = "EXT_HOUSE_10"
+
+[node name="FN_HedgeBoundary_2.5m_007" parent="Fences" instance=ExtResource("3_FN_HedgeBoundary_2.5m")]
+transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 246.75, 0.15, 444.25)
+metadata/tag = "EXT_HOUSE_10"
+
+[node name="FN_HedgeBoundary_2.5m_008" parent="Fences" instance=ExtResource("3_FN_HedgeBoundary_2.5m")]
+transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 244.25, 0.15, 444.25)
+metadata/tag = "EXT_HOUSE_10"
+
+[node name="FN_Privacy_2.5m_031" parent="Fences" instance=ExtResource("8_FN_Privacy_2.5m")]
+transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 257.179, 0.15, 463.6)
+metadata/tag = "EXT_HOUSE_10"
+
+[node name="FN_Privacy_2.5m_032" parent="Fences" instance=ExtResource("8_FN_Privacy_2.5m")]
+transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 254.679, 0.15, 463.6)
+metadata/tag = "EXT_HOUSE_10"
+
+[node name="FN_Privacy_2.5m_033" parent="Fences" instance=ExtResource("8_FN_Privacy_2.5m")]
+transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 252.179, 0.15, 463.6)
+metadata/tag = "EXT_HOUSE_10"
+
+[node name="FN_Privacy_2.5m_034" parent="Fences" instance=ExtResource("8_FN_Privacy_2.5m")]
+transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 249.679, 0.15, 463.6)
+metadata/tag = "EXT_HOUSE_10"
+
+[node name="FN_Privacy_2.5m_035" parent="Fences" instance=ExtResource("8_FN_Privacy_2.5m")]
+transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 247.179, 0.15, 463.6)
+metadata/tag = "EXT_HOUSE_10"
+
+[node name="FN_Privacy_2.5m_036" parent="Fences" instance=ExtResource("8_FN_Privacy_2.5m")]
+transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 244.679, 0.15, 463.6)
+metadata/tag = "EXT_HOUSE_10"
+
+[node name="FN_Post_Privacy_006" parent="Fences" instance=ExtResource("7_FN_Post_Privacy")]
+transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 242.179, 0.15, 463.6)
+metadata/tag = "EXT_HOUSE_10"
+
+[node name="SP_Mailbox_Residential_011" parent="StreetProps" instance=ExtResource("21_SP_Mailbox_Residential")]
+transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 228.7, 0.15, 444.5)
+metadata/tag = "EXT_HOUSE_11"
+
+[node name="UT_WaterMeter_011" parent="StreetProps" instance=ExtResource("32_UT_WaterMeter")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 233.4, 0.15, 444.6)
+metadata/tag = "EXT_HOUSE_11"
+
+[node name="VG_Tree_DeciduousSmall_008" parent="Vegetation" instance=ExtResource("36_VG_Tree_DeciduousSmall")]
+transform = Transform3D(0.52066, 0, -0.85376, 0, 1, 0, 0.85376, 0, 0.52066, 236.786, 0.15, 447.2)
+metadata/tag = "EXT_HOUSE_11"
+
+[node name="VG_Bush_010" parent="Vegetation" instance=ExtResource("33_VG_Bush")]
+transform = Transform3D(-0.7493, 0, -0.66223, 0, 1, 0, 0.66223, 0, -0.7493, 236.7321, 0.15, 448.9)
+metadata/tag = "EXT_HOUSE_11"
+
+[node name="FN_Picket_2.5m_012" parent="Fences" instance=ExtResource("4_FN_Picket_2.5m")]
+transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 240.036, 0.15, 444.25)
+metadata/tag = "EXT_HOUSE_11"
+
+[node name="FN_GardenGate_1.25m_004" parent="Interactive" instance=ExtResource("2_FN_GardenGate_1.25m")]
+transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 237.536, 0.15, 444.25)
+metadata/tag = "EXT_HOUSE_11"
+
+[node name="FN_Post_Picket_013" parent="Fences" instance=ExtResource("6_FN_Post_Picket")]
+transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 236.286, 0.15, 444.25)
+metadata/tag = "EXT_HOUSE_11"
+
+[node name="FN_Picket_2.5m_013" parent="Fences" instance=ExtResource("4_FN_Picket_2.5m")]
+transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 236.286, 0.15, 444.25)
+metadata/tag = "EXT_HOUSE_11"
+
+[node name="FN_Post_Picket_014" parent="Fences" instance=ExtResource("6_FN_Post_Picket")]
+transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 233.786, 0.15, 444.25)
+metadata/tag = "EXT_HOUSE_11"
+
+[node name="FN_Post_Picket_015" parent="Fences" instance=ExtResource("6_FN_Post_Picket")]
+transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 229.25, 0.15, 444.25)
+metadata/tag = "EXT_HOUSE_11"
+
+[node name="FN_Picket_2.5m_014" parent="Fences" instance=ExtResource("4_FN_Picket_2.5m")]
+transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 229.25, 0.15, 444.25)
+metadata/tag = "EXT_HOUSE_11"
+
+[node name="FN_Picket_2.5m_015" parent="Fences" instance=ExtResource("4_FN_Picket_2.5m")]
+transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 226.75, 0.15, 444.25)
+metadata/tag = "EXT_HOUSE_11"
+
+[node name="FN_Post_Picket_016" parent="Fences" instance=ExtResource("6_FN_Post_Picket")]
+transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 224.25, 0.15, 444.25)
+metadata/tag = "EXT_HOUSE_11"
+
+[node name="FN_Privacy_2.5m_037" parent="Fences" instance=ExtResource("8_FN_Privacy_2.5m")]
+transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 240.036, 0.15, 463.6)
+metadata/tag = "EXT_HOUSE_11"
+
+[node name="FN_Privacy_2.5m_038" parent="Fences" instance=ExtResource("8_FN_Privacy_2.5m")]
+transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 237.536, 0.15, 463.6)
+metadata/tag = "EXT_HOUSE_11"
+
+[node name="FN_Privacy_2.5m_039" parent="Fences" instance=ExtResource("8_FN_Privacy_2.5m")]
+transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 235.036, 0.15, 463.6)
+metadata/tag = "EXT_HOUSE_11"
+
+[node name="FN_Privacy_2.5m_040" parent="Fences" instance=ExtResource("8_FN_Privacy_2.5m")]
+transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 232.536, 0.15, 463.6)
+metadata/tag = "EXT_HOUSE_11"
+
+[node name="FN_Privacy_2.5m_041" parent="Fences" instance=ExtResource("8_FN_Privacy_2.5m")]
+transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 230.036, 0.15, 463.6)
+metadata/tag = "EXT_HOUSE_11"
+
+[node name="FN_Privacy_2.5m_042" parent="Fences" instance=ExtResource("8_FN_Privacy_2.5m")]
+transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 227.536, 0.15, 463.6)
+metadata/tag = "EXT_HOUSE_11"
+
+[node name="FN_Post_Privacy_007" parent="Fences" instance=ExtResource("7_FN_Post_Privacy")]
+transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 225.036, 0.15, 463.6)
+metadata/tag = "EXT_HOUSE_11"
+
+[node name="SP_Mailbox_Residential_012" parent="StreetProps" instance=ExtResource("21_SP_Mailbox_Residential")]
+transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 208.7, 0.15, 444.5)
+metadata/tag = "EXT_HOUSE_12"
+
+[node name="UT_WaterMeter_012" parent="StreetProps" instance=ExtResource("32_UT_WaterMeter")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 213.4, 0.15, 444.6)
+metadata/tag = "EXT_HOUSE_12"
+
+[node name="VG_Tree_DeciduousLarge_004" parent="Vegetation" instance=ExtResource("35_VG_Tree_DeciduousLarge")]
+transform = Transform3D(0.53051, 0, 0.84768, 0, 1, 0, -0.84768, 0, 0.53051, 219.643, 0.15, 447.2)
+metadata/tag = "EXT_HOUSE_12"
+
+[node name="VG_Bush_011" parent="Vegetation" instance=ExtResource("33_VG_Bush")]
+transform = Transform3D(0.0601, 0, -0.99819, 0, 1, 0, 0.99819, 0, 0.0601, 215.8905, 0.15, 448.9)
+metadata/tag = "EXT_HOUSE_12"
+
+[node name="FN_Privacy_2.5m_043" parent="Fences" instance=ExtResource("8_FN_Privacy_2.5m")]
+transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 222.893, 0.15, 463.6)
+metadata/tag = "EXT_HOUSE_12"
+
+[node name="FN_Privacy_2.5m_044" parent="Fences" instance=ExtResource("8_FN_Privacy_2.5m")]
+transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 220.393, 0.15, 463.6)
+metadata/tag = "EXT_HOUSE_12"
+
+[node name="FN_Privacy_2.5m_045" parent="Fences" instance=ExtResource("8_FN_Privacy_2.5m")]
+transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 217.893, 0.15, 463.6)
+metadata/tag = "EXT_HOUSE_12"
+
+[node name="FN_Privacy_2.5m_046" parent="Fences" instance=ExtResource("8_FN_Privacy_2.5m")]
+transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 215.393, 0.15, 463.6)
+metadata/tag = "EXT_HOUSE_12"
+
+[node name="FN_Privacy_2.5m_047" parent="Fences" instance=ExtResource("8_FN_Privacy_2.5m")]
+transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 212.893, 0.15, 463.6)
+metadata/tag = "EXT_HOUSE_12"
+
+[node name="FN_Privacy_2.5m_048" parent="Fences" instance=ExtResource("8_FN_Privacy_2.5m")]
+transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 210.393, 0.15, 463.6)
+metadata/tag = "EXT_HOUSE_12"
+
+[node name="FN_Post_Privacy_008" parent="Fences" instance=ExtResource("7_FN_Post_Privacy")]
+transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 207.893, 0.15, 463.6)
+metadata/tag = "EXT_HOUSE_12"
+
+[node name="SP_Mailbox_Residential_013" parent="StreetProps" instance=ExtResource("21_SP_Mailbox_Residential")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 186.7, 0.15, 431.5)
+metadata/tag = "EXT_HOUSE_13"
+
+[node name="UT_WaterMeter_013" parent="StreetProps" instance=ExtResource("32_UT_WaterMeter")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 191.4, 0.15, 431.4)
+metadata/tag = "EXT_HOUSE_13"
+
+[node name="VG_Tree_DeciduousSmall_009" parent="Vegetation" instance=ExtResource("36_VG_Tree_DeciduousSmall")]
+transform = Transform3D(0.81428, 0, 0.58047, 0, 1, 0, -0.58047, 0, 0.81428, 180.357, 0.15, 428.8)
+metadata/tag = "EXT_HOUSE_13"
+
+[node name="FN_Picket_2.5m_016" parent="Fences" instance=ExtResource("4_FN_Picket_2.5m")]
+transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 193.75, 0.15, 431.75)
+metadata/tag = "EXT_HOUSE_13"
+
+[node name="FN_Post_Picket_017" parent="Fences" instance=ExtResource("6_FN_Post_Picket")]
+transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 191.25, 0.15, 431.75)
+metadata/tag = "EXT_HOUSE_13"
+
+[node name="FN_Post_Picket_018" parent="Fences" instance=ExtResource("6_FN_Post_Picket")]
+transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 187.25, 0.15, 431.75)
+metadata/tag = "EXT_HOUSE_13"
+
+[node name="FN_GardenGate_1.25m_005" parent="Interactive" instance=ExtResource("2_FN_GardenGate_1.25m")]
+transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 187.25, 0.15, 431.75)
+metadata/tag = "EXT_HOUSE_13"
+
+[node name="FN_Post_Picket_019" parent="Fences" instance=ExtResource("6_FN_Post_Picket")]
+transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 186, 0.15, 431.75)
+metadata/tag = "EXT_HOUSE_13"
+
+[node name="FN_Picket_2.5m_017" parent="Fences" instance=ExtResource("4_FN_Picket_2.5m")]
+transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 186, 0.15, 431.75)
+metadata/tag = "EXT_HOUSE_13"
+
+[node name="FN_Picket_2.5m_018" parent="Fences" instance=ExtResource("4_FN_Picket_2.5m")]
+transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 183.5, 0.15, 431.75)
+metadata/tag = "EXT_HOUSE_13"
+
+[node name="FN_Picket_2.5m_019" parent="Fences" instance=ExtResource("4_FN_Picket_2.5m")]
+transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 181, 0.15, 431.75)
+metadata/tag = "EXT_HOUSE_13"
+
+[node name="FN_Post_Picket_020" parent="Fences" instance=ExtResource("6_FN_Post_Picket")]
+transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 178.5, 0.15, 431.75)
+metadata/tag = "EXT_HOUSE_13"
+
+[node name="FN_Privacy_2.5m_049" parent="Fences" instance=ExtResource("8_FN_Privacy_2.5m")]
+transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 193.75, 0.15, 412.4)
+metadata/tag = "EXT_HOUSE_13"
+
+[node name="FN_Privacy_2.5m_050" parent="Fences" instance=ExtResource("8_FN_Privacy_2.5m")]
+transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 191.25, 0.15, 412.4)
+metadata/tag = "EXT_HOUSE_13"
+
+[node name="FN_Privacy_2.5m_051" parent="Fences" instance=ExtResource("8_FN_Privacy_2.5m")]
+transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 188.75, 0.15, 412.4)
+metadata/tag = "EXT_HOUSE_13"
+
+[node name="FN_Privacy_2.5m_052" parent="Fences" instance=ExtResource("8_FN_Privacy_2.5m")]
+transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 186.25, 0.15, 412.4)
+metadata/tag = "EXT_HOUSE_13"
+
+[node name="FN_Privacy_2.5m_053" parent="Fences" instance=ExtResource("8_FN_Privacy_2.5m")]
+transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 183.75, 0.15, 412.4)
+metadata/tag = "EXT_HOUSE_13"
+
+[node name="FN_Privacy_2.5m_054" parent="Fences" instance=ExtResource("8_FN_Privacy_2.5m")]
+transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 181.25, 0.15, 412.4)
+metadata/tag = "EXT_HOUSE_13"
+
+[node name="FN_Post_Privacy_009" parent="Fences" instance=ExtResource("7_FN_Post_Privacy")]
+transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 178.75, 0.15, 412.4)
+metadata/tag = "EXT_HOUSE_13"
+
+[node name="SP_Mailbox_Residential_014" parent="StreetProps" instance=ExtResource("21_SP_Mailbox_Residential")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 166.7, 0.15, 431.5)
+metadata/tag = "EXT_HOUSE_14"
+
+[node name="UT_WaterMeter_014" parent="StreetProps" instance=ExtResource("32_UT_WaterMeter")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 171.4, 0.15, 431.4)
+metadata/tag = "EXT_HOUSE_14"
+
+[node name="VG_Tree_DeciduousLarge_005" parent="Vegetation" instance=ExtResource("35_VG_Tree_DeciduousLarge")]
+transform = Transform3D(-0.78749, 0, -0.61633, 0, 1, 0, 0.61633, 0, -0.78749, 173.357, 0.15, 428.8)
+metadata/tag = "EXT_HOUSE_14"
+
+[node name="VG_Bush_012" parent="Vegetation" instance=ExtResource("33_VG_Bush")]
+transform = Transform3D(0.99621, 0, -0.08701, 0, 1, 0, 0.08701, 0, 0.99621, 172.0707, 0.15, 427.1)
+metadata/tag = "EXT_HOUSE_14"
+
+[node name="VG_Bush_013" parent="Vegetation" instance=ExtResource("33_VG_Bush")]
+transform = Transform3D(-0.93952, 0, -0.34248, 0, 1, 0, 0.34248, 0, -0.93952, 172.6812, 0.15, 427.1)
+metadata/tag = "EXT_HOUSE_14"
+
+[node name="FN_HedgeBoundary_2.5m_009" parent="Fences" instance=ExtResource("3_FN_HedgeBoundary_2.5m")]
+transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 176.607, 0.15, 431.75)
+metadata/tag = "EXT_HOUSE_14"
+
+[node name="FN_HedgeBoundary_2.5m_010" parent="Fences" instance=ExtResource("3_FN_HedgeBoundary_2.5m")]
+transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 174.107, 0.15, 431.75)
+metadata/tag = "EXT_HOUSE_14"
+
+[node name="FN_HedgeBoundary_2.5m_011" parent="Fences" instance=ExtResource("3_FN_HedgeBoundary_2.5m")]
+transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 167.25, 0.15, 431.75)
+metadata/tag = "EXT_HOUSE_14"
+
+[node name="FN_HedgeBoundary_2.5m_012" parent="Fences" instance=ExtResource("3_FN_HedgeBoundary_2.5m")]
+transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 164.75, 0.15, 431.75)
+metadata/tag = "EXT_HOUSE_14"
+
+[node name="FN_ChainLink_2.5m_025" parent="Fences" instance=ExtResource("1_FN_ChainLink_2.5m")]
+transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 176.607, 0.15, 412.4)
+metadata/tag = "EXT_HOUSE_14"
+
+[node name="FN_ChainLink_2.5m_026" parent="Fences" instance=ExtResource("1_FN_ChainLink_2.5m")]
+transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 174.107, 0.15, 412.4)
+metadata/tag = "EXT_HOUSE_14"
+
+[node name="FN_ChainLink_2.5m_027" parent="Fences" instance=ExtResource("1_FN_ChainLink_2.5m")]
+transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 171.607, 0.15, 412.4)
+metadata/tag = "EXT_HOUSE_14"
+
+[node name="FN_ChainLink_2.5m_028" parent="Fences" instance=ExtResource("1_FN_ChainLink_2.5m")]
+transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 169.107, 0.15, 412.4)
+metadata/tag = "EXT_HOUSE_14"
+
+[node name="FN_ChainLink_2.5m_029" parent="Fences" instance=ExtResource("1_FN_ChainLink_2.5m")]
+transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 166.607, 0.15, 412.4)
+metadata/tag = "EXT_HOUSE_14"
+
+[node name="FN_ChainLink_2.5m_030" parent="Fences" instance=ExtResource("1_FN_ChainLink_2.5m")]
+transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 164.107, 0.15, 412.4)
+metadata/tag = "EXT_HOUSE_14"
+
+[node name="FN_Post_ChainLink_005" parent="Fences" instance=ExtResource("5_FN_Post_ChainLink")]
+transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 161.607, 0.15, 412.4)
+metadata/tag = "EXT_HOUSE_14"
+
+[node name="SP_Mailbox_Residential_015" parent="StreetProps" instance=ExtResource("21_SP_Mailbox_Residential")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 146.7, 0.15, 431.5)
+metadata/tag = "EXT_HOUSE_15"
+
+[node name="UT_WaterMeter_015" parent="StreetProps" instance=ExtResource("32_UT_WaterMeter")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 151.4, 0.15, 431.4)
+metadata/tag = "EXT_HOUSE_15"
+
+[node name="VG_Tree_DeciduousLarge_006" parent="Vegetation" instance=ExtResource("35_VG_Tree_DeciduousLarge")]
+transform = Transform3D(0.99915, 0, -0.04127, 0, 1, 0, 0.04127, 0, 0.99915, 156.214, 0.15, 428.8)
+metadata/tag = "EXT_HOUSE_15"
+
+[node name="VG_Bush_014" parent="Vegetation" instance=ExtResource("33_VG_Bush")]
+transform = Transform3D(-0.95668, 0, 0.29115, 0, 1, 0, -0.29115, 0, -0.95668, 154.3378, 0.15, 427.1)
+metadata/tag = "EXT_HOUSE_15"
+
+[node name="FN_HedgeBoundary_2.5m_013" parent="Fences" instance=ExtResource("3_FN_HedgeBoundary_2.5m")]
+transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 159.464, 0.15, 431.75)
+metadata/tag = "EXT_HOUSE_15"
+
+[node name="FN_HedgeBoundary_2.5m_014" parent="Fences" instance=ExtResource("3_FN_HedgeBoundary_2.5m")]
+transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 156.964, 0.15, 431.75)
+metadata/tag = "EXT_HOUSE_15"
+
+[node name="FN_HedgeBoundary_2.5m_015" parent="Fences" instance=ExtResource("3_FN_HedgeBoundary_2.5m")]
+transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 154.464, 0.15, 431.75)
+metadata/tag = "EXT_HOUSE_15"
+
+[node name="FN_HedgeBoundary_2.5m_016" parent="Fences" instance=ExtResource("3_FN_HedgeBoundary_2.5m")]
+transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 147.25, 0.15, 431.75)
+metadata/tag = "EXT_HOUSE_15"
+
+[node name="FN_Privacy_2.5m_055" parent="Fences" instance=ExtResource("8_FN_Privacy_2.5m")]
+transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 159.464, 0.15, 412.4)
+metadata/tag = "EXT_HOUSE_15"
+
+[node name="FN_Privacy_2.5m_056" parent="Fences" instance=ExtResource("8_FN_Privacy_2.5m")]
+transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 156.964, 0.15, 412.4)
+metadata/tag = "EXT_HOUSE_15"
+
+[node name="FN_Privacy_2.5m_057" parent="Fences" instance=ExtResource("8_FN_Privacy_2.5m")]
+transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 154.464, 0.15, 412.4)
+metadata/tag = "EXT_HOUSE_15"
+
+[node name="FN_Privacy_2.5m_058" parent="Fences" instance=ExtResource("8_FN_Privacy_2.5m")]
+transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 151.964, 0.15, 412.4)
+metadata/tag = "EXT_HOUSE_15"
+
+[node name="FN_Privacy_2.5m_059" parent="Fences" instance=ExtResource("8_FN_Privacy_2.5m")]
+transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 149.464, 0.15, 412.4)
+metadata/tag = "EXT_HOUSE_15"
+
+[node name="FN_Privacy_2.5m_060" parent="Fences" instance=ExtResource("8_FN_Privacy_2.5m")]
+transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 146.964, 0.15, 412.4)
+metadata/tag = "EXT_HOUSE_15"
+
+[node name="FN_Post_Privacy_010" parent="Fences" instance=ExtResource("7_FN_Post_Privacy")]
+transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 144.464, 0.15, 412.4)
+metadata/tag = "EXT_HOUSE_15"
+
+[node name="SP_Mailbox_Residential_016" parent="StreetProps" instance=ExtResource("21_SP_Mailbox_Residential")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 116.7, 0.15, 431.5)
+metadata/tag = "EXT_HOUSE_16"
+
+[node name="UT_WaterMeter_016" parent="StreetProps" instance=ExtResource("32_UT_WaterMeter")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 121.4, 0.15, 431.4)
+metadata/tag = "EXT_HOUSE_16"
+
+[node name="VG_Tree_DeciduousLarge_007" parent="Vegetation" instance=ExtResource("35_VG_Tree_DeciduousLarge")]
+transform = Transform3D(0.67018, 0, -0.7422, 0, 1, 0, 0.7422, 0, 0.67018, 111.786, 0.15, 428.8)
+metadata/tag = "EXT_HOUSE_16"
+
+[node name="VG_Bush_015" parent="Vegetation" instance=ExtResource("33_VG_Bush")]
+transform = Transform3D(0.99633, 0, -0.08564, 0, 1, 0, 0.08564, 0, 0.99633, 114.4653, 0.15, 427.1)
+metadata/tag = "EXT_HOUSE_16"
+
+[node name="FN_Picket_2.5m_020" parent="Fences" instance=ExtResource("4_FN_Picket_2.5m")]
+transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 125.179, 0.15, 431.75)
+metadata/tag = "EXT_HOUSE_16"
+
+[node name="FN_GardenGate_1.25m_006" parent="Interactive" instance=ExtResource("2_FN_GardenGate_1.25m")]
+transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 122.679, 0.15, 431.75)
+metadata/tag = "EXT_HOUSE_16"
+
+[node name="FN_Post_Picket_021" parent="Fences" instance=ExtResource("6_FN_Post_Picket")]
+transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 121.429, 0.15, 431.75)
+metadata/tag = "EXT_HOUSE_16"
+
+[node name="FN_Post_Picket_022" parent="Fences" instance=ExtResource("6_FN_Post_Picket")]
+transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 121.429, 0.15, 431.75)
+metadata/tag = "EXT_HOUSE_16"
+
+[node name="FN_Post_Picket_023" parent="Fences" instance=ExtResource("6_FN_Post_Picket")]
+transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 117.25, 0.15, 431.75)
+metadata/tag = "EXT_HOUSE_16"
+
+[node name="FN_Picket_2.5m_021" parent="Fences" instance=ExtResource("4_FN_Picket_2.5m")]
+transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 117.25, 0.15, 431.75)
+metadata/tag = "EXT_HOUSE_16"
+
+[node name="FN_Picket_2.5m_022" parent="Fences" instance=ExtResource("4_FN_Picket_2.5m")]
+transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 114.75, 0.15, 431.75)
+metadata/tag = "EXT_HOUSE_16"
+
+[node name="FN_Picket_2.5m_023" parent="Fences" instance=ExtResource("4_FN_Picket_2.5m")]
+transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 112.25, 0.15, 431.75)
+metadata/tag = "EXT_HOUSE_16"
+
+[node name="FN_Post_Picket_024" parent="Fences" instance=ExtResource("6_FN_Post_Picket")]
+transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 109.75, 0.15, 431.75)
+metadata/tag = "EXT_HOUSE_16"
+
+[node name="FN_Privacy_2.5m_061" parent="Fences" instance=ExtResource("8_FN_Privacy_2.5m")]
+transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 125.179, 0.15, 412.4)
+metadata/tag = "EXT_HOUSE_16"
+
+[node name="FN_Privacy_2.5m_062" parent="Fences" instance=ExtResource("8_FN_Privacy_2.5m")]
+transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 122.679, 0.15, 412.4)
+metadata/tag = "EXT_HOUSE_16"
+
+[node name="FN_Privacy_2.5m_063" parent="Fences" instance=ExtResource("8_FN_Privacy_2.5m")]
+transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 120.179, 0.15, 412.4)
+metadata/tag = "EXT_HOUSE_16"
+
+[node name="FN_Privacy_2.5m_064" parent="Fences" instance=ExtResource("8_FN_Privacy_2.5m")]
+transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 117.679, 0.15, 412.4)
+metadata/tag = "EXT_HOUSE_16"
+
+[node name="FN_Privacy_2.5m_065" parent="Fences" instance=ExtResource("8_FN_Privacy_2.5m")]
+transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 115.179, 0.15, 412.4)
+metadata/tag = "EXT_HOUSE_16"
+
+[node name="FN_Privacy_2.5m_066" parent="Fences" instance=ExtResource("8_FN_Privacy_2.5m")]
+transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 112.679, 0.15, 412.4)
+metadata/tag = "EXT_HOUSE_16"
+
+[node name="FN_Post_Privacy_011" parent="Fences" instance=ExtResource("7_FN_Post_Privacy")]
+transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 110.179, 0.15, 412.4)
+metadata/tag = "EXT_HOUSE_16"
+
+[node name="SP_Mailbox_Residential_017" parent="StreetProps" instance=ExtResource("21_SP_Mailbox_Residential")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 96.7, 0.15, 431.5)
+metadata/tag = "EXT_HOUSE_17"
+
+[node name="UT_WaterMeter_017" parent="StreetProps" instance=ExtResource("32_UT_WaterMeter")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 101.4, 0.15, 431.4)
+metadata/tag = "EXT_HOUSE_17"
+
+[node name="VG_Tree_DeciduousSmall_010" parent="Vegetation" instance=ExtResource("36_VG_Tree_DeciduousSmall")]
+transform = Transform3D(0.86701, 0, 0.4983, 0, 1, 0, -0.4983, 0, 0.86701, 104.786, 0.15, 428.8)
+metadata/tag = "EXT_HOUSE_17"
+
+[node name="VG_Bush_016" parent="Vegetation" instance=ExtResource("33_VG_Bush")]
+transform = Transform3D(0.91077, 0, -0.41292, 0, 1, 0, 0.41292, 0, 0.91077, 95.1956, 0.15, 427.1)
+metadata/tag = "EXT_HOUSE_17"
+
+[node name="VG_FlowerPatch_002" parent="Vegetation" instance=ExtResource("34_VG_FlowerPatch")]
+transform = Transform3D(-0.47544, 0, -0.87975, 0, 1, 0, 0.87975, 0, -0.47544, 94.9056, 0.15, 427.1)
+metadata/tag = "EXT_HOUSE_17"
+
+[node name="FN_ChainLink_2.5m_031" parent="Fences" instance=ExtResource("1_FN_ChainLink_2.5m")]
+transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 108.036, 0.15, 412.4)
+metadata/tag = "EXT_HOUSE_17"
+
+[node name="FN_ChainLink_2.5m_032" parent="Fences" instance=ExtResource("1_FN_ChainLink_2.5m")]
+transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 105.536, 0.15, 412.4)
+metadata/tag = "EXT_HOUSE_17"
+
+[node name="FN_ChainLink_2.5m_033" parent="Fences" instance=ExtResource("1_FN_ChainLink_2.5m")]
+transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 103.036, 0.15, 412.4)
+metadata/tag = "EXT_HOUSE_17"
+
+[node name="FN_ChainLink_2.5m_034" parent="Fences" instance=ExtResource("1_FN_ChainLink_2.5m")]
+transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 100.536, 0.15, 412.4)
+metadata/tag = "EXT_HOUSE_17"
+
+[node name="FN_ChainLink_2.5m_035" parent="Fences" instance=ExtResource("1_FN_ChainLink_2.5m")]
+transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 98.036, 0.15, 412.4)
+metadata/tag = "EXT_HOUSE_17"
+
+[node name="FN_ChainLink_2.5m_036" parent="Fences" instance=ExtResource("1_FN_ChainLink_2.5m")]
+transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 95.536, 0.15, 412.4)
+metadata/tag = "EXT_HOUSE_17"
+
+[node name="FN_Post_ChainLink_006" parent="Fences" instance=ExtResource("5_FN_Post_ChainLink")]
+transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 93.036, 0.15, 412.4)
+metadata/tag = "EXT_HOUSE_17"
+
+[node name="SP_Mailbox_Residential_018" parent="StreetProps" instance=ExtResource("21_SP_Mailbox_Residential")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 76.7, 0.15, 431.5)
+metadata/tag = "EXT_HOUSE_18"
+
+[node name="UT_WaterMeter_018" parent="StreetProps" instance=ExtResource("32_UT_WaterMeter")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 81.4, 0.15, 431.4)
+metadata/tag = "EXT_HOUSE_18"
+
+[node name="VG_Tree_DeciduousLarge_008" parent="Vegetation" instance=ExtResource("35_VG_Tree_DeciduousLarge")]
+transform = Transform3D(-0.99893, 0, 0.04621, 0, 1, 0, -0.04621, 0, -0.99893, 87.643, 0.15, 428.8)
+metadata/tag = "EXT_HOUSE_18"
+
+[node name="VG_Bush_017" parent="Vegetation" instance=ExtResource("33_VG_Bush")]
+transform = Transform3D(0.98482, 0, 0.17358, 0, 1, 0, -0.17358, 0, 0.98482, 83.0935, 0.15, 427.1)
+metadata/tag = "EXT_HOUSE_18"
+
+[node name="VG_Bush_018" parent="Vegetation" instance=ExtResource("33_VG_Bush")]
+transform = Transform3D(0.33857, 0, 0.94094, 0, 1, 0, -0.94094, 0, 0.33857, 82.2151, 0.15, 427.1)
+metadata/tag = "EXT_HOUSE_18"
+
+[node name="FN_ChainLink_2.5m_037" parent="Fences" instance=ExtResource("1_FN_ChainLink_2.5m")]
+transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 90.893, 0.15, 412.4)
+metadata/tag = "EXT_HOUSE_18"
+
+[node name="FN_ChainLink_2.5m_038" parent="Fences" instance=ExtResource("1_FN_ChainLink_2.5m")]
+transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 88.393, 0.15, 412.4)
+metadata/tag = "EXT_HOUSE_18"
+
+[node name="FN_ChainLink_2.5m_039" parent="Fences" instance=ExtResource("1_FN_ChainLink_2.5m")]
+transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 85.893, 0.15, 412.4)
+metadata/tag = "EXT_HOUSE_18"
+
+[node name="FN_ChainLink_2.5m_040" parent="Fences" instance=ExtResource("1_FN_ChainLink_2.5m")]
+transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 83.393, 0.15, 412.4)
+metadata/tag = "EXT_HOUSE_18"
+
+[node name="FN_ChainLink_2.5m_041" parent="Fences" instance=ExtResource("1_FN_ChainLink_2.5m")]
+transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 80.893, 0.15, 412.4)
+metadata/tag = "EXT_HOUSE_18"
+
+[node name="FN_ChainLink_2.5m_042" parent="Fences" instance=ExtResource("1_FN_ChainLink_2.5m")]
+transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 78.393, 0.15, 412.4)
+metadata/tag = "EXT_HOUSE_18"
+
+[node name="FN_Post_ChainLink_007" parent="Fences" instance=ExtResource("5_FN_Post_ChainLink")]
+transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 75.893, 0.15, 412.4)
+metadata/tag = "EXT_HOUSE_18"
+
+[node name="SP_Mailbox_Residential_019" parent="StreetProps" instance=ExtResource("21_SP_Mailbox_Residential")]
+transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 186.7, 0.15, 444.5)
+metadata/tag = "EXT_HOUSE_19"
+
+[node name="UT_WaterMeter_019" parent="StreetProps" instance=ExtResource("32_UT_WaterMeter")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 191.4, 0.15, 444.6)
+metadata/tag = "EXT_HOUSE_19"
+
+[node name="VG_Tree_DeciduousSmall_011" parent="Vegetation" instance=ExtResource("36_VG_Tree_DeciduousSmall")]
+transform = Transform3D(0.22012, 0, 0.97547, 0, 1, 0, -0.97547, 0, 0.22012, 180.357, 0.15, 447.2)
+metadata/tag = "EXT_HOUSE_19"
+
+[node name="VG_Bush_019" parent="Vegetation" instance=ExtResource("33_VG_Bush")]
+transform = Transform3D(-0.25624, 0, -0.96661, 0, 1, 0, 0.96661, 0, -0.25624, 183.2683, 0.15, 448.9)
+metadata/tag = "EXT_HOUSE_19"
+
+[node name="FN_HedgeBoundary_2.5m_017" parent="Fences" instance=ExtResource("3_FN_HedgeBoundary_2.5m")]
+transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 193.75, 0.15, 444.25)
+metadata/tag = "EXT_HOUSE_19"
+
+[node name="FN_HedgeBoundary_2.5m_018" parent="Fences" instance=ExtResource("3_FN_HedgeBoundary_2.5m")]
+transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 187.25, 0.15, 444.25)
+metadata/tag = "EXT_HOUSE_19"
+
+[node name="FN_HedgeBoundary_2.5m_019" parent="Fences" instance=ExtResource("3_FN_HedgeBoundary_2.5m")]
+transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 184.75, 0.15, 444.25)
+metadata/tag = "EXT_HOUSE_19"
+
+[node name="FN_HedgeBoundary_2.5m_020" parent="Fences" instance=ExtResource("3_FN_HedgeBoundary_2.5m")]
+transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 182.25, 0.15, 444.25)
+metadata/tag = "EXT_HOUSE_19"
+
+[node name="FN_HedgeBoundary_2.5m_021" parent="Fences" instance=ExtResource("3_FN_HedgeBoundary_2.5m")]
+transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 179.75, 0.15, 444.25)
+metadata/tag = "EXT_HOUSE_19"
+
+[node name="FN_Privacy_2.5m_067" parent="Fences" instance=ExtResource("8_FN_Privacy_2.5m")]
+transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 193.75, 0.15, 463.6)
+metadata/tag = "EXT_HOUSE_19"
+
+[node name="FN_Privacy_2.5m_068" parent="Fences" instance=ExtResource("8_FN_Privacy_2.5m")]
+transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 191.25, 0.15, 463.6)
+metadata/tag = "EXT_HOUSE_19"
+
+[node name="FN_Privacy_2.5m_069" parent="Fences" instance=ExtResource("8_FN_Privacy_2.5m")]
+transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 188.75, 0.15, 463.6)
+metadata/tag = "EXT_HOUSE_19"
+
+[node name="FN_Privacy_2.5m_070" parent="Fences" instance=ExtResource("8_FN_Privacy_2.5m")]
+transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 186.25, 0.15, 463.6)
+metadata/tag = "EXT_HOUSE_19"
+
+[node name="FN_Privacy_2.5m_071" parent="Fences" instance=ExtResource("8_FN_Privacy_2.5m")]
+transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 183.75, 0.15, 463.6)
+metadata/tag = "EXT_HOUSE_19"
+
+[node name="FN_Privacy_2.5m_072" parent="Fences" instance=ExtResource("8_FN_Privacy_2.5m")]
+transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 181.25, 0.15, 463.6)
+metadata/tag = "EXT_HOUSE_19"
+
+[node name="FN_Post_Privacy_012" parent="Fences" instance=ExtResource("7_FN_Post_Privacy")]
+transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 178.75, 0.15, 463.6)
+metadata/tag = "EXT_HOUSE_19"
+
+[node name="SP_Mailbox_Residential_020" parent="StreetProps" instance=ExtResource("21_SP_Mailbox_Residential")]
+transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 166.7, 0.15, 444.5)
+metadata/tag = "EXT_HOUSE_20"
+
+[node name="UT_WaterMeter_020" parent="StreetProps" instance=ExtResource("32_UT_WaterMeter")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 171.4, 0.15, 444.6)
+metadata/tag = "EXT_HOUSE_20"
+
+[node name="VG_Tree_DeciduousLarge_009" parent="Vegetation" instance=ExtResource("35_VG_Tree_DeciduousLarge")]
+transform = Transform3D(-0.47781, 0, -0.87847, 0, 1, 0, 0.87847, 0, -0.47781, 173.357, 0.15, 447.2)
+metadata/tag = "EXT_HOUSE_20"
+
+[node name="VG_Bush_020" parent="Vegetation" instance=ExtResource("33_VG_Bush")]
+transform = Transform3D(-0.86114, 0, 0.50836, 0, 1, 0, -0.50836, 0, -0.86114, 172.0125, 0.15, 448.9)
+metadata/tag = "EXT_HOUSE_20"
+
+[node name="FN_Picket_2.5m_024" parent="Fences" instance=ExtResource("4_FN_Picket_2.5m")]
+transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 176.607, 0.15, 444.25)
+metadata/tag = "EXT_HOUSE_20"
+
+[node name="FN_GardenGate_1.25m_007" parent="Interactive" instance=ExtResource("2_FN_GardenGate_1.25m")]
+transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 174.107, 0.15, 444.25)
+metadata/tag = "EXT_HOUSE_20"
+
+[node name="FN_Post_Picket_025" parent="Fences" instance=ExtResource("6_FN_Post_Picket")]
+transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 172.857, 0.15, 444.25)
+metadata/tag = "EXT_HOUSE_20"
+
+[node name="FN_Post_Picket_026" parent="Fences" instance=ExtResource("6_FN_Post_Picket")]
+transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 172.857, 0.15, 444.25)
+metadata/tag = "EXT_HOUSE_20"
+
+[node name="FN_Post_Picket_027" parent="Fences" instance=ExtResource("6_FN_Post_Picket")]
+transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 167.25, 0.15, 444.25)
+metadata/tag = "EXT_HOUSE_20"
+
+[node name="FN_Picket_2.5m_025" parent="Fences" instance=ExtResource("4_FN_Picket_2.5m")]
+transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 167.25, 0.15, 444.25)
+metadata/tag = "EXT_HOUSE_20"
+
+[node name="FN_Picket_2.5m_026" parent="Fences" instance=ExtResource("4_FN_Picket_2.5m")]
+transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 164.75, 0.15, 444.25)
+metadata/tag = "EXT_HOUSE_20"
+
+[node name="FN_Post_Picket_028" parent="Fences" instance=ExtResource("6_FN_Post_Picket")]
+transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 162.25, 0.15, 444.25)
+metadata/tag = "EXT_HOUSE_20"
+
+[node name="FN_Privacy_2.5m_073" parent="Fences" instance=ExtResource("8_FN_Privacy_2.5m")]
+transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 176.607, 0.15, 463.6)
+metadata/tag = "EXT_HOUSE_20"
+
+[node name="FN_Privacy_2.5m_074" parent="Fences" instance=ExtResource("8_FN_Privacy_2.5m")]
+transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 174.107, 0.15, 463.6)
+metadata/tag = "EXT_HOUSE_20"
+
+[node name="FN_Privacy_2.5m_075" parent="Fences" instance=ExtResource("8_FN_Privacy_2.5m")]
+transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 171.607, 0.15, 463.6)
+metadata/tag = "EXT_HOUSE_20"
+
+[node name="FN_Privacy_2.5m_076" parent="Fences" instance=ExtResource("8_FN_Privacy_2.5m")]
+transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 169.107, 0.15, 463.6)
+metadata/tag = "EXT_HOUSE_20"
+
+[node name="FN_Privacy_2.5m_077" parent="Fences" instance=ExtResource("8_FN_Privacy_2.5m")]
+transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 166.607, 0.15, 463.6)
+metadata/tag = "EXT_HOUSE_20"
+
+[node name="FN_Privacy_2.5m_078" parent="Fences" instance=ExtResource("8_FN_Privacy_2.5m")]
+transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 164.107, 0.15, 463.6)
+metadata/tag = "EXT_HOUSE_20"
+
+[node name="FN_Post_Privacy_013" parent="Fences" instance=ExtResource("7_FN_Post_Privacy")]
+transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 161.607, 0.15, 463.6)
+metadata/tag = "EXT_HOUSE_20"
+
+[node name="SP_Mailbox_Residential_021" parent="StreetProps" instance=ExtResource("21_SP_Mailbox_Residential")]
+transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 146.7, 0.15, 444.5)
+metadata/tag = "EXT_HOUSE_21"
+
+[node name="UT_WaterMeter_021" parent="StreetProps" instance=ExtResource("32_UT_WaterMeter")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 151.4, 0.15, 444.6)
+metadata/tag = "EXT_HOUSE_21"
+
+[node name="VG_Tree_DeciduousSmall_012" parent="Vegetation" instance=ExtResource("36_VG_Tree_DeciduousSmall")]
+transform = Transform3D(-0.7881, 0, 0.61555, 0, 1, 0, -0.61555, 0, -0.7881, 156.214, 0.15, 447.2)
+metadata/tag = "EXT_HOUSE_21"
+
+[node name="VG_Bush_021" parent="Vegetation" instance=ExtResource("33_VG_Bush")]
+transform = Transform3D(0.38715, 0, 0.92202, 0, 1, 0, -0.92202, 0, 0.38715, 155.2757, 0.15, 448.9)
+metadata/tag = "EXT_HOUSE_21"
+
+[node name="FN_HedgeBoundary_2.5m_022" parent="Fences" instance=ExtResource("3_FN_HedgeBoundary_2.5m")]
+transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 159.464, 0.15, 444.25)
+metadata/tag = "EXT_HOUSE_21"
+
+[node name="FN_HedgeBoundary_2.5m_023" parent="Fences" instance=ExtResource("3_FN_HedgeBoundary_2.5m")]
+transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 156.964, 0.15, 444.25)
+metadata/tag = "EXT_HOUSE_21"
+
+[node name="FN_HedgeBoundary_2.5m_024" parent="Fences" instance=ExtResource("3_FN_HedgeBoundary_2.5m")]
+transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 154.464, 0.15, 444.25)
+metadata/tag = "EXT_HOUSE_21"
+
+[node name="FN_HedgeBoundary_2.5m_025" parent="Fences" instance=ExtResource("3_FN_HedgeBoundary_2.5m")]
+transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 147.25, 0.15, 444.25)
+metadata/tag = "EXT_HOUSE_21"
+
+[node name="FN_ChainLink_2.5m_043" parent="Fences" instance=ExtResource("1_FN_ChainLink_2.5m")]
+transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 159.464, 0.15, 463.6)
+metadata/tag = "EXT_HOUSE_21"
+
+[node name="FN_ChainLink_2.5m_044" parent="Fences" instance=ExtResource("1_FN_ChainLink_2.5m")]
+transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 156.964, 0.15, 463.6)
+metadata/tag = "EXT_HOUSE_21"
+
+[node name="FN_ChainLink_2.5m_045" parent="Fences" instance=ExtResource("1_FN_ChainLink_2.5m")]
+transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 154.464, 0.15, 463.6)
+metadata/tag = "EXT_HOUSE_21"
+
+[node name="FN_ChainLink_2.5m_046" parent="Fences" instance=ExtResource("1_FN_ChainLink_2.5m")]
+transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 151.964, 0.15, 463.6)
+metadata/tag = "EXT_HOUSE_21"
+
+[node name="FN_ChainLink_2.5m_047" parent="Fences" instance=ExtResource("1_FN_ChainLink_2.5m")]
+transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 149.464, 0.15, 463.6)
+metadata/tag = "EXT_HOUSE_21"
+
+[node name="FN_ChainLink_2.5m_048" parent="Fences" instance=ExtResource("1_FN_ChainLink_2.5m")]
+transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 146.964, 0.15, 463.6)
+metadata/tag = "EXT_HOUSE_21"
+
+[node name="FN_Post_ChainLink_008" parent="Fences" instance=ExtResource("5_FN_Post_ChainLink")]
+transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 144.464, 0.15, 463.6)
+metadata/tag = "EXT_HOUSE_21"
+
+[node name="SP_Mailbox_Residential_022" parent="StreetProps" instance=ExtResource("21_SP_Mailbox_Residential")]
+transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 116.7, 0.15, 444.5)
+metadata/tag = "EXT_HOUSE_22"
+
+[node name="UT_WaterMeter_022" parent="StreetProps" instance=ExtResource("32_UT_WaterMeter")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 121.4, 0.15, 444.6)
+metadata/tag = "EXT_HOUSE_22"
+
+[node name="VG_Tree_DeciduousLarge_010" parent="Vegetation" instance=ExtResource("35_VG_Tree_DeciduousLarge")]
+transform = Transform3D(0.9239, 0, 0.38264, 0, 1, 0, -0.38264, 0, 0.9239, 111.786, 0.15, 447.2)
+metadata/tag = "EXT_HOUSE_22"
+
+[node name="FN_Picket_2.5m_027" parent="Fences" instance=ExtResource("4_FN_Picket_2.5m")]
+transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 125.179, 0.15, 444.25)
+metadata/tag = "EXT_HOUSE_22"
+
+[node name="FN_GardenGate_1.25m_008" parent="Interactive" instance=ExtResource("2_FN_GardenGate_1.25m")]
+transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 122.679, 0.15, 444.25)
+metadata/tag = "EXT_HOUSE_22"
+
+[node name="FN_Post_Picket_029" parent="Fences" instance=ExtResource("6_FN_Post_Picket")]
+transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 121.429, 0.15, 444.25)
+metadata/tag = "EXT_HOUSE_22"
+
+[node name="FN_Post_Picket_030" parent="Fences" instance=ExtResource("6_FN_Post_Picket")]
+transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 121.429, 0.15, 444.25)
+metadata/tag = "EXT_HOUSE_22"
+
+[node name="FN_Post_Picket_031" parent="Fences" instance=ExtResource("6_FN_Post_Picket")]
+transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 117.25, 0.15, 444.25)
+metadata/tag = "EXT_HOUSE_22"
+
+[node name="FN_Picket_2.5m_028" parent="Fences" instance=ExtResource("4_FN_Picket_2.5m")]
+transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 117.25, 0.15, 444.25)
+metadata/tag = "EXT_HOUSE_22"
+
+[node name="FN_Picket_2.5m_029" parent="Fences" instance=ExtResource("4_FN_Picket_2.5m")]
+transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 114.75, 0.15, 444.25)
+metadata/tag = "EXT_HOUSE_22"
+
+[node name="FN_Picket_2.5m_030" parent="Fences" instance=ExtResource("4_FN_Picket_2.5m")]
+transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 112.25, 0.15, 444.25)
+metadata/tag = "EXT_HOUSE_22"
+
+[node name="FN_Post_Picket_032" parent="Fences" instance=ExtResource("6_FN_Post_Picket")]
+transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 109.75, 0.15, 444.25)
+metadata/tag = "EXT_HOUSE_22"
+
+[node name="FN_ChainLink_2.5m_049" parent="Fences" instance=ExtResource("1_FN_ChainLink_2.5m")]
+transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 125.179, 0.15, 463.6)
+metadata/tag = "EXT_HOUSE_22"
+
+[node name="FN_ChainLink_2.5m_050" parent="Fences" instance=ExtResource("1_FN_ChainLink_2.5m")]
+transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 122.679, 0.15, 463.6)
+metadata/tag = "EXT_HOUSE_22"
+
+[node name="FN_ChainLink_2.5m_051" parent="Fences" instance=ExtResource("1_FN_ChainLink_2.5m")]
+transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 120.179, 0.15, 463.6)
+metadata/tag = "EXT_HOUSE_22"
+
+[node name="FN_ChainLink_2.5m_052" parent="Fences" instance=ExtResource("1_FN_ChainLink_2.5m")]
+transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 117.679, 0.15, 463.6)
+metadata/tag = "EXT_HOUSE_22"
+
+[node name="FN_ChainLink_2.5m_053" parent="Fences" instance=ExtResource("1_FN_ChainLink_2.5m")]
+transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 115.179, 0.15, 463.6)
+metadata/tag = "EXT_HOUSE_22"
+
+[node name="FN_ChainLink_2.5m_054" parent="Fences" instance=ExtResource("1_FN_ChainLink_2.5m")]
+transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 112.679, 0.15, 463.6)
+metadata/tag = "EXT_HOUSE_22"
+
+[node name="FN_Post_ChainLink_009" parent="Fences" instance=ExtResource("5_FN_Post_ChainLink")]
+transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 110.179, 0.15, 463.6)
+metadata/tag = "EXT_HOUSE_22"
+
+[node name="SP_Mailbox_Residential_023" parent="StreetProps" instance=ExtResource("21_SP_Mailbox_Residential")]
+transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 96.7, 0.15, 444.5)
+metadata/tag = "EXT_HOUSE_23"
+
+[node name="UT_WaterMeter_023" parent="StreetProps" instance=ExtResource("32_UT_WaterMeter")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 101.4, 0.15, 444.6)
+metadata/tag = "EXT_HOUSE_23"
+
+[node name="VG_Tree_DeciduousLarge_011" parent="Vegetation" instance=ExtResource("35_VG_Tree_DeciduousLarge")]
+transform = Transform3D(0.02507, 0, 0.99969, 0, 1, 0, -0.99969, 0, 0.02507, 104.786, 0.15, 447.2)
+metadata/tag = "EXT_HOUSE_23"
+
+[node name="VG_FlowerPatch_003" parent="Vegetation" instance=ExtResource("34_VG_FlowerPatch")]
+transform = Transform3D(-0.08721, 0, -0.99619, 0, 1, 0, 0.99619, 0, -0.08721, 103.6939, 0.15, 448.9)
+metadata/tag = "EXT_HOUSE_23"
+
+[node name="VG_Bush_022" parent="Vegetation" instance=ExtResource("33_VG_Bush")]
+transform = Transform3D(0.13865, 0, 0.99034, 0, 1, 0, -0.99034, 0, 0.13865, 104.5612, 0.15, 448.9)
+metadata/tag = "EXT_HOUSE_23"
+
+[node name="FN_Privacy_2.5m_079" parent="Fences" instance=ExtResource("8_FN_Privacy_2.5m")]
+transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 108.036, 0.15, 463.6)
+metadata/tag = "EXT_HOUSE_23"
+
+[node name="FN_Privacy_2.5m_080" parent="Fences" instance=ExtResource("8_FN_Privacy_2.5m")]
+transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 105.536, 0.15, 463.6)
+metadata/tag = "EXT_HOUSE_23"
+
+[node name="FN_Privacy_2.5m_081" parent="Fences" instance=ExtResource("8_FN_Privacy_2.5m")]
+transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 103.036, 0.15, 463.6)
+metadata/tag = "EXT_HOUSE_23"
+
+[node name="FN_Privacy_2.5m_082" parent="Fences" instance=ExtResource("8_FN_Privacy_2.5m")]
+transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 100.536, 0.15, 463.6)
+metadata/tag = "EXT_HOUSE_23"
+
+[node name="FN_Privacy_2.5m_083" parent="Fences" instance=ExtResource("8_FN_Privacy_2.5m")]
+transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 98.036, 0.15, 463.6)
+metadata/tag = "EXT_HOUSE_23"
+
+[node name="FN_Privacy_2.5m_084" parent="Fences" instance=ExtResource("8_FN_Privacy_2.5m")]
+transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 95.536, 0.15, 463.6)
+metadata/tag = "EXT_HOUSE_23"
+
+[node name="FN_Post_Privacy_014" parent="Fences" instance=ExtResource("7_FN_Post_Privacy")]
+transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 93.036, 0.15, 463.6)
+metadata/tag = "EXT_HOUSE_23"
+
+[node name="SP_Mailbox_Residential_024" parent="StreetProps" instance=ExtResource("21_SP_Mailbox_Residential")]
+transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 76.7, 0.15, 444.5)
+metadata/tag = "EXT_HOUSE_24"
+
+[node name="UT_WaterMeter_024" parent="StreetProps" instance=ExtResource("32_UT_WaterMeter")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 81.4, 0.15, 444.6)
+metadata/tag = "EXT_HOUSE_24"
+
+[node name="VG_Tree_DeciduousSmall_013" parent="Vegetation" instance=ExtResource("36_VG_Tree_DeciduousSmall")]
+transform = Transform3D(-0.98697, 0, -0.16093, 0, 1, 0, 0.16093, 0, -0.98697, 87.643, 0.15, 447.2)
+metadata/tag = "EXT_HOUSE_24"
+
+[node name="VG_Bush_023" parent="Vegetation" instance=ExtResource("33_VG_Bush")]
+transform = Transform3D(-0.54646, 0, -0.83748, 0, 1, 0, 0.83748, 0, -0.54646, 85.2993, 0.15, 448.9)
+metadata/tag = "EXT_HOUSE_24"
+
+[node name="VG_FlowerPatch_004" parent="Vegetation" instance=ExtResource("34_VG_FlowerPatch")]
+transform = Transform3D(0.46555, 0, -0.88502, 0, 1, 0, 0.88502, 0, 0.46555, 83.0779, 0.15, 448.9)
+metadata/tag = "EXT_HOUSE_24"
+
+[node name="FN_Picket_2.5m_031" parent="Fences" instance=ExtResource("4_FN_Picket_2.5m")]
+transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 90.893, 0.15, 444.25)
+metadata/tag = "EXT_HOUSE_24"
+
+[node name="FN_Picket_2.5m_032" parent="Fences" instance=ExtResource("4_FN_Picket_2.5m")]
+transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 88.393, 0.15, 444.25)
+metadata/tag = "EXT_HOUSE_24"
+
+[node name="FN_Picket_2.5m_033" parent="Fences" instance=ExtResource("4_FN_Picket_2.5m")]
+transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 85.893, 0.15, 444.25)
+metadata/tag = "EXT_HOUSE_24"
+
+[node name="FN_GardenGate_1.25m_009" parent="Interactive" instance=ExtResource("2_FN_GardenGate_1.25m")]
+transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 83.393, 0.15, 444.25)
+metadata/tag = "EXT_HOUSE_24"
+
+[node name="FN_Post_Picket_033" parent="Fences" instance=ExtResource("6_FN_Post_Picket")]
+transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 82.143, 0.15, 444.25)
+metadata/tag = "EXT_HOUSE_24"
+
+[node name="FN_Post_Picket_034" parent="Fences" instance=ExtResource("6_FN_Post_Picket")]
+transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 82.143, 0.15, 444.25)
+metadata/tag = "EXT_HOUSE_24"
+
+[node name="FN_Post_Picket_035" parent="Fences" instance=ExtResource("6_FN_Post_Picket")]
+transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 77.25, 0.15, 444.25)
+metadata/tag = "EXT_HOUSE_24"
+
+[node name="FN_Picket_2.5m_034" parent="Fences" instance=ExtResource("4_FN_Picket_2.5m")]
+transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 77.25, 0.15, 444.25)
+metadata/tag = "EXT_HOUSE_24"
+
+[node name="FN_Post_Picket_036" parent="Fences" instance=ExtResource("6_FN_Post_Picket")]
+transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 74.75, 0.15, 444.25)
+metadata/tag = "EXT_HOUSE_24"
+
+[node name="FN_Privacy_2.5m_085" parent="Fences" instance=ExtResource("8_FN_Privacy_2.5m")]
+transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 90.893, 0.15, 463.6)
+metadata/tag = "EXT_HOUSE_24"
+
+[node name="FN_Privacy_2.5m_086" parent="Fences" instance=ExtResource("8_FN_Privacy_2.5m")]
+transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 88.393, 0.15, 463.6)
+metadata/tag = "EXT_HOUSE_24"
+
+[node name="FN_Privacy_2.5m_087" parent="Fences" instance=ExtResource("8_FN_Privacy_2.5m")]
+transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 85.893, 0.15, 463.6)
+metadata/tag = "EXT_HOUSE_24"
+
+[node name="FN_Privacy_2.5m_088" parent="Fences" instance=ExtResource("8_FN_Privacy_2.5m")]
+transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 83.393, 0.15, 463.6)
+metadata/tag = "EXT_HOUSE_24"
+
+[node name="FN_Privacy_2.5m_089" parent="Fences" instance=ExtResource("8_FN_Privacy_2.5m")]
+transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 80.893, 0.15, 463.6)
+metadata/tag = "EXT_HOUSE_24"
+
+[node name="FN_Privacy_2.5m_090" parent="Fences" instance=ExtResource("8_FN_Privacy_2.5m")]
+transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 78.393, 0.15, 463.6)
+metadata/tag = "EXT_HOUSE_24"
+
+[node name="FN_Post_Privacy_015" parent="Fences" instance=ExtResource("7_FN_Post_Privacy")]
+transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 75.893, 0.15, 463.6)
+metadata/tag = "EXT_HOUSE_24"
+
+[node name="SP_Mailbox_Residential_025" parent="StreetProps" instance=ExtResource("21_SP_Mailbox_Residential")]
+transform = Transform3D(0, 0, -1, 0, 1, 0, 1, 0, 0, 206.5, 0.15, 414.7)
+metadata/tag = "EXT_HOUSE_25"
+
+[node name="UT_WaterMeter_025" parent="StreetProps" instance=ExtResource("32_UT_WaterMeter")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 206.6, 0.15, 419.4)
+metadata/tag = "EXT_HOUSE_25"
+
+[node name="VG_Tree_DeciduousSmall_014" parent="Vegetation" instance=ExtResource("36_VG_Tree_DeciduousSmall")]
+transform = Transform3D(-0.66556, 0, 0.74635, 0, 1, 0, -0.74635, 0, -0.66556, 209.2, 0.15, 428.5)
+metadata/tag = "EXT_HOUSE_25"
+
+[node name="VG_Bush_024" parent="Vegetation" instance=ExtResource("33_VG_Bush")]
+transform = Transform3D(-0.99731, 0, 0.07331, 0, 1, 0, -0.07331, 0, -0.99731, 210.9, 0.15, 427.6215)
+metadata/tag = "EXT_HOUSE_25"
+
+[node name="VG_Bush_025" parent="Vegetation" instance=ExtResource("33_VG_Bush")]
+transform = Transform3D(0.89272, 0, -0.4506, 0, 1, 0, 0.4506, 0, 0.89272, 210.9, 0.15, 426.2183)
+metadata/tag = "EXT_HOUSE_25"
+
+[node name="FN_Picket_2.5m_035" parent="Fences" instance=ExtResource("4_FN_Picket_2.5m")]
+transform = Transform3D(0, 0, 1, 0, 1, 0, -1, 0, 0, 206.25, 0.15, 431.75)
+metadata/tag = "EXT_HOUSE_25"
+
+[node name="FN_GardenGate_1.25m_010" parent="Interactive" instance=ExtResource("2_FN_GardenGate_1.25m")]
+transform = Transform3D(0, 0, 1, 0, 1, 0, -1, 0, 0, 206.25, 0.15, 429.25)
+metadata/tag = "EXT_HOUSE_25"
+
+[node name="FN_Post_Picket_037" parent="Fences" instance=ExtResource("6_FN_Post_Picket")]
+transform = Transform3D(0, 0, 1, 0, 1, 0, -1, 0, 0, 206.25, 0.15, 428)
+metadata/tag = "EXT_HOUSE_25"
+
+[node name="FN_Picket_2.5m_036" parent="Fences" instance=ExtResource("4_FN_Picket_2.5m")]
+transform = Transform3D(0, 0, 1, 0, 1, 0, -1, 0, 0, 206.25, 0.15, 428)
+metadata/tag = "EXT_HOUSE_25"
+
+[node name="FN_Picket_2.5m_037" parent="Fences" instance=ExtResource("4_FN_Picket_2.5m")]
+transform = Transform3D(0, 0, 1, 0, 1, 0, -1, 0, 0, 206.25, 0.15, 425.5)
+metadata/tag = "EXT_HOUSE_25"
+
+[node name="FN_Picket_2.5m_038" parent="Fences" instance=ExtResource("4_FN_Picket_2.5m")]
+transform = Transform3D(0, 0, 1, 0, 1, 0, -1, 0, 0, 206.25, 0.15, 423)
+metadata/tag = "EXT_HOUSE_25"
+
+[node name="FN_Post_Picket_038" parent="Fences" instance=ExtResource("6_FN_Post_Picket")]
+transform = Transform3D(0, 0, 1, 0, 1, 0, -1, 0, 0, 206.25, 0.15, 420.5)
+metadata/tag = "EXT_HOUSE_25"
+
+[node name="FN_Post_Picket_039" parent="Fences" instance=ExtResource("6_FN_Post_Picket")]
+transform = Transform3D(0, 0, 1, 0, 1, 0, -1, 0, 0, 206.25, 0.15, 415.25)
+metadata/tag = "EXT_HOUSE_25"
+
+[node name="FN_Picket_2.5m_039" parent="Fences" instance=ExtResource("4_FN_Picket_2.5m")]
+transform = Transform3D(0, 0, 1, 0, 1, 0, -1, 0, 0, 206.25, 0.15, 415.25)
+metadata/tag = "EXT_HOUSE_25"
+
+[node name="FN_Picket_2.5m_040" parent="Fences" instance=ExtResource("4_FN_Picket_2.5m")]
+transform = Transform3D(0, 0, 1, 0, 1, 0, -1, 0, 0, 206.25, 0.15, 412.75)
+metadata/tag = "EXT_HOUSE_25"
+
+[node name="FN_Picket_2.5m_041" parent="Fences" instance=ExtResource("4_FN_Picket_2.5m")]
+transform = Transform3D(0, 0, 1, 0, 1, 0, -1, 0, 0, 206.25, 0.15, 410.25)
+metadata/tag = "EXT_HOUSE_25"
+
+[node name="FN_Post_Picket_040" parent="Fences" instance=ExtResource("6_FN_Post_Picket")]
+transform = Transform3D(0, 0, 1, 0, 1, 0, -1, 0, 0, 206.25, 0.15, 407.75)
+metadata/tag = "EXT_HOUSE_25"
+
+[node name="FN_Privacy_2.5m_091" parent="Fences" instance=ExtResource("8_FN_Privacy_2.5m")]
+transform = Transform3D(0, 0, 1, 0, 1, 0, -1, 0, 0, 225.6, 0.15, 431.75)
+metadata/tag = "EXT_HOUSE_25"
+
+[node name="FN_Privacy_2.5m_092" parent="Fences" instance=ExtResource("8_FN_Privacy_2.5m")]
+transform = Transform3D(0, 0, 1, 0, 1, 0, -1, 0, 0, 225.6, 0.15, 429.25)
+metadata/tag = "EXT_HOUSE_25"
+
+[node name="FN_Privacy_2.5m_093" parent="Fences" instance=ExtResource("8_FN_Privacy_2.5m")]
+transform = Transform3D(0, 0, 1, 0, 1, 0, -1, 0, 0, 225.6, 0.15, 426.75)
+metadata/tag = "EXT_HOUSE_25"
+
+[node name="FN_Privacy_2.5m_094" parent="Fences" instance=ExtResource("8_FN_Privacy_2.5m")]
+transform = Transform3D(0, 0, 1, 0, 1, 0, -1, 0, 0, 225.6, 0.15, 424.25)
+metadata/tag = "EXT_HOUSE_25"
+
+[node name="FN_Privacy_2.5m_095" parent="Fences" instance=ExtResource("8_FN_Privacy_2.5m")]
+transform = Transform3D(0, 0, 1, 0, 1, 0, -1, 0, 0, 225.6, 0.15, 421.75)
+metadata/tag = "EXT_HOUSE_25"
+
+[node name="FN_Privacy_2.5m_096" parent="Fences" instance=ExtResource("8_FN_Privacy_2.5m")]
+transform = Transform3D(0, 0, 1, 0, 1, 0, -1, 0, 0, 225.6, 0.15, 419.25)
+metadata/tag = "EXT_HOUSE_25"
+
+[node name="FN_Privacy_2.5m_097" parent="Fences" instance=ExtResource("8_FN_Privacy_2.5m")]
+transform = Transform3D(0, 0, 1, 0, 1, 0, -1, 0, 0, 225.6, 0.15, 416.75)
+metadata/tag = "EXT_HOUSE_25"
+
+[node name="FN_Privacy_2.5m_098" parent="Fences" instance=ExtResource("8_FN_Privacy_2.5m")]
+transform = Transform3D(0, 0, 1, 0, 1, 0, -1, 0, 0, 225.6, 0.15, 414.25)
+metadata/tag = "EXT_HOUSE_25"
+
+[node name="FN_Privacy_2.5m_099" parent="Fences" instance=ExtResource("8_FN_Privacy_2.5m")]
+transform = Transform3D(0, 0, 1, 0, 1, 0, -1, 0, 0, 225.6, 0.15, 411.75)
+metadata/tag = "EXT_HOUSE_25"
+
+[node name="FN_Post_Privacy_016" parent="Fences" instance=ExtResource("7_FN_Post_Privacy")]
+transform = Transform3D(0, 0, 1, 0, 1, 0, -1, 0, 0, 225.6, 0.15, 409.25)
+metadata/tag = "EXT_HOUSE_25"
+
+[node name="SP_Mailbox_Residential_026" parent="StreetProps" instance=ExtResource("21_SP_Mailbox_Residential")]
+transform = Transform3D(0, 0, -1, 0, 1, 0, 1, 0, 0, 206.5, 0.15, 394.7)
+metadata/tag = "EXT_HOUSE_26"
+
+[node name="UT_WaterMeter_026" parent="StreetProps" instance=ExtResource("32_UT_WaterMeter")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 206.6, 0.15, 399.4)
+metadata/tag = "EXT_HOUSE_26"
+
+[node name="VG_Tree_DeciduousSmall_015" parent="Vegetation" instance=ExtResource("36_VG_Tree_DeciduousSmall")]
+transform = Transform3D(-0.74779, 0, -0.66394, 0, 1, 0, 0.66394, 0, -0.74779, 209.2, 0.15, 403.5)
+metadata/tag = "EXT_HOUSE_26"
+
+[node name="VG_Bush_026" parent="Vegetation" instance=ExtResource("33_VG_Bush")]
+transform = Transform3D(0.65872, 0, 0.75239, 0, 1, 0, -0.75239, 0, 0.65872, 210.9, 0.15, 401.2823)
+metadata/tag = "EXT_HOUSE_26"
+
+[node name="FN_HedgeBoundary_2.5m_026" parent="Fences" instance=ExtResource("3_FN_HedgeBoundary_2.5m")]
+transform = Transform3D(0, 0, 1, 0, 1, 0, -1, 0, 0, 206.25, 0.15, 406.75)
+metadata/tag = "EXT_HOUSE_26"
+
+[node name="FN_HedgeBoundary_2.5m_027" parent="Fences" instance=ExtResource("3_FN_HedgeBoundary_2.5m")]
+transform = Transform3D(0, 0, 1, 0, 1, 0, -1, 0, 0, 206.25, 0.15, 404.25)
+metadata/tag = "EXT_HOUSE_26"
+
+[node name="FN_HedgeBoundary_2.5m_028" parent="Fences" instance=ExtResource("3_FN_HedgeBoundary_2.5m")]
+transform = Transform3D(0, 0, 1, 0, 1, 0, -1, 0, 0, 206.25, 0.15, 401.75)
+metadata/tag = "EXT_HOUSE_26"
+
+[node name="FN_HedgeBoundary_2.5m_029" parent="Fences" instance=ExtResource("3_FN_HedgeBoundary_2.5m")]
+transform = Transform3D(0, 0, 1, 0, 1, 0, -1, 0, 0, 206.25, 0.15, 395.25)
+metadata/tag = "EXT_HOUSE_26"
+
+[node name="FN_HedgeBoundary_2.5m_030" parent="Fences" instance=ExtResource("3_FN_HedgeBoundary_2.5m")]
+transform = Transform3D(0, 0, 1, 0, 1, 0, -1, 0, 0, 206.25, 0.15, 392.75)
+metadata/tag = "EXT_HOUSE_26"
+
+[node name="FN_HedgeBoundary_2.5m_031" parent="Fences" instance=ExtResource("3_FN_HedgeBoundary_2.5m")]
+transform = Transform3D(0, 0, 1, 0, 1, 0, -1, 0, 0, 206.25, 0.15, 390.25)
+metadata/tag = "EXT_HOUSE_26"
+
+[node name="FN_HedgeBoundary_2.5m_032" parent="Fences" instance=ExtResource("3_FN_HedgeBoundary_2.5m")]
+transform = Transform3D(0, 0, 1, 0, 1, 0, -1, 0, 0, 206.25, 0.15, 387.75)
+metadata/tag = "EXT_HOUSE_26"
+
+[node name="FN_HedgeBoundary_2.5m_033" parent="Fences" instance=ExtResource("3_FN_HedgeBoundary_2.5m")]
+transform = Transform3D(0, 0, 1, 0, 1, 0, -1, 0, 0, 206.25, 0.15, 385.25)
+metadata/tag = "EXT_HOUSE_26"
+
+[node name="FN_Privacy_2.5m_100" parent="Fences" instance=ExtResource("8_FN_Privacy_2.5m")]
+transform = Transform3D(0, 0, 1, 0, 1, 0, -1, 0, 0, 225.6, 0.15, 406.75)
+metadata/tag = "EXT_HOUSE_26"
+
+[node name="FN_Privacy_2.5m_101" parent="Fences" instance=ExtResource("8_FN_Privacy_2.5m")]
+transform = Transform3D(0, 0, 1, 0, 1, 0, -1, 0, 0, 225.6, 0.15, 404.25)
+metadata/tag = "EXT_HOUSE_26"
+
+[node name="FN_Privacy_2.5m_102" parent="Fences" instance=ExtResource("8_FN_Privacy_2.5m")]
+transform = Transform3D(0, 0, 1, 0, 1, 0, -1, 0, 0, 225.6, 0.15, 401.75)
+metadata/tag = "EXT_HOUSE_26"
+
+[node name="FN_Privacy_2.5m_103" parent="Fences" instance=ExtResource("8_FN_Privacy_2.5m")]
+transform = Transform3D(0, 0, 1, 0, 1, 0, -1, 0, 0, 225.6, 0.15, 399.25)
+metadata/tag = "EXT_HOUSE_26"
+
+[node name="FN_Privacy_2.5m_104" parent="Fences" instance=ExtResource("8_FN_Privacy_2.5m")]
+transform = Transform3D(0, 0, 1, 0, 1, 0, -1, 0, 0, 225.6, 0.15, 396.75)
+metadata/tag = "EXT_HOUSE_26"
+
+[node name="FN_Privacy_2.5m_105" parent="Fences" instance=ExtResource("8_FN_Privacy_2.5m")]
+transform = Transform3D(0, 0, 1, 0, 1, 0, -1, 0, 0, 225.6, 0.15, 394.25)
+metadata/tag = "EXT_HOUSE_26"
+
+[node name="FN_Privacy_2.5m_106" parent="Fences" instance=ExtResource("8_FN_Privacy_2.5m")]
+transform = Transform3D(0, 0, 1, 0, 1, 0, -1, 0, 0, 225.6, 0.15, 391.75)
+metadata/tag = "EXT_HOUSE_26"
+
+[node name="FN_Privacy_2.5m_107" parent="Fences" instance=ExtResource("8_FN_Privacy_2.5m")]
+transform = Transform3D(0, 0, 1, 0, 1, 0, -1, 0, 0, 225.6, 0.15, 389.25)
+metadata/tag = "EXT_HOUSE_26"
+
+[node name="FN_Privacy_2.5m_108" parent="Fences" instance=ExtResource("8_FN_Privacy_2.5m")]
+transform = Transform3D(0, 0, 1, 0, 1, 0, -1, 0, 0, 225.6, 0.15, 386.75)
+metadata/tag = "EXT_HOUSE_26"
+
+[node name="FN_Post_Privacy_017" parent="Fences" instance=ExtResource("7_FN_Post_Privacy")]
+transform = Transform3D(0, 0, 1, 0, 1, 0, -1, 0, 0, 225.6, 0.15, 384.25)
+metadata/tag = "EXT_HOUSE_26"
+
+[node name="SP_Mailbox_Residential_027" parent="StreetProps" instance=ExtResource("21_SP_Mailbox_Residential")]
+transform = Transform3D(0, 0, 1, 0, 1, 0, -1, 0, 0, 193.5, 0.15, 414.7)
+metadata/tag = "EXT_HOUSE_27"
+
+[node name="UT_WaterMeter_027" parent="StreetProps" instance=ExtResource("32_UT_WaterMeter")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 193.4, 0.15, 419.4)
+metadata/tag = "EXT_HOUSE_27"
+
+[node name="VG_Tree_DeciduousSmall_016" parent="Vegetation" instance=ExtResource("36_VG_Tree_DeciduousSmall")]
+transform = Transform3D(0.50187, 0, -0.86494, 0, 1, 0, 0.86494, 0, 0.50187, 190.8, 0.15, 428.5)
+metadata/tag = "EXT_HOUSE_27"
+
+[node name="VG_FlowerPatch_005" parent="Vegetation" instance=ExtResource("34_VG_FlowerPatch")]
+transform = Transform3D(-0.89803, 0, -0.43994, 0, 1, 0, 0.43994, 0, -0.89803, 189.1, 0.15, 411.962)
+metadata/tag = "EXT_HOUSE_27"
+
+[node name="FN_Privacy_2.5m_109" parent="Fences" instance=ExtResource("8_FN_Privacy_2.5m")]
+transform = Transform3D(0, 0, 1, 0, 1, 0, -1, 0, 0, 174.4, 0.15, 431.75)
+metadata/tag = "EXT_HOUSE_27"
+
+[node name="FN_Privacy_2.5m_110" parent="Fences" instance=ExtResource("8_FN_Privacy_2.5m")]
+transform = Transform3D(0, 0, 1, 0, 1, 0, -1, 0, 0, 174.4, 0.15, 429.25)
+metadata/tag = "EXT_HOUSE_27"
+
+[node name="FN_Privacy_2.5m_111" parent="Fences" instance=ExtResource("8_FN_Privacy_2.5m")]
+transform = Transform3D(0, 0, 1, 0, 1, 0, -1, 0, 0, 174.4, 0.15, 426.75)
+metadata/tag = "EXT_HOUSE_27"
+
+[node name="FN_Privacy_2.5m_112" parent="Fences" instance=ExtResource("8_FN_Privacy_2.5m")]
+transform = Transform3D(0, 0, 1, 0, 1, 0, -1, 0, 0, 174.4, 0.15, 424.25)
+metadata/tag = "EXT_HOUSE_27"
+
+[node name="FN_Privacy_2.5m_113" parent="Fences" instance=ExtResource("8_FN_Privacy_2.5m")]
+transform = Transform3D(0, 0, 1, 0, 1, 0, -1, 0, 0, 174.4, 0.15, 421.75)
+metadata/tag = "EXT_HOUSE_27"
+
+[node name="FN_Privacy_2.5m_114" parent="Fences" instance=ExtResource("8_FN_Privacy_2.5m")]
+transform = Transform3D(0, 0, 1, 0, 1, 0, -1, 0, 0, 174.4, 0.15, 419.25)
+metadata/tag = "EXT_HOUSE_27"
+
+[node name="FN_Privacy_2.5m_115" parent="Fences" instance=ExtResource("8_FN_Privacy_2.5m")]
+transform = Transform3D(0, 0, 1, 0, 1, 0, -1, 0, 0, 174.4, 0.15, 416.75)
+metadata/tag = "EXT_HOUSE_27"
+
+[node name="FN_Privacy_2.5m_116" parent="Fences" instance=ExtResource("8_FN_Privacy_2.5m")]
+transform = Transform3D(0, 0, 1, 0, 1, 0, -1, 0, 0, 174.4, 0.15, 414.25)
+metadata/tag = "EXT_HOUSE_27"
+
+[node name="FN_Privacy_2.5m_117" parent="Fences" instance=ExtResource("8_FN_Privacy_2.5m")]
+transform = Transform3D(0, 0, 1, 0, 1, 0, -1, 0, 0, 174.4, 0.15, 411.75)
+metadata/tag = "EXT_HOUSE_27"
+
+[node name="FN_Post_Privacy_018" parent="Fences" instance=ExtResource("7_FN_Post_Privacy")]
+transform = Transform3D(0, 0, 1, 0, 1, 0, -1, 0, 0, 174.4, 0.15, 409.25)
+metadata/tag = "EXT_HOUSE_27"
+
+[node name="SP_Mailbox_Residential_028" parent="StreetProps" instance=ExtResource("21_SP_Mailbox_Residential")]
+transform = Transform3D(0, 0, 1, 0, 1, 0, -1, 0, 0, 193.5, 0.15, 394.7)
+metadata/tag = "EXT_HOUSE_28"
+
+[node name="UT_WaterMeter_028" parent="StreetProps" instance=ExtResource("32_UT_WaterMeter")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 193.4, 0.15, 399.4)
+metadata/tag = "EXT_HOUSE_28"
+
+[node name="VG_Tree_DeciduousLarge_012" parent="Vegetation" instance=ExtResource("35_VG_Tree_DeciduousLarge")]
+transform = Transform3D(0.92031, 0, -0.39119, 0, 1, 0, 0.39119, 0, 0.92031, 190.8, 0.15, 403.5)
+metadata/tag = "EXT_HOUSE_28"
+
+[node name="VG_Bush_027" parent="Vegetation" instance=ExtResource("33_VG_Bush")]
+transform = Transform3D(-0.59622, 0, 0.80282, 0, 1, 0, -0.80282, 0, -0.59622, 189.1, 0.15, 387.4219)
+metadata/tag = "EXT_HOUSE_28"
+
+[node name="FN_Privacy_2.5m_118" parent="Fences" instance=ExtResource("8_FN_Privacy_2.5m")]
+transform = Transform3D(0, 0, 1, 0, 1, 0, -1, 0, 0, 174.4, 0.15, 406.75)
+metadata/tag = "EXT_HOUSE_28"
+
+[node name="FN_Privacy_2.5m_119" parent="Fences" instance=ExtResource("8_FN_Privacy_2.5m")]
+transform = Transform3D(0, 0, 1, 0, 1, 0, -1, 0, 0, 174.4, 0.15, 404.25)
+metadata/tag = "EXT_HOUSE_28"
+
+[node name="FN_Privacy_2.5m_120" parent="Fences" instance=ExtResource("8_FN_Privacy_2.5m")]
+transform = Transform3D(0, 0, 1, 0, 1, 0, -1, 0, 0, 174.4, 0.15, 401.75)
+metadata/tag = "EXT_HOUSE_28"
+
+[node name="FN_Privacy_2.5m_121" parent="Fences" instance=ExtResource("8_FN_Privacy_2.5m")]
+transform = Transform3D(0, 0, 1, 0, 1, 0, -1, 0, 0, 174.4, 0.15, 399.25)
+metadata/tag = "EXT_HOUSE_28"
+
+[node name="FN_Privacy_2.5m_122" parent="Fences" instance=ExtResource("8_FN_Privacy_2.5m")]
+transform = Transform3D(0, 0, 1, 0, 1, 0, -1, 0, 0, 174.4, 0.15, 396.75)
+metadata/tag = "EXT_HOUSE_28"
+
+[node name="FN_Privacy_2.5m_123" parent="Fences" instance=ExtResource("8_FN_Privacy_2.5m")]
+transform = Transform3D(0, 0, 1, 0, 1, 0, -1, 0, 0, 174.4, 0.15, 394.25)
+metadata/tag = "EXT_HOUSE_28"
+
+[node name="FN_Privacy_2.5m_124" parent="Fences" instance=ExtResource("8_FN_Privacy_2.5m")]
+transform = Transform3D(0, 0, 1, 0, 1, 0, -1, 0, 0, 174.4, 0.15, 391.75)
+metadata/tag = "EXT_HOUSE_28"
+
+[node name="FN_Privacy_2.5m_125" parent="Fences" instance=ExtResource("8_FN_Privacy_2.5m")]
+transform = Transform3D(0, 0, 1, 0, 1, 0, -1, 0, 0, 174.4, 0.15, 389.25)
+metadata/tag = "EXT_HOUSE_28"
+
+[node name="FN_Privacy_2.5m_126" parent="Fences" instance=ExtResource("8_FN_Privacy_2.5m")]
+transform = Transform3D(0, 0, 1, 0, 1, 0, -1, 0, 0, 174.4, 0.15, 386.75)
+metadata/tag = "EXT_HOUSE_28"
+
+[node name="FN_Post_Privacy_019" parent="Fences" instance=ExtResource("7_FN_Post_Privacy")]
+transform = Transform3D(0, 0, 1, 0, 1, 0, -1, 0, 0, 174.4, 0.15, 384.25)
+metadata/tag = "EXT_HOUSE_28"
+
+[node name="SP_Mailbox_Residential_029" parent="StreetProps" instance=ExtResource("21_SP_Mailbox_Residential")]
+transform = Transform3D(0, 0, -1, 0, 1, 0, 1, 0, 0, 74.5, 0.15, 461.3)
+metadata/tag = "EXT_HOUSE_29"
+
+[node name="UT_WaterMeter_029" parent="StreetProps" instance=ExtResource("32_UT_WaterMeter")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 74.6, 0.15, 456.6)
+metadata/tag = "EXT_HOUSE_29"
+
+[node name="VG_Tree_DeciduousSmall_017" parent="Vegetation" instance=ExtResource("36_VG_Tree_DeciduousSmall")]
+transform = Transform3D(-0.40159, 0, 0.91582, 0, 1, 0, -0.91582, 0, -0.40159, 77.2, 0.15, 452.5)
+metadata/tag = "EXT_HOUSE_29"
+
+[node name="VG_FlowerPatch_006" parent="Vegetation" instance=ExtResource("34_VG_FlowerPatch")]
+transform = Transform3D(-0.07822, 0, -0.99694, 0, 1, 0, 0.99694, 0, -0.07822, 78.9, 0.15, 455.3842)
+metadata/tag = "EXT_HOUSE_29"
+
+[node name="VG_Bush_028" parent="Vegetation" instance=ExtResource("33_VG_Bush")]
+transform = Transform3D(-0.79187, 0, 0.61069, 0, 1, 0, -0.61069, 0, -0.79187, 78.9, 0.15, 454.8656)
+metadata/tag = "EXT_HOUSE_29"
+
+[node name="FN_ChainLink_2.5m_055" parent="Fences" instance=ExtResource("1_FN_ChainLink_2.5m")]
+transform = Transform3D(0, 0, -1, 0, 1, 0, 1, 0, 0, 93.6, 0.15, 449.25)
+metadata/tag = "EXT_HOUSE_29"
+
+[node name="FN_ChainLink_2.5m_056" parent="Fences" instance=ExtResource("1_FN_ChainLink_2.5m")]
+transform = Transform3D(0, 0, -1, 0, 1, 0, 1, 0, 0, 93.6, 0.15, 451.75)
+metadata/tag = "EXT_HOUSE_29"
+
+[node name="FN_ChainLink_2.5m_057" parent="Fences" instance=ExtResource("1_FN_ChainLink_2.5m")]
+transform = Transform3D(0, 0, -1, 0, 1, 0, 1, 0, 0, 93.6, 0.15, 454.25)
+metadata/tag = "EXT_HOUSE_29"
+
+[node name="FN_ChainLink_2.5m_058" parent="Fences" instance=ExtResource("1_FN_ChainLink_2.5m")]
+transform = Transform3D(0, 0, -1, 0, 1, 0, 1, 0, 0, 93.6, 0.15, 456.75)
+metadata/tag = "EXT_HOUSE_29"
+
+[node name="FN_ChainLink_2.5m_059" parent="Fences" instance=ExtResource("1_FN_ChainLink_2.5m")]
+transform = Transform3D(0, 0, -1, 0, 1, 0, 1, 0, 0, 93.6, 0.15, 459.25)
+metadata/tag = "EXT_HOUSE_29"
+
+[node name="FN_ChainLink_2.5m_060" parent="Fences" instance=ExtResource("1_FN_ChainLink_2.5m")]
+transform = Transform3D(0, 0, -1, 0, 1, 0, 1, 0, 0, 93.6, 0.15, 461.75)
+metadata/tag = "EXT_HOUSE_29"
+
+[node name="FN_Post_ChainLink_010" parent="Fences" instance=ExtResource("5_FN_Post_ChainLink")]
+transform = Transform3D(0, 0, -1, 0, 1, 0, 1, 0, 0, 93.6, 0.15, 464.25)
+metadata/tag = "EXT_HOUSE_29"
+
+[node name="SP_Mailbox_Residential_030" parent="StreetProps" instance=ExtResource("21_SP_Mailbox_Residential")]
+transform = Transform3D(0, 0, -1, 0, 1, 0, 1, 0, 0, 74.5, 0.15, 481.3)
+metadata/tag = "EXT_HOUSE_30"
+
+[node name="UT_WaterMeter_030" parent="StreetProps" instance=ExtResource("32_UT_WaterMeter")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 74.6, 0.15, 476.6)
+metadata/tag = "EXT_HOUSE_30"
+
+[node name="VG_Tree_DeciduousSmall_018" parent="Vegetation" instance=ExtResource("36_VG_Tree_DeciduousSmall")]
+transform = Transform3D(-0.94661, 0, 0.32238, 0, 1, 0, -0.32238, 0, -0.94661, 77.2, 0.15, 469.5)
+metadata/tag = "EXT_HOUSE_30"
+
+[node name="VG_Bush_029" parent="Vegetation" instance=ExtResource("33_VG_Bush")]
+transform = Transform3D(0.72409, 0, 0.6897, 0, 1, 0, -0.6897, 0, 0.72409, 78.9, 0.15, 469.4922)
+metadata/tag = "EXT_HOUSE_30"
+
+[node name="FN_HedgeBoundary_2.5m_034" parent="Fences" instance=ExtResource("3_FN_HedgeBoundary_2.5m")]
+transform = Transform3D(0, 0, -1, 0, 1, 0, 1, 0, 0, 74.25, 0.15, 466.25)
+metadata/tag = "EXT_HOUSE_30"
+
+[node name="FN_HedgeBoundary_2.5m_035" parent="Fences" instance=ExtResource("3_FN_HedgeBoundary_2.5m")]
+transform = Transform3D(0, 0, -1, 0, 1, 0, 1, 0, 0, 74.25, 0.15, 468.75)
+metadata/tag = "EXT_HOUSE_30"
+
+[node name="FN_HedgeBoundary_2.5m_036" parent="Fences" instance=ExtResource("3_FN_HedgeBoundary_2.5m")]
+transform = Transform3D(0, 0, -1, 0, 1, 0, 1, 0, 0, 74.25, 0.15, 471.25)
+metadata/tag = "EXT_HOUSE_30"
+
+[node name="FN_HedgeBoundary_2.5m_037" parent="Fences" instance=ExtResource("3_FN_HedgeBoundary_2.5m")]
+transform = Transform3D(0, 0, -1, 0, 1, 0, 1, 0, 0, 74.25, 0.15, 473.75)
+metadata/tag = "EXT_HOUSE_30"
+
+[node name="FN_Privacy_2.5m_127" parent="Fences" instance=ExtResource("8_FN_Privacy_2.5m")]
+transform = Transform3D(0, 0, -1, 0, 1, 0, 1, 0, 0, 93.6, 0.15, 466.25)
+metadata/tag = "EXT_HOUSE_30"
+
+[node name="FN_Privacy_2.5m_128" parent="Fences" instance=ExtResource("8_FN_Privacy_2.5m")]
+transform = Transform3D(0, 0, -1, 0, 1, 0, 1, 0, 0, 93.6, 0.15, 468.75)
+metadata/tag = "EXT_HOUSE_30"
+
+[node name="FN_Privacy_2.5m_129" parent="Fences" instance=ExtResource("8_FN_Privacy_2.5m")]
+transform = Transform3D(0, 0, -1, 0, 1, 0, 1, 0, 0, 93.6, 0.15, 471.25)
+metadata/tag = "EXT_HOUSE_30"
+
+[node name="FN_Privacy_2.5m_130" parent="Fences" instance=ExtResource("8_FN_Privacy_2.5m")]
+transform = Transform3D(0, 0, -1, 0, 1, 0, 1, 0, 0, 93.6, 0.15, 473.75)
+metadata/tag = "EXT_HOUSE_30"
+
+[node name="FN_Privacy_2.5m_131" parent="Fences" instance=ExtResource("8_FN_Privacy_2.5m")]
+transform = Transform3D(0, 0, -1, 0, 1, 0, 1, 0, 0, 93.6, 0.15, 476.25)
+metadata/tag = "EXT_HOUSE_30"
+
+[node name="FN_Privacy_2.5m_132" parent="Fences" instance=ExtResource("8_FN_Privacy_2.5m")]
+transform = Transform3D(0, 0, -1, 0, 1, 0, 1, 0, 0, 93.6, 0.15, 478.75)
+metadata/tag = "EXT_HOUSE_30"
+
+[node name="FN_Post_Privacy_020" parent="Fences" instance=ExtResource("7_FN_Post_Privacy")]
+transform = Transform3D(0, 0, -1, 0, 1, 0, 1, 0, 0, 93.6, 0.15, 481.25)
+metadata/tag = "EXT_HOUSE_30"
+
+[node name="SP_Mailbox_Residential_031" parent="StreetProps" instance=ExtResource("21_SP_Mailbox_Residential")]
+transform = Transform3D(0, 0, -1, 0, 1, 0, 1, 0, 0, 74.5, 0.15, 491.3)
+metadata/tag = "EXT_HOUSE_31"
+
+[node name="UT_WaterMeter_031" parent="StreetProps" instance=ExtResource("32_UT_WaterMeter")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 74.6, 0.15, 486.6)
+metadata/tag = "EXT_HOUSE_31"
+
+[node name="VG_Tree_DeciduousSmall_019" parent="Vegetation" instance=ExtResource("36_VG_Tree_DeciduousSmall")]
+transform = Transform3D(0.72886, 0, -0.68466, 0, 1, 0, 0.68466, 0, 0.72886, 77.2, 0.15, 496.5)
+metadata/tag = "EXT_HOUSE_31"
+
+[node name="FN_ChainLink_2.5m_061" parent="Fences" instance=ExtResource("1_FN_ChainLink_2.5m")]
+transform = Transform3D(0, 0, -1, 0, 1, 0, 1, 0, 0, 93.6, 0.15, 483.25)
+metadata/tag = "EXT_HOUSE_31"
+
+[node name="FN_ChainLink_2.5m_062" parent="Fences" instance=ExtResource("1_FN_ChainLink_2.5m")]
+transform = Transform3D(0, 0, -1, 0, 1, 0, 1, 0, 0, 93.6, 0.15, 485.75)
+metadata/tag = "EXT_HOUSE_31"
+
+[node name="FN_ChainLink_2.5m_063" parent="Fences" instance=ExtResource("1_FN_ChainLink_2.5m")]
+transform = Transform3D(0, 0, -1, 0, 1, 0, 1, 0, 0, 93.6, 0.15, 488.25)
+metadata/tag = "EXT_HOUSE_31"
+
+[node name="FN_ChainLink_2.5m_064" parent="Fences" instance=ExtResource("1_FN_ChainLink_2.5m")]
+transform = Transform3D(0, 0, -1, 0, 1, 0, 1, 0, 0, 93.6, 0.15, 490.75)
+metadata/tag = "EXT_HOUSE_31"
+
+[node name="FN_ChainLink_2.5m_065" parent="Fences" instance=ExtResource("1_FN_ChainLink_2.5m")]
+transform = Transform3D(0, 0, -1, 0, 1, 0, 1, 0, 0, 93.6, 0.15, 493.25)
+metadata/tag = "EXT_HOUSE_31"
+
+[node name="FN_ChainLink_2.5m_066" parent="Fences" instance=ExtResource("1_FN_ChainLink_2.5m")]
+transform = Transform3D(0, 0, -1, 0, 1, 0, 1, 0, 0, 93.6, 0.15, 495.75)
+metadata/tag = "EXT_HOUSE_31"
+
+[node name="FN_Post_ChainLink_011" parent="Fences" instance=ExtResource("5_FN_Post_ChainLink")]
+transform = Transform3D(0, 0, -1, 0, 1, 0, 1, 0, 0, 93.6, 0.15, 498.25)
+metadata/tag = "EXT_HOUSE_31"
+
+[node name="SP_Mailbox_Residential_032" parent="StreetProps" instance=ExtResource("21_SP_Mailbox_Residential")]
+transform = Transform3D(0, 0, -1, 0, 1, 0, 1, 0, 0, 74.5, 0.15, 511.3)
+metadata/tag = "EXT_HOUSE_32"
+
+[node name="UT_WaterMeter_032" parent="StreetProps" instance=ExtResource("32_UT_WaterMeter")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 74.6, 0.15, 506.6)
+metadata/tag = "EXT_HOUSE_32"
+
+[node name="VG_Tree_DeciduousSmall_020" parent="Vegetation" instance=ExtResource("36_VG_Tree_DeciduousSmall")]
+transform = Transform3D(-0.22822, 0, -0.97361, 0, 1, 0, 0.97361, 0, -0.22822, 77.2, 0.15, 503.5)
+metadata/tag = "EXT_HOUSE_32"
+
+[node name="VG_Bush_030" parent="Vegetation" instance=ExtResource("33_VG_Bush")]
+transform = Transform3D(0.00902, 0, -0.99996, 0, 1, 0, 0.99996, 0, 0.00902, 78.9, 0.15, 513.0566)
+metadata/tag = "EXT_HOUSE_32"
+
+[node name="FN_Picket_2.5m_042" parent="Fences" instance=ExtResource("4_FN_Picket_2.5m")]
+transform = Transform3D(0, 0, -1, 0, 1, 0, 1, 0, 0, 74.25, 0.15, 500.25)
+metadata/tag = "EXT_HOUSE_32"
+
+[node name="FN_GardenGate_1.25m_011" parent="Interactive" instance=ExtResource("2_FN_GardenGate_1.25m")]
+transform = Transform3D(0, 0, -1, 0, 1, 0, 1, 0, 0, 74.25, 0.15, 502.75)
+metadata/tag = "EXT_HOUSE_32"
+
+[node name="FN_Post_Picket_041" parent="Fences" instance=ExtResource("6_FN_Post_Picket")]
+transform = Transform3D(0, 0, -1, 0, 1, 0, 1, 0, 0, 74.25, 0.15, 504)
+metadata/tag = "EXT_HOUSE_32"
+
+[node name="FN_Picket_2.5m_043" parent="Fences" instance=ExtResource("4_FN_Picket_2.5m")]
+transform = Transform3D(0, 0, -1, 0, 1, 0, 1, 0, 0, 74.25, 0.15, 504)
+metadata/tag = "EXT_HOUSE_32"
+
+[node name="FN_Post_Picket_042" parent="Fences" instance=ExtResource("6_FN_Post_Picket")]
+transform = Transform3D(0, 0, -1, 0, 1, 0, 1, 0, 0, 74.25, 0.15, 506.5)
+metadata/tag = "EXT_HOUSE_32"
+
+[node name="FN_Post_Picket_043" parent="Fences" instance=ExtResource("6_FN_Post_Picket")]
+transform = Transform3D(0, 0, -1, 0, 1, 0, 1, 0, 0, 74.25, 0.15, 510.75)
+metadata/tag = "EXT_HOUSE_32"
+
+[node name="FN_Picket_2.5m_044" parent="Fences" instance=ExtResource("4_FN_Picket_2.5m")]
+transform = Transform3D(0, 0, -1, 0, 1, 0, 1, 0, 0, 74.25, 0.15, 510.75)
+metadata/tag = "EXT_HOUSE_32"
+
+[node name="FN_Picket_2.5m_045" parent="Fences" instance=ExtResource("4_FN_Picket_2.5m")]
+transform = Transform3D(0, 0, -1, 0, 1, 0, 1, 0, 0, 74.25, 0.15, 513.25)
+metadata/tag = "EXT_HOUSE_32"
+
+[node name="FN_Post_Picket_044" parent="Fences" instance=ExtResource("6_FN_Post_Picket")]
+transform = Transform3D(0, 0, -1, 0, 1, 0, 1, 0, 0, 74.25, 0.15, 515.75)
+metadata/tag = "EXT_HOUSE_32"
+
+[node name="FN_Privacy_2.5m_133" parent="Fences" instance=ExtResource("8_FN_Privacy_2.5m")]
+transform = Transform3D(0, 0, -1, 0, 1, 0, 1, 0, 0, 93.6, 0.15, 500.25)
+metadata/tag = "EXT_HOUSE_32"
+
+[node name="FN_Privacy_2.5m_134" parent="Fences" instance=ExtResource("8_FN_Privacy_2.5m")]
+transform = Transform3D(0, 0, -1, 0, 1, 0, 1, 0, 0, 93.6, 0.15, 502.75)
+metadata/tag = "EXT_HOUSE_32"
+
+[node name="FN_Privacy_2.5m_135" parent="Fences" instance=ExtResource("8_FN_Privacy_2.5m")]
+transform = Transform3D(0, 0, -1, 0, 1, 0, 1, 0, 0, 93.6, 0.15, 505.25)
+metadata/tag = "EXT_HOUSE_32"
+
+[node name="FN_Privacy_2.5m_136" parent="Fences" instance=ExtResource("8_FN_Privacy_2.5m")]
+transform = Transform3D(0, 0, -1, 0, 1, 0, 1, 0, 0, 93.6, 0.15, 507.75)
+metadata/tag = "EXT_HOUSE_32"
+
+[node name="FN_Privacy_2.5m_137" parent="Fences" instance=ExtResource("8_FN_Privacy_2.5m")]
+transform = Transform3D(0, 0, -1, 0, 1, 0, 1, 0, 0, 93.6, 0.15, 510.25)
+metadata/tag = "EXT_HOUSE_32"
+
+[node name="FN_Privacy_2.5m_138" parent="Fences" instance=ExtResource("8_FN_Privacy_2.5m")]
+transform = Transform3D(0, 0, -1, 0, 1, 0, 1, 0, 0, 93.6, 0.15, 512.75)
+metadata/tag = "EXT_HOUSE_32"
+
+[node name="FN_Post_Privacy_021" parent="Fences" instance=ExtResource("7_FN_Post_Privacy")]
+transform = Transform3D(0, 0, -1, 0, 1, 0, 1, 0, 0, 93.6, 0.15, 515.25)
+metadata/tag = "EXT_HOUSE_32"
+
+[node name="SP_Mailbox_Residential_033" parent="StreetProps" instance=ExtResource("21_SP_Mailbox_Residential")]
+transform = Transform3D(0, 0, -1, 0, 1, 0, 1, 0, 0, 74.5, 0.15, 531.3)
+metadata/tag = "EXT_HOUSE_33"
+
+[node name="UT_WaterMeter_033" parent="StreetProps" instance=ExtResource("32_UT_WaterMeter")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 74.6, 0.15, 526.6)
+metadata/tag = "EXT_HOUSE_33"
+
+[node name="VG_Tree_DeciduousLarge_013" parent="Vegetation" instance=ExtResource("35_VG_Tree_DeciduousLarge")]
+transform = Transform3D(0.26648, 0, -0.96384, 0, 1, 0, 0.96384, 0, 0.26648, 77.2, 0.15, 520.5)
+metadata/tag = "EXT_HOUSE_33"
+
+[node name="VG_Bush_031" parent="Vegetation" instance=ExtResource("33_VG_Bush")]
+transform = Transform3D(0.65242, 0, -0.75785, 0, 1, 0, 0.75785, 0, 0.65242, 78.9, 0.15, 520.6351)
+metadata/tag = "EXT_HOUSE_33"
+
+[node name="VG_Bush_032" parent="Vegetation" instance=ExtResource("33_VG_Bush")]
+transform = Transform3D(-0.02683, 0, 0.99964, 0, 1, 0, -0.99964, 0, -0.02683, 78.9, 0.15, 523.326)
+metadata/tag = "EXT_HOUSE_33"
+
+[node name="FN_Picket_2.5m_046" parent="Fences" instance=ExtResource("4_FN_Picket_2.5m")]
+transform = Transform3D(0, 0, -1, 0, 1, 0, 1, 0, 0, 74.25, 0.15, 517.25)
+metadata/tag = "EXT_HOUSE_33"
+
+[node name="FN_GardenGate_1.25m_012" parent="Interactive" instance=ExtResource("2_FN_GardenGate_1.25m")]
+transform = Transform3D(0, 0, -1, 0, 1, 0, 1, 0, 0, 74.25, 0.15, 519.75)
+metadata/tag = "EXT_HOUSE_33"
+
+[node name="FN_Post_Picket_045" parent="Fences" instance=ExtResource("6_FN_Post_Picket")]
+transform = Transform3D(0, 0, -1, 0, 1, 0, 1, 0, 0, 74.25, 0.15, 521)
+metadata/tag = "EXT_HOUSE_33"
+
+[node name="FN_Picket_2.5m_047" parent="Fences" instance=ExtResource("4_FN_Picket_2.5m")]
+transform = Transform3D(0, 0, -1, 0, 1, 0, 1, 0, 0, 74.25, 0.15, 521)
+metadata/tag = "EXT_HOUSE_33"
+
+[node name="FN_Picket_2.5m_048" parent="Fences" instance=ExtResource("4_FN_Picket_2.5m")]
+transform = Transform3D(0, 0, -1, 0, 1, 0, 1, 0, 0, 74.25, 0.15, 523.5)
+metadata/tag = "EXT_HOUSE_33"
+
+[node name="FN_Post_Picket_046" parent="Fences" instance=ExtResource("6_FN_Post_Picket")]
+transform = Transform3D(0, 0, -1, 0, 1, 0, 1, 0, 0, 74.25, 0.15, 526)
+metadata/tag = "EXT_HOUSE_33"
+
+[node name="FN_Post_Picket_047" parent="Fences" instance=ExtResource("6_FN_Post_Picket")]
+transform = Transform3D(0, 0, -1, 0, 1, 0, 1, 0, 0, 74.25, 0.15, 530.75)
+metadata/tag = "EXT_HOUSE_33"
+
+[node name="FN_Picket_2.5m_049" parent="Fences" instance=ExtResource("4_FN_Picket_2.5m")]
+transform = Transform3D(0, 0, -1, 0, 1, 0, 1, 0, 0, 74.25, 0.15, 530.75)
+metadata/tag = "EXT_HOUSE_33"
+
+[node name="FN_Post_Picket_048" parent="Fences" instance=ExtResource("6_FN_Post_Picket")]
+transform = Transform3D(0, 0, -1, 0, 1, 0, 1, 0, 0, 74.25, 0.15, 533.25)
+metadata/tag = "EXT_HOUSE_33"
+
+[node name="FN_Privacy_2.5m_139" parent="Fences" instance=ExtResource("8_FN_Privacy_2.5m")]
+transform = Transform3D(0, 0, -1, 0, 1, 0, 1, 0, 0, 93.6, 0.15, 517.25)
+metadata/tag = "EXT_HOUSE_33"
+
+[node name="FN_Privacy_2.5m_140" parent="Fences" instance=ExtResource("8_FN_Privacy_2.5m")]
+transform = Transform3D(0, 0, -1, 0, 1, 0, 1, 0, 0, 93.6, 0.15, 519.75)
+metadata/tag = "EXT_HOUSE_33"
+
+[node name="FN_Privacy_2.5m_141" parent="Fences" instance=ExtResource("8_FN_Privacy_2.5m")]
+transform = Transform3D(0, 0, -1, 0, 1, 0, 1, 0, 0, 93.6, 0.15, 522.25)
+metadata/tag = "EXT_HOUSE_33"
+
+[node name="FN_Privacy_2.5m_142" parent="Fences" instance=ExtResource("8_FN_Privacy_2.5m")]
+transform = Transform3D(0, 0, -1, 0, 1, 0, 1, 0, 0, 93.6, 0.15, 524.75)
+metadata/tag = "EXT_HOUSE_33"
+
+[node name="FN_Privacy_2.5m_143" parent="Fences" instance=ExtResource("8_FN_Privacy_2.5m")]
+transform = Transform3D(0, 0, -1, 0, 1, 0, 1, 0, 0, 93.6, 0.15, 527.25)
+metadata/tag = "EXT_HOUSE_33"
+
+[node name="FN_Privacy_2.5m_144" parent="Fences" instance=ExtResource("8_FN_Privacy_2.5m")]
+transform = Transform3D(0, 0, -1, 0, 1, 0, 1, 0, 0, 93.6, 0.15, 529.75)
+metadata/tag = "EXT_HOUSE_33"
+
+[node name="FN_Post_Privacy_022" parent="Fences" instance=ExtResource("7_FN_Post_Privacy")]
+transform = Transform3D(0, 0, -1, 0, 1, 0, 1, 0, 0, 93.6, 0.15, 532.25)
+metadata/tag = "EXT_HOUSE_33"
+
+[node name="SP_Mailbox_Residential_034" parent="StreetProps" instance=ExtResource("21_SP_Mailbox_Residential")]
+transform = Transform3D(0, 0, -1, 0, 1, 0, 1, 0, 0, 74.5, 0.15, 541.3)
+metadata/tag = "EXT_HOUSE_34"
+
+[node name="UT_WaterMeter_034" parent="StreetProps" instance=ExtResource("32_UT_WaterMeter")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 74.6, 0.15, 536.6)
+metadata/tag = "EXT_HOUSE_34"
+
+[node name="VG_Tree_DeciduousSmall_021" parent="Vegetation" instance=ExtResource("36_VG_Tree_DeciduousSmall")]
+transform = Transform3D(0.95496, 0, 0.29674, 0, 1, 0, -0.29674, 0, 0.95496, 77.2, 0.15, 547.5)
+metadata/tag = "EXT_HOUSE_34"
+
+[node name="VG_Bush_033" parent="Vegetation" instance=ExtResource("33_VG_Bush")]
+transform = Transform3D(-0.91181, 0, -0.41061, 0, 1, 0, 0.41061, 0, -0.91181, 78.9, 0.15, 544.8607)
+metadata/tag = "EXT_HOUSE_34"
+
+[node name="VG_Bush_034" parent="Vegetation" instance=ExtResource("33_VG_Bush")]
+transform = Transform3D(0.82747, 0, -0.56151, 0, 1, 0, 0.56151, 0, 0.82747, 78.9, 0.15, 542.2854)
+metadata/tag = "EXT_HOUSE_34"
+
+[node name="FN_Privacy_2.5m_145" parent="Fences" instance=ExtResource("8_FN_Privacy_2.5m")]
+transform = Transform3D(0, 0, -1, 0, 1, 0, 1, 0, 0, 93.6, 0.15, 534.25)
+metadata/tag = "EXT_HOUSE_34"
+
+[node name="FN_Privacy_2.5m_146" parent="Fences" instance=ExtResource("8_FN_Privacy_2.5m")]
+transform = Transform3D(0, 0, -1, 0, 1, 0, 1, 0, 0, 93.6, 0.15, 536.75)
+metadata/tag = "EXT_HOUSE_34"
+
+[node name="FN_Privacy_2.5m_147" parent="Fences" instance=ExtResource("8_FN_Privacy_2.5m")]
+transform = Transform3D(0, 0, -1, 0, 1, 0, 1, 0, 0, 93.6, 0.15, 539.25)
+metadata/tag = "EXT_HOUSE_34"
+
+[node name="FN_Privacy_2.5m_148" parent="Fences" instance=ExtResource("8_FN_Privacy_2.5m")]
+transform = Transform3D(0, 0, -1, 0, 1, 0, 1, 0, 0, 93.6, 0.15, 541.75)
+metadata/tag = "EXT_HOUSE_34"
+
+[node name="FN_Privacy_2.5m_149" parent="Fences" instance=ExtResource("8_FN_Privacy_2.5m")]
+transform = Transform3D(0, 0, -1, 0, 1, 0, 1, 0, 0, 93.6, 0.15, 544.25)
+metadata/tag = "EXT_HOUSE_34"
+
+[node name="FN_Privacy_2.5m_150" parent="Fences" instance=ExtResource("8_FN_Privacy_2.5m")]
+transform = Transform3D(0, 0, -1, 0, 1, 0, 1, 0, 0, 93.6, 0.15, 546.75)
+metadata/tag = "EXT_HOUSE_34"
+
+[node name="FN_Post_Privacy_023" parent="Fences" instance=ExtResource("7_FN_Post_Privacy")]
+transform = Transform3D(0, 0, -1, 0, 1, 0, 1, 0, 0, 93.6, 0.15, 549.25)
+metadata/tag = "EXT_HOUSE_34"
+
+[node name="SP_Mailbox_Residential_035" parent="StreetProps" instance=ExtResource("21_SP_Mailbox_Residential")]
+transform = Transform3D(0, 0, 1, 0, 1, 0, -1, 0, 0, 61.5, 0.15, 461.3)
+metadata/tag = "EXT_HOUSE_35"
+
+[node name="UT_WaterMeter_035" parent="StreetProps" instance=ExtResource("32_UT_WaterMeter")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 61.4, 0.15, 456.6)
+metadata/tag = "EXT_HOUSE_35"
+
+[node name="VG_Tree_DeciduousLarge_014" parent="Vegetation" instance=ExtResource("35_VG_Tree_DeciduousLarge")]
+transform = Transform3D(0.94795, 0, -0.31841, 0, 1, 0, 0.31841, 0, 0.94795, 58.8, 0.15, 452.5)
+metadata/tag = "EXT_HOUSE_35"
+
+[node name="FN_Picket_2.5m_050" parent="Fences" instance=ExtResource("4_FN_Picket_2.5m")]
+transform = Transform3D(0, 0, -1, 0, 1, 0, 1, 0, 0, 61.75, 0.15, 449.25)
+metadata/tag = "EXT_HOUSE_35"
+
+[node name="FN_GardenGate_1.25m_013" parent="Interactive" instance=ExtResource("2_FN_GardenGate_1.25m")]
+transform = Transform3D(0, 0, -1, 0, 1, 0, 1, 0, 0, 61.75, 0.15, 451.75)
+metadata/tag = "EXT_HOUSE_35"
+
+[node name="FN_Post_Picket_049" parent="Fences" instance=ExtResource("6_FN_Post_Picket")]
+transform = Transform3D(0, 0, -1, 0, 1, 0, 1, 0, 0, 61.75, 0.15, 453)
+metadata/tag = "EXT_HOUSE_35"
+
+[node name="FN_Picket_2.5m_051" parent="Fences" instance=ExtResource("4_FN_Picket_2.5m")]
+transform = Transform3D(0, 0, -1, 0, 1, 0, 1, 0, 0, 61.75, 0.15, 453)
+metadata/tag = "EXT_HOUSE_35"
+
+[node name="FN_Post_Picket_050" parent="Fences" instance=ExtResource("6_FN_Post_Picket")]
+transform = Transform3D(0, 0, -1, 0, 1, 0, 1, 0, 0, 61.75, 0.15, 455.5)
+metadata/tag = "EXT_HOUSE_35"
+
+[node name="FN_Post_Picket_051" parent="Fences" instance=ExtResource("6_FN_Post_Picket")]
+transform = Transform3D(0, 0, -1, 0, 1, 0, 1, 0, 0, 61.75, 0.15, 460.75)
+metadata/tag = "EXT_HOUSE_35"
+
+[node name="FN_Picket_2.5m_052" parent="Fences" instance=ExtResource("4_FN_Picket_2.5m")]
+transform = Transform3D(0, 0, -1, 0, 1, 0, 1, 0, 0, 61.75, 0.15, 460.75)
+metadata/tag = "EXT_HOUSE_35"
+
+[node name="FN_Picket_2.5m_053" parent="Fences" instance=ExtResource("4_FN_Picket_2.5m")]
+transform = Transform3D(0, 0, -1, 0, 1, 0, 1, 0, 0, 61.75, 0.15, 463.25)
+metadata/tag = "EXT_HOUSE_35"
+
+[node name="FN_Post_Picket_052" parent="Fences" instance=ExtResource("6_FN_Post_Picket")]
+transform = Transform3D(0, 0, -1, 0, 1, 0, 1, 0, 0, 61.75, 0.15, 465.75)
+metadata/tag = "EXT_HOUSE_35"
+
+[node name="FN_Privacy_2.5m_151" parent="Fences" instance=ExtResource("8_FN_Privacy_2.5m")]
+transform = Transform3D(0, 0, -1, 0, 1, 0, 1, 0, 0, 42.4, 0.15, 449.25)
+metadata/tag = "EXT_HOUSE_35"
+
+[node name="FN_Privacy_2.5m_152" parent="Fences" instance=ExtResource("8_FN_Privacy_2.5m")]
+transform = Transform3D(0, 0, -1, 0, 1, 0, 1, 0, 0, 42.4, 0.15, 451.75)
+metadata/tag = "EXT_HOUSE_35"
+
+[node name="FN_Privacy_2.5m_153" parent="Fences" instance=ExtResource("8_FN_Privacy_2.5m")]
+transform = Transform3D(0, 0, -1, 0, 1, 0, 1, 0, 0, 42.4, 0.15, 454.25)
+metadata/tag = "EXT_HOUSE_35"
+
+[node name="FN_Privacy_2.5m_154" parent="Fences" instance=ExtResource("8_FN_Privacy_2.5m")]
+transform = Transform3D(0, 0, -1, 0, 1, 0, 1, 0, 0, 42.4, 0.15, 456.75)
+metadata/tag = "EXT_HOUSE_35"
+
+[node name="FN_Privacy_2.5m_155" parent="Fences" instance=ExtResource("8_FN_Privacy_2.5m")]
+transform = Transform3D(0, 0, -1, 0, 1, 0, 1, 0, 0, 42.4, 0.15, 459.25)
+metadata/tag = "EXT_HOUSE_35"
+
+[node name="FN_Privacy_2.5m_156" parent="Fences" instance=ExtResource("8_FN_Privacy_2.5m")]
+transform = Transform3D(0, 0, -1, 0, 1, 0, 1, 0, 0, 42.4, 0.15, 461.75)
+metadata/tag = "EXT_HOUSE_35"
+
+[node name="FN_Post_Privacy_024" parent="Fences" instance=ExtResource("7_FN_Post_Privacy")]
+transform = Transform3D(0, 0, -1, 0, 1, 0, 1, 0, 0, 42.4, 0.15, 464.25)
+metadata/tag = "EXT_HOUSE_35"
+
+[node name="SP_Mailbox_Residential_036" parent="StreetProps" instance=ExtResource("21_SP_Mailbox_Residential")]
+transform = Transform3D(0, 0, 1, 0, 1, 0, -1, 0, 0, 61.5, 0.15, 481.3)
+metadata/tag = "EXT_HOUSE_36"
+
+[node name="UT_WaterMeter_036" parent="StreetProps" instance=ExtResource("32_UT_WaterMeter")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 61.4, 0.15, 476.6)
+metadata/tag = "EXT_HOUSE_36"
+
+[node name="VG_Tree_DeciduousSmall_022" parent="Vegetation" instance=ExtResource("36_VG_Tree_DeciduousSmall")]
+transform = Transform3D(0.3722, 0, -0.92815, 0, 1, 0, 0.92815, 0, 0.3722, 58.8, 0.15, 469.5)
+metadata/tag = "EXT_HOUSE_36"
+
+[node name="FN_Privacy_2.5m_157" parent="Fences" instance=ExtResource("8_FN_Privacy_2.5m")]
+transform = Transform3D(0, 0, -1, 0, 1, 0, 1, 0, 0, 42.4, 0.15, 466.25)
+metadata/tag = "EXT_HOUSE_36"
+
+[node name="FN_Privacy_2.5m_158" parent="Fences" instance=ExtResource("8_FN_Privacy_2.5m")]
+transform = Transform3D(0, 0, -1, 0, 1, 0, 1, 0, 0, 42.4, 0.15, 468.75)
+metadata/tag = "EXT_HOUSE_36"
+
+[node name="FN_Privacy_2.5m_159" parent="Fences" instance=ExtResource("8_FN_Privacy_2.5m")]
+transform = Transform3D(0, 0, -1, 0, 1, 0, 1, 0, 0, 42.4, 0.15, 471.25)
+metadata/tag = "EXT_HOUSE_36"
+
+[node name="FN_Privacy_2.5m_160" parent="Fences" instance=ExtResource("8_FN_Privacy_2.5m")]
+transform = Transform3D(0, 0, -1, 0, 1, 0, 1, 0, 0, 42.4, 0.15, 473.75)
+metadata/tag = "EXT_HOUSE_36"
+
+[node name="FN_Privacy_2.5m_161" parent="Fences" instance=ExtResource("8_FN_Privacy_2.5m")]
+transform = Transform3D(0, 0, -1, 0, 1, 0, 1, 0, 0, 42.4, 0.15, 476.25)
+metadata/tag = "EXT_HOUSE_36"
+
+[node name="FN_Privacy_2.5m_162" parent="Fences" instance=ExtResource("8_FN_Privacy_2.5m")]
+transform = Transform3D(0, 0, -1, 0, 1, 0, 1, 0, 0, 42.4, 0.15, 478.75)
+metadata/tag = "EXT_HOUSE_36"
+
+[node name="FN_Post_Privacy_025" parent="Fences" instance=ExtResource("7_FN_Post_Privacy")]
+transform = Transform3D(0, 0, -1, 0, 1, 0, 1, 0, 0, 42.4, 0.15, 481.25)
+metadata/tag = "EXT_HOUSE_36"
+
+[node name="SP_Mailbox_Residential_037" parent="StreetProps" instance=ExtResource("21_SP_Mailbox_Residential")]
+transform = Transform3D(0, 0, 1, 0, 1, 0, -1, 0, 0, 61.5, 0.15, 491.3)
+metadata/tag = "EXT_HOUSE_37"
+
+[node name="UT_WaterMeter_037" parent="StreetProps" instance=ExtResource("32_UT_WaterMeter")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 61.4, 0.15, 486.6)
+metadata/tag = "EXT_HOUSE_37"
+
+[node name="VG_Tree_DeciduousSmall_023" parent="Vegetation" instance=ExtResource("36_VG_Tree_DeciduousSmall")]
+transform = Transform3D(0.9431, 0, -0.33251, 0, 1, 0, 0.33251, 0, 0.9431, 58.8, 0.15, 496.5)
+metadata/tag = "EXT_HOUSE_37"
+
+[node name="FN_Privacy_2.5m_163" parent="Fences" instance=ExtResource("8_FN_Privacy_2.5m")]
+transform = Transform3D(0, 0, -1, 0, 1, 0, 1, 0, 0, 42.4, 0.15, 483.25)
+metadata/tag = "EXT_HOUSE_37"
+
+[node name="FN_Privacy_2.5m_164" parent="Fences" instance=ExtResource("8_FN_Privacy_2.5m")]
+transform = Transform3D(0, 0, -1, 0, 1, 0, 1, 0, 0, 42.4, 0.15, 485.75)
+metadata/tag = "EXT_HOUSE_37"
+
+[node name="FN_Privacy_2.5m_165" parent="Fences" instance=ExtResource("8_FN_Privacy_2.5m")]
+transform = Transform3D(0, 0, -1, 0, 1, 0, 1, 0, 0, 42.4, 0.15, 488.25)
+metadata/tag = "EXT_HOUSE_37"
+
+[node name="FN_Privacy_2.5m_166" parent="Fences" instance=ExtResource("8_FN_Privacy_2.5m")]
+transform = Transform3D(0, 0, -1, 0, 1, 0, 1, 0, 0, 42.4, 0.15, 490.75)
+metadata/tag = "EXT_HOUSE_37"
+
+[node name="FN_Privacy_2.5m_167" parent="Fences" instance=ExtResource("8_FN_Privacy_2.5m")]
+transform = Transform3D(0, 0, -1, 0, 1, 0, 1, 0, 0, 42.4, 0.15, 493.25)
+metadata/tag = "EXT_HOUSE_37"
+
+[node name="FN_Privacy_2.5m_168" parent="Fences" instance=ExtResource("8_FN_Privacy_2.5m")]
+transform = Transform3D(0, 0, -1, 0, 1, 0, 1, 0, 0, 42.4, 0.15, 495.75)
+metadata/tag = "EXT_HOUSE_37"
+
+[node name="FN_Post_Privacy_026" parent="Fences" instance=ExtResource("7_FN_Post_Privacy")]
+transform = Transform3D(0, 0, -1, 0, 1, 0, 1, 0, 0, 42.4, 0.15, 498.25)
+metadata/tag = "EXT_HOUSE_37"
+
+[node name="SP_Mailbox_Residential_038" parent="StreetProps" instance=ExtResource("21_SP_Mailbox_Residential")]
+transform = Transform3D(0, 0, 1, 0, 1, 0, -1, 0, 0, 61.5, 0.15, 511.3)
+metadata/tag = "PLAYER_HOME"
+
+[node name="UT_WaterMeter_038" parent="StreetProps" instance=ExtResource("32_UT_WaterMeter")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 61.4, 0.15, 506.6)
+metadata/tag = "PLAYER_HOME"
+
+[node name="VG_Tree_DeciduousSmall_024" parent="Vegetation" instance=ExtResource("36_VG_Tree_DeciduousSmall")]
+transform = Transform3D(0.35483, 0, 0.93493, 0, 1, 0, -0.93493, 0, 0.35483, 58.8, 0.15, 503.5)
+metadata/tag = "PLAYER_HOME"
+
+[node name="VG_Bush_035" parent="Vegetation" instance=ExtResource("33_VG_Bush")]
+transform = Transform3D(0.91291, 0, -0.40816, 0, 1, 0, 0.40816, 0, 0.91291, 57.1, 0.15, 504.1166)
+metadata/tag = "PLAYER_HOME"
+
+[node name="FN_Picket_2.5m_054" parent="Fences" instance=ExtResource("4_FN_Picket_2.5m")]
+transform = Transform3D(0, 0, -1, 0, 1, 0, 1, 0, 0, 61.75, 0.15, 500.25)
+metadata/tag = "PLAYER_HOME"
+
+[node name="FN_GardenGate_1.25m_014" parent="Interactive" instance=ExtResource("2_FN_GardenGate_1.25m")]
+transform = Transform3D(0, 0, -1, 0, 1, 0, 1, 0, 0, 61.75, 0.15, 502.75)
+metadata/tag = "PLAYER_HOME"
+
+[node name="FN_Post_Picket_053" parent="Fences" instance=ExtResource("6_FN_Post_Picket")]
+transform = Transform3D(0, 0, -1, 0, 1, 0, 1, 0, 0, 61.75, 0.15, 504)
+metadata/tag = "PLAYER_HOME"
+
+[node name="FN_Picket_2.5m_055" parent="Fences" instance=ExtResource("4_FN_Picket_2.5m")]
+transform = Transform3D(0, 0, -1, 0, 1, 0, 1, 0, 0, 61.75, 0.15, 504)
+metadata/tag = "PLAYER_HOME"
+
+[node name="FN_Post_Picket_054" parent="Fences" instance=ExtResource("6_FN_Post_Picket")]
+transform = Transform3D(0, 0, -1, 0, 1, 0, 1, 0, 0, 61.75, 0.15, 506.5)
+metadata/tag = "PLAYER_HOME"
+
+[node name="FN_Post_Picket_055" parent="Fences" instance=ExtResource("6_FN_Post_Picket")]
+transform = Transform3D(0, 0, -1, 0, 1, 0, 1, 0, 0, 61.75, 0.15, 510.75)
+metadata/tag = "PLAYER_HOME"
+
+[node name="FN_Picket_2.5m_056" parent="Fences" instance=ExtResource("4_FN_Picket_2.5m")]
+transform = Transform3D(0, 0, -1, 0, 1, 0, 1, 0, 0, 61.75, 0.15, 510.75)
+metadata/tag = "PLAYER_HOME"
+
+[node name="FN_Picket_2.5m_057" parent="Fences" instance=ExtResource("4_FN_Picket_2.5m")]
+transform = Transform3D(0, 0, -1, 0, 1, 0, 1, 0, 0, 61.75, 0.15, 513.25)
+metadata/tag = "PLAYER_HOME"
+
+[node name="FN_Post_Picket_056" parent="Fences" instance=ExtResource("6_FN_Post_Picket")]
+transform = Transform3D(0, 0, -1, 0, 1, 0, 1, 0, 0, 61.75, 0.15, 515.75)
+metadata/tag = "PLAYER_HOME"
+
+[node name="FN_Privacy_2.5m_169" parent="Fences" instance=ExtResource("8_FN_Privacy_2.5m")]
+transform = Transform3D(0, 0, -1, 0, 1, 0, 1, 0, 0, 42.4, 0.15, 500.25)
+metadata/tag = "PLAYER_HOME"
+
+[node name="FN_Privacy_2.5m_170" parent="Fences" instance=ExtResource("8_FN_Privacy_2.5m")]
+transform = Transform3D(0, 0, -1, 0, 1, 0, 1, 0, 0, 42.4, 0.15, 502.75)
+metadata/tag = "PLAYER_HOME"
+
+[node name="FN_Privacy_2.5m_171" parent="Fences" instance=ExtResource("8_FN_Privacy_2.5m")]
+transform = Transform3D(0, 0, -1, 0, 1, 0, 1, 0, 0, 42.4, 0.15, 505.25)
+metadata/tag = "PLAYER_HOME"
+
+[node name="FN_Privacy_2.5m_172" parent="Fences" instance=ExtResource("8_FN_Privacy_2.5m")]
+transform = Transform3D(0, 0, -1, 0, 1, 0, 1, 0, 0, 42.4, 0.15, 507.75)
+metadata/tag = "PLAYER_HOME"
+
+[node name="FN_Privacy_2.5m_173" parent="Fences" instance=ExtResource("8_FN_Privacy_2.5m")]
+transform = Transform3D(0, 0, -1, 0, 1, 0, 1, 0, 0, 42.4, 0.15, 510.25)
+metadata/tag = "PLAYER_HOME"
+
+[node name="FN_Privacy_2.5m_174" parent="Fences" instance=ExtResource("8_FN_Privacy_2.5m")]
+transform = Transform3D(0, 0, -1, 0, 1, 0, 1, 0, 0, 42.4, 0.15, 512.75)
+metadata/tag = "PLAYER_HOME"
+
+[node name="FN_Post_Privacy_027" parent="Fences" instance=ExtResource("7_FN_Post_Privacy")]
+transform = Transform3D(0, 0, -1, 0, 1, 0, 1, 0, 0, 42.4, 0.15, 515.25)
+metadata/tag = "PLAYER_HOME"
+
+[node name="SP_Mailbox_Residential_039" parent="StreetProps" instance=ExtResource("21_SP_Mailbox_Residential")]
+transform = Transform3D(0, 0, 1, 0, 1, 0, -1, 0, 0, 61.5, 0.15, 531.3)
+metadata/tag = "EXT_HOUSE_39"
+
+[node name="UT_WaterMeter_039" parent="StreetProps" instance=ExtResource("32_UT_WaterMeter")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 61.4, 0.15, 526.6)
+metadata/tag = "EXT_HOUSE_39"
+
+[node name="VG_Tree_DeciduousLarge_015" parent="Vegetation" instance=ExtResource("35_VG_Tree_DeciduousLarge")]
+transform = Transform3D(0.34284, 0, 0.93939, 0, 1, 0, -0.93939, 0, 0.34284, 58.8, 0.15, 520.5)
+metadata/tag = "EXT_HOUSE_39"
+
+[node name="VG_FlowerPatch_007" parent="Vegetation" instance=ExtResource("34_VG_FlowerPatch")]
+transform = Transform3D(0.5797, 0, 0.81483, 0, 1, 0, -0.81483, 0, 0.5797, 57.1, 0.15, 520.2986)
+metadata/tag = "EXT_HOUSE_39"
+
+[node name="VG_Bush_036" parent="Vegetation" instance=ExtResource("33_VG_Bush")]
+transform = Transform3D(0.10841, 0, -0.99411, 0, 1, 0, 0.99411, 0, 0.10841, 57.1, 0.15, 525.0451)
+metadata/tag = "EXT_HOUSE_39"
+
+[node name="FN_Privacy_2.5m_175" parent="Fences" instance=ExtResource("8_FN_Privacy_2.5m")]
+transform = Transform3D(0, 0, -1, 0, 1, 0, 1, 0, 0, 42.4, 0.15, 517.25)
+metadata/tag = "EXT_HOUSE_39"
+
+[node name="FN_Privacy_2.5m_176" parent="Fences" instance=ExtResource("8_FN_Privacy_2.5m")]
+transform = Transform3D(0, 0, -1, 0, 1, 0, 1, 0, 0, 42.4, 0.15, 519.75)
+metadata/tag = "EXT_HOUSE_39"
+
+[node name="FN_Privacy_2.5m_177" parent="Fences" instance=ExtResource("8_FN_Privacy_2.5m")]
+transform = Transform3D(0, 0, -1, 0, 1, 0, 1, 0, 0, 42.4, 0.15, 522.25)
+metadata/tag = "EXT_HOUSE_39"
+
+[node name="FN_Privacy_2.5m_178" parent="Fences" instance=ExtResource("8_FN_Privacy_2.5m")]
+transform = Transform3D(0, 0, -1, 0, 1, 0, 1, 0, 0, 42.4, 0.15, 524.75)
+metadata/tag = "EXT_HOUSE_39"
+
+[node name="FN_Privacy_2.5m_179" parent="Fences" instance=ExtResource("8_FN_Privacy_2.5m")]
+transform = Transform3D(0, 0, -1, 0, 1, 0, 1, 0, 0, 42.4, 0.15, 527.25)
+metadata/tag = "EXT_HOUSE_39"
+
+[node name="FN_Privacy_2.5m_180" parent="Fences" instance=ExtResource("8_FN_Privacy_2.5m")]
+transform = Transform3D(0, 0, -1, 0, 1, 0, 1, 0, 0, 42.4, 0.15, 529.75)
+metadata/tag = "EXT_HOUSE_39"
+
+[node name="FN_Post_Privacy_028" parent="Fences" instance=ExtResource("7_FN_Post_Privacy")]
+transform = Transform3D(0, 0, -1, 0, 1, 0, 1, 0, 0, 42.4, 0.15, 532.25)
+metadata/tag = "EXT_HOUSE_39"
+
+[node name="SP_Mailbox_Residential_040" parent="StreetProps" instance=ExtResource("21_SP_Mailbox_Residential")]
+transform = Transform3D(0, 0, 1, 0, 1, 0, -1, 0, 0, 61.5, 0.15, 541.3)
+metadata/tag = "EXT_HOUSE_40"
+
+[node name="UT_WaterMeter_040" parent="StreetProps" instance=ExtResource("32_UT_WaterMeter")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 61.4, 0.15, 536.6)
+metadata/tag = "EXT_HOUSE_40"
+
+[node name="VG_Tree_DeciduousLarge_016" parent="Vegetation" instance=ExtResource("35_VG_Tree_DeciduousLarge")]
+transform = Transform3D(-0.97096, 0, 0.23925, 0, 1, 0, -0.23925, 0, -0.97096, 58.8, 0.15, 547.5)
+metadata/tag = "EXT_HOUSE_40"
+
+[node name="VG_Bush_037" parent="Vegetation" instance=ExtResource("33_VG_Bush")]
+transform = Transform3D(-0.99259, 0, -0.1215, 0, 1, 0, 0.1215, 0, -0.99259, 57.1, 0.15, 545.579)
+metadata/tag = "EXT_HOUSE_40"
+
+[node name="VG_Bush_038" parent="Vegetation" instance=ExtResource("33_VG_Bush")]
+transform = Transform3D(-0.42997, 0, 0.90285, 0, 1, 0, -0.90285, 0, -0.42997, 57.1, 0.15, 546.931)
+metadata/tag = "EXT_HOUSE_40"
+
+[node name="FN_Picket_2.5m_058" parent="Fences" instance=ExtResource("4_FN_Picket_2.5m")]
+transform = Transform3D(0, 0, -1, 0, 1, 0, 1, 0, 0, 61.75, 0.15, 534.25)
+metadata/tag = "EXT_HOUSE_40"
+
+[node name="FN_GardenGate_1.25m_015" parent="Interactive" instance=ExtResource("2_FN_GardenGate_1.25m")]
+transform = Transform3D(0, 0, -1, 0, 1, 0, 1, 0, 0, 61.75, 0.15, 536.75)
+metadata/tag = "EXT_HOUSE_40"
+
+[node name="FN_Post_Picket_057" parent="Fences" instance=ExtResource("6_FN_Post_Picket")]
+transform = Transform3D(0, 0, -1, 0, 1, 0, 1, 0, 0, 61.75, 0.15, 538)
+metadata/tag = "EXT_HOUSE_40"
+
+[node name="FN_Post_Picket_058" parent="Fences" instance=ExtResource("6_FN_Post_Picket")]
+transform = Transform3D(0, 0, -1, 0, 1, 0, 1, 0, 0, 61.75, 0.15, 538)
+metadata/tag = "EXT_HOUSE_40"
+
+[node name="FN_Post_Picket_059" parent="Fences" instance=ExtResource("6_FN_Post_Picket")]
+transform = Transform3D(0, 0, -1, 0, 1, 0, 1, 0, 0, 61.75, 0.15, 540.75)
+metadata/tag = "EXT_HOUSE_40"
+
+[node name="FN_Picket_2.5m_059" parent="Fences" instance=ExtResource("4_FN_Picket_2.5m")]
+transform = Transform3D(0, 0, -1, 0, 1, 0, 1, 0, 0, 61.75, 0.15, 540.75)
+metadata/tag = "EXT_HOUSE_40"
+
+[node name="FN_Picket_2.5m_060" parent="Fences" instance=ExtResource("4_FN_Picket_2.5m")]
+transform = Transform3D(0, 0, -1, 0, 1, 0, 1, 0, 0, 61.75, 0.15, 543.25)
+metadata/tag = "EXT_HOUSE_40"
+
+[node name="FN_Picket_2.5m_061" parent="Fences" instance=ExtResource("4_FN_Picket_2.5m")]
+transform = Transform3D(0, 0, -1, 0, 1, 0, 1, 0, 0, 61.75, 0.15, 545.75)
+metadata/tag = "EXT_HOUSE_40"
+
+[node name="FN_Picket_2.5m_062" parent="Fences" instance=ExtResource("4_FN_Picket_2.5m")]
+transform = Transform3D(0, 0, -1, 0, 1, 0, 1, 0, 0, 61.75, 0.15, 548.25)
+metadata/tag = "EXT_HOUSE_40"
+
+[node name="FN_Post_Picket_060" parent="Fences" instance=ExtResource("6_FN_Post_Picket")]
+transform = Transform3D(0, 0, -1, 0, 1, 0, 1, 0, 0, 61.75, 0.15, 550.75)
+metadata/tag = "EXT_HOUSE_40"
+
+[node name="FN_ChainLink_2.5m_067" parent="Fences" instance=ExtResource("1_FN_ChainLink_2.5m")]
+transform = Transform3D(0, 0, -1, 0, 1, 0, 1, 0, 0, 42.4, 0.15, 534.25)
+metadata/tag = "EXT_HOUSE_40"
+
+[node name="FN_ChainLink_2.5m_068" parent="Fences" instance=ExtResource("1_FN_ChainLink_2.5m")]
+transform = Transform3D(0, 0, -1, 0, 1, 0, 1, 0, 0, 42.4, 0.15, 536.75)
+metadata/tag = "EXT_HOUSE_40"
+
+[node name="FN_ChainLink_2.5m_069" parent="Fences" instance=ExtResource("1_FN_ChainLink_2.5m")]
+transform = Transform3D(0, 0, -1, 0, 1, 0, 1, 0, 0, 42.4, 0.15, 539.25)
+metadata/tag = "EXT_HOUSE_40"
+
+[node name="FN_ChainLink_2.5m_070" parent="Fences" instance=ExtResource("1_FN_ChainLink_2.5m")]
+transform = Transform3D(0, 0, -1, 0, 1, 0, 1, 0, 0, 42.4, 0.15, 541.75)
+metadata/tag = "EXT_HOUSE_40"
+
+[node name="FN_ChainLink_2.5m_071" parent="Fences" instance=ExtResource("1_FN_ChainLink_2.5m")]
+transform = Transform3D(0, 0, -1, 0, 1, 0, 1, 0, 0, 42.4, 0.15, 544.25)
+metadata/tag = "EXT_HOUSE_40"
+
+[node name="FN_ChainLink_2.5m_072" parent="Fences" instance=ExtResource("1_FN_ChainLink_2.5m")]
+transform = Transform3D(0, 0, -1, 0, 1, 0, 1, 0, 0, 42.4, 0.15, 546.75)
+metadata/tag = "EXT_HOUSE_40"
+
+[node name="FN_Post_ChainLink_012" parent="Fences" instance=ExtResource("5_FN_Post_ChainLink")]
+transform = Transform3D(0, 0, -1, 0, 1, 0, 1, 0, 0, 42.4, 0.15, 549.25)
+metadata/tag = "EXT_HOUSE_40"
+
+[node name="SP_UtilityPole_Streetlight_001" parent="Utilities" instance=ExtResource("29_SP_UtilityPole_Streetlig")]
+transform = Transform3D(0, 0, 1, 0, 1, 0, -1, 0, 0, 176.6, 0.15, 94)
+metadata/tag = "ROUTE_9X"
+
+[node name="SP_UtilityPole_Streetlight_002" parent="Utilities" instance=ExtResource("29_SP_UtilityPole_Streetlig")]
+transform = Transform3D(0, 0, 1, 0, 1, 0, -1, 0, 0, 176.6, 0.15, 144)
+metadata/tag = "ROUTE_9X"
+
+[node name="SP_UtilityPole_Streetlight_003" parent="Utilities" instance=ExtResource("29_SP_UtilityPole_Streetlig")]
+transform = Transform3D(0, 0, 1, 0, 1, 0, -1, 0, 0, 176.6, 0.15, 194)
+metadata/tag = "ROUTE_9X"
+
+[node name="SP_UtilityPole_Streetlight_004" parent="Utilities" instance=ExtResource("29_SP_UtilityPole_Streetlig")]
+transform = Transform3D(0, 0, 1, 0, 1, 0, -1, 0, 0, 176.6, 0.15, 244)
+metadata/tag = "ROUTE_9X"
+
+[node name="SP_UtilityPole_Streetlight_005" parent="Utilities" instance=ExtResource("29_SP_UtilityPole_Streetlig")]
+transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 218, 0.15, 275.4)
+metadata/tag = "ROUTE_9X"
+
+[node name="SP_UtilityPole_Streetlight_006" parent="Utilities" instance=ExtResource("29_SP_UtilityPole_Streetlig")]
+transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 268, 0.15, 275.4)
+metadata/tag = "ROUTE_9X"
+
+[node name="SP_UtilityPole_Streetlight_007" parent="Utilities" instance=ExtResource("29_SP_UtilityPole_Streetlig")]
+transform = Transform3D(-0.99144, 0, 0.13053, 0, 1, 0, -0.13053, 0, -0.99144, 313.2458, 0.15, 276.1545)
+metadata/tag = "ROUTE_9X"
+
+[node name="SP_UtilityPole_Streetlight_008" parent="Utilities" instance=ExtResource("29_SP_UtilityPole_Streetlig")]
+transform = Transform3D(0, 0, 1, 0, 1, 0, -1, 0, 0, 324.6, 0.15, 312)
+metadata/tag = "ROUTE_9X"
+
+[node name="SP_UtilityPole_Streetlight_009" parent="Utilities" instance=ExtResource("29_SP_UtilityPole_Streetlig")]
+transform = Transform3D(0, 0, 1, 0, 1, 0, -1, 0, 0, 324.6, 0.15, 362)
+metadata/tag = "ROUTE_9X"
+
+[node name="SP_UtilityPole_Streetlight_010" parent="Utilities" instance=ExtResource("29_SP_UtilityPole_Streetlig")]
+transform = Transform3D(0, 0, 1, 0, 1, 0, -1, 0, 0, 324.6, 0.15, 412)
+metadata/tag = "ROUTE_9X"
+
+[node name="StreetLight_01" type="OmniLight3D" parent="Lights"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 324, 4.2, 443.65)
+light_color = Color(1, 0.8, 0.55, 1)
+light_energy = 1.2
+omni_range = 11.0
+omni_attenuation = 1.4
+distance_fade_enabled = true
+distance_fade_begin = 45.0
+distance_fade_length = 15.0
+
+[node name="StreetLight_02" type="OmniLight3D" parent="Lights"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 296, 4.2, 432.35)
+light_color = Color(1, 0.8, 0.55, 1)
+light_energy = 1.2
+omni_range = 11.0
+omni_attenuation = 1.4
+distance_fade_enabled = true
+distance_fade_begin = 45.0
+distance_fade_length = 15.0
+
+[node name="StreetLight_03" type="OmniLight3D" parent="Lights"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 271, 4.2, 443.65)
+light_color = Color(1, 0.8, 0.55, 1)
+light_energy = 1.2
+omni_range = 11.0
+omni_attenuation = 1.4
+distance_fade_enabled = true
+distance_fade_begin = 45.0
+distance_fade_length = 15.0
+
+[node name="StreetLight_04" type="OmniLight3D" parent="Lights"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 246, 4.2, 432.35)
+light_color = Color(1, 0.8, 0.55, 1)
+light_energy = 1.2
+omni_range = 11.0
+omni_attenuation = 1.4
+distance_fade_enabled = true
+distance_fade_begin = 45.0
+distance_fade_length = 15.0
+
+[node name="StreetLight_05" type="OmniLight3D" parent="Lights"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 221, 4.2, 443.65)
+light_color = Color(1, 0.8, 0.55, 1)
+light_energy = 1.2
+omni_range = 11.0
+omni_attenuation = 1.4
+distance_fade_enabled = true
+distance_fade_begin = 45.0
+distance_fade_length = 15.0
+
+[node name="StreetLight_06" type="OmniLight3D" parent="Lights"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 192, 4.2, 443.65)
+light_color = Color(1, 0.8, 0.55, 1)
+light_energy = 1.2
+omni_range = 11.0
+omni_attenuation = 1.4
+distance_fade_enabled = true
+distance_fade_begin = 45.0
+distance_fade_length = 15.0
+
+[node name="StreetLight_07" type="OmniLight3D" parent="Lights"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 164, 4.2, 432.35)
+light_color = Color(1, 0.8, 0.55, 1)
+light_energy = 1.2
+omni_range = 11.0
+omni_attenuation = 1.4
+distance_fade_enabled = true
+distance_fade_begin = 45.0
+distance_fade_length = 15.0
+
+[node name="StreetLight_08" type="OmniLight3D" parent="Lights"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 139, 4.2, 443.65)
+light_color = Color(1, 0.8, 0.55, 1)
+light_energy = 1.2
+omni_range = 11.0
+omni_attenuation = 1.4
+distance_fade_enabled = true
+distance_fade_begin = 45.0
+distance_fade_length = 15.0
+
+[node name="StreetLight_09" type="OmniLight3D" parent="Lights"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 114, 4.2, 432.35)
+light_color = Color(1, 0.8, 0.55, 1)
+light_energy = 1.2
+omni_range = 11.0
+omni_attenuation = 1.4
+distance_fade_enabled = true
+distance_fade_begin = 45.0
+distance_fade_length = 15.0
+
+[node name="StreetLight_10" type="OmniLight3D" parent="Lights"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 89, 4.2, 443.65)
+light_color = Color(1, 0.8, 0.55, 1)
+light_energy = 1.2
+omni_range = 11.0
+omni_attenuation = 1.4
+distance_fade_enabled = true
+distance_fade_begin = 45.0
+distance_fade_length = 15.0
+
+[node name="StreetLight_11" type="OmniLight3D" parent="Lights"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 73.65, 4.2, 446)
+light_color = Color(1, 0.8, 0.55, 1)
+light_energy = 1.2
+omni_range = 11.0
+omni_attenuation = 1.4
+distance_fade_enabled = true
+distance_fade_begin = 45.0
+distance_fade_length = 15.0
+
+[node name="StreetLight_12" type="OmniLight3D" parent="Lights"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 62.35, 4.2, 471)
+light_color = Color(1, 0.8, 0.55, 1)
+light_energy = 1.2
+omni_range = 11.0
+omni_attenuation = 1.4
+distance_fade_enabled = true
+distance_fade_begin = 45.0
+distance_fade_length = 15.0
+
+[node name="StreetLight_13" type="OmniLight3D" parent="Lights"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 73.65, 4.2, 496)
+light_color = Color(1, 0.8, 0.55, 1)
+light_energy = 1.2
+omni_range = 11.0
+omni_attenuation = 1.4
+distance_fade_enabled = true
+distance_fade_begin = 45.0
+distance_fade_length = 15.0
+
+[node name="StreetLight_14" type="OmniLight3D" parent="Lights"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 62.35, 4.2, 521)
+light_color = Color(1, 0.8, 0.55, 1)
+light_energy = 1.2
+omni_range = 11.0
+omni_attenuation = 1.4
+distance_fade_enabled = true
+distance_fade_begin = 45.0
+distance_fade_length = 15.0
+
+[node name="StreetLight_15" type="OmniLight3D" parent="Lights"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 73.65, 4.2, 546)
+light_color = Color(1, 0.8, 0.55, 1)
+light_energy = 1.2
+omni_range = 11.0
+omni_attenuation = 1.4
+distance_fade_enabled = true
+distance_fade_begin = 45.0
+distance_fade_length = 15.0
+
+[node name="StreetLight_16" type="OmniLight3D" parent="Lights"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 176.6, 6.7, 91.83)
+light_color = Color(1, 0.8, 0.55, 1)
+light_energy = 1.2
+omni_range = 11.0
+omni_attenuation = 1.4
+distance_fade_enabled = true
+distance_fade_begin = 45.0
+distance_fade_length = 15.0
+
+[node name="StreetLight_17" type="OmniLight3D" parent="Lights"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 176.6, 6.7, 141.83)
+light_color = Color(1, 0.8, 0.55, 1)
+light_energy = 1.2
+omni_range = 11.0
+omni_attenuation = 1.4
+distance_fade_enabled = true
+distance_fade_begin = 45.0
+distance_fade_length = 15.0
+
+[node name="StreetLight_18" type="OmniLight3D" parent="Lights"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 176.6, 6.7, 191.83)
+light_color = Color(1, 0.8, 0.55, 1)
+light_energy = 1.2
+omni_range = 11.0
+omni_attenuation = 1.4
+distance_fade_enabled = true
+distance_fade_begin = 45.0
+distance_fade_length = 15.0
+
+[node name="StreetLight_19" type="OmniLight3D" parent="Lights"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 176.6, 6.7, 241.83)
+light_color = Color(1, 0.8, 0.55, 1)
+light_energy = 1.2
+omni_range = 11.0
+omni_attenuation = 1.4
+distance_fade_enabled = true
+distance_fade_begin = 45.0
+distance_fade_length = 15.0
+
+[node name="StreetLight_20" type="OmniLight3D" parent="Lights"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 215.83, 6.7, 275.4)
+light_color = Color(1, 0.8, 0.55, 1)
+light_energy = 1.2
+omni_range = 11.0
+omni_attenuation = 1.4
+distance_fade_enabled = true
+distance_fade_begin = 45.0
+distance_fade_length = 15.0
+
+[node name="StreetLight_21" type="OmniLight3D" parent="Lights"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 265.83, 6.7, 275.4)
+light_color = Color(1, 0.8, 0.55, 1)
+light_energy = 1.2
+omni_range = 11.0
+omni_attenuation = 1.4
+distance_fade_enabled = true
+distance_fade_begin = 45.0
+distance_fade_length = 15.0
+
+[node name="StreetLight_22" type="OmniLight3D" parent="Lights"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 311.09436, 6.7, 275.87126)
+light_color = Color(1, 0.8, 0.55, 1)
+light_energy = 1.2
+omni_range = 11.0
+omni_attenuation = 1.4
+distance_fade_enabled = true
+distance_fade_begin = 45.0
+distance_fade_length = 15.0
+
+[node name="StreetLight_23" type="OmniLight3D" parent="Lights"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 324.6, 6.7, 309.83)
+light_color = Color(1, 0.8, 0.55, 1)
+light_energy = 1.2
+omni_range = 11.0
+omni_attenuation = 1.4
+distance_fade_enabled = true
+distance_fade_begin = 45.0
+distance_fade_length = 15.0
+
+[node name="StreetLight_24" type="OmniLight3D" parent="Lights"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 324.6, 6.7, 359.83)
+light_color = Color(1, 0.8, 0.55, 1)
+light_energy = 1.2
+omni_range = 11.0
+omni_attenuation = 1.4
+distance_fade_enabled = true
+distance_fade_begin = 45.0
+distance_fade_length = 15.0
+
+[node name="StreetLight_25" type="OmniLight3D" parent="Lights"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 324.6, 6.7, 409.83)
+light_color = Color(1, 0.8, 0.55, 1)
+light_energy = 1.2
+omni_range = 11.0
+omni_attenuation = 1.4
+distance_fade_enabled = true
+distance_fade_begin = 45.0
+distance_fade_length = 15.0
+
