@@ -1185,7 +1185,7 @@ func _p3_tick(_delta: float) -> void:
 		var cam := get_viewport().get_camera_3d()
 		if cam:
 			mist_ceiling.global_position = Vector3(cam.global_position.x, 0.0, cam.global_position.z)
-	if not player.visible or in_car or _encounter_running:
+	if not player.visible or in_car or _encounter_running or conversing:   # the Veil waits for a conversation to end
 		return
 	if not Game.has_flag("p3_mist"):
 		if Game.has_flag("groceries_done") and Game.has_flag("game_bought"):

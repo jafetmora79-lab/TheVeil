@@ -22,7 +22,7 @@ const STATE := "ch6"
 
 const RS_HOUSE := "HOUSE_06"                          # single-storey bungalow, front door (2.6, 3.2) house-local
 # supermarket-local
-const MARCUS_WATCH := Vector3(1.1, 0.04, 4.7)          # watching the entrance
+const MARCUS_WATCH := Vector3(-2.3, 0.04, 4.5)         # watching the entrance, clear of the exit spot
 const EDDIE_SHELTER := Vector3(6.2, 0.04, 4.9)
 const RUTH_SPOT := Vector3(3.0, 0.04, 4.3)
 const SARAH_SPOT := Vector3(3.9, 0.04, 5.1)
