@@ -26,9 +26,9 @@ signal hurt(amount: float)
 signal died
 const MAX_HEALTH := 100.0
 const MAX_STAMINA := 100.0
-const STAMINA_DRAIN := 24.0          ## per second of sprinting
-const STAMINA_REGEN := 16.0          ## per second, after REGEN_DELAY without sprinting
-const REGEN_DELAY := 0.9
+const STAMINA_DRAIN := 8.5           ## per second of sprinting (~12 s from full)
+const STAMINA_REGEN := 20.0          ## per second, after REGEN_DELAY without sprinting
+const REGEN_DELAY := 0.7
 const EXHAUSTED_UNTIL := 30.0        ## once empty, no sprinting until stamina is back to this
 var survival_active := false
 var health := MAX_HEALTH
