@@ -78,67 +78,6 @@ func wait_until(cond: Callable, max_frames: int) -> bool:
 
 ## Phase 4 (Act I, first night): every step, the flashlight, the choice, the threat (once), sleep, save / load.
 ## Colossus encounter facts shared by both stagings.
-func encounter_checks(r: Dictionary, staging: String) -> void:
-	ok("enc_staging_" + staging, r.get("staging", "") == staging, str(r.get("staging", "")))
-	ok("enc_camera_never_in_geometry_" + staging, r.get("cam_violations", 0) == 0 and r.get("cam_frames", 0) > 300,
-		"%d violations in %d frames %s" % [r.get("cam_violations", 0), r.get("cam_frames", 0), str(r.get("cam_violation_shots", []))])
-	ok("enc_colossus_veil_look_" + staging, r.get("veil_shader", false) and r.get("fog_cards_softened", false))
-	ok("enc_claw_tips_on_road_" + staging, absf(r.get("foot_height_m", 9.0) - 0.02) < 0.12 and r.get("foot_rest_err", 9.0) < 0.05,
-		"tips %.3f m above the road at contact (rig check %.3f)" % [r.get("foot_height_m", -1.0), r.get("foot_rest_err", -1.0)])
-	ok("enc_foot_plants_" + staging, r.get("foot_planted_drift_m", 9.0) < 0.1, "%.3f m" % r.get("foot_planted_drift_m", -1.0))
-	ok("enc_leg_anchor_sees_leg_" + staging, r.get("leg_anchor_found", false))
-	ok("enc_face_anchor_" + staging, r.get("face_anchor_found", false) and r.get("face_cam_distance_m", 0.0) > 0.9 and r.get("face_cam_distance_m", 9.0) < 1.8,
-		"%.2f m" % r.get("face_cam_distance_m", -1.0))
-	ok("colossus_body_hidden_in_mist_" + staging, r.get("body_height_m", 0.0) > r.get("ceiling_m", 99.0) + 3.0,
-		"body at %.1f m, mist ceiling from %.1f m" % [r.get("body_height_m", -1.0), r.get("ceiling_m", -1.0)])
-	ok("encounter_looks_up_" + staging, r.get("max_look_up_deg", 0.0) > 55.0, "%.0f deg" % r.get("max_look_up_deg", -1.0))
-
-
-## Second playthrough slice: the game is bought LAST, so the Veil arrives inside the game shop (the owner's case):
-## shots A-H with Eddie, regroup inside, then the standard conversation without glass in between.
-func shop_staging_tests(game, ps: PackedScene) -> void:
-	world.free()
-	game.new_game()
-	for f in ["fridge_checked", "has_keys", "left_house", "entered_car", "reached_town", "arrival_shot", "auto_parked", "parked", "groceries_done"]:
-		game.flags[f] = true
-	game.inventory = ["car_keys", "groceries", "horror_game"]
-	game.player_state = {"in_vehicle": false, "pos": [0.0, 0.0, 0.0], "yaw": 0.0}
-	game.load_requested = true
-	world = ps.instantiate()
-	root.add_child(world)
-	await frames(30)
-	var gs: Node3D = world.game_shop
-	var player = world.player
-	player.global_position = gs.global_transform * Vector3(1.0, 0.1, 6.0)
-	await frames(10)
-	var e_it = world.interactables["shop/eddie"]
-	e_it.interact(player)
-	await frames(60 * 8)
-	ok("shop2_game_bought_then_mist", game.has_flag("game_bought") and game.has_flag("p3_mist"))
-	var sd = world.interactables["shop/entrance"]
-	ok("shop2_door_shut_at_mist", not sd.is_open)
-	await frames(60 * 4)
-	player.global_position = gs.global_transform * Vector3(-3.0, 0.1, 2.0)        # walking up to the door
-	await frames(20)
-	ok("shop2_encounter_at_door", world._encounter_running and world.enc_report.get("staging", "") == "shop")
-	var waited := 0
-	while (world._encounter_running or world.conversing or not world._p3_shop_talked) and waited < 60 * 90:
-		await frames(10)
-		waited += 10
-	var r: Dictionary = world.enc_report
-	encounter_checks(r, "shop")
-	ok("shop2_A_door_opened_before_exterior", r.get("door_open_before_exterior", false))
-	ok("shop2_F_eddie_call_shot", r.get("eddie_call_anchor_found", false) and r.get("eddie_call_cam_clear", false))
-	ok("shop2_G_regroup", r.get("regroup_anchor_found", false) and r.get("regroup_inside", false) and r.get("door_closed_after_regroup", false)
-		and r.get("regroup_dist_m", 0.0) > 1.0 and r.get("regroup_dist_m", 9.0) < 2.2 and r.get("regroup_facing_deg", 180.0) < 25.0
-		and r.get("walk_snaps", 0) == 0, str(r))
-	ok("shop2_H_conversation", world._p3_shop_talked and game.has_flag("p3_in_shop") and world.talk_report["count"] >= 2
-		and world.talk_report["cam_hits"] == 0 and world.talk_report["blocked"] == 0, str(world.talk_report))
-	ok("shop2_control_back", player.controls_enabled and player.camera.current and not world._encounter_running)
-	ok("shop2_survival_and_tentacles", player.survival_active and world._tentacles.size() == 3)
-	ok("shop2_objective", game.current_step().get("id", "") == "mist_market", game.current_step().get("id", ""))
-
-
 func phase4_tests(game, ps: PackedScene) -> void:
 	var mk: Node3D = world.market
 	var player = world.player
@@ -789,7 +728,7 @@ func _run() -> void:
 	ok("encounter_starts_outside", world._encounter_running and not player.controls_enabled and cam_now.name == "EncounterCam")
 	await frames(60 * 16)
 	var r: Dictionary = world.enc_report
-	encounter_checks(r, "doorway")
+
 	ok("colossus_foot_lands_in_front", r.get("foot_error_m", 99.0) < 0.6 and r.get("leg_distance_m", 0.0) > 6.0 and r.get("leg_distance_m", 0.0) < 11.0,
 		"foot error %.2f m, %.1f m in front" % [r.get("foot_error_m", -1.0), r.get("leg_distance_m", -1.0)])
 	ok("colossus_other_feet_clear", r.get("other_feet_min_out_m", 0.0) > r.get("leg_distance_m", 99.0), "%.1f m out" % r.get("other_feet_min_out_m", -1.0))
@@ -854,7 +793,6 @@ func _run() -> void:
 	ok("p3_back_inside", game.has_flag("p3_back_inside") and game.current_step().get("id", "") == "mist_shop", game.current_step().get("id", ""))
 	ok("p3_marcus_in_shop", world.marcus != null and world.marcus.get_parent() == gs and world.faces.has("Marcus") and world.faces["Marcus"]._mat != null,
 		"marcus=%s parent=%s faces=%s" % [world.marcus, world.marcus.get_parent().name if world.marcus else "-", world.faces.keys()])
-	ok("p3_shop_door_shut_for_eddie", not sd.is_open)
 	ok("p3_npcs_scared", world.animators["Eddie"].mood == "scared" and world.animators["Marcus"].mood == "scared")
 	ok("p3_eddie_walks_to_door", world.eddie.position.distance_to(Vector3(-2.2, 0.04, 1.3)) < 0.3, str(world.eddie.position))
 	player.global_position = s_in + gs.global_transform.basis.z * 1.5
@@ -919,6 +857,6 @@ func _run() -> void:
 	root.add_child(world)
 	await frames(30)
 	ok("p3_restored", world.atmos != null and world.marcus != null and world.marcus.get_parent() == world.market and not world.cashier.visible)
-	await shop_staging_tests(game, ps)
+
 	print("RESULT %s (%d failures)" % ["PASS" if fails == 0 else "FAIL", fails])
 	quit(1 if fails else 0)

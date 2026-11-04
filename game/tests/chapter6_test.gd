@@ -273,6 +273,9 @@ func _run() -> void:
 	c5.its["stash"].interact(world.player)
 	await frames(5)
 	ok("c6_prepared", game.has_flag("ch6_eddie_ready") and world.hud.inv_panel.visible and game.inventory == inv0)
+	if world.hud.inv_panel.visible:
+		world.hud.toggle_inventory()                 # the inventory screen holds the controls while it is open
+	await frames(5)
 	ok("c6_exit_reach", await aim(c5.its["exit"], [Z, -Z], world.market, 1.2))
 	c5.its["exit"].interact(world.player)
 	ok("c6_exit_confirm", await wait_until(func(): return p4.choice.is_open(), 60))

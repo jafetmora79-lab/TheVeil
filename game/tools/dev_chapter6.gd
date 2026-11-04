@@ -14,6 +14,9 @@ static func prepare(game: Node) -> void:
 	DEV5.prepare(game)
 	for f in C5_FLAGS:
 		game.flags[f] = true
+	for o in game.objectives:                    # every Chapter 5 objective step (also ones added later)
+		if String(o["id"]).begins_with("c5_") and o["flag"] != "ch6_started":
+			game.flags[o["flag"]] = true
 	game.world_state["c5"] = {"eddie": "shelter", "survivor": "house"}
 	for i in ["canned_food", "painkillers"]:
 		if not i in game.inventory:
