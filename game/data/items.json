@@ -51,7 +51,8 @@
    "name": "Horror Game",
    "category": "misc",
    "description": "HOLLOW HILL - a new horror game for tonight. (Title from the store art; not confirmed in the story bible.)",
-   "weight": 0.1
+   "weight": 0.1,
+   "icon": "res://game/ui/icons/horror_game.png"
   },
   "cola_bottle": {
    "name": "Cola",

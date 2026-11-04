@@ -38,6 +38,7 @@ var _views := {}
 
 
 func _ready() -> void:
+	add_to_group("veil_inventory_panel")
 	set_anchors_preset(Control.PRESET_FULL_RECT)
 	mouse_filter = Control.MOUSE_FILTER_STOP
 	visible = false
@@ -253,6 +254,12 @@ func select(i: int) -> void:
 	var each := float(info.get("weight", 0.0))
 	_wt.text = "WEIGHT  %.2f kg" % each + ("   (total %.2f kg)" % (each * n) if n > 1 else "")
 	_preview.texture = _icon(id)
+	for k in 5:                                  # assign to a quick slot (keys 1-5, or these buttons on touch)
+		var qb := VeilUI.button(str(k + 1))
+		qb.custom_minimum_size = Vector2(34, 30)
+		qb.tooltip_text = "Put in quick slot %d" % (k + 1)
+		qb.pressed.connect(func(): VeilQuickSlots.assign(k, id))
+		_actions.add_child(qb)
 	for a in actions_for(id):
 		var b := VeilUI.button(a[0])
 		b.pressed.connect(func():
@@ -277,6 +284,10 @@ func actions_for(id: String) -> Array:
 # ------------------------------------------------------------------ icons: the item's own 3D model, rendered once
 func _icon(id: String) -> Texture2D:
 	if _icons.has(id):
+		return _icons[id]
+	var icon_path := String(Game.item_info(id).get("icon", ""))
+	if icon_path != "" and ResourceLoader.exists(icon_path):
+		_icons[id] = load(icon_path)                 # a flat pixel icon (items without a Pack 08 model)
 		return _icons[id]
 	var path := String(Game.item_info(id).get("model", ""))
 	if path == "" or not ResourceLoader.exists(path):
@@ -343,6 +354,9 @@ func _unhandled_input(e: InputEvent) -> void:
 		select(mini(_sel + COLS, maxi(_ids.size() - 1, 0)))
 	elif e.is_action_pressed("ui_up") or e.is_action_pressed("move_forward"):
 		select(maxi(_sel - COLS, 0))
+	elif e is InputEventKey and e.pressed and not e.echo and e.physical_keycode >= KEY_1 and e.physical_keycode <= KEY_5:
+		if _sel < _ids.size():
+			VeilQuickSlots.assign(e.physical_keycode - KEY_1, _ids[_sel])
 	elif e.is_action_pressed("interact") or e.is_action_pressed("ui_accept"):
 		var acts := actions_for(_ids[_sel]) if _sel < _ids.size() else []
 		if not acts.is_empty():

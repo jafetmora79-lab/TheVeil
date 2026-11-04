@@ -11,7 +11,7 @@ videos were produced.
 
 | Model | Triangles | Height (m) | Extent x/y/z (m) | Unweighted (helper) bones | glTF-Validator | Godot |
 |---|---|---|---|---|---|---|
-| CRT_Colossus | 8476 | 16.50 | [13.19, 16.5, 15.07] | Root | - | - |
+| CRT_Colossus | 8496 | 16.50 | [13.33, 16.49, 15.07] | Root | - | - |
 | CRT_Hound | 3286 | 1.38 | [0.81, 1.38, 3.22] | Root | - | - |
 | CRT_MistTentacle_Large | 1065 | 3.84 | [1.39, 3.85, 6.13] | - | - | - |
 | CRT_MistTentacle_Medium | 1219 | 3.15 | [0.97, 3.17, 3.41] | - | - | - |
@@ -25,14 +25,14 @@ Stretch = 1 + (deformed - rest edge length) / max(rest length, floor). min_y = l
 
 | Model | Clip | Keys | min_y (m) | max stretch | 99.9% stretch |
 |---|---|---|---|---|---|
-| CRT_Colossus | Idle_Breathe | 81 | 0.003 | 1.64 | 1.16 |
-| CRT_Colossus | Walk_Heavy | 81 | 0.003 | 1.73 | 1.26 |
-| CRT_Colossus | Tentacles_Sway | 121 | 0.003 | 1.7 | 1.2 |
-| CRT_Colossus | Alert | 49 | 0.003 | 1.6 | 1.28 |
-| CRT_Colossus | Attack_TentacleStrike | 49 | 0.003 | 1.64 | 1.22 |
-| CRT_Colossus | Attack_Heavy | 69 | 0.003 | 1.75 | 1.3 |
-| CRT_Colossus | Hit_React | 25 | 0.003 | 1.66 | 1.25 |
-| CRT_Colossus | Death_Collapse | 91 | 0.003 | 2.16 | 1.75 |
+| CRT_Colossus | Idle_Breathe | 81 | 0.009 | 1.64 | 1.16 |
+| CRT_Colossus | Walk_Heavy | 81 | 0.009 | 1.73 | 1.26 |
+| CRT_Colossus | Tentacles_Sway | 121 | 0.009 | 1.7 | 1.2 |
+| CRT_Colossus | Alert | 49 | 0.009 | 1.6 | 1.28 |
+| CRT_Colossus | Attack_TentacleStrike | 49 | 0.009 | 1.64 | 1.22 |
+| CRT_Colossus | Attack_Heavy | 69 | 0.009 | 1.75 | 1.3 |
+| CRT_Colossus | Hit_React | 25 | 0.009 | 1.66 | 1.25 |
+| CRT_Colossus | Death_Collapse | 91 | 0.009 | 2.16 | 1.75 |
 | CRT_Hound | Idle | 91 | -0.004 | 1.07 | 1.06 |
 | CRT_Hound | Walk | 37 | -0.004 | 1.57 | 1.47 |
 | CRT_Hound | Run | 15 | -0.004 | 1.87 | 1.69 |

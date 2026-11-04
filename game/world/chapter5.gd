@@ -21,9 +21,11 @@ const SURVIVOR_HOUSE := "HOUSE_05"        # its neighbour
 const STATE := "c5"
 
 # supermarket-local
-const EDDIE_SHELTER := Vector3(6.2, 0.04, 4.9)        # customer side of the service counter (the supply stash)
+# customer side of the service counter (collider x 4.5-7.5, z 4.6-5.4): 4.9 put him INSIDE the counter
+const EDDIE_SHELTER := Vector3(6.2, 0.04, 4.05)
 const MARCUS_SPOT := Vector3(1.1, 0.04, 4.7)          # by the checkout counters
-const STASH := Vector3(6.0, 1.09, 5.8)               # customer-service counter top
+const STASH := Vector3(6.9, 1.05, 5.0)               # customer-service counter top (was 5.8: behind it, in mid-air)
+const BACKPACK := preload("res://THE_VEIL_ASSETS_V2/08_Inventory/Food_And_Supplies/INV_SmallBackpack.glb")
 const EXIT_SPOT := Vector3(0.0, 1.2, 3.6)             # sales side of the vestibule wall (openings at x = +-1.5)
 const SURVIVOR_SPOT := Vector3(-1.0, 0.04, 4.3)
 const OUTSIDE_Z := -2.0                               # local z below this = outside the front doors
@@ -155,12 +157,43 @@ func _setup_market() -> void:
 	stash.name = "C5_Stash"
 	market.add_child(stash)
 	stash.position = STASH
-	for m in [[CAN, Vector3(-0.35, 0, 0.05)], [WATER, Vector3(0.0, 0, -0.05)], [BATTERY_PACK, Vector3(0.35, 0, 0.0)]]:
-		var n := (m[0] as PackedScene).instantiate() as Node3D
-		n.position = m[1]
-		stash.add_child(n)
+	# the supplies are one backpack lying on the counter (the inventory screen it opens holds the real items)
+	var bag := BACKPACK.instantiate() as Node3D
+	bag.name = "C5_Backpack"
+	bag.rotation.y = 0.35
+	stash.add_child(bag)
+	_settle_stash.call_deferred(stash)
 	its["stash"] = _spot("C5_CheckSupplies", market, STASH + Vector3(0, 0.08, 0), Vector3(1.2, 0.45, 0.6), "", _check_supplies)
-	its["exit"] = _spot("C5_HeadOut", market, EXIT_SPOT, Vector3(3.2, 2.2, 0.5), "", _head_out)
+	# leaving is done at the real front doors (the shut auto-door leaves), not at a box in mid-air: the interaction
+	# sits on the leaves' inner face, as wide and tall as the pair
+	its["exit"] = _spot("C5_HeadOut", market, _door_spot(), Vector3(2.5, 2.2, 0.3), "", _head_out)
+
+
+## Market-local centre of the front door pair, just on the inside of the leaves.
+func _door_spot() -> Vector3:
+	var zs := 0.0
+	var n := 0
+	for d in world._auto_doors:
+		zs += market.to_local((d[0] as Node3D).global_position).z
+		n += 1
+	var z := (zs / n if n > 0 else 0.1) + 0.2
+	return Vector3(0.0, 1.15, z)
+
+
+## Rest the stash (backpack, origin at its base) on the collider below it: the counter top.
+func _settle_stash(stash: Node3D) -> void:
+	await get_tree().physics_frame
+	await get_tree().physics_frame
+	var space: PhysicsDirectSpaceState3D = world.get_world_3d().direct_space_state
+	var ex: Array[RID] = [player.get_rid()]
+	var hit: Dictionary = space.intersect_ray(PhysicsRayQueryParameters3D.create(stash.global_position + Vector3(0, 0.4, 0),
+		stash.global_position - Vector3(0, 0.6, 0), 1, ex))
+	if not hit.is_empty():
+		stash_gap = stash.global_position.y - (hit["position"] as Vector3).y
+		stash.global_position.y = (hit["position"] as Vector3).y + 0.002
+
+
+var stash_gap := INF                                  ## tests: how far the stash was off the counter top
 
 
 func _setup_house() -> void:
@@ -184,18 +217,18 @@ func _setup_house() -> void:
 			deg = world._toward_deg(fd, deg, shouse.global_transform * (into as Vector3))
 		var dit := Interactable.attach(fd, {"kind": "hinge", "label": "Front Door", "open_deg": deg, "hinge_axis": Vector3.UP,
 			"state_key": "c5/%s/INT_Door_Front" % SURVIVOR_HOUSE})
-		dit.collision_layer = 0                        # never offered to the player
-		its["c5/%s/INT_Door_Front" % SURVIVOR_HOUSE] = dit
+		# a normal front door now (the player can open it and walk into the ground floor). Only the stairwell is
+		# closed off: the flight up and the basement flight beneath it share the foyer strip x 0.17-1.12, z 4.6-9.2
 		var block := StaticBody3D.new()
-		block.name = "C5_SurvivorDoorway"
+		block.name = "C5_SurvivorStairs"
 		block.collision_layer = 1
 		var bcs := CollisionShape3D.new()
 		var bb := BoxShape3D.new()
-		bb.size = Vector3(1.3, 2.2, 0.5)
+		bb.size = Vector3(1.05, 2.4, 4.8)
 		bcs.shape = bb
 		block.add_child(bcs)
 		shouse.add_child(block)
-		block.position = Vector3(-0.3, 0.6 + 1.1, 3.6)    # just inside the front opening (centre x -0.3)
+		block.position = Vector3(0.645, 0.6 + 1.2, 6.9)
 	# the radio: a reusable prop (game/props/veil_radio.gd), interacted with in place on the dining table
 	var vr := VeilRadio.new()
 	vr.name = "C5_Radio"
@@ -322,7 +355,13 @@ func _refresh_prompts() -> void:
 		var report := Game.has_flag("c5_returned") and not Game.has_flag("c5_reported")
 		its["npc_Marcus"].prompt_text = k + "TALK TO MARCUS" if (not Game.has_flag("c5_marcus_talked") or report) else ""
 	its["stash"].prompt_text = k + "CHECK THE SUPPLIES" if talked and not Game.has_flag("c5_supplies_checked") else ""
-	its["exit"].prompt_text = k + "HEAD OUT WITH EDDIE" if Game.has_flag("c5_supplies_checked") and not Game.has_flag("c5_prepared") else ""
+	# the front doors: open once the supplies are checked; before that a short contextual note (no dialogue)
+	if Game.has_flag("c5_prepared"):
+		its["exit"].prompt_text = ""
+	elif Game.has_flag("c5_supplies_checked"):
+		its["exit"].prompt_text = k + "OPEN DOOR"
+	else:
+		its["exit"].prompt_text = "NOT YET - TALK TO EDDIE AND MARCUS FIRST" if not talked else "NOT YET - CHECK THE SUPPLIES FIRST"
 	its["radio"].prompt_text = k + "INVESTIGATE RADIO" if Game.has_flag("c5_supplies_done") and not Game.has_flag("c5_radio_used") else ""
 	_update_marker()
 
@@ -345,7 +384,7 @@ func _update_marker() -> void:
 		t = ml(STASH + Vector3(0, 0.3, 0))
 		label = "SUPPLIES"
 	elif not Game.has_flag("c5_prepared"):
-		t = ml(EXIT_SPOT)
+		t = ml(_door_spot())
 		label = "EXIT"
 	elif not Game.has_flag("c5_left_store"):
 		t = ml(Vector3(0, 1.4, -2.5))

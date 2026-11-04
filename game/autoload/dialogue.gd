@@ -72,6 +72,35 @@ func advance() -> void:
 	line_finished.emit()
 
 
+## Any line on screen can be advanced by the player (one press = one line, never before MIN_SHOW).
+func advance_any() -> void:
+	if not _active or _shown < MIN_SHOW:
+		return
+	confirms += 1
+	_active = false
+	_set_waiting(false)
+	line_finished.emit()
+
+
+## HOLD to skip: the current line and the lines queued after it, up to (never past) a choice.
+var skipped := 0
+
+
+func skip() -> void:
+	if not _active:
+		return
+	while not _queue.is_empty() and not (_queue[0] as Dictionary).has("choices"):
+		_queue.pop_front()
+	skipped += 1
+	_active = false
+	_set_waiting(false)
+	line_finished.emit()
+
+
+func is_active() -> bool:
+	return _active
+
+
 func is_waiting() -> bool:
 	return _waiting
 
