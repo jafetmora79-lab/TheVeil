@@ -1,0 +1,48 @@
+{
+  "model": "07_Creatures/Shellcrawler/CRT_Shellcrawler.glb",
+  "fps_baked": 30.0,
+  "clips": [
+    {
+      "name": "Idle",
+      "duration_s": 3.0,
+      "loop": true,
+      "keys": 91
+    },
+    {
+      "name": "Crawl_Sideways",
+      "duration_s": 1.4,
+      "loop": true,
+      "keys": 43
+    },
+    {
+      "name": "Crawl_Forward",
+      "duration_s": 1.6,
+      "loop": true,
+      "keys": 49
+    },
+    {
+      "name": "Defend",
+      "duration_s": 1.6,
+      "loop": false,
+      "keys": 49
+    },
+    {
+      "name": "Attack_Grasp",
+      "duration_s": 1.6,
+      "loop": false,
+      "keys": 49
+    },
+    {
+      "name": "Hit_React",
+      "duration_s": 0.8,
+      "loop": false,
+      "keys": 25
+    },
+    {
+      "name": "Death",
+      "duration_s": 2.2,
+      "loop": false,
+      "keys": 67
+    }
+  ]
+}

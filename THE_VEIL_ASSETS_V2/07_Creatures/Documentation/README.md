@@ -14,7 +14,7 @@ quality, and no screenshots, renders or videos were made.**
 | 2 | Mist Tentacles (3 variants) | done | `Mist_Tentacles/CRT_MistTentacle_{Thin,Medium,Large}.glb` | `Godot_Scenes/CRT_MistTentacle_{Thin,Medium,Large}.tscn` |
 | 3 | Hound | done | `Hounds/CRT_Hound.glb` | `Godot_Scenes/CRT_Hound.tscn` |
 | 4 | Skitter | done | `Skitter/CRT_Skitter.glb` | `Godot_Scenes/CRT_Skitter.tscn` |
-| 5 | Shellcrawler | see below | `Shellcrawler/` | `Godot_Scenes/` |
+| 5 | Shellcrawler | done | `Shellcrawler/CRT_Shellcrawler.glb` | `Godot_Scenes/CRT_Shellcrawler.tscn` |
 
 The **Wanderer is removed** from this pack (owner's brief). No humanoid enemies are generated. No Wanderer assets
 existed in the repository, so nothing was deleted or marked obsolete. The project bible still lists it (see
@@ -273,6 +273,101 @@ faint emission on the eyes and the sac). Scene: `Godot_Scenes/CRT_Skitter.tscn`.
 
 **Scene:** a `CharacterBody3D` with `Model`, a body box and a leg-span box, `Markers/LookTarget` and
 `Markers/LungeReach`.
+
+## Creature 05 - The Shellcrawler
+
+`Shellcrawler/CRT_Shellcrawler.glb` - 37 bones (+2 sockets), 3 374 triangles, one material (`M_Crt_Shellcrawler`,
+256 px atlas with faint emission on the plate seams, the ring organs and the cavity). Scene:
+`Godot_Scenes/CRT_Shellcrawler.tscn`.
+
+**Size:** about 2.2 m wide, 1.2 m tall at the shell crest, 3.6 m across the legs.
+
+**Anatomy (crustacean-inspired, but not a crab):**
+
+* A broad, low, **asymmetric faceted shell**, wider and heavier on the left. It has an overhanging front lip and
+  is covered in overlapping irregular plates with faint luminous seams.
+* A cluster of angular **crystalline shards** juts from the rear-left: geometry that does not look grown.
+* Three **openings** in the shell top look down into a dim, pale internal cavity.
+* **Eight walking legs** of unequal size: three heavy and one small on the left, four medium on the right. They
+  emerge from under the rim, keep their knees below the shell line, end in single bone points, and walk sideways
+  or forwards.
+* Two unlike **grasping appendages**: a long left arm ending in a three-fingered hooked hand, and a small right arm
+  ending in a single sickle.
+* A recessed front **sensory face** under the shell lip: a vertical, off-centre stack of five pale ring organs of
+  different sizes, fringed by short feelers.
+
+**Skeleton:**
+
+* `Root > Body`, with these children:
+  * `Shell`
+  * `Sensor`
+  * `GraspL_Upper > GraspL_Lower > GraspL_Hand > GraspL_F1-F3`
+  * `GraspR_Upper > GraspR_Lower > GraspR_Sickle`
+* Legs `Leg_{LA,LB,LC,LD,RA,RB,RC,RD}_{Upper,Lower,Foot}`.
+* Sockets `Socket_Sensor`, `Socket_GraspL`.
+
+**Clips** (30 fps keys, in place, alternating four-leg groups, IK-planted leg points):
+
+| Clip | Length | Loop | Notes |
+|---|---|---|---|
+| `Idle` | 3.0 s | yes | shell breathes and rocks, sensor face scans, fingers flex |
+| `Crawl_Sideways` | 1.4 s | yes | sideways (+X) gait, 0.45 m stride, about 0.54 m/s, body sways along the travel axis |
+| `Crawl_Forward` | 1.6 s | yes | forward (+Z) gait, 0.36 m stride, about 0.36 m/s |
+| `Defend` | 1.6 s | no | hunkers down, shell tilts over the face, arms fold across the sensory face, fingers close; ends held |
+| `Attack_Grasp` | 1.6 s | no | leans in, the left arm reaches with the fingers spread, closes at about 0.7 s and pulls back; the sickle hooks |
+| `Hit_React` | 0.8 s | no | shell jolt and rock, arms flinch inward |
+| `Death` | 2.2 s | no | legs give out and splay, the body settles low and tilted, the arms fall limp |
+
+The arms and fingers pass the ground guard in every clip.
+
+**Scene:** a `CharacterBody3D` with `Model`, a shell box, a leg-span box and an arms box, `Markers/LookTarget` and
+`Markers/GraspReach`.
+
+## Validation
+
+`Documentation/VALIDATION_REPORT.md` is the latest validator output. It covers:
+
+* GLB integrity and topology: accessor ranges, unit normals, no degenerate or inside-out triangles.
+* UVs: atlas UVs stay inside 0..1.
+* Skin: joint hierarchy equals the manifest, identity rest, inverse bind matrices, normalised 4-weight skinning.
+* Textures: embedded textures equal the PNG files; palette lock; sparse glow-only emission masks; lossless
+  imports; nearest filtering.
+* Animation:
+  * every clip present, with unit quaternions;
+  * looping clips are seamless and do not pop at the seam;
+  * every clip is re-sampled from the GLB and skinned on every key, checked against per-creature ground and
+    stretch limits.
+* Scenes and gallery wiring.
+* The Khronos glTF-Validator.
+* Godot 4.3:
+  * headless import: bones, skinning, external materials, emission, loop modes, RESET, collision, every clip
+    moving its probe bone, the mist shader override;
+  * a Compatibility-renderer (OpenGL 3, xvfb) run that instantiates every scene and plays every clip.
+
+**None of this proves visual quality.** No screenshots, renders, turntables or videos were made, and the look of the
+models has not been visually verified.
+
+## Limitations
+
+* **Visual quality is unverified** (see above). Proportions, silhouettes and motion were designed numerically and
+  checked only by the automated metrics above.
+* **Stretch:** linear blend skinning stretches the outer side of tightly bent joints. Measured maxima are in the
+  report; the largest are about 1.7x local edge stretch at:
+  * the Hound's hind knee in `Run`;
+  * the Colossus and Shellcrawler joints in `Death`;
+  * the Shellcrawler's legs in `Crawl_Sideways`.
+* **Collision** is coarse and static. It does not follow the animation, and there are no per-limb hitboxes.
+* **Locomotion is in place** (no root motion). A future controller must move the body at the documented speed.
+  Turning and slopes are not authored; the feet are planted on flat ground only.
+* **Non-looping clips** start and end in poses that differ from the idle. They rely on `AnimationPlayer` blend times
+  (the Mist Tentacle script uses 0.3 s).
+* **Gallery:** the gallery shows each model in its rest pose. The browser viewer does not play the clips (the
+  gallery code was not redesigned).
+* **Texel density:** the Colossus hide and tentacles use 32 px/m instead of the characters' density.
+* **Mist fade:** the Mist Tentacle fade shader was compiled and run in Godot 4.3 Compatibility, but its look (dither
+  pattern, fade height) was not visually checked.
+* **Emission:** emission strengths are set in the `.tres` materials (0.5-0.8) and are meant to be tuned in the
+  game's real lighting / Veil states. They are not wired to `VeilAtmosphere`.
 
 ## Lore notes / conflicts with the project bible (the bible was not modified)
 
