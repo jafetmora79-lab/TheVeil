@@ -1,0 +1,15 @@
+{
+ "goals": {
+  "": "",
+  "groceries": "Get some groceries",
+  "done": "Friday evening - to be continued"
+ },
+ "steps": [
+  {"id": "check_kitchen", "flag": "fridge_checked", "goal": "", "text": "Check the kitchen"},
+  {"id": "find_keys", "flag": "has_keys", "goal": "groceries", "text": "Find the car keys"},
+  {"id": "leave_house", "flag": "left_house", "goal": "groceries", "text": "Leave the house"},
+  {"id": "enter_car", "flag": "entered_car", "goal": "groceries", "text": "Get into the car"},
+  {"id": "drive", "flag": "reached_town", "goal": "groceries", "text": "Drive into town"},
+  {"id": "park", "flag": "parked", "goal": "groceries", "text": "Park at the supermarket"}
+ ]
+}

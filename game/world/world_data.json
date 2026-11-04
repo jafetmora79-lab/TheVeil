@@ -1,0 +1,1096 @@
+{
+ "bounds": [
+  -160.0,
+  -160.0,
+  400.0,
+  600.0
+ ],
+ "player_home": {
+  "origin": [
+   56.0,
+   0.15,
+   508.5
+  ],
+  "yaw": -1.5707963267948966,
+  "zone": {
+   "id": "PLAYER_HOME",
+   "type": "residential_house",
+   "rect": [
+    44.0,
+    502.0,
+    56.0,
+    515.0
+   ],
+   "front": [
+    1.0,
+    0.0
+   ],
+   "access": [
+    54.0,
+    509.0
+   ],
+   "pack": "Pack 03",
+   "height": 7.0,
+   "hero": true,
+   "note": "Protagonist's house + sedan on the driveway"
+  }
+ },
+ "nodes": {
+  "N20": [
+   332.0,
+   438.0
+  ],
+  "N23": [
+   200.0,
+   438.0
+  ],
+  "N21": [
+   68.0,
+   438.0
+  ],
+  "N24": [
+   200.0,
+   376.0
+  ],
+  "N22": [
+   68.0,
+   560.0
+  ],
+  "N25": [
+   332.0,
+   480.0
+  ]
+ },
+ "route": [
+  [
+   58.0,
+   509.0
+  ],
+  [
+   62.5,
+   509.0
+  ],
+  [
+   68.0,
+   509.0
+  ],
+  [
+   68.0,
+   438.0
+  ],
+  [
+   332.0,
+   438.0
+  ],
+  [
+   332.0,
+   432.0
+  ],
+  [
+   332.0,
+   422.0
+  ],
+  [
+   332.0,
+   412.0
+  ],
+  [
+   332.0,
+   402.0
+  ],
+  [
+   332.0,
+   392.0
+  ],
+  [
+   332.0,
+   382.0
+  ],
+  [
+   332.0,
+   372.0
+  ],
+  [
+   332.0,
+   362.0
+  ],
+  [
+   332.0,
+   352.0
+  ],
+  [
+   332.0,
+   342.0
+  ],
+  [
+   332.0,
+   332.0
+  ],
+  [
+   332.0,
+   322.0
+  ],
+  [
+   332.0,
+   312.0
+  ],
+  [
+   332.0,
+   302.0
+  ],
+  [
+   332.0,
+   292.0
+  ],
+  [
+   331.182,
+   285.788
+  ],
+  [
+   328.785,
+   280.0
+  ],
+  [
+   324.971,
+   275.029
+  ],
+  [
+   320.0,
+   271.215
+  ],
+  [
+   314.212,
+   268.818
+  ],
+  [
+   308.0,
+   268.0
+  ],
+  [
+   298.0,
+   268.0
+  ],
+  [
+   288.0,
+   268.0
+  ],
+  [
+   278.0,
+   268.0
+  ],
+  [
+   268.0,
+   268.0
+  ],
+  [
+   258.0,
+   268.0
+  ],
+  [
+   248.0,
+   268.0
+  ],
+  [
+   238.0,
+   268.0
+  ],
+  [
+   228.0,
+   268.0
+  ],
+  [
+   218.0,
+   268.0
+  ],
+  [
+   208.0,
+   268.0
+  ],
+  [
+   201.788,
+   267.182
+  ],
+  [
+   196.0,
+   264.785
+  ],
+  [
+   191.029,
+   260.971
+  ],
+  [
+   187.215,
+   256.0
+  ],
+  [
+   184.818,
+   250.212
+  ],
+  [
+   184.0,
+   244.0
+  ],
+  [
+   184.0,
+   234.0
+  ],
+  [
+   184.0,
+   224.0
+  ],
+  [
+   184.0,
+   214.0
+  ],
+  [
+   184.0,
+   204.0
+  ],
+  [
+   184.0,
+   194.0
+  ],
+  [
+   184.0,
+   184.0
+  ],
+  [
+   184.0,
+   174.0
+  ],
+  [
+   184.0,
+   164.0
+  ],
+  [
+   184.0,
+   154.0
+  ],
+  [
+   184.0,
+   144.0
+  ],
+  [
+   184.0,
+   134.0
+  ],
+  [
+   184.0,
+   124.0
+  ],
+  [
+   184.0,
+   114.0
+  ],
+  [
+   184.0,
+   104.0
+  ],
+  [
+   184.0,
+   94.0
+  ],
+  [
+   184.0,
+   84.0
+  ],
+  [
+   184.0,
+   74.0
+  ],
+  [
+   184.0,
+   64.0
+  ],
+  [
+   184.0,
+   54.0
+  ],
+  [
+   184.0,
+   44.0
+  ],
+  [
+   184.0,
+   34.0
+  ],
+  [
+   184.0,
+   24.0
+  ],
+  [
+   183.182,
+   17.788
+  ],
+  [
+   180.785,
+   12.0
+  ],
+  [
+   176.971,
+   7.029
+  ],
+  [
+   172.0,
+   3.215
+  ],
+  [
+   166.212,
+   0.818
+  ],
+  [
+   160.0,
+   0.0
+  ],
+  [
+   150.0,
+   0.0
+  ],
+  [
+   130.0,
+   0.0
+  ],
+  [
+   124.0,
+   0.0
+  ],
+  [
+   62.0,
+   0.0
+  ],
+  [
+   31.0,
+   0.0
+  ],
+  [
+   31.0,
+   -8.0
+  ],
+  [
+   31.0,
+   -16.0
+  ]
+ ],
+ "route_sections": {
+  "A_residential": [
+   [
+    58.0,
+    509.0
+   ],
+   [
+    332.0,
+    438.0
+   ]
+  ],
+  "C_county_road": [
+   [
+    332.0,
+    438.0
+   ],
+   [
+    184.0,
+    24.0
+   ]
+  ],
+  "B_transition": [
+   [
+    184.0,
+    24.0
+   ],
+   [
+    124.0,
+    0.0
+   ]
+  ],
+  "D_commercial": [
+   [
+    124.0,
+    0.0
+   ],
+   [
+    31.0,
+    0.0
+   ]
+  ],
+  "E_destination": [
+   [
+    31.0,
+    0.0
+   ],
+   [
+    31.0,
+    -16.0
+   ]
+  ]
+ },
+ "route_length_m": 1068.77,
+ "destination": {
+  "name": "SUPERMARKET",
+  "parking_center": [
+   31.0,
+   0.15,
+   -16.0
+  ],
+  "trigger_size": [
+   30.0,
+   4.0,
+   14.0
+  ]
+ },
+ "houses": [
+  {
+   "zone": "HOUSE_01",
+   "variant": "RES_House_Ranch_Mirror",
+   "origin": [
+    -48.0,
+    0.15,
+    -64.0
+   ],
+   "yaw": 3.141593
+  },
+  {
+   "zone": "HOUSE_02",
+   "variant": "RES_House_TwoStorey",
+   "origin": [
+    -31.5,
+    0.15,
+    -64.0
+   ],
+   "yaw": 3.141593
+  },
+  {
+   "zone": "HOUSE_03",
+   "variant": "RES_House_Ranch_B",
+   "origin": [
+    -14.0,
+    0.15,
+    -64.0
+   ],
+   "yaw": 3.141593
+  },
+  {
+   "zone": "HOUSE_04",
+   "variant": "RES_House_Cottage",
+   "origin": [
+    14.0,
+    0.15,
+    -64.0
+   ],
+   "yaw": 3.141593
+  },
+  {
+   "zone": "HOUSE_05",
+   "variant": "RES_House_TwoStorey_B",
+   "origin": [
+    30.5,
+    0.15,
+    -64.0
+   ],
+   "yaw": 3.141593
+  },
+  {
+   "zone": "HOUSE_06",
+   "variant": "RES_House_Bungalow_Mirror",
+   "origin": [
+    47.5,
+    0.15,
+    -64.0
+   ],
+   "yaw": 3.141593
+  },
+  {
+   "zone": "HOUSE_07",
+   "variant": "RES_House_Bungalow_B_Mirror",
+   "origin": [
+    -47.75,
+    0.15,
+    -92.0
+   ],
+   "yaw": -0.0
+  },
+  {
+   "zone": "HOUSE_08",
+   "variant": "RES_House_Cottage_B",
+   "origin": [
+    -31.65,
+    0.15,
+    -92.0
+   ],
+   "yaw": -0.0
+  },
+  {
+   "zone": "HOUSE_09",
+   "variant": "RES_House_Ranch_C_Mirror",
+   "origin": [
+    -14.0,
+    0.15,
+    -92.0
+   ],
+   "yaw": -0.0
+  },
+  {
+   "zone": "HOUSE_10",
+   "variant": "RES_House_MillWorker",
+   "origin": [
+    -46.35,
+    0.15,
+    -116.0
+   ],
+   "yaw": 3.141593
+  },
+  {
+   "zone": "HOUSE_11",
+   "variant": "RES_House_Cottage_B_Mirror",
+   "origin": [
+    -31.6,
+    0.15,
+    -116.0
+   ],
+   "yaw": 3.141593
+  },
+  {
+   "zone": "HOUSE_12",
+   "variant": "RES_House_TwoStorey_Mirror",
+   "origin": [
+    -14.5,
+    0.15,
+    -116.0
+   ],
+   "yaw": 3.141593
+  },
+  {
+   "zone": "HOUSE_13",
+   "variant": "RES_House_Ranch",
+   "origin": [
+    14.0,
+    0.15,
+    -92.0
+   ],
+   "yaw": -0.0
+  },
+  {
+   "zone": "HOUSE_15",
+   "variant": "RES_House_Cottage",
+   "origin": [
+    47.5,
+    0.15,
+    -92.0
+   ],
+   "yaw": -0.0
+  },
+  {
+   "zone": "HOUSE_16",
+   "variant": "RES_House_MillWorker_B",
+   "origin": [
+    15.65,
+    0.15,
+    -116.0
+   ],
+   "yaw": 3.141593
+  },
+  {
+   "zone": "HOUSE_17",
+   "variant": "RES_House_TwoStorey_B",
+   "origin": [
+    30.5,
+    0.15,
+    -116.0
+   ],
+   "yaw": 3.141593
+  },
+  {
+   "zone": "HOUSE_18",
+   "variant": "RES_House_Ranch_B",
+   "origin": [
+    48.0,
+    0.15,
+    -116.0
+   ],
+   "yaw": 3.141593
+  },
+  {
+   "zone": "HOUSE_19",
+   "variant": "RES_House_SplitLevel_Mirror",
+   "origin": [
+    -78.0,
+    0.15,
+    -116.0
+   ],
+   "yaw": -3.141593
+  },
+  {
+   "zone": "HOUSE_20",
+   "variant": "RES_House_Abandoned",
+   "origin": [
+    -77.9,
+    0.15,
+    -92.0
+   ],
+   "yaw": 0.0
+  },
+  {
+   "zone": "HOUSE_21",
+   "variant": "RES_House_SplitLevel_B",
+   "origin": [
+    -74.0,
+    0.15,
+    -68.0
+   ],
+   "yaw": -1.570796
+  },
+  {
+   "zone": "HOUSE_22",
+   "variant": "RES_House_Ranch_C",
+   "origin": [
+    74.0,
+    0.15,
+    -65.65
+   ],
+   "yaw": 1.570796
+  },
+  {
+   "zone": "HOUSE_23",
+   "variant": "RES_House_Bungalow_B",
+   "origin": [
+    74.0,
+    0.15,
+    -88.25
+   ],
+   "yaw": 1.570796
+  },
+  {
+   "zone": "FARMHOUSE",
+   "variant": "RES_House_Farmhouse",
+   "origin": [
+    158.0,
+    0.15,
+    -84.0
+   ],
+   "yaw": 3.141593
+  },
+  {
+   "zone": "MILL_HOUSE",
+   "variant": "RES_House_MillWorker",
+   "origin": [
+    -92.0,
+    0.15,
+    14.0
+   ],
+   "yaw": 0.0
+  },
+  {
+   "zone": "HOUSE_14",
+   "variant": "RES_House_TwoStorey",
+   "origin": [
+    30.5,
+    0.15,
+    -92.0
+   ],
+   "yaw": -0.0
+  },
+  {
+   "zone": "EXT_HOUSE_01",
+   "variant": "RES_House_TwoStorey_Mirror",
+   "origin": [
+    317.428,
+    0.15,
+    426.0
+   ],
+   "yaw": -3.141593
+  },
+  {
+   "zone": "EXT_HOUSE_02",
+   "variant": "RES_House_TwoStorey",
+   "origin": [
+    300.286,
+    0.15,
+    426.0
+   ],
+   "yaw": -3.141593
+  },
+  {
+   "zone": "EXT_HOUSE_03",
+   "variant": "RES_House_Cottage_B",
+   "origin": [
+    283.143,
+    0.15,
+    426.0
+   ],
+   "yaw": -3.141593
+  },
+  {
+   "zone": "EXT_HOUSE_04",
+   "variant": "RES_House_Ranch",
+   "origin": [
+    248.308,
+    0.15,
+    426.0
+   ],
+   "yaw": -3.141593
+  },
+  {
+   "zone": "EXT_HOUSE_05",
+   "variant": "RES_House_TwoStorey",
+   "origin": [
+    231.714,
+    0.15,
+    426.0
+   ],
+   "yaw": -3.141593
+  },
+  {
+   "zone": "EXT_HOUSE_06",
+   "variant": "RES_House_Ranch_C_Mirror",
+   "origin": [
+    214.022,
+    0.15,
+    426.0
+   ],
+   "yaw": -3.141593
+  },
+  {
+   "zone": "EXT_HOUSE_07",
+   "variant": "RES_House_MillWorker_B",
+   "origin": [
+    316.378,
+    0.15,
+    450.0
+   ],
+   "yaw": 0.0
+  },
+  {
+   "zone": "EXT_HOUSE_08",
+   "variant": "RES_House_Cottage",
+   "origin": [
+    300.286,
+    0.15,
+    450.0
+   ],
+   "yaw": 0.0
+  },
+  {
+   "zone": "EXT_HOUSE_09",
+   "variant": "RES_House_TwoStorey_Mirror",
+   "origin": [
+    283.143,
+    0.15,
+    450.0
+   ],
+   "yaw": 0.0
+  },
+  {
+   "zone": "EXT_HOUSE_10",
+   "variant": "RES_House_Bungalow_B",
+   "origin": [
+    247.758,
+    0.15,
+    450.0
+   ],
+   "yaw": 0.0
+  },
+  {
+   "zone": "EXT_HOUSE_11",
+   "variant": "RES_House_TwoStorey",
+   "origin": [
+    231.714,
+    0.15,
+    450.0
+   ],
+   "yaw": 0.0
+  },
+  {
+   "zone": "EXT_HOUSE_12",
+   "variant": "RES_House_Ranch_B",
+   "origin": [
+    214.022,
+    0.15,
+    450.0
+   ],
+   "yaw": 0.0
+  },
+  {
+   "zone": "EXT_HOUSE_13",
+   "variant": "RES_House_MillWorker",
+   "origin": [
+    184.378,
+    0.15,
+    426.0
+   ],
+   "yaw": -3.141593
+  },
+  {
+   "zone": "EXT_HOUSE_14",
+   "variant": "RES_House_TwoStorey",
+   "origin": [
+    168.286,
+    0.15,
+    426.0
+   ],
+   "yaw": -3.141593
+  },
+  {
+   "zone": "EXT_HOUSE_15",
+   "variant": "RES_House_TwoStorey",
+   "origin": [
+    151.142,
+    0.15,
+    426.0
+   ],
+   "yaw": -3.141593
+  },
+  {
+   "zone": "EXT_HOUSE_16",
+   "variant": "RES_House_Cottage_B_Mirror",
+   "origin": [
+    116.858,
+    0.15,
+    426.0
+   ],
+   "yaw": -3.141593
+  },
+  {
+   "zone": "EXT_HOUSE_17",
+   "variant": "RES_House_TwoStorey",
+   "origin": [
+    99.715,
+    0.15,
+    426.0
+   ],
+   "yaw": -3.141593
+  },
+  {
+   "zone": "EXT_HOUSE_18",
+   "variant": "RES_House_TwoStorey",
+   "origin": [
+    82.572,
+    0.15,
+    426.0
+   ],
+   "yaw": -3.141593
+  },
+  {
+   "zone": "EXT_HOUSE_19",
+   "variant": "RES_House_Ranch_C_Mirror",
+   "origin": [
+    185.978,
+    0.15,
+    450.0
+   ],
+   "yaw": 0.0
+  },
+  {
+   "zone": "EXT_HOUSE_20",
+   "variant": "RES_House_TwoStorey",
+   "origin": [
+    168.286,
+    0.15,
+    450.0
+   ],
+   "yaw": 0.0
+  },
+  {
+   "zone": "EXT_HOUSE_21",
+   "variant": "RES_House_Ranch",
+   "origin": [
+    151.692,
+    0.15,
+    450.0
+   ],
+   "yaw": 0.0
+  },
+  {
+   "zone": "EXT_HOUSE_22",
+   "variant": "RES_House_TwoStorey_B",
+   "origin": [
+    116.858,
+    0.15,
+    450.0
+   ],
+   "yaw": 0.0
+  },
+  {
+   "zone": "EXT_HOUSE_23",
+   "variant": "RES_House_TwoStorey",
+   "origin": [
+    99.715,
+    0.15,
+    450.0
+   ],
+   "yaw": 0.0
+  },
+  {
+   "zone": "EXT_HOUSE_24",
+   "variant": "RES_House_Cottage_B_Mirror",
+   "origin": [
+    83.921,
+    0.15,
+    450.0
+   ],
+   "yaw": 0.0
+  },
+  {
+   "zone": "EXT_HOUSE_25",
+   "variant": "RES_House_Ranch_Mirror",
+   "origin": [
+    212.0,
+    0.15,
+    420.0
+   ],
+   "yaw": 1.570796
+  },
+  {
+   "zone": "EXT_HOUSE_26",
+   "variant": "RES_House_MillWorker",
+   "origin": [
+    212.0,
+    0.15,
+    392.4
+   ],
+   "yaw": 1.570796
+  },
+  {
+   "zone": "EXT_HOUSE_27",
+   "variant": "RES_House_Ranch",
+   "origin": [
+    188.0,
+    0.15,
+    420.0
+   ],
+   "yaw": -1.570796
+  },
+  {
+   "zone": "EXT_HOUSE_28",
+   "variant": "RES_House_TwoStorey",
+   "origin": [
+    188.0,
+    0.15,
+    394.5
+   ],
+   "yaw": -1.570796
+  },
+  {
+   "zone": "EXT_HOUSE_29",
+   "variant": "RES_House_Cottage_B_Mirror",
+   "origin": [
+    80.0,
+    0.15,
+    457.5
+   ],
+   "yaw": 1.570796
+  },
+  {
+   "zone": "EXT_HOUSE_30",
+   "variant": "RES_House_Bungalow_Mirror",
+   "origin": [
+    80.0,
+    0.15,
+    474.5
+   ],
+   "yaw": 1.570796
+  },
+  {
+   "zone": "EXT_HOUSE_31",
+   "variant": "RES_House_Ranch_Mirror",
+   "origin": [
+    80.0,
+    0.15,
+    492.0
+   ],
+   "yaw": 1.570796
+  },
+  {
+   "zone": "EXT_HOUSE_32",
+   "variant": "RES_House_TwoStorey",
+   "origin": [
+    80.0,
+    0.15,
+    508.5
+   ],
+   "yaw": 1.570796
+  },
+  {
+   "zone": "EXT_HOUSE_33",
+   "variant": "RES_House_MillWorker_B",
+   "origin": [
+    80.0,
+    0.15,
+    524.4
+   ],
+   "yaw": 1.570796
+  },
+  {
+   "zone": "EXT_HOUSE_34",
+   "variant": "RES_House_Cottage",
+   "origin": [
+    80.0,
+    0.15,
+    542.5
+   ],
+   "yaw": 1.570796
+  },
+  {
+   "zone": "EXT_HOUSE_35",
+   "variant": "RES_House_TwoStorey_B",
+   "origin": [
+    56.0,
+    0.15,
+    457.5
+   ],
+   "yaw": -1.570796
+  },
+  {
+   "zone": "EXT_HOUSE_36",
+   "variant": "RES_House_Bungalow_B",
+   "origin": [
+    56.0,
+    0.15,
+    474.5
+   ],
+   "yaw": -1.570796
+  },
+  {
+   "zone": "EXT_HOUSE_37",
+   "variant": "RES_House_Ranch",
+   "origin": [
+    56.0,
+    0.15,
+    492.0
+   ],
+   "yaw": -1.570796
+  },
+  {
+   "zone": "PLAYER_HOME",
+   "variant": "RES_PlayerHome",
+   "origin": [
+    56.0,
+    0.15,
+    508.5
+   ],
+   "yaw": -1.570796
+  },
+  {
+   "zone": "EXT_HOUSE_39",
+   "variant": "RES_House_TwoStorey",
+   "origin": [
+    56.0,
+    0.15,
+    525.5
+   ],
+   "yaw": -1.570796
+  },
+  {
+   "zone": "EXT_HOUSE_40",
+   "variant": "RES_House_MillWorker",
+   "origin": [
+    56.0,
+    0.15,
+    543.6
+   ],
+   "yaw": -1.570796
+  }
+ ],
+ "trees": 1660,
+ "scatter_items": 2047,
+ "terrain_rects": 2646,
+ "ext_items": 895
+}
