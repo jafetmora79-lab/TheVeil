@@ -892,6 +892,90 @@
      16
     ]
    }
+  },
+  {
+   "name": "Cashier",
+   "glb": "Commercial_NPCs/CHR_Cashier.glb",
+   "head_texture": "T_Cashier_Head",
+   "atlas": "06_Characters/Facial/Faces/T_Face_Cashier.png",
+   "neutral_identical": true,
+   "eyes": [
+    {
+     "side": "L",
+     "white_rows": [
+      28,
+      29
+     ],
+     "lid_row": 27,
+     "x": [
+      53,
+      59
+     ]
+    },
+    {
+     "side": "R",
+     "white_rows": [
+      28,
+      29
+     ],
+     "lid_row": 27,
+     "x": [
+      69,
+      75
+     ]
+    }
+   ],
+   "mouth": {
+    "row": 46,
+    "x": [
+     60,
+     68
+    ]
+   },
+   "brow_pixels": 20,
+   "static_pixels": 11,
+   "changed_pixels_vs_neutral": {
+    "neutral": [
+     0,
+     0
+    ],
+    "happy": [
+     40,
+     13
+    ],
+    "angry": [
+     78,
+     4
+    ],
+    "scared": [
+     72,
+     10
+    ],
+    "shocked": [
+     72,
+     15
+    ],
+    "sad": [
+     60,
+     9
+    ],
+    "suspicious": [
+     78,
+     9
+    ],
+    "confused": [
+     30,
+     9
+    ],
+    "determined": [
+     76,
+     2
+    ],
+    "pain": [
+     66,
+     18
+    ]
+   }
   }
  ]
 }

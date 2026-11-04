@@ -3,7 +3,8 @@
   "": "",
   "groceries": "Get some groceries",
   "errands": "Friday errands",
-  "done": "Friday evening - to be continued"
+  "done": "Friday evening - to be continued",
+  "act1": "The Veil"
  },
  "steps": [
   {
@@ -46,7 +47,7 @@
    "id": "buy_groceries",
    "flag": "groceries_done",
    "goal": "errands",
-   "text": "Buy groceries at the supermarket"
+   "text": "Buy groceries: soup, a snack bar, water"
   },
   {
    "id": "buy_game",
@@ -59,7 +60,25 @@
    "flag": "phase2_done",
    "goal": "errands",
    "text": "Head back to the car"
+  },
+  {
+   "id": "mist_shop",
+   "flag": "p3_in_shop",
+   "goal": "act1",
+   "text": "Get inside the game shop"
+  },
+  {
+   "id": "mist_market",
+   "flag": "p3_in_market",
+   "goal": "act1",
+   "text": "Get to the supermarket"
+  },
+  {
+   "id": "mist_doors",
+   "flag": "p3_doors_shut",
+   "goal": "act1",
+   "text": "Shut the supermarket doors"
   }
  ],
- "_comment": "Steps complete in list order for display, but each errand step only checks its own flag, so the supermarket and the game shop can be done in either order (the bible leaves the stop order open)."
+ "_comment": "Steps complete in list order for display, but each errand step only checks its own flag, so the supermarket and the game shop can be done in either order (the bible leaves the stop order open). Phase 3 (mist_*) is a WORKING DRAFT sequence of Act I's opening."
 }

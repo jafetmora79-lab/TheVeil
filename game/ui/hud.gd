@@ -276,6 +276,13 @@ func _build_end() -> void:
 	root.add_child(end_panel)
 
 
+func set_end_text(title: String, line_a: String, line_b: String) -> void:
+	var v: VBoxContainer = end_panel.get_child(0)
+	(v.get_child(0) as Label).text = title
+	(v.get_child(1) as Label).text = line_a
+	(v.get_child(2) as Label).text = line_b
+
+
 func show_end(drive_seconds: float) -> void:
 	var v: VBoxContainer = end_panel.get_child(0)
 	var l := VeilUI.label("Drive time: %d s" % roundi(drive_seconds), 15, VeilUI.MUTED)

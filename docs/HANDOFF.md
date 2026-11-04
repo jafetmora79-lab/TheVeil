@@ -364,3 +364,41 @@ playthrough test to make sure everything still agrees.
   * Pack 03 house shells, about 5-10 m² per house: the foundation band vs the siding where neighbouring rooms' walls
     are 2 cm apart, plus some porch / brick overlaps;
   * supermarket gondola tops at 1.8 m, above eye height.
+
+### 9.10 Phase 3: the Veil arrives (WORKING DRAFT) and the owner's play-test fixes
+
+* **Owner reports fixed:**
+  * **The supermarket could not be entered.** The Pack 02 lot-edge curb (15 cm) runs along the whole store front,
+    and the player had no step-up. `player.gd` `_step_up()` now climbs anything up to 0.35 m. The test walks from
+    6 m out in the lot, over the curb and through the doors.
+  * **No store clerk.** There is a new generic `CHR_Cashier` (`chr_style_cast.py` CAST entry, face atlas from
+    `chr_faces.py`). Other cast GLBs came out byte-identical. She stands at lane 4 and takes the payment.
+  * **Couldn't find what to buy:**
+    * a HUD shopping list with aisle numbers;
+    * pulsing rim glow on the items (`game/world/veil_highlight.gdshader` as `material_overlay`);
+    * a glow on the cashier once the basket is full.
+  * **Hard to tell which building is the store:** `focus_shot()` (view lock: slow turn and zoom, title, hand back)
+    runs on parking, and `_beacon()` puts a pulsing light at the entrance.
+* **Phase 3 flow** (`world.gd`, the `Phase 3` section; objectives `go_home` -> `mist_shop` -> `mist_market` ->
+  `mist_doors`; dialogue `p3_*`, all draft):
+  * outdoors with both errands done -> `VeilAtmosphere` (Pack 09) NORMAL -> VEIL_APPROACHING -> VEIL_ACTIVE;
+  * the Colossus glimpse (Pack 07, scaled 2.2x, walking east at (70..118, -86), collisions off) with a focus shot;
+  * 3 Medium mist tentacles beside the shop -> market line: a 1.8 m hazard knocks you back (no health system yet);
+  * the dead sedan;
+  * Eddie holds the shop door; Marcus is inside (`_spawn_npc`);
+  * after the talk, Eddie and Marcus are moved into the supermarket while the player is outdoors;
+  * the doors jam open, lights dim, "Pull the Doors Shut" -> end card "ACT I".
+  * Saves restore the Phase 3 state (`_p3_restore`).
+* **Export:** the Web and Windows presets now ship:
+  * Marcus;
+  * the cashier;
+  * Pack 07 Colossus and tentacles (Hound, Skitter and Shellcrawler stay excluded);
+  * the Pack 09 atmosphere.
+* **Downloads:**
+  * Windows: `docs/download/TheVeil_Windows.zip`, exported with the "Windows Desktop" preset;
+  * browser: `docs/play/`.
+* **Tests:** `opening_test.gd` runs through the end of Phase 3 (about 1 minute headless): RESULT PASS.
+  * The in-car save/reload check now runs before the errands.
+  * A final reload checks the Phase 3 state.
+* **Expected output:** headless runs print `Parameter "m" is null` from the dummy renderer when the world is freed.
+  It is harmless.

@@ -477,5 +477,80 @@
   "materials": 12,
   "height_m": 1.765,
   "width_m": 1.101
+ },
+ {
+  "name": "Cashier",
+  "source": "Commercial_NPCs/CHR_Eddie.glb (hand-made reference)",
+  "removed": [
+   "drawstrings"
+  ],
+  "textures": {
+   "T_Cashier_Top": [
+    64,
+    64,
+    3
+   ],
+   "T_Cashier_TopCuff": [
+    32,
+    32,
+    3
+   ],
+   "T_Cashier_Shirt": [
+    64,
+    64,
+    2
+   ],
+   "T_Cashier_Pants": [
+    64,
+    64,
+    3
+   ],
+   "T_Cashier_PantsHem": [
+    32,
+    32,
+    3
+   ],
+   "T_Cashier_Skin": [
+    32,
+    32,
+    2
+   ],
+   "T_Cashier_Sole": [
+    32,
+    32,
+    1
+   ],
+   "T_Cashier_Badge": [
+    32,
+    16,
+    2
+   ],
+   "T_Cashier_Hair": [
+    64,
+    64,
+    4
+   ],
+   "T_Cashier_Head": [
+    128,
+    64,
+    11
+   ],
+   "T_Cashier_Shoes": [
+    64,
+    64,
+    7
+   ]
+  },
+  "glb": "06_Characters/Commercial_NPCs/CHR_Cashier.glb",
+  "triangles": 2716,
+  "parts": {
+   "Cashier_Body": 1762,
+   "Cashier_Hair": 360,
+   "Cashier_Head": 346,
+   "Cashier_Shoes": 248
+  },
+  "materials": 11,
+  "height_m": 1.7,
+  "width_m": 1.086
  }
 ]

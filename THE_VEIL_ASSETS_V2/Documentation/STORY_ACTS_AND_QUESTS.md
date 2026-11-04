@@ -34,7 +34,6 @@ Goal "Friday errands". The errands can be done in **either order**: each step ch
 |---|---|---|---|---|
 | 7 | `buy_groceries` | `groceries_done` | Take `canned_food`, `energy_snack` and `water_bottle` off the aisle shelves, then use the lane-4 register. This turns them into the item `groceries`. | `market_enter`, `market_need_items`*, `market_checkout`*, `groceries_done` |
 | 8 | `buy_game` | `game_bought` | Take `horror_game` from the New Releases rack, then talk to Eddie | `shop_enter`, `game_pick`, `eddie_hello`*, `eddie_buy`*, `eddie_after`* |
-| 9 | `go_home` | `phase2_done` | Get back in the sedan with both errands done. The end card shows. | `errands_done` |
 
 `*` = a `"draft": true` line (placeholder speaker or text).
 
@@ -45,6 +44,20 @@ Interactive set pieces:
 * Eddie behind the counter, who talks with VeilFace.
 
 **Not yet implemented in Act 0:** other townspeople, traffic and Marcus.
+
+### Phase 3 - the Veil arrives
+
+Implemented as a **WORKING DRAFT** of the opening of Act I. Goal "The Veil".
+
+| # | Objective id | Completes on flag | Trigger | Dialogue ids |
+|---|---|---|---|---|
+| - | (start) | `p3_mist` | Both errands done and the player outdoors. Fog rolls in, the cashier is gone, the Colossus glimpse plays, then mist tentacles appear. | `p3_fog`, `p3_colossus`, `p3_hit` |
+| 9 | `go_home` | `phase2_done` | Try the sedan: it is dead. Eddie holds the shop door. | `p3_car_dead`, `p3_car_again`, `p3_eddie_calls` |
+| 10 | `mist_shop` | `p3_in_shop` | Enter the game shop. Marcus is there. | `p3_shop`, `p3_eddie_go`, `p3_marcus_talk`, `p3_eddie_hurry` |
+| 11 | `mist_market` | `p3_in_market` | Reach the supermarket sales floor. Eddie and Marcus are there; the doors are jammed open. | `p3_market` |
+| 12 | `mist_doors` | `p3_doors_shut` | "Pull the Doors Shut". End card "ACT I". | `p3_doors` |
+
+Every `p3_*` line is `draft`. Marcus says only "my son", because Noah's age is TBD.
 
 ## Act I - The town disappears (WORKING DRAFT, not implemented)
 

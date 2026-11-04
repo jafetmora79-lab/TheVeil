@@ -223,8 +223,8 @@
   "lines": [
    {
     "speaker": "Cashier",
-    "text": "Just these? ...Oh, you're still shopping. Take your time, hon.",
-    "time": 3.4
+    "text": "Still shopping? Soup, water and snacks are in aisles one, two and four, hon.",
+    "time": 3.8
    }
   ]
  },
@@ -311,6 +311,182 @@
     "speaker": "",
     "text": "That's everything. Home, food, game.",
     "time": 2.8
+   }
+  ]
+ },
+ "_comment_phase3": "p3_* entries: Phase 3 (Act I opening, WORKING DRAFT). All draft. Noah's age is TBD, so Marcus only says 'my son'.",
+ "p3_fog": {
+  "draft": true,
+  "lines": [
+   {
+    "speaker": "",
+    "text": "Huh. Where did all this fog come from?",
+    "time": 3.0
+   },
+   {
+    "speaker": "",
+    "text": "That's... not normal fog.",
+    "time": 2.6
+   }
+  ]
+ },
+ "p3_colossus": {
+  "draft": true,
+  "lines": [
+   {
+    "speaker": "",
+    "text": "What... what is THAT?",
+    "time": 3.0
+   }
+  ]
+ },
+ "p3_car_dead": {
+  "draft": true,
+  "lines": [
+   {
+    "speaker": "",
+    "text": "Come on, start. Start!",
+    "time": 2.4
+   },
+   {
+    "speaker": "",
+    "text": "Dead. Even the radio's just static.",
+    "time": 3.0
+   }
+  ]
+ },
+ "p3_car_again": {
+  "draft": true,
+  "lines": [
+   {
+    "speaker": "",
+    "text": "Still dead.",
+    "time": 1.8
+   }
+  ]
+ },
+ "p3_eddie_calls": {
+  "draft": true,
+  "lines": [
+   {
+    "speaker": "Eddie",
+    "text": "Hey! HEY! Over here - get inside, now!",
+    "time": 3.2
+   }
+  ]
+ },
+ "p3_eddie_hurry": {
+  "draft": true,
+  "lines": [
+   {
+    "speaker": "Eddie",
+    "text": "Don't just stand there!",
+    "time": 2.2
+   }
+  ]
+ },
+ "p3_shop": {
+  "draft": true,
+  "lines": [
+   {
+    "speaker": "Eddie",
+    "text": "Tell me you saw that. Please tell me you saw that.",
+    "time": 3.4
+   },
+   {
+    "speaker": "",
+    "text": "I saw it.",
+    "time": 1.8
+   },
+   {
+    "speaker": "Marcus",
+    "text": "My son is out there. Noah. Have you seen him?",
+    "time": 3.6
+   },
+   {
+    "speaker": "Eddie",
+    "text": "Nobody's seen anything, man. Ten minutes ago it was a normal Friday.",
+    "time": 3.8
+   },
+   {
+    "speaker": "Marcus",
+    "text": "I'm not leaving him out there.",
+    "time": 2.8
+   },
+   {
+    "speaker": "Eddie",
+    "text": "Then we regroup first. The supermarket - food, water, a back room.",
+    "time": 3.8
+   },
+   {
+    "speaker": "Marcus",
+    "text": "Fine. We go now, before it gets any thicker.",
+    "time": 3.2
+   }
+  ]
+ },
+ "p3_eddie_go": {
+  "draft": true,
+  "lines": [
+   {
+    "speaker": "Eddie",
+    "text": "Go! We'll cut through the back and meet you there. Stay away from those... things.",
+    "time": 4.2
+   }
+  ]
+ },
+ "p3_marcus_talk": {
+  "draft": true,
+  "lines": [
+   {
+    "speaker": "Marcus",
+    "text": "Noah knows this street. If he's smart, he's hiding somewhere.",
+    "time": 3.6
+   }
+  ]
+ },
+ "p3_hit": {
+  "draft": true,
+  "lines": [
+   {
+    "speaker": "",
+    "text": "Agh! Get away from me!",
+    "time": 2.0
+   }
+  ]
+ },
+ "p3_market": {
+  "draft": true,
+  "lines": [
+   {
+    "speaker": "",
+    "text": "Where is everyone? The cashier was right here.",
+    "time": 3.2
+   },
+   {
+    "speaker": "Eddie",
+    "text": "You made it. The power's out - the doors are stuck open!",
+    "time": 3.4
+   },
+   {
+    "speaker": "Marcus",
+    "text": "Shut them. Now!",
+    "time": 2.0
+   }
+  ]
+ },
+ "p3_doors": {
+  "draft": true,
+  "lines": [
+   {
+    "speaker": "",
+    "text": "Okay. Okay. We're inside.",
+    "time": 2.6
+   },
+   {
+    "speaker": "Eddie",
+    "text": "For now.",
+    "time": 1.8
    }
   ]
  }

@@ -1,4 +1,4 @@
-# THE VEIL - the playable opening (Phase 1) and town errands (Phase 2)
+# THE VEIL - the playable opening (Phase 1), town errands (Phase 2) and the Veil's arrival (Phase 3)
 
 Friday, 6:42 PM:
 
@@ -12,12 +12,28 @@ Friday, 6:42 PM:
      off the aisle shelves (HUD counts 0-3), then pay at the lane-4 register by the doors.
    * **Game shop (across Main St):** open the entrance door, take a horror game from the New Releases rack and pay
      Eddie at the counter. Eddie talks with the VeilFace mouth / expression system.
-7. Get back in the car with both errands done: end of the current build.
+   * When you park, the view turns and zooms onto the supermarket ("GREYHAVEN MARKET"), and a pulsing light marks its
+     entrance until you go in.
+   * Inside, the HUD shows a shopping list with aisle numbers, the three items glow softly, and a visible cashier at
+     lane 4 takes the money.
+7. **Phase 3 - the Veil arrives (WORKING DRAFT):** step outside with both errands done and the fog rolls in (Pack 09
+   atmosphere). Then:
+   * the cashier is gone;
+   * the view locks onto the Colossus walking far off behind the supermarket;
+   * mist tentacles rise in Main St; touching one knocks you back;
+   * the sedan won't start;
+   * Eddie calls you into the game shop, where Marcus is looking for his son;
+   * you cross back to the supermarket, where Eddie and Marcus meet you;
+   * pull the jammed doors shut: end of the current build.
+
+The player now steps up curbs and sills automatically (up to 0.35 m). The Pack 02 parking-lot curb in front of the
+supermarket used to block the entrance.
 
 There are no monsters and no mist: the town is still ordinary.
 
-**Placeholders (not canon):** the cashier is an unseen "Cashier" speaker (the bible names no cashier), the horror
-game has no title, and every Eddie / Cashier line is marked `"draft": true` in `game/data/dialogue.json`. Eddie's
+**Placeholders (not canon):** the cashier is a generic model (`CHR_Cashier`; the bible names no cashier), the horror
+game has no title, the whole Phase 3 sequence and its lines are working draft, the Colossus is scaled 2.2x for the
+far-off glimpse, and every Eddie / Cashier / Marcus line is marked `"draft": true` in `game/data/dialogue.json`. Eddie's
 arms are lowered from his reference pose by a runtime bone rotation, because there is no body animation set yet.
 
 * **Engine:** Godot 4.3, Compatibility renderer (OpenGL 3 / WebGL 2).
