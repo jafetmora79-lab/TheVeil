@@ -443,3 +443,56 @@ playthrough test to make sure everything still agrees.
   * `opening_test.gd` covers the prompt when aiming, real E-key open, light on/off, items in the cavity, 3
     close/open cycles, and return to the exact rest transform. RESULT PASS.
   * Pack 03 validation passes (Khronos 0/0, Godot).
+
+### 9.13 Gameplay / environment / cinematic pass
+
+* **Merchandise (Pack 04):**
+  * Generator: `com_merch.py`.
+    * Atlas `Merchandise/T_Com4_Merch.png` and `COM_Merch_Library.glb` (one mesh per variant, shared geometry per
+      family).
+    * `MERCH_LAYOUT.json` is computed from the final fixture positions in `build_commercial.py`.
+  * Empty fixtures: `COM_Gondola_Shelf`, `COM_GameRack_Empty_*`, `COM_GameWallShelf_Empty` / `_Movies`, and the
+    checkout candy racks.
+  * `COM_Cooler_Beverage` has hinged glass doors with their own collision. It is instanced under the store's `Props`
+    via fit option `{"dyn": True}`.
+  * Game side: `game/world/store_merch.gd`.
+  * Geometry check of all 5,403 products: 0 floating, 0 clipping, 0 overlaps. The checker itself was proven by
+    lifting and sinking every product.
+* **Trees vanishing on the drive:**
+  * Cause: every tree model was ONE whole-map MultiMesh at the world origin with a 260 m visibility range. Godot
+    judges the range per instance, so all trees of a model culled at once. Under an origin-based measure that
+    happens at 48 of 77 route points, from the house to (184, 184).
+  * Fix: `scatter.gd` builds 96 m cells, with each node at its cell centre and a 420 m range.
+  * `game/tests/tree_cull_check.gd` (data-based, works headless): 0 of 78,313 checks culled.
+* **Night:**
+  * `world.gd` `night_preset()` (`night` / `approach` / `active`) drives the Pack 09 controller; the pack's own
+    presets are unchanged.
+  * The old VEIL_ACTIVE preset's light-grey fog is what turned enemies flat grey. The active-mist preset now uses
+    dark depth fog plus a ground layer.
+  * The mist ceiling (`game/world/mist_ceiling.gdshader`, 4 noise layers at 9-20 m, following the camera) swallows
+    anything taller than the houses.
+* **Colossus encounter (`world.gd` `_colossus_encounter`):**
+  * The creature is scaled 6x. The Walk_Heavy clip is sampled for the front-left foot's contact frame, and the root
+    is placed so that foot lands on the target.
+  * If the other feet would not land out over the street, the walk direction is mirrored.
+  * Measured in the test:
+    * foot error 0.05 m;
+    * other feet at least 18 m out;
+    * body 54 m up (ceiling from 9 m);
+    * look-up 69 degrees.
+  * The protagonist cut uses `CHR_Protagonist` + VeilFace + NpcAnimator (`max_pitch` raised).
+* **Survival:**
+  * `player.gd`: health, stamina, `damage()` (camera kick, push, 0.35 s stagger).
+  * `hud.gd`: bars and damage flash.
+  * `game/enemies/tentacle_ai.gd`: reach, strike direction and contact time are measured from the Strike clip's tip
+    bone. Damage only at that frame, inside reach and inside a 40-degree cone. Wind-up 0.75 s.
+* **Conversation camera:** `world.gd` `talk_shot()`. It moves at most 0.35 m (never through walls), FOV 52, and
+  follows the current speaker (`Dialogue.line_started`).
+* **Arrival shot:** `Trigger_ArrivalShot` on Main St; `sedan.speed_cap` gives a gentle slowdown with no stop.
+* **Pixel font:** `game/tools/make_pixel_font.py` (fontTools) -> `game/ui/fonts/VeilPixel.ttf`. `VeilUI.style_text()`
+  sets the font, white colour, black outline and snapped sizes (26 / 39 / 52).
+* **Noah:** `CHR_Noah` (Civilians), a style-rev-4 DESIGN PROPOSAL (the bible leaves his age TBD; built as roughly
+  10-12, height 1.42 m) with a face atlas. It is not placed in the game.
+* **Hygiene gotcha:** after a Godot import in the repo, extracted `*_N.png` / `.translation` files appear. Stage your
+  new source files BEFORE any `git clean`. One clean deleted an unstaged generator and it had to be rewritten.
+* **Pack 04 / 06 builds rewrite `.import` files:** re-run `godot --headless --import` before tests, or preloads fail.

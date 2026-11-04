@@ -18,7 +18,25 @@ const HEIGHT := 1.76
 const HEIGHT_CROUCH := 1.2
 const RADIUS := 0.28
 const REACH := 2.1
-const STEP := 0.35          ## curbs, door sills, porch steps up to this height are climbed automatically
+const STEP := 0.35
+## survival (off during the ordinary opening; switched on when the first supernatural encounter begins)
+signal health_changed(value: float, max_value: float)
+signal stamina_changed(value: float, max_value: float)
+signal hurt(amount: float)
+signal died
+const MAX_HEALTH := 100.0
+const MAX_STAMINA := 100.0
+const STAMINA_DRAIN := 24.0          ## per second of sprinting
+const STAMINA_REGEN := 16.0          ## per second, after REGEN_DELAY without sprinting
+const REGEN_DELAY := 0.9
+const EXHAUSTED_UNTIL := 30.0        ## once empty, no sprinting until stamina is back to this
+var survival_active := false
+var health := MAX_HEALTH
+var stamina := MAX_STAMINA
+var _exhausted := false
+var _regen_t := 0.0
+var _stagger_t := 0.0
+var _kick := Vector2.ZERO            ## camera hit reaction (pitch, roll) in radians, decays fast          ## curbs, door sills, porch steps up to this height are climbed automatically
 
 var head: Node3D
 var camera: Camera3D
@@ -106,7 +124,13 @@ func _physics_process(delta: float) -> void:
 			capsule.height = HEIGHT_CROUCH if crouching else HEIGHT
 			shape.position.y = capsule.height / 2.0
 	var sprinting := controls_enabled and Input.is_action_pressed("sprint") and not crouching and input.y < 0.0
+	if survival_active and (_exhausted or stamina <= 0.5):
+		sprinting = false
 	var speed := CROUCH if crouching else (SPRINT if sprinting else WALK)
+	if _stagger_t > 0.0:                         # brief stagger after a hit
+		_stagger_t -= delta
+		speed *= 0.45
+	_update_stamina(sprinting and input.length() > 0.1, delta)
 	var dir := (transform.basis * Vector3(input.x, 0, input.y))
 	dir.y = 0
 	dir = dir.normalized() * minf(input.length(), 1.0)
@@ -135,6 +159,9 @@ func _physics_process(delta: float) -> void:
 	var amp := 0.028 if sprinting else 0.016
 	_step_smooth = move_toward(_step_smooth, 0.0, delta * 1.6)
 	head.position.y = _eye + sin(_bob_t * 2.0) * amp - _step_smooth
+	_kick = _kick.lerp(Vector2.ZERO, minf(delta * 7.0, 1.0))
+	head.rotation.x = _pitch + _kick.x
+	head.rotation.z = _kick.y
 	head.position.x = cos(_bob_t) * amp * 0.6
 	_update_focus()
 
@@ -167,6 +194,53 @@ func _step_up(hv: Vector3, delta: float) -> void:
 		return
 	global_position = t_fwd.origin + down.get_travel() + Vector3(0, 0.002, 0)
 	_step_smooth += rise                       # the camera eases up instead of popping
+
+
+func _update_stamina(sprinting: bool, delta: float) -> void:
+	if not survival_active:
+		return
+	var before := stamina
+	if sprinting:
+		stamina = maxf(stamina - STAMINA_DRAIN * delta, 0.0)
+		_regen_t = REGEN_DELAY
+		if stamina <= 0.0:
+			_exhausted = true
+	else:
+		_regen_t -= delta
+		if _regen_t <= 0.0:
+			stamina = minf(stamina + STAMINA_REGEN * delta, MAX_STAMINA)
+		if _exhausted and stamina >= EXHAUSTED_UNTIL:
+			_exhausted = false
+	if stamina != before:
+		stamina_changed.emit(stamina, MAX_STAMINA)
+
+
+func set_survival(on: bool) -> void:
+	survival_active = on
+	health_changed.emit(health, MAX_HEALTH)
+	stamina_changed.emit(stamina, MAX_STAMINA)
+
+
+## Damage with a short, readable reaction: camera kick, a small push away from the source, a brief stagger.
+## Control is never taken away.
+func damage(amount: float, from_pos: Vector3) -> void:
+	if not survival_active or health <= 0.0:
+		return
+	health = maxf(health - amount, 0.0)
+	health_changed.emit(health, MAX_HEALTH)
+	var away := (global_position - from_pos) * Vector3(1, 0, 1)
+	if away.length() > 0.01:
+		velocity += away.normalized() * 5.0
+	_stagger_t = 0.35
+	_kick = Vector2(randf_range(0.08, 0.14), randf_range(-0.12, 0.12))
+	hurt.emit(amount)
+	if health <= 0.0:
+		died.emit()
+
+
+func heal(amount: float) -> void:
+	health = minf(health + amount, MAX_HEALTH)
+	health_changed.emit(health, MAX_HEALTH)
 
 
 func _can_stand() -> bool:

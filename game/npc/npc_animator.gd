@@ -16,6 +16,7 @@ signal arrived
 
 @export var look_range := 6.0
 @export var turn_to_face := true
+@export var max_pitch := 0.45                ## look-at pitch limit (radians); cinematics raise it
 var mood := "calm"
 var look_target: Node3D            ## defaults to the active camera
 var walk_speed := 1.25
@@ -233,12 +234,12 @@ func _update_look(delta: float) -> void:
 	if tp != null and bone("Head") >= 0:
 		var head_w := skel.global_transform * _gp("Head").origin
 		var to: Vector3 = tp - head_w
-		if to.length() < look_range:
+		if to.length() < look_range or look_target != null:
 			var local := skel.global_transform.basis.inverse() * to
 			var yaw := atan2(-local.dot(R), local.dot(F))
 			var pitch := atan2(local.dot(U), Vector2(local.dot(F), local.dot(R)).length())
 			if absf(yaw) < deg_to_rad(110.0):
-				want = Vector2(clampf(yaw, -1.2, 1.2), clampf(pitch, -0.5, 0.45))
+				want = Vector2(clampf(yaw, -1.2, 1.2), clampf(pitch, -0.5, max_pitch))
 	if want == Vector2.ZERO:
 		_glance_timer -= delta
 		if _glance_timer <= 0.0:

@@ -22,6 +22,8 @@ func _ready() -> void:
 	_streams["colossus_call"] = _make(4.0, func(t, i): return (sin(TAU * (58.0 - 14.0 * t) * t) * 0.55 + sin(TAU * (87.0 - 20.0 * t) * t) * 0.3 + _noise(i) * 0.08 * sin(t * 30.0)) * minf(t * 2.0, 1.0) * exp(-maxf(t - 2.8, 0.0) * 3.0))
 	_streams["static"] = _make(1.6, func(t, i): return _noise(i) * 0.35 * (0.6 + 0.4 * sin(t * 60.0)) * exp(-maxf(t - 1.2, 0.0) * 8.0))
 	_streams["tentacle_hiss"] = _make(0.7, func(t, i): return (_noise(i) * 0.5 + sin(TAU * 180.0 * t * (1.0 + t)) * 0.25) * exp(-t * 4.5))
+	_streams["colossus_step"] = _make(2.6, func(t, i): return (sin(TAU * 26.0 * t) * 0.9 + sin(TAU * 41.0 * t) * 0.5 + _noise(i) * 0.5 * exp(-t * 9.0)) * exp(-t * 1.6) * minf(t * 60.0, 1.0))
+	_streams["hurt"] = _make(0.35, func(t, i): return (_noise(i) * 0.4 + sin(TAU * (140.0 - 120.0 * t) * t) * 0.5) * exp(-t * 9.0))
 
 
 func _hum(t: float, i: int) -> float:

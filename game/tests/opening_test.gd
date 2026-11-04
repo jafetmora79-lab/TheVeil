@@ -557,6 +557,9 @@ func _run() -> void:
 	ok("game_bought", game.has_flag("game_bought"))
 	ok("eddie_talks", world.eddie_face._talk_left > 0.0)
 	ok("objective_still_groceries", game.current_step().get("id", "") == "buy_groceries")
+	ok("talk_camera_frames_eddie", root.get_viewport().get_camera_3d().name == "TalkCam" and not player.controls_enabled)
+	await frames(60 * 7)
+	ok("talk_camera_restores", player.camera.current and player.controls_enabled and world._talk_cam == null)
 	# supermarket: auto doors
 	var leaf := mk.get_node("Building").find_child("INT_AutoDoor_Entrance_L", true, false) as Node3D
 	var leaf0 := leaf.position
@@ -631,55 +634,108 @@ func _run() -> void:
 	pay.interact(player)
 	await frames(10)
 	ok("checkout", game.has_flag("groceries_done") and game.has_item("groceries") and not game.has_item("canned_food"))
-	ok("objective_go_home", game.current_step().get("id", "") == "go_home")
-	# ---- Phase 3: the Veil arrives (still inside the supermarket after paying: nothing yet)
+	ok("objective_after_errands", game.current_step().get("id", "") == "p3_look", game.current_step().get("id", ""))
+	# ---- Phase 3: the Veil arrives while the player is still inside the supermarket (last errand done)
 	await frames(20)
-	ok("p3_waits_indoors", not game.has_flag("p3_mist"))
-	player.global_position = m_out + (m_out - m_in).normalized() * 4.0
-	await frames(20)
-	ok("p3_mist_starts_outdoors", game.has_flag("p3_mist") and world.atmos != null)
+	ok("p3_mist_starts_inside", game.has_flag("p3_mist") and game.has_flag("phase2_done") and world.atmos != null and not world._outdoors())
 	ok("p3_cashier_gone", not world.cashier.visible)
-	await frames(60 * 7)
-	ok("p3_colossus_glimpse", world.get_node_or_null("Colossus_Glimpse") != null and world._cine != null)
-	await frames(60 * 9)
-	ok("p3_tentacles", world._tentacles.size() == 3)
-	ok("p3_view_returned", world._cine == null and player.camera.current and player.controls_enabled)
-	var t0: Node3D = world._tentacles[0]
-	player.global_position = t0.global_position + Vector3(1.0, 0.1, 0.0)
-	await frames(30)
-	var kd: float = Vector2(player.global_position.x - t0.global_position.x, player.global_position.z - t0.global_position.z).length()
-	ok("p3_tentacle_knockback", kd > 1.6, "%.2f m" % kd)
-	player.global_position = sedan.global_transform * Vector3(-1.6, 0.1, -0.3)
+	ok("p3_objective_look", game.current_step().get("id", "") == "p3_look", game.current_step().get("id", ""))
+	ok("survival_hidden_before", not world.hud.surv.visible and not player.survival_active)
+	await frames(60 * 6)
+	player.global_position = m_out + (m_out - m_in).normalized() * 2.0
 	await frames(10)
-	world.enter_car()
-	await frames(30)
-	ok("p3_car_dead", not world.in_car and game.has_flag("phase2_done") and game.current_step().get("id", "") == "mist_shop", game.current_step().get("id", ""))
-	ok("p3_marcus_in_shop", world.marcus != null and world.marcus.get_parent() == gs and world.faces["Marcus"]._mat != null)
+	var cam_now: Camera3D = root.get_viewport().get_camera_3d()
+	ok("encounter_starts_outside", world._encounter_running and not player.controls_enabled and cam_now.name == "EncounterCam")
+	await frames(60 * 16)
+	var r: Dictionary = world.enc_report
+	ok("colossus_foot_lands_in_front", r.get("foot_error_m", 99.0) < 0.6 and r.get("leg_distance_m", 0.0) > 6.0 and r.get("leg_distance_m", 0.0) < 11.0,
+		"foot error %.2f m, %.1f m in front (foot bone %.1f m up; the claw reaches the ground)" % [r.get("foot_error_m", -1.0), r.get("leg_distance_m", -1.0), r.get("foot_height_m", -1.0)])
+	ok("colossus_other_feet_clear", r.get("other_feet_min_out_m", 0.0) > r.get("leg_distance_m", 99.0), "%.1f m out" % r.get("other_feet_min_out_m", -1.0))
+	ok("colossus_body_hidden_in_mist", r.get("body_height_m", 0.0) > r.get("ceiling_m", 99.0) + 3.0,
+		"body at %.1f m, mist ceiling from %.1f m" % [r.get("body_height_m", -1.0), r.get("ceiling_m", -1.0)])
+	ok("encounter_face_shot", r.get("face_cam_distance_m", 0.0) > 0.6 and r.get("face_cam_distance_m", 9.0) < 1.6)
+	ok("encounter_looks_up", r.get("max_look_up_deg", 0.0) > 55.0, "%.0f deg" % r.get("max_look_up_deg", -1.0))
+	ok("encounter_control_restored", not world._encounter_running and player.controls_enabled and player.camera.current)
+	ok("p3_objective_back", game.current_step().get("id", "") == "p3_back", game.current_step().get("text", ""))
+	ok("survival_on", player.survival_active and world.hud.surv.visible)
+	ok("p3_tentacles", world._tentacles.size() == 3 and world._tentacles[0].has_node("AI"))
+	# stamina: sprinting drains, resting recovers
+	player.global_position = m_out + (m_out - m_in).normalized() * 3.0
+	player.set_yaw_pitch(atan2(-(m_in - m_out).x, -(m_in - m_out).z) + PI, 0.0)
+	Input.action_press("move_forward")
+	Input.action_press("sprint")
+	await frames(90)
+	var st_run: float = player.stamina
+	Input.action_release("sprint")
+	Input.action_release("move_forward")
+	await frames(150)
+	ok("stamina_drains_and_recovers", st_run < 75.0 and player.stamina > st_run + 10.0, "%.0f -> %.0f" % [st_run, player.stamina])
+	# tentacle: wind-up, then damage exactly at the strike's contact frame, not before
+	var t0: Node3D = world._tentacles[0]
+	var ai = t0.get_node("AI")
+	var tdir: Vector3 = (player.global_position - t0.global_position) * Vector3(1, 0, 1)
+	player.global_position = t0.global_position + tdir.normalized() * minf(ai.reach * 0.7, 3.0) + Vector3(0, 0.1, 0)
+	var h0: float = player.health
+	var saw_windup := false
+	var strike_t := -1.0
+	var hit_after := -1.0
+	var tt := 0.0
+	for i in 60 * 6:
+		await physics_frame
+		tt += 1.0 / 60.0
+		if ai.state == "windup":
+			saw_windup = true
+		if ai.state == "strike" and strike_t < 0.0:
+			strike_t = tt
+		if player.health < h0 and hit_after < 0.0:
+			hit_after = tt - strike_t
+			break
+	ok("tentacle_windup_then_strike", saw_windup and strike_t > 0.0)
+	ok("tentacle_damage_at_contact", player.health < h0 and absf(hit_after - ai.contact_time) < 0.1,
+		"hit %.2f s into the strike, contact frame %.2f s, reach %.1f m, health %.0f" % [hit_after, ai.contact_time, ai.reach, player.health])
+	# dodge: step out of reach during the next wind-up -> no damage
+	await frames(90)
+	for i in 60 * 4:
+		await physics_frame
+		if ai.state == "windup":
+			break
+	var h1: float = player.health
+	player.global_position = t0.global_position + tdir.normalized() * (ai.reach + 3.0) + Vector3(0, 0.1, 0)
+	await frames(90)
+	ok("tentacle_dodge_no_damage", player.health == h1, "%.0f -> %.0f" % [h1, player.health])
+	# back inside the supermarket -> Eddie calls everyone to the game shop
+	player.global_position = mk.global_transform * Vector3(0, 0.2, 5.5)
+	await frames(20)
+	ok("p3_back_inside", game.has_flag("p3_back_inside") and game.current_step().get("id", "") == "mist_shop", game.current_step().get("id", ""))
+	ok("p3_marcus_in_shop", world.marcus != null and world.marcus.get_parent() == gs and world.faces.has("Marcus") and world.faces["Marcus"]._mat != null,
+		"marcus=%s parent=%s faces=%s" % [world.marcus, world.marcus.get_parent().name if world.marcus else "-", world.faces.keys()])
 	ok("p3_shop_door_held", sd.is_open)
 	ok("p3_npcs_scared", world.animators["Eddie"].mood == "scared" and world.animators["Marcus"].mood == "scared")
-	var leg_min := 999.0
-	var leg_max := -999.0
-	for i in 24:
-		await frames(15)
-		var es: Skeleton3D = world.animators["Eddie"].skel
-		var ld: Vector3 = (es.get_bone_global_pose(es.find_bone("LeftLowerLeg")).origin - es.get_bone_global_pose(es.find_bone("LeftUpperLeg")).origin).normalized()
-		var a: float = rad_to_deg(ld.signed_angle_to(-world.animators["Eddie"].U, world.animators["Eddie"].R))
-		leg_min = minf(leg_min, a)
-		leg_max = maxf(leg_max, a)
-	var e_end: Vector3 = world.eddie.position
-	ok("p3_eddie_walks_to_door", e_end.distance_to(Vector3(-2.2, 0.04, 1.3)) < 0.3, str(e_end))
-	ok("p3_walk_cycle_legs", leg_max - leg_min > 20.0, "thigh swing %.0f deg" % (leg_max - leg_min))
+	ok("p3_eddie_walks_to_door", world.eddie.position.distance_to(Vector3(-2.2, 0.04, 1.3)) < 0.3, str(world.eddie.position))
 	player.global_position = s_in + gs.global_transform.basis.z * 1.5
 	await frames(20)
 	ok("p3_in_shop", game.has_flag("p3_in_shop"))
-	await frames(60 * 27)
-	ok("p3_shop_talk_done", world._p3_shop_talked)
+	await frames(60 * 23)                        # Eddie heads for the back at ~22.7 s: sample his stride
+	var leg_min := 999.0
+	var leg_max := -999.0
+	for i in 12:
+		await frames(10)
+		var ea2 = world.animators["Eddie"]
+		var es: Skeleton3D = ea2.skel
+		var ld: Vector3 = (es.get_bone_global_pose(es.find_bone("LeftLowerLeg")).origin - es.get_bone_global_pose(es.find_bone("LeftUpperLeg")).origin).normalized()
+		var la: float = rad_to_deg(ld.signed_angle_to(-ea2.U, ea2.R))
+		leg_min = minf(leg_min, la)
+		leg_max = maxf(leg_max, la)
+	ok("npc_walk_cycle_legs", leg_max - leg_min > 20.0, "thigh swing %.0f deg" % (leg_max - leg_min))
 	player.global_position = s_out + (s_out - s_in).normalized() * 3.0
+	await frames(60 * 4)
+	ok("p3_shop_talk_done", world._p3_shop_talked and player.controls_enabled and player.camera.current)
 	await frames(10)
 	ok("p3_npcs_to_market", world.eddie.get_parent() == mk and world.marcus.get_parent() == mk)
 	player.global_position = mk.global_transform * Vector3(0, 0.2, 5.5)
 	await frames(60)
 	ok("p3_in_market", game.has_flag("p3_in_market") and leaf.position.distance_to(leaf0) > 1.0 and game.current_step().get("id", "") == "mist_doors")
+	await frames(60 * 10)                        # the arrival conversation (talk camera) ends first
 	var shut = world.interactables["market/doors_shut"]
 	ok("p3_doors_reach", await aim_at(player, shut, mk.global_transform.basis.z, 1.6))
 	shut.interact(player)

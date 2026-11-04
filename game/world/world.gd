@@ -383,7 +383,80 @@ func _setup_town() -> void:
 const TALK_STYLE := {"Eddie": ["happy", "happy"], "Cashier": ["happy", "idle"], "Marcus": ["scared", "angry"]}
 
 
+var _talk_speaker := ""
+var _talk_cam: Camera3D
+var _talk_id := 0
+
+
+func _dlg_time(ids: Array) -> float:
+	var t := 0.0
+	for id in ids:
+		for l in Dialogue.data.get(id, {}).get("lines", []):
+			t += float(l.get("time", 3.0))
+	return t
+
+
+## Important conversations: subtle cinematic framing of whoever is speaking (VeilFace + gestures play), the
+## player is held for the conversation and gets everything back afterwards. The camera moves at most 0.35 m
+## toward the speaker (never if a wall is in the way) and narrows the FOV a little: no push into faces.
+func talk_shot(seconds: float) -> void:
+	if in_car or _encounter_running or not player.visible:
+		return
+	_end_talk()
+	_end_cine()
+	_talk_id += 1
+	var id := _talk_id
+	var base := player.camera.global_transform
+	var fov0 := player.camera.fov
+	var cam := Camera3D.new()
+	cam.name = "TalkCam"
+	add_child(cam)
+	cam.global_transform = base
+	cam.fov = fov0
+	cam.current = true
+	_talk_cam = cam
+	player.controls_enabled = false
+	var t := 0.0
+	while t < seconds + 0.5 and id == _talk_id and is_instance_valid(cam):
+		var dt := get_process_delta_time()
+		var want := base
+		var fov := fov0
+		var head = _speaker_head(_talk_speaker)
+		if head != null and t < seconds:
+			var to: Vector3 = head - base.origin
+			var pos := base.origin + to.normalized() * clampf(to.length() - 1.25, 0.0, 0.35)
+			var q := PhysicsRayQueryParameters3D.create(base.origin, pos + to.normalized() * 0.2, 1, [player.get_rid()])
+			if not get_world_3d().direct_space_state.intersect_ray(q).is_empty():
+				pos = base.origin
+			want = Transform3D(Basis(), pos).looking_at(head, Vector3.UP)
+			fov = 52.0
+		cam.global_transform = cam.global_transform.interpolate_with(want, minf(dt * 3.0, 1.0))
+		cam.fov = lerpf(cam.fov, fov, minf(dt * 3.0, 1.0))
+		await get_tree().process_frame
+		t += dt
+	if id == _talk_id:
+		_end_talk()
+
+
+func _speaker_head(speaker: String):
+	var a = animators.get(speaker)
+	if a == null or not is_instance_valid(a) or a.skel == null or not a.root.is_visible_in_tree():
+		return null
+	return a.skel.global_transform * a.skel.get_bone_global_pose(a.bone("Head")).origin + Vector3(0, 0.08, 0)
+
+
+func _end_talk() -> void:
+	_talk_id += 1
+	if _talk_cam and is_instance_valid(_talk_cam):
+		_talk_cam.queue_free()
+		_talk_cam = null
+		player.camera.current = true
+		player.controls_enabled = true
+
+
 func _on_line(speaker: String, _t: String, dur: float) -> void:
+	if animators.has(speaker):
+		_talk_speaker = speaker
 	var f = faces.get(speaker)
 	if f == null or not is_instance_valid(f):
 		return
@@ -678,6 +751,7 @@ func _talk_eddie(_by: Node) -> void:
 		Dialogue.say("eddie_after", false, true)
 	elif Game.has_item("horror_game"):
 		Dialogue.say("eddie_buy", false, true)
+		talk_shot(_dlg_time(["eddie_buy"]))
 		Game.set_flag("game_bought")
 	else:
 		Dialogue.say("eddie_hello", false, true)
@@ -686,21 +760,32 @@ func _talk_eddie(_by: Node) -> void:
 
 # ------------------------------------------------------------------ Phase 3: the Veil arrives (WORKING DRAFT)
 ## Beat order (all lines are "draft" in dialogue.json):
-##   both errands done + player outdoors -> fog rolls in (Pack 09 VEIL_APPROACHING), the cashier is gone
-##   -> the Colossus is glimpsed far off behind the supermarket (view lock) -> VEIL_ACTIVE, mist tentacles in the street
-##   -> the sedan is dead -> Eddie calls from the game shop -> Marcus is inside, looking for his son
-##   -> cross Main St to the supermarket (Eddie + Marcus take the back way) -> shut the jammed doors -> end of the build.
+##   last errand done INSIDE a store -> the Veil rolls in, lights stutter, the cashier is gone
+##   ("Something's wrong outside") -> the player steps out -> COLOSSUS ENCOUNTER: a gigantic leg slams down right
+##   in front of them, cut to the protagonist's frightened face, the camera follows his gaze up the leg into the
+##   mist ceiling (the body is never shown), the legs move on -> control back: GET BACK INSIDE THE STORE, health /
+##   stamina appear, mist tentacles hunt in the street -> back inside -> Eddie + Marcus in the game shop ->
+##   cross to the supermarket -> shut the jammed doors -> end of the build.
 var atmos: Node
 var _tentacles: Array = []
-var _hit_cd := 0.0
 var _doors_powered := true
 var _p3_shop_talked := false
 var _p3_npcs_moved := false
+var _encounter_running := false
+var _enc_store: Node3D                       ## the store the player stepped out of
+var enc_report := {}                         ## measured encounter facts (tests): foot error, body height, ...
+var mist_ceiling: Node3D
 var shut_it: Interactable
 
 const MARCUS_SHOP_POS := Vector3(-3.6, 0.04, 4.4)        # game-shop local: between the wall shelf and the New Releases rack
 const MARKET_EDDIE_POS := Vector3(-1.6, 0.04, 6.2)       # supermarket local, front of the sales floor, facing the doors
 const MARKET_MARCUS_POS := Vector3(1.4, 0.04, 6.6)
+const PROTAG_PATH := "res://THE_VEIL_ASSETS_V2/06_Characters/Protagonist/CHR_Protagonist.glb"
+const PROTAG_FACE_PATH := "res://THE_VEIL_ASSETS_V2/06_Characters/Facial/Faces/T_Face_Protagonist.png"
+const TENTACLE_AI := preload("res://game/enemies/tentacle_ai.gd")
+const CEILING_SHADER := preload("res://game/world/mist_ceiling.gdshader")
+const COLOSSUS_SCALE := 6.0                  ## presentation scale for the encounter (~60 m tall)
+const CEILING_LAYERS := [9.0, 12.0, 15.5, 19.5]
 
 
 func _setup_phase3() -> void:
@@ -716,6 +801,12 @@ func _setup_phase3() -> void:
 	interactables["market/doors_shut"] = shut_it
 	_area("Trigger_ShopInside_P3", game_shop.global_transform * Vector3(0, 1.2, 4.2), Vector3(10, 2.4, 7.0), 2,
 		func(b): if b == player: _p3_reach_shop(), game_shop.global_transform.basis)
+	player.health_changed.connect(hud.set_health)
+	player.stamina_changed.connect(hud.set_stamina)
+	player.hurt.connect(func(a):
+		hud.damage_flash(clampf(a / 25.0, 0.4, 1.0))
+		Sfx.play("hurt", player.global_position + Vector3(0, 1.5, 0), -2.0))
+	player.died.connect(_on_player_died)
 
 
 func _outdoors() -> bool:
@@ -728,13 +819,22 @@ func _outdoors() -> bool:
 	return true
 
 
-func _p3_tick(delta: float) -> void:
-	_hit_cd = maxf(_hit_cd - delta, 0.0)
-	if not player.visible or in_car:
+func _p3_tick(_delta: float) -> void:
+	if mist_ceiling:
+		var cam := get_viewport().get_camera_3d()
+		if cam:
+			mist_ceiling.global_position = Vector3(cam.global_position.x, 0.0, cam.global_position.z)
+	if not player.visible or in_car or _encounter_running:
 		return
 	if not Game.has_flag("p3_mist"):
-		if Game.has_flag("groceries_done") and Game.has_flag("game_bought") and _outdoors():
+		if Game.has_flag("groceries_done") and Game.has_flag("game_bought"):
 			_p3_start_mist()
+	elif not Game.has_flag("p3_stepped_out"):
+		if _outdoors():
+			_colossus_encounter()
+	elif not Game.has_flag("p3_back_inside"):
+		if not _outdoors():
+			_p3_back_inside()
 	elif _p3_shop_talked and not _p3_npcs_moved and _outdoors():
 		_p3_move_npcs_to_market()
 
@@ -747,9 +847,11 @@ func _atmo() -> Node:
 	return atmos.get_node("Atmosphere")
 
 
+## The last errand is done: the Veil arrives while the player is still inside.
 func _p3_start_mist() -> void:
 	if Game.has_flag("p3_mist"):
 		return
+	Game.set_flag("phase2_done")
 	Game.set_flag("p3_mist")
 	hud.set_hint("")
 	_clear_beacon("market")
@@ -758,41 +860,288 @@ func _p3_start_mist() -> void:
 		interactables["market/cashier"].set_deferred("monitorable", false)
 	for k in animators:
 		animators[k].set_mood("scared")
-	var a := _atmo()
-	a.apply_preset(night_preset("approach"))    # the Veil rolls into the night (tweens over the transition time)
+	_atmo().apply_preset(night_preset("approach"))
+	_build_mist_ceiling()
 	Sfx.play("veil_rumble", player.global_position + Vector3(0, 2, 0), -2.0)
+	_stutter_lights(market if market.to_local(player.global_position).z > -0.4 else game_shop)
 	Dialogue.say("p3_fog", false, true)
-	await get_tree().create_timer(6.0).timeout
-	_p3_colossus()
-	await get_tree().create_timer(8.0).timeout
+	var sd: Interactable = interactables.get("shop/entrance")
+	if sd and not sd.is_open:
+		sd.set_open(true)
+	if eddie and eddie.get_parent() == game_shop and animators.has("Eddie"):
+		animators["Eddie"].walk_to([Vector3(0.9, 0.04, 7.5), Vector3(0.0, 0.04, 5.0), Vector3(-0.4, 0.04, 1.7), Vector3(-2.2, 0.04, 1.3)], 1.7)
+	await get_tree().create_timer(5.0).timeout
 	_atmo().apply_preset(night_preset("active"))
-	_p3_spawn_tentacles()
 
 
-func _p3_colossus() -> void:
+func _stutter_lights(store: Node3D) -> void:
+	var ls: Array = store.get_node("Lights").get_children().filter(func(l): return l is Light3D)
+	for i in 6:
+		for l in ls:
+			(l as Light3D).visible = (i % 2 == 1) or randf() < 0.3
+		await get_tree().create_timer(randf_range(0.08, 0.22)).timeout
+	for l in ls:
+		(l as Light3D).visible = true
+
+
+## A ceiling of slowly churning mist layers above the town (follows the camera). Seen from below it swallows
+## anything taller than the houses: the Colossus's legs vanish upward into it.
+func _build_mist_ceiling() -> void:
+	if mist_ceiling:
+		return
+	mist_ceiling = Node3D.new()
+	mist_ceiling.name = "MistCeiling"
+	add_child(mist_ceiling)
+	for i in CEILING_LAYERS.size():
+		var mi := MeshInstance3D.new()
+		var pm := PlaneMesh.new()
+		pm.size = Vector2(320, 320)
+		pm.subdivide_width = 0
+		mi.mesh = pm
+		var mat := ShaderMaterial.new()
+		mat.shader = CEILING_SHADER
+		mat.set_shader_parameter("density", 0.0)
+		mat.set_shader_parameter("seed", float(i) * 7.31)
+		mat.set_shader_parameter("tint", Color(0.24, 0.26, 0.27).lerp(Color(0.12, 0.13, 0.14), float(i) / 3.0))
+		mi.material_override = mat
+		mi.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+		mi.position.y = CEILING_LAYERS[i]
+		mist_ceiling.add_child(mi)
+		create_tween().tween_method(func(v): mat.set_shader_parameter("density", v), 0.0, 0.62 + 0.1 * i, 6.0)
+
+
+# ------------------------------------------------------------------ the Colossus encounter
+func _colossus_encounter() -> void:
+	_encounter_running = true
+	Game.set_flag("p3_stepped_out")
+	_end_cine()
+	_enc_store = market if player.global_position.distance_to(market.global_position) < player.global_position.distance_to(game_shop.global_position) else game_shop
+	var door_in: Vector3 = (_enc_store.get_node("Doorways/Entrance_Inside") as Node3D).global_position
+	var door_out: Vector3 = (_enc_store.get_node("Doorways/Entrance_Outside") as Node3D).global_position
+	var n := (door_out - door_in) * Vector3(1, 0, 1)
+	n = n.normalized()
+	var side := n.cross(Vector3.UP).normalized()
+	var P := player.global_position
+	var ground := P.y
+	var L := P + n * 8.5 + side * 1.6
+	L.y = ground
+	# --- Stage 1: something enormous moving (sound first), controls held
+	player.controls_enabled = false
+	player.velocity = Vector3.ZERO
+	hud.allow_pause = false
+	hud.set_hint("")
+	Sfx.play("colossus_call", P + n * 30.0 + Vector3(0, 20, 0), 2.0, 0.8)
+	var cam := Camera3D.new()
+	cam.name = "EncounterCam"
+	add_child(cam)
+	cam.global_transform = player.camera.global_transform
+	cam.fov = player.camera.fov
+	cam.far = 700.0
+	cam.current = true
+	# --- the creature: placed so its front-left foot lands exactly on L
 	var c := (load(COLOSSUS_PATH) as PackedScene).instantiate() as Node3D
-	c.name = "Colossus_Glimpse"
+	c.name = "Colossus_Encounter"
 	add_child(c)
 	if c is CollisionObject3D:
 		(c as CollisionObject3D).collision_layer = 0
 		(c as CollisionObject3D).collision_mask = 0
 	c.set_physics_process(false)
-	var model := c.get_node_or_null("Model") as Node3D
-	if model:
-		model.scale = Vector3.ONE * 2.2           # presentation scale for the far-off glimpse (~22 m)
-	c.global_position = Vector3(70, 0.15, -86)  # east of / behind the supermarket, clear of its roofline from Main St
-	c.rotation.y = PI * 0.5                     # the model faces +Z: walk towards +X
-	var ap := c.get_node_or_null(String(c.get_meta("animation_player", "Model/AnimationPlayer"))) as AnimationPlayer
-	if ap and ap.has_animation("Walk_Heavy"):
-		ap.play("Walk_Heavy")
-		ap.speed_scale = 0.6
-	var tw := c.create_tween()
-	tw.tween_property(c, "global_position", Vector3(118, 0.15, -86), 34.0)
-	tw.tween_callback(c.queue_free)
-	Sfx.play("colossus_call", player.global_position + Vector3(0, 3, 0), -3.0)
+	var model := c.get_node("Model") as Node3D
+	model.scale = Vector3.ONE * COLOSSUS_SCALE
+	var walk_dir := side
+	c.rotation.y = atan2(walk_dir.x, walk_dir.z)                 # the model faces +Z
+	c.global_position = L
+	var ap := c.get_node(String(c.get_meta("animation_player", "Model/AnimationPlayer"))) as AnimationPlayer
+	var sk := c.find_children("*", "Skeleton3D", true, false)[0] as Skeleton3D
+	var foot := sk.find_bone("Leg_FL_Foot")
+	var body_b := sk.find_bone("Body")
+	var anim := ap.get_animation("Walk_Heavy")
+	anim.loop_mode = Animation.LOOP_LINEAR
+	ap.play("Walk_Heavy", 0.0)
+	var t_c := 0.0
+	var low := INF
+	var t := 0.0
+	while t < anim.length:                                        # contact frame = lowest point of that foot
+		ap.seek(t, true)
+		var fy := (sk.global_transform * sk.get_bone_global_pose(foot).origin).y
+		if fy < low:
+			low = fy
+			t_c = t
+		t += 1.0 / 30.0
+	ap.seek(t_c, true)
+	var off := (sk.global_transform * sk.get_bone_global_pose(foot).origin) - c.global_position
+	c.global_position = Vector3(L.x - off.x, ground, L.z - off.z)
+	# only the near leg may come down by the store: the other three feet must land farther out over the street;
+	# if this rig's "left" is the other side, walk the other way (mirror) and place again
+	var others := ["Leg_FR_Foot", "Leg_HL_Foot", "Leg_HR_Foot"].map(func(b): return sk.find_bone(b))
+	var near_out := INF
+	for b in others:
+		near_out = minf(near_out, ((sk.global_transform * sk.get_bone_global_pose(b).origin) - P).dot(n))
+	if near_out < (L - P).dot(n) + 2.0:
+		walk_dir = -walk_dir
+		c.rotation.y = atan2(walk_dir.x, walk_dir.z)
+		c.global_position = L
+		ap.seek(t_c, true)
+		off = (sk.global_transform * sk.get_bone_global_pose(foot).origin) - c.global_position
+		c.global_position = Vector3(L.x - off.x, ground, L.z - off.z)
+		near_out = INF
+		for b in others:
+			near_out = minf(near_out, ((sk.global_transform * sk.get_bone_global_pose(b).origin) - P).dot(n))
+	enc_report["other_feet_min_out_m"] = near_out
+	ap.seek(fposmod(t_c - 0.9, anim.length), true)
+	ap.speed_scale = 0.5                                          # 1.8 s to contact: heavy, slow
+	# the player instinctively looks at the sound / the darkness ahead
+	var tw0 := create_tween()
+	var b0 := cam.global_basis.get_rotation_quaternion()
+	var b1 := Transform3D(Basis(), cam.global_position).looking_at(L + Vector3(0, 4.0, 0) + side * -1.0, Vector3.UP).basis.get_rotation_quaternion()
+	tw0.tween_method(func(k): cam.global_basis = Basis(b0.slerp(b1, k * k * (3.0 - 2.0 * k))), 0.0, 1.0, 1.5)
+	await get_tree().create_timer(1.8).timeout
+	# --- Stage 2: the footstep (impact)
+	var f_now := sk.global_transform * sk.get_bone_global_pose(foot).origin
+	enc_report["foot_error_m"] = Vector2(f_now.x - L.x, f_now.z - L.z).length()
+	enc_report["foot_height_m"] = f_now.y - ground
+	enc_report["body_height_m"] = (sk.global_transform * sk.get_bone_global_pose(body_b).origin).y - ground
+	enc_report["ceiling_m"] = CEILING_LAYERS[0]
+	enc_report["leg_distance_m"] = Vector2(L.x - P.x, L.z - P.z).length()
+	ap.speed_scale = 0.06                                         # the foot stays planted
+	Sfx.play("colossus_step", L + Vector3(0, 1, 0), 6.0, 0.7)
+	_impact_dust(L)
+	_shake(cam, 0.35, 0.06)
+	for l in get_tree().get_nodes_in_group("veil_streetlight"):
+		if l is Light3D and l.global_position.distance_to(L) < 45.0:
+			(l as Light3D).visible = false
+			get_tree().create_timer(randf_range(0.3, 1.2)).timeout.connect(func(): if is_instance_valid(l): l.visible = true)
+	await get_tree().create_timer(0.9).timeout
+	# --- Stage 3: the protagonist's face (he is frozen; his eyes go up)
+	var d_leg := (L - P) * Vector3(1, 0, 1)
+	d_leg = d_leg.normalized()
+	var me := _spawn_npc(load(PROTAG_PATH), load(PROTAG_FACE_PATH), self, P, atan2(-d_leg.x, -d_leg.z), "Protagonist")
+	me.name = "Protagonist_Cine"
+	var ma = animators["Protagonist"]
+	ma.set_mood("scared")
+	ma.turn_to_face = false
+	ma.max_pitch = 1.05
+	var gaze := Node3D.new()
+	gaze.name = "Gaze"
+	add_child(gaze)
+	gaze.global_position = L + Vector3(0, 1.2, 0)
+	ma.look_target = gaze
+	faces["Protagonist"].set_expression("shocked")
+	faces["Protagonist"].widen_eyes(2.5)
+	var head: Vector3 = (ma.skel.global_transform * ma.skel.get_bone_global_pose(ma.bone("Head")).origin)
+	var key := OmniLight3D.new()                                  # soft spill from the shop windows on his face
+	key.light_color = Color(0.9, 0.86, 0.78)
+	key.light_energy = 0.9
+	key.omni_range = 3.0
+	add_child(key)
+	key.global_position = head + d_leg * 1.2 + side * 0.6 + Vector3(0, 0.3, 0)
+	cam.global_position = head + d_leg * 1.05 + side * 0.42 - Vector3(0, 0.04, 0)
+	cam.look_at(head + Vector3(0, 0.02, 0), Vector3.UP)
+	cam.fov = 42.0
+	enc_report["face_cam_distance_m"] = cam.global_position.distance_to(head)
+	var tg := create_tween()
+	tg.tween_property(gaze, "global_position", L + Vector3(0, 14.0, 0), 2.6).set_trans(Tween.TRANS_SINE)
+	faces["Protagonist"].set_expression("scared")
+	await get_tree().create_timer(2.8).timeout
+	# --- Stage 4: follow his gaze up the leg, into the mist
+	key.queue_free()
+	var start := head - d_leg * 0.55 + side * 0.28 + Vector3(0, 0.12, 0)
+	cam.global_position = start
+	cam.fov = 58.0
+	var look_from := L + Vector3(0, 1.0, 0)
+	var look_to := L + Vector3(0, 42.0, 0) + d_leg * 6.0
+	var tw := create_tween()
+	tw.tween_method(func(k: float):
+		var e := k * k * (3.0 - 2.0 * k)
+		cam.global_position = start + Vector3(0, -0.15 * e, 0)
+		cam.look_at(look_from.lerp(look_to, e), Vector3.UP)
+		cam.fov = lerpf(58.0, 48.0, e), 0.0, 1.0, 4.2)
+	tg = create_tween()
+	tg.tween_property(gaze, "global_position", L + Vector3(0, 40.0, 0), 4.0)
+	await tw.finished
+	enc_report["max_look_up_deg"] = rad_to_deg(asin(clampf((look_to - start).normalized().y, -1.0, 1.0)))
+	# --- Stage 5: it moves on. Legs stride through the mist; the body never comes down out of it.
+	ap.speed_scale = 0.5
+	var speed: float = float(c.get_meta("walk_speed_mps", 1.0)) * COLOSSUS_SCALE * 0.5
+	var away := c.create_tween()
+	away.tween_property(c, "global_position", c.global_position + walk_dir * speed * 30.0, 30.0)
+	away.tween_callback(c.queue_free)
+	Sfx.play("colossus_step", L + walk_dir * 12.0, 4.0, 0.65)
+	await get_tree().create_timer(2.2).timeout
+	Sfx.play("colossus_step", L + walk_dir * 24.0, 2.0, 0.6)
+	await get_tree().create_timer(1.6).timeout                  # frozen for a moment
+	# --- Stage 6: back to the first person, control restored immediately
+	gaze.queue_free()
+	me.queue_free()
+	animators.erase("Protagonist")
+	faces.erase("Protagonist")
+	cam.queue_free()
+	player.camera.current = true
+	player.set_yaw_pitch(atan2(-d_leg.x, -d_leg.z), deg_to_rad(8.0))
+	player.controls_enabled = true
+	hud.allow_pause = true
+	_encounter_running = false
+	# --- Stage 7: survival begins
+	player.set_survival(true)
+	hud.set_survival_visible(true)
+	hud.title_card("GET BACK INSIDE THE STORE", 2.2)
 	Dialogue.say("p3_colossus", false, true)
-	if not in_car and player.visible:
-		focus_shot(c.global_position + Vector3(0, 17, 0), 24.0, 2.6, 2.8)
+	_p3_spawn_tentacles()
+	_beacon("store_back", door_out + Vector3(0, 2.4, 0), Color(0.75, 0.85, 1.0))
+	save()
+
+
+func _shake(cam: Camera3D, seconds: float, amount: float) -> void:
+	var base := cam.global_position
+	var t := 0.0
+	while t < seconds and is_instance_valid(cam):
+		var k := 1.0 - t / seconds
+		cam.global_position = base + Vector3(randf_range(-1, 1), randf_range(-0.6, 1), randf_range(-1, 1)) * amount * k
+		await get_tree().process_frame
+		t += get_process_delta_time()
+	if is_instance_valid(cam):
+		cam.global_position = base
+
+
+func _impact_dust(at: Vector3) -> void:
+	var p := CPUParticles3D.new()
+	p.name = "ImpactDust"
+	p.one_shot = true
+	p.amount = 60
+	p.lifetime = 2.4
+	p.explosiveness = 0.9
+	p.emission_shape = CPUParticles3D.EMISSION_SHAPE_RING
+	p.emission_ring_radius = 2.6
+	p.emission_ring_inner_radius = 1.2
+	p.emission_ring_height = 0.2
+	p.emission_ring_axis = Vector3.UP
+	p.direction = Vector3(0, 0.3, 0)
+	p.spread = 80.0
+	p.initial_velocity_min = 2.0
+	p.initial_velocity_max = 5.0
+	p.gravity = Vector3(0, -0.6, 0)
+	p.damping_min = 1.5
+	p.damping_max = 2.5
+	p.scale_amount_min = 0.6
+	p.scale_amount_max = 1.4
+	var qm := QuadMesh.new()
+	qm.size = Vector2(0.9, 0.9)
+	var mat := StandardMaterial3D.new()
+	mat.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
+	mat.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
+	mat.billboard_mode = BaseMaterial3D.BILLBOARD_PARTICLES
+	mat.vertex_color_use_as_albedo = true
+	mat.albedo_color = Color(0.32, 0.33, 0.33, 0.5)
+	qm.material = mat
+	p.mesh = qm
+	var g := Gradient.new()
+	g.set_color(0, Color(1, 1, 1, 0.7))
+	g.set_color(1, Color(1, 1, 1, 0.0))
+	p.color_ramp = g
+	add_child(p)
+	p.global_position = at + Vector3(0, 0.2, 0)
+	p.emitting = true
+	get_tree().create_timer(3.0).timeout.connect(p.queue_free)
 
 
 func _p3_spawn_tentacles() -> void:
@@ -802,66 +1151,63 @@ func _p3_spawn_tentacles() -> void:
 	var b: Vector3 = (market.get_node("Doorways/Entrance_Outside") as Node3D).global_position
 	var side := (b - a).cross(Vector3.UP).normalized()
 	var ts := load(TENTACLE_PATH) as PackedScene
-	for k in [[0.3, 2.6], [0.52, -2.6], [0.75, 2.4]]:
+	for k in [[0.3, 3.2], [0.52, -3.2], [0.75, 3.0]]:
 		var t := ts.instantiate() as Node3D
 		t.name = "MistTentacle_%d" % _tentacles.size()
 		add_child(t)
 		t.global_position = a.lerp(b, k[0]) + side * k[1]
 		t.global_position.y = 0.15
 		t.rotation.y = float(_tentacles.size()) * 2.1
+		var ai: Node = TENTACLE_AI.new()
+		ai.name = "AI"
+		t.add_child(ai)
+		ai.target = player
+		ai.struck.connect(func(tn: Node3D, dmg: float):
+			player.damage(dmg, tn.global_position)
+			Sfx.play("tentacle_hiss", tn.global_position + Vector3(0, 1, 0), 0.0)
+			Dialogue.say("p3_hit", false, true))
 		if t.has_method("emerge"):
 			t.emerge()
-		var zone := Area3D.new()
-		zone.name = "Hazard"
-		zone.collision_layer = 0
-		zone.collision_mask = 2
-		var cs := CollisionShape3D.new()
-		var sp := SphereShape3D.new()
-		sp.radius = 1.8
-		cs.shape = sp
-		cs.position.y = 1.0
-		zone.add_child(cs)
-		t.add_child(zone)
-		zone.body_entered.connect(func(body): if body == player: _p3_tentacle_hit(t))
 		_tentacles.append(t)
 
 
-## No health system yet: a strike knocks the player back and blinds the screen for a moment.
-func _p3_tentacle_hit(t: Node3D) -> void:
-	if _hit_cd > 0.0:
-		return
-	_hit_cd = 1.6
-	if t.has_method("play"):
-		t.play("Strike")
-	var away := (player.global_position - t.global_position) * Vector3(1, 0, 1)
-	player.velocity = away.normalized() * 7.5 + Vector3(0, 3.0, 0)
-	Sfx.play("tentacle_hiss", t.global_position + Vector3(0, 1, 0), 0.0)
-	hud.fade_to(0.7, 0.06)
-	get_tree().create_timer(0.25).timeout.connect(func(): hud.fade_to(0.0, 0.6))
-	Dialogue.say("p3_hit", false, true)
-	get_tree().create_timer(1.3).timeout.connect(func(): if is_instance_valid(t) and t.has_method("play"): t.play("Search"))
+func _on_player_died() -> void:
+	player.controls_enabled = false
+	await hud.fade_to(1.0, 0.8)
+	var store := _enc_store if _enc_store else game_shop
+	var inside: Vector3 = (store.get_node("Doorways/Entrance_Inside") as Node3D).global_position
+	var into := (inside - (store.get_node("Doorways/Entrance_Outside") as Node3D).global_position) * Vector3(1, 0, 1)
+	player.global_position = inside + into.normalized() * 1.5 + Vector3(0, 0.1, 0)
+	player.velocity = Vector3.ZERO
+	player.health = 60.0
+	player.stamina = player.MAX_STAMINA
+	player.set_survival(true)
+	await get_tree().create_timer(0.6).timeout
+	hud.fade_to(0.0, 1.2)
+	player.controls_enabled = true
+	Dialogue.say("p3_wake_hurt", false, true)
+
+
+func _p3_back_inside() -> void:
+	Game.set_flag("p3_back_inside")
+	_clear_beacon("store_back")
+	_p3_place_marcus_in_shop()
+	if _enc_store == game_shop or game_shop.to_local(player.global_position).z > 0.1 and absf(game_shop.to_local(player.global_position).x) < 6.0:
+		_p3_reach_shop()
+	else:
+		# sheltering in the supermarket first: Eddie calls everyone over to the game shop
+		_beacon("shop", (game_shop.get_node("Doorways/Entrance_Outside") as Node3D).global_position + Vector3(0, 2.4, 0), Color(0.7, 0.85, 1.0))
+		await get_tree().create_timer(2.5).timeout
+		if not Game.has_flag("p3_in_shop"):
+			Dialogue.say("p3_eddie_calls", false, true)
 
 
 func _p3_car_dead() -> void:
 	if not Game.has_flag("p3_mist"):
 		_p3_start_mist()
-	if Game.has_flag("phase2_done"):
-		Dialogue.say("p3_car_again", false, true)
-		return
 	Sfx.play("static", sedan.global_position + Vector3(0, 1, 0), -4.0)
-	Dialogue.say("p3_car_dead", false, true)
-	Game.set_flag("phase2_done")
-	_p3_place_marcus_in_shop()
-	var sd: Interactable = interactables.get("shop/entrance")
-	if sd and not sd.is_open:
-		sd.set_open(true)                       # Eddie holds the door
-	if eddie and eddie.get_parent() == game_shop and animators.has("Eddie"):
-		# from behind the counter, around it and down the aisle between the rack and the console case
-		animators["Eddie"].walk_to([Vector3(0.9, 0.04, 7.5), Vector3(0.0, 0.04, 5.0), Vector3(-0.4, 0.04, 1.7), Vector3(-2.2, 0.04, 1.3)], 1.7)
-	_beacon("shop", (game_shop.get_node("Doorways/Entrance_Outside") as Node3D).global_position + Vector3(0, 2.4, 0), Color(0.7, 0.85, 1.0))
-	await get_tree().create_timer(4.5).timeout
-	if not Game.has_flag("p3_in_shop"):
-		Dialogue.say("p3_eddie_calls", false, true)
+	Dialogue.say("p3_car_again" if Game.has_flag("said_p3_car_dead_once") else "p3_car_dead", false, true)
+	Game.flags["said_p3_car_dead_once"] = true
 
 
 func _p3_place_marcus_in_shop() -> void:
@@ -874,15 +1220,14 @@ func _p3_place_marcus_in_shop() -> void:
 
 
 func _p3_reach_shop() -> void:
-	if not Game.has_flag("phase2_done") or Game.has_flag("p3_in_shop"):
+	if not Game.has_flag("p3_back_inside") or Game.has_flag("p3_in_shop"):
 		return
 	Game.set_flag("p3_in_shop")
 	_clear_beacon("shop")
 	_p3_place_marcus_in_shop()
 	Dialogue.say("p3_shop", false, true)
-	var total := 0.0
-	for l in Dialogue.data.get("p3_shop", {}).get("lines", []):
-		total += float(l.get("time", 3.0))
+	var total := _dlg_time(["p3_shop"])
+	talk_shot(total + 0.3 + _dlg_time(["p3_eddie_go"]))
 	await get_tree().create_timer(total + 0.3).timeout
 	Dialogue.say("p3_eddie_go")
 	_p3_shop_talked = true
@@ -930,6 +1275,7 @@ func _p3_reach_market() -> void:
 	for d in _auto_doors:
 		_glow(d[0], true, Color(0.7, 0.85, 1.0))
 	Dialogue.say("p3_market", false, true)
+	talk_shot(_dlg_time(["p3_market"]))
 
 
 func _p3_shut_doors(_by: Node) -> void:
@@ -945,6 +1291,9 @@ func _p3_shut_doors(_by: Node) -> void:
 	for t in _tentacles:
 		if is_instance_valid(t) and t.has_method("retract"):
 			t.retract()
+		var ai = t.get_node_or_null("AI") if is_instance_valid(t) else null
+		if ai:
+			ai.set_process(false)
 	Dialogue.say("p3_doors", false, true)
 	Game.set_flag("p3_doors_shut")
 	_start_phase4(false)            # Phase 4 continues the night inside (game/world/phase4.gd)
@@ -959,9 +1308,15 @@ func _p3_restore() -> void:
 		interactables["market/cashier"].set_deferred("monitorable", false)
 	_clear_beacon("market")
 	_atmo().apply_preset(night_preset("active"), true)
-	if not Game.has_flag("p3_doors_shut"):
-		_p3_spawn_tentacles()
-	if Game.has_flag("phase2_done"):
+	_build_mist_ceiling()
+	for k in animators:
+		animators[k].set_mood("scared")
+	if Game.has_flag("p3_stepped_out"):
+		player.set_survival(true)
+		hud.set_survival_visible(true)
+		if not Game.has_flag("p3_doors_shut"):
+			_p3_spawn_tentacles()
+	if Game.has_flag("p3_back_inside"):
 		_p3_place_marcus_in_shop()
 	if Game.has_flag("p3_in_shop"):
 		_p3_shop_talked = true
@@ -971,6 +1326,7 @@ func _p3_restore() -> void:
 		_set_auto_doors(true)
 		_doors_powered = false
 		shut_it.prompt_text = "[E] Pull the Doors Shut"
+
 
 # ------------------------------------------------------------------ night (Friday ~7 PM, dark)
 const PRESET_SCRIPT := "res://THE_VEIL_ASSETS_V2/09_Horror_Atmosphere/Atmosphere_Presets/veil_atmosphere_preset.gd"
