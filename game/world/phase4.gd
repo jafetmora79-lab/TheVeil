@@ -553,6 +553,7 @@ var charge_report := {}
 
 
 func _fp_to(cam: Camera3D, pts: Array, speed: float) -> void:
+	player.set_physics_process(false)             # scripted steps: the body's own physics would push back on kerbs
 	for q in pts:
 		var target: Vector3 = ml(q)
 		while true:
@@ -560,11 +561,14 @@ func _fp_to(cam: Camera3D, pts: Array, speed: float) -> void:
 			if d.length() < 0.06:
 				break
 			var dt := get_process_delta_time()
-			player.global_position += d.normalized() * minf(speed * dt, d.length())
+			var np: Vector3 = player.global_position + d.normalized() * minf(speed * dt, d.length())
+			np.y = move_toward(player.global_position.y, _floor_y(np) + 0.0, dt * 2.5)
+			player.global_position = np
 			var want := Transform3D(Basis(), cam.global_position).looking_at(cam.global_position + d.normalized() + Vector3(0, -0.06, 0), Vector3.UP).basis
 			cam.global_basis = Basis(cam.global_basis.get_rotation_quaternion().slerp(want.get_rotation_quaternion(), minf(dt * 8.0, 1.0)))
 			cam.global_position = player.global_position + Vector3(0, EYE - 0.15 + sin(Time.get_ticks_msec() * 0.013) * 0.02 * speed / 4.0, 0)
 			await get_tree().process_frame
+	player.set_physics_process(true)
 
 
 func _fp_face(cam: Camera3D, at: Vector3, seconds: float) -> void:
@@ -661,7 +665,7 @@ func _hound_charge() -> void:                   # (name kept: the accept branch'
 	if sk:
 		var bb := Interactable.aabb_of(sk)
 		front = maxf(bb.end.z, 0.3) * sk.scale.z
-	var hit_at := Vector3(0.1, 0.0, doors_z - 0.06 - front)
+	var hit_at := Vector3(0.1, 0.0, doors_z - 0.14 - front)      # its snout stops on the glass, not through it
 	var notice_at := Vector3(-3.0, 0.0, doors_z - 26.0)
 	if sk:
 		await _skitter_run(sk, ap, notice_at, 9.5)
