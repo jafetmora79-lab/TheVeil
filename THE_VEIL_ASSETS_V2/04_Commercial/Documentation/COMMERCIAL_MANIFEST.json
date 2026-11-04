@@ -6970,7 +6970,7 @@
    "name": "COM_Supermarket",
    "glb": "04_Commercial/Supermarket/COM_Supermarket.glb",
    "category": "building",
-   "triangles": 5488,
+   "triangles": 6576,
    "materials": [
     "M_Com_StorefrontBrick",
     "M_Arch_TrimPainted",
@@ -7024,7 +7024,7 @@
    "name": "COM_GameShop",
    "glb": "04_Commercial/Video_Game_Store/COM_GameShop.glb",
    "category": "building",
-   "triangles": 2238,
+   "triangles": 2926,
    "materials": [
     "M_Com_StorefrontBrick",
     "M_Arch_TrimPainted",

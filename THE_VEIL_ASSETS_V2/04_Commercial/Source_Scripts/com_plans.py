@@ -19,6 +19,7 @@ sys.path.insert(0, HERE)
 sys.path.insert(0, os.path.join(V2, "03_Residential", "Source_Scripts"))
 sys.path.insert(0, os.path.join(V2, "02_Town", "Source_Scripts"))
 
+import com_atlas as CA  # noqa: E402
 import com_fixtures as FX  # noqa: E402  (registers the Pack 04 materials)
 import arch  # noqa: E402
 import house as house_mod  # noqa: E402
@@ -109,6 +110,36 @@ def sign_board(mb, rect, x, y, z, w, h, face="-z", depth=0.1, frame="enamel_whit
     elif face == "+z":
         abox(mb, frame, (x - w / 2 - 0.06, y - h / 2 - 0.06, z), (x + w / 2 + 0.06, y + h / 2 + 0.06, z + depth), skip=("-z",))
         decal(mb, rect, (x, y, z + depth), w, h, face="+z", mat=GLOW if glow else ATLAS, lift=0.004)
+
+
+def sign_3d(mb, text, x, y, z, w, h, board_sw, letter_sw, frame="enamel_white", depth=0.12, letter_depth=0.07):
+    """store sign with REAL 3D pixel lettering: a sign box proud of the wall (face -z = street), a coloured board
+    face, and emissive letters built from the Pack 04 3x5 pixel font, one box per horizontal run of lit pixels,
+    standing letter_depth in front of the board (readable from the road, visible at night)."""
+    abox(mb, frame, (x - w / 2 - 0.06, y - h / 2 - 0.06, z - depth), (x + w / 2 + 0.06, y + h / 2 + 0.06, z), skip=("+z",))
+    zf = z - depth - 0.004
+    abox(mb, board_sw, (x - w / 2, y - h / 2, zf), (x + w / 2, y + h / 2, z - depth), skip=("+z",))
+    cols = len(text) * 4 - 1
+    k = min(w * 0.92 / cols, h * 0.78 / 5)
+    x0 = x - cols * k / 2
+    yt = y + 2.5 * k
+    for i, ch in enumerate(text.upper()):
+        g = CA.FONT.get(ch)
+        if not g:
+            continue
+        for row in range(5):
+            bits = g[row * 3:row * 3 + 3]
+            c = 0
+            while c < 3:
+                if bits[c] == "1":
+                    c0 = c
+                    while c < 3 and bits[c] == "1":
+                        c += 1
+                    px0, px1 = i * 4 + c0, i * 4 + c
+                    abox(mb, letter_sw, (x0 + px0 * k, yt - (row + 1) * k, zf - letter_depth), (x0 + px1 * k, yt - row * k, zf),
+                         skip=("+z",), mat=GLOW)
+                else:
+                    c += 1
 
 
 def wall_lamp(h, x, y, z, face="-z"):
@@ -204,7 +235,7 @@ FY = 0.04            # finished floor: a 4 cm threshold above the sidewalk / lot
 def _supermarket_extras(h):
     parapets(h, {"VEST": 6.6, "*": 5.4})
     b = h.ext
-    sign_board(b, "sign_market", 0.0, 5.55, 0.2 - EXT_T / 2, 6.4, 0.8)
+    sign_3d(b, "GREYHAVEN MARKET", 0.0, 5.55, 0.2 - EXT_T / 2, 6.4, 0.8, "green_paint", "enamel_white")
     sign_board(b, "sign_market_sub", -11.0, 4.85, 3.2 - EXT_T / 2, 4.0, 0.38, glow=False)
     sign_board(b, "sign_market_sub", 11.0, 4.85, 3.2 - EXT_T / 2, 4.0, 0.38, glow=False)
     auto_doors(h, 0.0, 0.2, 2.4, 2.3, "Entrance")
@@ -303,7 +334,7 @@ def _gameshop_extras(h):
     parapets(h, {"*": 4.8})
     b = h.ext
     zf = 0.3 - EXT_T / 2
-    sign_board(b, "sign_games", 0.0, 4.1, zf, 5.4, 0.9)
+    sign_3d(b, "GAME HAVEN", 0.0, 4.1, zf, 5.4, 0.9, "navy_paint", "yellow_paint")
     wall_lamp(h, -3.0, 3.2, zf, "-z")
     wall_lamp(h, 3.0, 3.2, zf, "-z")
     slab(h, "Road_SidewalkConcrete", [(-6.0, -0.4), (6.0, -0.4), (6.0, 0.25), (-6.0, 0.25)])

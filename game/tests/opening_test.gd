@@ -227,6 +227,8 @@ func _run() -> void:
 	var t := 0.0
 	var max_kmh := 0.0
 	var min_clear := 99.0
+	var arrival_min_kmh := 999.0
+	var arrival_flag_before_park := false
 	sedan.autopilot = func(delta: float) -> Vector3:
 		var p: Vector3 = sedan.global_position
 		var p2 := Vector2(p.x, p.z)
@@ -264,6 +266,11 @@ func _run() -> void:
 		await physics_frame
 		t += 1.0 / 60.0
 		max_kmh = maxf(max_kmh, sedan.speed * 3.6)
+		var sf: Vector3 = world.market.to_local(sedan.global_position)
+		if game.has_flag("arrival_shot") and not game.has_flag("parked"):
+			arrival_flag_before_park = true
+			if absf(sf.z + 27.0) < 6.0 and sf.x > -16.0 and sf.x < 6.0:      # on Main St right in front of the store
+				arrival_min_kmh = minf(arrival_min_kmh, sedan.speed * 3.6)
 		if fmod(t, 1.0) < 1.0 / 60.0:
 			if sedan.global_position.distance_to(last_pos) < 0.3 and st["idx"] < route.size() - 3:
 				stuck += 1.0
@@ -273,6 +280,9 @@ func _run() -> void:
 			if stuck > 4.0:
 				print("STUCK at ", sedan.global_position, " idx ", st["idx"])
 				break
+	ok("arrival_shot_while_driving", game.has_flag("arrival_shot") and arrival_min_kmh < 22.0 and arrival_flag_before_park,
+		"slowest in front of the store %.0f km/h" % arrival_min_kmh)
+	ok("arrival_view_restored", sedan.driver_cam.current and world._cine == null and sedan.speed_cap < 0.0)
 	ok("reached_town", game.has_flag("reached_town"))
 	ok("parked", game.has_flag("parked"), "drive_time=%.1f s, autopilot_time=%.1f s, max=%.0f km/h, cruise=%.0f km/h, route_idx=%d/%d" % [world.drive_time, t, max_kmh, cruise * 3.6, st["idx"], route.size()])
 	ok("drive_over_60s", world.drive_time >= 60.0, "%.1f s" % world.drive_time)

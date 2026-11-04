@@ -77,6 +77,7 @@ func _ready() -> void:
 	_setup_town()
 	_setup_triggers()
 	_apply_view_ranges()
+	_setup_night()
 	Game.flag_set.connect(_on_flag)
 	Sfx.start_ambience()
 	print("[World] ready: houses=%d interactables=%d" % [get_node("Residential/Houses").get_child_count(), interactables.size()])
@@ -524,6 +525,16 @@ func focus_shot(target: Vector3, fov_to := 28.0, t_in := 2.6, hold := 1.8, title
 		player.controls_enabled = was_controls or player.controls_enabled
 
 
+## While driving past the store front: the car eases down to ~17 km/h (driver keeps steering), the view turns and
+## zooms gently onto the supermarket and its sign, then hands control back; the car rolls on into the lot.
+func _arrival_shot() -> void:
+	Game.set_flag("arrival_shot")
+	sedan.speed_cap = 4.8
+	Dialogue.say("town", true)
+	await focus_shot(market.global_transform * Vector3(0.0, 4.2, -0.3), 30.0, 2.0, 1.6, "GREYHAVEN MARKET")
+	sedan.speed_cap = -1.0
+
+
 func _end_cine() -> void:
 	_cine_id += 1                           # any focus_shot still awaiting sees this and stops
 	if _cine_tw and _cine_tw.is_valid():
@@ -748,14 +759,13 @@ func _p3_start_mist() -> void:
 	for k in animators:
 		animators[k].set_mood("scared")
 	var a := _atmo()
-	a.set_state(0, true)                       # NORMAL, then roll in
-	a.set_state(2)                             # VEIL_APPROACHING (tweens over the preset transition time)
+	a.apply_preset(night_preset("approach"))    # the Veil rolls into the night (tweens over the transition time)
 	Sfx.play("veil_rumble", player.global_position + Vector3(0, 2, 0), -2.0)
 	Dialogue.say("p3_fog", false, true)
 	await get_tree().create_timer(6.0).timeout
 	_p3_colossus()
 	await get_tree().create_timer(8.0).timeout
-	_atmo().set_state(3)                       # VEIL_ACTIVE
+	_atmo().apply_preset(night_preset("active"))
 	_p3_spawn_tentacles()
 
 
@@ -948,7 +958,7 @@ func _p3_restore() -> void:
 		cashier.visible = false
 		interactables["market/cashier"].set_deferred("monitorable", false)
 	_clear_beacon("market")
-	_atmo().set_state(3, true)
+	_atmo().apply_preset(night_preset("active"), true)
 	if not Game.has_flag("p3_doors_shut"):
 		_p3_spawn_tentacles()
 	if Game.has_flag("phase2_done"):
@@ -961,6 +971,154 @@ func _p3_restore() -> void:
 		_set_auto_doors(true)
 		_doors_powered = false
 		shut_it.prompt_text = "[E] Pull the Doors Shut"
+
+# ------------------------------------------------------------------ night (Friday ~7 PM, dark)
+const PRESET_SCRIPT := "res://THE_VEIL_ASSETS_V2/09_Horror_Atmosphere/Atmosphere_Presets/veil_atmosphere_preset.gd"
+var headlights: Array = []
+
+
+## Game-side presets for the Pack 09 atmosphere controller (the pack's own presets stay untouched):
+##   night    - ordinary small town at night: dark navy sky, dim cool ambient, lamps carry the light
+##   approach - the Veil rolling in: dark grey-green haze, low mist sheets
+##   active   - the Veil: dense, DARK depth fog (distant shapes sink into darkness instead of turning flat
+##              light grey), thick ground layer, mist sheets; nearby things stay readable under the lamps
+func night_preset(kind: String) -> Resource:
+	var p: Resource = (load(PRESET_SCRIPT) as Script).new()
+	p.set("preset_name", "NIGHT_" + kind.to_upper())
+	p.set("sky_top", Color(0.012, 0.016, 0.04))
+	p.set("sky_horizon", Color(0.06, 0.065, 0.1))
+	p.set("ground_horizon", Color(0.035, 0.035, 0.045))
+	p.set("ground_bottom", Color(0.01, 0.01, 0.012))
+	p.set("ambient_color", Color(0.17, 0.19, 0.27))
+	p.set("ambient_energy", 0.42)
+	p.set("sun_color", Color(0.55, 0.62, 0.85))
+	p.set("sun_energy", 0.16)
+	p.set("sun_pitch", -38.0)
+	p.set("sun_yaw", 200.0)
+	p.set("sun_shadows", true)
+	p.set("shadow_distance", 40.0)
+	p.set("fog_color", Color(0.035, 0.04, 0.065))
+	p.set("fog_density", 0.006)
+	p.set("fog_sky_affect", 0.5)
+	p.set("streetlight_energy", 1.0)
+	match kind:
+		"approach":
+			p.set("ambient_color", Color(0.15, 0.17, 0.2))
+			p.set("fog_color", Color(0.06, 0.07, 0.075))
+			p.set("fog_density", 0.022)
+			p.set("fog_height", 2.0)
+			p.set("fog_height_density", 0.03)
+			p.set("fog_sky_affect", 0.85)
+			p.set("mist_enabled", true)
+			p.set("mist_color", Color(0.26, 0.29, 0.29))
+			p.set("mist_density", 0.35)
+			p.set("mist_height", 1.8)
+			p.set("mist_cards", 12)
+			p.set("flicker_amount", 0.3)
+			p.set("sun_energy", 0.1)
+		"active":
+			p.set("sky_top", Color(0.03, 0.035, 0.04))
+			p.set("sky_horizon", Color(0.07, 0.08, 0.08))
+			p.set("ambient_color", Color(0.14, 0.16, 0.19))
+			p.set("ambient_energy", 0.46)
+			p.set("fog_color", Color(0.075, 0.085, 0.09))
+			p.set("fog_density", 0.05)
+			p.set("fog_height", 3.0)
+			p.set("fog_height_density", 0.06)
+			p.set("fog_sky_affect", 1.0)
+			p.set("mist_enabled", true)
+			p.set("mist_color", Color(0.3, 0.33, 0.33))
+			p.set("mist_density", 0.75)
+			p.set("mist_height", 2.4)
+			p.set("mist_cards", 24)
+			p.set("flicker_amount", 0.6)
+			p.set("streetlight_energy", 0.8)
+			p.set("sun_energy", 0.06)
+			p.set("sun_shadows", false)
+			p.set("corruption_level", 2)
+	return p
+
+
+func _setup_night() -> void:
+	# 1) a lamp on every street-lamp post (a few posts had no light); offset learned from posts that have one
+	var lamps: Array = []
+	var lights: Array = []
+	for part in ["Core", "Extension"]:
+		for n in get_node(part).find_children("SP_Lamp_*", "Node3D", true, false):
+			if String(n.name).begins_with("SP_Lamp_Residential") or String(n.name).begins_with("SP_Lamp_Commercial"):
+				if n.get_parent() and not String(n.get_parent().name).begins_with("SP_Lamp_"):
+					lamps.append(n)
+		for l in get_node(part).find_children("StreetLight_*", "OmniLight3D", true, false):
+			lights.append(l)
+	var offs := {}
+	for l in lights:
+		var best: Node3D = null
+		var bd := 3.5
+		for lp in lamps:
+			var d := Vector2(lp.global_position.x - l.global_position.x, lp.global_position.z - l.global_position.z).length()
+			if d < bd:
+				bd = d
+				best = lp
+		if best:
+			offs[String(best.name).get_slice("_0", 0)] = best.global_transform.affine_inverse() * l.global_position
+	var added := 0
+	for lp in lamps:
+		var has := lights.any(func(l): return Vector2(lp.global_position.x - l.global_position.x, lp.global_position.z - l.global_position.z).length() < 3.5)
+		if has:
+			continue
+		var off: Vector3 = offs.get(String(lp.name).get_slice("_0", 0), Vector3(0, 5.75, 0))
+		var nl := OmniLight3D.new()
+		nl.name = "StreetLight_auto_%d" % added
+		nl.light_color = Color(1, 0.8, 0.55)
+		add_child(nl)
+		nl.global_position = lp.global_transform * off
+		lights.append(nl)
+		added += 1
+	# 2) lamps carry the night: brighter pools on the road, faded out with distance (cheap on the GL renderer)
+	for l in lights:
+		var ol := l as OmniLight3D
+		ol.light_energy = 2.1
+		ol.omni_range = 15.0
+		ol.omni_attenuation = 1.15
+		ol.shadow_enabled = false
+		ol.distance_fade_enabled = true
+		ol.distance_fade_begin = 75.0
+		ol.distance_fade_length = 25.0
+		ol.add_to_group("veil_streetlight")
+	# 3) storefront / canopy lights a little stronger; interior lights already show through the windows
+	for part in ["Commercial"]:
+		for l in get_node(part).find_children("ExtLight_*", "OmniLight3D", true, false):
+			(l as OmniLight3D).light_energy = 1.5
+			(l as OmniLight3D).omni_range = 9.0
+	# 4) sedan headlights + tail lights
+	var box := Interactable.aabb_of(sedan)
+	var zf := box.position.z if box.size.length() > 0.5 else -2.2
+	var zb := box.end.z if box.size.length() > 0.5 else 2.2
+	for sx in [-1.0, 1.0]:
+		var h := SpotLight3D.new()
+		h.name = "Headlight_%s" % ("L" if sx < 0 else "R")
+		h.light_color = Color(1.0, 0.93, 0.78)
+		h.light_energy = 3.2
+		h.spot_range = 42.0
+		h.spot_angle = 27.0
+		h.spot_attenuation = 0.9
+		h.spot_angle_attenuation = 1.6
+		h.shadow_enabled = false
+		h.position = Vector3(sx * 0.58, 0.68, zf + 0.05)
+		h.rotation.x = deg_to_rad(-4.0)
+		sedan.add_child(h)
+		headlights.append(h)
+		var t := OmniLight3D.new()
+		t.name = "TailLight_%s" % ("L" if sx < 0 else "R")
+		t.light_color = Color(1.0, 0.12, 0.08)
+		t.light_energy = 0.5
+		t.omni_range = 1.8
+		t.position = Vector3(sx * 0.6, 0.75, zb + 0.08)
+		sedan.add_child(t)
+	# 5) the night sky / ambient / fog through the Pack 09 controller (it takes over the Core environment)
+	_atmo().apply_preset(night_preset("night"), true)
+	print("[World] night: %d street lights (%d added)" % [lights.size(), added])
+
 
 # ------------------------------------------------------------------ triggers
 func _area(n: String, pos: Vector3, size: Vector3, mask: int, cb: Callable, basis := Basis()) -> Area3D:
@@ -995,6 +1153,10 @@ func _setup_triggers() -> void:
 		if b == sedan and in_car:
 			Game.set_flag("reached_town")
 			Dialogue.say("town", true))
+	# drive-by arrival shot: the road right in front of the supermarket (Main St, heading west)
+	_area("Trigger_ArrivalShot", market.global_transform * Vector3(-6.0, 1.0, -27.0), Vector3(16, 6, 12), 4, func(b):
+		if b == sedan and in_car and sedan.driven and not Game.has_flag("arrival_shot"):
+			_arrival_shot(), market.global_transform.basis)
 	var d: Dictionary = data["destination"]
 	var dp: Array = d["parking_center"]
 	_area("Trigger_Parking", Vector3(dp[0], dp[1] + 1.0, dp[2]), Vector3(d["trigger_size"][0], 4, d["trigger_size"][2]), 4,
@@ -1019,7 +1181,6 @@ func _physics_process(delta: float) -> void:
 				Game.set_flag("parked")
 				Dialogue.say("parked", true, true)
 				save()
-				focus_shot(market.global_transform * Vector3(0, 3.0, 0.0), 26.0, 2.8, 1.8, "GREYHAVEN MARKET")
 		else:
 			_park_t = 0.0
 
