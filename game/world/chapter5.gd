@@ -238,7 +238,7 @@ func _setup_survivor() -> void:
 	survivor.add_child(survivor_follow)
 	survivor_follow.setup(survivor, player)
 	# the whole front yard, from the fence-row gap (house-local z -6) to the porch
-	var yard := world._area("C5_SurvivorYard", shouse.global_transform * Vector3(-0.4, 1.5, -1.6), Vector3(9.0, 3.0, 9.6), 2,
+	var yard: Area3D = world._area("C5_SurvivorYard", shouse.global_transform * Vector3(-0.4, 1.5, -1.6), Vector3(9.0, 3.0, 9.6), 2,
 		func(b): if b == player: _survivor_encounter(), shouse.global_transform.basis)
 	_yard = yard
 	# someone is inside: a lamp behind the front windows and muffled movement, audible from the street
