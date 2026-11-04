@@ -62,6 +62,9 @@ var _static: AudioStreamPlayer3D
 var _streams := {}
 var _doors_open := false
 var _door_tweens: Array = []
+var _yard: Area3D
+var _surv_lamp: OmniLight3D
+var _surv_sound: AudioStreamPlayer3D
 var _busy := {}
 var _tick := 0.0
 
@@ -234,8 +237,27 @@ func _setup_survivor() -> void:
 	survivor_follow.gap = 4.2
 	survivor.add_child(survivor_follow)
 	survivor_follow.setup(survivor, player)
-	world._area("C5_SurvivorYard", shouse.global_transform * Vector3(-0.4, 1.5, 1.4), Vector3(6.0, 3.0, 3.6), 2,
+	# the whole front yard, from the fence-row gap (house-local z -6) to the porch
+	var yard := world._area("C5_SurvivorYard", shouse.global_transform * Vector3(-0.4, 1.5, -1.6), Vector3(9.0, 3.0, 9.6), 2,
 		func(b): if b == player: _survivor_encounter(), shouse.global_transform.basis)
+	_yard = yard
+	# someone is inside: a lamp behind the front windows and muffled movement, audible from the street
+	_surv_lamp = OmniLight3D.new()
+	_surv_lamp.name = "C5_SurvivorLamp"
+	_surv_lamp.light_color = Color(1.0, 0.72, 0.42)
+	_surv_lamp.light_energy = 0.0
+	_surv_lamp.omni_range = 5.0
+	_surv_lamp.shadow_enabled = false
+	shouse.add_child(_surv_lamp)
+	_surv_lamp.position = SURVIVOR_POS + Vector3(0.3, 1.6, 0.6)
+	_surv_sound = AudioStreamPlayer3D.new()
+	_surv_sound.name = "C5_SurvivorSounds"
+	_surv_sound.stream = _streams["movement"]
+	_surv_sound.volume_db = -4.0
+	_surv_sound.unit_size = 6.0
+	_surv_sound.max_distance = 34.0
+	shouse.add_child(_surv_sound)
+	_surv_sound.position = SURVIVOR_POS + Vector3(0, 1.0, 0)
 
 
 func _setup_rest() -> void:
@@ -445,6 +467,19 @@ func _on_line(speaker: String, text: String, _d: float) -> void:
 
 
 # ------------------------------------------------------------------ scene 6: optional survivor
+## While the survivor can still be found: lamp on, movement sounds. Also re-checks the yard, so standing in it
+## after the house was reached (or after a load) starts the encounter.
+func _survivor_cues() -> void:
+	var findable := Game.has_flag("c5_house_reached") and not Game.has_flag("c5_returned") and not _survivor_met()
+	_surv_lamp.light_energy = 0.9 if findable or (_survivor_met() and not Game.has_flag("c5_survivor_helped")) else 0.0
+	if findable and not _surv_sound.playing:
+		_surv_sound.play()
+	elif not findable and _surv_sound.playing:
+		_surv_sound.stop()
+	if findable and _yard.overlaps_body(player):
+		_survivor_encounter()
+
+
 func _survivor_met() -> bool:
 	return Game.has_flag("c5_survivor_helped") or Game.has_flag("c5_survivor_informed") or Game.has_flag("c5_survivor_left")
 
@@ -491,6 +526,7 @@ func _process(delta: float) -> void:
 	if _tick > 0.0 or player == null:
 		return
 	_tick = 0.2
+	_survivor_cues()
 	if not Game.has_flag("c5_prepared"):
 		return
 	var pl := market.to_local(player.global_position)
@@ -633,6 +669,7 @@ func _make_sounds() -> void:
 	_streams["static_loop"] = Sfx._make(2.0, _static_wave, true)
 	_streams["static_burst"] = Sfx._make(1.1, _burst_wave)
 	_streams["radio_voice"] = Sfx._make(2.4, _voice_wave)
+	_streams["movement"] = Sfx._make(7.0, _movement_wave, true)
 
 
 func _static_wave(t: float, i: int) -> float:
@@ -641,6 +678,19 @@ func _static_wave(t: float, i: int) -> float:
 
 func _burst_wave(t: float, i: int) -> float:
 	return Sfx._noise(i) * 0.7 * (1.0 - t / 1.1) * (0.6 + 0.4 * sin(t * 90.0))
+
+
+## muffled movement behind walls: a few soft thumps and a dragged-object scrape inside a 7 s loop
+func _movement_wave(t: float, i: int) -> float:
+	var out := 0.0
+	for k in [0.6, 1.05, 3.9, 5.2]:
+		var dt: float = t - k
+		if dt >= 0.0 and dt < 0.5:
+			out += sin(TAU * 62.0 * dt) * exp(-dt * 14.0) * 0.8 + Sfx._noise(i) * exp(-dt * 30.0) * 0.25
+	var sc := t - 2.3
+	if sc > 0.0 and sc < 1.1:
+		out += Sfx._noise(i) * 0.16 * sin(PI * sc / 1.1) * (0.6 + 0.4 * sin(sc * 47.0))
+	return out
 
 
 ## a band-limited murmur under the radio subtitles (no recorded voice): two wavering tones + hiss
