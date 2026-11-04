@@ -665,7 +665,7 @@ func _hound_charge() -> void:                   # (name kept: the accept branch'
 	if sk:
 		var bb := Interactable.aabb_of(sk)
 		front = maxf(bb.end.z, 0.3) * sk.scale.z
-	var hit_at := Vector3(0.1, 0.0, doors_z - 0.14 - front)      # its snout stops on the glass, not through it
+	var hit_at := Vector3(0.1, 0.0, doors_z - 0.02 - front)      # its snout stops on the glass (~2-3 cm), not through it
 	var notice_at := Vector3(-3.0, 0.0, doors_z - 26.0)
 	if sk:
 		await _skitter_run(sk, ap, notice_at, 9.5)
