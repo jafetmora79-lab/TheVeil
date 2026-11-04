@@ -78,6 +78,10 @@ func wait_until(cond: Callable, max_frames: int) -> bool:
 
 ## Phase 4 (Act I, first night): every step, the flashlight, the choice, the threat (once), sleep, save / load.
 ## Colossus encounter facts shared by both stagings.
+func market_hounds(mk: Node3D) -> int:
+	return mk.find_children("P4_Hound*", "", true, false).filter(func(n): return not n.is_queued_for_deletion()).size()
+
+
 func phase4_tests(game, ps: PackedScene) -> void:
 	var mk: Node3D = world.market
 	var player = world.player
@@ -202,17 +206,13 @@ func phase4_tests(game, ps: PackedScene) -> void:
 		and game.has_flag("p4_choice_noah") and not game.has_flag("p4_choice_wait"))
 	# something outside, once
 	ok("p4_threat_starts", await wait_until(func(): return p4.threat_runs == 1, 60 * 10))
-	ok("p4_hound_silhouette", p4.hound != null and is_instance_valid(p4.hound))
-	# it must walk the way it faces (the model's front is +Z), not backwards
-	var h0: Vector3 = p4.hound.position
-	await frames(30)
-	var hmove: Vector3 = (p4.hound.position - h0) * Vector3(1, 0, 1)
-	var hface: Vector3 = p4.hound.transform.basis.z.normalized()
-	ok("p4_hound_walks_forward", hmove.length() > 0.2 and hmove.normalized().dot(hface) > 0.9,
-		"move=%s face=%s" % [hmove, hface])
+	# ACCEPT ("we can't leave Noah"): they step outside, a Hound charges, slams the shut doors, runs off
+	ok("p4_charge_hound", await wait_until(func(): return p4.charge_report.get("spawned", false), 60 * 12))
 	ok("p4_threat_done", await wait_until(func(): return game.has_flag("p4_threat_done"), 60 * 40))
-	var sr: Dictionary = p4.strike_report
-	ok("p4_strike_contacts_door", sr.get("impact_synced", false) and absf(sr.get("snout_to_door_m", 9.0)) < 0.15, str(sr))
+	var cr: Dictionary = p4.charge_report
+	ok("p4_charge_slam_and_gone", cr.get("slam", false) and cr.get("gone", false) and player.controls_enabled, str(cr))
+	await frames(20)
+	ok("p4_charge_hound_freed", market_hounds(mk) == 0)
 	p4._run_threat()
 	await frames(5)
 	ok("p4_threat_once", p4.threat_runs == 1)
@@ -804,10 +804,15 @@ func _run() -> void:
 	await frames(20)
 	ok("p3_in_shop", game.has_flag("p3_in_shop"))
 	var wt := 0
-	while not world._p3_shop_talked and wt < 60 * 60:
+	while not world._p3_shop_talked and wt < 60 * 180:
 		await frames(10)
 		wt += 10
 	ok("p3_shop_talk_finished", world._p3_shop_talked)
+	var sr2: Dictionary = world.seated_report
+	ok("p3_seated_talk", sr2.get("seated", false) and sr2.get("time_skip", false) and sr2.get("lights_talk", false)
+		and game.has_flag("p3_two_hours_later") and player.visible and player.controls_enabled, str(sr2))
+	ok("p3_market_looted", world.market_merch.looted)
+	ok("p3_objective_reach_market", game.current_step().get("text", "") == "Reach the supermarket", game.current_step().get("text", ""))
 	# the protagonist steps outside: Eddie and Marcus come with him (sample Eddie's stride while he follows)
 	player.global_position = s_out + (s_out - s_in).normalized() * 6.0      # well past the follow gap
 	await frames(30)

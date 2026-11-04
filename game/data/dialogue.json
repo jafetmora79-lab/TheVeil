@@ -456,22 +456,31 @@
   ]
  },
  "p3_market": {
-  "draft": true,
   "lines": [
    {
-    "speaker": "",
-    "text": "Where is everyone? The cashier was right here.",
+    "speaker": "Eddie",
+    "text": "Looks like we weren't the first ones here.",
     "time": 3.2
    },
    {
-    "speaker": "Eddie",
-    "text": "You made it. The power's out - the doors are stuck open!",
-    "time": 3.4
+    "speaker": "",
+    "text": "People cleared out the essentials.",
+    "time": 2.8
    },
    {
     "speaker": "Marcus",
-    "text": "Shut them. Now!",
-    "time": 2.0
+    "text": "Water, medicine, canned food... most of it's gone.",
+    "time": 3.6
+   },
+   {
+    "speaker": "Eddie",
+    "text": "There's still some food left.",
+    "time": 2.5
+   },
+   {
+    "speaker": "Marcus",
+    "text": "Enough for now. Not enough to stay here forever.",
+    "time": 3.5
    }
   ]
  },
@@ -1218,7 +1227,7 @@
    },
    {
     "speaker": "Survivor",
-    "text": "Wait—",
+    "text": "Wait\u2014",
     "time": 1.8
    }
   ]
@@ -1854,6 +1863,133 @@
     "speaker": "Marcus",
     "text": "Thank God.",
     "time": 1.8
+   }
+  ]
+ },
+ "p3_seated_a": {
+  "lines": [
+   {
+    "speaker": "Eddie",
+    "text": "Please tell me that thing is leaving.",
+    "time": 2.9
+   },
+   {
+    "speaker": "",
+    "text": "I think so.",
+    "time": 2.0
+   },
+   {
+    "speaker": "Marcus",
+    "text": "Don't move yet.",
+    "time": 2.0
+   }
+  ]
+ },
+ "p3_seated_b": {
+  "lines": [
+   {
+    "speaker": "Eddie",
+    "text": "Wasn't planning on it.",
+    "time": 2.1
+   },
+   {
+    "speaker": "",
+    "text": "How did you end up here?",
+    "time": 2.2
+   },
+   {
+    "speaker": "Marcus",
+    "text": "I was looking for my son. Noah.",
+    "time": 2.6
+   },
+   {
+    "speaker": "",
+    "text": "How old is he?",
+    "time": 2.0
+   },
+   {
+    "speaker": "Marcus",
+    "text": "Thirteen. He was supposed to be home hours ago.",
+    "time": 3.5
+   },
+   {
+    "speaker": "Eddie",
+    "text": "And you came into a video game store?",
+    "time": 2.9
+   },
+   {
+    "speaker": "Marcus",
+    "text": "I saw the lights on. Thought maybe he'd come inside.",
+    "time": 3.8
+   },
+   {
+    "speaker": "Marcus",
+    "text": "Then that thing appeared.",
+    "time": 2.3
+   },
+   {
+    "speaker": "",
+    "text": "We'll help you look when it's safe.",
+    "time": 2.8
+   },
+   {
+    "speaker": "Marcus",
+    "text": "Thank you.",
+    "time": 2.0
+   },
+   {
+    "speaker": "Eddie",
+    "text": "So... anybody else suddenly miss having normal problems?",
+    "time": 4.0
+   }
+  ]
+ },
+ "p3_lights": {
+  "lines": [
+   {
+    "speaker": "Eddie",
+    "text": "Look. Across the street.",
+    "time": 2.2
+   },
+   {
+    "speaker": "",
+    "text": "The supermarket?",
+    "time": 2.0
+   },
+   {
+    "speaker": "Eddie",
+    "text": "Lights are still on.",
+    "time": 2.0
+   },
+   {
+    "speaker": "Marcus",
+    "text": "There might be food. Water, too.",
+    "time": 2.7
+   },
+   {
+    "speaker": "",
+    "text": "And maybe other survivors.",
+    "time": 2.3
+   },
+   {
+    "speaker": "Marcus",
+    "text": "Someone there might've seen Noah.",
+    "time": 2.7
+   },
+   {
+    "speaker": "Eddie",
+    "text": "So we're actually going back outside?",
+    "time": 2.9
+   },
+   {
+    "speaker": "",
+    "text": "We can't stay here forever.",
+    "time": 2.4
+   },
+   {
+    "speaker": "Eddie",
+    "text": "I was really hoping we could.",
+    "time": 2.5
    }
   ]
  }

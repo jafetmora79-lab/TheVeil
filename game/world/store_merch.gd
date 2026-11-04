@@ -115,6 +115,40 @@ func _remove_one(gid: String, near: Vector3) -> bool:
 	return true
 
 
+## The raid (two hours after the Veil): most essentials are gone and whole shelf runs are empty, a few products
+## lie on the floor; the rest stays. Deterministic per instance (a load looks the same) and done only once.
+## Interactive pick groups are left alone.
+var looted := false
+var looted_hidden := 0
+
+
+func loot() -> void:
+	if looted:
+		return
+	looted = true
+	for c in get_children():
+		var mmi := c as MultiMeshInstance3D
+		if mmi == null or not String(mmi.name).begins_with("Merch_"):
+			continue
+		var v := String(mmi.name).to_lower()
+		var essential := v.contains("water") or v.contains("can") or v.contains("soup") or v.contains("med") or v.contains("pill") \
+			or v.contains("battery") or v.contains("bottle")
+		var gone := 80 if essential else 45
+		var mm := mmi.multimesh
+		for i in mm.instance_count:
+			var h := absi(hash(String(mmi.name) + str(i))) % 100
+			var run := absi(hash(String(mmi.name) + str(i / 6))) % 100            # whole runs of six go together
+			var t := mm.get_instance_transform(i)
+			if run < gone - 8 or h < gone - 30:
+				mm.set_instance_transform(i, Transform3D(t.basis.scaled(Vector3.ONE * 0.001), t.origin))
+				looted_hidden += 1
+			elif h < gone - 26:
+				# knocked off: lying on the floor in front of the shelf
+				var fwd := t.basis.z.normalized()
+				var b := Basis(Vector3.RIGHT, PI * 0.5) * Basis(Vector3.UP, float(h) * 0.7)
+				mm.set_instance_transform(i, Transform3D(b * t.basis.orthonormalized(), Vector3(t.origin.x, 0.07, t.origin.z) + fwd * 0.45))
+
+
 func remaining(gid: String) -> int:
 	var mm: MultiMesh = (groups[gid]["mmi"] as MultiMeshInstance3D).multimesh
 	return mm.visible_instance_count if mm.visible_instance_count >= 0 else mm.instance_count

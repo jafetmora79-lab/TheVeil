@@ -489,6 +489,30 @@ func _run_threat() -> void:
 	_threat_running = true
 	threat_runs += 1
 	var anims: Dictionary = world.animators
+	# the player's choice decides the night: "wait until morning" = nobody goes out, no creature at all (only
+	# banging at the back door in the night, see _on_slept); "we can't leave Noah" = they step outside and a Hound
+	# charges them (_hound_charge)
+	if Game.has_flag("p4_choice_wait"):
+		Game.set_flag("p4_threat_done")
+		_threat_running = false
+		_apply()
+		Dialogue.say("p4_rest_hint", false, true)
+		world._beacon("p4_rest", ml(BEDROLL + Vector3(0, 1.4, 0)), Color(0.8, 0.85, 1.0))
+		return
+	if Game.has_flag("p4_choice_noah"):
+		await _hound_charge()
+		Sfx.stop_ambience()
+		await get_tree().create_timer(3.0).timeout
+		Sfx.start_ambience()
+		Dialogue.say("p4_threat_after", false, true)
+		while Dialogue.is_busy():
+			await get_tree().process_frame
+		Game.set_flag("p4_threat_done")
+		_threat_running = false
+		_apply()
+		Dialogue.say("p4_rest_hint", false, true)
+		world._beacon("p4_rest", ml(BEDROLL + Vector3(0, 1.4, 0)), Color(0.8, 0.85, 1.0))
+		return
 	# 1. scraping along the outside wall, lights stutter
 	_play("scrape", ml(Vector3(-12.0, 1.2, -1.0)), 2.0)
 	_flicker_burst(2.5)
@@ -517,6 +541,131 @@ func _run_threat() -> void:
 	_apply()
 	Dialogue.say("p4_rest_hint", false, true)
 	world._beacon("p4_rest", ml(BEDROLL + Vector3(0, 1.4, 0)), Color(0.8, 0.85, 1.0))
+
+
+## ACCEPT: the three step outside the front doors; after a moment of silence a Hound bursts out of the fog and
+## sprints at them; everyone rushes back in, the doors are pulled shut, it slams into them (doors shake, camera
+## shake, impact), staggers, shakes its head, turns left and runs off into the fog. Once (flag p4_hound_charged).
+var charge_report := {}
+
+
+func _hound_charge() -> void:
+	if Game.has_flag("p4_hound_charged"):
+		return
+	Game.set_flag("p4_hound_charged")
+	player.set("controls_enabled", false)
+	var cam := Camera3D.new()
+	cam.name = "ChargeCam"
+	world.add_child(cam)
+	var src: Camera3D = player.get("camera")
+	cam.global_transform = src.global_transform
+	cam.fov = src.fov
+	cam.current = true
+	var doors_z: float = market.to_local((world._auto_doors[0][0] as Node3D).global_position).z if not world._auto_doors.is_empty() else 0.1
+	var open_doors := func(v: bool):
+		world._doors_powered = true
+		world._set_auto_doors(v)
+		world._doors_powered = false
+	# 1. out of the doors, Eddie and Marcus a step ahead
+	open_doors.call(true)
+	world.npc_walk("Eddie", Vector3(-1.0, 0.04, doors_z - 1.8), 1.4)
+	world.npc_walk("Marcus", Vector3(1.0, 0.04, doors_z - 2.0), 1.4)
+	var a0: Vector3 = ml(Vector3(0.0, 1.65, doors_z + 2.6))
+	var a1: Vector3 = ml(Vector3(0.0, 1.65, doors_z - 1.2))
+	cam.global_position = a0
+	cam.look_at(ml(Vector3(0, 1.4, doors_z - 10.0)), Vector3.UP)
+	var tw := create_tween()
+	tw.tween_property(cam, "global_position", a1, 2.4).set_trans(Tween.TRANS_SINE)
+	await tw.finished
+	await get_tree().create_timer(1.6).timeout          # silence
+	# 2. it comes out of the fog, fast
+	var ps := load(HOUND_PATH) as PackedScene
+	var h: Node3D = ps.instantiate() as Node3D if ps else null
+	var stop_z := doors_z - 1.9                           # root stops here: the head meets the shut leaves
+	if h:
+		h.name = "P4_Hound_Charge"
+		market.add_child(h)
+		if h is CollisionObject3D:
+			(h as CollisionObject3D).collision_layer = 0
+			(h as CollisionObject3D).collision_mask = 0
+		h.set_physics_process(false)
+		h.scale = Vector3.ONE * 1.35
+		h.position = Vector3(-6.0, 0.0, doors_z - 22.0)
+		h.rotation.y = atan2(6.0, 20.0)                   # the model faces +Z: towards the doors
+		var ap := h.get_node_or_null(String(h.get_meta("animation_player", "Model/AnimationPlayer"))) as AnimationPlayer
+		if ap and ap.has_animation("Run"):
+			ap.play("Run")
+			ap.speed_scale = 1.6
+		_play("scrape", ml(Vector3(-6.0, 1.0, doors_z - 20.0)), 4.0)
+		var th := h.create_tween()
+		th.tween_property(h, "position", Vector3(0.0, 0.0, stop_z), 2.1).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_IN)
+		charge_report["spawned"] = true
+	await get_tree().create_timer(0.5).timeout
+	# 3. panic: everyone back inside, the doors pulled shut behind them
+	for k in ["Eddie", "Marcus"]:
+		if world.animators.has(k):
+			world.animators[k].set_mood("scared")
+	world.npc_walk("Eddie", Vector3(-1.2, 0.04, 4.6), 3.6)
+	world.npc_walk("Marcus", Vector3(1.2, 0.04, 4.9), 3.6)
+	var tb := create_tween()
+	tb.tween_property(cam, "global_position", ml(Vector3(0.0, 1.65, doors_z + 3.2)), 0.9).set_trans(Tween.TRANS_SINE)
+	await tb.finished
+	open_doors.call(false)
+	await get_tree().create_timer(0.75).timeout
+	# 4. the slam: doors shake, impact, lights, camera
+	charge_report["slam"] = true
+	_play("impact", ml(Vector3(0, 1.1, doors_z)), 8.0)
+	world._shake(cam, 0.45, 0.06)
+	_flicker_burst(0.8)
+	for d in world._auto_doors:
+		var leaf: Node3D = d[0]
+		var base: Transform3D = d[1]
+		var tl := create_tween()
+		for j in 4:
+			var o := Vector3(0, 0, [0.06, -0.035, 0.02, 0.0][j])
+			tl.tween_property(leaf, "transform", Transform3D(base.basis, base.origin + base.basis * o), [0.05, 0.08, 0.08, 0.1][j])
+	if h and is_instance_valid(h):
+		var ap2 := h.get_node_or_null(String(h.get_meta("animation_player", "Model/AnimationPlayer"))) as AnimationPlayer
+		# 5. staggers back, shakes its head
+		if ap2 and ap2.has_animation("Hit_React"):
+			ap2.play("Hit_React", 0.05)
+			ap2.speed_scale = 1.0
+		var ts := h.create_tween()
+		ts.tween_property(h, "position:z", stop_z - 0.8, 0.35).set_trans(Tween.TRANS_SINE)
+		ts.tween_property(h, "rotation:z", 0.12, 0.12)
+		ts.tween_property(h, "rotation:z", -0.1, 0.14)
+		ts.tween_property(h, "rotation:z", 0.0, 0.12)
+		await ts.finished
+		# 6. turns left and is gone into the fog at speed
+		if ap2 and ap2.has_animation("Run"):
+			ap2.play("Run", 0.1)
+			ap2.speed_scale = 1.5
+		var tg := h.create_tween()
+		tg.tween_property(h, "rotation:y", h.rotation.y - PI * 0.5, 0.3)
+		tg.tween_property(h, "position", h.position + Vector3(-26.0, 0, -2.0), 2.2)
+		tg.tween_callback(h.queue_free)
+		await get_tree().create_timer(2.6).timeout
+	charge_report["gone"] = true
+	cam.queue_free()
+	src.current = true
+	player.set("controls_enabled", true)
+
+
+## REFUSE: during the night, heavy irregular banging at the back door; nobody goes to see what it was.
+func _night_banging() -> void:
+	var bd: Node3D = its.get("back_door")
+	var base: Transform3D = _base.get("back", bd.transform if bd else Transform3D())
+	for k in 6:
+		await get_tree().create_timer([0.9, 1.6, 0.5, 2.2, 0.7, 1.4][k]).timeout
+		_play("impact", ml(BACKDOOR_HANDLE), 3.0 - k * 0.5)
+		if bd:
+			var tw := create_tween()
+			tw.tween_property(bd, "transform", Transform3D(base.basis * Basis(Vector3.UP, deg_to_rad(-1.6)), base.origin), 0.05)
+			tw.tween_property(bd, "transform", base, 0.12)
+	night_bangs += 1
+
+
+var night_bangs := 0
 
 
 func _spawn_hound() -> void:
@@ -651,6 +800,10 @@ func _on_slept(_id: String) -> void:
 	if flashlight:
 		flashlight.set_on(false)
 	await get_tree().create_timer(1.0).timeout
+	if Game.has_flag("p4_choice_wait") and not Game.has_flag("p4_night_banging"):
+		Game.set_flag("p4_night_banging")
+		await _night_banging()                        # in the dark: something at the back door, all night
+		await get_tree().create_timer(1.0).timeout
 	await hud.title_card("SATURDAY", 2.8)
 	_start_chapter5(false)                         # still black: the morning positions are set before the fade
 	await hud.fade_to(0.0, 2.0)

@@ -2000,11 +2000,7 @@ func _p3_reach_shop() -> void:
 	Game.set_flag("p3_in_shop")
 	_clear_beacon("shop")
 	_p3_place_marcus_in_shop()
-	Dialogue.say("p3_shop", false, true)
-	var total := _dlg_time(["p3_shop"])
-	talk_shot(total + 0.3 + _dlg_time(["p3_eddie_go"]))
-	await get_tree().create_timer(total + 0.3).timeout
-	Dialogue.say("p3_eddie_go")
+	await _shop_seated_talk()                     # sit away from the windows, talk, 2 HOURS LATER, the lights
 	_p3_shop_talked = true
 	# both get ready by the front of the shop: they leave with the protagonist (_p3_flee_together)
 	if animators.has("Eddie") and eddie.get_parent() == game_shop:
@@ -2012,6 +2008,182 @@ func _p3_reach_shop() -> void:
 	if animators.has("Marcus") and marcus.get_parent() == game_shop:
 		npc_walk("Marcus", Vector3(-2.4, 0.04, 2.4), 1.6)
 	_beacon("market", market.global_transform * Vector3(0, 2.6, -0.9), Color(0.7, 0.85, 1.0))
+
+
+# ------------------------------------------------------------------ the game shop: seated talk, two hours later
+const SEAT_CHAIR_A := "res://THE_VEIL_ASSETS_V2/03_Residential/Furniture/RES_DiningChair_Wood.glb"
+const SEAT_CHAIR_B := "res://THE_VEIL_ASSETS_V2/03_Residential/Furniture/RES_DiningChair_Vinyl.glb"
+const SEAT_BOX := "res://THE_VEIL_ASSETS_V2/03_Residential/Furniture/RES_CardboardBox_Closed.glb"
+## game-shop local, back half of the shop, clear of the front windows: [speaker, model, seat, seat height]
+const SHOP_SEATS := [["Eddie", SEAT_CHAIR_A, Vector3(-2.6, 0.04, 5.6), 0.48], ["Marcus", SEAT_BOX, Vector3(-1.0, 0.04, 6.35), 0.40],
+	["Protagonist", SEAT_CHAIR_B, Vector3(-1.5, 0.04, 4.75), 0.48]]
+const SHOP_CIRCLE := Vector3(-1.7, 0.04, 5.55)
+var seated_report := {}
+var _steps_on := false
+
+
+func _shop_seated_talk() -> void:
+	var X := game_shop.global_transform
+	player.controls_enabled = false
+	hud.allow_pause = false
+	var me := _spawn_npc(load(PROTAG_PATH), load(PROTAG_FACE_PATH), game_shop, game_shop.to_local(player.global_position), 0.0, "Protagonist")
+	me.name = "Protagonist_Seated"
+	player.visible = false                        # the scene is played by the protagonist's model
+	var cam := Camera3D.new()
+	cam.name = "SeatedCam"
+	add_child(cam)
+	cam.global_transform = player.camera.global_transform
+	cam.fov = 55.0
+	cam.current = true
+	var center: Vector3 = X * (SHOP_CIRCLE + Vector3(0, 0.9, 0))
+	var c_at = pick_anchor([X * Vector3(0.9, 1.55, 3.5), X * Vector3(0.6, 1.6, 7.6), X * Vector3(-3.9, 1.55, 3.7), X * Vector3(1.2, 1.6, 5.5)], [center])
+	seated_report["anchor"] = c_at != null
+	var props: Array = []
+	for st in SHOP_SEATS:
+		var to: Vector3 = SHOP_CIRCLE - st[2]
+		to.y = 0.0
+		var seat := (load(st[1]) as PackedScene).instantiate() as Node3D
+		seat.name = "Seat_" + st[0]
+		game_shop.add_child(seat)
+		seat.position = st[2]
+		seat.rotation.y = atan2(to.x, to.z)          # the sitter faces +z of the chair: towards the circle
+		props.append(seat)
+		npc_walk(st[0], st[2] + to.normalized() * 0.55, 1.3)
+	var t := 0.0
+	while t < 7.0 and SHOP_SEATS.any(func(st): return animators.has(st[0]) and animators[st[0]].is_walking()):
+		var mid: Vector3 = (animators["Eddie"].root.global_position + me.global_position) * 0.5 + Vector3(0, 1.2, 0)
+		cam.global_basis = Basis(cam.global_basis.get_rotation_quaternion().slerp(
+			Transform3D(Basis(), cam.global_position).looking_at(mid, Vector3.UP).basis.get_rotation_quaternion(), minf(get_process_delta_time() * 2.5, 1.0)))
+		await get_tree().process_frame
+		t += get_process_delta_time()
+	for st in SHOP_SEATS:                        # sit down: on the seat, facing the others
+		var a = animators.get(st[0])
+		if a == null:
+			continue
+		var to2: Vector3 = SHOP_CIRCLE - st[2]
+		to2.y = 0.0
+		a.walk_to([])
+		a.root.position = st[2] - to2.normalized() * 0.06
+		a.turn_to_face = false
+		a.face_towards(X * SHOP_CIRCLE)
+		a.root.rotate_y(a.world_forward().signed_angle_to((X.basis * to2).normalized(), Vector3.UP))
+		a.set_seated(true, st[3])
+		a.set_mood("scared")
+	if c_at != null:
+		cam.global_position = c_at
+	cam.look_at(center, Vector3.UP)
+	await get_tree().create_timer(1.0).timeout
+	seated_report["seated"] = SHOP_SEATS.all(func(st): return animators.has(st[0]) and animators[st[0]].seated)
+	_steps_on = true
+	_distant_steps(cam)
+	Dialogue.confirm_mode = true
+	await _say_all("p3_seated_a")
+	_colossus_step_outside(cam, 1.0)             # [a heavy footstep echoes outside]
+	await get_tree().create_timer(1.2).timeout
+	await _say_all("p3_seated_b")
+	Dialogue.confirm_mode = false
+	# hold, slow fade, the store goes quiet, 2 HOURS LATER
+	await get_tree().create_timer(2.0).timeout
+	_steps_on = false
+	await hud.fade_to(1.0, 3.0)
+	Sfx.stop_ambience()
+	var lbl := Label.new()
+	lbl.text = "2 HOURS LATER"
+	lbl.add_theme_font_size_override("font_size", 30)
+	lbl.add_theme_color_override("font_color", Color(1, 1, 1))
+	lbl.set_anchors_preset(Control.PRESET_CENTER)
+	lbl.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	lbl.grow_horizontal = Control.GROW_DIRECTION_BOTH
+	lbl.grow_vertical = Control.GROW_DIRECTION_BOTH
+	lbl.modulate.a = 0.0
+	hud.add_child(lbl)                            # above the fade layer
+	var tl := create_tween()
+	tl.tween_property(lbl, "modulate:a", 1.0, 0.8)
+	tl.tween_interval(2.0)
+	tl.tween_property(lbl, "modulate:a", 0.0, 0.8)
+	await tl.finished
+	lbl.queue_free()
+	seated_report["time_skip"] = true
+	Game.set_flag("p3_two_hours_later")
+	for n in find_children("Colossus_Encounter", "", true, false):
+		n.queue_free()                            # it has gone: no more footsteps
+	if market_merch and market_merch.has_method("loot"):
+		market_merch.loot()                       # people raided the supermarket in the meantime
+	_tip_carts()
+	# after: standing again, still frightened; Eddie at the window, the supermarket's lights across the street
+	for st in SHOP_SEATS:
+		if animators.has(st[0]):
+			animators[st[0]].set_seated(false)
+	await get_tree().create_timer(0.7).timeout
+	npc_walk("Eddie", Vector3(-1.4, 0.04, 1.3), 1.2)
+	npc_walk("Marcus", Vector3(-2.3, 0.04, 2.1), 1.2)
+	npc_walk("Protagonist", Vector3(-0.6, 0.04, 2.0), 1.2)
+	cam.global_position = X * Vector3(-0.9, 1.65, 0.95)
+	cam.look_at(market.global_transform * Vector3(0.0, 4.0, -0.3), Vector3.UP)
+	cam.fov = 45.0
+	Sfx.start_ambience()
+	await hud.fade_to(0.0, 2.0)
+	Dialogue.confirm_mode = true
+	await _say_all("p3_lights")
+	Dialogue.confirm_mode = false
+	seated_report["lights_talk"] = true
+	# control back where the protagonist stands
+	for p in props:
+		if is_instance_valid(p):
+			p.queue_free()
+	player.global_position = me.global_position + Vector3(0, 0.05, 0)
+	var dm: Vector3 = (market.global_position - player.global_position) * Vector3(1, 0, 1)
+	player.set_yaw_pitch(atan2(-dm.x, -dm.z), 0.0)
+	me.queue_free()
+	animators.erase("Protagonist")
+	faces.erase("Protagonist")
+	player.visible = true
+	cam.queue_free()
+	player.camera.current = true
+	for k in ["Eddie", "Marcus"]:
+		if animators.has(k):
+			animators[k].turn_to_face = true
+	hud.allow_pause = true
+	player.controls_enabled = true
+
+
+func _say_all(id: String) -> void:
+	Dialogue.say(id, false, true)
+	await get_tree().process_frame
+	while Dialogue.is_busy():
+		await get_tree().process_frame
+
+
+## One heavy Colossus footstep somewhere outside the shop front (sound + a restrained shake of the shot).
+func _colossus_step_outside(cam: Camera3D, strength := 0.6) -> void:
+	var out: Vector3 = game_shop.global_transform * Vector3(randf_range(-14.0, 14.0), 2.0, -24.0)
+	Sfx.play("colossus_step", out, 2.0 * strength, 0.66)
+	if is_instance_valid(cam):
+		_shake(cam, 0.3, 0.018 * strength)
+
+
+func _distant_steps(cam: Camera3D) -> void:
+	while _steps_on and is_instance_valid(cam):
+		await get_tree().create_timer(randf_range(3.5, 5.5)).timeout
+		if _steps_on:
+			_colossus_step_outside(cam, 0.6)
+
+
+## A couple of the supermarket's shopping carts lie on their side after the raid.
+func _tip_carts() -> void:
+	if market.has_meta("carts_tipped"):
+		return
+	market.set_meta("carts_tipped", true)
+	var k := 0
+	for n in market.find_children("Cart_*", "Node3D", true, false):
+		if k >= 2:
+			break
+		var c := n as Node3D
+		if c is RigidBody3D:
+			(c as RigidBody3D).freeze = true
+		c.rotation.z = 1.5 if k == 0 else -1.45
+		c.position.y += 0.28
+		k += 1
 
 
 ## After the shop talk, once the player is outside: Eddie and Marcus run WITH the protagonist to the supermarket
@@ -2229,6 +2401,10 @@ func _p3_restore() -> void:
 		if not Game.has_flag("p3_doors_shut"):
 			_p3_spawn_tentacles()
 	_p3_place_marcus_in_shop()
+	if Game.has_flag("p3_two_hours_later") or Game.has_flag("p3_in_market"):
+		if market_merch and market_merch.has_method("loot"):
+			market_merch.loot()
+		_tip_carts()
 	if Game.has_flag("p3_in_shop"):
 		_p3_shop_talked = true
 		_p3_move_npcs_to_market()

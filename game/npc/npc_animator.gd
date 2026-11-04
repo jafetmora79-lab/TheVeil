@@ -121,6 +121,23 @@ func talk(seconds: float) -> void:
 	_talk_left = maxf(_talk_left, seconds)
 
 
+## Seated pose (no clip needed): thighs forward, knees bent, hips lowered so the pelvis rests at seat_y (metres
+## above the character's floor). Blended in / out over ~0.6 s. The caller places the root on the seat.
+var seated := false
+var seat_y := 0.48
+var _sit := 0.0
+var _hip_h := -1.0
+const SIT_THIGH := 86.0
+const SIT_KNEE := 88.0
+
+
+func set_seated(on: bool, seat_height := 0.48) -> void:
+	seated = on
+	seat_y = seat_height
+	if on:
+		walk_to([])
+
+
 func set_mood(m: String) -> void:
 	mood = m
 
@@ -158,6 +175,7 @@ func _process(delta: float) -> void:
 	_update_turn(delta)
 	_update_gestures(delta)
 	_update_look(delta)
+	_sit = move_toward(_sit, 1.0 if seated else 0.0, delta * 1.7)
 	_pose()
 
 
@@ -298,8 +316,12 @@ func _pose() -> void:
 	for side in ["Left", "Right"]:
 		var sg := 1.0 if side == "Left" else -1.0
 		var c := sin(ph) * sg
-		_pose_bone(side + "UpperLeg", _q(R, c * 24.0 * w + s * 2.0))
-		_pose_bone(side + "LowerLeg", _q(R, -maxf(-cos(ph) * sg, 0.0) * 38.0 * w - maxf(c, 0.0) * 8.0 * w - s * 3.0))
+		var sit_out := (-1.0 if side == "Left" else 1.0) * 6.0 * _sit          # knees slightly apart
+		_pose_bone(side + "UpperLeg", _q(R, c * 24.0 * w + s * 2.0 + SIT_THIGH * _sit) * _q(F, sit_out))
+		_pose_bone(side + "LowerLeg", _q(R, -maxf(-cos(ph) * sg, 0.0) * 38.0 * w - maxf(c, 0.0) * 8.0 * w - s * 3.0 - SIT_KNEE * _sit))
 		_pose_bone(side + "Foot", _q(R, -c * 10.0 * w))
-	# a small bounce while walking (on the skeleton node, not the character root)
-	skel.position.y = absf(sin(ph)) * 0.025 * w
+	# a small bounce while walking (on the skeleton node, not the character root); seated: pelvis down to the seat
+	if _hip_h < 0.0:
+		var hi := bone("Hips")
+		_hip_h = (skel.get_bone_global_rest(hi).origin * skel.global_transform.basis.get_scale()).y if hi >= 0 else 0.95
+	skel.position.y = absf(sin(ph)) * 0.025 * w - maxf(_hip_h - seat_y - 0.06, 0.0) * _sit

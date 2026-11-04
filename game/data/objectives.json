@@ -86,7 +86,7 @@
    "id": "mist_market",
    "flag": "p3_in_market",
    "goal": "act1",
-   "text": "Get to the supermarket"
+   "text": "Reach the supermarket"
   },
   {
    "id": "mist_doors",
