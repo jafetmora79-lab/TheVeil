@@ -535,7 +535,7 @@ func _away_from_store(l: Vector3, m: float) -> bool:
 
 
 func _near_doors(l: Vector3) -> bool:
-	return absf(l.x) < 4.0 and l.z > -5.0 and l.z < 4.6
+	return absf(l.x) < 4.0 and l.z > -5.0 and l.z < INSIDE_Z          # outside the doors or in the vestibule
 
 
 func _in_house(p: Vector3) -> bool:
