@@ -345,6 +345,7 @@ func _voice() -> void:
 	_play("breath", src, -6.0)
 	await c5._say_wait("c6_voice")
 	await get_tree().create_timer(0.8).timeout
+	_busy["voice_reoffer"] = true
 	Dialogue.say("c6_voice_eddie", false, true)
 	_busy["voice"] = false
 
@@ -477,6 +478,11 @@ func _process(delta: float) -> void:
 		_voice()
 	if _yard.overlaps_body(player):
 		_ruth_sarah()
+	# a load between the voice and the choice: the voice is not replayed, Eddie's reaction (and the choice) is
+	if Game.has_flag("ch6_voice_heard") and not Game.has_flag("ch6_voice_choice_made") and not _busy.get("voice", false) \
+			and not _busy.get("voice_reoffer", false) and not Dialogue.is_busy() and not p4.choice.is_open():
+		_busy["voice_reoffer"] = true
+		Dialogue.say("c6_voice_eddie", false, true)
 	_encounter_tick()
 	# retreating home without ever meeting the Hound still ends the encounter (it was avoided)
 	if Game.has_flag("ch6_voice_choice_made") and not Game.has_flag("ch6_hound_encounter_complete") \
