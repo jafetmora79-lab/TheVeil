@@ -1,0 +1,1377 @@
+{
+ "pack": "THE VEIL - Pack 08 Inventory, Tools & Weapons",
+ "existing_reused": [],
+ "models": [
+  {
+   "name": "INV_HouseKey",
+   "category": "Story_Items",
+   "priority": 1,
+   "glb": "08_Inventory/Story_Items/INV_HouseKey.glb",
+   "triangles": 148,
+   "texture": "08_Inventory/Textures/T_Inv_Atlas.png (256x256, shared)",
+   "material": "08_Inventory/Shared_Materials/M_Inv_Atlas.tres",
+   "size_m": [
+    0.027,
+    0.004,
+    0.062
+   ],
+   "collision": "convex box",
+   "markers": [
+    "Inspect_Center",
+    "Grip"
+   ],
+   "grip": [
+    0.0,
+    0.002,
+    0.0181
+   ],
+   "holdable": false,
+   "grip_note": null,
+   "description": "Brass house key with a round bow.",
+   "status": "new"
+  },
+  {
+   "name": "INV_CarKey",
+   "category": "Story_Items",
+   "priority": 1,
+   "glb": "08_Inventory/Story_Items/INV_CarKey.glb",
+   "triangles": 128,
+   "texture": "08_Inventory/Textures/T_Inv_Atlas.png (256x256, shared)",
+   "material": "08_Inventory/Shared_Materials/M_Inv_Atlas.tres",
+   "size_m": [
+    0.038,
+    0.014,
+    0.08
+   ],
+   "collision": "convex box",
+   "markers": [
+    "Inspect_Center",
+    "Grip"
+   ],
+   "grip": [
+    0.0,
+    0.007,
+    0.025
+   ],
+   "holdable": false,
+   "grip_note": null,
+   "description": "Older-sedan ignition key: chunky black rubber head, steel blade.",
+   "status": "new"
+  },
+  {
+   "name": "INV_Keyring",
+   "category": "Story_Items",
+   "priority": 1,
+   "glb": "08_Inventory/Story_Items/INV_Keyring.glb",
+   "triangles": 420,
+   "texture": "08_Inventory/Textures/T_Inv_Atlas.png (256x256, shared)",
+   "material": "08_Inventory/Shared_Materials/M_Inv_Atlas.tres",
+   "size_m": [
+    0.067,
+    0.016,
+    0.093
+   ],
+   "collision": "convex box",
+   "markers": [
+    "Inspect_Center",
+    "Grip"
+   ],
+   "grip": [
+    0.0035,
+    0.004,
+    0.0087
+   ],
+   "holdable": false,
+   "grip_note": null,
+   "description": "Steel split ring with house key, car key and a red HOME tag.",
+   "status": "new"
+  },
+  {
+   "name": "INV_Flashlight",
+   "category": "Story_Items",
+   "priority": 1,
+   "glb": "08_Inventory/Story_Items/INV_Flashlight.glb",
+   "triangles": 324,
+   "texture": "08_Inventory/Textures/T_Inv_Atlas.png (256x256, shared)",
+   "material": "08_Inventory/Shared_Materials/M_Inv_Atlas.tres",
+   "size_m": [
+    0.062,
+    0.062,
+    0.206
+   ],
+   "collision": "convex box",
+   "markers": [
+    "Inspect_Center",
+    "Grip",
+    "Beam_Origin"
+   ],
+   "grip": [
+    0.0,
+    0.031,
+    0.005
+   ],
+   "holdable": true,
+   "grip_note": "palm around the body at Grip, thumb on the switch; beam leaves Beam_Origin along -Z",
+   "description": "Two-cell flashlight: knurled grip, red thumb switch, battery door, flared head, recessed lens.",
+   "status": "new"
+  },
+  {
+   "name": "INV_FlashlightBattery",
+   "category": "Story_Items",
+   "priority": 1,
+   "glb": "08_Inventory/Story_Items/INV_FlashlightBattery.glb",
+   "triangles": 128,
+   "texture": "08_Inventory/Textures/T_Inv_Atlas.png (256x256, shared)",
+   "material": "08_Inventory/Shared_Materials/M_Inv_Atlas.tres",
+   "size_m": [
+    0.033,
+    0.033,
+    0.064
+   ],
+   "collision": "convex box",
+   "markers": [
+    "Inspect_Center"
+   ],
+   "grip": null,
+   "holdable": false,
+   "grip_note": null,
+   "description": "D-size cell for the flashlight (original label).",
+   "status": "new"
+  },
+  {
+   "name": "INV_HandheldRadio",
+   "category": "Story_Items",
+   "priority": 1,
+   "glb": "08_Inventory/Story_Items/INV_HandheldRadio.glb",
+   "triangles": 124,
+   "texture": "08_Inventory/Textures/T_Inv_Atlas.png (256x256, shared)",
+   "material": "08_Inventory/Shared_Materials/M_Inv_Atlas.tres",
+   "size_m": [
+    0.068,
+    0.25,
+    0.045
+   ],
+   "collision": "convex box",
+   "markers": [
+    "Inspect_Center",
+    "Grip"
+   ],
+   "grip": [
+    0.0022,
+    0.055,
+    0.0036
+   ],
+   "holdable": true,
+   "grip_note": "palm on the back/side, thumb on the side push-to-talk",
+   "description": "Two-way handheld radio: antenna, channel knob, LCD + keypad, speaker grille, PTT, belt clip.",
+   "status": "new"
+  },
+  {
+   "name": "INV_FoldedNote",
+   "category": "Story_Items",
+   "priority": 1,
+   "glb": "08_Inventory/Story_Items/INV_FoldedNote.glb",
+   "triangles": 24,
+   "texture": "08_Inventory/Textures/T_Inv_Atlas.png (256x256, shared)",
+   "material": "08_Inventory/Shared_Materials/M_Inv_Atlas.tres",
+   "size_m": [
+    0.09,
+    0.008,
+    0.06
+   ],
+   "collision": "convex box",
+   "markers": [
+    "Inspect_Center",
+    "Grip"
+   ],
+   "grip": [
+    0.0,
+    0.0026,
+    -0.0002
+   ],
+   "holdable": true,
+   "grip_note": null,
+   "description": "Note folded once, half lifted.",
+   "status": "new"
+  },
+  {
+   "name": "INV_Notebook",
+   "category": "Story_Items",
+   "priority": 1,
+   "glb": "08_Inventory/Story_Items/INV_Notebook.glb",
+   "triangles": 496,
+   "texture": "08_Inventory/Textures/T_Inv_Atlas.png (256x256, shared)",
+   "material": "08_Inventory/Shared_Materials/M_Inv_Atlas.tres",
+   "size_m": [
+    0.112,
+    0.017,
+    0.148
+   ],
+   "collision": "convex box",
+   "markers": [
+    "Inspect_Center",
+    "Grip"
+   ],
+   "grip": [
+    -0.0165,
+    0.0083,
+    0.0
+   ],
+   "holdable": true,
+   "grip_note": "held open in the left hand; cover hinges on the -X spine",
+   "description": "Spiral pocket notebook: card cover, page block, wire spine.",
+   "status": "new"
+  },
+  {
+   "name": "INV_Pen",
+   "category": "Story_Items",
+   "priority": 1,
+   "glb": "08_Inventory/Story_Items/INV_Pen.glb",
+   "triangles": 92,
+   "texture": "08_Inventory/Textures/T_Inv_Atlas.png (256x256, shared)",
+   "material": "08_Inventory/Shared_Materials/M_Inv_Atlas.tres",
+   "size_m": [
+    0.01,
+    0.011,
+    0.138
+   ],
+   "collision": "convex box",
+   "markers": [
+    "Inspect_Center",
+    "Grip"
+   ],
+   "grip": [
+    0.0,
+    0.0043,
+    0.039
+   ],
+   "holdable": false,
+   "grip_note": null,
+   "description": "Ballpoint pen with clip.",
+   "status": "new"
+  },
+  {
+   "name": "INV_TownMap",
+   "category": "Story_Items",
+   "priority": 1,
+   "glb": "08_Inventory/Story_Items/INV_TownMap.glb",
+   "triangles": 36,
+   "texture": "08_Inventory/Textures/T_Inv_Atlas.png (256x256, shared)",
+   "material": "08_Inventory/Shared_Materials/M_Inv_Atlas.tres",
+   "size_m": [
+    0.119,
+    0.007,
+    0.165
+   ],
+   "collision": "convex box",
+   "markers": [
+    "Inspect_Center",
+    "Grip"
+   ],
+   "grip": [
+    -0.0003,
+    0.003,
+    0.04
+   ],
+   "holdable": true,
+   "grip_note": null,
+   "description": "Folded Greyhaven street map (printed from the town's real road layout).",
+   "status": "new"
+  },
+  {
+   "name": "INV_Wallet",
+   "category": "Story_Items",
+   "priority": 1,
+   "glb": "08_Inventory/Story_Items/INV_Wallet.glb",
+   "triangles": 36,
+   "texture": "08_Inventory/Textures/T_Inv_Atlas.png (256x256, shared)",
+   "material": "08_Inventory/Shared_Materials/M_Inv_Atlas.tres",
+   "size_m": [
+    0.111,
+    0.019,
+    0.092
+   ],
+   "collision": "convex box",
+   "markers": [
+    "Inspect_Center"
+   ],
+   "grip": null,
+   "holdable": false,
+   "grip_note": null,
+   "description": "Worn bifold leather wallet with cards peeking out.",
+   "status": "new"
+  },
+  {
+   "name": "INV_Wristwatch",
+   "category": "Story_Items",
+   "priority": 1,
+   "glb": "08_Inventory/Story_Items/INV_Wristwatch.glb",
+   "triangles": 220,
+   "texture": "08_Inventory/Textures/T_Inv_Atlas.png (256x256, shared)",
+   "material": "08_Inventory/Shared_Materials/M_Inv_Atlas.tres",
+   "size_m": [
+    0.043,
+    0.076,
+    0.058
+   ],
+   "collision": "convex box",
+   "markers": [
+    "Inspect_Center"
+   ],
+   "grip": null,
+   "holdable": false,
+   "grip_note": null,
+   "description": "Steel wristwatch on a black strap; hands read 6:42.",
+   "status": "new"
+  },
+  {
+   "name": "INV_FirstAidKit",
+   "category": "Medical",
+   "priority": 1,
+   "glb": "08_Inventory/Medical/INV_FirstAidKit.glb",
+   "triangles": 112,
+   "texture": "08_Inventory/Textures/T_Inv_Atlas.png (256x256, shared)",
+   "material": "08_Inventory/Shared_Materials/M_Inv_Atlas.tres",
+   "size_m": [
+    0.262,
+    0.102,
+    0.178
+   ],
+   "collision": "convex box",
+   "markers": [
+    "Inspect_Center",
+    "Grip"
+   ],
+   "grip": [
+    0.0,
+    0.095,
+    -0.033
+   ],
+   "holdable": false,
+   "grip_note": null,
+   "description": "Hard-shell first-aid case: lid seam, two latches, carry handle, red cross.",
+   "status": "new"
+  },
+  {
+   "name": "INV_BandageRoll",
+   "category": "Medical",
+   "priority": 1,
+   "glb": "08_Inventory/Medical/INV_BandageRoll.glb",
+   "triangles": 60,
+   "texture": "08_Inventory/Textures/T_Inv_Atlas.png (256x256, shared)",
+   "material": "08_Inventory/Shared_Materials/M_Inv_Atlas.tres",
+   "size_m": [
+    0.05,
+    0.06,
+    0.095
+   ],
+   "collision": "convex box",
+   "markers": [
+    "Inspect_Center"
+   ],
+   "grip": null,
+   "holdable": false,
+   "grip_note": null,
+   "description": "Gauze bandage roll with a loose tail.",
+   "status": "new"
+  },
+  {
+   "name": "INV_MedicineBottle",
+   "category": "Medical",
+   "priority": 1,
+   "glb": "08_Inventory/Medical/INV_MedicineBottle.glb",
+   "triangles": 204,
+   "texture": "08_Inventory/Textures/T_Inv_Atlas.png (256x256, shared)",
+   "material": "08_Inventory/Shared_Materials/M_Inv_Atlas.tres",
+   "size_m": [
+    0.042,
+    0.084,
+    0.042
+   ],
+   "collision": "convex box",
+   "markers": [
+    "Inspect_Center"
+   ],
+   "grip": null,
+   "holdable": false,
+   "grip_note": null,
+   "description": "Amber pill bottle with child-safe cap and prescription label.",
+   "status": "new"
+  },
+  {
+   "name": "INV_PainkillerPack",
+   "category": "Medical",
+   "priority": 1,
+   "glb": "08_Inventory/Medical/INV_PainkillerPack.glb",
+   "triangles": 108,
+   "texture": "08_Inventory/Textures/T_Inv_Atlas.png (256x256, shared)",
+   "material": "08_Inventory/Shared_Materials/M_Inv_Atlas.tres",
+   "size_m": [
+    0.091,
+    0.063,
+    0.022
+   ],
+   "collision": "convex box",
+   "markers": [
+    "Inspect_Center"
+   ],
+   "grip": null,
+   "holdable": false,
+   "grip_note": null,
+   "description": "Painkiller carton with a blister strip sliding out.",
+   "status": "new"
+  },
+  {
+   "name": "INV_WaterBottle",
+   "category": "Food_And_Supplies",
+   "priority": 1,
+   "glb": "08_Inventory/Food_And_Supplies/INV_WaterBottle.glb",
+   "triangles": 288,
+   "texture": "08_Inventory/Textures/T_Inv_Atlas.png (256x256, shared)",
+   "material": "08_Inventory/Shared_Materials/M_Inv_Atlas.tres",
+   "size_m": [
+    0.066,
+    0.208,
+    0.066
+   ],
+   "collision": "convex box",
+   "markers": [
+    "Inspect_Center"
+   ],
+   "grip": null,
+   "holdable": false,
+   "grip_note": null,
+   "description": "Half-litre spring-water bottle with ribbed waist and blue cap.",
+   "status": "new"
+  },
+  {
+   "name": "INV_CannedFood",
+   "category": "Food_And_Supplies",
+   "priority": 1,
+   "glb": "08_Inventory/Food_And_Supplies/INV_CannedFood.glb",
+   "triangles": 232,
+   "texture": "08_Inventory/Textures/T_Inv_Atlas.png (256x256, shared)",
+   "material": "08_Inventory/Shared_Materials/M_Inv_Atlas.tres",
+   "size_m": [
+    0.074,
+    0.111,
+    0.076
+   ],
+   "collision": "convex box",
+   "markers": [
+    "Inspect_Center"
+   ],
+   "grip": null,
+   "holdable": false,
+   "grip_note": null,
+   "description": "Tin of beans with an original label and pull tab.",
+   "status": "new"
+  },
+  {
+   "name": "INV_EnergySnack",
+   "category": "Food_And_Supplies",
+   "priority": 1,
+   "glb": "08_Inventory/Food_And_Supplies/INV_EnergySnack.glb",
+   "triangles": 36,
+   "texture": "08_Inventory/Textures/T_Inv_Atlas.png (256x256, shared)",
+   "material": "08_Inventory/Shared_Materials/M_Inv_Atlas.tres",
+   "size_m": [
+    0.044,
+    0.022,
+    0.14
+   ],
+   "collision": "convex box",
+   "markers": [
+    "Inspect_Center"
+   ],
+   "grip": null,
+   "holdable": false,
+   "grip_note": null,
+   "description": "Oat energy bar in a crimped wrapper.",
+   "status": "new"
+  },
+  {
+   "name": "INV_SmallBackpack",
+   "category": "Food_And_Supplies",
+   "priority": 1,
+   "glb": "08_Inventory/Food_And_Supplies/INV_SmallBackpack.glb",
+   "triangles": 242,
+   "texture": "08_Inventory/Textures/T_Inv_Atlas.png (256x256, shared)",
+   "material": "08_Inventory/Shared_Materials/M_Inv_Atlas.tres",
+   "size_m": [
+    0.3,
+    0.462,
+    0.253
+   ],
+   "collision": "convex box",
+   "markers": [
+    "Inspect_Center",
+    "Grip"
+   ],
+   "grip": [
+    0.0,
+    0.44,
+    -0.0103
+   ],
+   "holdable": false,
+   "grip_note": null,
+   "description": "Small daypack: main body, front and side pockets, zips, shoulder straps with buckles, grab loop.",
+   "status": "new"
+  },
+  {
+   "name": "INV_EmergencyLantern",
+   "category": "Food_And_Supplies",
+   "priority": 1,
+   "glb": "08_Inventory/Food_And_Supplies/INV_EmergencyLantern.glb",
+   "triangles": 336,
+   "texture": "08_Inventory/Textures/T_Inv_Atlas.png (256x256, shared)",
+   "material": "08_Inventory/Shared_Materials/M_Inv_Atlas.tres",
+   "size_m": [
+    0.11,
+    0.236,
+    0.114
+   ],
+   "collision": "convex box",
+   "markers": [
+    "Inspect_Center",
+    "Grip",
+    "Light_Origin"
+   ],
+   "grip": [
+    0.0,
+    0.22,
+    -0.002
+   ],
+   "holdable": false,
+   "grip_note": null,
+   "description": "Battery camping lantern: base, caged glowing globe, cap, wire handle.",
+   "status": "new"
+  },
+  {
+   "name": "INV_SpareBatteries",
+   "category": "Food_And_Supplies",
+   "priority": 1,
+   "glb": "08_Inventory/Food_And_Supplies/INV_SpareBatteries.glb",
+   "triangles": 214,
+   "texture": "08_Inventory/Textures/T_Inv_Atlas.png (256x256, shared)",
+   "material": "08_Inventory/Shared_Materials/M_Inv_Atlas.tres",
+   "size_m": [
+    0.07,
+    0.021,
+    0.11
+   ],
+   "collision": "convex box",
+   "markers": [
+    "Inspect_Center"
+   ],
+   "grip": null,
+   "holdable": false,
+   "grip_note": null,
+   "description": "Blister pack of four AA cells on a card.",
+   "status": "new"
+  },
+  {
+   "name": "INV_Crowbar",
+   "category": "Tools",
+   "priority": 1,
+   "glb": "08_Inventory/Tools/INV_Crowbar.glb",
+   "triangles": 96,
+   "texture": "08_Inventory/Textures/T_Inv_Atlas.png (256x256, shared)",
+   "material": "08_Inventory/Shared_Materials/M_Inv_Atlas.tres",
+   "size_m": [
+    0.024,
+    0.136,
+    0.637
+   ],
+   "collision": "convex box",
+   "markers": [
+    "Inspect_Center",
+    "Grip"
+   ],
+   "grip": [
+    0.0,
+    0.0091,
+    0.1635
+   ],
+   "holdable": true,
+   "grip_note": "two-hand or one-hand grip near the chisel end; hook toward -Z",
+   "description": "Red-painted crowbar: hex shaft, gooseneck with split claw, flat chisel end; paint worn at the ends.",
+   "status": "new"
+  },
+  {
+   "name": "INV_Screwdriver",
+   "category": "Tools",
+   "priority": 2,
+   "glb": "08_Inventory/Tools/INV_Screwdriver.glb",
+   "triangles": 116,
+   "texture": "08_Inventory/Textures/T_Inv_Atlas.png (256x256, shared)",
+   "material": "08_Inventory/Shared_Materials/M_Inv_Atlas.tres",
+   "size_m": [
+    0.032,
+    0.032,
+    0.203
+   ],
+   "collision": "convex box",
+   "markers": [
+    "Inspect_Center",
+    "Grip"
+   ],
+   "grip": [
+    0.0,
+    0.016,
+    0.0615
+   ],
+   "holdable": true,
+   "grip_note": null,
+   "description": "Flat-head screwdriver, faceted yellow handle with rubber grip.",
+   "status": "new"
+  },
+  {
+   "name": "INV_AdjustableWrench",
+   "category": "Tools",
+   "priority": 2,
+   "glb": "08_Inventory/Tools/INV_AdjustableWrench.glb",
+   "triangles": 104,
+   "texture": "08_Inventory/Textures/T_Inv_Atlas.png (256x256, shared)",
+   "material": "08_Inventory/Shared_Materials/M_Inv_Atlas.tres",
+   "size_m": [
+    0.05,
+    0.011,
+    0.2
+   ],
+   "collision": "convex box",
+   "markers": [
+    "Inspect_Center",
+    "Grip"
+   ],
+   "grip": [
+    0.001,
+    0.0055,
+    0.06
+   ],
+   "holdable": true,
+   "grip_note": null,
+   "description": "Adjustable wrench with knurled worm wheel and hang hole.",
+   "status": "new"
+  },
+  {
+   "name": "INV_Hammer",
+   "category": "Tools",
+   "priority": 2,
+   "glb": "08_Inventory/Tools/INV_Hammer.glb",
+   "triangles": 120,
+   "texture": "08_Inventory/Textures/T_Inv_Atlas.png (256x256, shared)",
+   "material": "08_Inventory/Shared_Materials/M_Inv_Atlas.tres",
+   "size_m": [
+    0.114,
+    0.059,
+    0.302
+   ],
+   "collision": "convex box",
+   "markers": [
+    "Inspect_Center",
+    "Grip"
+   ],
+   "grip": [
+    -0.0031,
+    0.0316,
+    0.091
+   ],
+   "holdable": true,
+   "grip_note": null,
+   "description": "Claw hammer: wooden handle with grip band, steel head and curved claw.",
+   "status": "new"
+  },
+  {
+   "name": "INV_Pliers",
+   "category": "Tools",
+   "priority": 2,
+   "glb": "08_Inventory/Tools/INV_Pliers.glb",
+   "triangles": 128,
+   "texture": "08_Inventory/Textures/T_Inv_Atlas.png (256x256, shared)",
+   "material": "08_Inventory/Shared_Materials/M_Inv_Atlas.tres",
+   "size_m": [
+    0.052,
+    0.013,
+    0.186
+   ],
+   "collision": "convex box",
+   "markers": [
+    "Inspect_Center",
+    "Grip"
+   ],
+   "grip": [
+    0.0,
+    0.008,
+    0.0422
+   ],
+   "holdable": true,
+   "grip_note": null,
+   "description": "Combination pliers with red handles.",
+   "status": "new"
+  },
+  {
+   "name": "INV_Pocketknife",
+   "category": "Tools",
+   "priority": 2,
+   "glb": "08_Inventory/Tools/INV_Pocketknife.glb",
+   "triangles": 60,
+   "texture": "08_Inventory/Textures/T_Inv_Atlas.png (256x256, shared)",
+   "material": "08_Inventory/Shared_Materials/M_Inv_Atlas.tres",
+   "size_m": [
+    0.022,
+    0.013,
+    0.157
+   ],
+   "collision": "convex box",
+   "markers": [
+    "Inspect_Center",
+    "Grip"
+   ],
+   "grip": [
+    0.0,
+    0.0065,
+    0.0385
+   ],
+   "holdable": true,
+   "grip_note": null,
+   "description": "Folding pocketknife, blade open, wooden scales and steel bolsters.",
+   "status": "new"
+  },
+  {
+   "name": "INV_DuctTape",
+   "category": "Tools",
+   "priority": 2,
+   "glb": "08_Inventory/Tools/INV_DuctTape.glb",
+   "triangles": 140,
+   "texture": "08_Inventory/Textures/T_Inv_Atlas.png (256x256, shared)",
+   "material": "08_Inventory/Shared_Materials/M_Inv_Atlas.tres",
+   "size_m": [
+    0.112,
+    0.048,
+    0.104
+   ],
+   "collision": "convex box",
+   "markers": [
+    "Inspect_Center"
+   ],
+   "grip": null,
+   "holdable": false,
+   "grip_note": null,
+   "description": "Roll of grey duct tape on a cardboard core, loose end lifted.",
+   "status": "new"
+  },
+  {
+   "name": "INV_RopeBundle",
+   "category": "Tools",
+   "priority": 2,
+   "glb": "08_Inventory/Tools/INV_RopeBundle.glb",
+   "triangles": 1096,
+   "texture": "08_Inventory/Textures/T_Inv_Atlas.png (256x256, shared)",
+   "material": "08_Inventory/Shared_Materials/M_Inv_Atlas.tres",
+   "size_m": [
+    0.254,
+    0.1,
+    0.169
+   ],
+   "collision": "convex box",
+   "markers": [
+    "Inspect_Center",
+    "Grip"
+   ],
+   "grip": [
+    0.0,
+    0.0955,
+    -0.009
+   ],
+   "holdable": false,
+   "grip_note": null,
+   "description": "Coiled length of natural-fibre rope with binding wraps.",
+   "status": "new"
+  },
+  {
+   "name": "INV_Padlock",
+   "category": "Tools",
+   "priority": 2,
+   "glb": "08_Inventory/Tools/INV_Padlock.glb",
+   "triangles": 124,
+   "texture": "08_Inventory/Textures/T_Inv_Atlas.png (256x256, shared)",
+   "material": "08_Inventory/Shared_Materials/M_Inv_Atlas.tres",
+   "size_m": [
+    0.05,
+    0.082,
+    0.022
+   ],
+   "collision": "convex box",
+   "markers": [
+    "Inspect_Center"
+   ],
+   "grip": null,
+   "holdable": false,
+   "grip_note": null,
+   "description": "Brass padlock with steel shackle.",
+   "status": "new"
+  },
+  {
+   "name": "INV_BoltCutters",
+   "category": "Tools",
+   "priority": 2,
+   "glb": "08_Inventory/Tools/INV_BoltCutters.glb",
+   "triangles": 204,
+   "texture": "08_Inventory/Textures/T_Inv_Atlas.png (256x256, shared)",
+   "material": "08_Inventory/Shared_Materials/M_Inv_Atlas.tres",
+   "size_m": [
+    0.124,
+    0.032,
+    0.606
+   ],
+   "collision": "convex box",
+   "markers": [
+    "Inspect_Center",
+    "Grip"
+   ],
+   "grip": [
+    0.0,
+    0.016,
+    0.2121
+   ],
+   "holdable": true,
+   "grip_note": null,
+   "description": "Long-handled bolt cutters, red grips.",
+   "status": "new"
+  },
+  {
+   "name": "INV_PortableFuse",
+   "category": "Tools",
+   "priority": 2,
+   "glb": "08_Inventory/Tools/INV_PortableFuse.glb",
+   "triangles": 120,
+   "texture": "08_Inventory/Textures/T_Inv_Atlas.png (256x256, shared)",
+   "material": "08_Inventory/Shared_Materials/M_Inv_Atlas.tres",
+   "size_m": [
+    0.021,
+    0.02,
+    0.068
+   ],
+   "collision": "convex box",
+   "markers": [
+    "Inspect_Center"
+   ],
+   "grip": null,
+   "holdable": false,
+   "grip_note": null,
+   "description": "Glass cartridge fuse with metal end caps (30 A).",
+   "status": "new"
+  },
+  {
+   "name": "INV_ElectricalSwitch",
+   "category": "Tools",
+   "priority": 2,
+   "glb": "08_Inventory/Tools/INV_ElectricalSwitch.glb",
+   "triangles": 132,
+   "texture": "08_Inventory/Textures/T_Inv_Atlas.png (256x256, shared)",
+   "material": "08_Inventory/Shared_Materials/M_Inv_Atlas.tres",
+   "size_m": [
+    0.07,
+    0.039,
+    0.159
+   ],
+   "collision": "convex box",
+   "markers": [
+    "Inspect_Center"
+   ],
+   "grip": null,
+   "holdable": false,
+   "grip_note": null,
+   "description": "Wall toggle switch component with mounting screws and wire tails.",
+   "status": "new"
+  },
+  {
+   "name": "INV_BaseballBat",
+   "category": "Weapons",
+   "priority": 2,
+   "glb": "08_Inventory/Weapons/INV_BaseballBat.glb",
+   "triangles": 192,
+   "texture": "08_Inventory/Textures/T_Inv_Atlas.png (256x256, shared)",
+   "material": "08_Inventory/Shared_Materials/M_Inv_Atlas.tres",
+   "size_m": [
+    0.068,
+    0.068,
+    0.84
+   ],
+   "collision": "convex box",
+   "markers": [
+    "Inspect_Center",
+    "Grip"
+   ],
+   "grip": [
+    0.0,
+    0.034,
+    0.32
+   ],
+   "holdable": true,
+   "grip_note": "two-hand grip just above the knob; barrel toward -Z",
+   "description": "Wooden baseball bat with taped handle and knob.",
+   "status": "new"
+  },
+  {
+   "name": "INV_MetalPipe",
+   "category": "Weapons",
+   "priority": 2,
+   "glb": "08_Inventory/Weapons/INV_MetalPipe.glb",
+   "triangles": 96,
+   "texture": "08_Inventory/Textures/T_Inv_Atlas.png (256x256, shared)",
+   "material": "08_Inventory/Shared_Materials/M_Inv_Atlas.tres",
+   "size_m": [
+    0.044,
+    0.044,
+    0.58
+   ],
+   "collision": "convex box",
+   "markers": [
+    "Inspect_Center",
+    "Grip"
+   ],
+   "grip": [
+    0.0,
+    0.022,
+    0.21
+   ],
+   "holdable": true,
+   "grip_note": null,
+   "description": "Length of steel pipe with a coupling and rusty threads.",
+   "status": "new"
+  },
+  {
+   "name": "INV_FireAxe",
+   "category": "Weapons",
+   "priority": 2,
+   "glb": "08_Inventory/Weapons/INV_FireAxe.glb",
+   "triangles": 128,
+   "texture": "08_Inventory/Textures/T_Inv_Atlas.png (256x256, shared)",
+   "material": "08_Inventory/Shared_Materials/M_Inv_Atlas.tres",
+   "size_m": [
+    0.306,
+    0.029,
+    0.805
+   ],
+   "collision": "convex box",
+   "markers": [
+    "Inspect_Center",
+    "Grip"
+   ],
+   "grip": [
+    -0.0156,
+    0.0144,
+    0.3225
+   ],
+   "holdable": true,
+   "grip_note": "handle end at +Z; head toward -Z, edge toward +X",
+   "description": "Fire axe: long ash handle, red head with pick spike, bright edge.",
+   "status": "new"
+  },
+  {
+   "name": "INV_UtilityHatchet",
+   "category": "Weapons",
+   "priority": 2,
+   "glb": "08_Inventory/Weapons/INV_UtilityHatchet.glb",
+   "triangles": 116,
+   "texture": "08_Inventory/Textures/T_Inv_Atlas.png (256x256, shared)",
+   "material": "08_Inventory/Shared_Materials/M_Inv_Atlas.tres",
+   "size_m": [
+    0.135,
+    0.028,
+    0.357
+   ],
+   "collision": "convex box",
+   "markers": [
+    "Inspect_Center",
+    "Grip"
+   ],
+   "grip": [
+    -0.0474,
+    0.014,
+    0.0985
+   ],
+   "holdable": true,
+   "grip_note": "handle end at +Z; head toward -Z, edge toward +X",
+   "description": "Utility hatchet: short handle with rubber grip, steel head.",
+   "status": "new"
+  },
+  {
+   "name": "INV_Handgun",
+   "category": "Weapons",
+   "priority": 2,
+   "glb": "08_Inventory/Weapons/INV_Handgun.glb",
+   "triangles": 144,
+   "texture": "08_Inventory/Textures/T_Inv_Atlas.png (256x256, shared)",
+   "material": "08_Inventory/Shared_Materials/M_Inv_Atlas.tres",
+   "size_m": [
+    0.027,
+    0.124,
+    0.183
+   ],
+   "collision": "convex box",
+   "markers": [
+    "Inspect_Center",
+    "Grip"
+   ],
+   "grip": [
+    0.0,
+    0.05,
+    0.0565
+   ],
+   "holdable": true,
+   "grip_note": "hand around the grip, muzzle toward -Z; prop only - no firing logic",
+   "description": "Simplified, unbranded prop handgun (no mechanism detail).",
+   "status": "new"
+  },
+  {
+   "name": "INV_AmmoBox",
+   "category": "Weapons",
+   "priority": 2,
+   "glb": "08_Inventory/Weapons/INV_AmmoBox.glb",
+   "triangles": 24,
+   "texture": "08_Inventory/Textures/T_Inv_Atlas.png (256x256, shared)",
+   "material": "08_Inventory/Shared_Materials/M_Inv_Atlas.tres",
+   "size_m": [
+    0.081,
+    0.035,
+    0.056
+   ],
+   "collision": "convex box",
+   "markers": [
+    "Inspect_Center"
+   ],
+   "grip": null,
+   "holdable": false,
+   "grip_note": null,
+   "description": "Small card box of generic ammunition (prop).",
+   "status": "new"
+  },
+  {
+   "name": "INV_AmmoPickup",
+   "category": "Weapons",
+   "priority": 2,
+   "glb": "08_Inventory/Weapons/INV_AmmoPickup.glb",
+   "triangles": 256,
+   "texture": "08_Inventory/Textures/T_Inv_Atlas.png (256x256, shared)",
+   "material": "08_Inventory/Shared_Materials/M_Inv_Atlas.tres",
+   "size_m": [
+    0.041,
+    0.01,
+    0.04
+   ],
+   "collision": "convex box",
+   "markers": [
+    "Inspect_Center"
+   ],
+   "grip": null,
+   "holdable": false,
+   "grip_note": null,
+   "description": "A few loose generic cartridges (pickup prop).",
+   "status": "new"
+  },
+  {
+   "name": "INV_CassetteTape",
+   "category": "Puzzle_Items",
+   "priority": 3,
+   "glb": "08_Inventory/Puzzle_Items/INV_CassetteTape.glb",
+   "triangles": 30,
+   "texture": "08_Inventory/Textures/T_Inv_Atlas.png (256x256, shared)",
+   "material": "08_Inventory/Shared_Materials/M_Inv_Atlas.tres",
+   "size_m": [
+    0.1,
+    0.013,
+    0.065
+   ],
+   "collision": "convex box",
+   "markers": [
+    "Inspect_Center"
+   ],
+   "grip": null,
+   "holdable": false,
+   "grip_note": null,
+   "description": "Audio cassette: shell, two reel windows, label area.",
+   "status": "new"
+  },
+  {
+   "name": "INV_VHSTape",
+   "category": "Puzzle_Items",
+   "priority": 3,
+   "glb": "08_Inventory/Puzzle_Items/INV_VHSTape.glb",
+   "triangles": 18,
+   "texture": "08_Inventory/Textures/T_Inv_Atlas.png (256x256, shared)",
+   "material": "08_Inventory/Shared_Materials/M_Inv_Atlas.tres",
+   "size_m": [
+    0.187,
+    0.026,
+    0.103
+   ],
+   "collision": "convex box",
+   "markers": [
+    "Inspect_Center"
+   ],
+   "grip": null,
+   "holdable": false,
+   "grip_note": null,
+   "description": "VHS cassette with spine label and reel window.",
+   "status": "new"
+  },
+  {
+   "name": "INV_Photograph",
+   "category": "Puzzle_Items",
+   "priority": 3,
+   "glb": "08_Inventory/Puzzle_Items/INV_Photograph.glb",
+   "triangles": 12,
+   "texture": "08_Inventory/Textures/T_Inv_Atlas.png (256x256, shared)",
+   "material": "08_Inventory/Shared_Materials/M_Inv_Atlas.tres",
+   "size_m": [
+    0.1,
+    0.001,
+    0.08
+   ],
+   "collision": "convex box",
+   "markers": [
+    "Inspect_Center",
+    "Grip"
+   ],
+   "grip": [
+    0.0,
+    0.001,
+    0.02
+   ],
+   "holdable": true,
+   "grip_note": null,
+   "description": "Snapshot of a Greyhaven street with a house.",
+   "status": "new"
+  },
+  {
+   "name": "INV_TornPhotograph",
+   "category": "Puzzle_Items",
+   "priority": 3,
+   "glb": "08_Inventory/Puzzle_Items/INV_TornPhotograph.glb",
+   "triangles": 32,
+   "texture": "08_Inventory/Textures/T_Inv_Atlas.png (256x256, shared)",
+   "material": "08_Inventory/Shared_Materials/M_Inv_Atlas.tres",
+   "size_m": [
+    0.09,
+    0.001,
+    0.08
+   ],
+   "collision": "convex box",
+   "markers": [
+    "Inspect_Center",
+    "Grip"
+   ],
+   "grip": [
+    0.005,
+    0.001,
+    0.0
+   ],
+   "holdable": true,
+   "grip_note": null,
+   "description": "Photograph torn down one side.",
+   "status": "new"
+  },
+  {
+   "name": "INV_Newspaper",
+   "category": "Puzzle_Items",
+   "priority": 3,
+   "glb": "08_Inventory/Puzzle_Items/INV_Newspaper.glb",
+   "triangles": 24,
+   "texture": "08_Inventory/Textures/T_Inv_Atlas.png (256x256, shared)",
+   "material": "08_Inventory/Shared_Materials/M_Inv_Atlas.tres",
+   "size_m": [
+    0.29,
+    0.013,
+    0.2
+   ],
+   "collision": "convex box",
+   "markers": [
+    "Inspect_Center"
+   ],
+   "grip": null,
+   "holdable": false,
+   "grip_note": null,
+   "description": "Folded local newspaper (GAZETTE masthead, original).",
+   "status": "new"
+  },
+  {
+   "name": "INV_MissingPoster",
+   "category": "Puzzle_Items",
+   "priority": 3,
+   "glb": "08_Inventory/Puzzle_Items/INV_MissingPoster.glb",
+   "triangles": 48,
+   "texture": "08_Inventory/Textures/T_Inv_Atlas.png (256x256, shared)",
+   "material": "08_Inventory/Shared_Materials/M_Inv_Atlas.tres",
+   "size_m": [
+    0.223,
+    0.018,
+    0.287
+   ],
+   "collision": "convex box",
+   "markers": [
+    "Inspect_Center"
+   ],
+   "grip": null,
+   "holdable": false,
+   "grip_note": null,
+   "description": "Generic missing-person poster (no identity; story assigns it).",
+   "status": "new"
+  },
+  {
+   "name": "INV_SecurityAccessCard",
+   "category": "Puzzle_Items",
+   "priority": 3,
+   "glb": "08_Inventory/Puzzle_Items/INV_SecurityAccessCard.glb",
+   "triangles": 56,
+   "texture": "08_Inventory/Textures/T_Inv_Atlas.png (256x256, shared)",
+   "material": "08_Inventory/Shared_Materials/M_Inv_Atlas.tres",
+   "size_m": [
+    0.054,
+    0.001,
+    0.086
+   ],
+   "collision": "convex box",
+   "markers": [
+    "Inspect_Center",
+    "Grip"
+   ],
+   "grip": [
+    0.0,
+    0.001,
+    0.02
+   ],
+   "holdable": true,
+   "grip_note": null,
+   "description": "Plastic security access card with chip and photo box.",
+   "status": "new"
+  },
+  {
+   "name": "INV_RustyKey",
+   "category": "Puzzle_Items",
+   "priority": 3,
+   "glb": "08_Inventory/Puzzle_Items/INV_RustyKey.glb",
+   "triangles": 144,
+   "texture": "08_Inventory/Textures/T_Inv_Atlas.png (256x256, shared)",
+   "material": "08_Inventory/Shared_Materials/M_Inv_Atlas.tres",
+   "size_m": [
+    0.028,
+    0.005,
+    0.105
+   ],
+   "collision": "convex box",
+   "markers": [
+    "Inspect_Center",
+    "Grip"
+   ],
+   "grip": [
+    0.0,
+    0.003,
+    0.0335
+   ],
+   "holdable": true,
+   "grip_note": null,
+   "description": "Old iron skeleton key, rusted.",
+   "status": "new"
+  },
+  {
+   "name": "INV_LockedDiary",
+   "category": "Puzzle_Items",
+   "priority": 3,
+   "glb": "08_Inventory/Puzzle_Items/INV_LockedDiary.glb",
+   "triangles": 72,
+   "texture": "08_Inventory/Textures/T_Inv_Atlas.png (256x256, shared)",
+   "material": "08_Inventory/Shared_Materials/M_Inv_Atlas.tres",
+   "size_m": [
+    0.121,
+    0.039,
+    0.165
+   ],
+   "collision": "convex box",
+   "markers": [
+    "Inspect_Center",
+    "Grip"
+   ],
+   "grip": [
+    -0.0295,
+    0.0175,
+    0.0
+   ],
+   "holdable": true,
+   "grip_note": null,
+   "description": "Clothbound diary held shut by a strap and a small brass lock.",
+   "status": "new"
+  },
+  {
+   "name": "INV_StrangeEmblem",
+   "category": "Puzzle_Items",
+   "priority": 3,
+   "glb": "08_Inventory/Puzzle_Items/INV_StrangeEmblem.glb",
+   "triangles": 160,
+   "texture": "08_Inventory/Textures/T_Inv_Atlas.png (256x256, shared)",
+   "material": "08_Inventory/Shared_Materials/M_Inv_Atlas.tres",
+   "size_m": [
+    0.064,
+    0.013,
+    0.073
+   ],
+   "collision": "convex box",
+   "markers": [
+    "Inspect_Center"
+   ],
+   "grip": null,
+   "holdable": false,
+   "grip_note": null,
+   "description": "Heavy metal medallion with concentric relief (meaning not defined by the story).",
+   "status": "new"
+  },
+  {
+   "name": "INV_MysteriousArtifact",
+   "category": "Puzzle_Items",
+   "priority": 3,
+   "glb": "08_Inventory/Puzzle_Items/INV_MysteriousArtifact.glb",
+   "triangles": 84,
+   "texture": "08_Inventory/Textures/T_Inv_Atlas.png (256x256, shared)",
+   "material": "08_Inventory/Shared_Materials/M_Inv_Atlas.tres",
+   "size_m": [
+    0.057,
+    0.075,
+    0.066
+   ],
+   "collision": "convex box",
+   "markers": [
+    "Inspect_Center"
+   ],
+   "grip": null,
+   "holdable": false,
+   "grip_note": null,
+   "description": "Small faceted dark object bound by a metal band (function undefined).",
+   "status": "new"
+  },
+  {
+   "name": "INV_EvidenceEnvelope",
+   "category": "Puzzle_Items",
+   "priority": 3,
+   "glb": "08_Inventory/Puzzle_Items/INV_EvidenceEnvelope.glb",
+   "triangles": 26,
+   "texture": "08_Inventory/Textures/T_Inv_Atlas.png (256x256, shared)",
+   "material": "08_Inventory/Shared_Materials/M_Inv_Atlas.tres",
+   "size_m": [
+    0.23,
+    0.007,
+    0.165
+   ],
+   "collision": "convex box",
+   "markers": [
+    "Inspect_Center"
+   ],
+   "grip": null,
+   "holdable": false,
+   "grip_note": null,
+   "description": "Sealed manila evidence envelope with tape seal and label.",
+   "status": "new"
+  }
+ ]
+}
