@@ -64,7 +64,8 @@ func _physics_watch() -> void:
 		var wh := space.intersect_ray(q)
 		if wh:
 			eddie_wall_hits += 1
-			print("  eddie wall crossing at %s (%s)" % [wh["position"], (wh["collider"] as Node).name])
+			print("  eddie wall crossing at %s (%s) eddie %s -> %s doors_open=%s" % [wh["position"], (wh["collider"] as Node).name,
+				_eddie_prev, e, c5._doors_open])
 	eddie_max_lag = maxf(eddie_max_lag, e.distance_to(world.player.global_position))
 	_eddie_prev = e
 

@@ -47,6 +47,7 @@ func lag() -> float:
 func _physics_process(delta: float) -> void:
 	if not active or npc == null or leader == null or anim == null:
 		return
+	_keep_on_floor(delta)
 	var here := _floor(leader.global_position)
 	if trail.is_empty() or Vector2(here.x - trail[-1].x, here.z - trail[-1].z).length() >= STEP:
 		trail.append(here)
@@ -95,6 +96,17 @@ func recover_behind(dist := 2.4) -> void:
 		want = leader.global_position + back * maxf((hit["position"] as Vector3).distance_to(leader.global_position + Vector3(0, 0.6, 0)) - 0.5, 0.4)
 	npc.global_position = _floor(want)
 	trail = [npc.global_position]
+
+
+## NpcAnimator walks horizontally only; this keeps the companion's feet on the floor under it (porch steps,
+## raised house floors, curbs), eased so a step reads as a step rather than a pop.
+func _keep_on_floor(delta: float) -> void:
+	var space := npc.get_world_3d().direct_space_state
+	var p := npc.global_position
+	var hit := space.intersect_ray(PhysicsRayQueryParameters3D.create(p + Vector3(0, 0.9, 0), p + Vector3(0, -1.5, 0), 1))
+	if hit:
+		var fy: float = (hit["position"] as Vector3).y
+		npc.global_position.y = move_toward(p.y, fy, maxf(absf(fy - p.y) * 12.0, 1.5) * delta)
 
 
 func _nearest_index(p: Vector3) -> int:
