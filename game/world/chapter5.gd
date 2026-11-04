@@ -13,9 +13,9 @@ class_name VeilChapter5
 const CAN := preload("res://THE_VEIL_ASSETS_V2/08_Inventory/Food_And_Supplies/INV_CannedFood.glb")
 const WATER := preload("res://THE_VEIL_ASSETS_V2/08_Inventory/Food_And_Supplies/INV_WaterBottle.glb")
 const BATTERY_PACK := preload("res://THE_VEIL_ASSETS_V2/08_Inventory/Food_And_Supplies/INV_SpareBatteries.glb")
-const MEDKIT := preload("res://THE_VEIL_ASSETS_V2/08_Inventory/Medical/INV_FirstAidKit.glb")
 const RADIO := preload("res://THE_VEIL_ASSETS_V2/03_Residential/Furniture/RES_Radio.glb")
 const FOLLOW := preload("res://game/npc/companion_follow.gd")
+const SCAV := preload("res://game/world/scavenge_house.gd")
 
 const HOUSE := "HOUSE_04"                 # cottage straight behind the supermarket (~40 m)
 const SURVIVOR_HOUSE := "HOUSE_05"        # its neighbour
@@ -30,16 +30,8 @@ const SURVIVOR_SPOT := Vector3(-1.0, 0.04, 4.3)
 const OUTSIDE_Z := -2.0                               # local z below this = outside the front doors
 const INSIDE_Z := 3.3                                 # local z above this = in the sales hall
 # HOUSE_04-local (Pack 03 cottage: furnishing placement from build_residential.furnish_instances)
-const KITCHEN_SPOT := [Vector3(-1.8, 1.0, 10.55), Vector3(1.3, 0.9, 0.45)]   # sink counter cabinets (back wall)
-const KITCHEN_ITEM := Vector3(-2.15, 1.52, 10.95)
-const NIGHTSTAND_SPOT := [Vector3(3.3, 0.9, 2.9), Vector3(0.55, 0.6, 0.6)]   # bedroom nightstand
-const NIGHTSTAND_ITEM := Vector3(3.43, 1.18, 2.95)
-const BATH_SPOT := [Vector3(0.4, 2.0, 7.12), Vector3(0.6, 0.6, 0.3)]        # wall cabinet above the pedestal sink
-const BATH_ITEM := Vector3(0.4, 1.46, 7.32)
 const RADIO_POS := Vector3(-1.55, 1.35, 9.3)                                 # round dining table
 const HOUSE_RECT := [Vector2(-3.75, 2.4), Vector2(3.75, 11.4)]
-const SEARCH := {"food": ["search_kitchen", "[E] Search the Kitchen Cabinets"], "batteries": ["search_nightstand", "[E] Search the Nightstand"],
-	"medical": ["search_bath", "[E] Search the Bathroom Cabinet"]}
 # HOUSE_05-local
 const SURVIVOR_POS := Vector3(-0.3, 0.6, 4.7)                                # foyer, behind the front door
 
@@ -57,6 +49,7 @@ var eddie_follow: VeilCompanionFollow
 var survivor_follow: VeilCompanionFollow
 var its := {}
 var radio: Node3D
+var scav: Node
 var radio_runs := 0
 var _static: AudioStreamPlayer3D
 var _streams := {}
@@ -159,39 +152,38 @@ func _setup_market() -> void:
 
 
 func _setup_house() -> void:
-	for h in [house, shouse]:
-		for e in h.get_meta("veil_interactables", []):
-			var n := String(e.get("node", ""))
-			if e.get("veil_interact", "") != "hinge" or not n.begins_with("INT_Door_"):
-				continue
-			if h == shouse and n != "INT_Door_Front":
-				continue
-			var d := h.find_child(n, true, false) as Node3D
-			if d == null or d.get_node_or_null("Interact"):
-				continue
-			var key := "c5/%s/%s" % [h.name, n]
-			var deg := float(e.get("open_deg", 90.0))
-			var into: Variant = _door_room_center(h, n)      # swing into the smaller room (bath, bedroom, hall) / inward at the front
-			if into != null:
-				deg = world._toward_deg(d, deg, h.global_transform * (into as Vector3))
-			var it := Interactable.attach(d, {"kind": "hinge", "label": world._label_for(n), "open_deg": deg,
-				"hinge_axis": Vector3.UP, "state_key": key})
-			its[key] = it
-	its["search_kitchen"] = _spot("C5_SearchKitchen", house, KITCHEN_SPOT[0], KITCHEN_SPOT[1], "", func(_b): _search("food"))
-	its["search_nightstand"] = _spot("C5_SearchNightstand", house, NIGHTSTAND_SPOT[0], NIGHTSTAND_SPOT[1], "", func(_b): _search("batteries"))
-	its["search_bath"] = _spot("C5_SearchBathroom", house, BATH_SPOT[0], BATH_SPOT[1], "", func(_b): _search("medical"))
-	for spec in [["food", CAN, KITCHEN_ITEM, "canned_food", "Canned Food", "c5_got_food"],
-			["batteries", BATTERY_PACK, NIGHTSTAND_ITEM, "batteries", "Batteries", "c5_got_batteries"],
-			["medical", MEDKIT, BATH_ITEM, "first_aid_kit", "First Aid Kit", "c5_got_medical"]]:
-		var item := (spec[1] as PackedScene).instantiate() as Node3D
-		item.name = "C5_Item_" + spec[0]
-		house.add_child(item)
-		item.position = spec[2]
-		item.visible = false
-		var it := Interactable.attach(item, {"kind": "pickup", "label": spec[4], "item_id": spec[3], "story_flag": spec[5],
-			"state_key": "c5/item_" + spec[0]})
-		it.used.connect(_on_pickup.bind(spec[0]))
-		its["item_" + spec[0]] = it
+	# the cottage is an explorable house (game/data/scavenge_houses.json): real furniture, loot inside containers
+	var specs: Dictionary = SCAV.load_specs()
+	scav = SCAV.new()
+	add_child(scav)
+	scav.setup(world, house, specs.get("houses", {}).get(HOUSE, {}), specs)
+	for n in scav.doors:
+		its["c5/%s/%s" % [HOUSE, n]] = scav.doors[n]
+	for id in scav.loot:
+		its["item_" + id] = scav.loot[id]
+		scav.loot[id].used.connect(_on_pickup.bind(id))
+	# the survivor's house is NOT explorable: its front door only opens for the conversation, and the doorway is
+	# blocked (two-storey variant with a basement stair that would trap the player)
+	var fd := shouse.find_child("INT_Door_Front", true, false) as Node3D
+	if fd:
+		var deg := 95.0
+		var into: Variant = _door_room_center(shouse, "INT_Door_Front")
+		if into != null:
+			deg = world._toward_deg(fd, deg, shouse.global_transform * (into as Vector3))
+		var dit := Interactable.attach(fd, {"kind": "hinge", "label": "Front Door", "open_deg": deg, "hinge_axis": Vector3.UP,
+			"state_key": "c5/%s/INT_Door_Front" % SURVIVOR_HOUSE})
+		dit.collision_layer = 0                        # never offered to the player
+		its["c5/%s/INT_Door_Front" % SURVIVOR_HOUSE] = dit
+		var block := StaticBody3D.new()
+		block.name = "C5_SurvivorDoorway"
+		block.collision_layer = 1
+		var bcs := CollisionShape3D.new()
+		var bb := BoxShape3D.new()
+		bb.size = Vector3(1.3, 2.2, 0.5)
+		bcs.shape = bb
+		block.add_child(bcs)
+		shouse.add_child(block)
+		block.position = Vector3(-0.3, 0.6 + 1.1, 3.6)    # just inside the front opening (centre x -0.3)
 	radio = RADIO.instantiate() as Node3D
 	radio.name = "C5_Radio"
 	house.add_child(radio)
@@ -308,9 +300,6 @@ func _apply() -> void:
 		world._beacon("c5", ml(Vector3(0, 3.0, -1.5)), Color(0.8, 0.9, 1.0))
 	if not Game.has_flag("c5_radio_used"):
 		_static.play()
-	for k in ["food", "batteries", "medical"]:
-		var it: Interactable = its["item_" + k]
-		it.target.visible = bool(s.get("found_" + k, false)) and not it.taken
 	if done and p4.rest:
 		p4.rest.get_parent().visible = true
 		p4.rest.interactable.prompt_text = "[E] Sleep"
@@ -325,11 +314,6 @@ func _refresh_prompts() -> void:
 		its["npc_Marcus"].prompt_text = "[E] Talk" if (not Game.has_flag("c5_marcus_talked") or report) else ""
 	its["stash"].prompt_text = "[E] Check the Supplies" if talked and not Game.has_flag("c5_supplies_checked") else ""
 	its["exit"].prompt_text = "[E] Head Out with Eddie" if Game.has_flag("c5_supplies_checked") and not Game.has_flag("c5_prepared") else ""
-	var s := st()
-	for k in SEARCH:
-		its[SEARCH[k][0]].prompt_text = "" if s.get("found_" + k, false) or not Game.has_flag("c5_prepared") else SEARCH[k][1]
-		var item: Interactable = its["item_" + k]
-		item.collision_layer = 8 if s.get("found_" + k, false) and not item.taken else 0     # no prompt for a hidden item
 	its["radio"].prompt_text = "[E] Use the Radio" if Game.has_flag("c5_supplies_done") and not Game.has_flag("c5_radio_used") else ""
 
 
@@ -421,20 +405,8 @@ func _entered_house() -> void:
 	_refresh_prompts()
 
 
-func _search(kind: String) -> void:
-	if not Game.has_flag("c5_prepared") or st().get("found_" + kind, false):
-		return
-	st()["found_" + kind] = true
-	var it: Interactable = its["item_" + kind]
-	it.target.visible = true
-	it.target.scale = Vector3.ONE * 0.01
-	it.target.create_tween().tween_property(it.target, "scale", Vector3.ONE, 0.25)
-	it.collision_layer = 8
-	Sfx.play("door_open", it.global_position, -6.0, 1.3)
-	_refresh_prompts()
-
-
 func _on_pickup(_by: Node, kind: String) -> void:
+	await get_tree().process_frame                 # the pickup's story flag is set right after `used`
 	if kind == "batteries" and p4.flashlight:
 		p4.flashlight.add_spares(2)                 # the pack really refills the flashlight's spare count
 	if not Game.has_flag("c5_found_said"):
