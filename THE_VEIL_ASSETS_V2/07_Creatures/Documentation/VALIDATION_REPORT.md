@@ -5,9 +5,9 @@ skinning maths and engine compatibility only - **they do not prove visual qualit
 videos were produced.
 
 * Result: **PASS** (0 failures, 0 warnings)
-* Gallery: 24 Pack 07 files listed in `docs/index.html`; `pack07` filter present in `docs/gallery.js`
+* Gallery: 28 Pack 07 files listed in `docs/index.html`; `pack07` filter present in `docs/gallery.js`
 * Khronos glTF-Validator: run
-* Godot 4.3 (Compatibility): headless import exit 0, 0 error/warning lines; renderer run: frames=276 driver=llvmpipe (LLVM 20.1.2, 256 bits) api=4.5 (Core Profile) Mesa 25.2.8-0ubuntu0.24.04.4
+* Godot 4.3 (Compatibility): headless import exit 0, 0 error/warning lines; renderer run: frames=324 driver=llvmpipe (LLVM 20.1.2, 256 bits) api=4.5 (Core Profile) Mesa 25.2.8-0ubuntu0.24.04.4
 
 | Model | Triangles | Height (m) | Extent x/y/z (m) | Unweighted (helper) bones | glTF-Validator | Godot |
 |---|---|---|---|---|---|---|
@@ -16,6 +16,7 @@ videos were produced.
 | CRT_MistTentacle_Large | 1065 | 3.84 | [1.39, 3.85, 6.13] | - | 0 errors, 0 warnings | 12 bones, skinned=true, 2 emissive mats, RESET=true, 1 shapes |
 | CRT_MistTentacle_Medium | 1219 | 3.15 | [0.97, 3.17, 3.41] | - | 0 errors, 0 warnings | 12 bones, skinned=true, 2 emissive mats, RESET=true, 1 shapes |
 | CRT_MistTentacle_Thin | 883 | 2.99 | [0.53, 3.0, 1.81] | - | 0 errors, 0 warnings | 12 bones, skinned=true, 2 emissive mats, RESET=true, 1 shapes |
+| CRT_Shellcrawler | 3374 | 1.41 | [3.59, 1.41, 2.61] | Root | 0 errors, 0 warnings | 39 bones, skinned=true, 1 emissive mats, RESET=true, 3 shapes |
 | CRT_Skitter | 2976 | 0.80 | [1.97, 0.79, 2.07] | Root | 0 errors, 0 warnings | 33 bones, skinned=true, 1 emissive mats, RESET=true, 2 shapes |
 
 ## Clips (re-sampled from the GLB keyframes, mesh skinned with LBS on every key)
@@ -57,6 +58,13 @@ Stretch = 1 + (deformed - rest edge length) / max(rest length, floor). min_y = l
 | CRT_MistTentacle_Thin | Reach | 54 | -0.005 | 1.08 | 1.07 |
 | CRT_MistTentacle_Thin | Strike | 44 | -0.005 | 1.13 | 1.12 |
 | CRT_MistTentacle_Thin | Retract | 54 | -3.574 | 1.23 | 1.19 |
+| CRT_Shellcrawler | Idle | 91 | 0.003 | 1.06 | 1.05 |
+| CRT_Shellcrawler | Crawl_Sideways | 43 | 0.003 | 1.9 | 1.51 |
+| CRT_Shellcrawler | Crawl_Forward | 49 | 0.003 | 1.35 | 1.24 |
+| CRT_Shellcrawler | Defend | 49 | -0.008 | 1.48 | 1.36 |
+| CRT_Shellcrawler | Attack_Grasp | 49 | 0.003 | 1.27 | 1.17 |
+| CRT_Shellcrawler | Hit_React | 25 | 0.003 | 1.27 | 1.21 |
+| CRT_Shellcrawler | Death | 67 | -0.018 | 1.9 | 1.67 |
 | CRT_Skitter | Idle_Twitch | 91 | 0.003 | 1.05 | 1.03 |
 | CRT_Skitter | Crawl | 37 | 0.003 | 1.11 | 1.08 |
 | CRT_Skitter | Scuttle_Fast | 11 | -0.003 | 1.12 | 1.11 |

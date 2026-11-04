@@ -739,6 +739,187 @@
     "override_materials": true
    }
   },
+  "CRT_Shellcrawler": {
+   "name": "CRT_Shellcrawler",
+   "glb": "07_Creatures/Shellcrawler/CRT_Shellcrawler.glb",
+   "triangles": 3374,
+   "bones": 37,
+   "bone_names": [
+    "Root",
+    "Body",
+    "Shell",
+    "Sensor",
+    "GraspL_Upper",
+    "GraspL_Lower",
+    "GraspL_Hand",
+    "GraspL_F1",
+    "GraspL_F2",
+    "GraspL_F3",
+    "GraspR_Upper",
+    "GraspR_Lower",
+    "GraspR_Sickle",
+    "Leg_LA_Upper",
+    "Leg_LA_Lower",
+    "Leg_LA_Foot",
+    "Leg_LB_Upper",
+    "Leg_LB_Lower",
+    "Leg_LB_Foot",
+    "Leg_LC_Upper",
+    "Leg_LC_Lower",
+    "Leg_LC_Foot",
+    "Leg_LD_Upper",
+    "Leg_LD_Lower",
+    "Leg_LD_Foot",
+    "Leg_RA_Upper",
+    "Leg_RA_Lower",
+    "Leg_RA_Foot",
+    "Leg_RB_Upper",
+    "Leg_RB_Lower",
+    "Leg_RB_Foot",
+    "Leg_RC_Upper",
+    "Leg_RC_Lower",
+    "Leg_RC_Foot",
+    "Leg_RD_Upper",
+    "Leg_RD_Lower",
+    "Leg_RD_Foot"
+   ],
+   "materials": [
+    "M_Crt_Shellcrawler"
+   ],
+   "sockets": [
+    "Socket_Sensor",
+    "Socket_GraspL"
+   ],
+   "clips": [
+    {
+     "name": "Idle",
+     "duration_s": 3.0,
+     "loop": true
+    },
+    {
+     "name": "Crawl_Sideways",
+     "duration_s": 1.4,
+     "loop": true
+    },
+    {
+     "name": "Crawl_Forward",
+     "duration_s": 1.6,
+     "loop": true
+    },
+    {
+     "name": "Defend",
+     "duration_s": 1.6,
+     "loop": false
+    },
+    {
+     "name": "Attack_Grasp",
+     "duration_s": 1.6,
+     "loop": false
+    },
+    {
+     "name": "Hit_React",
+     "duration_s": 0.8,
+     "loop": false
+    },
+    {
+     "name": "Death",
+     "duration_s": 2.2,
+     "loop": false
+    }
+   ],
+   "scene": "07_Creatures/Godot_Scenes/CRT_Shellcrawler.tscn",
+   "probe_bone": "GraspL_F2",
+   "edge_floor": 0.03,
+   "feet": [
+    "Leg_LA_Foot",
+    "Leg_LB_Foot",
+    "Leg_LC_Foot",
+    "Leg_LD_Foot",
+    "Leg_RA_Foot",
+    "Leg_RB_Foot",
+    "Leg_RC_Foot",
+    "Leg_RD_Foot"
+   ],
+   "checks": {
+    "Idle": {
+     "min_y": 0.0027,
+     "max_stretch": 1.0566,
+     "p999_stretch": 1.046,
+     "min_squash": 0.954,
+     "lowest_contact_y": -0.0,
+     "highest_lowest_foot_y": 0.0,
+     "planted_slip": 0.0,
+     "loop_seamless": true
+    },
+    "Crawl_Sideways": {
+     "min_y": 0.0027,
+     "max_stretch": 1.9033,
+     "p999_stretch": 1.5139,
+     "min_squash": 0.7004,
+     "lowest_contact_y": -0.0,
+     "highest_lowest_foot_y": 0.0,
+     "planted_slip": 0.0264,
+     "loop_seamless": true
+    },
+    "Crawl_Forward": {
+     "min_y": 0.0027,
+     "max_stretch": 1.3504,
+     "p999_stretch": 1.244,
+     "min_squash": 0.8498,
+     "lowest_contact_y": -0.0,
+     "highest_lowest_foot_y": 0.0,
+     "planted_slip": 0.021,
+     "loop_seamless": true
+    },
+    "Defend": {
+     "min_y": -0.0078,
+     "max_stretch": 1.4799,
+     "p999_stretch": 1.3585,
+     "min_squash": 0.7729,
+     "lowest_contact_y": -0.0,
+     "highest_lowest_foot_y": 0.0,
+     "planted_slip": 0.0151,
+     "loop_seamless": null
+    },
+    "Attack_Grasp": {
+     "min_y": 0.0027,
+     "max_stretch": 1.2653,
+     "p999_stretch": 1.1744,
+     "min_squash": 0.7823,
+     "lowest_contact_y": -0.0,
+     "highest_lowest_foot_y": 0.0,
+     "planted_slip": 0.01,
+     "loop_seamless": null
+    },
+    "Hit_React": {
+     "min_y": 0.0027,
+     "max_stretch": 1.2725,
+     "p999_stretch": 1.2123,
+     "min_squash": 0.8384,
+     "lowest_contact_y": -0.0,
+     "highest_lowest_foot_y": 0.0,
+     "planted_slip": 0.0,
+     "loop_seamless": null
+    },
+    "Death": {
+     "min_y": -0.0185,
+     "max_stretch": 1.9033,
+     "p999_stretch": 1.6654,
+     "min_squash": 0.7188,
+     "lowest_contact_y": -0.0212,
+     "highest_lowest_foot_y": 0.0004,
+     "planted_slip": 0.0226,
+     "loop_seamless": null
+    }
+   },
+   "limits": {
+    "max_stretch": 2.0,
+    "max_stretch_death": 2.2,
+    "p999_stretch": 1.6,
+    "p999_stretch_death": 1.75,
+    "min_y": -0.03
+   }
+  },
   "CRT_Skitter": {
    "name": "CRT_Skitter",
    "glb": "07_Creatures/Skitter/CRT_Skitter.glb",
