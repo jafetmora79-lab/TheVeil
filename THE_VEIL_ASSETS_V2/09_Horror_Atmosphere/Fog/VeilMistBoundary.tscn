@@ -1,0 +1,27 @@
+[gd_scene load_steps=5 format=3]
+
+[ext_resource type="Shader" path="res://THE_VEIL_ASSETS_V2/09_Horror_Atmosphere/Fog/veil_mist_boundary.gdshader" id="1_veil_mist_boundary"]
+[ext_resource type="Texture2D" path="res://THE_VEIL_ASSETS_V2/09_Horror_Atmosphere/Textures/T_Veil_MistNoise.png" id="2_T_Veil_MistNoise"]
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_1"]
+shader = ExtResource("1_veil_mist_boundary")
+shader_parameter/noise_tex = ExtResource("2_T_Veil_MistNoise")
+shader_parameter/curtain_height = 14.0
+
+[sub_resource type="CylinderMesh" id="CylinderMesh_2"]
+top_radius = 40.0
+bottom_radius = 40.0
+height = 14.0
+radial_segments = 32
+rings = 1
+cap_top = false
+cap_bottom = false
+
+[node name="VeilMistBoundary" type="Node3D"]
+metadata/note = "Scale X/Z to resize the ring (radius 40 m at scale 1). Marks where the Veil begins."
+
+[node name="Curtain" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 7, 0)
+mesh = SubResource("CylinderMesh_2")
+material_override = SubResource("ShaderMaterial_1")
+cast_shadow = 0

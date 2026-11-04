@@ -1,0 +1,16 @@
+[gd_resource type="Resource" script_class="VeilAtmospherePreset" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://THE_VEIL_ASSETS_V2/09_Horror_Atmosphere/Atmosphere_Presets/veil_atmosphere_preset.gd" id="1_s"]
+
+[resource]
+script = ExtResource("1_s")
+preset_name = "Empty supermarket (interior)"
+background_is_sky = false
+background_color = Color(0.03, 0.03, 0.035, 1)
+ambient_color = Color(0.55, 0.6, 0.6, 1)
+ambient_energy = 0.5
+sun_energy = 0
+sun_shadows = false
+fog_color = Color(0.3, 0.32, 0.32, 1)
+fog_density = 0.012
+flicker_amount = 0.3

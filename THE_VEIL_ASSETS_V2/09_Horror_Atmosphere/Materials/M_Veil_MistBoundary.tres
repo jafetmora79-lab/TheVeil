@@ -1,0 +1,10 @@
+[gd_resource type="ShaderMaterial" load_steps=3 format=3]
+
+[ext_resource type="Shader" path="res://THE_VEIL_ASSETS_V2/09_Horror_Atmosphere/Fog/veil_mist_boundary.gdshader" id="1_sh"]
+[ext_resource type="Texture2D" path="res://THE_VEIL_ASSETS_V2/09_Horror_Atmosphere/Textures/T_Veil_MistNoise.png" id="2_t"]
+
+[resource]
+render_priority = 0
+shader = ExtResource("1_sh")
+shader_parameter/noise_tex = ExtResource("2_t")
+shader_parameter/curtain_height = 14.0

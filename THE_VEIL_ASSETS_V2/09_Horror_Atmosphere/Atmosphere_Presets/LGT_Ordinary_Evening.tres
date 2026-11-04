@@ -1,0 +1,7 @@
+[gd_resource type="Resource" script_class="VeilAtmospherePreset" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://THE_VEIL_ASSETS_V2/09_Horror_Atmosphere/Atmosphere_Presets/veil_atmosphere_preset.gd" id="1_s"]
+
+[resource]
+script = ExtResource("1_s")
+preset_name = "Ordinary evening (6:42 PM)"

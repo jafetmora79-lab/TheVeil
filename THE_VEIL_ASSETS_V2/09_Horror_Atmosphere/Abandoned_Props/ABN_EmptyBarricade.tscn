@@ -1,0 +1,12 @@
+[gd_scene load_steps=2 format=3]
+
+[ext_resource type="PackedScene" path="res://THE_VEIL_ASSETS_V2/02_Town/Street_Props/SP_RoadBarrier.glb" id="1_SP_RoadBarrier"]
+
+[node name="ABN_EmptyBarricade" type="Node3D"]
+metadata/reuses = "SP_RoadBarrier.glb"
+
+[node name="Barrier" parent="." instance=ExtResource("1_SP_RoadBarrier")]
+transform = Transform3D(1, 0, 0, 0, 0, 1, 0, -1, 0, 0, 0.37, 0)
+
+[node name="Barrier2" parent="." instance=ExtResource("1_SP_RoadBarrier")]
+transform = Transform3D(0.9063, 0, -0.4226, 0, 1, 0, 0.4226, 0, 0.9063, 2.2, 0, 0.4)

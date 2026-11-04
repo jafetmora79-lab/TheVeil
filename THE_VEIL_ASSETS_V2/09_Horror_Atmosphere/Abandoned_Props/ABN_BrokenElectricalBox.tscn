@@ -1,0 +1,13 @@
+[gd_scene load_steps=3 format=3]
+
+[ext_resource type="PackedScene" path="res://THE_VEIL_ASSETS_V2/02_Town/Utilities/UT_ElectricalCabinet.glb" id="1_UT_ElectricalCabinet"]
+[ext_resource type="PackedScene" path="res://THE_VEIL_ASSETS_V2/09_Horror_Atmosphere/Environmental_Effects/ElectricalSparks.tscn" id="2_ElectricalSparks"]
+
+[node name="ABN_BrokenElectricalBox" type="Node3D"]
+metadata/reuses = "UT_ElectricalCabinet.glb"
+
+[node name="Cabinet" parent="." instance=ExtResource("1_UT_ElectricalCabinet")]
+transform = Transform3D(0.9986, -0.0523, 0, 0.0523, 0.9986, 0, 0, 0, 1, 0, 0, 0)
+
+[node name="Sparks" parent="." instance=ExtResource("2_ElectricalSparks")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.3, 1.1, 0.36)

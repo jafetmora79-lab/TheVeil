@@ -1,0 +1,26 @@
+[gd_scene load_steps=3 format=3]
+
+[ext_resource type="PackedScene" path="res://THE_VEIL_ASSETS_V2/02_Town/Street_Props/SP_Lamp_Residential.glb" id="1_SP_Lamp_Residential"]
+[ext_resource type="Script" path="res://THE_VEIL_ASSETS_V2/09_Horror_Atmosphere/Lighting/veil_flicker.gd" id="2_veil_flicker"]
+
+[node name="DimStreetlight" type="Node3D"]
+
+
+[node name="Fixture" parent="." instance=ExtResource("1_SP_Lamp_Residential")]
+
+
+[node name="Light" type="OmniLight3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 4.85, 0)
+light_color = Color(0.75, 0.8, 0.9, 1)
+light_energy = 0.45
+omni_range = 11.0
+omni_attenuation = 1.4
+shadow_enabled = false
+distance_fade_enabled = true
+distance_fade_begin = 40.0
+distance_fade_length = 15.0
+
+[node name="Flicker" type="Node" parent="Light"]
+script = ExtResource("2_veil_flicker")
+mode = 4
+seed = 14

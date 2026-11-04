@@ -1,0 +1,17 @@
+[gd_scene load_steps=4 format=3]
+
+[ext_resource type="PackedScene" path="res://THE_VEIL_ASSETS_V2/02_Town/Roads/RD_Puddle_A.glb" id="1_RD_Puddle_A"]
+[ext_resource type="PackedScene" path="res://THE_VEIL_ASSETS_V2/02_Town/Roads/RD_Puddle_B.glb" id="2_RD_Puddle_B"]
+[ext_resource type="PackedScene" path="res://THE_VEIL_ASSETS_V2/09_Horror_Atmosphere/Environmental_Effects/DrippingWater.tscn" id="3_DrippingWater"]
+
+[node name="Puddles_Dripping" type="Node3D"]
+
+
+[node name="Puddle0" parent="." instance=ExtResource("1_RD_Puddle_A")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0)
+
+[node name="Puddle1" parent="." instance=ExtResource("2_RD_Puddle_B")]
+transform = Transform3D(0.766, 0, 0.6428, 0, 1, 0, -0.6428, 0, 0.766, 1.6, 0, 0.7)
+
+[node name="Drip" parent="." instance=ExtResource("3_DrippingWater")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.2, 3, 0.1)

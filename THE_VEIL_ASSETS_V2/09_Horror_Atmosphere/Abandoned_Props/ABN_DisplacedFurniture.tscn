@@ -1,0 +1,21 @@
+[gd_scene load_steps=5 format=3]
+
+[ext_resource type="PackedScene" path="res://THE_VEIL_ASSETS_V2/03_Residential/Furniture/RES_Sofa_Plaid.glb" id="1_RES_Sofa_Plaid"]
+[ext_resource type="PackedScene" path="res://THE_VEIL_ASSETS_V2/03_Residential/Furniture/RES_DiningChair_Wood.glb" id="2_RES_DiningChair_Wood"]
+[ext_resource type="PackedScene" path="res://THE_VEIL_ASSETS_V2/03_Residential/Furniture/RES_Lamp_Floor.glb" id="3_RES_Lamp_Floor"]
+[ext_resource type="PackedScene" path="res://THE_VEIL_ASSETS_V2/03_Residential/Furniture/RES_TrashCan_Pedal.glb" id="4_RES_TrashCan_Pedal"]
+
+[node name="ABN_DisplacedFurniture" type="Node3D"]
+metadata/reuses = "RES_DiningChair_Wood.glb, RES_Lamp_Floor.glb, RES_Sofa_Plaid.glb, RES_TrashCan_Pedal.glb"
+
+[node name="Sofa" parent="." instance=ExtResource("1_RES_Sofa_Plaid")]
+transform = Transform3D(0.7986, 0, 0.6018, 0, 1, 0, -0.6018, 0, 0.7986, 0, 0, 0)
+
+[node name="Chair" parent="." instance=ExtResource("2_RES_DiningChair_Wood")]
+transform = Transform3D(0.9397, 0.342, 0, 0, 0, 1, 0.342, -0.9397, 0, 1.4, 0.23, 0.6)
+
+[node name="Lamp" parent="." instance=ExtResource("3_RES_Lamp_Floor")]
+transform = Transform3D(0.0349, -0.4988, 0.866, 0.9976, 0.0698, 0, -0.0604, 0.8639, 0.5, -1.1, 0.12, 0.8)
+
+[node name="Bin" parent="." instance=ExtResource("4_RES_TrashCan_Pedal")]
+transform = Transform3D(0, -1, 0, 1, 0, 0, 0, 0, 1, 0.7, 0.13, -0.9)

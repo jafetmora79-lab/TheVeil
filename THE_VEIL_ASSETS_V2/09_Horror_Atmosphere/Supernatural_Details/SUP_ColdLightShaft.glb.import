@@ -1,0 +1,37 @@
+[remap]
+
+importer="scene"
+importer_version=1
+type="PackedScene"
+path="res://.godot/imported/SUP_ColdLightShaft.glb-c01fd1fcf7ac0165542e069d2a64ac88.scn"
+
+[deps]
+
+source_file="res://THE_VEIL_ASSETS_V2/09_Horror_Atmosphere/Supernatural_Details/SUP_ColdLightShaft.glb"
+dest_files=["res://.godot/imported/SUP_ColdLightShaft.glb-c01fd1fcf7ac0165542e069d2a64ac88.scn"]
+
+[params]
+
+nodes/root_type=""
+nodes/root_name=""
+nodes/apply_root_scale=true
+nodes/root_scale=1.0
+meshes/ensure_tangents=false
+meshes/generate_lods=false
+meshes/create_shadow_meshes=true
+meshes/light_baking=1
+meshes/lightmap_texel_size=0.2
+meshes/force_disable_compression=false
+skins/use_named_skins=true
+animation/import=false
+import_script/path=""
+_subresources={
+"materials": {
+"M_Veil_ColdLightShaft": {
+"use_external/enabled": true,
+"use_external/path": "res://THE_VEIL_ASSETS_V2/09_Horror_Atmosphere/Materials/M_Veil_ColdLightShaft.tres"
+}
+}
+}
+gltf/naming_version=1
+gltf/embedded_image_handling=1

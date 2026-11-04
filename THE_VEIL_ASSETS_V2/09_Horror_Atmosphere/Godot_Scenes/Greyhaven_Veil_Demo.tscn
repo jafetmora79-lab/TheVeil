@@ -1,0 +1,88 @@
+[gd_scene load_steps=17 format=3]
+
+[ext_resource type="PackedScene" path="res://THE_VEIL_ASSETS_V2/03_Residential/Residential_Scenes/Greyhaven_Town_With_Houses.tscn" id="1_Greyhaven_Town_With_"]
+[ext_resource type="PackedScene" path="res://THE_VEIL_ASSETS_V2/09_Horror_Atmosphere/Godot_Scenes/VeilAtmosphere.tscn" id="2_VeilAtmosphere"]
+[ext_resource type="PackedScene" path="res://THE_VEIL_ASSETS_V2/09_Horror_Atmosphere/Fog/VeilMistBoundary.tscn" id="3_VeilMistBoundary"]
+[ext_resource type="PackedScene" path="res://THE_VEIL_ASSETS_V2/09_Horror_Atmosphere/Corruption/CORR_Asphalt_Cracks_A.glb" id="4_CORR_Asphalt_Cracks_"]
+[ext_resource type="PackedScene" path="res://THE_VEIL_ASSETS_V2/09_Horror_Atmosphere/Corruption/CORR_Marking_Damaged.glb" id="5_CORR_Marking_Damaged"]
+[ext_resource type="PackedScene" path="res://THE_VEIL_ASSETS_V2/09_Horror_Atmosphere/Corruption/CORR_Ground_Discoloration.glb" id="6_CORR_Ground_Discolor"]
+[ext_resource type="PackedScene" path="res://THE_VEIL_ASSETS_V2/09_Horror_Atmosphere/Corruption/CORR_Corrupted_Vegetation.glb" id="7_CORR_Corrupted_Veget"]
+[ext_resource type="PackedScene" path="res://THE_VEIL_ASSETS_V2/09_Horror_Atmosphere/Corruption/CORR_Withered_Grass_Patch.glb" id="8_CORR_Withered_Grass_"]
+[ext_resource type="PackedScene" path="res://THE_VEIL_ASSETS_V2/09_Horror_Atmosphere/Corruption/CORR_Dead_Shrub.glb" id="9_CORR_Dead_Shrub"]
+[ext_resource type="PackedScene" path="res://THE_VEIL_ASSETS_V2/09_Horror_Atmosphere/Corruption/CORR_Organic_Growth.glb" id="10_CORR_Organic_Growth"]
+[ext_resource type="PackedScene" path="res://THE_VEIL_ASSETS_V2/09_Horror_Atmosphere/Supernatural_Details/SUP_Markings_Pavement.glb" id="11_SUP_Markings_Pavemen"]
+[ext_resource type="PackedScene" path="res://THE_VEIL_ASSETS_V2/09_Horror_Atmosphere/Supernatural_Details/SUP_ImpossibleShadow_Ground.glb" id="12_SUP_ImpossibleShadow"]
+[ext_resource type="PackedScene" path="res://THE_VEIL_ASSETS_V2/09_Horror_Atmosphere/Abandoned_Props/ABN_ShoppingCart_Overturned.glb" id="13_ABN_ShoppingCart_Ove"]
+[ext_resource type="PackedScene" path="res://THE_VEIL_ASSETS_V2/09_Horror_Atmosphere/Abandoned_Props/ABN_GroceryBags_Spilled.glb" id="14_ABN_GroceryBags_Spil"]
+[ext_resource type="PackedScene" path="res://THE_VEIL_ASSETS_V2/09_Horror_Atmosphere/Abandoned_Props/ABN_FallenBicycle.glb" id="15_ABN_FallenBicycle"]
+[ext_resource type="PackedScene" path="res://THE_VEIL_ASSETS_V2/09_Horror_Atmosphere/Abandoned_Props/ABN_RoadCones_Abandoned.tscn" id="16_ABN_RoadCones_Abando"]
+
+[node name="Greyhaven_Veil_Demo" type="Node3D"]
+
+
+[node name="Town" parent="." instance=ExtResource("1_Greyhaven_Town_With_")]
+
+
+[node name="VeilAtmosphere" parent="." instance=ExtResource("2_VeilAtmosphere")]
+
+
+[node name="Boundary" parent="." instance=ExtResource("3_VeilMistBoundary") groups=["veil_corruption"]]
+transform = Transform3D(2.2, 0, 0, 0, 2.2, 0, 0, 0, 2.2, 30, 0, -60)
+metadata/veil_level = 1
+
+[node name="CORR_Asphalt_Cracks_A_0" parent="." instance=ExtResource("4_CORR_Asphalt_Cracks_") groups=["veil_corruption"]]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 22, 0.15, -104)
+metadata/veil_level = 1
+
+[node name="CORR_Marking_Damaged_1" parent="." instance=ExtResource("5_CORR_Marking_Damaged") groups=["veil_corruption"]]
+transform = Transform3D(0, 0, 1, 0, 1, 0, -1, 0, 0, 0, 0.15, -104)
+metadata/veil_level = 1
+
+[node name="CORR_Ground_Discoloration_2" parent="." instance=ExtResource("6_CORR_Ground_Discolor") groups=["veil_corruption"]]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 38, 0.15, -84)
+metadata/veil_level = 2
+
+[node name="CORR_Corrupted_Vegetation_3" parent="." instance=ExtResource("7_CORR_Corrupted_Veget") groups=["veil_corruption"]]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 23, 0.15, -95)
+metadata/veil_level = 2
+
+[node name="CORR_Withered_Grass_Patch_4" parent="." instance=ExtResource("8_CORR_Withered_Grass_") groups=["veil_corruption"]]
+transform = Transform3D(0.866, 0, 0.5, 0, 1, 0, -0.5, 0, 0.866, 26, 0.15, -95.5)
+metadata/veil_level = 1
+
+[node name="CORR_Dead_Shrub_5" parent="." instance=ExtResource("9_CORR_Dead_Shrub") groups=["veil_corruption"]]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 40, 0.15, -95)
+metadata/veil_level = 1
+
+[node name="CORR_Organic_Growth_6" parent="." instance=ExtResource("10_CORR_Organic_Growth") groups=["veil_corruption"]]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 36.8, 0.15, -96.5)
+metadata/veil_level = 3
+
+[node name="SUP_Markings_Pavement_7" parent="." instance=ExtResource("11_SUP_Markings_Pavemen") groups=["veil_corruption"]]
+transform = Transform3D(0.9659, 0, 0.2588, 0, 1, 0, -0.2588, 0, 0.9659, 12, 0.15, -104)
+metadata/veil_level = 3
+
+[node name="SUP_ImpossibleShadow_Ground_8" parent="." instance=ExtResource("12_SUP_ImpossibleShadow") groups=["veil_corruption"]]
+transform = Transform3D(0.342, 0, 0.9397, 0, 1, 0, -0.9397, 0, 0.342, 31, 0.15, -102)
+metadata/veil_level = 3
+
+[node name="ABN_ShoppingCart_Overturned_0" parent="." instance=ExtResource("13_ABN_ShoppingCart_Ove") groups=["veil_corruption"]]
+transform = Transform3D(0.766, 0, 0.6428, 0, 1, 0, -0.6428, 0, 0.766, 20, 0.15, -101)
+metadata/veil_level = 2
+
+[node name="ABN_GroceryBags_Spilled_1" parent="." instance=ExtResource("14_ABN_GroceryBags_Spil") groups=["veil_corruption"]]
+transform = Transform3D(0.9397, 0, -0.342, 0, 1, 0, 0.342, 0, 0.9397, 33.5, 0.15, -97)
+metadata/veil_level = 2
+
+[node name="ABN_FallenBicycle_2" parent="." instance=ExtResource("15_ABN_FallenBicycle") groups=["veil_corruption"]]
+transform = Transform3D(0.2588, 0, 0.9659, 0, 1, 0, -0.9659, 0, 0.2588, 45, 0.15, -98.5)
+metadata/veil_level = 2
+
+[node name="ABN_RoadCones_Abandoned_3" parent="." instance=ExtResource("16_ABN_RoadCones_Abando") groups=["veil_corruption"]]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 5, 0.15, -101)
+metadata/veil_level = 2
+
+[node name="Camera" type="Camera3D" parent="."]
+transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 31, 1.75, -100)
+current = true
+far = 400.0

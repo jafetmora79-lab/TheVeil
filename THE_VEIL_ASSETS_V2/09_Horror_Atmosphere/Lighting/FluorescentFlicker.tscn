@@ -1,0 +1,26 @@
+[gd_scene load_steps=3 format=3]
+
+[ext_resource type="PackedScene" path="res://THE_VEIL_ASSETS_V2/09_Horror_Atmosphere/Lighting/LGT_FluorescentFixture.glb" id="1_LGT_FluorescentFixtu"]
+[ext_resource type="Script" path="res://THE_VEIL_ASSETS_V2/09_Horror_Atmosphere/Lighting/veil_flicker.gd" id="2_veil_flicker"]
+
+[node name="FluorescentFlicker" type="Node3D"]
+
+
+[node name="Fixture" parent="." instance=ExtResource("1_LGT_FluorescentFixtu")]
+
+
+[node name="Light" type="OmniLight3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.05, 0)
+light_color = Color(0.86, 0.95, 1, 1)
+light_energy = 1.1
+omni_range = 7.0
+omni_attenuation = 1.4
+shadow_enabled = false
+distance_fade_enabled = true
+distance_fade_begin = 40.0
+distance_fade_length = 15.0
+
+[node name="Flicker" type="Node" parent="Light"]
+script = ExtResource("2_veil_flicker")
+mode = 2
+seed = 18

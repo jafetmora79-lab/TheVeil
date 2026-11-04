@@ -1,0 +1,23 @@
+[gd_scene load_steps=3 format=3]
+
+[ext_resource type="PackedScene" path="res://THE_VEIL_ASSETS_V2/09_Horror_Atmosphere/Supernatural_Details/SUP_ColdLightShaft.glb" id="1_SUP_ColdLightShaft"]
+[ext_resource type="Script" path="res://THE_VEIL_ASSETS_V2/09_Horror_Atmosphere/Lighting/veil_flicker.gd" id="2_veil_flicker"]
+
+[node name="ColdLightLeak" type="Node3D"]
+metadata/note = "Place in a doorway facing out (+Z); cold light breathing from a room that should be dark."
+
+[node name="Shaft" parent="." instance=ExtResource("1_SUP_ColdLightShaft")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0.3)
+
+[node name="Light" type="SpotLight3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 0.8192, 0.5736, 0, -0.5736, 0.8192, 0, 1.9, -0.2)
+light_color = Color(0.62, 0.74, 1, 1)
+light_energy = 1.6
+spot_range = 7.0
+spot_angle = 38.0
+shadow_enabled = false
+
+[node name="Flicker" type="Node" parent="Light"]
+script = ExtResource("2_veil_flicker")
+mode = 4
+seed = 5
