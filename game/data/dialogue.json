@@ -865,5 +865,467 @@
    }
   ],
   "draft": true
+ },
+ "c5_eddie_morning": {
+  "source": "Chapter 5 implementation prompt 01 (approved script)",
+  "lines": [
+   {
+    "speaker": "Eddie",
+    "text": "Morning. Or whatever we're calling it.",
+    "time": 3.3
+   },
+   {
+    "speaker": "",
+    "text": "Did you sleep?",
+    "time": 1.8
+   },
+   {
+    "speaker": "Eddie",
+    "text": "Not really. Every time the building made a noise, I thought something was coming through the doors.",
+    "time": 7.0
+   },
+   {
+    "speaker": "",
+    "text": "We need more supplies.",
+    "time": 2.3
+   },
+   {
+    "speaker": "Eddie",
+    "text": "Yeah. I checked what we have left. It's not great.",
+    "time": 4.0
+   },
+   {
+    "speaker": "",
+    "text": "There's a neighborhood close by.",
+    "time": 2.9
+   },
+   {
+    "speaker": "Eddie",
+    "text": "You're suggesting we go outside again.",
+    "time": 3.3
+   },
+   {
+    "speaker": "",
+    "text": "We don't have much choice.",
+    "time": 2.5
+   },
+   {
+    "speaker": "Eddie",
+    "text": "Right. Great. Love having choices.",
+    "time": 3.0
+   }
+  ]
+ },
+ "c5_marcus_morning": {
+  "source": "Chapter 5 implementation prompt 01 (approved script)",
+  "lines": [
+   {
+    "speaker": "Marcus",
+    "text": "I've been looking at the streets around here.",
+    "time": 3.7
+   },
+   {
+    "speaker": "",
+    "text": "Find anything?",
+    "time": 1.8
+   },
+   {
+    "speaker": "Marcus",
+    "text": "Not yet. But Noah knew this part of town. He could've gone somewhere familiar.",
+    "time": 5.7
+   },
+   {
+    "speaker": "",
+    "text": "We're going to look for supplies first.",
+    "time": 3.3
+   },
+   {
+    "speaker": "Marcus",
+    "text": "I know.",
+    "time": 1.8
+   },
+   {
+    "speaker": "Marcus",
+    "text": "Just... if you see anything. Anything that might belong to him.",
+    "time": 4.8
+   },
+   {
+    "speaker": "",
+    "text": "I'll keep an eye out.",
+    "time": 2.2
+   },
+   {
+    "speaker": "Marcus",
+    "text": "Thank you.",
+    "time": 1.8
+   }
+  ]
+ },
+ "c5_eddie_exit": {
+  "source": "Chapter 5 implementation prompt 01 (approved script)",
+  "lines": [
+   {
+    "speaker": "Eddie",
+    "text": "Okay. Quick trip. In and out.",
+    "time": 2.7
+   },
+   {
+    "speaker": "",
+    "text": "That's the plan.",
+    "time": 1.9
+   },
+   {
+    "speaker": "Eddie",
+    "text": "Good. Because I've got absolutely no interest in becoming a missing-person poster.",
+    "time": 6.0
+   }
+  ]
+ },
+ "c5_street": {
+  "source": "Chapter 5 implementation prompt 01 (approved script)",
+  "lines": [
+   {
+    "speaker": "Eddie",
+    "text": "It's weird seeing everything like this.",
+    "time": 3.3
+   },
+   {
+    "speaker": "",
+    "text": "Quiet?",
+    "time": 1.8
+   },
+   {
+    "speaker": "Eddie",
+    "text": "Yeah. Yesterday people were arguing over parking spaces. Now look at it.",
+    "time": 5.4
+   }
+  ]
+ },
+ "c5_house_enter": {
+  "source": "Chapter 5 implementation prompt 01 (approved script)",
+  "lines": [
+   {
+    "speaker": "Eddie",
+    "text": "Someone left in a hurry.",
+    "time": 2.4
+   },
+   {
+    "speaker": "",
+    "text": "Looks that way.",
+    "time": 1.8
+   },
+   {
+    "speaker": "Eddie",
+    "text": "I hope they made it somewhere safe.",
+    "time": 3.1
+   }
+  ]
+ },
+ "c5_found_supplies": {
+  "source": "Chapter 5 implementation prompt 01 (approved script)",
+  "lines": [
+   {
+    "speaker": "Eddie",
+    "text": "Okay. That's something.",
+    "time": 2.3
+   },
+   {
+    "speaker": "",
+    "text": "We should keep looking.",
+    "time": 2.3
+   },
+   {
+    "speaker": "Eddie",
+    "text": "Just don't get too comfortable.",
+    "time": 2.8
+   }
+  ]
+ },
+ "c5_radio_broadcast": {
+  "source": "Chapter 5 implementation prompt 01 (approved script)",
+  "lines": [
+   {
+    "speaker": "Radio",
+    "text": "...temperatures expected to remain mild through the evening...",
+    "time": 4.7
+   },
+   {
+    "speaker": "Radio",
+    "text": "...drivers are advised to use caution in areas of reduced visibility...",
+    "time": 5.3
+   },
+   {
+    "speaker": "Radio",
+    "text": "[STATIC]",
+    "time": 1.8
+   },
+   {
+    "speaker": "Radio",
+    "text": "...and now, back to your regularly scheduled programming...",
+    "time": 4.6
+   },
+   {
+    "speaker": "Radio",
+    "text": "[STATIC]",
+    "time": 1.8
+   }
+  ]
+ },
+ "c5_radio_eddie": {
+  "source": "Chapter 5 implementation prompt 01 (approved script)",
+  "lines": [
+   {
+    "speaker": "Eddie",
+    "text": "Did you hear that?",
+    "time": 2.0
+   },
+   {
+    "speaker": "",
+    "text": "Yeah.",
+    "time": 1.8
+   },
+   {
+    "speaker": "Eddie",
+    "text": "That sounded normal.",
+    "time": 2.1
+   },
+   {
+    "speaker": "",
+    "text": "Too normal.",
+    "time": 1.8
+   },
+   {
+    "speaker": "Eddie",
+    "text": "Think someone's still broadcasting?",
+    "time": 3.1
+   },
+   {
+    "speaker": "",
+    "text": "I don't know.",
+    "time": 1.8
+   },
+   {
+    "speaker": "Eddie",
+    "text": "Well, that's reassuring.",
+    "time": 2.4
+   }
+  ]
+ },
+ "c5_survivor": {
+  "source": "Chapter 5 implementation prompt 01 (approved script)",
+  "lines": [
+   {
+    "speaker": "Survivor",
+    "text": "Who's there?",
+    "time": 1.8
+   },
+   {
+    "speaker": "",
+    "text": "We're looking for supplies. We're not here to hurt you.",
+    "time": 4.3
+   },
+   {
+    "speaker": "Survivor",
+    "text": "Are you alone?",
+    "time": 1.8
+   },
+   {
+    "speaker": "Eddie",
+    "text": "There's two of us.",
+    "time": 2.0
+   },
+   {
+    "speaker": "Survivor",
+    "text": "Are those things still outside?",
+    "time": 2.8
+   },
+   {
+    "speaker": "",
+    "text": "Yes.",
+    "time": 1.8
+   },
+   {
+    "speaker": "Survivor",
+    "text": "I can't stay here forever.",
+    "time": 2.5
+   }
+  ],
+  "choices": [
+   {
+    "text": "\"We have a place nearby. It's safer than staying here alone.\"",
+    "next": "c5_survivor_shelter",
+    "flag": "c5_survivor_helped"
+   },
+   {
+    "text": "\"There's a supermarket nearby. We've secured the entrances.\"",
+    "next": "c5_survivor_directions",
+    "flag": "c5_survivor_informed"
+   },
+   {
+    "text": "\"We have to go.\"",
+    "next": "c5_survivor_leave",
+    "flag": "c5_survivor_left"
+   }
+  ]
+ },
+ "c5_survivor_shelter": {
+  "source": "Chapter 5 implementation prompt 01 (approved script)",
+  "lines": [
+   {
+    "speaker": "",
+    "text": "We have a place nearby. It's safer than staying here alone.",
+    "time": 4.6
+   },
+   {
+    "speaker": "Survivor",
+    "text": "You're sure?",
+    "time": 1.8
+   },
+   {
+    "speaker": "",
+    "text": "It's the best we've got.",
+    "time": 2.4
+   },
+   {
+    "speaker": "Survivor",
+    "text": "Okay. I'll follow you.",
+    "time": 2.3
+   }
+  ]
+ },
+ "c5_survivor_directions": {
+  "source": "Chapter 5 implementation prompt 01 (approved script)",
+  "lines": [
+   {
+    "speaker": "",
+    "text": "There's a supermarket nearby. We've secured the entrances.",
+    "time": 4.5
+   },
+   {
+    "speaker": "Survivor",
+    "text": "I'll try to get there.",
+    "time": 2.3
+   }
+  ]
+ },
+ "c5_survivor_leave": {
+  "source": "Chapter 5 implementation prompt 01 (approved script)",
+  "lines": [
+   {
+    "speaker": "",
+    "text": "We have to go.",
+    "time": 1.8
+   },
+   {
+    "speaker": "Survivor",
+    "text": "Wait—",
+    "time": 1.8
+   }
+  ]
+ },
+ "c5_return": {
+  "source": "Chapter 5 implementation prompt 01 (approved script)",
+  "lines": [
+   {
+    "speaker": "Eddie",
+    "text": "I think that's enough excitement for one day.",
+    "time": 3.7
+   },
+   {
+    "speaker": "",
+    "text": "We got what we needed.",
+    "time": 2.3
+   },
+   {
+    "speaker": "Eddie",
+    "text": "Mostly.",
+    "time": 1.8
+   },
+   {
+    "speaker": "",
+    "text": "Mostly?",
+    "time": 1.8
+   },
+   {
+    "speaker": "Eddie",
+    "text": "I was hoping we'd also find a working television and a way out of town.",
+    "time": 5.3
+   }
+  ]
+ },
+ "c5_report": {
+  "source": "Chapter 5 implementation prompt 01 (approved script)",
+  "lines": [
+   {
+    "speaker": "Marcus",
+    "text": "You're back.",
+    "time": 1.8
+   },
+   {
+    "speaker": "",
+    "text": "We found some supplies.",
+    "time": 2.3
+   },
+   {
+    "speaker": "Marcus",
+    "text": "Anything else?",
+    "time": 1.8
+   },
+   {
+    "speaker": "",
+    "text": "A radio was still broadcasting.",
+    "time": 2.8
+   },
+   {
+    "speaker": "Marcus",
+    "text": "Someone's out there, then.",
+    "time": 2.5
+   },
+   {
+    "speaker": "Eddie",
+    "text": "Maybe. It didn't sound like anyone knew what was happening.",
+    "time": 4.6
+   },
+   {
+    "speaker": "Marcus",
+    "text": "Did you see anything about Noah?",
+    "time": 2.9
+   },
+   {
+    "speaker": "",
+    "text": "Not yet.",
+    "time": 1.8
+   },
+   {
+    "speaker": "Marcus",
+    "text": "Okay.",
+    "time": 1.8
+   },
+   {
+    "speaker": "Marcus",
+    "text": "Then we keep looking.",
+    "time": 2.2
+   }
+  ]
+ },
+ "c5_report_survivor": {
+  "source": "Chapter 5 implementation prompt 01 (approved script)",
+  "lines": [
+   {
+    "speaker": "Marcus",
+    "text": "You brought someone back.",
+    "time": 2.5
+   },
+   {
+    "speaker": "",
+    "text": "They needed somewhere safe.",
+    "time": 2.6
+   },
+   {
+    "speaker": "Marcus",
+    "text": "Then we'll make room.",
+    "time": 2.2
+   }
+  ]
  }
 }

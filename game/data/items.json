@@ -61,6 +61,11 @@
    "name": "Batteries",
    "category": "flashlight",
    "description": "Spare flashlight batteries. The count and charge show bottom right while the flashlight is on."
+  },
+  "first_aid_kit": {
+   "name": "First Aid Kit",
+   "category": "medical",
+   "description": "A plastic first aid kit from a bathroom cabinet. Bandages, antiseptic, a few painkillers."
   }
  }
 }

@@ -5,7 +5,8 @@
   "errands": "Friday errands",
   "done": "Friday evening - to be continued",
   "act1": "The Veil",
-  "act1_night": "Secure the supermarket"
+  "act1_night": "Secure the supermarket",
+  "act2_search": "The First Search"
  },
  "steps": [
   {
@@ -133,6 +134,54 @@
    "flag": "p4_slept",
    "goal": "act1_night",
    "text": "Get some rest in the back office"
+  },
+  {
+   "id": "c5_talk",
+   "flag": "c5_talked_both",
+   "goal": "act2_search",
+   "text": "Talk to Eddie and Marcus"
+  },
+  {
+   "id": "c5_prepare",
+   "flag": "c5_prepared",
+   "goal": "act2_search",
+   "text": "Prepare for the search"
+  },
+  {
+   "id": "c5_reach",
+   "flag": "c5_house_reached",
+   "goal": "act2_search",
+   "text": "Reach the nearby house"
+  },
+  {
+   "id": "c5_search",
+   "flag": "c5_supplies_done",
+   "goal": "act2_search",
+   "text": "Search the house for supplies"
+  },
+  {
+   "id": "c5_radio",
+   "flag": "c5_radio_done",
+   "goal": "act2_search",
+   "text": "Investigate the radio"
+  },
+  {
+   "id": "c5_return",
+   "flag": "c5_returned",
+   "goal": "act2_search",
+   "text": "Return to the supermarket"
+  },
+  {
+   "id": "c5_report",
+   "flag": "c5_reported",
+   "goal": "act2_search",
+   "text": "Report back to Marcus"
+  },
+  {
+   "id": "c5_complete",
+   "flag": "c6_started",
+   "goal": "act2_search",
+   "text": "Chapter 5 complete - The First Search"
   }
  ],
  "_comment": "Steps complete in list order for display, but each errand step only checks its own flag, so the supermarket and the game shop can be done in either order (the bible leaves the stop order open). Phase 3 (mist_*) is a WORKING DRAFT sequence of Act I's opening.",
