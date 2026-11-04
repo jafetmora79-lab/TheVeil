@@ -112,6 +112,12 @@ func _setup_doors() -> void:
 	doors = world.interactables.get("market/doors_shut")
 	if doors:
 		doors.used.connect(_use_doors)
+	# Chapter 5/6's exit spot sits on the leaves' inner face; Chapter 7 uses the doors' own box instead,
+	# so the old spot must not catch the player's aim
+	if c5 and c5.its.has("exit"):
+		var ex: Interactable = c5.its["exit"]
+		ex.prompt_text = ""
+		ex.collision_layer = 0
 
 
 func _setup_route() -> void:
