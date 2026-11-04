@@ -1,7 +1,7 @@
 # THE VEIL — MASTER PROJECT CONTEXT & STORY BIBLE
 
 > **Repository handoff for Claude, Codex, and future collaborators**  
-> **Version:** 2026-11-03 | **Status:** Working narrative and production reference  
+> **Version:** 2026-11-04 (status notes added; see the `UPDATE 2026-11-04` blocks) | **Status:** Working narrative and production reference  
 > **Important:** This document combines established decisions, earlier story-draft material, and explicitly marked open questions. **Do not mistake a proposal for locked canon.**
 
 ## 0. Instructions for any AI reading this file
@@ -65,6 +65,10 @@ The protagonist, an ordinary adult man living alone in Greyhaven, wakes from an 
 An earlier narrative draft places the protagonist in or around Greyhaven's independent video game shop with **Eddie** (the clerk) and **Marcus** (another important survivor) when the mist arrives and a gigantic **Colossus** is glimpsed. The survivors then move toward shelter, including the supermarket. This ordering is a working draft, not permission to contradict the established normal opening drive.
 
 **Continuity check for implementation:** The grocery objective, supermarket visit, and game-shop encounter must be arranged into a believable playable sequence. Verify the intended stop order in the latest script before locking cutscenes, quest triggers, or travel routes.
+
+> **UPDATE 2026-11-04 (implementation, not canon):** the playable build (Phase 2) lets the player do the supermarket
+> and the game shop in **either order**, with no mist. The stop order therefore stays open. Eddie sells the game with
+> draft lines. Marcus is not placed. See `THE_VEIL_ASSETS_V2/Documentation/STORY_CANON_DECISIONS.md`.
 
 ### 2.3 The Veil itself (ESTABLISHED / WORKING DRAFT)
 
@@ -132,6 +136,20 @@ Do not implement specific ending triggers or declare a canonical ending without 
 ---
 
 ## 4. Character bible
+
+> **UPDATE 2026-11-04 - character looks:** the "Proposed appearance" lines below were design proposals. These models
+> now exist in `THE_VEIL_ASSETS_V2/06_Characters/`:
+>
+> * **Eddie:** the owner's **hand-made model** (`CHR_Eddie`). It is the art-direction reference for all characters.
+> * **Marcus:** rev 4, **owner-approved**.
+> * **Protagonist** (with first-person arms), **Ruth, Sarah, Frank and Lena:** built in the same style (style rev 4).
+>   Not individually approved.
+> * **`CHR_Police_Officer`:** an **Officer Hayes candidate** only. Hayes' identity stays TBD.
+>
+> **Shared systems:** all models share one humanoid rig and the VeilFace texture-swap facial system (expressions,
+> blinking, talking). No body animations exist yet.
+>
+> **Not modelled:** Noah and the secondary cast. Details are in `THE_VEIL_ASSETS_V2/Documentation/CHARACTER_ROSTER.md`.
 
 **Important identity rule: Eddie and Marcus are separate people.** Eddie works at the game shop; Marcus is Noah's father. Do not merge them.
 
@@ -245,6 +263,20 @@ The earlier draft identified these threat types:
 | **Hound** | Fast animal-like threat archetype | WORKING DRAFT; appearance/behavior TBD |
 | **Colossus** | Enormous, frightening presence associated with the mist's arrival | WORKING DRAFT; appearance/behavior TBD |
 
+> **UPDATE 2026-11-04 - Pack 07 roster (owner's brief):** the **Wanderer is removed**, and no humanoid enemies are
+> planned.
+>
+> The built roster is:
+>
+> * **Colossus** (four-legged tentacled giant);
+> * **Mist Tentacles** in three sizes (thin / medium / large);
+> * **Hound**;
+> * **Skitter** (six-legged insectoid);
+> * **Shellcrawler** (asymmetric shelled crawler).
+>
+> The models and animation clips exist in `THE_VEIL_ASSETS_V2/07_Creatures/`. Behaviour, encounter rules and
+> whether the Colossus can be fought remain TBD (section 11.9).
+
 **Threat design principles:** Distinct silhouettes and audio cues; avoid treating every creature as a simple damage sponge; use uncertainty, concealment, and limited player resources. Do not add a fully explained taxonomy or supernatural origin without approval.
 
 ---
@@ -265,6 +297,15 @@ These are intended story locations. **Always inspect actual Pack 02 town-layout 
 | **Police / civic areas** | Officer Hayes and public-response potential | TBD |
 | **Farmhouse / mill house** | Existing planned town-building zones; specific story use TBD | DESIGN PLAN |
 | **Underground / beneath Greyhaven** | Potential deep-mystery area associated with an ending name | WORKING DRAFT; specifics TBD |
+
+> **UPDATE 2026-11-04 - town extension (owner's Phase 1 brief: the opening drive must last at least 60 s):**
+>
+> * Greyhaven was extended in the game build. Route 9 continues as a county road to a new subdivision: Harlow Ln,
+>   Aspen Ct and Fern Ct.
+> * The **player's house moved to Fern Ct**, with the same lot geometry. A Ranch B house fills the old Maple Ave lot.
+> * Pack 02 itself is unchanged. The extension lives in `game/world/` (`game/tools/build_world.py`).
+> * The route is about 1,069 m, about 83 s at 50 km/h.
+> * Coordinates are in `THE_VEIL_ASSETS_V2/Documentation/WORLD_LOCATIONS.md`.
 
 ### Spatial continuity rules
 
@@ -339,6 +380,16 @@ These are intended story locations. **Always inspect actual Pack 02 town-layout 
 | **08** | Weapons, tools, pickups, inventory objects |
 | **09** | Horror environments, effects, and polish |
 
+> **UPDATE 2026-11-04 - pack status:**
+>
+> * **Packs 01-09 all exist and pass their validators** (see `THE_VEIL_ASSETS_V2/Documentation/ASSET_STATUS.md`).
+> * The **character style reference is the owner's hand-made Eddie**. Earlier generated character revisions are kept
+>   only as `_v1` to `_v3` backups.
+> * A playable Godot project lives at the repository root (`game/`). It has two phases:
+>   * Phase 1: the opening;
+>   * Phase 2: the town errands.
+> * The notes below about "planned" packs and missing characters are historical.
+
 **Note:** Earlier conversations describe these packs as created or planned in different stages. **Check the repository to verify actual contents, quality, rigging, and import success.** Do not assume the full character cast exists. Older realistic character models may exist only on the user's home computer and are not automatically suitable for this stylized pipeline.
 
 ### Asset conventions
@@ -388,6 +439,10 @@ THE_VEIL_ASSETS_V2/
 ```
 
 If the repository already has a story/docs convention, use it instead of creating duplicate documentation trees. Add a short pointer to this document from the root README so Claude can find it.
+
+> **UPDATE 2026-11-04:** the five files above now exist in `THE_VEIL_ASSETS_V2/Documentation/`. This bible stays at
+> `docs/THE_VEIL_MASTER_CONTEXT.md`, which the root `README.md` points to. `docs/HANDOFF.md` is the production
+> handoff.
 
 ---
 
