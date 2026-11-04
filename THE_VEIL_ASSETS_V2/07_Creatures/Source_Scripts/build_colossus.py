@@ -233,7 +233,7 @@ def build_mesh(rig, legs, tents, uv):
         inside = s + (np.array([0.0, 0.1, 0.0]) - np.array([s[0], 0, 0])) * 0.45
         # the sweep runs down into the foot (fore: under the claw roots; hind: onto the hoof plate) - ending it at
         # 0.55 left the hind hoofs ~0.3 m (1.8 m at encounter scale) below the leg and the fore claws detached
-        end_f = 0.86 if kind == "hind" else 0.78
+        end_f = 0.86 if kind == "hind" else 0.93     # fore: down into the palm pad (0.78 left a visible gap above it)
         pts = [inside, s, s + (e - s) * 0.5 + np.array([0, 0.35, 0]), e, e + (w - e) * 0.25, e + (w - e) * 0.62, w,
                w + (c - w) * 0.55, w + (c - w) * end_f]
         Cl = G.resample(pts, 22)
@@ -281,7 +281,7 @@ def build_mesh(rig, legs, tents, uv):
             # paw: a broad, flattened palm pad under the leg end carries the weight (its underside sits at y 0.06,
             # the road plane); three long claws root at the pad's front edge in a loose half-W fan and curve down
             # and forward, their tips just touching the road (no longer stilts holding the palm in the air)
-            G.plate(atl, np.array([c[0], 0.17, c[2] + 0.2]), (1.3, 0.22, 1.4), {b[2]: 1.0}, uv["hoof"], normal=(0, 1, 0),
+            G.plate(atl, np.array([c[0], 0.17, c[2] + 0.05]), (1.3, 0.24, 1.5), {b[2]: 1.0}, uv["hoof"], normal=(0, 1, 0),
                     along=(lat[0] * 0.1, 0, 1), taper=(0.8, 0.85))
             for dlat, dfw, ln in ((-0.55, 0.85, 1.25), (0.05, 1.05, 1.45), (0.6, 0.7, 1.1)):
                 base = np.array([c[0] + lat[0] * dlat * 0.7, 0.24, c[2] + 0.75])
