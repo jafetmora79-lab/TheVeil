@@ -1,5 +1,5 @@
 extends SceneTree
-## THE VEIL - automated playthrough of the Phase 1 opening (no screenshots).
+## THE VEIL - automated playthrough of the opening (Phase 1) and the town errands (Phase 2) (no screenshots).
 ##   godot --headless --path . --fixed-fps 60 --script res://game/tests/opening_test.gd -- [cruise_kmh]
 ## Runs the real World scene and the real player / vehicle controllers. The car is driven by a simple
 ## pure-pursuit autopilot along the road centreline (world_data.json route) at a capped "normal" speed,
@@ -30,6 +30,34 @@ func press_interact() -> void:
 	event = InputEventKey.new()
 	event.physical_keycode = KEY_E
 	root.push_input(event)
+
+
+## Stand `dist` m from the interactable (horizontal, along `from_dir`) and look at it through the real player ray.
+func aim_at(player, it: Node3D, from_dir: Vector3, dist := 1.3) -> bool:
+	var c: Vector3 = it.global_transform * (it.get_child(0) as Node3D).position
+	var feet := c + from_dir.normalized() * dist
+	player.global_position = Vector3(feet.x, it.get_parent_node_3d().get_parent_node_3d().global_position.y + 0.06, feet.z)
+	player.velocity = Vector3.ZERO
+	await frames(3)
+	var eye: Vector3 = player.camera.global_position
+	var d := (c - eye).normalized()
+	player.set_yaw_pitch(atan2(-d.x, -d.z), asin(clampf(d.y, -1.0, 1.0)))
+	await frames(4)
+	return player._focus == it
+
+
+## Really walk (move_forward held) from `a` toward `b`; returns how far past `a` the player got along a->b.
+func walk(player, a: Vector3, b: Vector3, seconds := 2.0) -> float:
+	player.global_position = a
+	player.velocity = Vector3.ZERO
+	var d := (b - a) * Vector3(1, 0, 1)
+	player.set_yaw_pitch(atan2(-d.x, -d.z), 0.0)
+	await frames(2)
+	Input.action_press("move_forward")
+	await frames(int(seconds * 60))
+	Input.action_release("move_forward")
+	await frames(10)
+	return (player.global_position - a).dot(d.normalized())
 
 
 func _initialize() -> void:
@@ -132,7 +160,7 @@ func _run() -> void:
 	# ---- keys
 	var keys = null
 	for k in world.interactables:
-		if world.interactables[k].kind == "pickup":
+		if world.interactables[k].item_id == "car_keys":
 			keys = world.interactables[k]
 	ok("keys_found", keys != null)
 	if keys:
@@ -245,10 +273,97 @@ func _run() -> void:
 	await frames(60)
 	ok("exit_fallback", not world.in_car and sedan.to_local(player.global_position).x > 0.0)
 	obstacle.queue_free()
+	# ---- Phase 2: the errands (either order; this run does the game shop first)
+	await frames(10)
+	var mk: Node3D = world.market
+	var gs: Node3D = world.game_shop
+	ok("objective_errands", game.current_step().get("id", "") == "buy_groceries", game.current_step().get("text", ""))
+	# game shop entrance door: closed blocks, opens inward, then passable
+	var sd = world.interactables.get("shop/entrance")
+	ok("shop_door", sd != null)
+	var s_out: Vector3 = (gs.get_node("Doorways/Entrance_Outside") as Node3D).global_position + Vector3(0, 0.1, 0)
+	var s_in: Vector3 = (gs.get_node("Doorways/Entrance_Inside") as Node3D).global_position + Vector3(0, 0.1, 0)
+	player.global_position = s_out
+	await frames(3)
+	var hit: KinematicCollision3D = player.move_and_collide(s_in - s_out, true)
+	ok("shop_door_closed_blocks", hit != null)
+	if sd:
+		sd.interact(player)
+		await frames(45)
+		var dc: Vector3 = sd.target.global_transform * interaction.aabb_of(sd.target).get_center()
+		ok("shop_door_opens_inward", sd.is_open and gs.to_local(dc).z > 0.6, "door centre local z=%.2f" % gs.to_local(dc).z)
+	player.global_position = s_out
+	await frames(3)
+	var shop_walk: float = await walk(player, s_out, s_in)
+	ok("shop_door_passable", shop_walk > (s_in - s_out).length() - 0.1, "walked %.2f of %.2f m" % [shop_walk, (s_in - s_out).length()])
+	var eddie_it = world.interactables.get("shop/eddie")
+	ok("eddie_present", world.eddie != null and world.eddie.find_children("*", "Skeleton3D", true, false).size() == 1)
+	var sk: Skeleton3D = world.eddie.find_children("*", "Skeleton3D", true, false)[0]
+	var hand_y := sk.get_bone_global_pose(sk.find_bone("LeftHand")).origin.y
+	var sh_y := sk.get_bone_global_pose(sk.find_bone("LeftUpperArm")).origin.y
+	ok("eddie_arms_lowered", hand_y < sh_y - 0.35, "hand y %.2f shoulder y %.2f" % [hand_y, sh_y])
+	ok("eddie_face", world.eddie_face != null and world.eddie_face._mat != null)
+	ok("eddie_talk_reach", await aim_at(player, eddie_it, -gs.global_transform.basis.z, 1.75))
+	var game_it = world.interactables.get("shop/horror_game")
+	ok("game_rack_reach", await aim_at(player, game_it, gs.global_transform.basis.x, 0.9))
+	eddie_it.interact(player)
+	await frames(10)
+	ok("eddie_needs_game", not game.has_flag("game_bought"))
+	game_it.interact(player)
+	await frames(10)
+	ok("game_picked", game.has_item("horror_game"))
+	eddie_it.interact(player)
+	await frames(10)
+	ok("game_bought", game.has_flag("game_bought"))
+	ok("eddie_talks", world.eddie_face._talk_left > 0.0)
+	ok("objective_still_groceries", game.current_step().get("id", "") == "buy_groceries")
+	# supermarket: auto doors
+	var leaf := mk.get_node("Building").find_child("INT_AutoDoor_Entrance_L", true, false) as Node3D
+	var leaf0 := leaf.position
+	var m_out: Vector3 = (mk.get_node("Doorways/Entrance_Outside") as Node3D).global_position + Vector3(0, 0.1, 0)
+	var m_in: Vector3 = (mk.get_node("Doorways/Entrance_Inside") as Node3D).global_position + Vector3(0, 0.1, 0)
+	player.global_position = m_out + (m_out - m_in).normalized() * 3.0
+	await frames(30)
+	ok("auto_doors_closed_far", leaf.position.distance_to(leaf0) < 0.01)
+	player.global_position = m_out
+	await frames(60)
+	ok("auto_doors_open", leaf.position.distance_to(leaf0) > 1.0, "leaf moved %.2f m" % leaf.position.distance_to(leaf0))
+	var market_walk: float = await walk(player, m_out, m_in)
+	ok("market_entrance_passable", market_walk > (m_in - m_out).length() - 0.1, "walked %.2f of %.2f m" % [market_walk, (m_in - m_out).length()])
+	# checkout refuses an empty basket
+	var pay = world.interactables.get("market/checkout")
+	ok("checkout_reach", await aim_at(player, pay, ((mk.get_node("NavTargets/Checkout_4") as Node3D).global_position - pay.global_position) * Vector3(1, 0, 1), 1.2))
+	pay.interact(player)
+	await frames(5)
+	ok("checkout_needs_items", not game.has_flag("groceries_done"))
+	var reach_fail := []
+	for id in ["canned_food", "energy_snack", "water_bottle"]:
+		var gi = world.interactables["market/" + id]
+		var lp: Vector3 = mk.to_local(gi.global_position)
+		var gx := -11.5 + 3.0 * roundf((lp.x + 11.5) / 3.0)
+		var outward: Vector3 = mk.global_transform.basis * Vector3(signf(lp.x - gx), 0, 0)
+		if not await aim_at(player, gi, outward, 0.95):
+			reach_fail.append(id)
+		gi.interact(player)
+		await frames(15)
+	ok("groceries_reachable", reach_fail.is_empty(), str(reach_fail))
+	ok("groceries_picked", game.has_item("canned_food") and game.has_item("water_bottle") and game.has_item("energy_snack"))
+	pay.interact(player)
+	await frames(10)
+	ok("checkout", game.has_flag("groceries_done") and game.has_item("groceries") and not game.has_item("canned_food"))
+	ok("objective_go_home", game.current_step().get("id", "") == "go_home")
+	# back to the car = end of the build
+	player.global_position = sedan.global_transform * Vector3(-1.6, 0.1, -0.3)
+	await frames(5)
+	world.enter_car()
+	await frames(60 * 5)
+	ok("phase2_end", game.has_flag("phase2_done") and world.hud.end_panel.visible)
+	press_interact()
+	await frames(60)
 	world.save()
 	ok("save_exists", game.has_save())
 	var ok_load: bool = game.load_game()
-	ok("load", ok_load and game.has_item("car_keys") and game.has_flag("parked") and game.world_state.size() > 0)
+	ok("load", ok_load and game.has_item("car_keys") and game.has_flag("parked") and game.has_flag("game_bought") and game.has_item("groceries") and game.world_state.size() > 0)
 	world.enter_car()
 	await frames(45)
 	world.save()

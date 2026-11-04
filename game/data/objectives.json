@@ -2,14 +2,64 @@
  "goals": {
   "": "",
   "groceries": "Get some groceries",
+  "errands": "Friday errands",
   "done": "Friday evening - to be continued"
  },
  "steps": [
-  {"id": "check_kitchen", "flag": "fridge_checked", "goal": "", "text": "Check the kitchen"},
-  {"id": "find_keys", "flag": "has_keys", "goal": "groceries", "text": "Find the car keys"},
-  {"id": "leave_house", "flag": "left_house", "goal": "groceries", "text": "Leave the house"},
-  {"id": "enter_car", "flag": "entered_car", "goal": "groceries", "text": "Get into the car"},
-  {"id": "drive", "flag": "reached_town", "goal": "groceries", "text": "Drive into town"},
-  {"id": "park", "flag": "parked", "goal": "groceries", "text": "Park at the supermarket"}
- ]
+  {
+   "id": "check_kitchen",
+   "flag": "fridge_checked",
+   "goal": "",
+   "text": "Check the kitchen"
+  },
+  {
+   "id": "find_keys",
+   "flag": "has_keys",
+   "goal": "groceries",
+   "text": "Find the car keys"
+  },
+  {
+   "id": "leave_house",
+   "flag": "left_house",
+   "goal": "groceries",
+   "text": "Leave the house"
+  },
+  {
+   "id": "enter_car",
+   "flag": "entered_car",
+   "goal": "groceries",
+   "text": "Get into the car"
+  },
+  {
+   "id": "drive",
+   "flag": "reached_town",
+   "goal": "groceries",
+   "text": "Drive into town"
+  },
+  {
+   "id": "park",
+   "flag": "parked",
+   "goal": "groceries",
+   "text": "Park at the supermarket"
+  },
+  {
+   "id": "buy_groceries",
+   "flag": "groceries_done",
+   "goal": "errands",
+   "text": "Buy groceries at the supermarket"
+  },
+  {
+   "id": "buy_game",
+   "flag": "game_bought",
+   "goal": "errands",
+   "text": "Buy something scary at the game shop"
+  },
+  {
+   "id": "go_home",
+   "flag": "phase2_done",
+   "goal": "errands",
+   "text": "Head back to the car"
+  }
+ ],
+ "_comment": "Steps complete in list order for display, but each errand step only checks its own flag, so the supermarket and the game shop can be done in either order (the bible leaves the stop order open)."
 }

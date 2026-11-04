@@ -3,12 +3,25 @@ extends Node3D
 ## Wires the existing assets into gameplay: the Player_Home's own interaction metadata (doors, drawers,
 ## cabinets, light switches, the fridge, the car keys), observation points, story triggers, the sedan,
 ## save / restore and the opening sequence. No monsters, no mist.
+## Phase 2: after parking, two errands in either order - the supermarket (auto doors, three groceries off the
+## shelves, checkout) and the game shop (entrance door, a game off the New Releases rack, Eddie at the counter).
+## Back in the car with both done = end of the playable build. Still no mist.
 
 const PLAYER_SCRIPT := preload("res://game/player/player.gd")
 const SEDAN_SCRIPT := preload("res://game/vehicles/player_sedan.gd")
 const HUD_SCRIPT := preload("res://game/ui/hud.gd")
 const CAN := preload("res://THE_VEIL_ASSETS_V2/08_Inventory/Food_And_Supplies/INV_CannedFood.glb")
 const WATER := preload("res://THE_VEIL_ASSETS_V2/08_Inventory/Food_And_Supplies/INV_WaterBottle.glb")
+const SNACK := preload("res://THE_VEIL_ASSETS_V2/08_Inventory/Food_And_Supplies/INV_EnergySnack.glb")
+const EDDIE := preload("res://THE_VEIL_ASSETS_V2/06_Characters/Commercial_NPCs/CHR_Eddie.glb")
+const EDDIE_FACE := preload("res://THE_VEIL_ASSETS_V2/06_Characters/Facial/Faces/T_Face_Eddie.png")
+const FACE_SCRIPT := preload("res://THE_VEIL_ASSETS_V2/06_Characters/Facial/veil_face.gd")
+## supermarket-local shelf spots (Pack 04 com_plans.py: gondolas at x = -11.5 + 3k, z = 10, stock faces +-x)
+const GROCERIES := {
+	"canned_food": [CAN, "Canned Soup", Vector3(-8.97, 0.52, 9.4), "soup / beans side of aisle 2"],
+	"energy_snack": [SNACK, "Snack Bar", Vector3(-5.97, 0.92, 10.6), "candy side of aisle 3"],
+	"water_bottle": [WATER, "Water Bottle", Vector3(-2.03, 0.92, 10.2), "drinks side of aisle 4"],
+}
 
 const OBSERVE := {
 	"AlarmClock_01": ["Alarm Clock", "obs_alarm"], "WallCalendar_01": ["Calendar", "obs_calendar"],
@@ -48,6 +61,7 @@ func _ready() -> void:
 	sedan.entry_area.used.connect(func(_b): enter_car())
 	sedan.speed_changed.connect(hud.set_speed)
 	_setup_home()
+	_setup_town()
 	_setup_triggers()
 	_apply_view_ranges()
 	Game.flag_set.connect(_on_flag)
@@ -248,6 +262,179 @@ func _on_fridge(_by: Node) -> void:
 		Dialogue.say("fridge_again", true)
 
 
+# ------------------------------------------------------------------ Phase 2: town errands (Pack 04 locations)
+var market: Node3D
+var game_shop: Node3D
+var eddie: Node3D
+var eddie_face: Node
+var _auto_doors: Array = []
+var _auto_open := false
+
+
+func _setup_town() -> void:
+	market = get_node("Commercial/SUPERMARKET")
+	game_shop = get_node("Commercial/GAME_SHOP")
+	# supermarket: bi-parting automatic doors open while the player stands in front of / inside the vestibule
+	for side in [["L", -1.0], ["R", 1.0]]:
+		var leaf := market.get_node("Building").find_child("INT_AutoDoor_Entrance_" + side[0], true, false) as Node3D
+		if leaf:
+			_auto_doors.append([leaf, leaf.transform, Vector3(side[1] * 1.12, 0, 0)])
+	var sensor := _area("Trigger_MarketDoors", market.global_transform * Vector3(0, 1.2, 0.2), Vector3(4.4, 2.4, 5.0), 2,
+		func(b): if b == player: _set_auto_doors(true), market.global_transform.basis)
+	sensor.body_exited.connect(func(b): if b == player: _set_auto_doors(false))
+	_area("Trigger_MarketInside", market.global_transform * Vector3(0, 1.2, 4.5), Vector3(10, 2.4, 2), 2,
+		func(b): if b == player: Dialogue.say("market_enter", true), market.global_transform.basis)
+	# three groceries on the gondola shelves
+	for id in GROCERIES:
+		var g: Array = GROCERIES[id]
+		var m := (g[0] as PackedScene).instantiate() as Node3D
+		m.name = "Grocery_" + id
+		m.position = g[2]
+		m.rotation.y = PI * 0.5 if g[2].x < (-11.5 + 3.0 * roundf((g[2].x + 11.5) / 3.0)) else -PI * 0.5
+		market.add_child(m)
+		var it := Interactable.attach(m, {"kind": "pickup", "label": g[1], "item_id": id, "state_key": "market/" + id})
+		it.used.connect(func(_b): _grocery_hint())
+		interactables["market/" + id] = it
+	# checkout: lane 4 register (the cashier is an unseen placeholder speaker - no cashier is named in the bible)
+	var reg := market.get_node_or_null("Interaction/Register_45") as Node3D
+	var reg_node := Node3D.new()
+	reg_node.name = "Checkout"
+	market.add_child(reg_node)
+	reg_node.position = reg.position if reg else Vector3(-4.1, 1.14, 4.0)
+	var pay := Interactable.attach(reg_node, {"kind": "custom", "label": "Register", "prompt_text": "[E] Pay for Groceries"})
+	pay.used.connect(_checkout)
+	interactables["market/checkout"] = pay
+	# game shop: hinged entrance door, a game off the New Releases rack, Eddie behind the counter
+	var door := game_shop.get_node("Building").find_child("INT_Door_Entrance", true, false) as Node3D
+	if door:
+		var inside := (game_shop.get_node("Doorways/Entrance_Inside") as Node3D).global_position
+		var cfg := {"kind": "hinge", "label": "Shop Door", "state_key": "shop/entrance", "open_deg": 95.0}
+		var d_it := Interactable.attach(door, cfg)
+		d_it.open_deg = _toward_deg(door, 95.0, inside)
+		interactables["shop/entrance"] = d_it
+	_area("Trigger_ShopInside", game_shop.global_transform * Vector3(0, 1.2, 3.0), Vector3(9, 2.4, 3), 2,
+		func(b): if b == player: Dialogue.say("shop_enter", true), game_shop.global_transform.basis)
+	var rack := Node3D.new()
+	rack.name = "NewReleasePick"
+	game_shop.add_child(rack)
+	var browse := game_shop.get_node_or_null("Interaction/Browse_1") as Node3D
+	rack.position = browse.position if browse else Vector3(-0.75, 1.04, 3.0)
+	var pick := Interactable.attach(rack, {"kind": "pickup", "label": "Horror Game", "item_id": "horror_game",
+		"dialogue_id": "game_pick", "state_key": "shop/horror_game"})
+	pick.target = null           # the copy comes off a full rack: nothing to hide
+	interactables["shop/horror_game"] = pick
+	eddie = EDDIE.instantiate() as Node3D
+	eddie.name = "Eddie"
+	game_shop.add_child(eddie)
+	var behind := game_shop.get_node_or_null("NavTargets/BehindCounter") as Node3D
+	eddie.position = Vector3(behind.position.x, 0.04, behind.position.z) if behind else Vector3(2.8, 0.04, 7.5)
+	_lower_arms(eddie)
+	eddie_face = FACE_SCRIPT.new()
+	eddie_face.name = "VeilFace"
+	eddie_face.face_atlas = EDDIE_FACE
+	eddie.add_child(eddie_face)
+	var talk := Interactable.attach(eddie, {"kind": "custom", "label": "Eddie", "prompt_text": "[E] Talk to Eddie"})
+	talk.used.connect(_talk_eddie)
+	interactables["shop/eddie"] = talk
+	Dialogue.line_started.connect(func(speaker: String, _t: String, dur: float):
+		if speaker == "Eddie" and eddie_face:
+			eddie_face.set_expression("happy")
+			eddie_face.say(dur * 0.85, "happy"))
+
+
+func _set_auto_doors(open: bool) -> void:
+	if open == _auto_open:
+		return
+	if not open and get_node("Trigger_MarketDoors").overlaps_body(player):
+		return
+	_auto_open = open
+	for d in _auto_doors:
+		var leaf: Node3D = d[0]
+		var t: Transform3D = d[1]
+		if open:
+			t = Transform3D(t.basis, t.origin + t.basis * d[2])
+		var tw := create_tween().set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
+		tw.tween_property(leaf, "transform", t, 0.7)
+	Sfx.play("door_open" if open else "door_close", market.global_transform * Vector3(0, 1.2, 0.2), -8.0, 0.8)
+
+
+## Pick the hinge sign that swings the door toward `toward` (into the room).
+func _toward_deg(door: Node3D, deg: float, toward: Vector3) -> float:
+	var c := Interactable.aabb_of(door).get_center()
+	var best := deg
+	var best_d := INF
+	for d in [absf(deg), -absf(deg)]:
+		var t := door.get_parent_node_3d().global_transform * Transform3D(door.transform.basis * Basis(Vector3.UP, deg_to_rad(d)), door.transform.origin)
+		var dist := (t * c).distance_to(toward)
+		if dist < best_d:
+			best_d = dist
+			best = d
+	return best
+
+
+## The approved Eddie is exported in his reference pose; bring the upper arms down to the sides at runtime
+## (no body animation set exists yet). Tries both signs about each bone axis and keeps the lowest hand that
+## stays clear of the torso, so it does not depend on the rig's local axis conventions.
+func _lower_arms(chr: Node3D) -> void:
+	var sk := chr.find_children("*", "Skeleton3D", true, false)
+	if sk.is_empty():
+		return
+	var skel := sk[0] as Skeleton3D
+	for side in ["Left", "Right"]:
+		var ua := skel.find_bone(side + "UpperArm")
+		var hand := skel.find_bone(side + "Hand")
+		if ua < 0 or hand < 0:
+			continue
+		var base := skel.get_bone_pose_rotation(ua)
+		var best := base
+		var best_y := skel.get_bone_global_pose(hand).origin.y
+		var side_x := signf(skel.get_bone_global_pose(hand).origin.x)
+		for ax in [Vector3.RIGHT, Vector3.UP, Vector3.BACK]:
+			for sg in [1.0, -1.0]:
+				var q := base * Quaternion(ax, sg * deg_to_rad(68.0))
+				skel.set_bone_pose_rotation(ua, q)
+				var hp := skel.get_bone_global_pose(hand).origin
+				if hp.y < best_y and signf(hp.x) == side_x and absf(hp.x) > 0.16:
+					best_y = hp.y
+					best = q
+		skel.set_bone_pose_rotation(ua, best)
+
+
+func _grocery_hint() -> void:
+	var n := ["canned_food", "water_bottle", "energy_snack"].filter(func(i): return Game.has_item(i)).size()
+	if n < 3:
+		hud.set_hint("Groceries %d / 3" % n)
+	else:
+		hud.set_hint("Groceries 3 / 3 - pay at the register by the doors")
+
+
+func _checkout(_by: Node) -> void:
+	if Game.has_flag("groceries_done"):
+		return
+	var need := ["canned_food", "water_bottle", "energy_snack"]
+	if not need.all(func(i): return Game.has_item(i)):
+		Dialogue.say("market_need_items", false, true)
+		return
+	for i in need:
+		Game.remove_item(i)
+	Game.add_item("groceries")
+	Sfx.play("pickup", market.global_transform * Vector3(-4.1, 1.1, 4.0))
+	Dialogue.say("market_checkout", false, true)
+	Dialogue.say("groceries_done")
+	hud.set_hint("")
+	Game.set_flag("groceries_done")
+
+
+func _talk_eddie(_by: Node) -> void:
+	if Game.has_flag("game_bought"):
+		Dialogue.say("eddie_after", false, true)
+	elif Game.has_item("horror_game"):
+		Dialogue.say("eddie_buy", false, true)
+		Game.set_flag("game_bought")
+	else:
+		Dialogue.say("eddie_hello", false, true)
+
+
 # ------------------------------------------------------------------ triggers
 func _area(n: String, pos: Vector3, size: Vector3, mask: int, cb: Callable, basis := Basis()) -> Area3D:
 	var a := Area3D.new()
@@ -302,7 +489,8 @@ func _physics_process(delta: float) -> void:
 			if _park_t > 1.0 and not Game.has_flag("parked"):
 				Game.set_flag("reached_town")
 				Game.set_flag("parked")
-				_finish()
+				Dialogue.say("parked", true, true)
+				save()
 		else:
 			_park_t = 0.0
 
@@ -311,10 +499,10 @@ func _finish() -> void:
 	if _ending:
 		return
 	_ending = true
-	Dialogue.say("parked", true, true)
-	Dialogue.say("game_shop", true)
+	Game.set_flag("phase2_done")
+	Dialogue.say("errands_done", true, true)
 	save()
-	await get_tree().create_timer(6.5).timeout
+	await get_tree().create_timer(4.0).timeout
 	hud.show_end(drive_time)
 
 
@@ -336,6 +524,8 @@ func enter_car() -> void:
 	Game.set_flag("left_house")
 	Game.set_flag("entered_car")
 	Dialogue.say("in_car", true)
+	if Game.has_flag("groceries_done") and Game.has_flag("game_bought"):
+		_finish()
 	hud.set_hint("W accelerate · S brake / reverse · A/D steer · Space handbrake · E exit · mouse look")
 
 
@@ -416,7 +606,7 @@ func _web_autotest() -> void:
 	var fr: Interactable = interactables.values().filter(func(i): return i.label == "Refrigerator")[0]
 	fr.interact(player)
 	await get_tree().create_timer(1.0).timeout
-	var keys: Interactable = interactables.values().filter(func(i): return i.kind == "pickup")[0]
+	var keys: Interactable = interactables.values().filter(func(i): return i.item_id == "car_keys")[0]
 	keys.interact(player)
 	interactables["home/INT_Door_Front"].interact(player)
 	await get_tree().create_timer(1.0).timeout

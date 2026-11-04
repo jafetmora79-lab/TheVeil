@@ -1,4 +1,4 @@
-# THE VEIL - Phase 1: the playable opening
+# THE VEIL - the playable opening (Phase 1) and town errands (Phase 2)
 
 Friday, 6:42 PM:
 
@@ -7,8 +7,18 @@ Friday, 6:42 PM:
 3. You grab the car keys.
 4. You leave the house and get into your old sedan.
 5. You drive through Greyhaven and park at the supermarket.
+6. **Phase 2 - errands, in either order** (the bible leaves the stop order open):
+   * **Supermarket:** the automatic doors part as you walk up. Take a can of soup, a snack bar and a bottle of water
+     off the aisle shelves (HUD counts 0-3), then pay at the lane-4 register by the doors.
+   * **Game shop (across Main St):** open the entrance door, take a horror game from the New Releases rack and pay
+     Eddie at the counter. Eddie talks with the VeilFace mouth / expression system.
+7. Get back in the car with both errands done: end of the current build.
 
 There are no monsters and no mist: the town is still ordinary.
+
+**Placeholders (not canon):** the cashier is an unseen "Cashier" speaker (the bible names no cashier), the horror
+game has no title, and every Eddie / Cashier line is marked `"draft": true` in `game/data/dialogue.json`. Eddie's
+arms are lowered from his reference pose by a runtime bone rotation, because there is no body animation set yet.
 
 * **Engine:** Godot 4.3, Compatibility renderer (OpenGL 3 / WebGL 2).
 * **Project root:** the repository root (`project.godot`), so every asset keeps its `res://THE_VEIL_ASSETS_V2/...` path.
@@ -19,7 +29,7 @@ There are no monsters and no mist: the town is still ordinary.
 
 * **Editor:** open the repository folder in Godot 4.3 and press Play (main scene `res://game/scenes/MainMenu.tscn`).
   The first import takes about a minute.
-* **Headless automated playthrough:** wake-up to parking, with the real controllers and fixed 60 Hz physics:
+* **Headless automated playthrough:** wake-up, drive, parking, both errands and the end card, with the real controllers and fixed 60 Hz physics:
 
   ```bash
   godot --headless --path . --fixed-fps 60 --script res://game/tests/opening_test.gd -- 50
