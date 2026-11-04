@@ -493,7 +493,7 @@ func _process(delta: float) -> void:
 		c5.eddie_follow.gap = 1.0 if player_in else 2.4
 		ruth_follow.gap = 1.6 if player_in else 3.6
 		sarah_follow.gap = 2.2 if player_in else 4.8
-		var rs_ok := not rs_following or (c5._in_store(market.to_local(ruth.global_position), 0.1) and c5._in_store(market.to_local(sarah.global_position), 0.1))
+		var rs_ok: bool = not rs_following or (c5._in_store(market.to_local(ruth.global_position), 0.1) and c5._in_store(market.to_local(sarah.global_position), 0.1))
 		if player_in and c5._in_store(el, 0.1) and rs_ok:
 			_returned()
 
