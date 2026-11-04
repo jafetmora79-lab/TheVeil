@@ -167,7 +167,7 @@ func _setup_house() -> void:
 				continue
 			var key := "c5/%s/%s" % [h.name, n]
 			var deg := float(e.get("open_deg", 90.0))
-			var into := _door_room_center(h, n)        # swing into the smaller room (bath, bedroom, hall) / inward at the front
+			var into: Variant = _door_room_center(h, n)      # swing into the smaller room (bath, bedroom, hall) / inward at the front
 			if into != null:
 				deg = world._toward_deg(d, deg, h.global_transform * (into as Vector3))
 			var it := Interactable.attach(d, {"kind": "hinge", "label": world._label_for(n), "open_deg": deg,
