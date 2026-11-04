@@ -68,6 +68,7 @@ func _ready() -> void:
 	_build_inventory()
 	_build_pause()
 	_build_end()
+	_build_survival()
 	fade = ColorRect.new()
 	fade.color = Color(0, 0, 0, 1)
 	fade.set_anchors_preset(Control.PRESET_FULL_RECT)
@@ -77,6 +78,71 @@ func _ready() -> void:
 	Game.inventory_changed.connect(_refresh_inventory)
 	Dialogue.line_started.connect(func(_s, t, _d): show_subtitle(t))
 	Dialogue.line_finished.connect(func(): show_subtitle(""))
+
+
+# ------------------------------------------------------------------ survival (health / stamina)
+var surv: Control
+var hp_fill: ColorRect
+var st_fill: ColorRect
+var hurt_flash: ColorRect
+const BAR_W := 168.0
+
+
+## Small, restrained bars bottom-left (pixel-sized, no arcade frames); hidden during the ordinary opening.
+func _build_survival() -> void:
+	surv = Control.new()
+	surv.anchor_top = 1.0
+	surv.anchor_bottom = 1.0
+	surv.position = Vector2(34, -92)
+	surv.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	surv.visible = false
+	surv.modulate.a = 0.0
+	root.add_child(surv)
+	var rows := [["HEALTH", Color(0.78, 0.16, 0.12)], ["STAMINA", Color(0.86, 0.86, 0.8)]]
+	for i in 2:
+		var l := VeilUI.label(rows[i][0], 15)
+		l.position = Vector2(0, i * 34)
+		surv.add_child(l)
+		var bg := ColorRect.new()
+		bg.color = Color(0, 0, 0, 0.75)
+		bg.position = Vector2(150, i * 34 + 10)
+		bg.size = Vector2(BAR_W + 4, 12)
+		surv.add_child(bg)
+		var fill := ColorRect.new()
+		fill.color = rows[i][1]
+		fill.position = Vector2(152, i * 34 + 12)
+		fill.size = Vector2(BAR_W, 8)
+		surv.add_child(fill)
+		if i == 0:
+			hp_fill = fill
+		else:
+			st_fill = fill
+	hurt_flash = ColorRect.new()
+	hurt_flash.color = Color(0.55, 0.0, 0.0, 0.0)
+	hurt_flash.set_anchors_preset(Control.PRESET_FULL_RECT)
+	hurt_flash.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	root.add_child(hurt_flash)
+
+
+func set_survival_visible(on: bool) -> void:
+	surv.visible = true
+	create_tween().tween_property(surv, "modulate:a", 1.0 if on else 0.0, 0.8)
+	if not on:
+		get_tree().create_timer(0.8).timeout.connect(func(): surv.visible = false)
+
+
+func set_health(v: float, m: float) -> void:
+	hp_fill.size.x = roundf(BAR_W * clampf(v / m, 0.0, 1.0) / 4.0) * 4.0       # 4 px steps: pixel-style bar
+
+
+func set_stamina(v: float, m: float) -> void:
+	st_fill.size.x = roundf(BAR_W * clampf(v / m, 0.0, 1.0) / 4.0) * 4.0
+	st_fill.color = Color(0.86, 0.86, 0.8) if v / m > 0.25 else Color(0.85, 0.55, 0.2)
+
+
+func damage_flash(strength := 1.0) -> void:
+	hurt_flash.color.a = 0.42 * strength
+	create_tween().tween_property(hurt_flash, "color:a", 0.0, 0.5)
 
 
 func _centered_label(text: String, size: int, ax: float, ay: float) -> Label:
