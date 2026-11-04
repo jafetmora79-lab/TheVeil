@@ -214,7 +214,9 @@ func phase4_tests(game, ps: PackedScene) -> void:
 	ok("p4_rest_confirm", await wait_until(func(): return p4.choice.is_open(), 60))
 	p4.choice.pick(0)
 	ok("p4_slept", await wait_until(func(): return game.has_flag("p4_slept"), 60 * 6) and game.world_state.get("day", "") == "saturday")
-	ok("p4_end_card", await wait_until(func(): return world.hud.end_panel.visible, 60 * 15))
+	# Chapter 5 takes over after the night (no Act I end card any more)
+	ok("c5_starts_after_ch4", await wait_until(func(): return game.has_flag("c5_started") and p4.chapter5 != null, 60 * 15)
+		and not world.hud.end_panel.visible and game.current_step().get("id", "") == "c5_talk", game.current_step().get("id", ""))
 	world.save()
 	world.free()
 	game.load_game()
@@ -223,7 +225,8 @@ func phase4_tests(game, ps: PackedScene) -> void:
 	root.add_child(world)
 	await frames(40)
 	ok("p4_load_end", world.phase4 != null and world.phase4.threat_runs == 0 and game.has_flag("p4_slept")
-		and world.phase4.rest.interactable.prompt_text == "" and game.has_flag("p4_choice_noah"))
+		and world.phase4.rest.interactable.prompt_text == "" and game.has_flag("p4_choice_noah")
+		and world.phase4.chapter5 != null and world.find_children("Eddie", "", true, false).size() == 1)
 
 
 func _initialize() -> void:

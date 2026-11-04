@@ -84,6 +84,8 @@ func begin(w: Node, restoring: bool) -> void:
 		_apply()
 		if Game.has_flag("p4_talk_done") and not Game.has_flag("p4_threat_done"):
 			_run_threat.call_deferred()            # an interrupted event plays again; completed ones never do
+	if Game.has_flag("p4_slept"):
+		_start_chapter5(true)
 	hud.set_objective(Game.current_goal(), Game.current_step().get("text", ""))
 
 
@@ -513,13 +515,21 @@ func _on_slept(_id: String) -> void:
 		flashlight.set_on(false)
 	await get_tree().create_timer(1.0).timeout
 	await hud.title_card("SATURDAY", 2.8)
+	_start_chapter5(false)                         # still black: the morning positions are set before the fade
 	await hud.fade_to(0.0, 2.0)
 	player.set("controls_enabled", true)
 	Dialogue.say("p4_wake", false, true)
-	await get_tree().create_timer(2.5).timeout
-	hud.set_end_text("THE VEIL  -  ACT I", "You made it through the first night.",
-		"Saturday continues in the next development phase.")
-	hud.show_end(world.drive_time)
+
+
+## Chapter 5 (game/world/chapter5.gd) continues from the first night; it is a child of this node.
+var chapter5: Node
+func _start_chapter5(restoring: bool) -> void:
+	if chapter5 != null:
+		return
+	chapter5 = load("res://game/world/chapter5.gd").new()
+	chapter5.name = "Chapter5"
+	add_child(chapter5)
+	chapter5.begin(world, self, restoring)
 
 
 # ------------------------------------------------------------------ sounds (synthesised, original)
