@@ -1208,7 +1208,7 @@
    "category": "Furniture/kitchen",
    "glb": "03_Residential/Furniture/RES_Stove_Electric.glb",
    "obj": "03_Residential/Furniture/OBJ/RES_Stove_Electric.obj",
-   "triangles": 140,
+   "triangles": 164,
    "collision_triangles": 12,
    "collision": [
     "convcolonly"
@@ -1257,7 +1257,7 @@
    "category": "Furniture/kitchen",
    "glb": "03_Residential/Furniture/RES_Stove_Harvest.glb",
    "obj": "03_Residential/Furniture/OBJ/RES_Stove_Harvest.obj",
-   "triangles": 140,
+   "triangles": 164,
    "collision_triangles": 12,
    "collision": [
     "convcolonly"
@@ -1306,7 +1306,7 @@
    "category": "Furniture/kitchen",
    "glb": "03_Residential/Furniture/RES_Counter_Base_1.2.glb",
    "obj": "03_Residential/Furniture/OBJ/RES_Counter_Base_1.2.obj",
-   "triangles": 320,
+   "triangles": 404,
    "collision_triangles": 12,
    "collision": [
     "convcolonly"
@@ -1380,7 +1380,7 @@
    "category": "Furniture/kitchen",
    "glb": "03_Residential/Furniture/RES_Counter_Base_0.6.glb",
    "obj": "03_Residential/Furniture/OBJ/RES_Counter_Base_0.6.obj",
-   "triangles": 148,
+   "triangles": 184,
    "collision_triangles": 12,
    "collision": [
     "convcolonly"
@@ -1434,7 +1434,7 @@
    "category": "Furniture/kitchen",
    "glb": "03_Residential/Furniture/RES_Counter_Sink.glb",
    "obj": "03_Residential/Furniture/OBJ/RES_Counter_Sink.obj",
-   "triangles": 282,
+   "triangles": 330,
    "collision_triangles": 12,
    "collision": [
     "convcolonly"
@@ -1493,19 +1493,20 @@
    "category": "Furniture/kitchen",
    "glb": "03_Residential/Furniture/RES_Counter_Corner.glb",
    "obj": "03_Residential/Furniture/OBJ/RES_Counter_Corner.obj",
-   "triangles": 82,
+   "triangles": 118,
    "collision_triangles": 24,
    "collision": [
     "convcolonly"
    ],
    "materials": [
     "M_Furn_WoodPainted",
+    "M_Furn_WoodDark",
     "M_Res_Formica",
     "M_Furn_MetalBrushed"
    ],
    "bounds_min": [
     -0.45,
-    0.1,
+    0.0,
     -0.45
    ],
    "bounds_max": [
@@ -1515,7 +1516,7 @@
    ],
    "dimensions": [
     0.9,
-    0.82,
+    0.92,
     0.9
    ],
    "interactables": {
@@ -1539,7 +1540,7 @@
    "category": "Furniture/kitchen",
    "glb": "03_Residential/Furniture/RES_WallCabinet_0.8.glb",
    "obj": "03_Residential/Furniture/OBJ/RES_WallCabinet_0.8.obj",
-   "triangles": 96,
+   "triangles": 108,
    "collision_triangles": 12,
    "collision": [
     "convcolonly"
@@ -1589,7 +1590,7 @@
    "category": "Furniture/kitchen",
    "glb": "03_Residential/Furniture/RES_WallCabinet_0.4.glb",
    "obj": "03_Residential/Furniture/OBJ/RES_WallCabinet_0.4.obj",
-   "triangles": 96,
+   "triangles": 108,
    "collision_triangles": 12,
    "collision": [
     "convcolonly"
@@ -1828,7 +1829,7 @@
    "category": "Furniture/kitchen",
    "glb": "03_Residential/Furniture/RES_Microwave.glb",
    "obj": "03_Residential/Furniture/OBJ/RES_Microwave.obj",
-   "triangles": 52,
+   "triangles": 64,
    "collision_triangles": 0,
    "collision": [
     "none"
@@ -2332,7 +2333,7 @@
    "category": "Furniture/bedroom",
    "glb": "03_Residential/Furniture/RES_Nightstand.glb",
    "obj": "03_Residential/Furniture/OBJ/RES_Nightstand.obj",
-   "triangles": 184,
+   "triangles": 244,
    "collision_triangles": 12,
    "collision": [
     "convcolonly"
@@ -2382,7 +2383,7 @@
    "category": "Furniture/bedroom",
    "glb": "03_Residential/Furniture/RES_Dresser.glb",
    "obj": "03_Residential/Furniture/OBJ/RES_Dresser.obj",
-   "triangles": 300,
+   "triangles": 372,
    "collision_triangles": 12,
    "collision": [
     "convcolonly"
@@ -2444,7 +2445,7 @@
    "category": "Furniture/bedroom",
    "glb": "03_Residential/Furniture/RES_Dresser_Mirror.glb",
    "obj": "03_Residential/Furniture/OBJ/RES_Dresser_Mirror.obj",
-   "triangles": 314,
+   "triangles": 386,
    "collision_triangles": 12,
    "collision": [
     "convcolonly"
@@ -6867,7 +6868,7 @@
    "category": "House_Furnishing",
    "glb": "03_Residential/House_Variants/RES_House_Ranch_Furnishing.glb",
    "obj": null,
-   "triangles": 5194,
+   "triangles": 5530,
    "collision_triangles": 360,
    "collision": [
     "colonly"
@@ -7140,7 +7141,7 @@
    "category": "House_Furnishing",
    "glb": "03_Residential/House_Variants/RES_House_TwoStorey_Furnishing.glb",
    "obj": null,
-   "triangles": 6536,
+   "triangles": 6848,
    "collision_triangles": 504,
    "collision": [
     "colonly"
@@ -7407,7 +7408,7 @@
    "category": "House_Furnishing",
    "glb": "03_Residential/House_Variants/RES_House_Farmhouse_Furnishing.glb",
    "obj": null,
-   "triangles": 4684,
+   "triangles": 4888,
    "collision_triangles": 432,
    "collision": [
     "colonly"
@@ -7621,7 +7622,7 @@
    "category": "House_Furnishing",
    "glb": "03_Residential/House_Variants/RES_House_Bungalow_Furnishing.glb",
    "obj": null,
-   "triangles": 3626,
+   "triangles": 3938,
    "collision_triangles": 288,
    "collision": [
     "colonly"
@@ -7817,7 +7818,7 @@
    "category": "House_Furnishing",
    "glb": "03_Residential/House_Variants/RES_House_Abandoned_Furnishing.glb",
    "obj": null,
-   "triangles": 1888,
+   "triangles": 2032,
    "collision_triangles": 192,
    "collision": [
     "colonly"
@@ -8069,7 +8070,7 @@
    "category": "House_Furnishing",
    "glb": "03_Residential/House_Variants/RES_House_SplitLevel_Furnishing.glb",
    "obj": null,
-   "triangles": 5130,
+   "triangles": 5418,
    "collision_triangles": 420,
    "collision": [
     "colonly"
@@ -8262,7 +8263,7 @@
    "category": "House_Furnishing",
    "glb": "03_Residential/House_Variants/RES_House_Cottage_Furnishing.glb",
    "obj": null,
-   "triangles": 2680,
+   "triangles": 2812,
    "collision_triangles": 252,
    "collision": [
     "colonly"
@@ -8449,7 +8450,7 @@
    "category": "House_Furnishing",
    "glb": "03_Residential/House_Variants/RES_House_MillWorker_Furnishing.glb",
    "obj": null,
-   "triangles": 2852,
+   "triangles": 2996,
    "collision_triangles": 228,
    "collision": [
     "colonly"
@@ -8699,7 +8700,7 @@
    "category": "House_Furnishing",
    "glb": "03_Residential/House_Variants/RES_PlayerHome_Furnishing.glb",
    "obj": null,
-   "triangles": 6133,
+   "triangles": 6433,
    "collision_triangles": 372,
    "collision": [
     "colonly"
@@ -8918,7 +8919,7 @@
    "category": "House_Furnishing",
    "glb": "03_Residential/House_Variants/RES_House_Ranch_Mirror_Furnishing.glb",
    "obj": null,
-   "triangles": 5194,
+   "triangles": 5530,
    "collision_triangles": 360,
    "collision": [
     "colonly"
@@ -9506,7 +9507,7 @@
    "category": "House_Furnishing",
    "glb": "03_Residential/House_Variants/RES_House_Bungalow_Mirror_Furnishing.glb",
    "obj": null,
-   "triangles": 3626,
+   "triangles": 3938,
    "collision_triangles": 288,
    "collision": [
     "colonly"
@@ -10144,7 +10145,7 @@
    "category": "House_Furnishing",
    "glb": "03_Residential/House_Variants/RES_House_Cottage_Mirror_Furnishing.glb",
    "obj": null,
-   "triangles": 2680,
+   "triangles": 2812,
    "collision_triangles": 252,
    "collision": [
     "colonly"
@@ -10412,7 +10413,7 @@
    "category": "House_Furnishing",
    "glb": "03_Residential/House_Variants/RES_House_TwoStorey_Mirror_Furnishing.glb",
    "obj": null,
-   "triangles": 6536,
+   "triangles": 6848,
    "collision_triangles": 504,
    "collision": [
     "colonly"
@@ -10809,7 +10810,7 @@
    "category": "House_Furnishing",
    "glb": "03_Residential/House_Variants/RES_House_SplitLevel_Mirror_Furnishing.glb",
    "obj": null,
-   "triangles": 5130,
+   "triangles": 5418,
    "collision_triangles": 420,
    "collision": [
     "colonly"

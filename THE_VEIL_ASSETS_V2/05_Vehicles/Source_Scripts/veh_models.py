@@ -217,9 +217,25 @@ class Vehicle:
             if not (glass and own in self.skip_glass):
                 self.qo(own, kind, [L["P3"], L2["P3"], L2["C"], L["C"]], rect, V(0, 1, 0))
                 self.qo(own, kind, [L["C"], L2["C"], R2["P3"], Rr["P3"]], rect, V(0, 1, 0))
-            if own in ("Hood", "Trunk"):        # underside skin of the lid
+            if own in ("Hood", "Trunk"):
                 d = V(0, -0.02, 0)
-                self.qo(own, "atlas", [L["P3"] + d, L2["P3"] + d, R2["P3"] + d, Rr["P3"] + d], "steel_dark", V(0, -1, 0))
+                if c.get("lid_returns"):
+                    # Match the crowned outer skin, then close its exposed edges.
+                    for A, B, side in ((L, L2, -1), (Rr, R2, 1)):
+                        self.qo(own, "atlas", [A["P3"] + d, B["P3"] + d, B["C"] + d, A["C"] + d],
+                                "steel_dark", V(0, -1, 0))
+                        self.qo(own, "atlas", [A["P3"], B["P3"], B["P3"] + d, A["P3"] + d],
+                                rect, V(side, 0, 0))
+                    limits = c[own.lower()]
+                    for station, left, right, edge, normal in (
+                        (a, L, Rr, limits[0], -1), (b, L2, R2, limits[1], 1)
+                    ):
+                        if abs(station["z"] - edge) < 1e-6:
+                            for p, q in ((left["P3"], left["C"]), (right["C"], right["P3"])):
+                                self.qo(own, "atlas", [p, q, q + d, p + d], rect, V(0, 0, normal))
+                else:
+                    self.qo(own, "atlas", [L["P3"] + d, L2["P3"] + d, R2["P3"] + d, Rr["P3"] + d],
+                            "steel_dark", V(0, -1, 0))
             self.qo("Body", "atlas", [Rr["P0"], R2["P0"], L2["P0"], L["P0"]], "underside", V(0, -1, 0))
         if c.get("cap_front", True):
             self.cap(S[0], -1)
@@ -537,6 +553,7 @@ def build_sedan(name, mats, paint="paint_sedan", cfg_mod=None, glass_rect="glass
     c = sedan_cfg()
     if cfg_mod:
         c.update(cfg_mod)
+    c["lid_returns"] = name == "VEH_ProtagonistSedan"
     v = Vehicle(name, mats, paint, c)
     v.glass_rect["windshield"] = glass_rect
     v.skip_glass = set(skip_glass)
