@@ -2067,6 +2067,7 @@ func _fp_walk(cam: Camera3D, to_local: Vector3, speed: float, eye := STAND_EYE) 
 	var from := game_shop.to_local(player.global_position)
 	from.y = to_local.y
 	var pts: Array = npc_route(game_shop, from, to_local)
+	player.set_physics_process(false)             # scripted steps (the route is already collision-free)
 	for q in pts:
 		var target: Vector3 = X * (q as Vector3)
 		while true:
@@ -2080,6 +2081,7 @@ func _fp_walk(cam: Camera3D, to_local: Vector3, speed: float, eye := STAND_EYE) 
 			cam.global_basis = Basis(cam.global_basis.get_rotation_quaternion().slerp(want.get_rotation_quaternion(), minf(dt * 7.0, 1.0)))
 			cam.global_position = player.global_position + Vector3(0, eye - 0.15 + sin(Time.get_ticks_msec() * 0.012) * 0.025 * speed / 4.0, 0)
 			await get_tree().process_frame
+	player.set_physics_process(true)
 
 
 func _fp_look(cam: Camera3D, at: Vector3, seconds: float) -> void:
