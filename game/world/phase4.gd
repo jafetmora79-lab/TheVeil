@@ -478,7 +478,8 @@ func _on_choices(id: String, choices: Array) -> void:
 	while Dialogue.is_busy():
 		await get_tree().process_frame
 	Game.set_flag("p4_talk_done")
-	await get_tree().create_timer(float(cfg.get("threat", {}).get("delay_after_talk", 5.0))).timeout
+	if not Game.has_flag("p4_choice_noah"):           # "we can't leave Noah": the outside scene starts at once
+		await get_tree().create_timer(float(cfg.get("threat", {}).get("delay_after_talk", 5.0))).timeout
 	_run_threat()
 
 
@@ -543,109 +544,209 @@ func _run_threat() -> void:
 	world._beacon("p4_rest", ml(BEDROLL + Vector3(0, 1.4, 0)), Color(0.8, 0.85, 1.0))
 
 
-## ACCEPT: the three step outside the front doors; after a moment of silence a Hound bursts out of the fog and
-## sprints at them; everyone rushes back in, the doors are pulled shut, it slams into them (doors shake, camera
-## shake, impact), staggers, shakes its head, turns left and runs off into the fog. Once (flag p4_hound_charged).
+## ACCEPT: first person throughout. The protagonist and Marcus step out of the front doors; a moment of quiet; a
+## Skitter (Pack 07, dark creature look) comes out of the fog at a sprint; the protagonist turns, runs back in with
+## Marcus, turns and the doors slide shut; it slams into the shut leaves (impact, doors and view shake), recoils,
+## shakes itself, turns left and scuttles off into the fog. Once (flag p4_hound_charged, kept for old saves).
+const SKITTER_PATH := "res://THE_VEIL_ASSETS_V2/07_Creatures/Godot_Scenes/CRT_Skitter.tscn"
+const EYE := 1.62
 var charge_report := {}
 
 
-func _hound_charge() -> void:
+func _fp_to(cam: Camera3D, pts: Array, speed: float) -> void:
+	player.set_physics_process(false)             # scripted steps: the body's own physics would push back on kerbs
+	for q in pts:
+		var target: Vector3 = ml(q)
+		while true:
+			var d := (target - player.global_position) * Vector3(1, 0, 1)
+			if d.length() < 0.06:
+				break
+			var dt := get_process_delta_time()
+			var np: Vector3 = player.global_position + d.normalized() * minf(speed * dt, d.length())
+			np.y = move_toward(player.global_position.y, _floor_y(np) + 0.0, dt * 2.5)
+			player.global_position = np
+			var want := Transform3D(Basis(), cam.global_position).looking_at(cam.global_position + d.normalized() + Vector3(0, -0.06, 0), Vector3.UP).basis
+			cam.global_basis = Basis(cam.global_basis.get_rotation_quaternion().slerp(want.get_rotation_quaternion(), minf(dt * 8.0, 1.0)))
+			cam.global_position = player.global_position + Vector3(0, EYE - 0.15 + sin(Time.get_ticks_msec() * 0.013) * 0.02 * speed / 4.0, 0)
+			await get_tree().process_frame
+	player.set_physics_process(true)
+
+
+func _fp_face(cam: Camera3D, at: Vector3, seconds: float) -> void:
+	var b0 := cam.global_basis.get_rotation_quaternion()
+	var b1 := Transform3D(Basis(), cam.global_position).looking_at(at, Vector3.UP).basis.get_rotation_quaternion()
+	var t := 0.0
+	while t < seconds:
+		t += get_process_delta_time()
+		var k := clampf(t / seconds, 0.0, 1.0)
+		cam.global_basis = Basis(b0.slerp(b1, k * k * (3.0 - 2.0 * k)))
+		await get_tree().process_frame
+
+
+func _floor_y(p: Vector3) -> float:
+	var hit := player.get_world_3d().direct_space_state.intersect_ray(PhysicsRayQueryParameters3D.create(p + Vector3(0, 2.0, 0), p + Vector3(0, -3.0, 0), 1))
+	return (hit["position"] as Vector3).y if hit else p.y
+
+
+## Moves the Skitter on the ground to `to_local` (market frame) at `speed`, feet on the floor, gait matched.
+func _skitter_run(sk: Node3D, ap: AnimationPlayer, to_local: Vector3, speed: float) -> void:
+	var target := ml(to_local)
+	var authored := float(sk.get_meta("scuttle_speed_mps", 2.6)) * sk.scale.x
+	if ap and ap.has_animation("Scuttle_Fast"):
+		if ap.current_animation != "Scuttle_Fast":
+			ap.play("Scuttle_Fast", 0.1)
+		ap.speed_scale = speed / maxf(authored, 0.1)
+	while is_instance_valid(sk):
+		var d := (target - sk.global_position) * Vector3(1, 0, 1)
+		if d.length() < 0.05:
+			break
+		var dt := get_process_delta_time()
+		var p := sk.global_position + d.normalized() * minf(speed * dt, d.length())
+		p.y = _floor_y(p) - float(sk.get_meta("feet_y", 0.0))       # its lowest point (the feet) on the ground
+		sk.global_position = p
+		sk.rotation.y = lerp_angle(sk.rotation.y, atan2(d.x, d.z), minf(dt * 10.0, 1.0))   # the model faces +Z
+		charge_report["max_speed"] = maxf(float(charge_report.get("max_speed", 0.0)), speed)
+		await get_tree().process_frame
+
+
+func _hound_charge() -> void:                   # (name kept: the accept branch's creature is now the Skitter)
 	if Game.has_flag("p4_hound_charged"):
 		return
 	Game.set_flag("p4_hound_charged")
 	player.set("controls_enabled", false)
-	var cam := Camera3D.new()
-	cam.name = "ChargeCam"
-	world.add_child(cam)
+	player.set("velocity", Vector3.ZERO)
 	var src: Camera3D = player.get("camera")
+	var cam := Camera3D.new()
+	cam.name = "ChargeCam"                         # first person: rides on the protagonist's body
+	world.add_child(cam)
 	cam.global_transform = src.global_transform
 	cam.fov = src.fov
 	cam.current = true
-	var doors_z: float = market.to_local((world._auto_doors[0][0] as Node3D).global_position).z if not world._auto_doors.is_empty() else 0.1
-	var open_doors := func(v: bool):
+	var doors_z: float = market.to_local((world._auto_doors[0][0] as Node3D).global_position).z if not world._auto_doors.is_empty() else 0.2
+	var set_doors := func(v: bool):
 		world._doors_powered = true
 		world._set_auto_doors(v)
 		world._doors_powered = false
-	# 1. out of the doors, Eddie and Marcus a step ahead
-	open_doors.call(true)
-	world.npc_walk("Eddie", Vector3(-1.0, 0.04, doors_z - 1.8), 1.4)
-	world.npc_walk("Marcus", Vector3(1.0, 0.04, doors_z - 2.0), 1.4)
-	var a0: Vector3 = ml(Vector3(0.0, 1.65, doors_z + 2.6))
-	var a1: Vector3 = ml(Vector3(0.0, 1.65, doors_z - 1.2))
-	cam.global_position = a0
-	cam.look_at(ml(Vector3(0, 1.4, doors_z - 10.0)), Vector3.UP)
-	var tw := create_tween()
-	tw.tween_property(cam, "global_position", a1, 2.4).set_trans(Tween.TRANS_SINE)
-	await tw.finished
-	await get_tree().create_timer(1.6).timeout          # silence
-	# 2. it comes out of the fog, fast
-	var ps := load(HOUND_PATH) as PackedScene
-	var h: Node3D = ps.instantiate() as Node3D if ps else null
-	var stop_z := doors_z - 1.9                           # root stops here: the head meets the shut leaves
-	if h:
-		h.name = "P4_Hound_Charge"
-		market.add_child(h)
-		if h is CollisionObject3D:
-			(h as CollisionObject3D).collision_layer = 0
-			(h as CollisionObject3D).collision_mask = 0
-		h.set_physics_process(false)
-		h.scale = Vector3.ONE * 1.35
-		h.position = Vector3(-6.0, 0.0, doors_z - 22.0)
-		h.rotation.y = atan2(6.0, 20.0)                   # the model faces +Z: towards the doors
-		var ap := h.get_node_or_null(String(h.get_meta("animation_player", "Model/AnimationPlayer"))) as AnimationPlayer
-		if ap and ap.has_animation("Run"):
-			ap.play("Run")
-			ap.speed_scale = 1.6
-		_play("scrape", ml(Vector3(-6.0, 1.0, doors_z - 20.0)), 4.0)
-		var th := h.create_tween()
-		th.tween_property(h, "position", Vector3(0.0, 0.0, stop_z), 2.1).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_IN)
+	# 1. out of the front doors with Marcus (Eddie waits inside)
+	set_doors.call(true)
+	await get_tree().create_timer(0.8).timeout     # the leaves are fully apart before anyone walks through
+	world.npc_walk("Marcus", Vector3(1.1, 0.04, doors_z - 2.0), 1.4)
+	await _fp_to(cam, [Vector3(1.5, 0.04, 4.4), Vector3(1.5, 0.04, 1.8), Vector3(0.3, 0.04, 1.0), Vector3(0.3, 0.04, doors_z - 2.4)], 1.7)
+	await _fp_face(cam, ml(Vector3(-1.5, 1.5, doors_z - 14.0)), 0.8)
+	await get_tree().create_timer(1.6).timeout     # the street is quiet
+	# 2. deep in the fog, already running before it can be seen: a Skitter, sprinting straight at them
+	var sk: Node3D = null
+	var ap: AnimationPlayer = null
+	var ps := load(SKITTER_PATH) as PackedScene
+	if ps:
+		sk = ps.instantiate() as Node3D
+		sk.name = "P4_Skitter_Charge"
+		world.add_child(sk)
+		if sk is CollisionObject3D:
+			(sk as CollisionObject3D).collision_layer = 0
+			(sk as CollisionObject3D).collision_mask = 0
+		sk.set_physics_process(false)
+		charge_report["dark_surfaces"] = VeilCreatureLook.apply_skitter(sk, market.global_position.y)
+		# where its feet are relative to its origin (measured on the Scuttle_Fast pose): keeps it on, not in, the road
+		var ap0 := sk.get_node_or_null(String(sk.get_meta("animation_player", "Model/AnimationPlayer"))) as AnimationPlayer
+		if ap0 and ap0.has_animation("Scuttle_Fast"):
+			ap0.play("Scuttle_Fast")
+			ap0.seek(0.1, true)
+		sk.set_meta("feet_y", Interactable.aabb_of(sk).position.y * sk.scale.y)
+		charge_report["feet_y"] = sk.get_meta("feet_y")
+		var start := ml(Vector3(-7.0, 0.0, doors_z - 46.0))
+		start.y = _floor_y(start)
+		sk.global_position = start
+		ap = sk.get_node_or_null(String(sk.get_meta("animation_player", "Model/AnimationPlayer"))) as AnimationPlayer
+		var scuttle := AudioStreamPlayer3D.new()
+		scuttle.name = "Scuttle"
+		scuttle.stream = _streams["scuttle"]
+		scuttle.unit_size = 5.0
+		scuttle.max_distance = 60.0
+		scuttle.volume_db = 2.0
+		sk.add_child(scuttle)
+		scuttle.play()
 		charge_report["spawned"] = true
-	await get_tree().create_timer(0.5).timeout
-	# 3. panic: everyone back inside, the doors pulled shut behind them
-	for k in ["Eddie", "Marcus"]:
-		if world.animators.has(k):
-			world.animators[k].set_mood("scared")
-	world.npc_walk("Eddie", Vector3(-1.2, 0.04, 4.6), 3.6)
-	world.npc_walk("Marcus", Vector3(1.2, 0.04, 4.9), 3.6)
-	var tb := create_tween()
-	tb.tween_property(cam, "global_position", ml(Vector3(0.0, 1.65, doors_z + 3.2)), 0.9).set_trans(Tween.TRANS_SINE)
-	await tb.finished
-	open_doors.call(false)
-	await get_tree().create_timer(0.75).timeout
-	# 4. the slam: doors shake, impact, lights, camera
+		charge_report["creature"] = "Skitter"
+		charge_report["spawn_distance_m"] = start.distance_to(player.global_position)
+	# where it hits: its front (measured from the model) on the outer face of the shut leaves
+	var front := 0.9
+	if sk:
+		var bb := Interactable.aabb_of(sk)
+		front = maxf(bb.end.z, 0.3) * sk.scale.z
+	var hit_at := Vector3(0.1, 0.0, doors_z - 0.02 - front)      # its snout stops on the glass (~2-3 cm), not through it
+	var notice_at := Vector3(-3.0, 0.0, doors_z - 26.0)
+	if sk:
+		await _skitter_run(sk, ap, notice_at, 9.5)
+	# 3. noticed: turn, run back inside with Marcus, turn, the doors slide shut
+	var t0 := Time.get_ticks_msec()
+	var closing := func() -> void:
+		world.npc_walk("Marcus", Vector3(1.6, 0.04, 4.6), 4.2)
+		await _fp_face(cam, ml(Vector3(0.6, 1.5, 3.0)), 0.35)
+		await _fp_to(cam, [Vector3(0.3, 0.04, 1.2), Vector3(0.6, 0.04, 2.5)], 4.6)
+		await _fp_face(cam, ml(Vector3(0.2, 1.3, doors_z - 3.0)), 0.35)
+		var wm := 0.0                                 # Marcus is through before the doors close
+		while wm < 1.5 and market.to_local(world.marcus.global_position).z < doors_z + 0.9:
+			await get_tree().process_frame
+			wm += get_process_delta_time()
+		set_doors.call(false)
+		await get_tree().create_timer(0.75).timeout
+		charge_report["doors_closed"] = true
+	closing.call()
+	# the Skitter covers the rest so that it arrives just after the doors are shut
+	if sk:
+		var dist := ml(hit_at).distance_to(sk.global_position)
+		await _skitter_run(sk, ap, hit_at, dist / 2.9)
+	while not charge_report.get("doors_closed", false):
+		await get_tree().process_frame
+	charge_report["closed_before_hit"] = true
+	charge_report["inside_at_hit"] = market.to_local(player.global_position).z > doors_z + 0.8
+	# 4. the slam: on the shut doors (sound, leaves and view shake, lights)
 	charge_report["slam"] = true
-	_play("impact", ml(Vector3(0, 1.1, doors_z)), 8.0)
-	world._shake(cam, 0.45, 0.06)
+	if sk:
+		charge_report["hit_gap_m"] = ml(Vector3(0, 0, doors_z)).z - (sk.global_position + sk.global_transform.basis.z.normalized() * front).z
+		if ap and ap.has_animation("Attack_Lunge"):
+			ap.play("Attack_Lunge", 0.05)
+			ap.speed_scale = 1.6
+	_play("impact", ml(Vector3(0, 1.0, doors_z)), 8.0)
+	world._shake(cam, 0.5, 0.07)
 	_flicker_burst(0.8)
 	for d in world._auto_doors:
 		var leaf: Node3D = d[0]
 		var base: Transform3D = d[1]
 		var tl := create_tween()
 		for j in 4:
-			var o := Vector3(0, 0, [0.06, -0.035, 0.02, 0.0][j])
+			var o := Vector3(0, 0, [0.07, -0.04, 0.02, 0.0][j])
 			tl.tween_property(leaf, "transform", Transform3D(base.basis, base.origin + base.basis * o), [0.05, 0.08, 0.08, 0.1][j])
-	if h and is_instance_valid(h):
-		var ap2 := h.get_node_or_null(String(h.get_meta("animation_player", "Model/AnimationPlayer"))) as AnimationPlayer
-		# 5. staggers back, shakes its head
-		if ap2 and ap2.has_animation("Hit_React"):
-			ap2.play("Hit_React", 0.05)
-			ap2.speed_scale = 1.0
-		var ts := h.create_tween()
-		ts.tween_property(h, "position:z", stop_z - 0.8, 0.35).set_trans(Tween.TRANS_SINE)
-		ts.tween_property(h, "rotation:z", 0.12, 0.12)
-		ts.tween_property(h, "rotation:z", -0.1, 0.14)
-		ts.tween_property(h, "rotation:z", 0.0, 0.12)
+	if sk and is_instance_valid(sk):
+		var scut := sk.get_node_or_null("Scuttle") as AudioStreamPlayer3D
+		if scut:
+			scut.stop()
+		# 5. recoils, shakes itself, recovers
+		if ap and ap.has_animation("Hit_React"):
+			ap.play("Hit_React", 0.05)
+			ap.speed_scale = 1.0
+		var back := sk.global_position - sk.global_transform.basis.z.normalized() * 0.9
+		var ts := sk.create_tween()
+		ts.tween_property(sk, "global_position", back, 0.3).set_trans(Tween.TRANS_SINE)
+		ts.tween_property(sk, "rotation:z", 0.16, 0.08)
+		ts.tween_property(sk, "rotation:z", -0.14, 0.09)
+		ts.tween_property(sk, "rotation:z", 0.08, 0.08)
+		ts.tween_property(sk, "rotation:z", 0.0, 0.08)
 		await ts.finished
-		# 6. turns left and is gone into the fog at speed
-		if ap2 and ap2.has_animation("Run"):
-			ap2.play("Run", 0.1)
-			ap2.speed_scale = 1.5
-		var tg := h.create_tween()
-		tg.tween_property(h, "rotation:y", h.rotation.y - PI * 0.5, 0.3)
-		tg.tween_property(h, "position", h.position + Vector3(-26.0, 0, -2.0), 2.2)
-		tg.tween_callback(h.queue_free)
-		await get_tree().create_timer(2.6).timeout
+		await get_tree().create_timer(0.35).timeout
+		# 6. turns left and scuttles off into the fog
+		if scut:
+			scut.play()
+		await _skitter_run(sk, ap, Vector3(-30.0, 0.0, doors_z - 6.0), 9.0)
+		charge_report["left_into_fog"] = true
+		if is_instance_valid(sk):
+			sk.queue_free()
 	charge_report["gone"] = true
+	charge_report["ms"] = Time.get_ticks_msec() - t0
+	# control back, looking at the doors
+	var fwd := -cam.global_transform.basis.z
+	player.call("set_yaw_pitch", atan2(-fwd.x, -fwd.z), 0.0)
 	cam.queue_free()
 	src.current = true
 	player.set("controls_enabled", true)
@@ -827,6 +928,7 @@ func _make_sounds() -> void:
 	_streams["scrape"] = Sfx._make(2.6, _scrape_wave)
 	_streams["impact"] = Sfx._make(1.2, _impact_wave)
 	_streams["rattle"] = Sfx._make(1.4, _rattle_wave)
+	_streams["scuttle"] = Sfx._make(1.2, _scuttle_wave, true)
 
 
 func _scrape_wave(t: float, i: int) -> float:
@@ -836,6 +938,13 @@ func _scrape_wave(t: float, i: int) -> float:
 
 func _impact_wave(t: float, i: int) -> float:
 	return (sin(TAU * 48.0 * t) * 0.9 + Sfx._noise(i) * 0.6) * exp(-t * 6.0) + Sfx._noise(i) * 0.15 * exp(-t * 2.0)
+
+
+## many hard little feet on asphalt: dense irregular clicks (loops while it runs)
+func _scuttle_wave(t: float, i: int) -> float:
+	var ph := fposmod(t * 23.0 + sin(t * 7.0) * 0.6, 1.0)
+	var ph2 := fposmod(t * 31.0 + 0.37, 1.0)
+	return Sfx._noise(i) * (exp(-ph * 40.0) * 0.6 + exp(-ph2 * 55.0) * 0.4) + sin(TAU * 900.0 * t) * exp(-ph * 60.0) * 0.15
 
 
 func _rattle_wave(t: float, i: int) -> float:

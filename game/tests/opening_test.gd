@@ -213,6 +213,11 @@ func phase4_tests(game, ps: PackedScene) -> void:
 	ok("p4_charge_slam_and_gone", cr.get("slam", false) and cr.get("gone", false) and player.controls_enabled, str(cr))
 	await frames(20)
 	ok("p4_charge_hound_freed", market_hounds(mk) == 0)
+	ok("p4_charge_is_skitter", cr.get("creature", "") == "Skitter" and cr.get("dark_surfaces", 0) > 0
+		and cr.get("spawn_distance_m", 0.0) > 35.0, str(cr))
+	ok("p4_skitter_hits_shut_doors", cr.get("closed_before_hit", false) and cr.get("inside_at_hit", false)
+		and absf(cr.get("hit_gap_m", 9.0)) < 0.25, str(cr))
+	ok("p4_skitter_runs_off", cr.get("left_into_fog", false) and world.find_children("P4_Skitter_Charge", "", true, false).is_empty())
 	p4._run_threat()
 	await frames(5)
 	ok("p4_threat_once", p4.threat_runs == 1)
@@ -730,11 +735,14 @@ func _run() -> void:
 	await frames(10)
 	var cam_now: Camera3D = root.get_viewport().get_camera_3d()
 	ok("encounter_starts_outside", world._encounter_running and not player.controls_enabled and cam_now.name == "EncounterCam")
-	await frames(60 * 16)
+	await wait_until(func(): return world.enc_report.has("foot_error_m"), 60 * 40)
+	await frames(60 * 15)                    # the rest of the encounter after the touch-down (as before)
 	var r: Dictionary = world.enc_report
 
-	ok("colossus_foot_lands_in_front", r.get("foot_error_m", 99.0) < 0.6 and r.get("leg_distance_m", 0.0) > 6.0 and r.get("leg_distance_m", 0.0) < 11.0,
+	ok("colossus_foot_lands_in_front", r.get("foot_error_m", 99.0) < 0.6 and r.get("leg_distance_m", 0.0) > 12.0 and r.get("leg_distance_m", 0.0) < 18.0,
 		"foot error %.2f m, %.1f m in front" % [r.get("foot_error_m", -1.0), r.get("leg_distance_m", -1.0)])
+	ok("colossus_walks_in_from_out_of_frame", r.get("walk_in_m", 0.0) > 8.0, "%.1f m" % r.get("walk_in_m", -1.0))
+	ok("colossus_leg_descends_from_above", r.get("apex_height_m", 0.0) > 6.0, "%.1f m" % r.get("apex_height_m", -1.0))
 	ok("colossus_other_feet_clear", r.get("other_feet_min_out_m", 0.0) > r.get("leg_distance_m", 99.0), "%.1f m out" % r.get("other_feet_min_out_m", -1.0))
 	ok("colossus_body_hidden_in_mist", r.get("body_height_m", 0.0) > r.get("ceiling_m", 99.0) + 3.0,
 		"body at %.1f m, mist ceiling from %.1f m" % [r.get("body_height_m", -1.0), r.get("ceiling_m", -1.0)])
@@ -811,6 +819,9 @@ func _run() -> void:
 	var sr2: Dictionary = world.seated_report
 	ok("p3_seated_talk", sr2.get("seated", false) and sr2.get("time_skip", false) and sr2.get("lights_talk", false)
 		and game.has_flag("p3_two_hours_later") and player.visible and player.controls_enabled, str(sr2))
+	ok("p3_stock_room_retreat", sr2.get("fp_retreat", false) and sr2.get("door_open", false) and sr2.get("door_closed", false)
+		and sr2.get("spawned_seats", -1) == 0 and sr2.get("third_anchor", false), str(sr2))
+	ok("p3_no_seat_props", world.game_shop.find_children("Seat_*", "", true, false).is_empty())
 	ok("p3_market_looted", world.market_merch.looted)
 	ok("p3_objective_reach_market", game.current_step().get("text", "") == "Reach the supermarket", game.current_step().get("text", ""))
 	# the protagonist steps outside: Eddie and Marcus come with him (sample Eddie's stride while he follows)

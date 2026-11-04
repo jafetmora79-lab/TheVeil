@@ -406,9 +406,24 @@ func _add_glass_colliders() -> void:
 var glass_panes := 0
 
 
+## The parking-lot edge piece right in front of the supermarket entrance carries a strip of dry grass that reads as
+## a stray patch on the forecourt: its grass surface gets the sidewalk concrete instead.
+func _pave_forecourt() -> void:
+	var conc := load("res://THE_VEIL_ASSETS_V2/Materials_Godot/Roads/M_Road_SidewalkConcrete.tres")
+	for mi in find_children("SW_ParkingLotEdge_10m_Mesh", "MeshInstance3D", true, false):
+		var m := mi as MeshInstance3D
+		if m.global_position.distance_to(market.global_position) > 14.0 or m.mesh == null:
+			continue
+		for i in m.mesh.get_surface_count():
+			var src := m.get_active_material(i)
+			if src and String(src.resource_path).contains("Grass") and conc:
+				m.set_surface_override_material(i, conc)
+
+
 func _setup_town() -> void:
 	market = get_node("Commercial/SUPERMARKET")
 	game_shop = get_node("Commercial/GAME_SHOP")
+	_pave_forecourt.call_deferred()
 	_add_glass_colliders()
 	# supermarket: bi-parting automatic doors open while the player stands in front of / inside the vestibule
 	for side in [["L", -1.0], ["R", 1.0]]:
@@ -575,6 +590,8 @@ func _talk_camera() -> void:
 				talk_report["cam_hits"] += 1
 		cam.global_transform = cam.global_transform.interpolate_with(want, minf(dt * 3.0, 1.0))
 		cam.fov = lerpf(cam.fov, fov, minf(dt * 3.0, 1.0))
+		player.controls_enabled = false           # held for the whole talk (a closing choice panel re-enables them)
+		player.velocity = Vector3.ZERO
 		await get_tree().process_frame
 	# ease back to the first-person view, then hand control back
 	var t := 0.0
@@ -1545,7 +1562,7 @@ func _colossus_encounter() -> void:
 	var side := n.cross(Vector3.UP).normalized()
 	var P := player.global_position
 	var ground := P.y
-	var L := P + n * 8.5 + side * 1.6
+	var L := P + n * 15.0 + side * 1.6                 # across the street, well clear of the storefront
 	L.y = ground
 	# --- Stage 1: something enormous moving (sound first), controls held
 	player.controls_enabled = false
@@ -1584,14 +1601,14 @@ func _colossus_encounter() -> void:
 	# contact frame = the end of the front-left foot's swing, measured on its claw tips (the foot bone is the wrist,
 	# 2.4 m up the leg; the old "lowest bone" pick landed mid-stance, so the foot never really came down on cue)
 	var t_c := _swing_end(ap, sk, foot, anim)
-	var place := func():
-		ap.seek(t_c, true)
+	var place := func(at: float):
+		ap.seek(at, true)
 		sk.force_update_all_bone_transforms()
 		var tips := _tips_world(sk, foot)
 		var mid: Vector3 = (tips[0] + tips[1] + tips[2]) / 3.0
 		var dy := _min_tip_y(sk, foot) - (ground + 0.02)        # claw tips rest on the road (2 cm)
 		c.global_position += Vector3(L.x - mid.x, -dy, L.z - mid.z)
-	place.call()
+	place.call(t_c)
 	# only the near leg may come down by the store: the other three feet must land farther out over the street;
 	# if this rig's "left" is the other side, walk the other way (mirror) and place again
 	var others := ["Leg_FR_Foot", "Leg_HL_Foot", "Leg_HR_Foot"].map(func(b): return sk.find_bone(b))
@@ -1601,26 +1618,58 @@ func _colossus_encounter() -> void:
 	if near_out < (L - P).dot(n) + 2.0:
 		walk_dir = -walk_dir
 		c.rotation.y = atan2(walk_dir.x, walk_dir.z)
-		place.call()
+		place.call(t_c)
 		near_out = INF
 		for b in others:
 			near_out = minf(near_out, ((sk.global_transform * sk.get_bone_global_pose(b).origin) - P).dot(n))
 	enc_report["other_feet_min_out_m"] = near_out
-	# the foot comes down along the clip's own swing arc: from late swing (high, in the mist) to contact
-	const DESCENT := 0.75                                         # animation seconds of swing shown (1.5 s real)
-	var t_lift := fposmod(t_c - DESCENT, anim.length)
-	ap.seek(t_lift, true)
-	ap.speed_scale = 0.5
+	# contact = the first frame the claw tips reach the road (not the end of the swing: the foot touches down
+	# before it stops); the leg comes down from the top of its swing, up in the mist
+	var t_touch := t_c
+	var t_apex := fposmod(t_c - anim.length * 0.5, anim.length)
+	var y_c := 0.0
+	ap.seek(t_c, true)
+	sk.force_update_all_bone_transforms()
+	y_c = _min_tip_y(sk, foot)
+	var best_y := -INF
+	var scan := 0.0
+	while scan < anim.length * 0.5:
+		var tt := fposmod(t_c - scan, anim.length)
+		ap.seek(tt, true)
+		sk.force_update_all_bone_transforms()
+		var yy := _min_tip_y(sk, foot)
+		if yy <= y_c + 0.04 * COLOSSUS_SCALE:
+			t_touch = tt                                         # still touching: contact is at or before this
+		if yy > best_y:
+			best_y = yy
+			t_apex = tt
+		scan += 1.0 / 120.0
+	t_c = t_touch
+	place.call(t_c)                                               # claw tips on L, on the road, at first touch
+	var contact_pos := c.global_position
+	# it walks in from the side, one full stride out of frame first: the body moves at the stance rate, so every
+	# planted foot stays put (no sliding back) and nothing appears inside the view
+	const SPEED := 0.5
+	var descent := fposmod(t_c - t_apex, anim.length)
+	var span := descent + anim.length                             # animation seconds shown before contact
+	var rate := STANCE_RATE * COLOSSUS_SCALE                       # metres per animation second
+	c.global_position = contact_pos - walk_dir * rate * span
+	ap.seek(fposmod(t_c - span, anim.length), true)
+	ap.speed_scale = SPEED
+	var walk_in := c.create_tween()
+	walk_in.tween_property(c, "global_position", contact_pos, span / SPEED)
 	# the player instinctively looks at the sound / the darkness ahead
 	var tw0 := create_tween()
 	var b0 := cam.global_basis.get_rotation_quaternion()
 	var b1 := Transform3D(Basis(), cam.global_position).looking_at(L + Vector3(0, 4.0, 0) + side * -1.0, Vector3.UP).basis.get_rotation_quaternion()
-	tw0.tween_method(func(k): cam.global_basis = Basis(b0.slerp(b1, k * k * (3.0 - 2.0 * k))), 0.0, 1.0, 1.5)
-	var guard := 0.0
-	while fposmod(ap.current_animation_position - t_lift, anim.length) < DESCENT - 0.01 and guard < 3.0:
+	tw0.tween_method(func(q): cam.global_basis = Basis(b0.slerp(b1, q * q * (3.0 - 2.0 * q))), 0.0, 1.0, 1.5)
+	var elapsed := 0.0
+	while elapsed < span / SPEED - 1.0 / 60.0:
 		await get_tree().process_frame
-		guard += get_process_delta_time()
-	ap.seek(t_c, true)                                            # exactly the contact frame
+		elapsed += get_process_delta_time()
+	walk_in.kill()
+	c.global_position = contact_pos
+	ap.seek(t_c, true)                                            # exactly the touch-down frame
 	# --- Stage 2: the footstep (impact) - sound, dust and shake on the contact frame
 	sk.force_update_all_bone_transforms()
 	var tips_now := _tips_world(sk, foot)
@@ -1630,6 +1679,8 @@ func _colossus_encounter() -> void:
 	enc_report["body_height_m"] = (sk.global_transform * sk.get_bone_global_pose(body_b).origin).y - ground
 	enc_report["ceiling_m"] = CEILING_LAYERS[0]
 	enc_report["leg_distance_m"] = Vector2(L.x - P.x, L.z - P.z).length()
+	enc_report["walk_in_m"] = rate * span
+	enc_report["apex_height_m"] = best_y - ground
 	ap.speed_scale = 0.0                                          # planted: the weight comes down on it
 	_enc_sounds.append(Sfx.play("colossus_step", L + Vector3(0, 1, 0), 6.0, 0.7))
 	_impact_dust(L)
@@ -2010,80 +2061,137 @@ func _p3_reach_shop() -> void:
 	_beacon("market", market.global_transform * Vector3(0, 2.6, -0.9), Color(0.7, 0.85, 1.0))
 
 
-# ------------------------------------------------------------------ the game shop: seated talk, two hours later
-const SEAT_CHAIR_A := "res://THE_VEIL_ASSETS_V2/03_Residential/Furniture/RES_DiningChair_Wood.glb"
-const SEAT_CHAIR_B := "res://THE_VEIL_ASSETS_V2/03_Residential/Furniture/RES_DiningChair_Vinyl.glb"
-const SEAT_BOX := "res://THE_VEIL_ASSETS_V2/03_Residential/Furniture/RES_CardboardBox_Closed.glb"
-## game-shop local, back half of the shop, clear of the front windows: [speaker, model, seat, seat height]
-const SHOP_SEATS := [["Eddie", SEAT_CHAIR_A, Vector3(-2.6, 0.04, 5.6), 0.48], ["Marcus", SEAT_BOX, Vector3(-1.0, 0.04, 6.35), 0.40],
-	["Protagonist", SEAT_CHAIR_B, Vector3(-1.5, 0.04, 4.75), 0.48]]
-const SHOP_CIRCLE := Vector3(-1.7, 0.04, 5.55)
+# ------------------------------------------------------------------ the game shop: retreat to the stock room, talk, two hours later
+## game-shop local (Pack 04 com_plans GAME_SHOP): the stock room behind the sales floor (x -5.6..0.8, z 8.4..11.6),
+## its door at x -2.0 (hinge -2.465, 8.43, opens -95 deg into the room). Seats are the room's own furniture:
+## the closed cardboard box (-0.6, 9.3; 0.40 m) and the document-box stack (-5.0, 9.2; 0.80 m). No seat is spawned;
+## there are two, so Eddie stays on his feet.
+const STOCK_DOOR_OUT := Vector3(-2.0, 0.04, 7.55)
+const STOCK_IN := Vector3(-2.0, 0.04, 9.45)
+const SEAT_BOX := Vector3(-0.6, 0.04, 9.3)
+const SEAT_DOCS := Vector3(-5.0, 0.04, 9.2)
+const STOCK_CIRCLE := Vector3(-2.7, 0.04, 9.6)
+const EDDIE_STAND := Vector3(-2.6, 0.04, 10.4)
+const SEATED_EYE := 1.22                      # box top 0.44 + seated eye height
+const STAND_EYE := 1.62
 var seated_report := {}
 var _steps_on := false
+
+
+## First person along a collision-free route (A* in the shop's frame): the camera rides on the protagonist's body.
+func _fp_walk(cam: Camera3D, to_local: Vector3, speed: float, eye := STAND_EYE) -> void:
+	var X := game_shop.global_transform
+	var from := game_shop.to_local(player.global_position)
+	from.y = to_local.y
+	var pts: Array = npc_route(game_shop, from, to_local)
+	player.set_physics_process(false)             # scripted steps (the route is already collision-free)
+	for q in pts:
+		var target: Vector3 = X * (q as Vector3)
+		while true:
+			var d := (target - player.global_position) * Vector3(1, 0, 1)
+			if d.length() < 0.06:
+				break
+			var dt := get_process_delta_time()
+			var stepv := d.normalized() * minf(speed * dt, d.length())
+			player.global_position += stepv
+			var want := Transform3D(Basis(), cam.global_position).looking_at(cam.global_position + d.normalized() + Vector3(0, -0.08, 0), Vector3.UP).basis
+			cam.global_basis = Basis(cam.global_basis.get_rotation_quaternion().slerp(want.get_rotation_quaternion(), minf(dt * 7.0, 1.0)))
+			cam.global_position = player.global_position + Vector3(0, eye - 0.15 + sin(Time.get_ticks_msec() * 0.012) * 0.025 * speed / 4.0, 0)
+			await get_tree().process_frame
+	player.set_physics_process(true)
+
+
+func _fp_look(cam: Camera3D, at: Vector3, seconds: float) -> void:
+	var b0 := cam.global_basis.get_rotation_quaternion()
+	var b1 := Transform3D(Basis(), cam.global_position).looking_at(at, Vector3.UP).basis.get_rotation_quaternion()
+	var t := 0.0
+	while t < seconds:
+		t += get_process_delta_time()
+		var k := clampf(t / seconds, 0.0, 1.0)
+		cam.global_basis = Basis(b0.slerp(b1, k * k * (3.0 - 2.0 * k)))
+		await get_tree().process_frame
+
+
+func _stock_door(open: bool, seconds := 0.45) -> void:
+	var leaf := game_shop.find_child("INT_Door_StockRoom", true, false) as Node3D
+	if leaf == null:
+		return
+	if not leaf.has_meta("closed_xf"):
+		leaf.set_meta("closed_xf", leaf.transform)
+	var base: Transform3D = leaf.get_meta("closed_xf")
+	var t := base if not open else Transform3D(base.basis * Basis(Vector3.UP, deg_to_rad(-95.0)), base.origin)
+	var tw := create_tween().set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
+	tw.tween_property(leaf, "transform", t, seconds)
+	Sfx.play("door_open" if open else "door_close", leaf.global_position, -4.0)
+	await tw.finished
+	seated_report["door_open" if open else "door_closed"] = true
 
 
 func _shop_seated_talk() -> void:
 	var X := game_shop.global_transform
 	player.controls_enabled = false
+	player.velocity = Vector3.ZERO
 	hud.allow_pause = false
-	var me := _spawn_npc(load(PROTAG_PATH), load(PROTAG_FACE_PATH), game_shop, game_shop.to_local(player.global_position), 0.0, "Protagonist")
-	me.name = "Protagonist_Seated"
-	player.visible = false                        # the scene is played by the protagonist's model
 	var cam := Camera3D.new()
-	cam.name = "SeatedCam"
+	cam.name = "RetreatCam"
 	add_child(cam)
 	cam.global_transform = player.camera.global_transform
-	cam.fov = 55.0
+	cam.fov = player.camera.fov
 	cam.current = true
-	var center: Vector3 = X * (SHOP_CIRCLE + Vector3(0, 0.9, 0))
-	var c_at = pick_anchor([X * Vector3(0.9, 1.55, 3.5), X * Vector3(0.6, 1.6, 7.6), X * Vector3(-3.9, 1.55, 3.7), X * Vector3(1.2, 1.6, 5.5),
-		X * Vector3(0.1, 1.5, 4.9), X * Vector3(-3.4, 1.5, 6.9), X * Vector3(-0.2, 1.45, 6.6), X * Vector3(-2.9, 1.45, 4.3)], [center])
-	seated_report["anchor"] = c_at != null
-	var props: Array = []
-	for st in SHOP_SEATS:
-		var to: Vector3 = SHOP_CIRCLE - st[2]
-		to.y = 0.0
-		var seat := (load(st[1]) as PackedScene).instantiate() as Node3D
-		seat.name = "Seat_" + st[0]
-		game_shop.add_child(seat)
-		seat.position = st[2]
-		seat.rotation.y = atan2(to.x, to.z)          # the sitter faces +z of the chair: towards the circle
-		props.append(seat)
-		npc_walk(st[0], st[2] + to.normalized() * 0.55, 1.3)
+	seated_report["spawned_seats"] = 0
+	# 1. panic: away from the storefront, a run for the stock room in first person; Eddie and Marcus come too
+	for k in ["Eddie", "Marcus"]:
+		if animators.has(k):
+			animators[k].set_mood("scared")
+			animators[k].turn_to_face = false
+	npc_walk("Eddie", STOCK_DOOR_OUT + Vector3(-0.7, 0, -0.9), 3.4)
+	npc_walk("Marcus", STOCK_DOOR_OUT + Vector3(0.6, 0, -1.1), 3.2)
+	await _fp_look(cam, X * (STOCK_DOOR_OUT + Vector3(0, 1.5, 0)), 0.45)
+	await _fp_walk(cam, STOCK_DOOR_OUT, 4.2)
+	await _fp_look(cam, X * (STOCK_IN + Vector3(0, 1.4, 0.6)), 0.2)
+	await _stock_door(true, 0.35)                 # shoved open
+	npc_walk("Eddie", EDDIE_STAND, 3.0)           # routed now that the doorway is open
+	npc_walk("Marcus", SEAT_DOCS + Vector3(0.62, 0, 0.0), 3.0)
+	await _fp_walk(cam, STOCK_IN, 3.6)
+	seated_report["fp_retreat"] = true
+	# 2. inside: wait for the others, turn, pull the door shut
 	var t := 0.0
-	while t < 7.0 and SHOP_SEATS.any(func(st): return animators.has(st[0]) and animators[st[0]].is_walking()):
-		var mid: Vector3 = (animators["Eddie"].root.global_position + me.global_position) * 0.5 + Vector3(0, 1.2, 0)
-		cam.global_basis = Basis(cam.global_basis.get_rotation_quaternion().slerp(
-			Transform3D(Basis(), cam.global_position).looking_at(mid, Vector3.UP).basis.get_rotation_quaternion(), minf(get_process_delta_time() * 2.5, 1.0)))
+	while t < 4.0 and ["Eddie", "Marcus"].any(func(k): return animators.has(k) and animators[k].is_walking() \
+			and game_shop.to_local(animators[k].root.global_position).z < 8.9):
 		await get_tree().process_frame
 		t += get_process_delta_time()
-	for st in SHOP_SEATS:                        # sit down: on the seat, facing the others
-		var a = animators.get(st[0])
-		if a == null:
-			continue
-		var to2: Vector3 = SHOP_CIRCLE - st[2]
-		to2.y = 0.0
-		a.walk_to([])
-		a.root.position = st[2] - to2.normalized() * 0.06
-		a.turn_to_face = false
-		a.face_towards(X * SHOP_CIRCLE)
-		a.root.rotate_y(a.world_forward().signed_angle_to((X.basis * to2).normalized(), Vector3.UP))
-		a.set_seated(true, st[3])
-		a.set_mood("scared")
-	if c_at != null:
-		cam.global_position = c_at
-	cam.look_at(center, Vector3.UP)
-	await get_tree().create_timer(1.0).timeout
-	seated_report["seated"] = SHOP_SEATS.all(func(st): return animators.has(st[0]) and animators[st[0]].seated)
+	await _fp_look(cam, X * (STOCK_DOOR_OUT + Vector3(0, 1.3, 0.6)), 0.45)
+	await _stock_door(false, 0.6)
+	_colossus_step_outside(cam, 0.8)
+	await get_tree().create_timer(1.4).timeout   # everyone holds still, listening
+	# 3. take a seat: the protagonist on the cardboard box, Marcus on the document boxes, Eddie stands
+	await _fp_walk(cam, SEAT_BOX + Vector3(-0.55, 0, 0.0), 1.4)
+	var circle := X * (STOCK_CIRCLE + Vector3(0, 1.0, 0))
+	await _fp_look(cam, circle, 0.4)
+	var tw_sit := create_tween()
+	tw_sit.tween_property(cam, "global_position", X * (SEAT_BOX + Vector3(-0.05, SEATED_EYE, 0)), 0.8).set_trans(Tween.TRANS_SINE)
+	t = 0.0
+	while t < 5.0 and ["Eddie", "Marcus"].any(func(k): return animators.has(k) and animators[k].is_walking()):
+		await get_tree().process_frame
+		t += get_process_delta_time()
+	_seat("Marcus", SEAT_DOCS, 0.80, STOCK_CIRCLE)
+	if animators.has("Eddie"):
+		animators["Eddie"].walk_to([])
+		animators["Eddie"].face_towards(X * STOCK_CIRCLE)
+	await tw_sit.finished
+	await _fp_look(cam, circle, 0.5)
+	seated_report["seated"] = animators.has("Marcus") and animators["Marcus"].seated
+	seated_report["anchor"] = true
+	# the conversation (approved lines), quiet, the creature still walking outside
 	_steps_on = true
 	_distant_steps(cam)
 	Dialogue.confirm_mode = true
 	await _say_all("p3_seated_a")
-	_colossus_step_outside(cam, 1.0)             # [a heavy footstep echoes outside]
+	_colossus_step_outside(cam, 1.0)
 	await get_tree().create_timer(1.2).timeout
 	await _say_all("p3_seated_b")
 	Dialogue.confirm_mode = false
-	# hold, slow fade, the store goes quiet, 2 HOURS LATER
+	# 4. hold, slow fade, the store goes quiet, 2 HOURS LATER
 	await get_tree().create_timer(2.0).timeout
 	_steps_on = false
 	await hud.fade_to(1.0, 3.0)
@@ -2111,33 +2219,51 @@ func _shop_seated_talk() -> void:
 	if market_merch and market_merch.has_method("loot"):
 		market_merch.loot()                       # people raided the supermarket in the meantime
 	_tip_carts()
-	# after: standing again, still frightened; Eddie at the window, the supermarket's lights across the street
-	for st in SHOP_SEATS:
-		if animators.has(st[0]):
-			animators[st[0]].set_seated(false)
-	await get_tree().create_timer(0.7).timeout
-	npc_walk("Eddie", Vector3(-1.4, 0.04, 1.3), 1.2)
-	npc_walk("Marcus", Vector3(-2.3, 0.04, 2.1), 1.2)
-	npc_walk("Protagonist", Vector3(-0.6, 0.04, 2.0), 1.2)
-	cam.global_position = X * Vector3(-0.9, 1.65, 0.95)
-	cam.look_at(market.global_transform * Vector3(0.0, 4.0, -0.3), Vector3.UP)
-	cam.fov = 45.0
+	# 5. a short third-person look at the three of them, from inside the room (validated camera point)
+	var me := _spawn_npc(load(PROTAG_PATH), load(PROTAG_FACE_PATH), game_shop, SEAT_BOX + Vector3(0.05, 0, 0), 0.0, "Protagonist")
+	me.name = "Protagonist_Seated"
+	_seat("Protagonist", SEAT_BOX, 0.44, STOCK_CIRCLE)
+	var must := [X * (STOCK_CIRCLE + Vector3(0, 1.0, 0)), X * (SEAT_BOX + Vector3(0, 1.1, 0)), X * (SEAT_DOCS + Vector3(0.3, 1.4, 0)),
+		X * (EDDIE_STAND + Vector3(0, 1.5, 0))]
+	var c_at = pick_anchor([X * Vector3(0.35, 2.2, 8.75), X * Vector3(0.4, 2.35, 10.1), X * Vector3(-5.2, 2.25, 8.75),
+		X * Vector3(-3.6, 2.5, 8.7), X * Vector3(-0.4, 2.45, 10.6), X * Vector3(-1.4, 2.5, 8.7)], must)
+	seated_report["third_anchor"] = c_at != null
+	var cam3 := Camera3D.new()
+	cam3.name = "StockRoomCam"
+	add_child(cam3)
+	cam3.global_position = c_at if c_at != null else X * Vector3(-1.4, 2.4, 8.75)
+	cam3.look_at(X * (STOCK_CIRCLE + Vector3(0, 0.9, 0)), Vector3.UP)
+	cam3.fov = 62.0
+	cam3.current = true
 	Sfx.start_ambience()
 	await hud.fade_to(0.0, 2.0)
+	await get_tree().create_timer(2.4).timeout
+	# 6. first person again: up, out to the front window - the supermarket's lights across the street
+	await hud.fade_to(1.0, 0.5)
+	me.queue_free()
+	animators.erase("Protagonist")
+	faces.erase("Protagonist")
+	cam.current = true
+	cam3.queue_free()
+	if animators.has("Marcus"):
+		animators["Marcus"].set_seated(false)
+		animators["Marcus"].root.position = SEAT_DOCS + Vector3(0.75, 0, 0.1)   # stood up clear of the boxes (screen black)
+	cam.global_position = X * (SEAT_BOX + Vector3(-0.05, STAND_EYE, 0))
+	await hud.fade_to(0.0, 0.8)
+	await _fp_look(cam, X * (STOCK_IN + Vector3(0, 1.4, -0.8)), 0.6)
+	await _fp_walk(cam, STOCK_IN, 1.6)
+	await _stock_door(true, 0.6)
+	npc_walk("Eddie", Vector3(-1.4, 0.04, 1.3), 1.4)
+	npc_walk("Marcus", Vector3(-2.3, 0.04, 2.1), 1.3)
+	await _fp_walk(cam, Vector3(-0.6, 0.04, 2.0), 1.6)
+	await _fp_look(cam, market.global_transform * Vector3(0.0, 4.0, -0.3), 0.9)
 	Dialogue.confirm_mode = true
 	await _say_all("p3_lights")
 	Dialogue.confirm_mode = false
 	seated_report["lights_talk"] = true
-	# control back where the protagonist stands
-	for p in props:
-		if is_instance_valid(p):
-			p.queue_free()
-	player.global_position = me.global_position + Vector3(0, 0.05, 0)
+	# control back where the protagonist stands (inside the shop)
 	var dm: Vector3 = (market.global_position - player.global_position) * Vector3(1, 0, 1)
 	player.set_yaw_pitch(atan2(-dm.x, -dm.z), 0.0)
-	me.queue_free()
-	animators.erase("Protagonist")
-	faces.erase("Protagonist")
 	player.visible = true
 	cam.queue_free()
 	player.camera.current = true
@@ -2146,6 +2272,23 @@ func _shop_seated_talk() -> void:
 			animators[k].turn_to_face = true
 	hud.allow_pause = true
 	player.controls_enabled = true
+
+
+## Sit a character on an existing seat (shop-local), facing `toward`.
+func _seat(speaker: String, seat: Vector3, height: float, toward: Vector3, edge := 0.22) -> void:
+	var a = animators.get(speaker)
+	if a == null:
+		return
+	var X := game_shop.global_transform
+	var to2: Vector3 = toward - seat
+	to2.y = 0.0
+	a.walk_to([])
+	a.root.position = seat + to2.normalized() * edge          # on the seat's front edge, not inside the box
+	a.turn_to_face = false
+	a.face_towards(X * toward)
+	a.root.rotate_y(a.world_forward().signed_angle_to((X.basis * to2).normalized(), Vector3.UP))
+	a.set_seated(true, height)
+	a.set_mood("scared")
 
 
 func _say_all(id: String) -> void:

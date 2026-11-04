@@ -261,6 +261,7 @@ func read_note() -> bool:
 func _run() -> void:
 	game = root.get_node("Game")
 	ps = load("res://game/scenes/World.tscn")
+	root.get_node("Dialogue").auto_confirm = true     # the "player" confirms each conversation line
 	root.get_node("Dialogue").line_started.connect(func(_s, t, _d): said.append(t))
 	DEV.prepare(game)
 	world = ps.instantiate()
@@ -280,6 +281,10 @@ func _run() -> void:
 	# ---- scene 1-2
 	ok("c7_marcus_reach", await aim(c7.its["npc_Marcus"], [-Z, Z, X, -X], world.market, 1.4))
 	c7.its["npc_Marcus"].interact(world.player)
+	await frames(40)
+	var vc := root.get_viewport().get_camera_3d()
+	ok("c7_talk_camera_locks", world.conversing and not world.player.controls_enabled and vc != null and vc.name == "TalkCam",
+		"conversing=%s controls=%s cam=%s" % [world.conversing, world.player.controls_enabled, vc.name if vc else "-"])
 	ok("c7_briefing", await wait_talk(func(): return game.has_flag("ch7_marcus_briefing_complete")) and game.current_step().get("id", "") == "c7_prepare"
 		and said.has("Someone told me about a car near the old service road."))
 	await reload()

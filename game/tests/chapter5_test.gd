@@ -213,6 +213,7 @@ func _initialize() -> void:
 func _run() -> void:
 	game = root.get_node("Game")
 	ps = load("res://game/scenes/World.tscn")
+	root.get_node("Dialogue").auto_confirm = true     # the "player" confirms each conversation line
 	DEV.prepare(game)
 	world = ps.instantiate()
 	root.add_child(world)
@@ -373,7 +374,7 @@ func _run() -> void:
 	ok("c5_found_line", game.has_flag("c5_found_said"))
 	# ---- scene 5: the radio (from the bedroom back to the living-room side of the dining table)
 	ok("c5_walk_to_radio", await walk_route([Vector3(1.4, 0.8, 2.75), Vector3(1.25, 0.8, 3.6), Vector3(1.3, 0.8, 5.2),
-		Vector3(-0.2, 0.8, 5.2), Vector3(-2.0, 0.8, 6.0), Vector3(-2.0, 0.8, 7.4), Vector3(-1.6, 0.8, 8.3)], h))
+		Vector3(-0.2, 0.8, 5.2), Vector3(-2.0, 0.8, 6.0), Vector3(-2.0, 0.8, 7.4), Vector3(-1.6, 0.8, 7.35)], h))
 	_watch = false
 	await reload()
 	ok("c5_load_no_dupes", game.inventory.count("canned_food") == 1 and p4.flashlight.spares == spares0 + 2
