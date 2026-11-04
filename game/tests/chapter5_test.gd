@@ -54,12 +54,16 @@ func _physics_watch() -> void:
 		return
 	var e: Vector3 = c5.eddie.global_position
 	var step := e.distance_to(_eddie_prev)
+	if step > 0.2 and eddie_max_step <= 0.2:
+		print("  eddie jump %.2f m: %s -> %s (player %s)" % [step, _eddie_prev, e, world.player.global_position])
 	eddie_max_step = maxf(eddie_max_step, step)
 	if step > 0.02:
 		var space: PhysicsDirectSpaceState3D = c5.eddie.get_world_3d().direct_space_state
 		var q := PhysicsRayQueryParameters3D.create(_eddie_prev + Vector3(0, 0.5, 0), e + Vector3(0, 0.5, 0), 1)
-		if space.intersect_ray(q):
+		var wh := space.intersect_ray(q)
+		if wh:
 			eddie_wall_hits += 1
+			print("  eddie wall crossing at %s (%s)" % [wh["position"], (wh["collider"] as Node).name])
 	eddie_max_lag = maxf(eddie_max_lag, e.distance_to(world.player.global_position))
 	_eddie_prev = e
 
@@ -132,6 +136,28 @@ func aim(it: Node3D, dirs: Array, frame: Node3D, dist := 1.2) -> bool:
 	return false
 
 
+## From where the player already stands (no teleport), look at the interactable; true if the real ray finds it.
+func look(it: Node3D) -> bool:
+	var player = world.player
+	var c: Vector3 = it.global_position
+	for cs in it.get_children():
+		if cs is CollisionShape3D:
+			c = (cs as CollisionShape3D).global_position
+	await frames(2)
+	var eye: Vector3 = player.camera.global_position
+	var v := (c - eye).normalized()
+	player.set_yaw_pitch(atan2(-v.x, -v.z), asin(clampf(v.y, -1.0, 1.0)))
+	await watch_frames(5)
+	return player._focus == it
+
+
+func walk_world(pts: Array) -> bool:
+	for p in pts:
+		if not await walk_to(p as Vector3):
+			return false
+	return true
+
+
 func reload() -> void:
 	world.save()
 	world.free()
@@ -195,76 +221,105 @@ func _run() -> void:
 	ok("c5_load_following", c5 != null and c5.eddie_follow.active and c5.eddie.get_parent() == world
 		and c5.eddie.global_position.distance_to(world.player.global_position) < 4.0
 		and world.find_children("Eddie", "", true, false).size() == 1)
-	# ---- scene 3: the street (player walks, Eddie follows)
+	# ---- scene 3: the street (player walks, Eddie follows) - route measured with a collision map:
+	# out of the front doors, west along the store front, south down the x = 11.5 m lane, through the gap in the
+	# back-yard fence row (z = -58) to the cottage's front path. No teleports from here until the report.
 	mk = world.market
 	_eddie_prev = c5.eddie.global_position
 	_watch = true
-	var route_out := [Vector3(1.5, 0.2, 4.4), Vector3(1.5, 0.2, 1.8), Vector3(0.3, 0.2, 1.0), Vector3(0.3, 0.2, -3.0), Vector3(-1.0, 0.2, -6.0), Vector3(26.0, 0.2, -6.0),
-		Vector3(26.0, 0.2, 20.0), Vector3(26.0, 0.2, 34.0), Vector3(17.4, 0.2, 36.5), Vector3(17.4, 0.2, 38.6)]
-	var walked := await walk_route(route_out, mk)
+	var out_store := [Vector3(1.5, 0.2, 4.4), Vector3(1.5, 0.2, 1.8), Vector3(0.3, 0.2, 1.0), Vector3(0.3, 0.2, -3.5)]
+	var walked := await walk_route(out_store, mk)
+	walked = walked and await walk_world([Vector3(11.5, 0.2, -23.5), Vector3(11.5, 0.2, -60.5), Vector3(15.6, 0.2, -62.5),
+		Vector3(15.6, 0.2, -66.6)])
 	ok("c5_house_reachable_walk", walked, str(world.player.global_position))
 	ok("c5_doors_shut_behind", not c5._doors_open)
 	ok("c5_street_line", game.has_flag("c5_street_said"))
 	ok("c5_eddie_kept_up", await wait_until(func(): return c5.eddie.global_position.distance_to(world.player.global_position) < 4.5, 60 * 12),
 		"lag %.1f m" % c5.eddie.global_position.distance_to(world.player.global_position))
-	# ---- scene 4: the house
+	# ---- scene 4: the house (walked room to room; doors opened through the real ray)
 	var h: Node3D = c5.house
 	var fd: Interactable = c5.its["c5/HOUSE_04/INT_Door_Front"]
-	ok("c5_front_door_reach", await aim(fd, [-Z, Z], h, 1.2))
+	ok("c5_front_door_reach", await look(fd))
 	fd.interact(world.player)
-	await frames(40)
-	_eddie_prev = c5.eddie.global_position
+	await watch_frames(40)
 	ok("c5_enter_house", await walk_route([Vector3(-1.6, 0.8, 2.6), Vector3(-1.6, 0.8, 4.6)], h) and game.has_flag("c5_house_reached"))
-	ok("c5_eddie_follows_inside", await wait_until(func(): return c5._in_house(c5.eddie.global_position), 60 * 10),
-		"eddie %s" % c5.eddie.global_position)
 	for k in ["food", "batteries", "medical"]:
-		var sk: Interactable = c5.its[c5.SEARCH[k][0]]
 		var item: Interactable = c5.its["item_" + k]
 		ok("c5_item_hidden_" + k, not item.target.visible and item.collision_layer == 0)
-		ok("c5_search_reach_" + k, await aim(sk, [-Z, Z, X, -X], h, 0.9))
+	var stands := {
+		"food": [[Vector3(-2.0, 0.8, 6.0), Vector3(-2.0, 0.8, 7.4), Vector3(-2.7, 0.8, 8.6), Vector3(-2.7, 0.8, 10.25), Vector3(-1.8, 0.8, 10.25)], ""],
+		"medical": [[Vector3(-0.6, 0.8, 10.25), Vector3(-0.5, 0.8, 8.6)], "c5/HOUSE_04/INT_Door_Bath",
+			[Vector3(-0.45, 0.8, 8.5), Vector3(0.5, 0.8, 8.5), Vector3(0.9, 0.8, 8.3)]],
+		"batteries": [[Vector3(-0.5, 0.8, 8.6), Vector3(-0.5, 0.8, 10.25), Vector3(-2.7, 0.8, 10.25), Vector3(-2.7, 0.8, 8.6),
+			Vector3(-2.0, 0.8, 7.4), Vector3(-2.0, 0.8, 6.0), Vector3(-0.2, 0.8, 5.2)], "c5/HOUSE_04/INT_Door_Bed",
+			[Vector3(1.3, 0.8, 5.2), Vector3(1.25, 0.8, 3.6), Vector3(1.4, 0.8, 2.75), Vector3(2.6, 0.8, 2.7)]],
+	}
+	for k in ["food", "medical", "batteries"]:
+		var plan: Array = stands[k]
+		var reached := await walk_route(plan[0], h)
+		if plan[1] != "":
+			var door: Interactable = c5.its[plan[1]]
+			ok("c5_door_reach_" + k, await look(door))
+			if not door.is_open:
+				door.interact(world.player)
+			await watch_frames(40)
+			reached = reached and await walk_route(plan[2], h)
+		var sk: Interactable = c5.its[c5.SEARCH[k][0]]
+		var item: Interactable = c5.its["item_" + k]
+		ok("c5_search_reach_" + k, reached and await look(sk), str(h.to_local(world.player.global_position)))
 		sk.interact(world.player)
-		await frames(20)
-		ok("c5_item_reach_" + k, await aim(item, [-Z, Z, X, -X, Vector3(0, 1, 0.3)], h, 0.8))
+		await watch_frames(20)
+		ok("c5_item_reach_" + k, await look(item))
 		item.interact(world.player)
-		await frames(10)
+		await watch_frames(10)
+		if k == "food":
+			ok("c5_eddie_follows_inside", await wait_until(func(): return c5._in_house(c5.eddie.global_position), 60 * 10),
+				"eddie %s" % h.to_local(c5.eddie.global_position))
 	ok("c5_food_in_inventory", game.has_item("canned_food"))
 	ok("c5_medical_in_inventory", game.has_item("first_aid_kit"))
 	ok("c5_batteries_real", game.has_item("batteries") and p4.flashlight.spares == spares0 + 2, "spares %d -> %d" % [spares0, p4.flashlight.spares])
 	ok("c5_supplies_done", game.has_flag("c5_supplies_done") and game.current_step().get("id", "") == "c5_radio")
 	ok("c5_found_line", game.has_flag("c5_found_said"))
+	# ---- scene 5: the radio (from the bedroom back to the living-room side of the dining table)
+	ok("c5_walk_to_radio", await walk_route([Vector3(1.4, 0.8, 2.75), Vector3(1.25, 0.8, 3.6), Vector3(1.3, 0.8, 5.2),
+		Vector3(-0.2, 0.8, 5.2), Vector3(-2.0, 0.8, 6.0), Vector3(-2.0, 0.8, 7.4), Vector3(-1.6, 0.8, 8.3)], h))
+	_watch = false
 	await reload()
 	ok("c5_load_no_dupes", game.inventory.count("canned_food") == 1 and p4.flashlight.spares == spares0 + 2
-		and c5.its["item_food"].taken and not c5.its["item_food"].target.visible)
-	# ---- scene 5: the radio
+		and c5.its["item_food"].taken and not c5.its["item_food"].target.visible and c5.eddie_follow.active)
+	_eddie_prev = c5.eddie.global_position
+	_watch = true
+	h = c5.house
 	var rit: Interactable = c5.its["radio"]
 	ok("c5_radio_static", c5._static.playing)
-	ok("c5_radio_reach", await aim(rit, [Z, -Z, X, -X], c5.house, 1.0))
+	ok("c5_radio_reach", await look(rit))
 	rit.interact(world.player)
 	ok("c5_radio_done", await wait_talk(func(): return game.has_flag("c5_radio_done"), 120.0) and not c5._static.playing)
 	rit.interact(world.player)
 	await frames(5)
 	ok("c5_radio_once", c5.radio_runs == 1 and rit.prompt_text == "")
+	_watch = false
 	await reload()
 	ok("c5_radio_persists", game.has_flag("c5_radio_done") and not c5._static.playing and c5.its["radio"].prompt_text == "")
 	# ---- scene 6: survivor (choice A in the main run; B and C are checked from the same save below)
 	var snap := {"flags": game.flags.duplicate(true), "ws": game.world_state.duplicate(true), "inv": game.inventory.duplicate(),
 		"ps": game.player_state.duplicate(true)}
 	_eddie_prev = c5.eddie.global_position
-	var sh: Node3D = c5.shouse
-	ok("c5_leave_house", await walk_route([Vector3(-1.6, 0.8, 4.6), Vector3(-1.6, 0.8, 2.4), Vector3(-1.6, 0.4, 0.4)], c5.house))
-	ok("c5_return_line", await wait_until(func(): return game.has_flag("c5_return_said"), 60 * 4))
-	world.player.global_position = sh.global_transform * Vector3(-0.4, 0.5, 1.4)      # straight to the neighbour's yard
+	_watch = true
+	h = c5.house
+	ok("c5_leave_house", await walk_route([Vector3(-2.0, 0.8, 7.4), Vector3(-2.0, 0.8, 6.0), Vector3(-1.6, 0.8, 4.6),
+		Vector3(-1.6, 0.8, 2.4), Vector3(-1.6, 0.4, 1.0)], h))
+	ok("c5_walk_to_neighbour", await walk_world([Vector3(15.6, 0.2, -62.5), Vector3(22.0, 0.2, -62.0), Vector3(30.9, 0.2, -64.6)]))
+	ok("c5_return_line", game.has_flag("c5_return_said"))
 	ok("c5_survivor_choice_offered", await wait_talk(func(): return p4.choice.is_open(), 40.0))
 	ok("c5_survivor_visible", c5.survivor.visible)
 	p4.choice.pick(0)
 	ok("c5_survivor_helped", await wait_talk(func(): return game.has_flag("c5_survivor_helped") and c5.survivor_follow.active, 30.0))
-	# ---- scene 7: back to the supermarket
-	_eddie_prev = c5.eddie.global_position
+	# ---- scene 7: back to the supermarket (out through the neighbour's front path gap at x 29-32)
 	mk = world.market
-	var route_back := [Vector3(17.4, 0.2, 36.0), Vector3(26.0, 0.2, 34.0), Vector3(26.0, 0.2, 20.0), Vector3(26.0, 0.2, -6.0),
-		Vector3(0.3, 0.2, -6.0), Vector3(0.3, 0.2, -2.5), Vector3(0.3, 0.2, 1.2), Vector3(1.5, 0.2, 1.8), Vector3(1.5, 0.2, 4.6),
-		Vector3(-0.5, 0.2, 6.2)]
-	ok("c5_walk_back", await walk_route(route_back, mk), str(mk.to_local(world.player.global_position)))
+	ok("c5_walk_back", await walk_world([Vector3(30.6, 0.2, -61.5), Vector3(30.6, 0.2, -50.0), Vector3(11.5, 0.2, -50.0),
+		Vector3(11.5, 0.2, -23.5), Vector3(32.7, 0.2, -23.5)]) and await walk_route([Vector3(0.3, 0.2, -2.5), Vector3(0.3, 0.2, 1.2),
+		Vector3(1.5, 0.2, 1.8), Vector3(1.5, 0.2, 4.6), Vector3(-0.5, 0.2, 6.2)], mk), str(mk.to_local(world.player.global_position)))
 	ok("c5_returned", await wait_until(func(): return game.has_flag("c5_returned"), 60 * 20),
 		"eddie local %s" % mk.to_local(c5.eddie.global_position))
 	_watch = false
@@ -306,7 +361,9 @@ func _run() -> void:
 		root.add_child(world)
 		await frames(40)
 		c5 = world.phase4.chapter5
-		world.player.global_position = c5.shouse.global_transform * Vector3(-0.4, 0.5, 1.4)
+		await walk_route([Vector3(-2.0, 0.8, 7.4), Vector3(-2.0, 0.8, 6.0), Vector3(-1.6, 0.8, 4.6), Vector3(-1.6, 0.8, 2.4),
+			Vector3(-1.6, 0.4, 1.0)], c5.house)
+		await walk_world([Vector3(15.6, 0.2, -62.5), Vector3(22.0, 0.2, -62.0), Vector3(30.9, 0.2, -64.6)])
 		var offered := await wait_talk(func(): return world.phase4.choice.is_open(), 40.0)
 		world.phase4.choice.pick(pick[0])
 		var set := await wait_talk(func(): return game.has_flag(pick[1]), 20.0)
