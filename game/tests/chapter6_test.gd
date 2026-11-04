@@ -347,11 +347,19 @@ func _run() -> void:
 	# A) stay in its sight, get noticed, sprint away up the side street: it must lose the player
 	ok("c6_hound_detects", await wait_until(func(): return is_instance_valid(c6.hound) and c6.hound_ai.state == "CHASE", 60 * 15))
 	ok("c6_run_line", await wait_until(func(): return said.has("RUN!"), 60 * 3))
+	# the guided escape: east past the last house, along the yard fence, through the narrow gap; the Hound leaps it
+	ok("c6_chase_marker", await wait_until(func(): return c6._chase_leg == 0 and world.hud._mk_target is Vector3, 30),
+		"leg %d target %s" % [c6._chase_leg, str(world.hud._mk_target)])
 	Input.action_press("sprint")
-	await walk_world([Vector3(60.0, 0.2, -77.0), Vector3(60.0, 0.2, -56.0), Vector3(57.0, 0.2, -40.0), Vector3(57.0, 0.2, -30.0)])
+	var route_ok: bool = await walk_world(c6.CHASE_ROUTE.slice(0, 4))
+	ok("c6_chase_route_walkable", route_ok, str(world.player.global_position))
+	ok("c6_hound_jumps_fence", await wait_until(func(): return c6.fence_jumps == 1, 60 * 4)
+		and await wait_until(func(): return not is_instance_valid(c6.hound) or c6.hound.global_position.z > c6.FENCE_Z + 1.0, 60 * 3),
+		"jumps %d" % c6.fence_jumps)
+	await walk_world(c6.CHASE_ROUTE.slice(4))
 	Input.action_release("sprint")
 	ok("c6_hound_loses_player", await wait_until(func(): return not is_instance_valid(c6.hound) or c6.hound_ai.state in ["SEARCH", "RETURN", "PATROL"], 60 * 10)
-		and c6.hound_ai.chases >= 1)
+		and (not is_instance_valid(c6.hound_ai) or c6.hound_ai.chases >= 1))
 	ok("c6_encounter_complete", await wait_until(func(): return game.has_flag("ch6_hound_encounter_complete"), 60 * 15)
 		and game.current_step().get("id", "") == "c6_return")
 	ok("c6_eddie_escaped_too", c5.eddie.global_position.distance_to(world.player.global_position) < 18.0,

@@ -165,6 +165,9 @@ func _setup_route() -> void:
 	it.global_position = seat_pos + outward * 0.75 + Vector3(0, 0.3, 0)
 	it.used.connect(_examine_backpack)
 	its["backpack"] = it
+	if Game.has_flag("ch7_backpack_found"):           # already taken (continue / load): gone from the seat
+		backpack.visible = false
+		it.collision_layer = 0
 	_car_area = world._area("C7_CarArea", CAR_AREA[0], CAR_AREA[1], 2, func(_b): pass)
 	_road_area = world._area("C7_ServiceRoadArea", ROAD_AREA[0], ROAD_AREA[1], 2, func(_b): pass)
 	# the old service road: the gravel runs on into the fog, closed by barriers, cones and a dead-end sign
