@@ -293,14 +293,14 @@ playthrough test to make sure everything still agrees.
 
 1. **Visual polish pass** on what the owner reports (furniture, house interiors, exteriors), with the same root-cause
    approach: fix the generator, regenerate, validate, re-export.
-2. **Phase 2: the supermarket.** Interior entry from the parking lot, a shopping objective, NPCs (Pack 06
-   characters), and the game shop across Main St with Eddie (bible 2.1 / 2.2). The stop order is still open in the
-   bible.
+2. ~~Phase 2: the supermarket~~ **done** - see 9.8.
 3. **Performance:** batching and streaming. The web build only matters if the owner still wants it.
 4. **Audio:** real recorded / licensed sounds if the owner provides them (currently synthesised).
 
 ### 9.7 Tooling notes
 
+* Export templates can be fetched without the 1 GB download: read the `.tpz` central directory with HTTP range
+  requests and pull only `templates/web_nothreads_release.zip` into `~/.local/share/godot/export_templates/4.3.stable/`.
 * Test in a **synced scratch copy** of the repo, not the repo itself, so Godot cannot rewrite pack `.import` files.
 * Web export:
   * needs the 4.3 export templates; only `web_nothreads_release.zip` is required;
@@ -309,3 +309,27 @@ playthrough test to make sure everything still agrees.
   * use Playwright Chromium with SwiftShader;
   * `play/index.html?autotest` runs the story interactions in the exported build;
   * the F10 key prints the game state to the console.
+
+### 9.8 Phase 2: town errands (done)
+
+* **Flow:** after parking, objectives `buy_groceries` -> `buy_game` -> `go_home` (`game/data/objectives.json`). Each
+  step checks only its own flag (`groceries_done`, `game_bought`, `phase2_done`), so the errands work in either order.
+* **Code:** `world.gd` `_setup_town()`:
+  * supermarket auto doors: `Trigger_MarketDoors` slides `INT_AutoDoor_Entrance_L/R` 1.12 m apart;
+  * three groceries (Pack 08 GLBs) on gondola shelves at supermarket-local spots in `GROCERIES`;
+  * checkout on `Interaction/Register_45` turns them into one `groceries` item;
+  * game shop `INT_Door_Entrance` is a hinge that swings inward (`_toward_deg`);
+  * `NewReleasePick` on `Interaction/Browse_1`;
+  * `CHR_Eddie` at `NavTargets/BehindCounter` with `VeilFace`, which talks on every "Eddie" dialogue line, and
+    `_lower_arms()`.
+* **Placeholders:** the Cashier speaker, the untitled game, and the `draft` dialogue lines.
+* **Export:** `export_presets.cfg` now ships `CHR_Eddie`, his face atlas and the facial script/shader. The rest of
+  `06_Characters` stays excluded.
+* **Tests:** `opening_test.gd` adds about 30 Phase 2 checks:
+  * door blocking and opening;
+  * real walking through both entrances;
+  * every pickup reachable through the actual player ray;
+  * checkout refusal and checkout;
+  * Eddie's lowered arms and talking;
+  * the end card;
+  * save/load of the errand state.

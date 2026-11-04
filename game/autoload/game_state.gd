@@ -129,6 +129,12 @@ func add_item(id: String) -> void:
 	inventory_changed.emit()
 
 
+func remove_item(id: String) -> void:
+	if id in inventory:
+		inventory.erase(id)
+		inventory_changed.emit()
+
+
 func has_item(id: String) -> bool:
 	return id in inventory
 

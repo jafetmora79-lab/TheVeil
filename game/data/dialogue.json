@@ -1,27 +1,317 @@
 {
  "_comment": "Protagonist observations and future NPC dialogue. Each entry: lines [{speaker, text, time}] and optional choices [{text, next}] for future branching.",
- "wake": {"lines": [{"speaker": "", "text": "Ugh. That was supposed to be a twenty-minute nap.", "time": 3.4}]},
- "wake_hint": {"lines": [{"speaker": "", "text": "Stomach's growling. Let's see what's in the kitchen.", "time": 3.2}]},
- "fridge_empty": {"lines": [{"speaker": "", "text": "Great. Nothing to eat.", "time": 2.6},
-                            {"speaker": "", "text": "One dented can and a bottle of water. Grocery run it is.", "time": 3.6}]},
- "fridge_again": {"lines": [{"speaker": "", "text": "Still empty. Staring at it won't help.", "time": 2.8}]},
- "keys": {"lines": [{"speaker": "", "text": "Keys. Right where I left them, for once.", "time": 2.8}]},
- "need_keys": {"lines": [{"speaker": "", "text": "Locked. My keys are still inside.", "time": 2.6}]},
- "need_kitchen": {"lines": [{"speaker": "", "text": "Better check what I actually need before I drive anywhere.", "time": 3.2}]},
- "left_house": {"lines": [{"speaker": "", "text": "Still light out. Supermarket's open till nine.", "time": 3.0}]},
- "in_car": {"lines": [{"speaker": "", "text": "Come on, start... There we go.", "time": 2.6}]},
- "town": {"lines": [{"speaker": "", "text": "Main Street. Supermarket's on the right, across from the game shop.", "time": 3.6}]},
- "game_shop": {"lines": [{"speaker": "", "text": "Might swing by the game shop after. Something scary for tonight.", "time": 3.4}]},
- "no_exit": {"lines": [{"speaker": "", "text": "Not while it's moving.", "time": 2.0}]},
- "no_room": {"lines": [{"speaker": "", "text": "No room to open the door here.", "time": 2.2}]},
- "parked": {"lines": [{"speaker": "", "text": "Made it. Let's get this over with.", "time": 2.8}]},
- "obs_alarm": {"lines": [{"speaker": "", "text": "Already evening. I slept right through the afternoon.", "time": 3.0}]},
- "obs_calendar": {"lines": [{"speaker": "", "text": "Friday. Finally.", "time": 2.2}]},
- "obs_tv": {"lines": [{"speaker": "", "text": "Nothing worth watching at this hour.", "time": 2.4}]},
- "obs_console": {"lines": [{"speaker": "", "text": "Beat everything on here twice. I need something new to play.", "time": 3.2}]},
- "obs_cereal": {"lines": [{"speaker": "", "text": "Empty box. Who puts an empty box back?", "time": 2.6},
-                          {"speaker": "", "text": "Me. I do.", "time": 1.6}]},
- "obs_computer": {"lines": [{"speaker": "", "text": "Later.", "time": 1.6}]},
- "obs_radio": {"lines": [{"speaker": "", "text": "Talk radio and the weather. Nothing new.", "time": 2.6}]},
- "obs_clock": {"lines": [{"speaker": "", "text": "Getting late. Better move.", "time": 2.2}]}
+ "wake": {
+  "lines": [
+   {
+    "speaker": "",
+    "text": "Ugh. That was supposed to be a twenty-minute nap.",
+    "time": 3.4
+   }
+  ]
+ },
+ "wake_hint": {
+  "lines": [
+   {
+    "speaker": "",
+    "text": "Stomach's growling. Let's see what's in the kitchen.",
+    "time": 3.2
+   }
+  ]
+ },
+ "fridge_empty": {
+  "lines": [
+   {
+    "speaker": "",
+    "text": "Great. Nothing to eat.",
+    "time": 2.6
+   },
+   {
+    "speaker": "",
+    "text": "One dented can and a bottle of water. Grocery run it is.",
+    "time": 3.6
+   }
+  ]
+ },
+ "fridge_again": {
+  "lines": [
+   {
+    "speaker": "",
+    "text": "Still empty. Staring at it won't help.",
+    "time": 2.8
+   }
+  ]
+ },
+ "keys": {
+  "lines": [
+   {
+    "speaker": "",
+    "text": "Keys. Right where I left them, for once.",
+    "time": 2.8
+   }
+  ]
+ },
+ "need_keys": {
+  "lines": [
+   {
+    "speaker": "",
+    "text": "Locked. My keys are still inside.",
+    "time": 2.6
+   }
+  ]
+ },
+ "need_kitchen": {
+  "lines": [
+   {
+    "speaker": "",
+    "text": "Better check what I actually need before I drive anywhere.",
+    "time": 3.2
+   }
+  ]
+ },
+ "left_house": {
+  "lines": [
+   {
+    "speaker": "",
+    "text": "Still light out. Supermarket's open till nine.",
+    "time": 3.0
+   }
+  ]
+ },
+ "in_car": {
+  "lines": [
+   {
+    "speaker": "",
+    "text": "Come on, start... There we go.",
+    "time": 2.6
+   }
+  ]
+ },
+ "town": {
+  "lines": [
+   {
+    "speaker": "",
+    "text": "Main Street. Supermarket's on the right, across from the game shop.",
+    "time": 3.6
+   }
+  ]
+ },
+ "game_shop": {
+  "lines": [
+   {
+    "speaker": "",
+    "text": "Might swing by the game shop after. Something scary for tonight.",
+    "time": 3.4
+   }
+  ]
+ },
+ "no_exit": {
+  "lines": [
+   {
+    "speaker": "",
+    "text": "Not while it's moving.",
+    "time": 2.0
+   }
+  ]
+ },
+ "no_room": {
+  "lines": [
+   {
+    "speaker": "",
+    "text": "No room to open the door here.",
+    "time": 2.2
+   }
+  ]
+ },
+ "parked": {
+  "lines": [
+   {
+    "speaker": "",
+    "text": "Made it. Groceries, then the game shop. Or the other way round.",
+    "time": 3.4
+   }
+  ]
+ },
+ "obs_alarm": {
+  "lines": [
+   {
+    "speaker": "",
+    "text": "Already evening. I slept right through the afternoon.",
+    "time": 3.0
+   }
+  ]
+ },
+ "obs_calendar": {
+  "lines": [
+   {
+    "speaker": "",
+    "text": "Friday. Finally.",
+    "time": 2.2
+   }
+  ]
+ },
+ "obs_tv": {
+  "lines": [
+   {
+    "speaker": "",
+    "text": "Nothing worth watching at this hour.",
+    "time": 2.4
+   }
+  ]
+ },
+ "obs_console": {
+  "lines": [
+   {
+    "speaker": "",
+    "text": "Beat everything on here twice. I need something new to play.",
+    "time": 3.2
+   }
+  ]
+ },
+ "obs_cereal": {
+  "lines": [
+   {
+    "speaker": "",
+    "text": "Empty box. Who puts an empty box back?",
+    "time": 2.6
+   },
+   {
+    "speaker": "",
+    "text": "Me. I do.",
+    "time": 1.6
+   }
+  ]
+ },
+ "obs_computer": {
+  "lines": [
+   {
+    "speaker": "",
+    "text": "Later.",
+    "time": 1.6
+   }
+  ]
+ },
+ "obs_radio": {
+  "lines": [
+   {
+    "speaker": "",
+    "text": "Talk radio and the weather. Nothing new.",
+    "time": 2.6
+   }
+  ]
+ },
+ "obs_clock": {
+  "lines": [
+   {
+    "speaker": "",
+    "text": "Getting late. Better move.",
+    "time": 2.2
+   }
+  ]
+ },
+ "_comment_phase2": "Entries marked draft:true are Phase 2 working lines (Eddie, the unnamed cashier). The bible names no cashier, so 'Cashier' is a placeholder speaker. Replace when the script is written.",
+ "market_enter": {
+  "lines": [
+   {
+    "speaker": "",
+    "text": "Soup, water, something to snack on. In and out.",
+    "time": 3.0
+   }
+  ]
+ },
+ "market_need_items": {
+  "draft": true,
+  "lines": [
+   {
+    "speaker": "Cashier",
+    "text": "Just these? ...Oh, you're still shopping. Take your time, hon.",
+    "time": 3.4
+   }
+  ]
+ },
+ "market_checkout": {
+  "draft": true,
+  "lines": [
+   {
+    "speaker": "Cashier",
+    "text": "That's everything? Bag's on the house.",
+    "time": 3.0
+   },
+   {
+    "speaker": "Cashier",
+    "text": "Drive safe tonight.",
+    "time": 2.4
+   }
+  ]
+ },
+ "groceries_done": {
+  "lines": [
+   {
+    "speaker": "",
+    "text": "Groceries, done.",
+    "time": 2.0
+   }
+  ]
+ },
+ "shop_enter": {
+  "lines": [
+   {
+    "speaker": "",
+    "text": "Smells like old carpet and new plastic. Love it.",
+    "time": 3.0
+   }
+  ]
+ },
+ "game_pick": {
+  "lines": [
+   {
+    "speaker": "",
+    "text": "This one. Looks properly scary.",
+    "time": 2.6
+   }
+  ]
+ },
+ "eddie_hello": {
+  "draft": true,
+  "lines": [
+   {
+    "speaker": "Eddie",
+    "text": "Hey! Back again. The new stuff's on the front rack.",
+    "time": 3.4
+   }
+  ]
+ },
+ "eddie_buy": {
+  "draft": true,
+  "lines": [
+   {
+    "speaker": "Eddie",
+    "text": "Oh, good pick. Don't play that one with the lights off.",
+    "time": 3.6
+   },
+   {
+    "speaker": "Eddie",
+    "text": "Seriously. Enjoy your Friday.",
+    "time": 2.6
+   }
+  ]
+ },
+ "eddie_after": {
+  "draft": true,
+  "lines": [
+   {
+    "speaker": "Eddie",
+    "text": "Let me know how far you get.",
+    "time": 2.6
+   }
+  ]
+ },
+ "errands_done": {
+  "lines": [
+   {
+    "speaker": "",
+    "text": "That's everything. Home, food, game.",
+    "time": 2.8
+   }
+  ]
+ }
 }

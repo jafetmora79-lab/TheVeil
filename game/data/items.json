@@ -1,7 +1,46 @@
 {
- "categories": ["key", "tool", "flashlight", "radio", "medical", "note", "puzzle", "weapon", "food", "misc"],
+ "categories": [
+  "key",
+  "tool",
+  "flashlight",
+  "radio",
+  "medical",
+  "note",
+  "puzzle",
+  "weapon",
+  "food",
+  "misc"
+ ],
  "items": {
-  "car_keys": {"name": "Car Keys", "category": "key",
-               "description": "Keys to the old sedan. A worn rubber tag and a house key on the same ring."}
+  "car_keys": {
+   "name": "Car Keys",
+   "category": "key",
+   "description": "Keys to the old sedan. A worn rubber tag and a house key on the same ring."
+  },
+  "canned_food": {
+   "name": "Canned Soup",
+   "category": "food",
+   "description": "Tomato soup. Dinner, technically."
+  },
+  "water_bottle": {
+   "name": "Water Bottle",
+   "category": "food",
+   "description": "A big bottle of spring water."
+  },
+  "energy_snack": {
+   "name": "Snack Bar",
+   "category": "food",
+   "description": "Chocolate and peanuts. For later."
+  },
+  "groceries": {
+   "name": "Groceries",
+   "category": "food",
+   "description": "A paper bag: soup, water, snacks. Enough for the weekend."
+  },
+  "horror_game": {
+   "name": "Horror Game",
+   "category": "misc",
+   "description": "A new horror game for tonight. (Title TBD - placeholder, not in the story bible.)"
+  }
  }
 }
