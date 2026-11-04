@@ -37,6 +37,7 @@ func wait_until(cond: Callable, max_frames: int) -> bool:
 		if cond.call():
 			return true
 		await process_frame
+		_physics_watch()                          # the follow check keeps sampling every frame while waiting
 	return cond.call()
 
 

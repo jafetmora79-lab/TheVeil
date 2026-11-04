@@ -166,7 +166,11 @@ func _setup_house() -> void:
 			if d == null or d.get_node_or_null("Interact"):
 				continue
 			var key := "c5/%s/%s" % [h.name, n]
-			var it := Interactable.attach(d, {"kind": "hinge", "label": world._label_for(n), "open_deg": float(e.get("open_deg", 90.0)),
+			var deg := float(e.get("open_deg", 90.0))
+			var into := _door_room_center(h, n)        # swing into the smaller room (bath, bedroom, hall) / inward at the front
+			if into != null:
+				deg = world._toward_deg(d, deg, h.global_transform * (into as Vector3))
+			var it := Interactable.attach(d, {"kind": "hinge", "label": world._label_for(n), "open_deg": deg,
 				"hinge_axis": Vector3.UP, "state_key": key})
 			its[key] = it
 	its["search_kitchen"] = _spot("C5_SearchKitchen", house, KITCHEN_SPOT[0], KITCHEN_SPOT[1], "", func(_b): _search("food"))
@@ -203,6 +207,22 @@ func _setup_house() -> void:
 	var c := Vector3((rect[0].x + rect[1].x) * 0.5, 1.8, (rect[0].y + rect[1].y) * 0.5)
 	world._area("C5_HouseInside", hl(c), Vector3(rect[1].x - rect[0].x, 2.4, rect[1].y - rect[0].y), 2,
 		func(b): if b == player: _entered_house(), house.global_transform.basis)
+
+
+## Pack 03 house metadata: centre (house-local) of the room a door should open into, or null.
+func _door_room_center(h: Node3D, door: String):
+	var info: Dictionary = h.get_meta("veil_house", {})
+	var rooms := {}
+	for r in info.get("rooms", []):
+		var rc: Array = r["rect"]
+		rooms[r["id"]] = Vector3((rc[0] + rc[2]) * 0.5, float(r.get("floor_y", 0.6)) + 1.0, (rc[1] + rc[3]) * 0.5)
+	for dd in info.get("doors", []):
+		if dd.get("name", "") != door:
+			continue
+		var pair: Array = dd.get("rooms", [])
+		var want := String(pair[1]) if pair.size() > 1 and pair[0] == "OUT" else String(pair[0]) if pair.size() > 0 else ""
+		return rooms.get(want)
+	return null
 
 
 func _setup_survivor() -> void:
@@ -351,6 +371,7 @@ func _head_out(_b: Node) -> void:
 	if hud.inv_panel.visible:
 		hud.toggle_inventory()
 	its["exit"].prompt_text = ""
+	_set_doors(true)                              # pulled open first, so nobody walks into a moving door
 	var a: Node = world.animators["Eddie"]
 	a.walk_to([Vector3(1.5, 0.04, 4.3)], 1.5)       # by the right-hand opening of the vestibule wall
 	Dialogue.say("c5_eddie_exit", false, true)
@@ -475,12 +496,14 @@ func _process(delta: float) -> void:
 	var el := market.to_local(eddie.global_position)
 	var following := String(st().get("eddie", "")) == "following"
 	# the front doors (unpowered since Chapter 3) are pulled open while someone is at them, shut when all are clear
-	if not Game.has_flag("c5_returned"):
-		var near := _near_doors(pl) or _near_doors(el)
-		if String(st().get("survivor", "")) == "following":
-			near = near or _near_doors(market.to_local(survivor.global_position))
-		if near != _doors_open and (_near_doors(pl) or not near):
-			_set_doors(near)
+	var near := _near_doors(pl) or _near_doors(el)
+	if survivor.visible:
+		near = near or _near_doors(market.to_local(survivor.global_position))
+	if Game.has_flag("c5_returned"):
+		if _doors_open and not near:
+			_set_doors(false)                         # home: pulled shut once everyone is clear of them
+	elif near != _doors_open and (_near_doors(pl) or not near):
+		_set_doors(near)
 	if following and not Game.has_flag("c5_street_said") and _away_from_store(pl, 10.0) and not Dialogue.is_busy():
 		Game.set_flag("c5_street_said")
 		Dialogue.say("c5_street", false, true)
@@ -582,7 +605,7 @@ func _set_doors(open: bool) -> void:
 		if open:
 			t = Transform3D(t.basis, t.origin + t.basis * d[2])
 		var tw := create_tween().set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
-		tw.tween_property(leaf, "transform", t, 1.4)
+		tw.tween_property(leaf, "transform", t, 0.8)
 	Sfx.play("door_open" if open else "door_close", ml(Vector3(0, 1.2, 0.2)), -4.0, 0.7)
 
 
