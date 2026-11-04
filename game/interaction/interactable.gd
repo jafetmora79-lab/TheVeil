@@ -70,9 +70,12 @@ func interact(by: Node) -> void:
 	match kind:
 		"hinge", "slide":
 			set_open(not is_open)
+			Sfx.play("door_open" if is_open else "door_close", global_position, -4.0 if kind == "slide" else 0.0,
+				1.3 if label in ["Drawer", "Cabinet"] else 1.0)
 		"pickup":
 			Game.add_item(item_id)
 			_take(false)
+			Sfx.play("pickup", global_position)
 		"toggle":
 			if light_node:
 				light_node.visible = not light_node.visible

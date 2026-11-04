@@ -51,6 +51,10 @@ func _ready() -> void:
 	_setup_triggers()
 	_apply_view_ranges()
 	Game.flag_set.connect(_on_flag)
+	Sfx.start_ambience()
+	print("[World] ready: houses=%d interactables=%d" % [get_node("Residential/Houses").get_child_count(), interactables.size()])
+	if OS.has_feature("web") and str(JavaScriptBridge.eval("window.location.search")).contains("autotest"):
+		_web_autotest.call_deferred()
 	if Game.load_requested and _restore():
 		await get_tree().process_frame
 		hud.fade_to(0.0, 0.8)
@@ -200,7 +204,17 @@ func _stock_fridge() -> void:
 	fridge.add_child(water)
 
 
+var _hum: AudioStreamPlayer3D
+
+
 func _on_fridge(_by: Node) -> void:
+	var fridge := home.find_child("Fridge_Retro_01", true, false) as Node3D
+	var fr_it: Interactable = interactables.values().filter(func(i): return i.label == "Refrigerator")[0]
+	if fr_it.is_open and _hum == null:
+		_hum = Sfx.loop_at(fridge, "fridge_hum", -14.0)
+	elif not fr_it.is_open and _hum:
+		_hum.queue_free()
+		_hum = null
 	if not Game.has_flag("fridge_checked"):
 		Dialogue.say("fridge_empty", false, true)
 		Game.set_flag("fridge_checked")
@@ -319,6 +333,11 @@ func exit_car() -> void:
 func _unhandled_input(e: InputEvent) -> void:
 	if in_car and e.is_action_pressed("interact"):
 		exit_car()
+	elif e is InputEventKey and e.pressed and e.physical_keycode == KEY_F10:
+		# developer aid: state to the console / browser console
+		var p := sedan.global_position if in_car else player.global_position
+		print("[Debug] pos=%s in_car=%s speed=%.1f step=%s inv=%s" % [p, in_car, sedan.speed * 3.6,
+			Game.current_step().get("id", "done"), Game.inventory])
 
 
 # ------------------------------------------------------------------ save / restore
@@ -351,7 +370,36 @@ func _restore() -> bool:
 	return true
 
 
+## Opt-in browser check (play/?autotest): runs the story interactions inside the exported build and logs results.
+func _web_autotest() -> void:
+	await get_tree().create_timer(12.0).timeout
+	var fr: Interactable = interactables.values().filter(func(i): return i.label == "Refrigerator")[0]
+	fr.interact(player)
+	await get_tree().create_timer(1.0).timeout
+	var keys: Interactable = interactables.values().filter(func(i): return i.kind == "pickup")[0]
+	keys.interact(player)
+	interactables["home/INT_Door_Front"].interact(player)
+	await get_tree().create_timer(1.0).timeout
+	player.global_position = get_node("Trigger_LeftHouse").global_position + Vector3(0, -0.6, 0)
+	await get_tree().create_timer(1.0).timeout
+	player.global_position = sedan.global_transform * Vector3(-1.6, 0.1, -0.3)
+	await get_tree().create_timer(0.5).timeout
+	enter_car()
+	await get_tree().create_timer(1.5).timeout
+	var p0 := sedan.global_position
+	sedan.autopilot = func(_d): return Vector3(1.0, 0.0, 0.0)
+	await get_tree().create_timer(3.0).timeout
+	sedan.autopilot = func(_d): return Vector3(0.0, 1.0, 0.0)
+	await get_tree().create_timer(2.0).timeout
+	sedan.autopilot = Callable()
+	save()
+	print("[Autotest] fridge_open=%s fridge_flag=%s keys=%s front_door=%s left_house=%s in_car=%s moved=%.1fm step=%s saved=%s" % [
+		fr.is_open, Game.has_flag("fridge_checked"), Game.has_item("car_keys"), interactables["home/INT_Door_Front"].is_open,
+		Game.has_flag("left_house"), in_car, sedan.global_position.distance_to(p0), Game.current_step().get("id", ""), Game.has_save()])
+
+
 func _to_menu() -> void:
 	get_tree().paused = false
 	Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
+	Sfx.stop_ambience()
 	get_tree().change_scene_to_file("res://game/scenes/MainMenu.tscn")

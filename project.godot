@@ -16,6 +16,7 @@ boot_splash/show_image=false
 
 Game="*res://game/autoload/game_state.gd"
 Dialogue="*res://game/autoload/dialogue.gd"
+Sfx="*res://game/autoload/sfx.gd"
 
 [display]
 
@@ -36,3 +37,7 @@ renderer/rendering_method.mobile="gl_compatibility"
 textures/vram_compression/import_etc2_astc=true
 environment/defaults/default_clear_color=Color(0.039, 0.043, 0.055, 1)
 anti_aliasing/quality/msaa_3d=0
+
+[audio]
+
+general/default_playback_type.web=0
