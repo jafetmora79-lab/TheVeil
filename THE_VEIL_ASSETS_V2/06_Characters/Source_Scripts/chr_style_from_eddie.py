@@ -30,7 +30,7 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 CHR = os.path.normpath(os.path.join(HERE, ".."))
 V2 = os.path.dirname(CHR)
 REF = os.path.join(CHR, "Commercial_NPCs", "CHR_Eddie.glb")
-OUT = os.path.join(CHR, "Marcus", "CHR_Marcus_v4.glb")
+OUT = os.path.join(CHR, "Marcus", "CHR_Marcus.glb")              # approved: the official Marcus
 HEIGHT = 1.76
 
 

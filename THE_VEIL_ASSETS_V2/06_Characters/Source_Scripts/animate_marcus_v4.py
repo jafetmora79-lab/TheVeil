@@ -38,7 +38,9 @@ def scared_face(raw):
     return png(a)
 
 def build(scared=False):
-    g=GLB(os.path.join(CHR,'Marcus','CHR_Marcus_v4.glb'))
+    source=os.path.join(CHR,'Marcus','CHR_Marcus_v4.glb')
+    if not os.path.exists(source): source=os.path.join(CHR,'Marcus','CHR_Marcus.glb')
+    g=GLB(source)
     js=g.js; nodes=js['nodes']; G,parents=node_globals(js)
     names={n.get('name'):i for i,n in enumerate(nodes)}
     rest={}

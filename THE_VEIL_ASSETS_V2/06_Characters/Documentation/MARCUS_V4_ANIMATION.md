@@ -2,7 +2,7 @@
 
 - `Marcus/CHR_Marcus_v4_Run.glb`: original worried face, looping in-place run (`Run`).
 - `Marcus/CHR_Marcus_v4_Scared_Run.glb`: same run with a scared pixel face (`Run_Scared`).
-- Original `CHR_Marcus_v4.glb` is preserved. Geometry, materials, rig and skin weights are unchanged. Only the scared variant changes the embedded head texture.
+- The v4 source was promoted upstream to `CHR_Marcus.glb`; that asset is preserved. The builder accepts either source filename. Geometry, materials, rig and skin weights are unchanged. Only the scared variant changes the embedded head texture.
 - 0.72-second cycle, 25 samples, 20 rotation tracks and hip translation. No root travel; move the character controller separately. Enable looping in Godot AnimationPlayer; glTF itself does not standardize playback looping. These are authored clips, not motion capture.
 - Scared face retains the 128x64 UV layout, palette, stubble and nose, with wide eyes, raised inner brows and a small open mouth. This is a static texture expression, not a facial rig.
 - Gallery: choose either variant under Pack 06. Playback starts automatically; the docs gallery has animation selection and Play/Pause controls.
