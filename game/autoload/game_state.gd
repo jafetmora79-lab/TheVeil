@@ -93,6 +93,7 @@ func set_flag(f: String) -> void:
 	if has_flag(f):
 		return
 	flags[f] = true
+	print("[Game] flag ", f)
 	flag_set.emit(f)
 	_emit_objective()
 

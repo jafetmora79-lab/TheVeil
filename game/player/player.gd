@@ -32,6 +32,7 @@ var _bob_t := 0.0
 var _eye := EYE
 var _focus: Node = null
 var _prompt := ""
+var _last_step := 0
 
 
 func _ready() -> void:
@@ -124,6 +125,9 @@ func _physics_process(delta: float) -> void:
 		_bob_t += delta * hv.length() * 2.3
 	else:
 		_bob_t = lerpf(_bob_t, roundf(_bob_t / PI) * PI, delta * 6.0)
+	if moving and int(_bob_t / PI) != _last_step:
+		_last_step = int(_bob_t / PI)
+		Sfx.play("step_soft" if crouching else "step", global_position, -10.0 if crouching else -6.0, randf_range(0.9, 1.1))
 	var amp := 0.028 if sprinting else 0.016
 	head.position.y = _eye + sin(_bob_t * 2.0) * amp
 	head.position.x = cos(_bob_t) * amp * 0.6

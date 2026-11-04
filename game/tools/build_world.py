@@ -461,6 +461,16 @@ def main():
     with open(os.path.join(WORLD, "scatter.json"), "w", newline="\n") as f:
         json.dump({"models": scat_models, "items": scat, "y": LOT_Y}, f, separators=(",", ":"))
     write_core_tscn()
+    # export helper: a scene that references every scatter model, so the web export follows their dependencies
+    lines = [f"[gd_scene load_steps={len(scat_models) + 1} format=3]", ""]
+    for k, (m, path) in enumerate(scat_models.items()):
+        lines.append(f'[ext_resource type="PackedScene" path="{path}" id="{k + 1}_{m}"]')
+    lines += ["", '[node name="ScatterModels" type="Node3D"]',
+              'metadata/note = "Not instanced in the game: lists the MultiMesh scatter models for the exporter"', ""]
+    for k, m in enumerate(scat_models):
+        lines += [f'[node name="{m}" parent="." instance=ExtResource("{k + 1}_{m}")]', ""]
+    with open(os.path.join(WORLD, "ScatterModels.tscn"), "w", newline="\n") as f:
+        f.write("\n".join(lines))
     # ---- houses: re-fit every lot (core assignment unchanged; HOUSE_14 = Ranch B; subdivision designs cycled)
     assign = dict(placement.ASSIGN)
     assign.pop("PLAYER_HOME")

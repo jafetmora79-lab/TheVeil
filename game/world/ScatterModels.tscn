@@ -1,0 +1,47 @@
+[gd_scene load_steps=15 format=3]
+
+[ext_resource type="PackedScene" path="res://THE_VEIL_ASSETS_V2/02_Town/Vegetation/VG_DeadVegetation.glb" id="1_VG_DeadVegetation"]
+[ext_resource type="PackedScene" path="res://THE_VEIL_ASSETS_V2/02_Town/Vegetation/VG_DirtMound.glb" id="2_VG_DirtMound"]
+[ext_resource type="PackedScene" path="res://THE_VEIL_ASSETS_V2/02_Town/Vegetation/VG_FallenBranch.glb" id="3_VG_FallenBranch"]
+[ext_resource type="PackedScene" path="res://THE_VEIL_ASSETS_V2/02_Town/Vegetation/VG_FallenLeaves.glb" id="4_VG_FallenLeaves"]
+[ext_resource type="PackedScene" path="res://THE_VEIL_ASSETS_V2/02_Town/Vegetation/VG_MudPatch.glb" id="5_VG_MudPatch"]
+[ext_resource type="PackedScene" path="res://THE_VEIL_ASSETS_V2/02_Town/Vegetation/VG_RocksSmall.glb" id="6_VG_RocksSmall"]
+[ext_resource type="PackedScene" path="res://THE_VEIL_ASSETS_V2/02_Town/Vegetation/VG_TallGrassClump.glb" id="7_VG_TallGrassClump"]
+[ext_resource type="PackedScene" path="res://THE_VEIL_ASSETS_V2/02_Town/Vegetation/VG_TreeStump.glb" id="8_VG_TreeStump"]
+[ext_resource type="PackedScene" path="res://THE_VEIL_ASSETS_V2/02_Town/Vegetation/VG_Tree_Dead.glb" id="9_VG_Tree_Dead"]
+[ext_resource type="PackedScene" path="res://THE_VEIL_ASSETS_V2/02_Town/Vegetation/VG_Tree_DeciduousLarge.glb" id="10_VG_Tree_DeciduousLarge"]
+[ext_resource type="PackedScene" path="res://THE_VEIL_ASSETS_V2/02_Town/Vegetation/VG_Tree_DeciduousSmall.glb" id="11_VG_Tree_DeciduousSmall"]
+[ext_resource type="PackedScene" path="res://THE_VEIL_ASSETS_V2/02_Town/Vegetation/VG_Tree_Overgrown.glb" id="12_VG_Tree_Overgrown"]
+[ext_resource type="PackedScene" path="res://THE_VEIL_ASSETS_V2/02_Town/Vegetation/VG_Tree_Pine.glb" id="13_VG_Tree_Pine"]
+[ext_resource type="PackedScene" path="res://THE_VEIL_ASSETS_V2/02_Town/Vegetation/VG_Weeds.glb" id="14_VG_Weeds"]
+
+[node name="ScatterModels" type="Node3D"]
+metadata/note = "Not instanced in the game: lists the MultiMesh scatter models for the exporter"
+
+[node name="VG_DeadVegetation" parent="." instance=ExtResource("1_VG_DeadVegetation")]
+
+[node name="VG_DirtMound" parent="." instance=ExtResource("2_VG_DirtMound")]
+
+[node name="VG_FallenBranch" parent="." instance=ExtResource("3_VG_FallenBranch")]
+
+[node name="VG_FallenLeaves" parent="." instance=ExtResource("4_VG_FallenLeaves")]
+
+[node name="VG_MudPatch" parent="." instance=ExtResource("5_VG_MudPatch")]
+
+[node name="VG_RocksSmall" parent="." instance=ExtResource("6_VG_RocksSmall")]
+
+[node name="VG_TallGrassClump" parent="." instance=ExtResource("7_VG_TallGrassClump")]
+
+[node name="VG_TreeStump" parent="." instance=ExtResource("8_VG_TreeStump")]
+
+[node name="VG_Tree_Dead" parent="." instance=ExtResource("9_VG_Tree_Dead")]
+
+[node name="VG_Tree_DeciduousLarge" parent="." instance=ExtResource("10_VG_Tree_DeciduousLarge")]
+
+[node name="VG_Tree_DeciduousSmall" parent="." instance=ExtResource("11_VG_Tree_DeciduousSmall")]
+
+[node name="VG_Tree_Overgrown" parent="." instance=ExtResource("12_VG_Tree_Overgrown")]
+
+[node name="VG_Tree_Pine" parent="." instance=ExtResource("13_VG_Tree_Pine")]
+
+[node name="VG_Weeds" parent="." instance=ExtResource("14_VG_Weeds")]
