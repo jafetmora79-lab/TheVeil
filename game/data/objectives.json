@@ -228,7 +228,7 @@
   },
   {
    "id": "c6_voice",
-   "flag": "ch6_voice_choice_made",
+   "flag": "ch6_voice_resolved",
    "goal": "act2_voices",
    "text": "Investigate the distant voice"
   },
