@@ -217,6 +217,7 @@ func _setup_house() -> void:
 			deg = world._toward_deg(fd, deg, shouse.global_transform * (into as Vector3))
 		var dit := Interactable.attach(fd, {"kind": "hinge", "label": "Front Door", "open_deg": deg, "hinge_axis": Vector3.UP,
 			"state_key": "c5/%s/INT_Door_Front" % SURVIVOR_HOUSE})
+		its["c5/%s/INT_Door_Front" % SURVIVOR_HOUSE] = dit
 		# a normal front door now (the player can open it and walk into the ground floor). Only the stairwell is
 		# closed off: the flight up and the basement flight beneath it share the foyer strip x 0.17-1.12, z 4.6-9.2
 		var block := StaticBody3D.new()

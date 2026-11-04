@@ -229,7 +229,7 @@ func _run() -> void:
 	var inv0: Array = game.inventory.duplicate()
 	var spares0: int = p4.flashlight.spares if p4.flashlight else -1
 	# ---- scene 1: talk to both
-	ok("c5_cant_leave_yet", c5.its["exit"].prompt_text == "")
+	ok("c5_cant_leave_yet", c5.its["exit"].prompt_text.begins_with("NOT YET"), c5.its["exit"].prompt_text)
 	ok("c5_eddie_reach", await aim(c5.its["npc_Eddie"], [Z, -Z, X, -X], mk, 1.4))
 	c5.its["npc_Eddie"].interact(world.player)
 	ok("c5_eddie_talk", await wait_talk(func(): return game.has_flag("c5_eddie_talked")))
