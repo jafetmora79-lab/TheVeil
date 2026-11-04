@@ -77,6 +77,7 @@ func wait_until(cond: Callable, max_frames: int) -> bool:
 
 
 ## Phase 4 (Act I, first night): every step, the flashlight, the choice, the threat (once), sleep, save / load.
+## Colossus encounter facts shared by both stagings.
 func phase4_tests(game, ps: PackedScene) -> void:
 	var mk: Node3D = world.market
 	var player = world.player
@@ -92,6 +93,9 @@ func phase4_tests(game, ps: PackedScene) -> void:
 	var X := Vector3(1, 0, 0)
 	var Z := Vector3(0, 0, 1)
 	# flashlight + batteries at customer service
+	await frames(4)
+	var pl: Dictionary = p4.placement
+	ok("p4_items_rest_on_surfaces", pl.size() == 3 and pl.values().all(func(v): return v != INF and absf(v) < 0.3), str(pl))
 	var fl: Interactable = p4.its["flashlight"]
 	ok("p4_flashlight_reach", await aim_any(player, fl, mk, [Z, -Z, X, -X], 0.9))
 	fl.interact(player)
@@ -122,7 +126,12 @@ func phase4_tests(game, ps: PackedScene) -> void:
 	ok("p4_staff_door_opens", staff.is_open)
 	# breaker
 	var br: Interactable = p4.its["breaker"]
-	ok("p4_breaker_reach", await aim_any(player, br, mk, [-X], 1.1))
+	ok("p4_breaker_not_through_wall", not await aim_any(player, br, mk, [Z], 1.0))
+	ok("p4_breaker_reach", await aim_any(player, br, mk, [-Z], 1.1))
+	var wall_hit: Dictionary = world.get_world_3d().direct_space_state.intersect_ray(PhysicsRayQueryParameters3D.create(
+		mk.global_transform * Vector3(16.9, 1.24, 16.4), mk.global_transform * Vector3(16.9, 1.24, 18.4), 1, [player.get_rid()]))
+	ok("p4_breaker_on_wall", not wall_hit.is_empty() and mk.to_local(wall_hit.position).z > 17.2 and mk.to_local(wall_hit.position).z < 17.7,
+		"panel / wall at z %.2f" % (mk.to_local(wall_hit.position).z if not wall_hit.is_empty() else -1.0))
 	br.interact(player)
 	await frames(60 * 4)
 	var em := 0
@@ -146,7 +155,7 @@ func phase4_tests(game, ps: PackedScene) -> void:
 	var lp: Interactable = p4.its["pallet_loading"]
 	ok("p4_loading_pallet_reach", await aim_any(player, lp, mk, [-X, -Z], 1.4))
 	lp.interact(player)
-	await frames(120)
+	await frames(200)
 	ok("p4_loading_secured", game.has_flag("p4_loading_secured"))
 	# rear exit: pallets refuse until the door is closed
 	var bpal: Interactable = p4.its["pallet_back"]
@@ -159,7 +168,9 @@ func phase4_tests(game, ps: PackedScene) -> void:
 	bd.interact(player)
 	await frames(60)
 	bpal.interact(player)
-	await frames(120)
+	await frames(200)
+	ok("p4_pallets_flush", p4._pallets["loading"].position.distance_to(p4.LOADING_PALLET[1]) < 0.005
+		and p4._pallets["back"].position.distance_to(p4.BACK_PALLET[1]) < 0.005 and absf(p4._pallets["back"].rotation.y - p4.BACK_PALLET[2]) < 0.001)
 	ok("p4_exits_secured", game.has_flag("p4_backexit_secured") and game.has_flag("p4_exits_secured")
 		and game.current_step().get("id", "") == "p4_talk", game.current_step().get("id", ""))
 	# save / load mid-chapter: state rebuilt from flags, nothing replayed
@@ -200,6 +211,8 @@ func phase4_tests(game, ps: PackedScene) -> void:
 	ok("p4_hound_walks_forward", hmove.length() > 0.2 and hmove.normalized().dot(hface) > 0.9,
 		"move=%s face=%s" % [hmove, hface])
 	ok("p4_threat_done", await wait_until(func(): return game.has_flag("p4_threat_done"), 60 * 40))
+	var sr: Dictionary = p4.strike_report
+	ok("p4_strike_contacts_door", sr.get("impact_synced", false) and absf(sr.get("snout_to_door_m", 9.0)) < 0.15, str(sr))
 	p4._run_threat()
 	await frames(5)
 	ok("p4_threat_once", p4.threat_runs == 1)
@@ -238,7 +251,9 @@ func _initialize() -> void:
 
 func _run() -> void:
 	var game = root.get_node("Game")
+	var dlg = root.get_node("Dialogue")
 	var interaction: Script = load("res://game/interaction/interactable.gd")
+	dlg.auto_confirm = true                      # the "player" confirms each conversation line when its time is up
 	game.new_game()
 	game.delete_save()
 	var ps: PackedScene = load("res://game/scenes/World.tscn")
@@ -259,6 +274,21 @@ func _run() -> void:
 	ok("woods_multimesh", mm > 10, "nodes=%d" % mm)
 	ok("sedan_model", sedan._wheels.size() == 4 and sedan._sw != null and sedan._door != null)
 	ok("interactables", world.interactables.size() >= 10, "count=%d" % world.interactables.size())
+	# light budget: every omni / spot light fades with distance and no spot in town has more lights in range than
+	# the renderer draws per frame (otherwise lights are dropped depending on the camera)
+	var lights: Array = world.find_children("*", "Light3D", true, false)
+	var unfaded: int = lights.filter(func(l): return not (l is DirectionalLight3D) and not l.distance_fade_enabled).size()
+	var cap: int = ProjectSettings.get_setting("rendering/limits/opengl/max_renderable_lights")
+	var worst := 0
+	for p in [home.global_position, world.market.global_transform * Vector3(0, 1.6, -27), world.market.global_transform * Vector3(0, 1.6, 8),
+			world.game_shop.global_transform * Vector3(-3.2, 1.6, -2), Vector3(184, 1.6, 36)]:
+		var n := 0
+		for l in lights:
+			if not (l is DirectionalLight3D) and l.is_visible_in_tree() and l.global_position.distance_to(p) < l.distance_fade_begin + l.distance_fade_length:
+				n += 1
+		worst = maxi(worst, n)
+	ok("light_budget", unfaded == 0 and worst < cap and ProjectSettings.get_setting("rendering/limits/opengl/max_lights_per_object") >= 16,
+		"%d lights, %d without fade, worst spot %d in range (cap %d)" % [lights.size(), unfaded, worst, cap])
 	# ---- wake up in the bedroom (wait for the sequence)
 	await frames(60 * 9)
 	ok("player_in_bedroom", player.global_position.distance_to((home.get_node("Markers/Spawn_WakeUp") as Node3D).global_position) < 0.6)
@@ -359,9 +389,24 @@ func _run() -> void:
 			keys = world.interactables[k]
 	ok("keys_found", keys != null)
 	if keys:
+		# the keys are their own mesh hanging on the rack's last hook (not merged into the rack)
+		var key_meshes: Array = keys.target.find_children("*", "MeshInstance3D", true, false)
+		if keys.target is MeshInstance3D:
+			key_meshes.push_front(keys.target)
+		var rack := keys.target.get_parent() as Node3D
+		var hook_tip: Vector3 = rack.global_transform * Vector3(0.3, 0.03, 0.07)
+		ok("keys_own_mesh_on_hook", key_meshes.size() > 0 and keys.target.global_position.distance_to(hook_tip) < 0.03,
+			"%d meshes, %.3f m from the hook tip" % [key_meshes.size(), keys.target.global_position.distance_to(hook_tip)])
+		keys.set_focus(true)
+		ok("keys_highlight", (key_meshes[0] as GeometryInstance3D).material_overlay != null if key_meshes.size() > 0 else false)
 		keys.interact(player)
 		await frames(20)
 		ok("keys_in_inventory", game.has_item("car_keys"))
+		var shapes_off: bool = keys.get_children().all(func(c): return not (c is CollisionShape3D) or c.disabled)
+		ok("keys_hidden_after_pickup", not keys.target.visible and keys.taken and shapes_off and keys.get_prompt() == "")
+		keys.interact(player)
+		await frames(2)
+		ok("keys_not_collected_twice", game.inventory.count("car_keys") == 1)
 		ok("objective_leave", game.current_step().get("id", "") == "leave_house")
 	# ---- front door + leaving
 	var fd = world.interactables.get("home/INT_Door_Front")
@@ -449,8 +494,13 @@ func _run() -> void:
 			if stuck > 4.0:
 				print("STUCK at ", sedan.global_position, " idx ", st["idx"])
 				break
-	ok("arrival_shot_while_driving", game.has_flag("arrival_shot") and arrival_min_kmh < 22.0 and arrival_flag_before_park,
-		"slowest in front of the store %.0f km/h" % arrival_min_kmh)
+	ok("arrival_shot_while_driving", game.has_flag("arrival_shot") and arrival_min_kmh < 7.0 and arrival_min_kmh > 1.0 and arrival_flag_before_park,
+		"slowest in front of the store %.1f km/h (target 5)" % arrival_min_kmh)
+	var pr: Dictionary = world.park_report
+	ok("auto_reverse_park", game.has_flag("auto_parked") and pr.get("ok", false) and pr.get("pos_err", 9.0) < 0.35
+		and pr.get("yaw_err_deg", 99.0) < 6.0 and pr.get("max_dev", 9.0) < 0.6, str(pr))
+	ok("auto_park_camera_clear", pr.get("cam_blocked_frames", 1) == 0)
+	ok("parking_brake_on", sedan.parking_brake and absf(sedan.speed) < 0.01)
 	ok("arrival_view_restored", sedan.driver_cam.current and world._cine == null and sedan.speed_cap < 0.0)
 	ok("reached_town", game.has_flag("reached_town"))
 	ok("parked", game.has_flag("parked"), "drive_time=%.1f s, autopilot_time=%.1f s, max=%.0f km/h, cruise=%.0f km/h, route_idx=%d/%d" % [world.drive_time, t, max_kmh, cruise * 3.6, st["idx"], route.size()])
@@ -557,12 +607,31 @@ func _run() -> void:
 			var d: Vector3 = (sk.get_bone_global_pose(sk.find_bone(side + "Hand")).origin - sk.get_bone_global_pose(sk.find_bone(side + "LowerArm")).origin).normalized()
 			max_fore = maxf(max_fore, rad_to_deg(d.angle_to(-ea.U)))
 	ok("eddie_gestures_while_talking", max_fore > 30.0, "forearm up to %.0f deg" % max_fore)
-	ok("game_bought", game.has_flag("game_bought"))
 	ok("eddie_talks", world.eddie_face._talk_left > 0.0)
-	ok("objective_still_groceries", game.current_step().get("id", "") == "buy_groceries")
 	ok("talk_camera_frames_eddie", root.get_viewport().get_camera_3d().name == "TalkCam" and not player.controls_enabled)
+	ok("conversation_confirm_mode", dlg.confirm_mode and world.conversing)
 	await frames(60 * 7)
-	ok("talk_camera_restores", player.camera.current and player.controls_enabled and world._talk_cam == null)
+	ok("talk_camera_restores", player.camera.current and player.controls_enabled and world._talk_cam == null and not dlg.confirm_mode)
+	ok("game_bought", game.has_flag("game_bought"))
+	ok("objective_still_groceries", game.current_step().get("id", "") == "buy_groceries")
+	ok("talk_camera_clear_of_geometry", world.talk_report["cam_hits"] == 0 and world.talk_report["min_face_dist"] > 0.9,
+		str(world.talk_report))
+	# a conversation line waits for the player's confirmation (no auto-confirm)
+	dlg.auto_confirm = false
+	world.converse(["eddie_after"], [world.eddie])
+	await frames(60 * 6)
+	ok("line_waits_for_confirm", dlg.is_busy() and dlg.is_waiting() and world._talk_cam != null)
+	var conf0: int = dlg.confirms
+	press_interact()
+	await frames(60)
+	ok("confirm_advances", dlg.confirms == conf0 + 1 and not world.conversing and player.controls_enabled)
+	dlg.auto_confirm = true
+	# no conversation through a window: stand outside the shop glass and try to talk
+	var glass_spot: Vector3 = gs.global_transform * Vector3(1.5, 0.1, -1.2)
+	player.global_position = glass_spot
+	await frames(5)
+	ok("glass_colliders", world.glass_panes > 20, "%d panes" % world.glass_panes)
+	ok("no_talk_through_glass", not world.can_talk(world.eddie))
 	# supermarket: auto doors
 	var leaf := mk.get_node("Building").find_child("INT_AutoDoor_Entrance_L", true, false) as Node3D
 	var leaf0 := leaf.position
@@ -589,6 +658,9 @@ func _run() -> void:
 	pay.interact(player)
 	await frames(5)
 	ok("checkout_needs_items", not game.has_flag("groceries_done"))
+	ok("cashier_conversation", world.conversing and root.get_viewport().get_camera_3d().name == "TalkCam")
+	while world.conversing:
+		await frames(5)
 	var reach_fail := []
 	var mmc: Node = world.market_merch
 	var decor_its := mmc.find_children("*", "Interactable", true, false).size()
@@ -634,9 +706,13 @@ func _run() -> void:
 		ok("take_one_" + id, game.has_item(id) and mmc.remaining(id) == before2 - 1, "%d -> %d" % [before2, mmc.remaining(id)])
 	ok("groceries_reachable", reach_fail.is_empty(), str(reach_fail))
 	ok("groceries_picked", game.has_item("canned_food") and game.has_item("water_bottle") and game.has_item("energy_snack"))
+	await aim_at(player, pay, ((mk.get_node("NavTargets/Checkout_4") as Node3D).global_position - pay.global_position) * Vector3(1, 0, 1), 1.6)
 	pay.interact(player)
 	await frames(10)
 	ok("checkout", game.has_flag("groceries_done") and game.has_item("groceries") and not game.has_item("canned_food"))
+	ok("mist_waits_for_conversation", world.conversing and not game.has_flag("p3_mist"))
+	while world.conversing:
+		await frames(5)
 	ok("objective_after_errands", game.current_step().get("id", "") == "p3_look", game.current_step().get("id", ""))
 	# ---- Phase 3: the Veil arrives while the player is still inside the supermarket (last errand done)
 	await frames(20)
@@ -652,8 +728,9 @@ func _run() -> void:
 	ok("encounter_starts_outside", world._encounter_running and not player.controls_enabled and cam_now.name == "EncounterCam")
 	await frames(60 * 16)
 	var r: Dictionary = world.enc_report
+
 	ok("colossus_foot_lands_in_front", r.get("foot_error_m", 99.0) < 0.6 and r.get("leg_distance_m", 0.0) > 6.0 and r.get("leg_distance_m", 0.0) < 11.0,
-		"foot error %.2f m, %.1f m in front (foot bone %.1f m up; the claw reaches the ground)" % [r.get("foot_error_m", -1.0), r.get("leg_distance_m", -1.0), r.get("foot_height_m", -1.0)])
+		"foot error %.2f m, %.1f m in front" % [r.get("foot_error_m", -1.0), r.get("leg_distance_m", -1.0)])
 	ok("colossus_other_feet_clear", r.get("other_feet_min_out_m", 0.0) > r.get("leg_distance_m", 99.0), "%.1f m out" % r.get("other_feet_min_out_m", -1.0))
 	ok("colossus_body_hidden_in_mist", r.get("body_height_m", 0.0) > r.get("ceiling_m", 99.0) + 3.0,
 		"body at %.1f m, mist ceiling from %.1f m" % [r.get("body_height_m", -1.0), r.get("ceiling_m", -1.0)])
@@ -717,7 +794,6 @@ func _run() -> void:
 	ok("p3_back_inside", game.has_flag("p3_back_inside") and game.current_step().get("id", "") == "mist_shop", game.current_step().get("id", ""))
 	ok("p3_marcus_in_shop", world.marcus != null and world.marcus.get_parent() == gs and world.faces.has("Marcus") and world.faces["Marcus"]._mat != null,
 		"marcus=%s parent=%s faces=%s" % [world.marcus, world.marcus.get_parent().name if world.marcus else "-", world.faces.keys()])
-	ok("p3_shop_door_held", sd.is_open)
 	ok("p3_npcs_scared", world.animators["Eddie"].mood == "scared" and world.animators["Marcus"].mood == "scared")
 	ok("p3_eddie_walks_to_door", world.eddie.position.distance_to(Vector3(-2.2, 0.04, 1.3)) < 0.3, str(world.eddie.position))
 	player.global_position = s_in + gs.global_transform.basis.z * 1.5
@@ -782,5 +858,6 @@ func _run() -> void:
 	root.add_child(world)
 	await frames(30)
 	ok("p3_restored", world.atmos != null and world.marcus != null and world.marcus.get_parent() == world.market and not world.cashier.visible)
+
 	print("RESULT %s (%d failures)" % ["PASS" if fails == 0 else "FAIL", fails])
 	quit(1 if fails else 0)

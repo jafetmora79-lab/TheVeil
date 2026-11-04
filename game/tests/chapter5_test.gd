@@ -427,7 +427,7 @@ func _run() -> void:
 	ok("c5_complete_card", world.hud.title.text.begins_with("CHAPTER 5 COMPLETE"), world.hud.title.text)
 	await frames(3)
 	ok("c5_marker_cleared", c5.marker_target == null and not world.hud.marker_visible)
-	ok("c5_no_chapter6", not game.has_flag("c6_started") and game.current_step().get("id", "") == "c5_complete")
+	ok("c5_no_chapter6", not game.has_flag("ch6_started") and game.current_step().get("id", "") == "c5_complete")
 	ok("c5_sleep_available", p4.rest.interactable.prompt_text == "[E] Sleep")
 	await reload()
 	ok("c5_load_complete", game.has_flag("c5_complete") and c5.eddie.get_parent() == world.market

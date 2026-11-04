@@ -948,7 +948,7 @@
    "category": "Furniture/decor",
    "glb": "03_Residential/Furniture/RES_CoatRack_Wall.glb",
    "obj": "03_Residential/Furniture/OBJ/RES_CoatRack_Wall.obj",
-   "triangles": 98,
+   "triangles": 122,
    "collision_triangles": 0,
    "collision": [
     "none"
@@ -7148,7 +7148,7 @@
    "category": "House_Furnishing",
    "glb": "03_Residential/House_Variants/RES_House_TwoStorey_Furnishing.glb",
    "obj": null,
-   "triangles": 7111,
+   "triangles": 7135,
    "collision_triangles": 504,
    "collision": [
     "colonly"
@@ -8706,7 +8706,7 @@
    "category": "House_Furnishing",
    "glb": "03_Residential/House_Variants/RES_PlayerHome_Furnishing.glb",
    "obj": null,
-   "triangles": 7064,
+   "triangles": 7088,
    "collision_triangles": 372,
    "collision": [
     "colonly"
@@ -10412,7 +10412,7 @@
    "category": "House_Furnishing",
    "glb": "03_Residential/House_Variants/RES_House_TwoStorey_Mirror_Furnishing.glb",
    "obj": null,
-   "triangles": 7111,
+   "triangles": 7135,
    "collision_triangles": 504,
    "collision": [
     "colonly"
@@ -12100,9 +12100,9 @@
    ]
   ],
   "keys": [
-   -1.155,
-   2.17,
-   2.4170000000000003
+   -1.15,
+   2.268,
+   2.432
   ],
   "sedan": [
    0.5,

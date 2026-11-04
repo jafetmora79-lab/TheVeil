@@ -15,6 +15,7 @@ var goal_l: Label
 var step_l: Label
 var obj_box: VBoxContainer
 var sub: Label
+var confirm_l: Label         ## "[E] >" under a conversation line that waits for the player
 var title: Label
 var hint: Label
 var speed_l: Label
@@ -51,6 +52,10 @@ func _ready() -> void:
 	obj_box.add_child(step_l)
 	sub = _centered_label("", 21, 0.5, 0.86)
 	sub.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	sub.add_theme_color_override("font_color", Color(1, 1, 1, 1))     # white pixel text, black outline
+	confirm_l = _centered_label("[E]  >", 15, 0.5, 0.91)
+	confirm_l.add_theme_color_override("font_color", Color(1, 1, 1, 0.85))
+	confirm_l.visible = false
 	title = _centered_label("", 34, 0.5, 0.42)
 	title.modulate.a = 0.0
 	hint = _centered_label("", 15, 0.5, 0.94)
@@ -77,6 +82,7 @@ func _ready() -> void:
 	Game.inventory_changed.connect(_refresh_inventory)
 	Dialogue.line_started.connect(func(_s, t, _d): show_subtitle(t))
 	Dialogue.line_finished.connect(func(): show_subtitle(""))
+	Dialogue.waiting_confirm.connect(func(on): confirm_l.visible = on)
 
 
 # ------------------------------------------------------------------ survival (health / stamina)

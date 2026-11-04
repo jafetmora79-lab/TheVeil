@@ -78,6 +78,8 @@ func _ready() -> void:
 	_setup_triggers()
 	_apply_view_ranges()
 	_setup_night()
+	_light_budget_all()
+	get_tree().node_added.connect(_on_node_added)
 	Game.flag_set.connect(_on_flag)
 	Sfx.start_ambience()
 	print("[World] ready: houses=%d interactables=%d" % [get_node("Residential/Houses").get_child_count(), interactables.size()])
@@ -327,9 +329,76 @@ var _in_market := false
 var _auto_open := false
 
 
+## LIGHT BUDGET (root cause of the inconsistent lighting). The Compatibility renderer draws at most
+## max_renderable_lights per frame and max_lights_per_object per mesh; the excess is silently dropped in an order
+## that changes with the camera. The town had 160 lights and 87 omni lights with no distance fade, so 90-112 of
+## them competed from anywhere in town against a cap of 32: stores, houses and street lamps blinked in and out
+## depending on where you stood. Every omni / spot light now fades out with distance (interiors sooner than street
+## lamps) so only nearby lights compete, and project.godot raises the caps (64 per frame, 16 per object) so a
+## large mesh near several lamps keeps all of them. Nothing is brightened: energies are untouched.
+const LIGHT_FADE_INTERIOR := Vector2(26.0, 10.0)      # begin, length (m) for lights with range <= 8 m
+const LIGHT_FADE_EXTERIOR := Vector2(40.0, 12.0)
+
+
+func _light_budget(l: Light3D) -> void:
+	if l is DirectionalLight3D or l.distance_fade_enabled:
+		return
+	var rng: float = (l as OmniLight3D).omni_range if l is OmniLight3D else ((l as SpotLight3D).spot_range if l is SpotLight3D else 10.0)
+	var f := LIGHT_FADE_INTERIOR if rng <= 8.0 else LIGHT_FADE_EXTERIOR
+	l.distance_fade_enabled = true
+	l.distance_fade_begin = f.x
+	l.distance_fade_length = f.y
+	l.distance_fade_shadow = f.x * 0.6
+
+
+func _light_budget_all() -> void:
+	for l in find_children("*", "Light3D", true, false):
+		_light_budget(l as Light3D)
+
+
+func _on_node_added(n: Node) -> void:
+	if n is Light3D and is_ancestor_of(n):
+		_light_budget.call_deferred(n)            # after the spawner has set its range
+
+
+## Window glass: the panes are a material inside each building's exterior mesh and had no collision above the sills,
+## so cameras and line-of-sight checks went straight through them (Eddie "talking through the glass"). Thin static
+## boxes from game/data/glass_panes.json (extracted from the GLBs by game/tools/extract_glass.py) close them.
+func _add_glass_colliders() -> void:
+	var f := FileAccess.open("res://game/data/glass_panes.json", FileAccess.READ)
+	if f == null:
+		return
+	var panes: Dictionary = JSON.parse_string(f.get_as_text())
+	var n := 0
+	for node in get_node("Commercial").find_children("*", "Node3D", true, false):
+		var src: String = node.scene_file_path
+		if src == "" or not panes.has(src):
+			continue
+		var body := StaticBody3D.new()
+		body.name = "GlassPanes"
+		body.collision_layer = 1
+		body.collision_mask = 0
+		node.add_child(body)
+		for b in panes[src]:
+			var mn := Vector3(b[0][0], b[0][1], b[0][2])
+			var mx := Vector3(b[1][0], b[1][1], b[1][2])
+			var cs := CollisionShape3D.new()
+			var bs := BoxShape3D.new()
+			bs.size = (mx - mn).max(Vector3.ONE * 0.04)
+			cs.shape = bs
+			cs.position = (mn + mx) * 0.5
+			body.add_child(cs)
+			n += 1
+	glass_panes = n
+
+
+var glass_panes := 0
+
+
 func _setup_town() -> void:
 	market = get_node("Commercial/SUPERMARKET")
 	game_shop = get_node("Commercial/GAME_SHOP")
+	_add_glass_colliders()
 	# supermarket: bi-parting automatic doors open while the player stands in front of / inside the vestibule
 	for side in [["L", -1.0], ["R", 1.0]]:
 		var leaf := market.get_node("Building").find_child("INT_AutoDoor_Entrance_" + side[0], true, false) as Node3D
@@ -400,12 +469,61 @@ func _dlg_time(ids: Array) -> float:
 	return t
 
 
-## Important conversations: subtle cinematic framing of whoever is speaking (VeilFace + gestures play), the
-## player is held for the conversation and gets everything back afterwards. The camera moves at most 0.35 m
-## toward the speaker (never if a wall is in the way) and narrows the FOV a little: no push into faces.
-func talk_shot(seconds: float) -> void:
-	if in_car or _encounter_running or not player.visible:
-		return
+## STANDARD NPC CONVERSATION (Eddie, Marcus, the cashier, Chapter 4 survivors). converse(ids, npcs):
+##   1. refuses (returns false) when a wall, door or window separates the player from any listed NPC;
+##   2. the NPCs turn to face the protagonist;
+##   3. a talk camera borrows the first-person view and eases (<= 0.35 m, FOV 52) toward whoever is speaking,
+##      never closer than 1.25 m and never through geometry (checked every frame);
+##   4. VeilFace talking + gestures play (_on_line); white pixel subtitles with a black outline;
+##   5. every line waits for the player's confirmation (Dialogue.confirm_mode; [E] / click / Space);
+##   6. choices (choice panel) and follow-up lines queued during the talk stay inside it;
+##   7. after the last line the view returns smoothly to first person and control is restored.
+var conversing := false
+var talk_report := {"count": 0, "blocked": 0, "cam_hits": 0, "min_face_dist": 99.0}
+
+
+## Line of sight from the player's eyes to an NPC's head (window glass counts: see _add_glass_colliders).
+func can_talk(npc: Node3D) -> bool:
+	if npc == null or not is_instance_valid(npc):
+		return false
+	var head = _speaker_head(String(npc.name))
+	var h: Vector3 = head if head != null else npc.global_position + Vector3(0, 1.6, 0)
+	var eye := player.camera.global_position
+	if eye.distance_to(h) > 6.0:
+		return false
+	var q := PhysicsRayQueryParameters3D.create(eye, h, 1, [player.get_rid()])
+	return get_world_3d().direct_space_state.intersect_ray(q).is_empty()
+
+
+## Returns false only when refused (an NPC is out of sight behind a wall / door / window).
+func converse(ids: Array, npcs: Array = []) -> bool:
+	if in_car or _encounter_running or not player.visible or conversing:
+		for i in ids.size():
+			Dialogue.say(ids[i], false, i == 0)
+		return true                              # spoken as plain timed lines (no talk camera available)
+	if not npcs.is_empty() and not can_talk(npcs[0]):      # the one spoken to must be in plain view
+		talk_report["blocked"] += 1
+		return false
+	conversing = true
+	talk_report["count"] += 1
+	for n in npcs:
+		var a = animators.get(String(n.name))
+		if a:
+			a.face_towards(player.global_position)
+	Dialogue.confirm_mode = true
+	for i in ids.size():
+		Dialogue.say(ids[i], false, i == 0)
+	await _talk_camera()
+	Dialogue.confirm_mode = false
+	conversing = false
+	return true
+
+
+func _choice_open() -> bool:
+	return phase4 != null and is_instance_valid(phase4) and phase4.get("choice") != null and phase4.choice.is_open()
+
+
+func _talk_camera() -> void:
 	_end_talk()
 	_end_cine()
 	_talk_id += 1
@@ -420,26 +538,53 @@ func talk_shot(seconds: float) -> void:
 	cam.current = true
 	_talk_cam = cam
 	player.controls_enabled = false
-	var t := 0.0
-	while t < seconds + 0.5 and id == _talk_id and is_instance_valid(cam):
+	var idle := 0.0
+	var space := get_world_3d().direct_space_state
+	while id == _talk_id and is_instance_valid(cam):
 		var dt := get_process_delta_time()
+		var busy := Dialogue.is_busy() or _choice_open()
+		idle = 0.0 if busy else idle + dt
+		var ending := idle > 0.0
+		if idle > 0.45:                         # nothing more queued: hand the view back
+			break
 		var want := base
 		var fov := fov0
 		var head = _speaker_head(_talk_speaker)
-		if head != null and t < seconds:
+		if head != null and not ending:
 			var to: Vector3 = head - base.origin
 			var pos := base.origin + to.normalized() * clampf(to.length() - 1.25, 0.0, 0.35)
 			var q := PhysicsRayQueryParameters3D.create(base.origin, pos + to.normalized() * 0.2, 1, [player.get_rid()])
-			if not get_world_3d().direct_space_state.intersect_ray(q).is_empty():
+			if not space.intersect_ray(q).is_empty():
 				pos = base.origin
 			want = Transform3D(Basis(), pos).looking_at(head, Vector3.UP)
 			fov = 52.0
+			talk_report["min_face_dist"] = minf(talk_report["min_face_dist"], cam.global_position.distance_to(head))
+			var see := PhysicsRayQueryParameters3D.create(cam.global_position, head, 1, [player.get_rid()])
+			if not space.intersect_ray(see).is_empty():
+				talk_report["cam_hits"] += 1
 		cam.global_transform = cam.global_transform.interpolate_with(want, minf(dt * 3.0, 1.0))
 		cam.fov = lerpf(cam.fov, fov, minf(dt * 3.0, 1.0))
 		await get_tree().process_frame
-		t += dt
+	# ease back to the first-person view, then hand control back
+	var t := 0.0
+	while t < 0.45 and id == _talk_id and is_instance_valid(cam):
+		var dt2 := get_process_delta_time()
+		cam.global_transform = cam.global_transform.interpolate_with(base, minf(dt2 * 7.0, 1.0))
+		cam.fov = lerpf(cam.fov, fov0, minf(dt2 * 7.0, 1.0))
+		await get_tree().process_frame
+		t += dt2
 	if id == _talk_id:
 		_end_talk()
+
+
+## Older timed entry point (kept for callers that only need the framing for a fixed time).
+func talk_shot(seconds: float) -> void:
+	if in_car or _encounter_running or not player.visible:
+		return
+	var until := Time.get_ticks_msec() + int(seconds * 1000.0)
+	Dialogue.confirm_mode = false
+	while Time.get_ticks_msec() < until and Dialogue.is_busy():
+		await get_tree().process_frame
 
 
 func _speaker_head(speaker: String):
@@ -602,14 +747,222 @@ func focus_shot(target: Vector3, fov_to := 28.0, t_in := 2.6, hold := 1.8, title
 		player.controls_enabled = was_controls or player.controls_enabled
 
 
-## While driving past the store front: the car eases down to ~17 km/h (driver keeps steering), the view turns and
-## zooms gently onto the supermarket and its sign, then hands control back; the car rolls on into the lot.
+## While driving past the store front: the car eases smoothly down to 5 km/h (driver keeps steering), the view turns
+## and zooms gently onto the supermarket and its sign, then hands control back; the car rolls on into the lot.
+const ARRIVAL_SPEED := 1.39          # m/s = 5 km/h
+## Approaching the store front (before the arrival shot): a speed cap that follows a gentle braking curve
+## (1.4 m/s^2) so the car is down to 5 km/h when it reaches the shot point. Only while heading towards it.
+func _arrival_ease() -> void:
+	if not in_car or not sedan.driven or Game.has_flag("arrival_shot") or _auto_parking:
+		return
+	var tr := get_node_or_null("Trigger_ArrivalShot") as Area3D
+	if tr == null:
+		return
+	var to := tr.global_position - sedan.global_position
+	to.y = 0.0
+	var d := to.length() - 6.0
+	var fwd := -sedan.global_transform.basis.z
+	if d < 60.0 and sedan.speed > 0.5 and to.normalized().dot(fwd) > 0.5:
+		sedan.speed_cap = sqrt(ARRIVAL_SPEED * ARRIVAL_SPEED + 2.0 * 1.4 * maxf(d, 0.0))
+	elif sedan.speed_cap > 0.0 and not _cine:
+		sedan.speed_cap = -1.0
+
+
 func _arrival_shot() -> void:
 	Game.set_flag("arrival_shot")
-	sedan.speed_cap = 4.8
+	sedan.speed_cap = ARRIVAL_SPEED
 	Dialogue.say("town", true)
 	await focus_shot(market.global_transform * Vector3(0.0, 4.2, -0.3), 30.0, 2.0, 1.6, "GREYHAVEN MARKET")
 	sedan.speed_cap = -1.0
+
+
+# ------------------------------------------------------------------ automatic reverse parking
+## Once the sedan rolls into the middle of the supermarket lot, the driver parks it: a scripted approach along the
+## aisle past the chosen stall (two spaces east of the entrance, store-side row), a stop, the wheel turned while
+## stationary, a reverse arc into the space, straightening, a stop at the wheel stop and the parking brake. The car is
+## driven through its own physics the whole time (pure-pursuit path tracking, no teleport). Plays once
+## (flag `auto_parked`); a blocked path or a timeout hands control back and the manual parking trigger still works.
+const PARK_LOT := "RD_ParkingLot_10x20m_003"     # the lot module in front of the entrance (local z 0 = Main St)
+const PARK_STALL_X := -3.70                      # stall centre (lot-local x): two stalls east of the entrance
+const PARK_FINAL_Z := 17.1                       # car centre at rest: rear wheels just short of the wheel stop
+const PARK_STRAIGHT := 1.5                       # straight reverse after the arc
+const PARK_R := 5.0                              # reverse arc radius (car centre), ~28 deg of steering
+var _auto_parking := false
+var park_report := {}
+
+
+func _park_lot_xf() -> Transform3D:
+	var lot := find_child(PARK_LOT, true, false) as Node3D
+	return lot.global_transform if lot else Transform3D(Basis(Vector3.UP, PI), Vector3(31, 0, -6))
+
+
+## The three legs of the manoeuvre as world-space polylines (car-centre paths).
+func park_paths() -> Dictionary:
+	var L := _park_lot_xf()
+	var zl := PARK_FINAL_Z - PARK_STRAIGHT - PARK_R        # approach lane (lot-local z)
+	var xs := PARK_STALL_X - PARK_R                         # where the car stops before reversing
+	var approach: Array[Vector3] = []
+	for k in range(0, 61):
+		approach.append(L * Vector3(lerpf(22.0, xs, k / 60.0), 0.0, zl))
+	var rev: Array[Vector3] = []
+	var c := Vector2(xs, PARK_FINAL_Z - PARK_STRAIGHT)
+	for k in range(0, 31):
+		var ph := lerpf(-PI / 2, 0.0, k / 30.0)
+		rev.append(L * Vector3(c.x + PARK_R * cos(ph), 0.0, c.y + PARK_R * sin(ph)))
+	for k in range(1, 11):
+		rev.append(L * Vector3(PARK_STALL_X, 0.0, PARK_FINAL_Z - PARK_STRAIGHT + PARK_STRAIGHT * k / 10.0))
+	return {"approach": approach, "reverse": rev, "final_fwd": L.basis * Vector3(0, 0, -1)}
+
+
+## Pure-pursuit tracker on a polyline. dir = +1 forward / -1 reverse. Returns Vector2(target speed, steer angle).
+func _pursue(path: Array[Vector3], st: Dictionary, dir: float, v_max: float, ld: float) -> Vector2:
+	var p := sedan.global_position
+	var p2 := Vector2(p.x, p.z)
+	var i: int = st["i"]
+	while i < path.size() - 1 and Vector2(path[i + 1].x, path[i + 1].z).distance_to(p2) <= Vector2(path[i].x, path[i].z).distance_to(p2):
+		i += 1
+	st["i"] = i
+	# remaining length along the path (from the closest point)
+	var rem := Vector2(path[i].x, path[i].z).distance_to(p2) if i == path.size() - 1 else 0.0
+	for j in range(i, path.size() - 1):
+		rem += Vector2(path[j].x, path[j].z).distance_to(Vector2(path[j + 1].x, path[j + 1].z))
+	# past the end (projection beyond the last point)?
+	var end := Vector2(path[-1].x, path[-1].z)
+	var prev := Vector2(path[-2].x, path[-2].z)
+	if (p2 - end).dot(end - prev) > 0.0:
+		rem = 0.0
+	st["rem"] = rem
+	var tgt := end
+	var acc := 0.0
+	for j in range(i, path.size() - 1):
+		var a := Vector2(path[j].x, path[j].z)
+		var b := Vector2(path[j + 1].x, path[j + 1].z)
+		acc += a.distance_to(b)
+		if acc >= ld:
+			tgt = b
+			break
+	if rem < ld:                                    # extend the last segment so the car keeps tracking the line
+		tgt = end + (end - prev).normalized() * (ld - rem)
+	var fwd := -sedan.global_transform.basis.z
+	var d := Vector2(fwd.x, fwd.z).normalized() * dir           # motion direction
+	var to := (tgt - p2)
+	var la := maxf(to.length(), 0.5)
+	# y-up rotation moves d towards (d.y, -d.x) in (x, z): sin(alpha) = to . that / |to|
+	var left := Vector2(d.y, -d.x)
+	var sin_a := to.normalized().dot(left)
+	if to.normalized().dot(d) < 0.0:                # target behind the motion direction: full lock that way
+		sin_a = signf(sin_a) if absf(sin_a) > 0.01 else 1.0
+	var kappa := 2.0 * sin_a / la
+	var steer_ang := atan(kappa * PlayerSedan.WHEELBASE * dir)
+	var v := minf(v_max, sqrt(maxf(2.0 * 0.7 * rem, 0.0)))
+	if rem < 0.06:
+		v = 0.0
+	return Vector2(v * dir, steer_ang)
+
+
+func _maybe_auto_park(b: Node) -> void:
+	if b != sedan or not in_car or not sedan.driven or _auto_parking or _ending:
+		return
+	if Game.has_flag("auto_parked") or Game.has_flag("parked") or not Game.has_flag("entered_car"):
+		return
+	_auto_park()
+
+
+func _auto_park() -> void:
+	_auto_parking = true
+	park_report = {"started": true}
+	var paths := park_paths()
+	var S := {"phase": "approach", "st": {"i": 0, "rem": 99.0}}      # shared with the drive lambda (by reference)
+	var t := 0.0
+	var stuck_t := 0.0
+	var last := sedan.global_position
+	var max_dev := 0.0
+	hud.set_hint("Parking...")
+	# elevated shot over the open lot (nothing between it and the stall); used only while its view of the car is clear
+	var pcam := Camera3D.new()
+	pcam.name = "ParkCam"
+	pcam.fov = 48.0
+	pcam.far = 400.0
+	add_child(pcam)
+	var lot_xf := _park_lot_xf()
+	pcam.global_position = lot_xf * Vector3(1.0, 6.5, 6.0)
+	park_report["cam_blocked_frames"] = 0
+	sedan.drive_script = func(_dt: float) -> Vector2:
+		match S["phase"]:
+			"approach":
+				return _pursue(paths["approach"], S["st"], 1.0, 3.0, 4.5)
+			"turn":                                     # steer while stationary before reversing
+				var c := _pursue(paths["reverse"], {"i": 0, "rem": 99.0}, -1.0, 0.0, 2.6)
+				return Vector2(0.0, c.y)
+			"reverse":
+				return _pursue(paths["reverse"], S["st"], -1.0, 1.3, 2.6)
+		return Vector2(0.0, 0.0)
+	var ok := true
+	while true:
+		await get_tree().physics_frame
+		if not is_instance_valid(sedan) or not in_car:
+			ok = false
+			break
+		var dt := get_physics_process_delta_time()
+		t += dt
+		var phase: String = S["phase"]
+		var st: Dictionary = S["st"]
+		if sedan.global_position.distance_to(last) < 0.002 and phase in ["approach", "reverse"] and st["rem"] > 0.2 and t > 3.0:
+			stuck_t += dt
+		else:
+			stuck_t = 0.0
+		last = sedan.global_position
+		var aim := sedan.global_position + Vector3.UP * 0.7
+		pcam.look_at(aim, Vector3.UP)
+		var clear := get_world_3d().direct_space_state.intersect_ray(
+			PhysicsRayQueryParameters3D.create(pcam.global_position, aim, 1 | 2, [sedan.get_rid(), player.get_rid()])).is_empty()
+		if clear and _cine == null:
+			pcam.current = true
+		elif not clear:
+			park_report["cam_blocked_frames"] += 1
+			sedan.driver_cam.current = true
+		if phase == "reverse":
+			var p := sedan.global_position
+			var best := 99.0
+			for q in paths["reverse"]:
+				best = minf(best, Vector2(q.x, q.z).distance_to(Vector2(p.x, p.z)))
+			max_dev = maxf(max_dev, best)
+		if stuck_t > 1.5 or t > 45.0:
+			ok = false
+			break
+		if phase == "approach" and st["rem"] < 0.06 and absf(sedan.speed) < 0.03:
+			S["phase"] = "turn"
+			S["st"] = {"i": 0, "rem": 99.0}
+			park_report["stop_err"] = Vector2(sedan.global_position.x, sedan.global_position.z).distance_to(
+				Vector2(paths["approach"][-1].x, paths["approach"][-1].z))
+		elif phase == "turn":
+			var want := _pursue(paths["reverse"], {"i": 0, "rem": 99.0}, -1.0, 0.0, 2.6).y
+			if absf(sedan.steer - clampf(want, -PlayerSedan.MAX_STEER, PlayerSedan.MAX_STEER)) < 0.03:
+				S["phase"] = "reverse"
+		elif phase == "reverse" and st["rem"] < 0.06 and absf(sedan.speed) < 0.03:
+			break
+	sedan.drive_script = Callable()
+	sedan.speed = 0.0
+	_auto_parking = false
+	hud.set_hint("")
+	if is_instance_valid(sedan) and in_car:
+		sedan.driver_cam.current = true
+	pcam.queue_free()
+	var fin := sedan.global_position
+	var endp: Vector3 = paths["reverse"][-1]
+	var f := -sedan.global_transform.basis.z
+	park_report.merge({"ok": ok, "time": t, "pos_err": Vector2(fin.x, fin.z).distance_to(Vector2(endp.x, endp.z)),
+		"yaw_err_deg": rad_to_deg(absf(Vector2(f.x, f.z).angle_to(Vector2(paths["final_fwd"].x, paths["final_fwd"].z)))),
+		"max_dev": max_dev}, true)
+	if not ok:
+		return                                     # control is back with the driver; the manual parking check remains
+	sedan.parking_brake = true
+	Sfx.play("door_close", sedan.global_position, -14.0, 0.6)     # handbrake ratchet stand-in
+	Game.set_flag("auto_parked")
+	Game.set_flag("reached_town")
+	Game.set_flag("parked")
+	Dialogue.say("parked", true, true)
+	save()
 
 
 func _end_cine() -> void:
@@ -734,31 +1087,35 @@ func _checkout(_by: Node) -> void:
 		return
 	var need := ["canned_food", "water_bottle", "energy_snack"]
 	if not need.all(func(i): return Game.has_item(i)):
-		Dialogue.say("market_need_items", false, true)
+		converse(["market_need_items"], [cashier])
 		return
 	for i in need + EXTRAS:
 		Game.remove_item(i)
 	Game.add_item("groceries")
 	Sfx.play("pickup", market.global_transform * Vector3(-4.1, 1.1, 4.0))
 	_glow(cashier, false)
-	Dialogue.say("market_checkout", false, true)
-	Dialogue.say("groceries_done")
+	if can_talk(cashier):
+		converse(["market_checkout", "groceries_done"], [cashier])
+	else:
+		Dialogue.say("market_checkout", false, true)
+		Dialogue.say("groceries_done")
 	hud.set_hint("")
 	Game.set_flag("groceries_done")
 
 
 func _talk_eddie(_by: Node) -> void:
 	if Game.has_flag("p3_mist"):
-		Dialogue.say("p3_eddie_go" if Game.has_flag("p3_in_shop") else "p3_eddie_hurry", false, true)
+		converse(["p3_eddie_go" if Game.has_flag("p3_in_shop") else "p3_eddie_hurry"], [eddie])
 		return
 	if Game.has_flag("game_bought"):
-		Dialogue.say("eddie_after", false, true)
+		converse(["eddie_after"], [eddie])
 	elif Game.has_item("horror_game"):
-		Dialogue.say("eddie_buy", false, true)
-		talk_shot(_dlg_time(["eddie_buy"]))
-		Game.set_flag("game_bought")
+		var refused: int = talk_report["blocked"]
+		await converse(["eddie_buy"], [eddie])
+		if talk_report["blocked"] == refused:      # not when a wall / window was in the way
+			Game.set_flag("game_bought")
 	else:
-		Dialogue.say("eddie_hello", false, true)
+		converse(["eddie_hello"], [eddie])
 
 
 
@@ -828,7 +1185,7 @@ func _p3_tick(_delta: float) -> void:
 		var cam := get_viewport().get_camera_3d()
 		if cam:
 			mist_ceiling.global_position = Vector3(cam.global_position.x, 0.0, cam.global_position.z)
-	if not player.visible or in_car or _encounter_running:
+	if not player.visible or in_car or _encounter_running or conversing:   # the Veil waits for a conversation to end
 		return
 	if not Game.has_flag("p3_mist"):
 		if Game.has_flag("groceries_done") and Game.has_flag("game_bought"):
@@ -918,7 +1275,175 @@ func _build_mist_ceiling() -> void:
 # ------------------------------------------------------------------ the Colossus encounter
 ## Front-left claw tips in skeleton space at scale 1 (build_colossus.py LEGS "FL" contact (-6.1, 0, 6.0) and its
 ## three claws; tip y 0.11 minus the 0.05 tip radius).
+const CAM_R := 0.16
+const SHOP_EDDIE_WAIT := Vector3(-2.2, 0.04, 1.3)       # game-shop local: by the door, clear of the leaf's swing
+const SHOP_EDDIE_OPEN := Vector3(-3.95, 0.04, 1.05)     # handle side, outside the leaf's swing (radius 0.97)
+const SHOP_A_SPOT := Vector3(-2.9, 0.04, 2.3)           # where the protagonist waits while Eddie opens up
+const SHOP_EDDIE_ASIDE := Vector3(-4.3, 0.04, 0.95)
+const SHOP_EDDIE_DOOR := Vector3(-3.2, 0.04, -0.15)     # on the threshold, outside the glass line
+const SHOP_OUT_SPOT := Vector3(-3.2, 0.04, -1.7)        # where the protagonist stands on the sidewalk
+const SHOP_TALK := {"Eddie": Vector3(-0.4, 0.04, 1.5), "Protagonist": Vector3(-2.0, 0.04, 1.45), "Marcus": Vector3(0.2, 0.04, 2.5)}
+const SHOP_G_CAMS := [Vector3(0.6, 1.75, 3.0), Vector3(0.2, 1.8, 3.6), Vector3(1.2, 1.8, 2.4), Vector3(-0.6, 1.8, 3.2),
+	Vector3(0.9, 1.7, 1.1), Vector3(1.6, 1.7, 1.6), Vector3(0.0, 1.7, 2.1), Vector3(2.2, 1.75, 1.2)]
+## the fore claw tips of the Colossus in skeleton space at scale 1 (build_colossus.py: LEGS "FL" contact
+## (-6.1, 0, 6.0), claws (dlat, dfw, ln) -> tip y 0.11 minus the 0.05 tip radius)
 const FL_TIPS := [Vector3(-5.55, 0.06, 7.06), Vector3(-6.15, 0.06, 7.52), Vector3(-6.7, 0.06, 6.77)]
+const FL_FOOT_REST := Vector3(-6.0, 2.4, 5.6)            # Leg_FL_Foot rest origin (sanity check, tests)
+const VEIL_SHADER := preload("res://game/world/colossus_veil.gdshader")
+var _cam_prev := Vector3.INF
+var _cam_shot := ""
+
+
+func _sphere_q(p: Vector3, motion := Vector3.ZERO) -> PhysicsShapeQueryParameters3D:
+	var sph := SphereShape3D.new()
+	sph.radius = CAM_R
+	var q := PhysicsShapeQueryParameters3D.new()
+	q.shape = sph
+	q.collision_mask = 1
+	q.exclude = [player.get_rid(), sedan.get_rid()]
+	q.transform = Transform3D(Basis(), p)
+	q.motion = motion
+	return q
+
+
+## A camera may sit at p: no world geometry (incl. glass) within CAM_R, not inside any NPC's body.
+func cam_point_ok(p: Vector3) -> bool:
+	if not get_world_3d().direct_space_state.intersect_shape(_sphere_q(p), 1).is_empty():
+		return false
+	for k in animators:
+		var a = animators[k]
+		if a == null or not is_instance_valid(a) or a.root == null or not a.root.is_visible_in_tree():
+			continue
+		var r: Vector3 = a.root.global_position
+		if Vector2(p.x - r.x, p.z - r.z).length() < 0.36 and p.y > r.y - 0.05 and p.y < r.y + 1.95:
+			return false
+	return true
+
+
+## A camera may travel a -> b: a sphere sweep that hits nothing, and no NPC body on the way.
+func cam_path_ok(a: Vector3, b: Vector3) -> bool:
+	var r := get_world_3d().direct_space_state.cast_motion(_sphere_q(a, b - a))
+	if r.size() == 0 or r[0] < 1.0:
+		return false
+	var n := maxi(1, int(ceil(a.distance_to(b) / 0.1)))
+	for i in n + 1:
+		if not cam_point_ok(a.lerp(b, float(i) / n)):
+			return false
+	return true
+
+
+func sight_ok(a: Vector3, b: Vector3) -> bool:
+	var q := PhysicsRayQueryParameters3D.create(a, b, 1, [player.get_rid(), sedan.get_rid()])
+	return get_world_3d().direct_space_state.intersect_ray(q).is_empty()
+
+
+## First candidate where a camera can sit and see every point in `must_see`.
+func pick_anchor(cands: Array, must_see: Array) -> Variant:
+	for c in cands:
+		if not cam_point_ok(c):
+			continue
+		if must_see.all(func(m): return sight_ok(c, m)):
+			return c
+	return null
+
+
+## Watchdog (runs every frame while the encounter owns the view).
+func _cam_watch() -> void:
+	var cam := get_viewport().get_camera_3d()
+	if cam == null or cam == player.camera:
+		_cam_prev = Vector3.INF
+		return
+	var p := cam.global_position
+	enc_report["cam_frames"] = enc_report.get("cam_frames", 0) + 1
+	var bad := not cam_point_ok(p)
+	if not bad and _cam_prev != Vector3.INF and _cam_prev.distance_to(p) > 0.001 and _cam_prev.distance_to(p) < 2.0:
+		bad = not sight_ok(_cam_prev, p)                  # crossed a surface since the last frame (cuts are > 2 m)
+	if bad:
+		enc_report["cam_violations"] = enc_report.get("cam_violations", 0) + 1
+		var where: Array = enc_report.get("cam_violation_shots", [])
+		if not _cam_shot in where:
+			where.append(_cam_shot)
+		enc_report["cam_violation_shots"] = where
+	_cam_prev = p
+
+
+## Move a camera along a validated path (sphere-swept segments); segments that cannot be travelled are cut.
+func _cam_travel(cam: Camera3D, pts: Array, speed: float, look: Callable) -> void:
+	for i in range(1, pts.size()):
+		var a: Vector3 = pts[i - 1]
+		var b: Vector3 = pts[i]
+		if not cam_path_ok(a, b):
+			enc_report["cam_cuts"] = enc_report.get("cam_cuts", 0) + 1
+			cam.global_position = b
+			cam.look_at(look.call(b), Vector3.UP)
+			await get_tree().process_frame
+			continue
+		var t := 0.0
+		var dur := maxf(a.distance_to(b) / speed, 0.05)
+		while t < dur:
+			var k := t / dur
+			var p := a.lerp(b, k)
+			cam.global_position = p
+			var want := Transform3D(Basis(), p).looking_at(look.call(p), Vector3.UP).basis
+			cam.global_basis = Basis(cam.global_basis.get_rotation_quaternion().slerp(want.get_rotation_quaternion(), minf(get_process_delta_time() * 5.0, 1.0)))
+			await get_tree().process_frame
+			t += get_process_delta_time()
+		cam.global_position = b
+
+
+## Walk an NPC (parent-local waypoints) and wait for it; snaps to the last point after `timeout` (never stalls).
+func _walk_wait(speaker: String, pts: Array, speed: float, timeout: float) -> void:
+	var a = animators.get(speaker)
+	if a == null:
+		return
+	a.walk_to(pts, speed)
+	var t := 0.0
+	while a.is_walking() and t < timeout:
+		await get_tree().process_frame
+		t += get_process_delta_time()
+	if a.is_walking():
+		a.walk_to([])
+		a.root.position = pts[-1]
+		enc_report["walk_snaps"] = enc_report.get("walk_snaps", 0) + 1
+
+
+## The creature's encounter look: its own textures through colossus_veil.gdshader (see there).
+func _veil_colossus(c: Node3D, ground: float) -> void:
+	for mi in c.find_children("*", "MeshInstance3D", true, false):
+		var m := mi as MeshInstance3D
+		if m.mesh == null:
+			continue
+		for i in m.mesh.get_surface_count():
+			var src := m.get_active_material(i) as BaseMaterial3D
+			var sm := ShaderMaterial.new()
+			sm.shader = VEIL_SHADER
+			if src:
+				sm.set_shader_parameter("albedo_tex", src.albedo_texture)
+				sm.set_shader_parameter("emission_tex", src.emission_texture if src.emission_enabled else null)
+			sm.set_shader_parameter("ground_y", ground)
+			m.set_surface_override_material(i, sm)
+		m.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+	enc_report["veil_shader"] = true
+
+
+## Fog cards (Pack 09 billboards) fade out close to the camera during the cinematic, so no card's flat edge can
+## fill the frame as a pale polygon. Returns a restore callable.
+func _soften_fog_cards() -> Callable:
+	var cards := _atmo().get_parent().find_child("FogCards", true, false) as CPUParticles3D
+	if cards == null or cards.mesh == null or not (cards.mesh.material is StandardMaterial3D):
+		return func(): pass
+	var m := cards.mesh.material as StandardMaterial3D
+	var old := [m.distance_fade_mode, m.distance_fade_min_distance, m.distance_fade_max_distance]
+	m.distance_fade_mode = BaseMaterial3D.DISTANCE_FADE_PIXEL_ALPHA
+	m.distance_fade_min_distance = 5.0
+	m.distance_fade_max_distance = 16.0
+	enc_report["fog_cards_softened"] = true
+	return func():
+		m.distance_fade_mode = old[0]
+		m.distance_fade_min_distance = old[1]
+		m.distance_fade_max_distance = old[2]
+
+
 const STANCE_RATE := 1.0                 ## Walk_Heavy: a planted foot slides back 1 m per animation second (scale 1)
 var _enc_sounds: Array = []              ## encounter audio, faded out when the encounter ends
 
@@ -940,6 +1465,13 @@ func _min_tip_y(sk: Skeleton3D, foot: int) -> float:
 
 
 ## The animation time where the foot's swing ends: tips come back down to their stance height.
+func _near_shop_door() -> bool:
+	if eddie == null or eddie.get_parent() != game_shop:
+		return false
+	var l := game_shop.to_local(player.global_position)
+	return absf(l.x + 3.2) < 1.1 and l.z > 0.35 and l.z < 2.3
+
+
 func _swing_end(ap: AnimationPlayer, sk: Skeleton3D, foot: int, anim: Animation) -> float:
 	var dt := 1.0 / 60.0
 	var t := 0.0
@@ -1197,6 +1729,132 @@ func _colossus_encounter() -> void:
 	save()
 
 
+func _shop_regroup(cam: Camera3D, me: Node3D, P: Vector3, n: Vector3, side: Vector3) -> void:
+	var X := game_shop.global_transform
+	_p3_place_marcus_in_shop()
+	if animators.has("Marcus"):
+		animators["Marcus"].turn_to_face = false
+	# ---- F: Eddie on the threshold, calling him back; the camera sees Eddie past the protagonist
+	_cam_shot = "F"
+	await _walk_wait("Eddie", [Vector3(-3.2, 0.04, 0.75), SHOP_EDDIE_DOOR], 1.8, 3.0)
+	animators["Eddie"].face_towards(P)
+	await get_tree().process_frame
+	var eh = _speaker_head("Eddie")
+	var e_head: Vector3 = eh if eh != null else X * (SHOP_EDDIE_DOOR + Vector3(0, 1.65, 0))
+	var f_cands := []
+	for k in [2.6, 3.2, 2.0]:
+		for s_ in [1.4, -1.4, 0.9, -0.9]:
+			f_cands.append(e_head + n * k + side * s_ - Vector3(0, 0.1, 0))
+	var me_axis := me.global_position
+	var f_at = null
+	for cnd in f_cands:
+		if not cam_point_ok(cnd) or not sight_ok(cnd, e_head):
+			continue
+		# the protagonist must not stand in the line of sight
+		var seg: Vector3 = e_head - cnd
+		var tt := clampf((me_axis - cnd).dot(seg) / seg.length_squared(), 0.0, 1.0)
+		var closest: Vector3 = cnd + seg * tt
+		if Vector2(closest.x - me_axis.x, closest.z - me_axis.z).length() < 0.55:
+			continue
+		f_at = cnd
+		break
+	enc_report["eddie_call_anchor_found"] = f_at != null
+	cam.global_position = f_at if f_at != null else e_head + n * 2.6 + side * 1.4
+	cam.look_at(e_head, Vector3.UP)
+	cam.fov = 46.0
+	enc_report["eddie_call_cam_clear"] = sight_ok(cam.global_position, e_head)
+	Dialogue.say("p3_eddie_calls", false, true)
+	animators["Protagonist"].look_target = eddie
+	await get_tree().create_timer(2.4).timeout
+	# ---- G: both go back in; Eddie shuts the door behind them; Marcus comes over
+	_cam_shot = "G"
+	var g_pts := []
+	for g in SHOP_G_CAMS:
+		g_pts.append(X * g)
+	# must see them come in past the open leaf (its free end is at z 1.34) and the talk spot
+	var g_see := [X * Vector3(-3.05, 1.3, 1.8), X * (SHOP_TALK["Protagonist"] + Vector3(0, 1.5, 0))]
+	var g_at = pick_anchor(g_pts, g_see)
+	enc_report["regroup_anchor_found"] = g_at != null
+	if g_at == null:
+		var why := []
+		for g in g_pts:
+			why.append("%s:%s/%s/%s" % [game_shop.to_local(g).snapped(Vector3.ONE * 0.1), cam_point_ok(g), sight_ok(g, g_see[0]), sight_ok(g, g_see[1])])
+		enc_report["regroup_anchor_why"] = why
+	cam.global_position = g_at if g_at != null else g_pts[0]
+	cam.fov = 55.0
+	Dialogue.say("p3_colossus", false, true)
+	animators["Protagonist"].look_target = null
+	animators["Eddie"].walk_to([Vector3(-3.2, 0.04, 0.7), Vector3(-3.1, 0.04, 1.75), Vector3(-2.4, 0.04, 1.55), SHOP_TALK["Eddie"]], 1.9)
+	await get_tree().create_timer(0.5).timeout
+	animators["Protagonist"].walk_to([Vector3(-3.2, 0.04, -0.35), Vector3(-3.2, 0.04, 0.9), Vector3(-3.05, 0.04, 1.8), SHOP_TALK["Protagonist"]], 1.9)
+	if animators.has("Marcus"):
+		animators["Marcus"].walk_to([Vector3(-3.0, 0.04, 3.0), Vector3(-1.0, 0.04, 3.0), SHOP_TALK["Marcus"]], 1.3)
+	var sd: Interactable = interactables.get("shop/entrance")
+	var hinge := X * Vector3(-2.71, 0.04, 0.37)
+	var closed := false
+	var t := 0.0
+	var names := ["Eddie", "Protagonist", "Marcus"]
+	while t < 9.0:
+		var mids: Vector3 = Vector3.ZERO
+		var cnt := 0
+		for k in ["Eddie", "Protagonist"]:
+			mids += animators[k].root.global_position
+			cnt += 1
+		cam.global_basis = Basis(cam.global_basis.get_rotation_quaternion().slerp(
+			Transform3D(Basis(), cam.global_position).looking_at(mids / cnt + Vector3(0, 1.3, 0), Vector3.UP).basis.get_rotation_quaternion(),
+			minf(get_process_delta_time() * 3.0, 1.0)))
+		if not closed and sd and sd.is_open:
+			var clear_of_leaf := ["Eddie", "Protagonist"].all(func(k):
+				var r: Vector3 = animators[k].root.global_position
+				return game_shop.to_local(r).z > 0.5 and Vector2(r.x - hinge.x, r.z - hinge.z).length() > 1.15)
+			if clear_of_leaf:
+				sd.set_open(false)                              # the door returns to its normal (closed) state
+				Sfx.play("door_close", sd.global_position, 0.0, 0.9)
+				closed = true
+		if names.all(func(k): return not animators.has(k) or not animators[k].is_walking()) and (closed or sd == null):
+			break
+		await get_tree().process_frame
+		t += get_process_delta_time()
+	for k in names:                                         # never left half-way (timeout only)
+		if animators.has(k) and animators[k].is_walking():
+			animators[k].walk_to([])
+			animators[k].root.position = SHOP_TALK[k]
+			enc_report["walk_snaps"] = enc_report.get("walk_snaps", 0) + 1
+	if sd and sd.is_open:
+		sd.set_open(false)
+	enc_report["door_closed_after_regroup"] = sd == null or not sd.is_open
+	# everyone faces each other
+	var pe: Vector3 = X * SHOP_TALK["Eddie"]
+	var pp: Vector3 = X * SHOP_TALK["Protagonist"]
+	var pm: Vector3 = X * SHOP_TALK["Marcus"]
+	animators["Eddie"].face_towards(pp)
+	animators["Protagonist"].face_towards(pe)
+	if animators.has("Marcus"):
+		animators["Marcus"].face_towards((pe + pp) * 0.5)
+	var tf := 0.0
+	while tf < 2.2:
+		var fe: Vector3 = animators["Eddie"].world_forward()
+		var want_e: Vector3 = ((animators["Protagonist"].root.global_position - animators["Eddie"].root.global_position) * Vector3(1, 0, 1)).normalized()
+		if tf > 0.5 and fe.angle_to(want_e) < deg_to_rad(12.0):
+			break
+		await get_tree().process_frame
+		tf += get_process_delta_time()
+	var r_e: Vector3 = animators["Eddie"].root.global_position
+	var r_p: Vector3 = animators["Protagonist"].root.global_position
+	enc_report["regroup_dist_m"] = Vector2(r_e.x - r_p.x, r_e.z - r_p.z).length()
+	enc_report["regroup_inside"] = game_shop.to_local(r_e).z > 0.5 and game_shop.to_local(r_p).z > 0.5
+	enc_report["regroup_facing_deg"] = rad_to_deg(animators["Eddie"].world_forward().angle_to(((r_p - r_e) * Vector3(1, 0, 1)).normalized()))
+	# hand over to H: the player stands where the protagonist stood, facing Eddie
+	player.global_position = r_p + Vector3(0, 0.02, 0)
+	player.velocity = Vector3.ZERO
+	var eh2 = _speaker_head("Eddie")
+	var to_e: Vector3 = (eh2 if eh2 != null else r_e + Vector3(0, 1.6, 0)) - player.camera.global_position
+	player.set_yaw_pitch(atan2(-to_e.x, -to_e.z), clampf(asin(clampf(to_e.normalized().y, -1.0, 1.0)), -0.3, 0.3))
+	if animators.has("Marcus"):
+		animators["Marcus"].turn_to_face = true
+	animators["Eddie"].turn_to_face = true
+
+
 func _shake(cam: Camera3D, seconds: float, amount: float) -> void:
 	var base := cam.global_position
 	var t := 0.0
@@ -1319,7 +1977,7 @@ func _p3_place_marcus_in_shop() -> void:
 		marcus = _spawn_npc(load(MARCUS_PATH), load(MARCUS_FACE_PATH), game_shop, MARCUS_SHOP_POS, 0.0, "Marcus")
 		animators["Marcus"].set_mood("scared")
 		var m_it := Interactable.attach(marcus, {"kind": "custom", "label": "Marcus", "prompt_text": "[E] Talk"})
-		m_it.used.connect(func(_b): Dialogue.say("p3_marcus_talk", false, true))
+		m_it.used.connect(func(_b): converse(["p3_marcus_talk"], [marcus]))
 		interactables["p3/marcus"] = m_it
 
 
@@ -1678,8 +2336,8 @@ func _setup_night() -> void:
 		ol.omni_attenuation = 1.15
 		ol.shadow_enabled = false
 		ol.distance_fade_enabled = true
-		ol.distance_fade_begin = 75.0
-		ol.distance_fade_length = 25.0
+		ol.distance_fade_begin = 50.0          # light budget: see _light_budget (was 75 + 25 m)
+		ol.distance_fade_length = 15.0
 		ol.add_to_group("veil_streetlight")
 	# 3) storefront / canopy lights a little stronger; interior lights already show through the windows
 	for part in ["Commercial"]:
@@ -1757,6 +2415,9 @@ func _setup_triggers() -> void:
 	var dp: Array = d["parking_center"]
 	_area("Trigger_Parking", Vector3(dp[0], dp[1] + 1.0, dp[2]), Vector3(d["trigger_size"][0], 4, d["trigger_size"][2]), 4,
 		func(_b): pass)
+	# automatic reverse parking starts in the middle of the lot (west / centre modules, the aisle between the rows)
+	var lot := _park_lot_xf()
+	_area("Trigger_AutoPark", lot * Vector3(6.5, 1.0, 10.0), Vector3(17.0, 4.0, 9.0), 4, _maybe_auto_park, lot.basis)
 
 
 var _exit_requested := false
@@ -1764,6 +2425,7 @@ var _exit_requested := false
 
 func _physics_process(delta: float) -> void:
 	_p3_tick(delta)
+	_arrival_ease()
 	if _exit_requested:
 		_exit_requested = false
 		exit_car()
@@ -1817,7 +2479,7 @@ func enter_car() -> void:
 
 
 func exit_car() -> void:
-	if not in_car or not sedan.driven:
+	if not in_car or not sedan.driven or _auto_parking:
 		return
 	if absf(sedan.speed) > 1.0:
 		print_debug("[Sedan exit] Vehicle is moving at %.2f m/s" % sedan.speed)

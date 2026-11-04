@@ -89,7 +89,20 @@ func begin(w: Node, phase4: Node, restoring: bool) -> void:
 		if Game.has_flag("c5_radio_used") and not Game.has_flag("c5_radio_done"):
 			Game.set_flag("c5_radio_done")          # a load mid-broadcast never replays it
 	_apply()
+	if Game.has_flag("c5_rested"):
+		_start_chapter6(true)
 	Game.refresh_objective()
+
+
+## Chapter 6 continues after the night that follows Chapter 5; it is a child of this node.
+var chapter6: Node
+func _start_chapter6(restoring: bool) -> void:
+	if chapter6 != null:
+		return
+	chapter6 = load("res://game/world/chapter6.gd").new()
+	chapter6.name = "Chapter6"
+	add_child(chapter6)
+	chapter6.begin(world, self, restoring)
 
 
 func ml(p: Vector3) -> Vector3:
@@ -316,6 +329,8 @@ func _refresh_prompts() -> void:
 
 ## The one active destination for the HUD marker (only the current objective's target; cleared when done).
 func _update_marker() -> void:
+	if Game.has_flag("ch6_started"):
+		return                                    # Chapter 6 owns the marker from here on
 	var t: Variant = null
 	var label := ""
 	if Game.has_flag("c5_complete"):
@@ -564,7 +579,9 @@ func _process(delta: float) -> void:
 	var near := _near_doors(pl) or _near_doors(el)
 	if survivor.visible:
 		near = near or _near_doors(market.to_local(survivor.global_position))
-	if Game.has_flag("c5_returned"):
+	if Game.has_flag("ch6_started"):
+		pass                                      # Chapter 6 runs the doors from here on
+	elif Game.has_flag("c5_returned"):
 		if _doors_open and not near:
 			_set_doors(false)                         # home: pulled shut once everyone is clear of them
 	elif near != _doors_open and (_near_doors(pl) or not near):
@@ -652,8 +669,9 @@ func _complete() -> void:
 
 
 func _on_rest(_id: String) -> void:
-	# sleep stays available after the chapter; it only passes time (no day counter or Chapter 6 yet)
+	# the next morning is Chapter 6 (game/world/chapter6.gd); started while the screen is still black
 	Game.set_flag("c5_rested")
+	_start_chapter6(false)
 	if p4.flashlight:
 		p4.flashlight.set_on(false)
 	await get_tree().create_timer(1.0).timeout
