@@ -74,4 +74,4 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 8, 7.4)
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.3, 8.35, -0.3)
 
 [node name="StrikeImpact" type="Marker3D" parent="Markers"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 6.9362, 20.2409, 2.2098)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 7.0261, 20.2417, 2.1487)

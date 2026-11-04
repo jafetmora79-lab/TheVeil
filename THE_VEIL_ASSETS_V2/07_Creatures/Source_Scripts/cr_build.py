@@ -22,6 +22,18 @@ MAT = os.path.join(C.CR, "Shared_Materials")
 ANIM = os.path.join(C.CR, "Animations")
 
 
+# ------------------------------------------------------------------ shared textures
+def shared_tentacle_texture():
+    """T_Crt_Tentacle (64 x 128 tiling skin, u around / v along) shared by the Colossus and the Mist Tentacles."""
+    import cr_tex as X
+    os.makedirs(TEX, exist_ok=True)
+    tv = X.Canvas(64, 128, seed="tentacle")
+    X.paint_tentacle(tv.region(0, 0, 64, 128), "tentacle")
+    out = (os.path.join(TEX, "T_Crt_Tentacle.png"), os.path.join(TEX, "T_Crt_Tentacle_Emit.png"))
+    tv.save(*out)
+    return out
+
+
 # ------------------------------------------------------------------ tentacles
 def tentacle_chain(rig, prefix, parent, path_pts, nb, samples=None):
     """Bones evenly spaced by arc length along a smooth path. Returns (bones, joint points, dense path)."""
@@ -40,7 +52,7 @@ def tentacle_chain(rig, prefix, parent, path_pts, nb, samples=None):
 
 
 def tentacle_mesh(sm, Cd, bones, jp, r0, rtip, rect, n=8, ridge=0.07, parent=None, front=(0.0, -1.0, 0.0),
-                  ridges=14.0, flat=0.85, seed=0.0, tip=None, tile_m=None, root_blend=0.1):
+                  ridges=14.0, flat=0.85, seed=0.0, tip=None, tile_m=None, root_blend=0.1, flare=0.0):
     """Tapered, ridged tentacle along Cd. ridge = ring bulge amplitude; flat < 1 flattens the underside a little;
     a slow lumpy twist breaks perfect symmetry."""
     stops = G.stops_from_joints(Cd, jp[:-1], bones)
@@ -58,7 +70,7 @@ def tentacle_mesh(sm, Cd, bones, jp, r0, rtip, rect, n=8, ridge=0.07, parent=Non
     S, L = G.arclen(Cd)
     if tile_m:
         rect = (rect[0], rect[1], rect[2], rect[1] + L / tile_m)
-    radii = [rtip + (r0 - rtip) * (1 - s) ** 0.9 for s in S]
+    radii = [(rtip + (r0 - rtip) * (1 - s) ** 0.9) * (1.0 + flare * math.exp(-(s / 0.05) ** 2)) for s in S]
 
     def prof(i, s, th):
         under = 1.0 - (1.0 - flat) * max(0.0, -math.cos(th)) ** 2       # theta = pi is the underside
@@ -88,16 +100,24 @@ def side_axes(d, up=(0.0, 1.0, 0.0)):
     return lift, sweep
 
 
-def wave(rig, local, bones, t, amp=8.0, amp2=6.0, freq=0.5, lag=0.7, phase=0.0, grow=1.0):
+def cyc(freq, period):
+    """Frequency snapped to a whole number of cycles per loop period (seamless loops)."""
+    if not period:
+        return freq
+    return max(1, round(freq * period)) / period
+
+
+def wave(rig, local, bones, t, amp=8.0, amp2=6.0, freq=0.5, lag=0.7, phase=0.0, grow=1.0, period=None):
     """Travelling wave along a chain (rotations about each bone's rest lift / sweep axes, in local space - identity
-    rest rotations mean rest axes are world axes)."""
+    rest rotations mean rest axes are world axes). With period set, both components complete whole cycles."""
     dirs = bone_dirs(rig, bones)
+    f1, f2 = cyc(freq, period), cyc(freq * 0.73, period)
     n = len(bones)
     for k, (b, d) in enumerate(zip(bones, dirs)):
         lift, sw = side_axes(d)
         g = (0.45 + 0.55 * k / max(1, n - 1)) ** grow
-        a1 = amp * g * math.sin(2 * math.pi * freq * t - k * lag + phase)
-        a2 = amp2 * g * math.cos(2 * math.pi * freq * 0.73 * t - k * lag * 0.8 + phase * 1.7)
+        a1 = amp * g * math.sin(2 * math.pi * f1 * t - k * lag + phase)
+        a2 = amp2 * g * math.cos(2 * math.pi * f2 * t - k * lag * 0.8 + phase * 1.7)
         local[b] = local.get(b, C.I3) @ C.R(lift, a1) @ C.R(sw, a2)
     return local
 
@@ -120,6 +140,24 @@ def bend_world(rig, local, trans, b, axis_world, deg):
     Rpar = Rw[p] if p else C.I3
     local[b] = Rpar.T @ C.R(axis_world, deg) @ Rw[b]
     return local
+
+
+def aim_world(rig, local, trans, b, target_dir, amt):
+    """Turn bone b (minimal rotation, applied in world space) so its current direction moves amt (0..1) of the way
+    toward target_dir."""
+    if amt <= 1e-6:
+        return local
+    Rw, _ = rig.fk(local, trans)
+    nxt = rig.tips.get(b)
+    kids = [c for c, p in rig.bones if p == b]
+    rest = (rig.J[kids[0]] if kids else nxt) - rig.J[b]
+    cur = C.nrm(Rw[b] @ rest)
+    tgt = C.nrm(np.asarray(target_dir, float))
+    ang = math.degrees(math.acos(max(-1.0, min(1.0, float(np.dot(cur, tgt))))))
+    ax = np.cross(cur, tgt)
+    if np.linalg.norm(ax) < 1e-8 or ang < 1e-4:
+        return local
+    return bend_world(rig, local, trans, b, C.nrm(ax), ang * min(1.0, amt))
 
 
 def chain_points(rig, local, trans, bones):

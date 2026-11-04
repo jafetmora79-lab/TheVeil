@@ -273,6 +273,14 @@ def check_anims(name, m, g, res):
                 if d > 1e-4:
                     F(f"{name}/{c['name']}: loop not seamless on {b} {p}")
                     break
+                if len(V) > 3:   # no pop at the seam: the last step may not be much larger than the clip's other steps
+                    if p == "rotation":
+                        st = np.degrees(2 * np.arccos(np.clip(np.abs(np.einsum("ij,ij->i", V[1:], V[:-1])), 0, 1)))
+                    else:
+                        st = np.linalg.norm(V[1:] - V[:-1], axis=1)
+                    if st[-1] > 1.6 * st[:-1].max() + (0.3 if p == "rotation" else 0.005):
+                        F(f"{name}/{c['name']}: loop pops at the seam on {b} {p} ({st[-1]:.3f} vs {st[:-1].max():.3f})")
+                        break
         P, Jt, Wt, I = g["P"], g["Jt"], g["Wt"], g["I"]
         if E is None:
             E = np.unique(np.sort(np.vstack([I[:, [0, 1]], I[:, [1, 2]], I[:, [2, 0]]]), 1), axis=0)
@@ -297,7 +305,7 @@ def check_anims(name, m, g, res):
             p999 = max(p999, float(np.percentile(r, 99.9)))
         death = "death" in c["name"].lower()
         res["clips"][c["name"]] = dict(keys=len(keys), min_y=round(miny, 3), stretch=round(mx, 2), p999=round(p999, 2))
-        if miny < lim["min_y"]:
+        if miny < lim["min_y"] and c["name"] not in lim.get("min_y_exempt", []):
             F(f"{name}/{c['name']}: mesh dips {miny:.2f} m below the ground")
         if mx > lim["max_stretch_death" if death else "max_stretch"]:
             F(f"{name}/{c['name']}: edge stretch {mx:.2f} over the limit")
@@ -421,8 +429,12 @@ func _initialize():
 				best = max(best, p0.origin.distance_to(p1.origin) + (p0.basis.get_rotation_quaternion().angle_to(p1.basis.get_rotation_quaternion())))
 			moved.append(snapped(best, 0.001))
 		var shapes = inst.find_children("*", "CollisionShape3D", true, false).size()
+		var ovr = 0
+		for i in mi.mesh.get_surface_count():
+			if mi.get_surface_override_material(i) is ShaderMaterial:
+				ovr += 1
 		print("CHECK OK ", m["name"], " bones=", sk.get_bone_count(), " skinned=", mi.skin != null, " mats=", ",".join(mats),
-			" emissive=", emis, " reset=", ap.has_animation("RESET"), " shapes=", shapes, " clips=", "|".join(clips),
+			" emissive=", emis, " reset=", ap.has_animation("RESET"), " shapes=", shapes, " overrides=", ovr, " clips=", "|".join(clips),
 			" moved=", ",".join(moved.map(func(x): return str(x))))
 		inst.queue_free()
 		await process_frame
@@ -499,6 +511,8 @@ def run_godot(godot, proj, man):
                 F(f"Godot {nm}: materials {kv['mats']} are not the external .tres")
             if kv["reset"] != "true":
                 F(f"Godot {nm}: no RESET animation")
+            if m["limits"].get("override_materials") and int(kv["overrides"]) != len(m["materials"]):
+                F(f"Godot {nm}: mist-fade shader overrides not applied ({kv['overrides']}/{len(m['materials'])})")
             if int(kv["shapes"]) < 1:
                 F(f"Godot {nm}: scene has no collision")
             for c, mv in zip(kv["clips"].split("|"), kv["moved"].split(",")):

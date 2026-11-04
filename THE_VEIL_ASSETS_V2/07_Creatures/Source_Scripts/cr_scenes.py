@@ -21,7 +21,8 @@ def _tf(pos, basis=None):
     return "Transform3D(" + ", ".join(f"{v:g}" for v in list(b) + [round(float(x), 4) for x in pos]) + ")"
 
 
-def creature_scene(path, root_name, glb, shapes, markers, meta, script=None, root_type="CharacterBody3D", extra_nodes=""):
+def creature_scene(path, root_name, glb, shapes, markers, meta, script=None, root_type="CharacterBody3D", extra_nodes="",
+                   shape_parent=None, props=None):
     """shapes: [(node, kind, params dict, pos)] kind in BoxShape3D / CylinderShape3D / CapsuleShape3D / SphereShape3D.
     markers: [(node, pos)]. meta: {key: value} stored as node metadata."""
     ext = [f'[ext_resource type="PackedScene" path="{C.res_of(glb)}" id="1_model"]']
@@ -37,6 +38,8 @@ def creature_scene(path, root_name, glb, shapes, markers, meta, script=None, roo
     root = [f'[node name="{root_name}" type="{root_type}"]']
     if script:
         root.append('script = ExtResource("2_script")')
+    for k, v in (props or {}).items():
+        root.append(f"{k} = {v}")
     for k, v in meta.items():
         if isinstance(v, (list, tuple)):
             root.append(f"metadata/{k} = PackedStringArray(" + ", ".join(json.dumps(x) for x in v) + ")")
@@ -45,11 +48,19 @@ def creature_scene(path, root_name, glb, shapes, markers, meta, script=None, roo
         else:
             root.append(f"metadata/{k} = {v:g}")
     body = ["\n".join(root), '[node name="Model" parent="." instance=ExtResource("1_model")]']
+    sp = "."
+    if shape_parent and shapes:
+        body.append(f'[node name="{shape_parent}" type="Area3D" parent="."]\nmonitoring = false')
+        sp = shape_parent
     for k, (n, kind, prm, pos) in enumerate(shapes):
-        body.append(f'[node name="{n}" type="CollisionShape3D" parent="."]\ntransform = {_tf(pos)}\nshape = SubResource("{kind}_{k}")')
-    if markers:
+        body.append(f'[node name="{n}" type="CollisionShape3D" parent="{sp}"]\ntransform = {_tf(pos)}\nshape = SubResource("{kind}_{k}")')
+    top = [m for m in markers if m[0].startswith("/")]
+    for n, pos in top:      # "/Name" = marker directly under the root
+        body.append(f'[node name="{n[1:]}" type="Marker3D" parent="."]\ntransform = {_tf(pos)}')
+    rest = [m for m in markers if not m[0].startswith("/")]
+    if rest:
         body.append('[node name="Markers" type="Node3D" parent="."]')
-        for n, pos in markers:
+        for n, pos in rest:
             body.append(f'[node name="{n}" type="Marker3D" parent="Markers"]\ntransform = {_tf(pos)}')
     txt = head.rstrip() + "\n\n" + "\n\n".join(body) + "\n" + extra_nodes
     os.makedirs(os.path.dirname(path), exist_ok=True)
