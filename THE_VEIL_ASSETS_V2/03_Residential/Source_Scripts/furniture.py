@@ -190,7 +190,7 @@ def sofa(name="RES_Sofa_Plaid", fabric=None, w=2.0, seats=3, feet=WOOD_D):
     mb = MB()
     d, h = 0.9, 0.85
     legs(mb, feet, w - 0.1, d - 0.1, 0.1, r=0.03, taper=1.2)
-    rbox(mb, fabric, (-w / 2, 0.1, -d / 2), (w / 2, 0.42, d / 2 - 0.02), r=0.06)                  # base
+    rbox(mb, fabric, (-w / 2 + 0.01, 0.1, -d / 2), (w / 2 - 0.01, 0.42, d / 2 - 0.02), r=0.06)    # base (inside the arms)
     rbox(mb, fabric, (-w / 2 + 0.05, 0.42, -d / 2), (w / 2 - 0.05, h, -d / 2 + 0.22), r=0.08)     # back frame
     for sx in (-1, 1):                                                                           # rolled arms
         rbox(mb, fabric, (sx * w / 2 - (0.2 if sx > 0 else 0), 0.1, -d / 2), (sx * w / 2 + (0.0 if sx > 0 else 0.2), 0.66, d / 2),

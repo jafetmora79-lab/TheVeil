@@ -4517,7 +4517,7 @@
    "category": "Exterior_Modules",
    "glb": "03_Residential/Exterior_Modules/RES_Ext_Shutters_Pair.glb",
    "obj": "03_Residential/Exterior_Modules/OBJ/RES_Ext_Shutters_Pair.obj",
-   "triangles": 20,
+   "triangles": 16,
    "collision_triangles": 0,
    "collision": [
     "none"
@@ -6524,7 +6524,7 @@
    "category": "Interactive_Props",
    "glb": "03_Residential/Interactive_Props/RES_IP_CabinetDoorUnit.glb",
    "obj": "03_Residential/Interactive_Props/OBJ/RES_IP_CabinetDoorUnit.obj",
-   "triangles": 96,
+   "triangles": 108,
    "collision_triangles": 12,
    "collision": [
     "convcolonly"
@@ -6574,7 +6574,7 @@
    "category": "Interactive_Props",
    "glb": "03_Residential/Interactive_Props/RES_IP_DrawerUnit.glb",
    "obj": "03_Residential/Interactive_Props/OBJ/RES_IP_DrawerUnit.obj",
-   "triangles": 184,
+   "triangles": 244,
    "collision_triangles": 12,
    "collision": [
     "convcolonly"
@@ -6930,7 +6930,7 @@
    "category": "House_Variants",
    "glb": "03_Residential/House_Variants/RES_House_TwoStorey.glb",
    "obj": "03_Residential/House_Variants/OBJ/RES_House_TwoStorey.obj",
-   "triangles": 10460,
+   "triangles": 10396,
    "collision_triangles": 1706,
    "collision": [
     "colonly",
@@ -9137,7 +9137,7 @@
    "category": "House_Variants",
    "glb": "03_Residential/House_Variants/RES_House_TwoStorey_B.glb",
    "obj": null,
-   "triangles": 10460,
+   "triangles": 10396,
    "collision_triangles": 1706,
    "collision": [
     "colonly",
@@ -10202,7 +10202,7 @@
    "category": "House_Variants",
    "glb": "03_Residential/House_Variants/RES_House_TwoStorey_Mirror.glb",
    "obj": null,
-   "triangles": 10460,
+   "triangles": 10396,
    "collision_triangles": 1706,
    "collision": [
     "colonly",

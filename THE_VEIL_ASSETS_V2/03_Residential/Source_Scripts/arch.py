@@ -237,7 +237,7 @@ def shutters(mb, M, u0, u1, v0, v1, z):
         pts = [[a, v0, z], [b, v0, z], [b, v1, z], [a, v1, z]]
         loc.quad(mr("Shutter"), *pts, n=(0, 0, 1 if z > 0 else -1), uv=[(0, 1), (1, 1), (1, 0), (0, 0)])
         loc.box(mr("Shutter"), (a, v0, min(0, z) if z < 0 else z - 0.03), (b, v1, z if z > 0 else z + 0.03),
-                skip=("+z" if z < 0 else "-z", "-y"))
+                skip=("+z", "-z", "-y"))         # front = the louvre quad, back = against the wall
         mb.merge(loc, M)
 
 
@@ -250,7 +250,7 @@ def stair(mb, col, origin, yaw, width, n, rise=RISE, tread=TREAD, mat_tread=WOOD
     for k in range(n):
         y = (k + 1) * rise
         z0, z1 = k * tread, (k + 1) * tread
-        loc.box(mat_tread, (0, y - 0.04, z0 - 0.02), (width, y, z1), skip=("-y",))     # tread with nosing
+        loc.box(mat_tread, (0.003, y - 0.04, z0 - 0.02), (width - 0.003, y, z1), skip=("-y",))     # tread with nosing (ends just inside the stringers)
         loc.quad(mat_side, [width, y - rise, z0], [0, y - rise, z0], [0, y - 0.04, z0], [width, y - 0.04, z0], n=(0, 0, -1))
     L = n * tread
     H = n * rise
