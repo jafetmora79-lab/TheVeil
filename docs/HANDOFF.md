@@ -496,3 +496,30 @@ playthrough test to make sure everything still agrees.
 * **Hygiene gotcha:** after a Godot import in the repo, extracted `*_N.png` / `.translation` files appear. Stage your
   new source files BEFORE any `git clean`. One clean deleted an unstaged generator and it had to be rewritten.
 * **Pack 04 / 06 builds rewrite `.import` files:** re-run `godot --headless --import` before tests, or preloads fail.
+
+### Chapter 5 polish (branch `claude/chapter5-polish`)
+
+* **Signs:** `com_plans.sign_3d` laid its letters out along +x, but the street-side reader has +x on their left, so
+  every 3D sign was mirrored. Text now runs from +x. The flat decal signs were already correct.
+* **Fridges:** the appliance-door hinge was authored as +100 deg, which swings a left-hinged leaf into the body. It
+  is now -100 (Pack 03 and `scavenge_houses.json`). `world._outward_deg` also recognises `ScavengeFurniture`.
+* **Front doors:** a front door whose colorway gives it a `Town_Paint*` texture (it read as concrete) now uses
+  stained wood. The survivor house's proportions are standard (2.6 m ceilings, 1.0 x 2.15 m doors), so it was not
+  reshaped.
+* **Pickups:**
+  * `pickup_highlight.gdshader` with `Interactable.set_focus`, and "TAKE <item name>" prompts from `items.json`.
+  * `player._assist_pickup`: a 10-degree / 16 cm aim assist with line of sight, which ignores the loot's own
+    container (`Interactable.container` / `los_ignore`).
+* **Inventory:** `game/ui/inventory_panel.gd` (grid, 3D-model icons, details, quantity, weight, actions that
+  exist). Weights and the 15 kg capacity are placeholders in `items.json` and are display only.
+* **Guidance:**
+  * `hud.set_marker()` puts one destination marker on screen; `chapter5._update_marker()` picks its target from
+    the objective flags.
+  * New objective step `c5_leave` (flag `c5_left_store`).
+* **Radio:** `game/props/veil_radio.gd` (reusable; `play_broadcast(dialogue_id)`). `RES_Radio` is now a modelled
+  radio with `Radio_Display` and `Radio_LED` nodes.
+* **Companion:** `companion_follow.gd` opens hinge doors across the trail, steps aside when the player walks into
+  it, and faces the player when idle.
+* **Not on this branch:** the light-budget fix, window-glass colliders and conversation camera live on
+  `claude/practical-cray-hi2y54`. Merging the two touches `world.gd`, `player.gd`, `hud.gd` and
+  `interactable.gd`.
