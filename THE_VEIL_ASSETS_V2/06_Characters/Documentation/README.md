@@ -28,6 +28,54 @@ The roster follows `docs/THE_VEIL_MASTER_CONTEXT.md`. Named story characters wer
 
 **Looks are design proposals.** They follow the bible's DESIGN PROPOSAL notes: the protagonist's gray jacket and dark jeans, Eddie's slouch, messy hair and worn hoodie, and so on. Faces, colours and small accessories are this pack's proposals, not new canon.
 
+## Facial expressions, eyes and talking (texture-swap faces)
+
+The approved heads have no blend shapes or facial bones. Every feature is painted into one 128x64 head texture, in the
+same layout on every character. So faces are animated by **swapping two small pixel windows** of that texture at
+runtime. The approved GLBs, meshes, UVs, textures, rigs and clothing are untouched.
+
+* **Atlases:** `Facial/Faces/T_Face_<Name>.png`, one per approved character (Eddie, Marcus, Protagonist, Ruth, Sarah,
+  Frank, Lena, Police_Officer). Each holds:
+  * 80 brow and eye cells: 10 expressions x 8 eye actions (none, blink, look left/right/up/down, widen, narrow);
+  * 50 mouth cells: 10 expressions x 5 visemes (rest, slight, wide, round, teeth).
+
+  The cells are built by `Source_Scripts/chr_faces.py` from each character's **own** approved pixels:
+  * brows, lids, whites, irises and lip lines are lifted off;
+  * the gap is refilled from the surrounding skin and stubble, keeping the dither pattern;
+  * the features are re-placed with small changes: brows raised, lowered, tilted or uneven; lids lowered or raised;
+    irises shifted; mouth corners and openings changed.
+
+  Glasses, moustaches, freckles, folds and age spots stay fixed on top. The neutral cells are the approved pixels,
+  checked to match exactly.
+* **Expressions:** neutral, happy, angry, scared, shocked, sad, suspicious, confused, determined, pain.
+* **Shader:** `Facial/veil_face.gdshader`. It draws the approved head texture and fetches the two windows from the
+  atlas. It uses nearest texel fetches, works with the Compatibility renderer, and keeps the original roughness and
+  specular.
+* **Controller:** `Facial/veil_face.gd` (`VeilFace`). Add it as a child of a character instance and set `face_atlas`.
+  ```gdscript
+  face.set_expression("scared")      # brows/eyes first, mouth 0.06 s later; set_expression(name, true) = instant
+  face.start_talking("angry")        # idle / angry / scared / happy / whisper - mouth shapes keep the current expression
+  face.stop_talking()                # back to the resting mouth
+  face.say(2.0, "whisper")           # talk for 2 s, then stop
+  face.blink(); face.look("left", 1.0); face.widen_eyes(); face.narrow_eyes()
+  ```
+  Expression, eye action and talking are independent layers. Blinking runs on its own timer (`auto_blink`), so the face
+  can be scared and talking and blinking at the same time. Neutral is the default.
+* **Demo:** `Facial/Face_Demo.tscn` (approved Marcus, a face close-up) cycles every expression, talking style and eye
+  action.
+
+What was tested (Godot 4.3, Compatibility renderer, fresh project, no screenshots):
+
+* **Install:** the shader material goes on and the head stays skinned. The imported atlases and head textures are
+  bit-exact with the source PNGs.
+* **Expressions:** all 10 switch exactly, and a transition moves the eyes before the mouth.
+* **Talking:** it cycles visemes while keeping the expression, stops back to rest, and `say()` stops by itself.
+* **Eyes:** blinking works, also while talking; looking in 4 directions, widen and narrow work.
+* **Body:** it still poses while the face talks.
+* **Coverage:** all 8 characters ran neutral, scared, angry, talking and blinking.
+
+The rendered look has not been seen. Only the atlases were inspected, as textures.
+
 ## Art-direction reference: the hand-made Eddie (current standard)
 
 `Commercial_NPCs/CHR_Eddie.glb` is the project owner's hand-made Eddie, built in Blender. The source is in
