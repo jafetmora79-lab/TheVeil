@@ -738,6 +738,179 @@
     ],
     "override_materials": true
    }
+  },
+  "CRT_Skitter": {
+   "name": "CRT_Skitter",
+   "glb": "07_Creatures/Skitter/CRT_Skitter.glb",
+   "triangles": 2976,
+   "bones": 31,
+   "bone_names": [
+    "Root",
+    "Body",
+    "Head",
+    "Mandible_L",
+    "Mandible_R",
+    "Antenna_L_01",
+    "Antenna_L_02",
+    "Antenna_L_03",
+    "Antenna_R_01",
+    "Antenna_R_02",
+    "Antenna_R_03",
+    "Abdomen_01",
+    "Abdomen_02",
+    "Leg_L1_Upper",
+    "Leg_L1_Lower",
+    "Leg_L1_Foot",
+    "Leg_R1_Upper",
+    "Leg_R1_Lower",
+    "Leg_R1_Foot",
+    "Leg_L2_Upper",
+    "Leg_L2_Lower",
+    "Leg_L2_Foot",
+    "Leg_R2_Upper",
+    "Leg_R2_Lower",
+    "Leg_R2_Foot",
+    "Leg_L3_Upper",
+    "Leg_L3_Lower",
+    "Leg_L3_Foot",
+    "Leg_R3_Upper",
+    "Leg_R3_Lower",
+    "Leg_R3_Foot"
+   ],
+   "materials": [
+    "M_Crt_Skitter"
+   ],
+   "sockets": [
+    "Socket_Head",
+    "Socket_Sac"
+   ],
+   "clips": [
+    {
+     "name": "Idle_Twitch",
+     "duration_s": 3.0,
+     "loop": true
+    },
+    {
+     "name": "Crawl",
+     "duration_s": 1.2,
+     "loop": true
+    },
+    {
+     "name": "Scuttle_Fast",
+     "duration_s": 0.34,
+     "loop": true
+    },
+    {
+     "name": "Alert",
+     "duration_s": 1.2,
+     "loop": false
+    },
+    {
+     "name": "Attack_Lunge",
+     "duration_s": 1.0,
+     "loop": false
+    },
+    {
+     "name": "Hit_React",
+     "duration_s": 0.6,
+     "loop": false
+    },
+    {
+     "name": "Death",
+     "duration_s": 1.6,
+     "loop": false
+    }
+   ],
+   "scene": "07_Creatures/Godot_Scenes/CRT_Skitter.tscn",
+   "probe_bone": "Leg_R1_Foot",
+   "edge_floor": 0.015,
+   "feet": [
+    "Leg_L1_Foot",
+    "Leg_R1_Foot",
+    "Leg_L2_Foot",
+    "Leg_R2_Foot",
+    "Leg_L3_Foot",
+    "Leg_R3_Foot"
+   ],
+   "checks": {
+    "Idle_Twitch": {
+     "min_y": 0.0028,
+     "max_stretch": 1.0493,
+     "p999_stretch": 1.0293,
+     "min_squash": 0.9725,
+     "lowest_contact_y": -0.0,
+     "highest_lowest_foot_y": 0.0,
+     "planted_slip": 0.0084,
+     "loop_seamless": true
+    },
+    "Crawl": {
+     "min_y": 0.0028,
+     "max_stretch": 1.1067,
+     "p999_stretch": 1.0753,
+     "min_squash": 0.9213,
+     "lowest_contact_y": -0.0,
+     "highest_lowest_foot_y": 0.0,
+     "planted_slip": 0.0209,
+     "loop_seamless": true
+    },
+    "Scuttle_Fast": {
+     "min_y": -0.0034,
+     "max_stretch": 1.1237,
+     "p999_stretch": 1.1117,
+     "min_squash": 0.8887,
+     "lowest_contact_y": -0.0,
+     "highest_lowest_foot_y": 0.0,
+     "planted_slip": 0.088,
+     "loop_seamless": true
+    },
+    "Alert": {
+     "min_y": -0.0009,
+     "max_stretch": 1.1813,
+     "p999_stretch": 1.1469,
+     "min_squash": 0.8915,
+     "lowest_contact_y": -0.0,
+     "highest_lowest_foot_y": 0.0,
+     "planted_slip": 0.0,
+     "loop_seamless": null
+    },
+    "Attack_Lunge": {
+     "min_y": -0.0189,
+     "max_stretch": 1.2716,
+     "p999_stretch": 1.2263,
+     "min_squash": 0.6504,
+     "lowest_contact_y": -0.022,
+     "highest_lowest_foot_y": 0.0115,
+     "planted_slip": 0.1616,
+     "loop_seamless": null
+    },
+    "Hit_React": {
+     "min_y": 0.0028,
+     "max_stretch": 1.138,
+     "p999_stretch": 1.1163,
+     "min_squash": 0.8686,
+     "lowest_contact_y": -0.0,
+     "highest_lowest_foot_y": 0.0,
+     "planted_slip": 0.1112,
+     "loop_seamless": null
+    },
+    "Death": {
+     "min_y": -0.0208,
+     "max_stretch": 1.3166,
+     "p999_stretch": 1.3021,
+     "min_squash": 0.6802,
+     "lowest_contact_y": 0.0,
+     "highest_lowest_foot_y": 1.1973,
+     "planted_slip": 0.0,
+     "loop_seamless": null
+    }
+   },
+   "limits": {
+    "max_stretch": 2.0,
+    "max_stretch_death": 2.2,
+    "p999_stretch": 1.6,
+    "p999_stretch_death": 1.75,
+    "min_y": -0.03
+   }
   }
  }
 }

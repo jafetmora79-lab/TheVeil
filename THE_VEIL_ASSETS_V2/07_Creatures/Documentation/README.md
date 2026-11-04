@@ -13,7 +13,7 @@ quality, and no screenshots, renders or videos were made.**
 | 1 | Colossus | done | `Colossus/CRT_Colossus.glb` | `Godot_Scenes/CRT_Colossus.tscn` |
 | 2 | Mist Tentacles (3 variants) | done | `Mist_Tentacles/CRT_MistTentacle_{Thin,Medium,Large}.glb` | `Godot_Scenes/CRT_MistTentacle_{Thin,Medium,Large}.tscn` |
 | 3 | Hound | done | `Hounds/CRT_Hound.glb` | `Godot_Scenes/CRT_Hound.tscn` |
-| 4 | Skitter | see below | `Skitter/` | `Godot_Scenes/` |
+| 4 | Skitter | done | `Skitter/CRT_Skitter.glb` | `Godot_Scenes/CRT_Skitter.tscn` |
 | 5 | Shellcrawler | see below | `Shellcrawler/` | `Godot_Scenes/` |
 
 The **Wanderer is removed** from this pack (owner's brief). No humanoid enemies are generated. No Wanderer assets
@@ -230,6 +230,49 @@ A ground guard lifts the head and tail so they never pass through the ground.
 
 **Scene:** a `CharacterBody3D` with `Model`, a body box and a head box, `Markers/LookTarget` and `Markers/BiteReach`.
 Its metadata holds the walk / run speeds.
+
+## Creature 04 - The Skitter
+
+`Skitter/CRT_Skitter.glb` - 31 bones (+2 sockets), 2 976 triangles, one material (`M_Crt_Skitter`, 256 px atlas with
+faint emission on the eyes and the sac). Scene: `Godot_Scenes/CRT_Skitter.tscn`.
+
+**Size:** about 0.65 m tall at the high leg joints, 2.1 m across the legs, 1.6 m from the antenna tips to the abdomen.
+
+**Anatomy (insect-inspired, but neither beetle nor spider):**
+
+* **Six zig-zag legs**, far too long for the body. Each leg leaves the thorax, drops to a low knee under the body
+  line, climbs to a high joint above it, then stabs down on a long needle tarsus. The legs read as "W" shapes with
+  the body hanging low between them. The front-right leg is the longest and carries an extra spur. Chitin knobs sit
+  on every joint.
+* A small **segmented thorax** (three fused segments) under uneven, overlapping chitin plates, with a lopsided
+  pronotum shield.
+* A **two-segment abdomen** that curls up and to the right, with a pale luminous sac hanging underneath.
+* A tiny **head** that is mostly a sensory cluster: seven pale bead eyes set asymmetrically, two long crossing pincer
+  mandibles and four palps.
+* Two long whip **antennae**; the left one is longer and forks near its tip.
+
+**Skeleton:**
+
+* `Root > Body`, with these children:
+  * `Head > Mandible_L / Mandible_R / Antenna_{L,R}_01-03`
+  * `Abdomen_01 > Abdomen_02`
+* Legs `Leg_{L1,R1,L2,R2,L3,R3}_{Upper,Lower,Foot}`: hip to low knee, low knee to high joint, needle.
+* Sockets `Socket_Head`, `Socket_Sac`.
+
+**Clips** (30 fps keys, in place, tripod gait with IK-planted needles):
+
+| Clip | Length | Loop | Notes |
+|---|---|---|---|
+| `Idle_Twitch` | 3.0 s | yes | near-still body with abrupt one- or two-frame twitches: head snaps, antenna flicks, mandible clicks, leg taps |
+| `Crawl` | 1.2 s | yes | alternating tripod, 0.34 m stride, about 0.47 m/s |
+| `Scuttle_Fast` | 0.34 s | yes | fast tripod, 0.44 m stride, about 2.6 m/s, with jittery head and body yaw |
+| `Alert` | 1.2 s | no | snaps up in 0.14 s: front raised, forelegs lifted, antennae spread forward, mandibles open; ends held |
+| `Attack_Lunge` | 1.0 s | no | crouch, explosive 0.42 m lunge with the forelegs stabbing forward / up and the mandibles snapping |
+| `Hit_React` | 0.6 s | no | violent sideways jerk, legs splay, antennae fold |
+| `Death` | 1.6 s | no | spasm, the body drops, then the legs curl in toward the body (the dead-insect fold) and the antennae curl |
+
+**Scene:** a `CharacterBody3D` with `Model`, a body box and a leg-span box, `Markers/LookTarget` and
+`Markers/LungeReach`.
 
 ## Lore notes / conflicts with the project bible (the bible was not modified)
 
