@@ -1,8 +1,9 @@
-[gd_scene load_steps=4 format=3]
+[gd_scene load_steps=5 format=3]
 
 [ext_resource type="PackedScene" path="res://THE_VEIL_ASSETS_V2/04_Commercial/Supermarket/COM_Supermarket.glb" id="1_COM_Supermarket"]
 [ext_resource type="PackedScene" path="res://THE_VEIL_ASSETS_V2/04_Commercial/Supermarket/COM_Supermarket_Furnishing.glb" id="2_COM_Supermarket_Furnishi"]
-[ext_resource type="PackedScene" path="res://THE_VEIL_ASSETS_V2/05_Vehicles/Transportation_Props/TRN_ShoppingCart.tscn" id="3_TRN_ShoppingCart"]
+[ext_resource type="PackedScene" path="res://THE_VEIL_ASSETS_V2/04_Commercial/Shared_Props/COM_Cooler_Beverage.glb" id="3_COM_Cooler_Beverage"]
+[ext_resource type="PackedScene" path="res://THE_VEIL_ASSETS_V2/05_Vehicles/Transportation_Props/TRN_ShoppingCart.tscn" id="4_TRN_ShoppingCart"]
 
 [node name="Supermarket" type="Node3D"]
 metadata/location_id = "supermarket"
@@ -20,28 +21,40 @@ metadata/exterior_doors = [{"name": "INT_Arch_Entrance", "kind": "arch", "w": 2.
 [node name="Props" type="Node3D" parent="."]
 
 
-[node name="Cart_0" parent="Props" instance=ExtResource("3_TRN_ShoppingCart")]
+[node name="Cooler_Beverage_0" parent="Props" instance=ExtResource("3_COM_Cooler_Beverage")]
+transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, -1.66, 0.04, 13.73)
+
+[node name="Cooler_Beverage_1" parent="Props" instance=ExtResource("3_COM_Cooler_Beverage")]
+transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 0.7, 0.04, 13.73)
+
+[node name="Cooler_Beverage_2" parent="Props" instance=ExtResource("3_COM_Cooler_Beverage")]
+transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 3.06, 0.04, 13.73)
+
+[node name="Cooler_Beverage_3" parent="Props" instance=ExtResource("3_COM_Cooler_Beverage")]
+transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 5.42, 0.04, 13.73)
+
+[node name="Cart_0" parent="Props" instance=ExtResource("4_TRN_ShoppingCart")]
 transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, -3, 0.04, 0.75)
 
-[node name="Cart_1" parent="Props" instance=ExtResource("3_TRN_ShoppingCart")]
+[node name="Cart_1" parent="Props" instance=ExtResource("4_TRN_ShoppingCart")]
 transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, -3, 0.04, 1.6)
 
-[node name="Cart_2" parent="Props" instance=ExtResource("3_TRN_ShoppingCart")]
+[node name="Cart_2" parent="Props" instance=ExtResource("4_TRN_ShoppingCart")]
 transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, -3, 0.04, 2.45)
 
-[node name="Cart_3" parent="Props" instance=ExtResource("3_TRN_ShoppingCart")]
+[node name="Cart_3" parent="Props" instance=ExtResource("4_TRN_ShoppingCart")]
 transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 3, 0.04, 0.75)
 
-[node name="Cart_4" parent="Props" instance=ExtResource("3_TRN_ShoppingCart")]
+[node name="Cart_4" parent="Props" instance=ExtResource("4_TRN_ShoppingCart")]
 transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 3, 0.04, 1.6)
 
-[node name="Cart_5" parent="Props" instance=ExtResource("3_TRN_ShoppingCart")]
+[node name="Cart_5" parent="Props" instance=ExtResource("4_TRN_ShoppingCart")]
 transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 3, 0.04, 2.45)
 
-[node name="Cart_6" parent="Props" instance=ExtResource("3_TRN_ShoppingCart")]
+[node name="Cart_6" parent="Props" instance=ExtResource("4_TRN_ShoppingCart")]
 transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, -12, 0, -9)
 
-[node name="Cart_7" parent="Props" instance=ExtResource("3_TRN_ShoppingCart")]
+[node name="Cart_7" parent="Props" instance=ExtResource("4_TRN_ShoppingCart")]
 transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, -11, 0, -9)
 
 [node name="Lights" type="Node3D" parent="."]
@@ -258,62 +271,62 @@ metadata/fixture = "COM_Cooler_Dairy"
 [node name="CoolerDoor_1_13" type="Marker3D" parent="Interaction"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.88, 1.04, 13.23)
 metadata/kind = "cooler_door"
-metadata/fixture = "COM_Cooler_Drinks"
+metadata/fixture = "COM_Cooler_Beverage"
 
 [node name="CoolerDoor_2_14" type="Marker3D" parent="Interaction"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1.66, 1.04, 13.23)
 metadata/kind = "cooler_door"
-metadata/fixture = "COM_Cooler_Drinks"
+metadata/fixture = "COM_Cooler_Beverage"
 
 [node name="CoolerDoor_3_15" type="Marker3D" parent="Interaction"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2.44, 1.04, 13.23)
 metadata/kind = "cooler_door"
-metadata/fixture = "COM_Cooler_Drinks"
+metadata/fixture = "COM_Cooler_Beverage"
 
 [node name="CoolerDoor_1_16" type="Marker3D" parent="Interaction"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.48, 1.04, 13.23)
 metadata/kind = "cooler_door"
-metadata/fixture = "COM_Cooler_Drinks"
+metadata/fixture = "COM_Cooler_Beverage"
 
 [node name="CoolerDoor_2_17" type="Marker3D" parent="Interaction"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.7, 1.04, 13.23)
 metadata/kind = "cooler_door"
-metadata/fixture = "COM_Cooler_Drinks"
+metadata/fixture = "COM_Cooler_Beverage"
 
 [node name="CoolerDoor_3_18" type="Marker3D" parent="Interaction"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.08, 1.04, 13.23)
 metadata/kind = "cooler_door"
-metadata/fixture = "COM_Cooler_Drinks"
+metadata/fixture = "COM_Cooler_Beverage"
 
 [node name="CoolerDoor_1_19" type="Marker3D" parent="Interaction"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 3.84, 1.04, 13.23)
 metadata/kind = "cooler_door"
-metadata/fixture = "COM_Cooler_Drinks"
+metadata/fixture = "COM_Cooler_Beverage"
 
 [node name="CoolerDoor_2_20" type="Marker3D" parent="Interaction"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 3.06, 1.04, 13.23)
 metadata/kind = "cooler_door"
-metadata/fixture = "COM_Cooler_Drinks"
+metadata/fixture = "COM_Cooler_Beverage"
 
 [node name="CoolerDoor_3_21" type="Marker3D" parent="Interaction"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2.28, 1.04, 13.23)
 metadata/kind = "cooler_door"
-metadata/fixture = "COM_Cooler_Drinks"
+metadata/fixture = "COM_Cooler_Beverage"
 
 [node name="CoolerDoor_1_22" type="Marker3D" parent="Interaction"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 6.2, 1.04, 13.23)
 metadata/kind = "cooler_door"
-metadata/fixture = "COM_Cooler_Drinks"
+metadata/fixture = "COM_Cooler_Beverage"
 
 [node name="CoolerDoor_2_23" type="Marker3D" parent="Interaction"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 5.42, 1.04, 13.23)
 metadata/kind = "cooler_door"
-metadata/fixture = "COM_Cooler_Drinks"
+metadata/fixture = "COM_Cooler_Beverage"
 
 [node name="CoolerDoor_3_24" type="Marker3D" parent="Interaction"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 4.64, 1.04, 13.23)
 metadata/kind = "cooler_door"
-metadata/fixture = "COM_Cooler_Drinks"
+metadata/fixture = "COM_Cooler_Beverage"
 
 [node name="CoolerDoor_1_25" type="Marker3D" parent="Interaction"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 18.99, 1.04, 4.72)
