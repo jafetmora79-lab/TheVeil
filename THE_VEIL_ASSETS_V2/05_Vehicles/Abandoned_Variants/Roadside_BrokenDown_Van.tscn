@@ -1,0 +1,28 @@
+[gd_scene load_steps=6 format=3]
+
+[ext_resource type="PackedScene" path="res://THE_VEIL_ASSETS_V2/05_Vehicles/Abandoned_Variants/VEH_DeliveryVan_BrokenDown.glb" id="1_VEH_DeliveryVan_Brok"]
+[ext_resource type="PackedScene" path="res://THE_VEIL_ASSETS_V2/05_Vehicles/Transportation_Props/TRN_EmergencyTriangle.glb" id="2_TRN_EmergencyTriangl"]
+[ext_resource type="PackedScene" path="res://THE_VEIL_ASSETS_V2/05_Vehicles/Transportation_Props/TRN_GasCan.glb" id="3_TRN_GasCan"]
+[ext_resource type="PackedScene" path="res://THE_VEIL_ASSETS_V2/05_Vehicles/Transportation_Props/TRN_SpareTire.glb" id="4_TRN_SpareTire"]
+[ext_resource type="PackedScene" path="res://THE_VEIL_ASSETS_V2/02_Town/Street_Props/SP_TrafficCone.glb" id="5_SP_TrafficCone"]
+
+[node name="Roadside_BrokenDown_Van" type="Node3D"]
+
+
+[node name="Van" parent="." instance=ExtResource("1_VEH_DeliveryVan_Brok")]
+
+
+[node name="Triangle" parent="." instance=ExtResource("2_TRN_EmergencyTriangl")]
+transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, -0.4, 0, 7.5)
+
+[node name="GasCan" parent="." instance=ExtResource("3_TRN_GasCan")]
+transform = Transform3D(0.939693, 0, 0.34202, 0, 1, 0, -0.34202, 0, 0.939693, 1.4, 0, 2.2)
+
+[node name="SpareTire" parent="." instance=ExtResource("4_TRN_SpareTire")]
+transform = Transform3D(0.173648, 0, 0.984808, 0, 1, 0, -0.984808, 0, 0.173648, 1.35, 0, 0.9)
+
+[node name="Cone_0" parent="." instance=ExtResource("5_SP_TrafficCone")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1.6, 0, 4.5)
+
+[node name="Cone_1" parent="." instance=ExtResource("5_SP_TrafficCone")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1.3, 0, 6)

@@ -1,0 +1,73 @@
+[gd_scene load_steps=3 format=3]
+
+[ext_resource type="PackedScene" path="res://THE_VEIL_ASSETS_V2/05_Vehicles/Protagonist_Sedan/VEH_ProtagonistSedan.glb" id="1_VEH_ProtagonistSedan"]
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_1"]
+size = Vector3(1.1, 1.8, 1.6)
+
+[node name="ProtagonistSedan" type="Node3D"]
+metadata/vehicle_id = "protagonist_sedan"
+metadata/forward = "-Z"
+
+[node name="Model" parent="." instance=ExtResource("1_VEH_ProtagonistSedan")]
+
+
+[node name="DriverCamera" type="Camera3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.37, 1.18, 0.15)
+fov = 72.0
+near = 0.05
+current = false
+
+[node name="Lights" type="Node3D" parent="."]
+
+
+[node name="Headlight_L" type="SpotLight3D" parent="Lights"]
+transform = Transform3D(1, 0, 0, 0, 0.997564, 0.069756, 0, -0.069756, 0.997564, -0.56, 0.58, -2.384)
+visible = false
+light_color = Color(1, 0.94, 0.8, 1)
+light_energy = 3.0
+spot_range = 28.0
+spot_angle = 30.0
+shadow_enabled = false
+
+[node name="Taillight_L" type="OmniLight3D" parent="Lights"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.6, 0.8, 2.384)
+visible = false
+light_color = Color(1, 0.15, 0.1, 1)
+light_energy = 0.6
+omni_range = 1.6
+shadow_enabled = false
+
+[node name="Headlight_R" type="SpotLight3D" parent="Lights"]
+transform = Transform3D(1, 0, 0, 0, 0.997564, 0.069756, 0, -0.069756, 0.997564, 0.56, 0.58, -2.384)
+visible = false
+light_color = Color(1, 0.94, 0.8, 1)
+light_energy = 3.0
+spot_range = 28.0
+spot_angle = 30.0
+shadow_enabled = false
+
+[node name="Taillight_R" type="OmniLight3D" parent="Lights"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.6, 0.8, 2.384)
+visible = false
+light_color = Color(1, 0.15, 0.1, 1)
+light_energy = 0.6
+omni_range = 1.6
+shadow_enabled = false
+
+[node name="Interaction" type="Node3D" parent="."]
+
+
+[node name="EntryArea_Driver" type="Area3D" parent="Interaction"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1.228, 0.9, -0.31)
+monitorable = false
+
+[node name="Shape" type="CollisionShape3D" parent="Interaction/EntryArea_Driver"]
+shape = SubResource("BoxShape3D_1")
+
+[node name="EntryArea_Passenger" type="Area3D" parent="Interaction"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.228, 0.9, -0.31)
+monitorable = false
+
+[node name="Shape" type="CollisionShape3D" parent="Interaction/EntryArea_Passenger"]
+shape = SubResource("BoxShape3D_1")

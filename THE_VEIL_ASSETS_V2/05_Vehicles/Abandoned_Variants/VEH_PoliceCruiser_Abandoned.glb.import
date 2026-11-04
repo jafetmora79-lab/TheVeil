@@ -1,0 +1,45 @@
+[remap]
+
+importer="scene"
+importer_version=1
+type="PackedScene"
+path="res://.godot/imported/VEH_PoliceCruiser_Abandoned.glb-7df2163827904324ae1b6b21c24a119d.scn"
+
+[deps]
+
+source_file="res://THE_VEIL_ASSETS_V2/05_Vehicles/Abandoned_Variants/VEH_PoliceCruiser_Abandoned.glb"
+dest_files=["res://.godot/imported/VEH_PoliceCruiser_Abandoned.glb-7df2163827904324ae1b6b21c24a119d.scn"]
+
+[params]
+
+nodes/root_type=""
+nodes/root_name=""
+nodes/apply_root_scale=true
+nodes/root_scale=1.0
+meshes/ensure_tangents=false
+meshes/generate_lods=false
+meshes/create_shadow_meshes=true
+meshes/light_baking=1
+meshes/lightmap_texel_size=0.2
+meshes/force_disable_compression=false
+skins/use_named_skins=true
+animation/import=false
+import_script/path=""
+_subresources={
+"materials": {
+"M_Veh_Atlas_Weathered": {
+"use_external/enabled": true,
+"use_external/path": "res://THE_VEIL_ASSETS_V2/05_Vehicles/Shared_Materials/M_Veh_Atlas_Weathered.tres"
+},
+"M_Veh_Glass_Dirty": {
+"use_external/enabled": true,
+"use_external/path": "res://THE_VEIL_ASSETS_V2/05_Vehicles/Shared_Materials/M_Veh_Glass_Dirty.tres"
+},
+"M_Veh_Lights_Off": {
+"use_external/enabled": true,
+"use_external/path": "res://THE_VEIL_ASSETS_V2/05_Vehicles/Shared_Materials/M_Veh_Lights_Off.tres"
+}
+}
+}
+gltf/naming_version=1
+gltf/embedded_image_handling=1
