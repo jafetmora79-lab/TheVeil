@@ -1,0 +1,77 @@
+[gd_scene load_steps=9 format=3]
+
+[ext_resource type="PackedScene" path="res://THE_VEIL_ASSETS_V2/07_Creatures/Colossus/CRT_Colossus.glb" id="1_model"]
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_0"]
+size = Vector3(5.8, 4.2, 12)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_1"]
+size = Vector3(3.2, 2.2, 5.6)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_2"]
+size = Vector3(2.2, 2.2, 2.6)
+
+[sub_resource type="CylinderShape3D" id="CylinderShape3D_3"]
+height = 10.4
+radius = 0.6
+
+[sub_resource type="CylinderShape3D" id="CylinderShape3D_4"]
+height = 10
+radius = 0.55
+
+[sub_resource type="CylinderShape3D" id="CylinderShape3D_5"]
+height = 9.2
+radius = 0.65
+
+[sub_resource type="CylinderShape3D" id="CylinderShape3D_6"]
+height = 9
+radius = 0.6
+
+[node name="Colossus" type="CharacterBody3D"]
+metadata/veil_creature = "Colossus"
+metadata/faces = "+Z"
+metadata/animation_player = "Model/AnimationPlayer"
+metadata/animations = PackedStringArray("Idle_Breathe", "Walk_Heavy", "Tentacles_Sway", "Alert", "Attack_TentacleStrike", "Attack_Heavy", "Hit_React", "Death_Collapse")
+metadata/walk_speed_mps = 1
+metadata/strike_impact_time_s = 1.05
+
+[node name="Model" parent="." instance=ExtResource("1_model")]
+
+[node name="BodyShape" type="CollisionShape3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 10.3, 0.3)
+shape = SubResource("BoxShape3D_0")
+
+[node name="SacShape" type="CollisionShape3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 6.6, -0.2)
+shape = SubResource("BoxShape3D_1")
+
+[node name="HeadShape" type="CollisionShape3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 8, 6.5)
+shape = SubResource("BoxShape3D_2")
+
+[node name="LegShape_FL" type="CollisionShape3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -5.8, 5.2, 5)
+shape = SubResource("CylinderShape3D_3")
+
+[node name="LegShape_FR" type="CollisionShape3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 5.5, 5, 4.6)
+shape = SubResource("CylinderShape3D_4")
+
+[node name="LegShape_HL" type="CollisionShape3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -4.2, 4.6, -3.5)
+shape = SubResource("CylinderShape3D_5")
+
+[node name="LegShape_HR" type="CollisionShape3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 3.9, 4.5, -3.8)
+shape = SubResource("CylinderShape3D_6")
+
+[node name="Markers" type="Node3D" parent="."]
+
+[node name="LookTarget" type="Marker3D" parent="Markers"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 8, 7.4)
+
+[node name="CoreTarget" type="Marker3D" parent="Markers"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.3, 8.35, -0.3)
+
+[node name="StrikeImpact" type="Marker3D" parent="Markers"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 6.9362, 20.2409, 2.2098)

@@ -1,0 +1,75 @@
+[remap]
+
+importer="scene"
+importer_version=1
+type="PackedScene"
+path="res://.godot/imported/CRT_Colossus.glb-9111b2a4b68840b70a94e6c2763467ef.scn"
+
+[deps]
+
+source_file="res://THE_VEIL_ASSETS_V2/07_Creatures/Colossus/CRT_Colossus.glb"
+dest_files=["res://.godot/imported/CRT_Colossus.glb-9111b2a4b68840b70a94e6c2763467ef.scn"]
+
+[params]
+
+nodes/root_type=""
+nodes/root_name=""
+nodes/apply_root_scale=true
+nodes/root_scale=1.0
+meshes/ensure_tangents=false
+meshes/generate_lods=false
+meshes/create_shadow_meshes=true
+meshes/light_baking=1
+meshes/lightmap_texel_size=0.2
+meshes/force_disable_compression=false
+skins/use_named_skins=true
+animation/import=true
+animation/fps=30
+animation/trimming=false
+animation/remove_immutable_tracks=false
+animation/import_rest_as_RESET=true
+import_script/path=""
+_subresources={
+"animations": {
+"Idle_Breathe": {
+"settings/loop_mode": 1
+},
+"Walk_Heavy": {
+"settings/loop_mode": 1
+},
+"Tentacles_Sway": {
+"settings/loop_mode": 1
+},
+"Alert": {
+"settings/loop_mode": 0
+},
+"Attack_TentacleStrike": {
+"settings/loop_mode": 0
+},
+"Attack_Heavy": {
+"settings/loop_mode": 0
+},
+"Hit_React": {
+"settings/loop_mode": 0
+},
+"Death_Collapse": {
+"settings/loop_mode": 0
+}
+},
+"materials": {
+"M_Crt_Colossus_Hide": {
+"use_external/enabled": true,
+"use_external/path": "res://THE_VEIL_ASSETS_V2/07_Creatures/Shared_Materials/M_Crt_Colossus_Hide.tres"
+},
+"M_Crt_Tentacle": {
+"use_external/enabled": true,
+"use_external/path": "res://THE_VEIL_ASSETS_V2/07_Creatures/Shared_Materials/M_Crt_Tentacle.tres"
+},
+"M_Crt_Colossus": {
+"use_external/enabled": true,
+"use_external/path": "res://THE_VEIL_ASSETS_V2/07_Creatures/Shared_Materials/M_Crt_Colossus.tres"
+}
+}
+}
+gltf/naming_version=1
+gltf/embedded_image_handling=0

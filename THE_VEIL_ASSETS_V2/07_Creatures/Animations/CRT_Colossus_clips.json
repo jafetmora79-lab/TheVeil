@@ -1,0 +1,54 @@
+{
+  "model": "07_Creatures/Colossus/CRT_Colossus.glb",
+  "fps_baked": 20.0,
+  "clips": [
+    {
+      "name": "Idle_Breathe",
+      "duration_s": 4.0,
+      "loop": true,
+      "keys": 81
+    },
+    {
+      "name": "Walk_Heavy",
+      "duration_s": 4.0,
+      "loop": true,
+      "keys": 81
+    },
+    {
+      "name": "Tentacles_Sway",
+      "duration_s": 6.0,
+      "loop": true,
+      "keys": 121
+    },
+    {
+      "name": "Alert",
+      "duration_s": 2.4,
+      "loop": false,
+      "keys": 49
+    },
+    {
+      "name": "Attack_TentacleStrike",
+      "duration_s": 2.4,
+      "loop": false,
+      "keys": 49
+    },
+    {
+      "name": "Attack_Heavy",
+      "duration_s": 3.4,
+      "loop": false,
+      "keys": 69
+    },
+    {
+      "name": "Hit_React",
+      "duration_s": 1.2,
+      "loop": false,
+      "keys": 25
+    },
+    {
+      "name": "Death_Collapse",
+      "duration_s": 4.5,
+      "loop": false,
+      "keys": 91
+    }
+  ]
+}
