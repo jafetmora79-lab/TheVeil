@@ -270,7 +270,7 @@ func _update_focus() -> void:
 	var container := f is Interactable and (f as Interactable).kind in ["hinge", "slide"]
 	if controls_enabled and (f == null or container):
 		var a := _assist_pickup(hit_d, ray.get_collider() if ray.is_colliding() else null)
-		if a and (f == null or a.container == f):
+		if a and (f == null or a.container == f or _same_piece(a, f)):
 			f = a
 	if f != _focus:
 		if _focus and is_instance_valid(_focus) and _focus.has_method("set_focus"):
@@ -279,6 +279,14 @@ func _update_focus() -> void:
 			f.set_focus(true)
 	_focus = f
 	_set_prompt(f.get_prompt() if f else "")
+
+
+## The ray hit another door / drawer of the piece the loot sits in (e.g. the neighbouring closed cabinet door).
+func _same_piece(a: Interactable, f: Node) -> bool:
+	if a.container == null or not (f is Node):
+		return false
+	var piece := a.container.get_parent().get_parent() if a.container.get_parent() else null
+	return piece != null and piece.is_ancestor_of(f)
 
 
 const ASSIST_COS := 0.985          ## ~10 degrees around the crosshair
@@ -309,7 +317,7 @@ func _assist_pickup(ray_hit_d: float, ray_hit: Object) -> Interactable:
 		if to.normalized().dot(fwd) < ASSIST_COS and off > ASSIST_RADIUS:
 			continue
 		var own: Array[RID] = it.los_ignore
-		var hit_own := ray_hit is CollisionObject3D and (ray_hit as CollisionObject3D).get_rid() in own
+		var hit_own := ray_hit is CollisionObject3D and own.has((ray_hit as CollisionObject3D).get_rid())
 		if ray_hit_d < d - 0.35 and not hit_own and ray_hit != it.container:
 			continue                                   # something solid well in front of it on the view line
 		var ex: Array[RID] = [get_rid()]
