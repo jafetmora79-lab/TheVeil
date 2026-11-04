@@ -1,0 +1,897 @@
+{
+ "layout": {
+  "upper_rect": [
+   44,
+   17,
+   42,
+   19
+  ],
+  "mouth_rect": [
+   52,
+   41,
+   26,
+   11
+  ],
+  "mouth_origin": [
+   0,
+   152
+  ],
+  "atlas_size": [
+   512,
+   256
+  ],
+  "expressions": [
+   "neutral",
+   "happy",
+   "angry",
+   "scared",
+   "shocked",
+   "sad",
+   "suspicious",
+   "confused",
+   "determined",
+   "pain"
+  ],
+  "eye_actions": [
+   "none",
+   "blink",
+   "look_left",
+   "look_right",
+   "look_up",
+   "look_down",
+   "widen",
+   "narrow"
+  ],
+  "visemes": [
+   "rest",
+   "slight",
+   "wide",
+   "round",
+   "teeth"
+  ],
+  "expression_specs": {
+   "neutral": {
+    "brows": [
+     0,
+     0,
+     0,
+     0
+    ],
+    "eyes": "open",
+    "mouth": {
+     "c": [
+      0,
+      0
+     ],
+     "w": 0,
+     "n": 0
+    }
+   },
+   "happy": {
+    "brows": [
+     -1,
+     -1,
+     0,
+     0
+    ],
+    "eyes": "open",
+    "mouth": {
+     "c": [
+      -1,
+      -1
+     ],
+     "w": 1,
+     "n": 0
+    }
+   },
+   "angry": {
+    "brows": [
+     1,
+     1,
+     2,
+     2
+    ],
+    "eyes": "narrow",
+    "mouth": {
+     "c": [
+      0,
+      0
+     ],
+     "w": -2,
+     "n": 0
+    }
+   },
+   "scared": {
+    "brows": [
+     -2,
+     -2,
+     -1,
+     -1
+    ],
+    "eyes": "wide",
+    "mouth": {
+     "c": [
+      0,
+      0
+     ],
+     "w": -2,
+     "n": 1
+    }
+   },
+   "shocked": {
+    "brows": [
+     -2,
+     -2,
+     0,
+     0
+    ],
+    "eyes": "wide",
+    "mouth": {
+     "c": [
+      0,
+      0
+     ],
+     "w": -3,
+     "n": 2,
+     "round": true
+    }
+   },
+   "sad": {
+    "brows": [
+     1,
+     1,
+     -2,
+     -2
+    ],
+    "eyes": "half",
+    "mouth": {
+     "c": [
+      1,
+      1
+     ],
+     "w": -1,
+     "n": 0
+    }
+   },
+   "suspicious": {
+    "brows": [
+     -2,
+     1,
+     0,
+     1
+    ],
+    "eyes": "narrow",
+    "mouth": {
+     "c": [
+      -1,
+      1
+     ],
+     "w": -1,
+     "n": 0
+    }
+   },
+   "confused": {
+    "brows": [
+     -2,
+     0,
+     -1,
+     1
+    ],
+    "eyes": "open",
+    "mouth": {
+     "c": [
+      1,
+      -1
+     ],
+     "w": -1,
+     "n": 0
+    }
+   },
+   "determined": {
+    "brows": [
+     1,
+     1,
+     1,
+     1
+    ],
+    "eyes": "half",
+    "mouth": {
+     "c": [
+      0,
+      0
+     ],
+     "w": -1,
+     "n": 0
+    }
+   },
+   "pain": {
+    "brows": [
+     0,
+     0,
+     -2,
+     -2
+    ],
+    "eyes": "squint",
+    "mouth": {
+     "c": [
+      1,
+      1
+     ],
+     "w": 0,
+     "n": 1,
+     "teeth": true
+    }
+   }
+  }
+ },
+ "characters": [
+  {
+   "name": "Eddie",
+   "glb": "Commercial_NPCs/CHR_Eddie.glb",
+   "head_texture": "T_Eddie_Head",
+   "atlas": "06_Characters/Facial/Faces/T_Face_Eddie.png",
+   "neutral_identical": true,
+   "eyes": [
+    {
+     "side": "L",
+     "white_rows": [
+      29,
+      30
+     ],
+     "lid_row": 28,
+     "x": [
+      54,
+      58
+     ]
+    },
+    {
+     "side": "R",
+     "white_rows": [
+      29,
+      30
+     ],
+     "lid_row": 28,
+     "x": [
+      70,
+      74
+     ]
+    }
+   ],
+   "mouth": {
+    "row": 47,
+    "x": [
+     59,
+     66
+    ]
+   },
+   "brow_pixels": 33,
+   "static_pixels": 0,
+   "changed_pixels_vs_neutral": {
+    "neutral": [
+     0,
+     0
+    ],
+    "happy": [
+     38,
+     14
+    ],
+    "angry": [
+     87,
+     16
+    ],
+    "scared": [
+     92,
+     16
+    ],
+    "shocked": [
+     92,
+     20
+    ],
+    "sad": [
+     54,
+     15
+    ],
+    "suspicious": [
+     90,
+     14
+    ],
+    "confused": [
+     44,
+     16
+    ],
+    "determined": [
+     76,
+     14
+    ],
+    "pain": [
+     64,
+     18
+    ]
+   }
+  },
+  {
+   "name": "Marcus",
+   "glb": "Marcus/CHR_Marcus.glb",
+   "head_texture": "T_Marcus_Head",
+   "atlas": "06_Characters/Facial/Faces/T_Face_Marcus.png",
+   "neutral_identical": true,
+   "eyes": [
+    {
+     "side": "L",
+     "white_rows": [
+      28,
+      29
+     ],
+     "lid_row": 27,
+     "x": [
+      53,
+      59
+     ]
+    },
+    {
+     "side": "R",
+     "white_rows": [
+      28,
+      29
+     ],
+     "lid_row": 27,
+     "x": [
+      69,
+      75
+     ]
+    }
+   ],
+   "mouth": {
+    "row": 46,
+    "x": [
+     59,
+     69
+    ]
+   },
+   "brow_pixels": 40,
+   "static_pixels": 71,
+   "changed_pixels_vs_neutral": {
+    "neutral": [
+     0,
+     0
+    ],
+    "happy": [
+     40,
+     8
+    ],
+    "angry": [
+     96,
+     11
+    ],
+    "scared": [
+     110,
+     16
+    ],
+    "shocked": [
+     110,
+     21
+    ],
+    "sad": [
+     58,
+     8
+    ],
+    "suspicious": [
+     108,
+     8
+    ],
+    "confused": [
+     50,
+     8
+    ],
+    "determined": [
+     94,
+     9
+    ],
+    "pain": [
+     78,
+     18
+    ]
+   }
+  },
+  {
+   "name": "Protagonist",
+   "glb": "Protagonist/CHR_Protagonist.glb",
+   "head_texture": "T_Protagonist_Head",
+   "atlas": "06_Characters/Facial/Faces/T_Face_Protagonist.png",
+   "neutral_identical": true,
+   "eyes": [
+    {
+     "side": "L",
+     "white_rows": [
+      28,
+      29
+     ],
+     "lid_row": 27,
+     "x": [
+      53,
+      59
+     ]
+    },
+    {
+     "side": "R",
+     "white_rows": [
+      28,
+      29
+     ],
+     "lid_row": 27,
+     "x": [
+      69,
+      75
+     ]
+    }
+   ],
+   "mouth": {
+    "row": 46,
+    "x": [
+     59,
+     69
+    ]
+   },
+   "brow_pixels": 40,
+   "static_pixels": 25,
+   "changed_pixels_vs_neutral": {
+    "neutral": [
+     0,
+     0
+    ],
+    "happy": [
+     40,
+     13
+    ],
+    "angry": [
+     100,
+     2
+    ],
+    "scared": [
+     112,
+     12
+    ],
+    "shocked": [
+     112,
+     15
+    ],
+    "sad": [
+     60,
+     9
+    ],
+    "suspicious": [
+     108,
+     9
+    ],
+    "confused": [
+     50,
+     9
+    ],
+    "determined": [
+     96,
+     0
+    ],
+    "pain": [
+     78,
+     20
+    ]
+   }
+  },
+  {
+   "name": "Ruth",
+   "glb": "Civilians/CHR_Ruth.glb",
+   "head_texture": "T_Ruth_Head",
+   "atlas": "06_Characters/Facial/Faces/T_Face_Ruth.png",
+   "neutral_identical": true,
+   "eyes": [
+    {
+     "side": "L",
+     "white_rows": [
+      28
+     ],
+     "lid_row": 27,
+     "x": [
+      53,
+      59
+     ]
+    },
+    {
+     "side": "R",
+     "white_rows": [
+      28
+     ],
+     "lid_row": 27,
+     "x": [
+      69,
+      75
+     ]
+    }
+   ],
+   "mouth": {
+    "row": 46,
+    "x": [
+     60,
+     68
+    ]
+   },
+   "brow_pixels": 20,
+   "static_pixels": 89,
+   "changed_pixels_vs_neutral": {
+    "neutral": [
+     0,
+     0
+    ],
+    "happy": [
+     40,
+     13
+    ],
+    "angry": [
+     74,
+     4
+    ],
+    "scared": [
+     72,
+     10
+    ],
+    "shocked": [
+     72,
+     15
+    ],
+    "sad": [
+     60,
+     9
+    ],
+    "suspicious": [
+     74,
+     9
+    ],
+    "confused": [
+     30,
+     9
+    ],
+    "determined": [
+     72,
+     2
+    ],
+    "pain": [
+     64,
+     14
+    ]
+   }
+  },
+  {
+   "name": "Sarah",
+   "glb": "Civilians/CHR_Sarah.glb",
+   "head_texture": "T_Sarah_Head",
+   "atlas": "06_Characters/Facial/Faces/T_Face_Sarah.png",
+   "neutral_identical": true,
+   "eyes": [
+    {
+     "side": "L",
+     "white_rows": [
+      28,
+      29
+     ],
+     "lid_row": 27,
+     "x": [
+      53,
+      59
+     ]
+    },
+    {
+     "side": "R",
+     "white_rows": [
+      28,
+      29
+     ],
+     "lid_row": 27,
+     "x": [
+      69,
+      75
+     ]
+    }
+   ],
+   "mouth": {
+    "row": 46,
+    "x": [
+     60,
+     68
+    ]
+   },
+   "brow_pixels": 20,
+   "static_pixels": 7,
+   "changed_pixels_vs_neutral": {
+    "neutral": [
+     0,
+     0
+    ],
+    "happy": [
+     40,
+     11
+    ],
+    "angry": [
+     78,
+     2
+    ],
+    "scared": [
+     72,
+     8
+    ],
+    "shocked": [
+     72,
+     13
+    ],
+    "sad": [
+     60,
+     7
+    ],
+    "suspicious": [
+     78,
+     7
+    ],
+    "confused": [
+     30,
+     7
+    ],
+    "determined": [
+     76,
+     0
+    ],
+    "pain": [
+     66,
+     16
+    ]
+   }
+  },
+  {
+   "name": "Frank",
+   "glb": "Commercial_NPCs/CHR_Frank.glb",
+   "head_texture": "T_Frank_Head",
+   "atlas": "06_Characters/Facial/Faces/T_Face_Frank.png",
+   "neutral_identical": true,
+   "eyes": [
+    {
+     "side": "L",
+     "white_rows": [
+      28
+     ],
+     "lid_row": 27,
+     "x": [
+      53,
+      59
+     ]
+    },
+    {
+     "side": "R",
+     "white_rows": [
+      28
+     ],
+     "lid_row": 27,
+     "x": [
+      69,
+      75
+     ]
+    }
+   ],
+   "mouth": {
+    "row": 46,
+    "x": [
+     59,
+     69
+    ]
+   },
+   "brow_pixels": 40,
+   "static_pixels": 57,
+   "changed_pixels_vs_neutral": {
+    "neutral": [
+     0,
+     0
+    ],
+    "happy": [
+     40,
+     13
+    ],
+    "angry": [
+     92,
+     4
+    ],
+    "scared": [
+     108,
+     14
+    ],
+    "shocked": [
+     108,
+     17
+    ],
+    "sad": [
+     60,
+     11
+    ],
+    "suspicious": [
+     99,
+     11
+    ],
+    "confused": [
+     48,
+     11
+    ],
+    "determined": [
+     82,
+     2
+    ],
+    "pain": [
+     76,
+     18
+    ]
+   }
+  },
+  {
+   "name": "Lena",
+   "glb": "Civilians/CHR_Lena.glb",
+   "head_texture": "T_Lena_Head",
+   "atlas": "06_Characters/Facial/Faces/T_Face_Lena.png",
+   "neutral_identical": true,
+   "eyes": [
+    {
+     "side": "L",
+     "white_rows": [
+      28,
+      29
+     ],
+     "lid_row": 27,
+     "x": [
+      53,
+      59
+     ]
+    },
+    {
+     "side": "R",
+     "white_rows": [
+      28,
+      29
+     ],
+     "lid_row": 27,
+     "x": [
+      69,
+      75
+     ]
+    }
+   ],
+   "mouth": {
+    "row": 46,
+    "x": [
+     61,
+     67
+    ]
+   },
+   "brow_pixels": 20,
+   "static_pixels": 0,
+   "changed_pixels_vs_neutral": {
+    "neutral": [
+     0,
+     0
+    ],
+    "happy": [
+     40,
+     9
+    ],
+    "angry": [
+     78,
+     2
+    ],
+    "scared": [
+     72,
+     4
+    ],
+    "shocked": [
+     72,
+     11
+    ],
+    "sad": [
+     60,
+     5
+    ],
+    "suspicious": [
+     78,
+     5
+    ],
+    "confused": [
+     30,
+     5
+    ],
+    "determined": [
+     76,
+     0
+    ],
+    "pain": [
+     66,
+     12
+    ]
+   }
+  },
+  {
+   "name": "Police_Officer",
+   "glb": "Police/CHR_Police_Officer.glb",
+   "head_texture": "T_Police_Officer_Head",
+   "atlas": "06_Characters/Facial/Faces/T_Face_Police_Officer.png",
+   "neutral_identical": true,
+   "eyes": [
+    {
+     "side": "L",
+     "white_rows": [
+      28,
+      29
+     ],
+     "lid_row": 27,
+     "x": [
+      53,
+      59
+     ]
+    },
+    {
+     "side": "R",
+     "white_rows": [
+      28,
+      29
+     ],
+     "lid_row": 27,
+     "x": [
+      69,
+      75
+     ]
+    }
+   ],
+   "mouth": {
+    "row": 46,
+    "x": [
+     60,
+     68
+    ]
+   },
+   "brow_pixels": 40,
+   "static_pixels": 0,
+   "changed_pixels_vs_neutral": {
+    "neutral": [
+     0,
+     0
+    ],
+    "happy": [
+     40,
+     11
+    ],
+    "angry": [
+     100,
+     2
+    ],
+    "scared": [
+     112,
+     8
+    ],
+    "shocked": [
+     112,
+     13
+    ],
+    "sad": [
+     60,
+     7
+    ],
+    "suspicious": [
+     108,
+     7
+    ],
+    "confused": [
+     50,
+     7
+    ],
+    "determined": [
+     96,
+     0
+    ],
+    "pain": [
+     78,
+     16
+    ]
+   }
+  }
+ ]
+}
