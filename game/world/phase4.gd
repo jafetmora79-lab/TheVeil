@@ -25,13 +25,22 @@ const CHOICE_SCRIPT := preload("res://game/ui/choice_panel.gd")
 const REST_SCRIPT := preload("res://game/world/rest_point.gd")
 
 # supermarket-local layout (verified against COM_Supermarket.glb / the furnishing mesh)
-const SERVICE_FLASHLIGHT := Vector3(5.7, 1.09, 5.8)       # customer service counter (Interaction/Counter_48)
-const SERVICE_BATTERIES := Vector3(6.3, 1.09, 5.8)
-const BREAKER := Vector3(19.83, 1.24, 14.9)               # RES_ElectricalPanel face (x 19.77-19.90, y 0.94-1.54)
+# on the customer-service counter top (COM_ServiceCounter at (6.0, 5.0): collider x 4.5-7.5, z 4.6-5.4, top
+# y 1.05). They used to sit at z 5.8, i.e. 0.4 m behind the counter in mid-air. _settle_items() drops them
+# onto the collider below.
+const SERVICE_FLASHLIGHT := Vector3(5.7, 1.1, 5.1)
+const SERVICE_BATTERIES := Vector3(6.35, 1.1, 5.05)
+const BREAKER := Vector3(16.9, 1.24, 17.37)               # RES_ElectricalPanel face on the back wall (z 17.37, y 0.94-1.54)
+## the breaker's interaction box sits in FRONT of the panel (the panel's own collider would otherwise catch the
+## player's ray first) and is generous (0.8 x 0.9 m face), but stays on the room side of the wall
+const BREAKER_BOX := [Vector3(16.9, 1.24, 17.2), Vector3(0.8, 0.9, 0.3)]
 const LOADING_HANDLE := Vector3(19.55, 0.9, 16.35)          # clear of the breaker panel (z 14.7-15.1)
 const BACKDOOR_HANDLE := Vector3(8.0, 1.05, 17.0)          # covers the ajar leaf as well
-const LOADING_PALLET := [Vector3(17.9, 0.04, 16.8), Vector3(19.3, 0.04, 16.45), PI * 0.5]   # start, blocking, yaw
-const BACK_PALLET := [Vector3(10.4, 0.04, 15.9), Vector3(8.0, 0.04, 16.95), 0.0]
+# start, blocking, yaw. Blocking spots are flush with the leaves (3 cm off; COM_PalletStack is 1.2 x 1.0 m):
+# roll-up door inner face x 20.05 (z 14.5-17.3, centre 15.9); rear exit leaf inner face z 17.447 (x 7.5-8.5)
+const LOADING_PALLET := [Vector3(17.9, 0.04, 16.8), Vector3(19.52, 0.04, 15.9), PI * 0.5]
+const BACK_PALLET := [Vector3(10.4, 0.04, 15.9), Vector3(8.0, 0.04, 16.917), 0.0]
+const BACKDOOR_OUTSIDE_Z := 17.613                                 # rear exit leaf outer face
 const BEDROLL := Vector3(-18.4, 0.04, 15.75)              # office floor, between the drawers and the desk
 const EDDIE_POS := Vector3(-1.0, 0.04, 4.3)
 const MARCUS_POS := Vector3(1.1, 0.04, 4.7)
@@ -191,10 +200,39 @@ func _setup_pickups() -> void:
 	its["batteries"] = bp_it
 	if not fl_it.taken:
 		world._glow(fl, true)
+	_settle_items.call_deferred()
+
+
+## Items rest on the surface actually below them (counter top, pallet top): a ray down from just above each spot
+## against the world colliders; the Pack 08 items have their origin at their base. placement = metres each item
+## was off the surface before settling (tests; positive = floating).
+var placement := {}
+
+
+func _settle_items() -> void:
+	await get_tree().physics_frame
+	await get_tree().physics_frame
+	var space: PhysicsDirectSpaceState3D = world.get_world_3d().direct_space_state
+	for k in ["flashlight", "batteries", "battery_single"]:
+		var it: Interactable = its.get(k)
+		if it == null or it.target == null:
+			continue
+		var n: Node3D = it.target
+		var ex: Array[RID] = [player.get_rid()]
+		for co in n.find_children("*", "CollisionObject3D", true, false):
+			ex.append((co as CollisionObject3D).get_rid())
+		var top := n.global_position + Vector3.UP * 0.3
+		var hit: Dictionary = space.intersect_ray(PhysicsRayQueryParameters3D.create(top, n.global_position - Vector3.UP * 0.6, 1, ex))
+		if hit.is_empty():
+			placement[k] = INF
+			continue
+		placement[k] = n.global_position.y - hit.position.y
+		n.global_position.y = hit.position.y + 0.002
+		it._base = n.transform                        # the pickup's own rest transform follows
 
 
 func _setup_back_room() -> void:
-	var br := _spot("P4_Breaker", BREAKER, Vector3(0.35, 0.75, 0.6), "[E] Throw the Breaker", _throw_breaker)
+	var br := _spot("P4_Breaker", BREAKER_BOX[0], BREAKER_BOX[1], "[E] Throw the Breaker", _throw_breaker)
 	its["breaker"] = br
 	for pair in [["loading", LOADING_PALLET], ["back", BACK_PALLET]]:
 		var p := PALLET.instantiate() as Node3D
@@ -371,10 +409,30 @@ func _push_pallet(_b: Node, which: String) -> void:
 		return
 	its["pallet_" + which].prompt_text = ""
 	var spec: Array = LOADING_PALLET if which == "loading" else BACK_PALLET
-	var tw := create_tween().set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
-	tw.tween_property(_pallets[which], "position", spec[1], 1.6)
-	_play("scrape", _pallets[which].global_position, -6.0)
+	var pal: Node3D = _pallets[which]
+	# the protagonist puts his shoulder to it: control is held, the view turns to the stack
+	player.controls_enabled = false
+	var look: Vector3 = pal.global_position + Vector3(0, 0.8, 0) - player.camera.global_position
+	player.set_yaw_pitch(atan2(-look.x, -look.z), clampf(asin(clampf(look.normalized().y, -1.0, 1.0)), -0.5, 0.2))
+	# three heavy shoves (ease in / out each, short pauses), a scrape per shove, a slight twist that settles square
+	var p0: Vector3 = pal.position
+	var p1: Vector3 = spec[1]
+	var yaw0: float = spec[2]
+	var tw := create_tween()
+	for i in 3:
+		var a: Vector3 = p0.lerp(p1, [0.0, 0.42, 0.78][i])
+		var b: Vector3 = p0.lerp(p1, [0.42, 0.78, 1.0][i])
+		var wob: float = deg_to_rad([1.6, -1.1, 0.0][i])
+		tw.tween_callback(_play.bind("scrape", ml(a), -6.0 - 2.0 * i))
+		tw.tween_property(pal, "position", b, float([0.55, 0.5, 0.42][i])).from(a).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
+		tw.parallel().tween_property(pal, "rotation:y", yaw0 + wob, 0.45).set_trans(Tween.TRANS_SINE)
+		tw.tween_interval(0.22 if i < 2 else 0.0)
+	tw.tween_property(pal, "rotation:y", yaw0, 0.18)
+	Sfx.play("door_close", ml(p1), -4.0, 0.55)
 	await tw.finished
+	pal.position = p1
+	pal.rotation.y = yaw0
+	player.controls_enabled = true
 	Game.set_flag(done_flag)
 	Dialogue.say("p4_pallet", false, true)
 	_check_exits()
@@ -389,12 +447,16 @@ func _check_exits() -> void:
 func _talk(_b: Node) -> void:
 	if Game.has_flag("p4_talk_done"):
 		return
+	var both := [world.eddie, world.marcus].filter(func(n): return n != null)
 	if not (Game.has_flag("p4_breaker") and Game.has_flag("p4_exits_secured")):
-		Dialogue.say("p4_eddie_busy" if Game.has_flag("p4_breaker") else "p4_wait_talk", false, true)
+		world.converse(["p4_eddie_busy" if Game.has_flag("p4_breaker") else "p4_wait_talk"], [world.eddie])
+		return
+	# survivors face the protagonist; the standard talk camera holds through the lines, the choice and the reply
+	if not world.can_talk(world.eddie):
 		return
 	for k in ["npc_Eddie", "npc_Marcus"]:
 		its[k].prompt_text = ""
-	Dialogue.say("p4_talk", false, true)
+	world.converse(["p4_talk"], both)
 
 
 func _on_choices(id: String, choices: Array) -> void:
@@ -432,14 +494,9 @@ func _run_threat() -> void:
 	# 2. a shape passes behind the front glass, half lost in the mist
 	_spawn_hound()
 	await get_tree().create_timer(7.5).timeout
-	# 3. it hits the barricaded rear exit
-	_play("impact", ml(BACKDOOR_HANDLE), 6.0)
-	var bd: Node3D = its["back_door"]
-	var tw := create_tween()
-	for i in 3:
-		tw.tween_property(bd, "transform", Transform3D(_base["back"].basis * Basis(Vector3.UP, deg_to_rad(-1.5 if i % 2 == 0 else 1.0)), _base["back"].origin), 0.06)
-	tw.tween_property(bd, "transform", _base["back"], 0.08)
-	_flicker_burst(1.0)
+	# 3. it hits the barricaded rear exit: wind-up, the strike's contact frame = impact (sound, the leaf jolts
+	#    against the pallets and rebounds, lights flicker), recovery, then it is gone
+	await _door_strike()
 	Dialogue.say("p4_threat_hit", false, true)
 	if is_instance_valid(hound):
 		hound.queue_free()
@@ -488,6 +545,83 @@ func _spawn_hound() -> void:
 	tw.tween_property(hound, "position:x", 2.0, 6.0)
 	tw.tween_property(hound, "rotation:y", PI, 0.45).set_trans(Tween.TRANS_SINE)   # turn away from the glass first...
 	tw.tween_property(hound, "position:z", -5.5, 1.2)                              # ...then lope off into the mist
+
+
+var strike_report := {}
+
+
+## The hound (out of view behind the building) rears and lunges at the rear exit. Its head is placed so that at the
+## Attack_Bite contact frame (head furthest forward, measured from the rig) it meets the leaf's outer face - no
+## swing at empty air, no clipping through. Everything inside reacts on that exact frame.
+func _door_strike() -> void:
+	var bd: Node3D = its["back_door"]
+	var ps := load(HOUND_PATH) as PackedScene
+	var h: Node3D = ps.instantiate() as Node3D if ps else null
+	var t_hit := 0.55
+	if h:
+		h.name = "P4_Hound_Door"
+		market.add_child(h)
+		if h is CollisionObject3D:
+			(h as CollisionObject3D).collision_layer = 0
+			(h as CollisionObject3D).collision_mask = 0
+		h.set_physics_process(false)
+		h.scale = Vector3.ONE * 1.35
+		h.rotation.y = PI                               # the model faces +Z: face -Z, into the door
+		var ap := h.get_node_or_null(String(h.get_meta("animation_player", "Model/AnimationPlayer"))) as AnimationPlayer
+		var sk := h.find_children("*", "Skeleton3D", true, false)[0] as Skeleton3D if not h.find_children("*", "Skeleton3D", true, false).is_empty() else null
+		if ap and sk and ap.has_animation("Attack_Bite"):
+			var head := sk.find_bone("Head")
+			var anim := ap.get_animation("Attack_Bite")
+			ap.play("Attack_Bite", 0.0)
+			# contact frame: the head's furthest reach toward the door (local -Z of the market = toward the inside)
+			h.position = Vector3(8.0, 0.0, BACKDOOR_OUTSIDE_Z + 3.0)
+			var best := INF
+			var tt := 0.0
+			while tt < anim.length:
+				ap.seek(tt, true)
+				var hz: float = market.to_local(sk.global_transform * sk.get_bone_global_pose(head).origin).z
+				if hz < best:
+					best = hz
+					t_hit = tt
+				tt += 1.0 / 60.0
+			# head reach + snout (~0.25 m past the head bone at this scale) ends on the leaf's outer face
+			h.position.z += (BACKDOOR_OUTSIDE_Z + 0.25) - best
+			ap.seek(0.0, true)
+			strike_report["contact_t"] = t_hit
+			strike_report["sk"] = sk
+			_play("scrape", ml(Vector3(8.0, 1.0, BACKDOOR_OUTSIDE_Z + 1.0)), 0.0)   # it comes up to the door
+			ap.play("Attack_Bite", 0.1)
+	await get_tree().create_timer(t_hit).timeout
+	# contact: measured, not assumed (snout ~0.25 m past the head bone)
+	var skc = strike_report.get("sk")
+	if skc and is_instance_valid(skc):
+		var hz: float = market.to_local(skc.global_transform * skc.get_bone_global_pose(skc.find_bone("Head")).origin).z
+		strike_report["snout_to_door_m"] = (hz - 0.25) - BACKDOOR_OUTSIDE_Z
+	strike_report.erase("sk")
+	strike_report["impact_synced"] = true
+	_play("impact", ml(BACKDOOR_HANDLE), 6.0)
+	_flicker_burst(1.0)
+	var base: Transform3D = _base["back"]
+	var tw := create_tween()
+	for i in 4:                                         # jolt inward against the pallets, damped rebound
+		var ang: float = [-2.2, 1.2, -0.6, 0.25][i]
+		tw.tween_property(bd, "transform", Transform3D(base.basis * Basis(Vector3.UP, deg_to_rad(ang)), base.origin), float([0.05, 0.08, 0.09, 0.1][i]))
+	tw.tween_property(bd, "transform", base, 0.12)
+	var pal: Node3D = _pallets.get("back")
+	if pal:
+		var pp: Vector3 = pal.position
+		var tp := create_tween()
+		tp.tween_property(pal, "position", pp + Vector3(0, 0, -0.025), 0.05)
+		tp.tween_property(pal, "position", pp, 0.25).set_trans(Tween.TRANS_SINE)
+	await tw.finished
+	# recovery: it backs off and is gone into the mist
+	if h and is_instance_valid(h):
+		var ap2 := h.get_node_or_null(String(h.get_meta("animation_player", "Model/AnimationPlayer"))) as AnimationPlayer
+		if ap2 and ap2.has_animation("Alert"):
+			ap2.play("Alert", 0.2)
+		var tb := h.create_tween()
+		tb.tween_property(h, "position:z", h.position.z + 2.5, 1.2).set_trans(Tween.TRANS_SINE)
+		tb.tween_callback(h.queue_free)
 
 
 func _flicker_burst(seconds: float) -> void:
