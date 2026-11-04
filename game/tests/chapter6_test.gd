@@ -216,6 +216,10 @@ func restore(snap: Dictionary) -> void:
 
 func _initialize() -> void:
 	_run.call_deferred()
+	# watchdog: a script error inside _run must not leave the test hanging
+	create_timer(1500.0).timeout.connect(func():
+		print("RESULT FAIL (watchdog: test did not finish)")
+		quit(1))
 
 
 const OUT_STORE := [Vector3(1.5, 0.2, 4.4), Vector3(1.5, 0.2, 1.8), Vector3(0.3, 0.2, 1.0), Vector3(0.3, 0.2, -3.5)]
@@ -251,14 +255,14 @@ func _run() -> void:
 	ok("c6_marcus_briefing", await wait_talk(func(): return game.has_flag("ch6_marcus_briefing_complete")) and game.current_step().get("id", "") == "c6_eddie")
 	await reload()
 	ok("c6_load_after_briefing", game.has_flag("ch6_marcus_briefing_complete") and c6.its["npc_Marcus"].prompt_text == "" and c6.its["npc_Eddie"].prompt_text == "[E] Talk")
-	ok("c6_eddie_reach", await aim(c6.its["npc_Eddie"], [Z, -Z, X, -X], mk, 1.4))
+	ok("c6_eddie_reach", await aim(c6.its["npc_Eddie"], [Z, -Z, X, -X], world.market, 1.4))
 	c6.its["npc_Eddie"].interact(world.player)
 	ok("c6_eddie_talk", await wait_talk(func(): return game.has_flag("ch6_eddie_talked")) and game.current_step().get("id", "") == "c6_prepare")
-	ok("c6_stash_reach", await aim(c5.its["stash"], [-Z, Z, X, -X], mk, 1.0))
+	ok("c6_stash_reach", await aim(c5.its["stash"], [-Z, Z, X, -X], world.market, 1.0))
 	c5.its["stash"].interact(world.player)
 	await frames(5)
 	ok("c6_prepared", game.has_flag("ch6_eddie_ready") and world.hud.inv_panel.visible and game.inventory == inv0)
-	ok("c6_exit_reach", await aim(c5.its["exit"], [Z, -Z], mk, 1.2))
+	ok("c6_exit_reach", await aim(c5.its["exit"], [Z, -Z], world.market, 1.2))
 	c5.its["exit"].interact(world.player)
 	ok("c6_exit_confirm", await wait_until(func(): return p4.choice.is_open(), 60))
 	p4.choice.pick(0)
@@ -342,7 +346,7 @@ func _run() -> void:
 	ok("c6_doors_closed", not c5._doors_open)
 	# ---- scene 8: report
 	ok("c6_report_prompt", c6.its["npc_Marcus"].prompt_text == "[E] Talk")
-	ok("c6_marcus_reach_back", await aim(c6.its["npc_Marcus"], [Z, -Z, X, -X], mk, 1.4))
+	ok("c6_marcus_reach_back", await aim(c6.its["npc_Marcus"], [Z, -Z, X, -X], world.market, 1.4))
 	said.clear()
 	c6.its["npc_Marcus"].interact(world.player)
 	ok("c6_complete", await wait_talk(func(): return game.has_flag("chapter_6_complete"), 120.0))

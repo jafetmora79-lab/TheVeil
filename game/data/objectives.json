@@ -180,7 +180,7 @@
   },
   {
    "id": "c5_complete",
-   "flag": "c6_started",
+   "flag": "ch6_started",
    "goal": "act2_search",
    "text": "Chapter 5 complete - The First Search"
   },
