@@ -51,9 +51,9 @@ What the reference defines:
   * a muted palette of the character's own.
 * **Materials:** double-sided, roughness 0.92, low specular.
 
-### Marcus rev 4 (built from the reference, awaiting approval)
+### Marcus (approved, built from the reference)
 
-`Marcus/CHR_Marcus_v4.glb` comes from `Source_Scripts/chr_style_from_eddie.py`. Marcus is derived from the reference
+`Marcus/CHR_Marcus.glb` comes from `Source_Scripts/chr_style_from_eddie.py` (approved; the generated rev 1 is `CHR_Marcus_v1.glb`). Marcus is derived from the reference
 Eddie, so the construction and rig are exactly the same; every texture is new and painted in the reference manner.
 
 * **Geometry:** every vertex is moved by a blend of per-bone deformations, using its own skin weights, so seams stay
@@ -86,6 +86,44 @@ Checks:
   folded collar.
 
 The look has only been checked as textures, not as a rendered model.
+
+### The rest of the cast (style rev 4, built from the reference)
+
+`Source_Scripts/chr_style_cast.py` builds the protagonist, Ruth, Sarah, Frank, Lena and the police officer in exactly the
+Marcus way. Each one starts from the reference Eddie, so construction, rig and sockets are the same, and every texture is
+new and painted in the reference manner.
+
+* **Body:** a per-bone reshape. The women get narrower shoulders, a waist taper, wider hips, a bust and a softer jaw;
+  Frank is stockier.
+* **Hair:** cropped or kept at length; Ruth gets a bun, Sarah a ponytail, the officer a small bun.
+* **Collar:** the hood is folded into a jacket collar on everyone.
+* **Gear:** small low-poly pieces rigid to one bone: belts, radios, pouches, cuff case, flashlight, keys, the police
+  cap, Lena's messenger bag and strap.
+* **First-person arms:** `Protagonist/CHR_Protagonist_FP_Arms.glb` holds his sleeve and hand triangles on the same rig.
+
+| Model | Height | Triangles | Parts |
+|---|---|---|---|
+| `CHR_Protagonist` | 1.78 m | 2706 | Body 1752, Hair 360, Head 346, Shoes 248 |
+| `CHR_Ruth` | 1.6 m | 2780 | Body 1762, Hair 360, Head 346, Shoes 248, HairExtras 64 |
+| `CHR_Sarah` | 1.68 m | 2964 | Body 1762, Hair 360, Head 346, Shoes 248, HairExtras 56, GearExtras 192 |
+| `CHR_Frank` | 1.76 m | 2944 | Body 1762, Hair 360, Head 346, Shoes 248, GearExtras 228 |
+| `CHR_Lena` | 1.65 m | 2752 | Body 1762, Hair 360, Head 346, Shoes 248, GearExtras 36 |
+| `CHR_Police_Officer` | 1.765 m | 3154 | Officer_Body 1762, Officer_Hair 360, Officer_Head 346, Officer_Shoes 248, Officer_HairExtras 64, Officer_GearExtras 374 |
+
+Every previous version is kept as a `_v1` backup (`CHR_Protagonist_v1`, `CHR_Protagonist_FP_Arms_v1`, `CHR_Marcus_v1`,
+`CHR_Ruth_v1`, `CHR_Sarah_v1`, `CHR_Frank_v1`, `CHR_Lena_v1`, `CHR_Police_Officer_v1`); v2 and v3 are unchanged. The
+generated roster now writes those `_v1` names, so a rebuild cannot overwrite the new models.
+
+Checks:
+
+* Khronos glTF validator: 0 errors on every model. The only warning is the standard skinned-mesh one, which the
+  reference also has.
+* The rig is exactly consistent (about 1e-7) and the hair covers the whole scalp.
+* In an extreme test pose the worst stretch is 0.76–0.91, at the folded collar (reference 0.64).
+* Godot 4.3, clean import in a fresh project: every model loads, poses and renders in the Compatibility renderer with
+  the reference skeleton. The lineup scene loads all 22 characters.
+
+The look has been checked only as textures, not as rendered models.
 
 ## Rev 3: sculpted Eddie and Marcus (new construction method, awaiting approval)
 
