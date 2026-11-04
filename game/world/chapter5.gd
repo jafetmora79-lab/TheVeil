@@ -579,7 +579,7 @@ func _survivor_encounter() -> void:
 	survivor.visible = true
 	if door and not door.is_open:
 		door.set_open(true)
-	world.converse(["c5_survivor"], [survivor])
+	_talk_start("c5_survivor", survivor)
 
 
 func _on_choices(id: String, choices: Array) -> void:
@@ -751,6 +751,16 @@ func _talk(id: String, npc: Node3D) -> void:
 	await get_tree().process_frame
 	while Dialogue.is_busy() or (world.get("conversing") == true):
 		await get_tree().process_frame
+
+
+## Start a conversation that may lead into a choice (not awaited): talk camera when the NPC can be framed,
+## otherwise the same lines as plain subtitles (a doorway can hide them from the camera).
+func _talk_start(id: String, npc: Node3D) -> void:
+	var ok := false
+	if npc and world.has_method("converse") and world.get("conversing") != true:
+		ok = await world.converse([id], [npc])
+	if not ok:
+		Dialogue.say(id, false, true)
 
 
 func _say_wait(id: String) -> void:

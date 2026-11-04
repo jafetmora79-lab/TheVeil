@@ -364,7 +364,7 @@ func _ruth_sarah() -> void:
 	sarah.visible = true
 	if _door and not _door.is_open:
 		_door.set_open(true)
-	world.converse(["c6_ruth_sarah"], [ruth])
+	c5._talk_start("c6_ruth_sarah", ruth)
 
 
 func _on_choices(id: String, choices: Array) -> void:

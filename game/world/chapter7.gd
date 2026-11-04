@@ -377,7 +377,7 @@ func _road() -> void:
 	if Game.has_flag("ch7_road_reached") or not Game.has_flag("noah_clue_backpack"):
 		return
 	Game.set_flag("ch7_road_reached")
-	world.converse(["c7_road"], [marcus])
+	c5._talk_start("c7_road", marcus)
 
 
 func _on_choices(id: String, choices: Array) -> void:
