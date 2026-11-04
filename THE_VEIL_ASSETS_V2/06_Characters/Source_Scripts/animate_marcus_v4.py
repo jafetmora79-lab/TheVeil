@@ -14,6 +14,23 @@ def axis(k,deg):
     deg = -deg if k == 0 else deg  # Imported Eddie/Marcus face -Z.
     q=np.zeros(4); q[k]=math.sin(math.radians(deg)/2); q[3]=math.cos(math.radians(deg)/2); return q
 
+# Phase, thigh forward, knee flexion, ankle pitch (positive lifts the toe).
+# Each leg lands, pushes off, folds back, then drives the knee forward.
+STRIDE = np.array([
+    (0.00, 31, 18,  8),
+    (0.08, 18, 27,  0),
+    (0.17,  0, 25,  0),
+    (0.26,-21, 29,-15),
+    (0.33,-30, 43,-31),
+    (0.42,-23, 85,-22),
+    (0.52, -4, 99, -8),
+    (0.65, 29, 85,  1),
+    (0.76, 49, 61,  5),
+    (0.88, 43, 30, 12),
+    (1.00, 31, 18,  8),
+])
+
+
 def inverse(q):
     return q*np.array([-1,-1,-1,1])/np.dot(q,q)
 
@@ -41,7 +58,7 @@ def build(scared=False):
     source=os.path.join(CHR,'Marcus','CHR_Marcus_v4.glb')
     if not os.path.exists(source): source=os.path.join(CHR,'Marcus','CHR_Marcus.glb')
     g=GLB(source)
-    js=g.js; nodes=js['nodes']; G,parents=node_globals(js)
+    js=g.js; nodes=js['nodes']; _,parents=node_globals(js)
     names={n.get('name'):i for i,n in enumerate(nodes)}
     rest={}
     def rq(i):
@@ -55,15 +72,19 @@ def build(scared=False):
         if typ=='SCALAR': A.update(min=[float(a.min())],max=[float(a.max())])
         js['accessors'].append(A); g.data[k]=a; return k
     for t in times:
-        p=2*math.pi*float(t)/.72; s=math.sin(p)
+        phase=float(t)/.72
         desired={}
         for side,sign in [('Left',1),('Right',-1)]:
-            swing=sign*s
-            for bone,angle in [('UpperLeg',-38*swing),('LowerLeg',-38*swing-(22+52*max(0,-swing))),('Foot',12+18*swing),('Toes',-8*max(0,swing))]:
+            leg_phase=(phase+(0 if sign==1 else .5)) % 1
+            thigh,flex,pitch=(np.interp(leg_phase,STRIDE[:,0],STRIDE[:,col]) for col in (1,2,3))
+            swing=thigh/45
+            # The shin rotates back relative to the thigh. Positive flexion
+            # here means heel toward the back of the thigh on this -Z rig.
+            for bone,angle in [('UpperLeg',-thigh),('LowerLeg',-thigh+flex),('Foot',-pitch),('Toes',-pitch*.5)]:
                 i=names[side+bone]
                 # Delta in world X, converted to the actual imported bone basis.
                 desired[i]=mul(axis(0,angle),rest[i])
-            for bone,angle in [('UpperArm',30*swing-12),('LowerArm',30*swing-12-72-12*swing),('Hand',-8)]:
+            for bone,angle in [('UpperArm',30*swing-12),('LowerArm',30*swing-12-72-12*swing),('Hand',18*swing-76)]:
                 i=names[side+bone]
                 direction=qmat(rest[i])[:,1]
                 lower=math.degrees(math.atan2(-.98,-sign*.18)-math.atan2(direction[1],direction[0]))
@@ -90,7 +111,26 @@ def build(scared=False):
             if np.dot(values[k-1],values[k])<0: values[k]=-values[k]
         values[-1]=values[0].copy(); channel(i,'rotation',values,'VEC4')
     hips=names['Hips']; base=np.array(nodes[hips]['translation'])
-    values=[base+[.012*math.sin(2*math.pi*float(t)/.72),.025+.035*(1-math.cos(4*math.pi*float(t)/.72)),0] for t in times]
+    # Keep the support boot at floor level. Leave a small flight arc after toe-off.
+    shoe=nodes[names['Marcus_Shoes']]
+    skin=js['skins'][shoe['skin']]
+    bind=g.acc(skin['inverseBindMatrices']).reshape(-1,4,4).transpose(0,2,1)
+    sole=[]
+    for primitive in js['meshes'][shoe['mesh']]['primitives']:
+        a=primitive['attributes']
+        v=g.acc(a['POSITION'])
+        sole.append((np.c_[v,np.ones(len(v))],g.acc(a['JOINTS_0']),g.acc(a['WEIGHTS_0'])))
+    values=[]
+    for k,t in enumerate(times):
+        posed=[dict(n) for n in nodes]
+        for i,rotations in tracks.items(): posed[i]['rotation']=rotations[k]
+        world,_=node_globals({'nodes':posed})
+        matrices=np.array([world[i]@m for i,m in zip(skin['joints'],bind)])
+        lowest=min(np.einsum('vbi,vi,vb->v',matrices[joints,1,:],v,weights).min() for v,joints,weights in sole)
+        half_phase=(float(t)/.72) % .5
+        flight=max(0,min(1,(half_phase-.33)/.17))
+        height=.075*math.sin(math.pi*flight)
+        values.append(base+[.012*math.sin(2*math.pi*float(t)/.72),height-lowest,0])
     values[-1]=values[0].copy(); channel(hips,'translation',values,'VEC3')
     js['animations']=[anim]
     images=[g.image(i) for i in range(len(js['images']))]
