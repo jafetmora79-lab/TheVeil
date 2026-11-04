@@ -18,6 +18,7 @@ const HEIGHT := 1.76
 const HEIGHT_CROUCH := 1.2
 const RADIUS := 0.28
 const REACH := 2.1
+const STEP := 0.35          ## curbs, door sills, porch steps up to this height are climbed automatically
 
 var head: Node3D
 var camera: Camera3D
@@ -33,6 +34,7 @@ var _eye := EYE
 var _focus: Node = null
 var _prompt := ""
 var _last_step := 0
+var _step_smooth := 0.0
 
 
 func _ready() -> void:
@@ -117,6 +119,8 @@ func _physics_process(delta: float) -> void:
 		velocity.y = -0.5
 	else:
 		velocity.y -= GRAVITY * delta
+	if is_on_floor() and hv.length() > 0.05:
+		_step_up(hv, delta)
 	move_and_slide()
 	# eye height + head bob
 	_eye = move_toward(_eye, EYE_CROUCH if crouching else EYE, delta * 3.5)
@@ -129,9 +133,40 @@ func _physics_process(delta: float) -> void:
 		_last_step = int(_bob_t / PI)
 		Sfx.play("step_soft" if crouching else "step", global_position, -10.0 if crouching else -6.0, randf_range(0.9, 1.1))
 	var amp := 0.028 if sprinting else 0.016
-	head.position.y = _eye + sin(_bob_t * 2.0) * amp
+	_step_smooth = move_toward(_step_smooth, 0.0, delta * 1.6)
+	head.position.y = _eye + sin(_bob_t * 2.0) * amp - _step_smooth
 	head.position.x = cos(_bob_t) * amp * 0.6
 	_update_focus()
+
+
+## Stair-step: when the way ahead is blocked by a low vertical face (a curb, a door sill), lift the capsule onto it.
+## Probe: up STEP, forward (at least 8 cm so slow walking still finds the edge), then back down onto a walkable floor.
+func _step_up(hv: Vector3, delta: float) -> void:
+	# probe a full capsule radius ahead: the rounded bottom touches a curb edge about RADIUS before the face
+	var fwd := hv.normalized() * maxf(hv.length() * delta, RADIUS + 0.06)
+	var t := global_transform
+	var col := KinematicCollision3D.new()
+	if not test_move(t, fwd, col):
+		return
+	if col.get_normal().y > 0.7:            # a slope we can already walk up
+		return
+	var up := Vector3(0, STEP, 0)
+	if test_move(t, up):                     # no head room
+		return
+	var t_up := t.translated(up)
+	if test_move(t_up, fwd):                 # still blocked up there: it is a wall, not a step
+		return
+	var t_fwd := t_up.translated(fwd)
+	var down := KinematicCollision3D.new()
+	if not test_move(t_fwd, Vector3(0, -STEP - 0.05, 0), down):
+		return
+	if down.get_normal().y < 0.7:
+		return
+	var rise := STEP - down.get_travel().length()
+	if rise < 0.01:
+		return
+	global_position = t_fwd.origin + down.get_travel() + Vector3(0, 0.002, 0)
+	_step_smooth += rise                       # the camera eases up instead of popping
 
 
 func _can_stand() -> bool:

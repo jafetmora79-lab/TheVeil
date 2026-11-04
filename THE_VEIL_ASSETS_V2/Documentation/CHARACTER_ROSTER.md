@@ -31,7 +31,7 @@ it.
 | Officer Hayes? | `Police/CHR_Police_Officer.glb` | Style rev 4. **Candidate only**. | Police officer (WORKING DRAFT, details TBD) | TBD | TBD |
 | Noah | none | Do not model until his age and look are confirmed | Marcus's missing son (ESTABLISHED) | Son of Marcus | TBD |
 | Danny, Walter, Kevin, Mr. Bell | none | Roles TBD | Named in earlier planning only | TBD | TBD |
-| Cashier (supermarket) | none (unseen) | **Placeholder speaker**. Not in the bible. | Phase 2 checkout lines only | - | - |
+| Cashier (supermarket) | `Commercial_NPCs/CHR_Cashier.glb` + `T_Face_Cashier.png` | **Generic placeholder**, style rev 4. Not in the bible. | Phase 2 checkout; gone when the mist arrives (Phase 3) | - | TBD |
 
 **Superseded backups:** `_v1`, `_v2` and `_v3` versions are kept next to each model and listed in the manifest. Do
 not use them in game scenes.

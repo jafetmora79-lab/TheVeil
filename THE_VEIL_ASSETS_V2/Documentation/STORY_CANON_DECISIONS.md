@@ -28,11 +28,12 @@ suggestions.
 | Date | Choice | Why / status |
 |---|---|---|
 | 2026-11-04 | **Phase 2 errand order:** after parking, the supermarket and the game shop can be done in **either order**. No mist yet. | Bible 2.2 / open decision 11.2 leave the stop order open, so none was locked. |
-| 2026-11-04 | **Supermarket cashier:** an unseen speaker called "Cashier". | No cashier is named in the bible. Placeholder. |
+| 2026-11-04 | **Supermarket cashier:** a generic placeholder model and speaker, `CHR_Cashier`. Added because the owner play-tested and found no store clerk. | No cashier is named in the bible. Placeholder. |
+| 2026-11-04 | **Phase 3 sequence (owner asked for "phase 3"):** after the errands the mist arrives. The Colossus is glimpsed, the car is dead, Eddie shelters the player in the game shop with Marcus, and all three hole up in the supermarket. | Follows the bible 2.2 / Act I working drafts. The order, lines, tentacle hazard and Colossus scale are not canon. |
 | 2026-11-04 | **Horror game the protagonist buys:** untitled. | Title TBD. Placeholder. |
 | 2026-11-04 | **Eddie's and the cashier's lines:** marked `"draft": true` in `game/data/dialogue.json`. | Working lines, to be replaced by the script. |
 | 2026-11-04 | **Police officer model:** `CHR_Police_Officer` is an **Officer Hayes candidate** only. | Hayes' identity is TBD (bible 4.9). |
-| 2026-11-04 | **Marcus at the game shop:** not placed. | Bible 2.2 puts him there at the mist's arrival (WORKING DRAFT), which Phase 2 does not reach. |
+| 2026-11-04 | **Marcus at the game shop:** placed only once the mist arrives (Phase 3), as in the bible 2.2 working draft. | Not canon. |
 
 ## Still open (bible section 11)
 
