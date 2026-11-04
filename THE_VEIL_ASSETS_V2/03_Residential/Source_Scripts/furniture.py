@@ -152,11 +152,17 @@ def face_quad(mb, mat, rect_uv, x0, y0, x1, y1, z, nz=1):
     mb.quad(mat, *pts, n=(0, 0, nz), uv=uv)
 
 
-def drawer(name, x0, y0, x1, y1, z_front, depth, mat, handle=METAL):
+def face_frame(mb, mat, z_front, rails, stiles=()):
+    """Carcass joinery behind the fronts, clear of the 20 mm hinge sweep."""
+    for x0, y0, x1, y1 in (*rails, *stiles):
+        mb.box(mat, (x0, y0, z_front - 0.039), (x1, y1, z_front - 0.021), skip=())
+
+
+def drawer(name, x0, y0, x1, y1, z_front, depth, mat, handle=METAL, *, face_left=0.0):
     """Drawer node: pivot at its closed front-bottom-centre, slides +Z."""
     mb = MB()
     w, h = x1 - x0, y1 - y0
-    mb.box(mat, (-w / 2, 0, -0.02), (w / 2, h, 0.0), skip=())                 # front panel
+    mb.box(mat, (-w / 2 + face_left, 0, -0.02), (w / 2, h, 0.0), skip=())                 # front panel
     hollow(mb, mat, (-w / 2 + 0.02, 0.01, -depth), (w / 2 - 0.02, h * 0.75, -0.02), skip=("+y",))   # box
     mb.box(handle, (-0.06, h / 2 - 0.012, 0.0), (0.06, h / 2 + 0.012, 0.025), skip=())
     return {"name": name, "t": ((x0 + x1) / 2, y0, z_front), "mb": mb,
@@ -455,13 +461,18 @@ def stove(name="RES_Stove_Electric", mat=None):
     mat = mat or WHITE
     mb = MB()
     w, d, h = 0.76, 0.65, 0.92
-    hollow(mb, mat, (-w / 2, 0.06, -d / 2), (w / 2, h, d / 2 - 0.03), skip=("+z",))
+    front = d / 2 - 0.03
+    hollow(mb, mat, (-w / 2, 0.06, -d / 2), (w / 2, h - 0.01, front), skip=("+z",))
+    mb.box(mat, (-w / 2 + 0.018, 0.704, front - 0.03),
+           (w / 2 - 0.018, h - 0.028, front), skip=())  # fixed fascia above the oven door
     mb.box(RUBBER, (-w / 2 + 0.02, 0, -d / 2 + 0.03), (w / 2 - 0.02, 0.06, d / 2 - 0.06))
     mb.box(mat, (-w / 2, h, -d / 2), (w / 2, h + 0.18, -d / 2 + 0.06))              # backsplash with knobs
     for k in range(4):
         mb.box(PLASTIC, (-0.29 + k * 0.18, h + 0.07, -d / 2 + 0.06), (-0.25 + k * 0.18, h + 0.11, -d / 2 + 0.085))
     top = MB()
     top.box(mat, (-w / 2, h - 0.01, -d / 2 + 0.06), (w / 2, h, d / 2 - 0.03), skip=("-y",), uvrect={"+y": drect("stove_top")})
+    # Tile the full cooktop height once. The backsplash sits on the rear strip.
+    mb.box(mat, (-w / 2, h - 0.01, -d / 2), (w / 2, h, -d / 2 + 0.06), skip=("-y",))
     mb.merge(top)
     door = MB()
     door.box(mat, (-w / 2 + 0.03, 0, -0.03), (w / 2 - 0.03, 0.6, 0.0), skip=())
@@ -493,6 +504,25 @@ def counter(name="RES_Counter_Base_1.2", w=1.2, sink=False, drawers=True, top=No
         else:
             nodes.append(cab_door(f"INT_CabinetDoor_{k + 1}", x0 + 0.01 if k % 2 == 0 else x0 + cw - 0.01, 0.12, cw - 0.02,
                                   h - 0.2, d / 2 - 0.02, WOOD_P, "l" if k % 2 == 0 else "r"))
+    inner_left, inner_right = -w / 2 + 0.018, w / 2 - 0.018
+    bottom, top_edge = 0.118, h - 0.058
+    rails = []
+    if drawers and not sink:
+        rails.append((inner_left, h - 0.237, inner_right, h - 0.223))
+    # Tie adjacent bays into the carcass. The door and drawer edges keep
+    # 3 mm clearance from each stile, including at the ends of the run.
+    stiles = [(inner_left, bottom, -w / 2 + 0.027, top_edge),
+              (w / 2 - 0.027, bottom, inner_right, top_edge)]
+    for k in range(1, nd):
+        split = -w / 2 + 0.02 + k * cw
+        if rails:
+            stiles.extend([(split - 0.007, bottom, split + 0.007, rails[0][1]),
+                           (split - 0.007, rails[0][3], split + 0.007, top_edge)])
+        else:
+            stiles.append((split - 0.007, bottom, split + 0.007, top_edge))
+    if rails:
+        rails[0] = (-w / 2 + 0.027, rails[0][1], w / 2 - 0.027, rails[0][3])
+    face_frame(mb, WOOD_P, d / 2 - 0.02, rails, stiles)
     if sink:
         basin = MB()
         basin.box(METAL, (-0.35, h - 0.2, -0.2), (0.35, h - 0.18, 0.2), skip=("-y",))
@@ -513,10 +543,15 @@ def counter_corner():
     name = "RES_Counter_Corner"
     mb = MB()
     s, h = 0.9, 0.92
-    mb.box(WOOD_P, (-s / 2, 0.1, -s / 2), (s / 2, h - 0.04, s / 2 - 0.3), skip=())
-    mb.box(WOOD_P, (-s / 2, 0.1, -s / 2), (-s / 2 + 0.6, h - 0.04, s / 2), skip=())
-    mb.box(mr("Formica"), (-s / 2, h - 0.04, -s / 2), (s / 2, h, s / 2 - 0.3 + 0.02))
-    mb.box(mr("Formica"), (-s / 2, h - 0.04, -s / 2), (-s / 2 + 0.62, h, s / 2))
+    corner_x, front = -s / 2 + 0.6, s / 2 - 0.3
+    mb.box(WOOD_P, (-s / 2, 0.1, -s / 2), (corner_x, h - 0.04, s / 2), skip=())
+    # The door overlays the left edge of this bay at the existing hinge.
+    hollow(mb, WOOD_P, (corner_x, 0.1, -s / 2), (s / 2, h - 0.04, front), skip=("+z",))
+    mb.box(WOOD_D, (-s / 2 + 0.02, 0, -s / 2 + 0.02),
+           (corner_x, 0.1, s / 2 - 0.05))
+    mb.box(WOOD_D, (corner_x, 0, -s / 2 + 0.02), (s / 2 - 0.02, 0.1, front - 0.05))
+    mb.box(mr("Formica"), (-s / 2, h - 0.04, -s / 2), (corner_x + 0.02, h, s / 2))
+    mb.box(mr("Formica"), (corner_x + 0.02, h - 0.04, -s / 2), (s / 2, h, front + 0.02))
     nodes = [cab_door("INT_CabinetDoor_1", -s / 2 + 0.6, 0.12, 0.28, h - 0.2, s / 2 - 0.3, WOOD_P, "l")]
     return fmodel(name, "kitchen", mb, (s, s, h), cols=[((-s / 2, 0, -s / 2), (s / 2, h, s / 2 - 0.3)), ((-s / 2, 0, -s / 2), (-s / 2 + 0.6, h, s / 2))],
                   nodes=nodes, corner=True, surface_y=h)
@@ -528,6 +563,7 @@ def wall_cabinet(name="RES_WallCabinet_0.8", w=0.8):
     hollow(mb, WOOD_P, (-w / 2, 0, -d / 2), (w / 2, h, d / 2 - 0.02), skip=("+z",))
     nodes = [cab_door("INT_CabinetDoor_L", -w / 2 + 0.01, 0.01, w / 2 - 0.015, h - 0.02, d / 2 - 0.02, WOOD_P, "l"),
              cab_door("INT_CabinetDoor_R", w / 2 - 0.01, 0.01, w / 2 - 0.015, h - 0.02, d / 2 - 0.02, WOOD_P, "r")]
+    face_frame(mb, WOOD_P, d / 2 - 0.02, [], [(-0.002, 0.018, 0.002, h - 0.018)])
     return fmodel(name, "kitchen", mb, (w, d, h), cols=[((-w / 2, 0, -d / 2), (w / 2, h, d / 2))], nodes=nodes, wall_mount=True, mount_y=1.45)
 
 
@@ -583,7 +619,13 @@ def microwave():
     mb = MB()
     w, d, h = 0.5, 0.38, 0.3
     hollow(mb, WHITE, (-w / 2, 0.01, -d / 2), (w / 2, h, d / 2 - 0.02), skip=("+z",))
-    face_quad(mb, DET, drect("microwave_panel"), w / 2 - 0.13, 0.03, w / 2 - 0.01, h - 0.03, d / 2 - 0.018)
+    front = d / 2 - 0.02
+    panel_left = w / 2 - 0.126
+    # Mount the controls on a solid end enclosure tied into the top and side shell.
+    mb.box(WHITE, (panel_left, 0.028, front - 0.035),
+           (w / 2 - 0.018, h - 0.018, front), skip=())
+    face_quad(mb, DET, drect("microwave_panel"), panel_left + 0.003, 0.032,
+              w / 2 - 0.021, h - 0.032, front + 0.001)
     door = MB()
     door.box(WHITE, (0, 0, -0.02), (w - 0.14, h - 0.04, 0.0), skip=())
     door.box(m01("Arch_WindowGlassDirty"), (0.04, 0.04, 0.0), (w - 0.2, h - 0.08, 0.003), skip=("-z",))
@@ -704,6 +746,14 @@ def nightstand():
     legs(mb, WOOD_D, w, d, 0.05, inset=0.03, r=0.02)
     nodes = [drawer("INT_Drawer_1", -w / 2 + 0.03, h - 0.2, w / 2 - 0.03, h - 0.04, d / 2 - 0.02, 0.3, WOOD_D),
              drawer("INT_Drawer_2", -w / 2 + 0.03, 0.08, w / 2 - 0.03, h - 0.24, d / 2 - 0.02, 0.3, WOOD_D)]
+    inner_left, inner_right = -w / 2 + 0.018, w / 2 - 0.018
+    face_left, face_right = -w / 2 + 0.027, w / 2 - 0.027
+    face_frame(mb, WOOD_D, d / 2 - 0.02,
+               [(face_left, h - 0.237, face_right, h - 0.203),
+                (face_left, h - 0.037, face_right, h - 0.018),
+                (face_left, 0.068, face_right, 0.077)],
+               [(inner_left, 0.068, face_left, h - 0.018),
+                (face_right, 0.068, inner_right, h - 0.018)])
     return fmodel(name, "bedroom", mb, (w, d, h), cols=[((-w / 2, 0, -d / 2), (w / 2, h, d / 2))], nodes=nodes, wall=True, surface_y=h)
 
 
@@ -722,7 +772,16 @@ def dresser(name="RES_Dresser", w=1.2, rows=3, mirror=False):
         else:
             for k in range(2):
                 nodes.append(drawer(f"INT_Drawer_{r + 1}{'LR'[k]}", -w / 2 + 0.03 + k * w / 2, y0, -0.01 + k * w / 2, y0 + rh - 0.02,
-                                    d / 2 - 0.02, 0.4, WOOD_L))
+                                    d / 2 - 0.02, 0.4, WOOD_L, face_left=-0.02 if k == 1 else 0.0))
+    face_left, face_right = -w / 2 + 0.027, w / 2 - 0.027
+    top_face = 0.1 + rows * rh - 0.02
+    rails = [(face_left, 0.1 + r * rh - 0.017, face_right, 0.1 + r * rh - 0.003)
+             for r in range(1, rows)]
+    rails.append((face_left, top_face + 0.003, face_right, h - 0.018))
+    face_frame(mb, WOOD_L, d / 2 - 0.02, rails,
+               [(-w / 2 + 0.018, 0.098, face_left, h - 0.018),
+                (face_right, 0.098, w / 2 - 0.018, h - 0.018),
+                (-0.007, 0.1 + (rows - 1) * rh - 0.003, 0.007, top_face + 0.003)])
     if mirror:
         mb.box(WOOD_L, (-0.42, h + 0.03, -d / 2 + 0.01), (0.42, h + 0.95, -d / 2 + 0.05))
         face_quad(mb, mr("Mirror"), (0, 0, 1, 1), -0.36, h + 0.1, 0.36, h + 0.88, -d / 2 + 0.052)

@@ -27,6 +27,10 @@ animation/import=false
 import_script/path=""
 _subresources={
 "materials": {
+"M_Furn_WoodDark": {
+"use_external/enabled": true,
+"use_external/path": "res://THE_VEIL_ASSETS_V2/Materials_Godot/Furniture/M_Furn_WoodDark.tres"
+},
 "M_Furn_WoodPainted": {
 "use_external/enabled": true,
 "use_external/path": "res://THE_VEIL_ASSETS_V2/Materials_Godot/Furniture/M_Furn_WoodPainted.tres"

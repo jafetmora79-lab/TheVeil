@@ -24,7 +24,7 @@
    "folder": "Protagonist_Sedan",
    "glb": "05_Vehicles/Protagonist_Sedan/VEH_ProtagonistSedan.glb",
    "category": "hero vehicle",
-   "triangles": 2430,
+   "triangles": 2536,
    "materials": [
     "M_Veh_Atlas",
     "M_Veh_Glass",
