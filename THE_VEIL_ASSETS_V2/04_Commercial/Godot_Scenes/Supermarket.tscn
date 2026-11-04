@@ -1,0 +1,494 @@
+[gd_scene load_steps=4 format=3]
+
+[ext_resource type="PackedScene" path="res://THE_VEIL_ASSETS_V2/04_Commercial/Supermarket/COM_Supermarket.glb" id="1_COM_Supermarket"]
+[ext_resource type="PackedScene" path="res://THE_VEIL_ASSETS_V2/04_Commercial/Supermarket/COM_Supermarket_Furnishing.glb" id="2_COM_Supermarket_Furnishi"]
+[ext_resource type="PackedScene" path="res://THE_VEIL_ASSETS_V2/05_Vehicles/Transportation_Props/TRN_ShoppingCart.tscn" id="3_TRN_ShoppingCart"]
+
+[node name="Supermarket" type="Node3D"]
+metadata/location_id = "supermarket"
+metadata/zone_id = "SUPERMARKET"
+metadata/title = "Greyhaven Market - supermarket"
+metadata/rooms = [{"id": "VEST", "type": "vestibule", "rect": [-3.5, 0.2, 3.5, 3.2], "floor_y": 0.04, "ceil_y": 3.44}, {"id": "SALES", "type": "sales", "rect": [-20, 3.2, 20, 14.2], "floor_y": 0.04, "ceil_y": 4.24}, {"id": "BACK", "type": "storage", "rect": [-14.5, 14.2, 20, 17.6], "floor_y": 0.04, "ceil_y": 3.64}, {"id": "OFFICE", "type": "office", "rect": [-20, 14.2, -17, 17.6], "floor_y": 0.04, "ceil_y": 2.74}, {"id": "RESTRM", "type": "restroom", "rect": [-17, 14.2, -14.5, 17.6], "floor_y": 0.04, "ceil_y": 2.74}]
+metadata/exterior_doors = [{"name": "INT_Arch_Entrance", "kind": "arch", "w": 2.4, "h": 2.3, "center": [0, 0.04, 0.2]}, {"name": "INT_Door_BackExit", "kind": "door", "w": 1, "h": 2.15, "center": [8, 0.04, 17.6]}, {"name": "INT_GarageDoor_Loading", "kind": "garage", "w": 2.8, "h": 3, "center": [20, 0, 15.9]}]
+
+[node name="Building" parent="." instance=ExtResource("1_COM_Supermarket")]
+
+
+[node name="Furnishing" parent="." instance=ExtResource("2_COM_Supermarket_Furnishi")]
+
+
+[node name="Props" type="Node3D" parent="."]
+
+
+[node name="Cart_0" parent="Props" instance=ExtResource("3_TRN_ShoppingCart")]
+transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, -3, 0.04, 0.75)
+
+[node name="Cart_1" parent="Props" instance=ExtResource("3_TRN_ShoppingCart")]
+transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, -3, 0.04, 1.6)
+
+[node name="Cart_2" parent="Props" instance=ExtResource("3_TRN_ShoppingCart")]
+transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, -3, 0.04, 2.45)
+
+[node name="Cart_3" parent="Props" instance=ExtResource("3_TRN_ShoppingCart")]
+transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 3, 0.04, 0.75)
+
+[node name="Cart_4" parent="Props" instance=ExtResource("3_TRN_ShoppingCart")]
+transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 3, 0.04, 1.6)
+
+[node name="Cart_5" parent="Props" instance=ExtResource("3_TRN_ShoppingCart")]
+transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 3, 0.04, 2.45)
+
+[node name="Cart_6" parent="Props" instance=ExtResource("3_TRN_ShoppingCart")]
+transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, -12, 0, -9)
+
+[node name="Cart_7" parent="Props" instance=ExtResource("3_TRN_ShoppingCart")]
+transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, -11, 0, -9)
+
+[node name="Lights" type="Node3D" parent="."]
+
+
+[node name="Light_VEST" type="OmniLight3D" parent="Lights"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 3.04, 1.7)
+light_color = Color(1, 0.97, 0.9, 1)
+light_energy = 0.9
+omni_range = 8.15
+shadow_enabled = false
+
+[node name="Light_SALES_00" type="OmniLight3D" parent="Lights"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -15, 3.84, 8.7)
+light_color = Color(1, 0.97, 0.9, 1)
+light_energy = 0.9
+omni_range = 11.95
+shadow_enabled = false
+
+[node name="Light_SALES_10" type="OmniLight3D" parent="Lights"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -5, 3.84, 8.7)
+light_color = Color(1, 0.97, 0.9, 1)
+light_energy = 0.9
+omni_range = 11.95
+shadow_enabled = false
+
+[node name="Light_SALES_20" type="OmniLight3D" parent="Lights"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 5, 3.84, 8.7)
+light_color = Color(1, 0.97, 0.9, 1)
+light_energy = 0.9
+omni_range = 11.95
+shadow_enabled = false
+
+[node name="Light_SALES_30" type="OmniLight3D" parent="Lights"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 15, 3.84, 8.7)
+light_color = Color(1, 0.97, 0.9, 1)
+light_energy = 0.9
+omni_range = 11.95
+shadow_enabled = false
+
+[node name="Light_BACK_00" type="OmniLight3D" parent="Lights"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -10.1875, 3.24, 15.9)
+light_color = Color(1, 0.97, 0.9, 1)
+light_energy = 0.9
+omni_range = 9.69
+shadow_enabled = false
+
+[node name="Light_BACK_10" type="OmniLight3D" parent="Lights"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1.5625, 3.24, 15.9)
+light_color = Color(1, 0.97, 0.9, 1)
+light_energy = 0.9
+omni_range = 9.69
+shadow_enabled = false
+
+[node name="Light_BACK_20" type="OmniLight3D" parent="Lights"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 7.0625, 3.24, 15.9)
+light_color = Color(1, 0.97, 0.9, 1)
+light_energy = 0.9
+omni_range = 9.69
+shadow_enabled = false
+
+[node name="Light_BACK_30" type="OmniLight3D" parent="Lights"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 15.6875, 3.24, 15.9)
+light_color = Color(1, 0.97, 0.9, 1)
+light_energy = 0.9
+omni_range = 9.69
+shadow_enabled = false
+
+[node name="Light_OFFICE" type="OmniLight3D" parent="Lights"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -18.5, 2.34, 15.9)
+light_color = Color(1, 0.97, 0.9, 1)
+light_energy = 0.9
+omni_range = 4.73
+shadow_enabled = false
+
+[node name="Light_RESTRM" type="OmniLight3D" parent="Lights"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -15.75, 2.34, 15.9)
+light_color = Color(1, 0.97, 0.9, 1)
+light_energy = 0.9
+omni_range = 4.73
+shadow_enabled = false
+
+[node name="ExtLight_0" type="OmniLight3D" parent="Lights"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -16, 3.6, 2.5)
+light_color = Color(1, 0.85, 0.6, 1)
+light_energy = 0.8
+omni_range = 7.0
+shadow_enabled = false
+
+[node name="ExtLight_1" type="OmniLight3D" parent="Lights"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -6, 3.6, 2.5)
+light_color = Color(1, 0.85, 0.6, 1)
+light_energy = 0.8
+omni_range = 7.0
+shadow_enabled = false
+
+[node name="ExtLight_2" type="OmniLight3D" parent="Lights"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 6, 3.6, 2.5)
+light_color = Color(1, 0.85, 0.6, 1)
+light_energy = 0.8
+omni_range = 7.0
+shadow_enabled = false
+
+[node name="ExtLight_3" type="OmniLight3D" parent="Lights"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 16, 3.6, 2.5)
+light_color = Color(1, 0.85, 0.6, 1)
+light_energy = 0.8
+omni_range = 7.0
+shadow_enabled = false
+
+[node name="ExtLight_4" type="OmniLight3D" parent="Lights"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 21, 3.2, 15.9)
+light_color = Color(1, 0.85, 0.6, 1)
+light_energy = 0.8
+omni_range = 7.0
+shadow_enabled = false
+
+[node name="Doorways" type="Node3D" parent="."]
+
+
+[node name="Entrance_Outside" type="Marker3D" parent="Doorways"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -0.6)
+metadata/door = "INT_Arch_Entrance"
+metadata/width = 2.4
+
+[node name="Entrance_Inside" type="Marker3D" parent="Doorways"]
+transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 0, 0.04, 1)
+metadata/door = "INT_Arch_Entrance"
+metadata/width = 2.4
+
+[node name="BackExit_Outside" type="Marker3D" parent="Doorways"]
+transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 8, 0, 18.4)
+metadata/door = "INT_Door_BackExit"
+metadata/width = 1
+
+[node name="BackExit_Inside" type="Marker3D" parent="Doorways"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 8, 0.04, 16.8)
+metadata/door = "INT_Door_BackExit"
+metadata/width = 1
+
+[node name="Loading_Outside" type="Marker3D" parent="Doorways"]
+transform = Transform3D(0, 0, -1, 0, 1, 0, 1, 0, 0, 20.8, 0, 15.9)
+metadata/door = "INT_GarageDoor_Loading"
+metadata/width = 2.8
+
+[node name="Loading_Inside" type="Marker3D" parent="Doorways"]
+transform = Transform3D(0, 0, 1, 0, 1, 0, -1, 0, 0, 19.2, 0, 15.9)
+metadata/door = "INT_GarageDoor_Loading"
+metadata/width = 2.8
+
+[node name="Interaction" type="Node3D" parent="."]
+
+
+[node name="CoolerDoor_1_1" type="Marker3D" parent="Interaction"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -10.32, 1.04, 13.23)
+metadata/kind = "cooler_door"
+metadata/fixture = "COM_Cooler_Dairy"
+
+[node name="CoolerDoor_2_2" type="Marker3D" parent="Interaction"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -11.1, 1.04, 13.23)
+metadata/kind = "cooler_door"
+metadata/fixture = "COM_Cooler_Dairy"
+
+[node name="CoolerDoor_3_3" type="Marker3D" parent="Interaction"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -11.88, 1.04, 13.23)
+metadata/kind = "cooler_door"
+metadata/fixture = "COM_Cooler_Dairy"
+
+[node name="CoolerDoor_1_4" type="Marker3D" parent="Interaction"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -7.96, 1.04, 13.23)
+metadata/kind = "cooler_door"
+metadata/fixture = "COM_Cooler_Dairy"
+
+[node name="CoolerDoor_2_5" type="Marker3D" parent="Interaction"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -8.74, 1.04, 13.23)
+metadata/kind = "cooler_door"
+metadata/fixture = "COM_Cooler_Dairy"
+
+[node name="CoolerDoor_3_6" type="Marker3D" parent="Interaction"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -9.52, 1.04, 13.23)
+metadata/kind = "cooler_door"
+metadata/fixture = "COM_Cooler_Dairy"
+
+[node name="CoolerDoor_1_7" type="Marker3D" parent="Interaction"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -5.6, 1.04, 13.23)
+metadata/kind = "cooler_door"
+metadata/fixture = "COM_Cooler_Dairy"
+
+[node name="CoolerDoor_2_8" type="Marker3D" parent="Interaction"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -6.38, 1.04, 13.23)
+metadata/kind = "cooler_door"
+metadata/fixture = "COM_Cooler_Dairy"
+
+[node name="CoolerDoor_3_9" type="Marker3D" parent="Interaction"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -7.16, 1.04, 13.23)
+metadata/kind = "cooler_door"
+metadata/fixture = "COM_Cooler_Dairy"
+
+[node name="CoolerDoor_1_10" type="Marker3D" parent="Interaction"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -3.24, 1.04, 13.23)
+metadata/kind = "cooler_door"
+metadata/fixture = "COM_Cooler_Dairy"
+
+[node name="CoolerDoor_2_11" type="Marker3D" parent="Interaction"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -4.02, 1.04, 13.23)
+metadata/kind = "cooler_door"
+metadata/fixture = "COM_Cooler_Dairy"
+
+[node name="CoolerDoor_3_12" type="Marker3D" parent="Interaction"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -4.8, 1.04, 13.23)
+metadata/kind = "cooler_door"
+metadata/fixture = "COM_Cooler_Dairy"
+
+[node name="CoolerDoor_1_13" type="Marker3D" parent="Interaction"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.88, 1.04, 13.23)
+metadata/kind = "cooler_door"
+metadata/fixture = "COM_Cooler_Drinks"
+
+[node name="CoolerDoor_2_14" type="Marker3D" parent="Interaction"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1.66, 1.04, 13.23)
+metadata/kind = "cooler_door"
+metadata/fixture = "COM_Cooler_Drinks"
+
+[node name="CoolerDoor_3_15" type="Marker3D" parent="Interaction"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2.44, 1.04, 13.23)
+metadata/kind = "cooler_door"
+metadata/fixture = "COM_Cooler_Drinks"
+
+[node name="CoolerDoor_1_16" type="Marker3D" parent="Interaction"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.48, 1.04, 13.23)
+metadata/kind = "cooler_door"
+metadata/fixture = "COM_Cooler_Drinks"
+
+[node name="CoolerDoor_2_17" type="Marker3D" parent="Interaction"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.7, 1.04, 13.23)
+metadata/kind = "cooler_door"
+metadata/fixture = "COM_Cooler_Drinks"
+
+[node name="CoolerDoor_3_18" type="Marker3D" parent="Interaction"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.08, 1.04, 13.23)
+metadata/kind = "cooler_door"
+metadata/fixture = "COM_Cooler_Drinks"
+
+[node name="CoolerDoor_1_19" type="Marker3D" parent="Interaction"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 3.84, 1.04, 13.23)
+metadata/kind = "cooler_door"
+metadata/fixture = "COM_Cooler_Drinks"
+
+[node name="CoolerDoor_2_20" type="Marker3D" parent="Interaction"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 3.06, 1.04, 13.23)
+metadata/kind = "cooler_door"
+metadata/fixture = "COM_Cooler_Drinks"
+
+[node name="CoolerDoor_3_21" type="Marker3D" parent="Interaction"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2.28, 1.04, 13.23)
+metadata/kind = "cooler_door"
+metadata/fixture = "COM_Cooler_Drinks"
+
+[node name="CoolerDoor_1_22" type="Marker3D" parent="Interaction"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 6.2, 1.04, 13.23)
+metadata/kind = "cooler_door"
+metadata/fixture = "COM_Cooler_Drinks"
+
+[node name="CoolerDoor_2_23" type="Marker3D" parent="Interaction"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 5.42, 1.04, 13.23)
+metadata/kind = "cooler_door"
+metadata/fixture = "COM_Cooler_Drinks"
+
+[node name="CoolerDoor_3_24" type="Marker3D" parent="Interaction"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 4.64, 1.04, 13.23)
+metadata/kind = "cooler_door"
+metadata/fixture = "COM_Cooler_Drinks"
+
+[node name="CoolerDoor_1_25" type="Marker3D" parent="Interaction"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 18.99, 1.04, 4.72)
+metadata/kind = "cooler_door"
+metadata/fixture = "COM_Cooler_Frozen"
+
+[node name="CoolerDoor_2_26" type="Marker3D" parent="Interaction"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 18.99, 1.04, 5.5)
+metadata/kind = "cooler_door"
+metadata/fixture = "COM_Cooler_Frozen"
+
+[node name="CoolerDoor_3_27" type="Marker3D" parent="Interaction"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 18.99, 1.04, 6.28)
+metadata/kind = "cooler_door"
+metadata/fixture = "COM_Cooler_Frozen"
+
+[node name="CoolerDoor_1_28" type="Marker3D" parent="Interaction"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 18.99, 1.04, 7.12)
+metadata/kind = "cooler_door"
+metadata/fixture = "COM_Cooler_Frozen"
+
+[node name="CoolerDoor_2_29" type="Marker3D" parent="Interaction"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 18.99, 1.04, 7.9)
+metadata/kind = "cooler_door"
+metadata/fixture = "COM_Cooler_Frozen"
+
+[node name="CoolerDoor_3_30" type="Marker3D" parent="Interaction"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 18.99, 1.04, 8.68)
+metadata/kind = "cooler_door"
+metadata/fixture = "COM_Cooler_Frozen"
+
+[node name="CoolerDoor_1_31" type="Marker3D" parent="Interaction"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 18.99, 1.04, 9.52)
+metadata/kind = "cooler_door"
+metadata/fixture = "COM_Cooler_Frozen"
+
+[node name="CoolerDoor_2_32" type="Marker3D" parent="Interaction"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 18.99, 1.04, 10.3)
+metadata/kind = "cooler_door"
+metadata/fixture = "COM_Cooler_Frozen"
+
+[node name="CoolerDoor_3_33" type="Marker3D" parent="Interaction"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 18.99, 1.04, 11.08)
+metadata/kind = "cooler_door"
+metadata/fixture = "COM_Cooler_Frozen"
+
+[node name="CoolerDoor_1_34" type="Marker3D" parent="Interaction"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 18.99, 1.04, 11.92)
+metadata/kind = "cooler_door"
+metadata/fixture = "COM_Cooler_Frozen"
+
+[node name="CoolerDoor_2_35" type="Marker3D" parent="Interaction"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 18.99, 1.04, 12.7)
+metadata/kind = "cooler_door"
+metadata/fixture = "COM_Cooler_Frozen"
+
+[node name="CoolerDoor_3_36" type="Marker3D" parent="Interaction"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 18.99, 1.04, 13.48)
+metadata/kind = "cooler_door"
+metadata/fixture = "COM_Cooler_Frozen"
+
+[node name="FreezerLid_37" type="Marker3D" parent="Interaction"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 15, 1.02, 7.6)
+metadata/kind = "freezer_lid"
+metadata/fixture = "COM_Freezer_Chest"
+
+[node name="FreezerLid_38" type="Marker3D" parent="Interaction"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 15, 1.02, 11)
+metadata/kind = "freezer_lid"
+metadata/fixture = "COM_Freezer_Chest"
+
+[node name="Register_39" type="Marker3D" parent="Interaction"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -13.1, 1.14, 4)
+metadata/kind = "register"
+metadata/fixture = "COM_Checkout_Lane"
+
+[node name="Conveyor_40" type="Marker3D" parent="Interaction"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -11.9, 0.99, 5.4)
+metadata/kind = "checkout"
+metadata/fixture = "COM_Checkout_Lane"
+
+[node name="Register_41" type="Marker3D" parent="Interaction"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -10.1, 1.14, 4)
+metadata/kind = "register"
+metadata/fixture = "COM_Checkout_Lane"
+
+[node name="Conveyor_42" type="Marker3D" parent="Interaction"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -8.9, 0.99, 5.4)
+metadata/kind = "checkout"
+metadata/fixture = "COM_Checkout_Lane"
+
+[node name="Register_43" type="Marker3D" parent="Interaction"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -7.1, 1.14, 4)
+metadata/kind = "register"
+metadata/fixture = "COM_Checkout_Lane"
+
+[node name="Conveyor_44" type="Marker3D" parent="Interaction"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -5.9, 0.99, 5.4)
+metadata/kind = "checkout"
+metadata/fixture = "COM_Checkout_Lane"
+
+[node name="Register_45" type="Marker3D" parent="Interaction"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -4.1, 1.14, 4)
+metadata/kind = "register"
+metadata/fixture = "COM_Checkout_Lane"
+
+[node name="Conveyor_46" type="Marker3D" parent="Interaction"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2.9, 0.99, 5.4)
+metadata/kind = "checkout"
+metadata/fixture = "COM_Checkout_Lane"
+
+[node name="Register_47" type="Marker3D" parent="Interaction"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 7.05, 1.29, 4.2)
+metadata/kind = "register"
+metadata/fixture = "COM_ServiceCounter"
+
+[node name="Counter_48" type="Marker3D" parent="Interaction"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 6, 1.09, 5.8)
+metadata/kind = "counter"
+metadata/fixture = "COM_ServiceCounter"
+
+[node name="Drawers_49" type="Marker3D" parent="Interaction"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -18.86, 0.94, 15)
+metadata/kind = "drawer"
+metadata/fixture = "COM_FilingCabinet"
+
+[node name="ShoppingCarts" type="Marker3D" parent="Interaction"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 3, 0.9, 1.6)
+metadata/kind = "cart_pickup"
+
+[node name="Baskets" type="Marker3D" parent="Interaction"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2.3, 0.9, 4.2)
+metadata/kind = "basket_pickup"
+
+[node name="NavTargets" type="Node3D" parent="."]
+
+
+[node name="Entrance" type="Marker3D" parent="NavTargets"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -0.4)
+
+[node name="Checkout_1" type="Marker3D" parent="NavTargets"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -11.8, 0.04, 5)
+
+[node name="Checkout_4" type="Marker3D" parent="NavTargets"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2.8, 0.04, 5)
+
+[node name="CustomerService" type="Marker3D" parent="NavTargets"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 6, 0.04, 6)
+
+[node name="Aisle_1" type="Marker3D" parent="NavTargets"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -10, 0.04, 10)
+
+[node name="Aisle_4" type="Marker3D" parent="NavTargets"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1, 0.04, 10)
+
+[node name="Aisle_7" type="Marker3D" parent="NavTargets"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 8, 0.04, 10)
+
+[node name="Produce" type="Marker3D" parent="NavTargets"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -17.5, 0.04, 9.3)
+
+[node name="Dairy" type="Marker3D" parent="NavTargets"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -10, 0.04, 12.75)
+
+[node name="Freezers" type="Marker3D" parent="NavTargets"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 17.4, 0.04, 9.3)
+
+[node name="Backroom" type="Marker3D" parent="NavTargets"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.04, 15.6)
+
+[node name="LoadingDoor" type="Marker3D" parent="NavTargets"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 18.8, 0.04, 15.9)
+
+[node name="Office" type="Marker3D" parent="NavTargets"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -18.5, 0.04, 15.4)
+
+[node name="Restroom" type="Marker3D" parent="NavTargets"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -15.8, 0.04, 15.8)

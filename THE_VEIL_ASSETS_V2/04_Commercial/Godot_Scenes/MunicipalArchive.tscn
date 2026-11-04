@@ -1,0 +1,161 @@
+[gd_scene load_steps=3 format=3]
+
+[ext_resource type="PackedScene" path="res://THE_VEIL_ASSETS_V2/04_Commercial/Municipal_Archive/COM_MunicipalArchive.glb" id="1_COM_MunicipalArchive"]
+[ext_resource type="PackedScene" path="res://THE_VEIL_ASSETS_V2/04_Commercial/Municipal_Archive/COM_MunicipalArchive_Furnishing.glb" id="2_COM_MunicipalArchive_Fur"]
+
+[node name="MunicipalArchive" type="Node3D"]
+metadata/location_id = "municipal_archive"
+metadata/zone_id = "MUNICIPAL_ARCHIVE"
+metadata/title = "Greyhaven Municipal Archive"
+metadata/rooms = [{"id": "READ", "type": "reading", "rect": [-11, 7, -3, 13], "floor_y": 0.75, "ceil_y": 4.35}, {"id": "LOBBY", "type": "lobby", "rect": [-3, 7, 3, 13], "floor_y": 0.75, "ceil_y": 4.35}, {"id": "OFFICE", "type": "office", "rect": [3, 7, 11, 13], "floor_y": 0.75, "ceil_y": 4.35}, {"id": "RECORDS", "type": "records", "rect": [-11, 13, 4, 21], "floor_y": 0.75, "ceil_y": 4.35}, {"id": "STORAGE", "type": "storage", "rect": [4, 13, 11, 21], "floor_y": 0.75, "ceil_y": 4.35}]
+metadata/exterior_doors = [{"name": "INT_Door_Entrance", "kind": "door", "w": 1.2, "h": 2.4, "center": [0, 0.75, 7]}, {"name": "INT_Door_BackExit", "kind": "door", "w": 1, "h": 2.15, "center": [7.5, 0.75, 21]}]
+
+[node name="Building" parent="." instance=ExtResource("1_COM_MunicipalArchive")]
+
+
+[node name="Furnishing" parent="." instance=ExtResource("2_COM_MunicipalArchive_Fur")]
+
+
+[node name="Lights" type="Node3D" parent="."]
+
+
+[node name="Light_READ" type="OmniLight3D" parent="Lights"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -7, 3.95, 10)
+light_color = Color(1, 0.9, 0.76, 1)
+light_energy = 0.9
+omni_range = 9.1
+shadow_enabled = false
+
+[node name="Light_LOBBY" type="OmniLight3D" parent="Lights"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 3.95, 10)
+light_color = Color(1, 0.9, 0.76, 1)
+light_energy = 0.9
+omni_range = 7.2
+shadow_enabled = false
+
+[node name="Light_OFFICE" type="OmniLight3D" parent="Lights"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 7, 3.95, 10)
+light_color = Color(1, 0.9, 0.76, 1)
+light_energy = 0.9
+omni_range = 9.1
+shadow_enabled = false
+
+[node name="Light_RECORDS_00" type="OmniLight3D" parent="Lights"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -7.25, 3.95, 17)
+light_color = Color(1, 0.9, 0.76, 1)
+light_energy = 0.9
+omni_range = 9.1
+shadow_enabled = false
+
+[node name="Light_RECORDS_10" type="OmniLight3D" parent="Lights"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.25, 3.95, 17)
+light_color = Color(1, 0.9, 0.76, 1)
+light_energy = 0.9
+omni_range = 9.1
+shadow_enabled = false
+
+[node name="Light_STORAGE" type="OmniLight3D" parent="Lights"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 7.5, 3.95, 17)
+light_color = Color(1, 0.9, 0.76, 1)
+light_energy = 0.9
+omni_range = 9.1
+shadow_enabled = false
+
+[node name="ExtLight_0" type="OmniLight3D" parent="Lights"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2.2, 2.6, 6.3)
+light_color = Color(1, 0.85, 0.6, 1)
+light_energy = 0.8
+omni_range = 7.0
+shadow_enabled = false
+
+[node name="ExtLight_1" type="OmniLight3D" parent="Lights"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2.2, 2.6, 6.3)
+light_color = Color(1, 0.85, 0.6, 1)
+light_energy = 0.8
+omni_range = 7.0
+shadow_enabled = false
+
+[node name="Doorways" type="Node3D" parent="."]
+
+
+[node name="Entrance_Outside" type="Marker3D" parent="Doorways"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 6.2)
+metadata/door = "INT_Door_Entrance"
+metadata/width = 1.2
+
+[node name="Entrance_Inside" type="Marker3D" parent="Doorways"]
+transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 0, 0.75, 7.8)
+metadata/door = "INT_Door_Entrance"
+metadata/width = 1.2
+
+[node name="BackExit_Outside" type="Marker3D" parent="Doorways"]
+transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 7.5, 0, 21.8)
+metadata/door = "INT_Door_BackExit"
+metadata/width = 1
+
+[node name="BackExit_Inside" type="Marker3D" parent="Doorways"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 7.5, 0.75, 20.2)
+metadata/door = "INT_Door_BackExit"
+metadata/width = 1
+
+[node name="Interaction" type="Node3D" parent="."]
+
+
+[node name="Counter_1" type="Marker3D" parent="Interaction"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.8, 8.8)
+metadata/kind = "counter"
+metadata/fixture = "COM_ReceptionDesk"
+
+[node name="Drawers_2" type="Marker3D" parent="Interaction"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.6, 1.65, 19.86)
+metadata/kind = "drawer"
+metadata/fixture = "COM_FilingCabinet"
+
+[node name="Drawers_3" type="Marker3D" parent="Interaction"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.2, 1.65, 19.86)
+metadata/kind = "drawer"
+metadata/fixture = "COM_FilingCabinet"
+
+[node name="Drawers_4" type="Marker3D" parent="Interaction"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.8, 1.65, 19.86)
+metadata/kind = "drawer"
+metadata/fixture = "COM_FilingCabinet"
+
+[node name="Drawers_5" type="Marker3D" parent="Interaction"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2.4, 1.65, 19.86)
+metadata/kind = "drawer"
+metadata/fixture = "COM_FilingCabinet"
+
+[node name="Drawers_6" type="Marker3D" parent="Interaction"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 9.86, 1.65, 8.2)
+metadata/kind = "drawer"
+metadata/fixture = "COM_FilingCabinet"
+
+[node name="Drawers_7" type="Marker3D" parent="Interaction"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 9.86, 1.65, 8.7)
+metadata/kind = "drawer"
+metadata/fixture = "COM_FilingCabinet"
+
+[node name="NavTargets" type="Node3D" parent="."]
+
+
+[node name="Walkway" type="Marker3D" parent="NavTargets"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2, 0, -0.3)
+
+[node name="Reception" type="Marker3D" parent="NavTargets"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.75, 8.4)
+
+[node name="ReadingRoom" type="Marker3D" parent="NavTargets"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -7, 0.75, 10.2)
+
+[node name="Records_Stacks" type="Marker3D" parent="NavTargets"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -7.1, 0.75, 16.9)
+
+[node name="Records_Files" type="Marker3D" parent="NavTargets"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.5, 0.75, 19.6)
+
+[node name="Office" type="Marker3D" parent="NavTargets"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 7, 0.75, 10)
+
+[node name="Storage" type="Marker3D" parent="NavTargets"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 7.5, 0.75, 17.5)

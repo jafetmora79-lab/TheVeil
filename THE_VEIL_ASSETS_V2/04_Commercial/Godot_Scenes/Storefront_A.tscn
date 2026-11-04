@@ -1,0 +1,96 @@
+[gd_scene load_steps=3 format=3]
+
+[ext_resource type="PackedScene" path="res://THE_VEIL_ASSETS_V2/04_Commercial/Storefronts/COM_Storefront_A.glb" id="1_COM_Storefront_A"]
+[ext_resource type="PackedScene" path="res://THE_VEIL_ASSETS_V2/04_Commercial/Storefronts/COM_Storefront_A_Furnishing.glb" id="2_COM_Storefront_A_Furnish"]
+
+[node name="Storefront_A" type="Node3D"]
+metadata/location_id = "storefront_a"
+metadata/zone_id = "STOREFRONT_A"
+metadata/title = "Main Street storefront (unassigned tenant)"
+metadata/rooms = [{"id": "SHOP", "type": "sales", "rect": [-6, 0.3, 6, 8.6], "floor_y": 0.04, "ceil_y": 3.34}, {"id": "BACK", "type": "storage", "rect": [-6, 8.6, 6, 11.6], "floor_y": 0.04, "ceil_y": 3.04}]
+metadata/exterior_doors = [{"name": "INT_Door_Entrance", "kind": "door", "w": 1, "h": 2.2, "center": [-4, 0.04, 0.3]}, {"name": "INT_Door_BackExit", "kind": "door", "w": 1, "h": 2.15, "center": [-4, 0.04, 11.6]}]
+
+[node name="Building" parent="." instance=ExtResource("1_COM_Storefront_A")]
+
+
+[node name="Furnishing" parent="." instance=ExtResource("2_COM_Storefront_A_Furnish")]
+
+
+[node name="Lights" type="Node3D" parent="."]
+
+
+[node name="Light_SHOP" type="OmniLight3D" parent="Lights"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2.94, 4.45)
+light_color = Color(1, 0.95, 0.88, 1)
+light_energy = 0.9
+omni_range = 12.9
+shadow_enabled = false
+
+[node name="Light_BACK" type="OmniLight3D" parent="Lights"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2.64, 10.1)
+light_color = Color(1, 0.95, 0.88, 1)
+light_energy = 0.9
+omni_range = 12.9
+shadow_enabled = false
+
+[node name="ExtLight_0" type="OmniLight3D" parent="Lights"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2.5, 2.8, -0.4)
+light_color = Color(1, 0.85, 0.6, 1)
+light_energy = 0.8
+omni_range = 7.0
+shadow_enabled = false
+
+[node name="ExtLight_1" type="OmniLight3D" parent="Lights"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2.5, 2.8, -0.4)
+light_color = Color(1, 0.85, 0.6, 1)
+light_energy = 0.8
+omni_range = 7.0
+shadow_enabled = false
+
+[node name="Doorways" type="Node3D" parent="."]
+
+
+[node name="Entrance_Outside" type="Marker3D" parent="Doorways"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -4, 0, -0.5)
+metadata/door = "INT_Door_Entrance"
+metadata/width = 1
+
+[node name="Entrance_Inside" type="Marker3D" parent="Doorways"]
+transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, -4, 0.04, 1.1)
+metadata/door = "INT_Door_Entrance"
+metadata/width = 1
+
+[node name="BackExit_Outside" type="Marker3D" parent="Doorways"]
+transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, -4, 0, 12.4)
+metadata/door = "INT_Door_BackExit"
+metadata/width = 1
+
+[node name="BackExit_Inside" type="Marker3D" parent="Doorways"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -4, 0.04, 10.8)
+metadata/door = "INT_Door_BackExit"
+metadata/width = 1
+
+[node name="Interaction" type="Node3D" parent="."]
+
+
+[node name="Register_1" type="Marker3D" parent="Interaction"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 3.25, 1.24, 7.75)
+metadata/kind = "register"
+metadata/fixture = "COM_RetailCounter"
+
+[node name="Counter_2" type="Marker3D" parent="Interaction"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 4, 1.04, 6.25)
+metadata/kind = "counter"
+metadata/fixture = "COM_RetailCounter"
+
+[node name="NavTargets" type="Node3D" parent="."]
+
+
+[node name="Entrance" type="Marker3D" parent="NavTargets"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -4, 0, -0.4)
+
+[node name="Shop" type="Marker3D" parent="NavTargets"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.04, 4.3)
+
+[node name="Back" type="Marker3D" parent="NavTargets"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 4.5, 0.04, 10.1)
