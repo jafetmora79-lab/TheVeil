@@ -20,6 +20,13 @@ static func apply_ground(c: Node3D, ground_y: float) -> int:
 		"albedo_mul": 0.8, "key_energy": 0.6, "ambient": 0.3, "emission_energy": 0.2})
 
 
+## The Skitter: its own textures pushed down to charcoal / dirty dark bone (its atlas reads pale grey-white under
+## the street lamps), dim fixed moonlight, no emission glow; it reads in the fog by silhouette and movement.
+static func apply_skitter(c: Node3D, ground_y: float) -> int:
+	return _apply(c, ground_y, {"conceal_start": 50.0, "conceal_end": 60.0, "dissolve_start": 900.0, "dissolve_end": 1000.0,
+		"albedo_mul": 0.3, "key_energy": 0.42, "ambient": 0.2, "emission_energy": 0.0, "distance_fade": 0.045})
+
+
 static func _apply(c: Node3D, ground_y: float, params: Dictionary) -> int:
 	var n := 0
 	for mi in c.find_children("*", "MeshInstance3D", true, false):
