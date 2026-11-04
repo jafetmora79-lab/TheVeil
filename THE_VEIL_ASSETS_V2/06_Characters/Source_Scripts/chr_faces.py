@@ -72,6 +72,7 @@ CAST = {
     "Lena": dict(glb="Civilians/CHR_Lena.glb", brows=["#120e0c"], static=[]),
     "Police_Officer": dict(glb="Police/CHR_Police_Officer.glb", brows=["#100c0b"], static=[]),
     "Cashier": dict(glb="Commercial_NPCs/CHR_Cashier.glb", brows=["#4e3622"], static=["#a6745e"]),
+    "Noah": dict(glb="Civilians/CHR_Noah.glb", brows=["#3e2618"], static=["#b07a62"]),
 }
 
 

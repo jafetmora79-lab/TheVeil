@@ -30,7 +30,10 @@ suggestions.
 | 2026-11-04 | **Phase 2 errand order:** after parking, the supermarket and the game shop can be done in **either order**. No mist yet. | Bible 2.2 / open decision 11.2 leave the stop order open, so none was locked. |
 | 2026-11-04 | **Supermarket cashier:** a generic placeholder model and speaker, `CHR_Cashier`. Added because the owner play-tested and found no store clerk. | No cashier is named in the bible. Placeholder. |
 | 2026-11-04 | **Phase 3 sequence (owner asked for "phase 3"):** after the errands the mist arrives. The Colossus is glimpsed, the car is dead, Eddie shelters the player in the game shop with Marcus, and all three hole up in the supermarket. | Follows the bible 2.2 / Act I working drafts. The order, lines, tentacle hazard and Colossus scale are not canon. |
-| 2026-11-04 | **Horror game the protagonist buys:** untitled. | Title TBD. Placeholder. |
+| 2026-11-04 | **Horror game the protagonist buys:** **HOLLOW HILL**, taken from the title already printed on the Pack 04 game-shop art. It now has its own 3D case (front, back, spine). | Not in the bible. Placeholder until the owner confirms. |
+| 2026-11-04 | **First Colossus encounter (owner's brief):** the Veil arrives while the protagonist is inside a store. Outside, a gigantic leg slams down in front of him, then his face, a look up into the mist, and the creature moves on; then "GET BACK INSIDE THE STORE". The creature is shown at 6x scale, body never revealed. | Owner direction. Exact framing, timing and scale are production choices. |
+| 2026-11-04 | **Noah model:** `CHR_Noah`, built as roughly 10-12 because the owner asked for him. | The bible still leaves Noah's age, look and fate TBD. Proposal only; not used in the game. |
+| 2026-11-04 | **Survival values:** health 100, stamina drain and regeneration, tentacle hit 22, respawn inside the store at 60 HP. | Placeholders (bible 7: values configurable). |
 | 2026-11-04 | **Eddie's and the cashier's lines:** marked `"draft": true` in `game/data/dialogue.json`. | Working lines, to be replaced by the script. |
 | 2026-11-04 | **Police officer model:** `CHR_Police_Officer` is an **Officer Hayes candidate** only. | Hayes' identity is TBD (bible 4.9). |
 | 2026-11-04 | **Marcus at the game shop:** placed only once the mist arrives (Phase 3), as in the bible 2.2 working draft. | Not canon. |

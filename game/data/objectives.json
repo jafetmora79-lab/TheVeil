@@ -62,6 +62,18 @@
    "text": "Head back to the car"
   },
   {
+   "id": "p3_look",
+   "flag": "p3_stepped_out",
+   "goal": "act1",
+   "text": "Something's wrong outside"
+  },
+  {
+   "id": "p3_back",
+   "flag": "p3_back_inside",
+   "goal": "act1",
+   "text": "GET BACK INSIDE THE STORE"
+  },
+  {
    "id": "mist_shop",
    "flag": "p3_in_shop",
    "goal": "act1",

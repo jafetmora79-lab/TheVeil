@@ -320,13 +320,13 @@
   "lines": [
    {
     "speaker": "",
-    "text": "Huh. Where did all this fog come from?",
+    "text": "The lights... what's going on out there?",
     "time": 3.0
    },
    {
     "speaker": "",
-    "text": "That's... not normal fog.",
-    "time": 2.6
+    "text": "That's not normal fog.",
+    "time": 2.4
    }
   ]
  },
@@ -335,8 +335,8 @@
   "lines": [
    {
     "speaker": "",
-    "text": "What... what is THAT?",
-    "time": 3.0
+    "text": "Inside. Get inside. NOW.",
+    "time": 2.4
    }
   ]
  },
@@ -496,6 +496,16 @@
     "speaker": "",
     "text": "I've already got one.",
     "time": 1.8
+   }
+  ]
+ },
+ "p3_wake_hurt": {
+  "draft": true,
+  "lines": [
+   {
+    "speaker": "",
+    "text": "Ugh... I made it back in. Barely.",
+    "time": 2.8
    }
   ]
  }

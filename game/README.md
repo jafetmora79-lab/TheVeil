@@ -168,3 +168,43 @@ bone-axis conventions. It provides:
 * **`set_mood("scared")`:** hunched, faster breathing, arms drawn in. Used from the mist onwards.
 * **`walk_to(points)`:** a walk cycle along parent-local waypoints. Eddie walks to the shop door when the car dies,
   both head for the back after the shop talk, and they step up to the supermarket doors.
+
+## Gameplay, environment and cinematic pass (stores, night, the first encounter)
+
+* **Stores:**
+  * Products are separate meshes on empty modular shelves: one MultiMesh per variant per store. The supermarket has
+    3,998 products, the game shop 1,405. The generator is `THE_VEIL_ASSETS_V2/04_Commercial/Source_Scripts/com_merch.py`.
+  * Only pick groups are interactive, and taking one removes exactly one item:
+    * soup (aisle 1);
+    * the snack bar (lane-4 candy rack);
+    * water and cola (glass-door drinks coolers: `[E] Open Fridge`, interior light);
+    * chocolate;
+    * the **HOLLOW HILL** horror game (New Releases rack).
+* **Night:**
+  * dark sky and dim ambient light;
+  * a light on every lamp post;
+  * stronger storefront lights;
+  * sedan headlights.
+  These run through the Pack 09 atmosphere controller with game-side presets.
+* **3D store signs:** GREYHAVEN MARKET and GAME HAVEN have real extruded pixel letters that glow at night.
+* **Arrival shot:** plays while you drive past the supermarket. The car eases down to about 17 km/h, you keep
+  steering, and the view turns to the store and sign.
+* **Text:** every HUD and menu text uses the VeilPixel font (`game/tools/make_pixel_font.py`): white, with a black
+  outline and no anti-aliasing.
+* **Trees:** the woods no longer vanish on the drive (chunked MultiMeshes, see HANDOFF 9.13).
+* **Phase 3 (WORKING DRAFT):**
+  * Your last errand ends inside the store and the Veil rolls in.
+  * Step outside and the **Colossus encounter** plays:
+    * a gigantic leg slams down about 8.5 m in front of you;
+    * cut to the protagonist's frightened face;
+    * the camera follows his gaze up the leg into the mist ceiling (the body stays hidden, about 54 m up);
+    * the legs move on.
+  * Control returns with **GET BACK INSIDE THE STORE**, and health and stamina appear.
+  * Mist tentacles search, wind up, strike (damage lands on the contact frame) and retract.
+  * If your health runs out, you wake up back inside the store with 60 HP.
+* **Conversations:** important ones (buying the game, the shop scene, arriving at the supermarket) frame the speaker
+  with a subtle camera move and hold you until they end.
+* **Survival values** are placeholders (`player.gd`):
+  * health 100;
+  * stamina drain 24/s while sprinting, regeneration 16/s after 0.9 s;
+  * tentacle hit 22.

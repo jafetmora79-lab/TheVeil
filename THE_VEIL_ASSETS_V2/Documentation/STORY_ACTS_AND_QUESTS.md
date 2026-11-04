@@ -51,8 +51,10 @@ Implemented as a **WORKING DRAFT** of the opening of Act I. Goal "The Veil".
 
 | # | Objective id | Completes on flag | Trigger | Dialogue ids |
 |---|---|---|---|---|
-| - | (start) | `p3_mist` | Both errands done and the player outdoors. Fog rolls in, the cashier is gone, the Colossus glimpse plays, then mist tentacles appear. | `p3_fog`, `p3_colossus`, `p3_hit` |
-| 9 | `go_home` | `phase2_done` | Try the sedan: it is dead. Eddie holds the shop door. | `p3_car_dead`, `p3_car_again`, `p3_eddie_calls` |
+| - | (start) | `p3_mist`, `phase2_done` | Last errand done, still inside the store. The Veil rolls in, lights stutter, the cashier is gone. | `p3_fog` |
+| 9 | `p3_look` | `p3_stepped_out` | Step outside: the Colossus leg encounter plays (cinematic). | - |
+| 9b | `p3_back` | `p3_back_inside` | GET BACK INSIDE THE STORE. Health and stamina are on; tentacles hunt in the street. | `p3_colossus`, `p3_hit`, `p3_wake_hurt` |
+| - | (optional) | - | Try the sedan: it is dead. | `p3_car_dead`, `p3_car_again` |
 | 10 | `mist_shop` | `p3_in_shop` | Enter the game shop. Marcus is there. | `p3_shop`, `p3_eddie_go`, `p3_marcus_talk`, `p3_eddie_hurry` |
 | 11 | `mist_market` | `p3_in_market` | Reach the supermarket sales floor. Eddie and Marcus are there; the doors are jammed open. | `p3_market` |
 | 12 | `mist_doors` | `p3_doors_shut` | "Pull the Doors Shut". End card "ACT I". | `p3_doors` |

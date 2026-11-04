@@ -552,5 +552,78 @@
   "materials": 11,
   "height_m": 1.7,
   "width_m": 1.086
+ },
+ {
+  "name": "Noah",
+  "source": "Commercial_NPCs/CHR_Eddie.glb (hand-made reference)",
+  "removed": [],
+  "textures": {
+   "T_Noah_Top": [
+    64,
+    64,
+    3
+   ],
+   "T_Noah_TopCuff": [
+    32,
+    32,
+    3
+   ],
+   "T_Noah_Shirt": [
+    64,
+    64,
+    2
+   ],
+   "T_Noah_Pants": [
+    64,
+    64,
+    3
+   ],
+   "T_Noah_PantsHem": [
+    32,
+    32,
+    3
+   ],
+   "T_Noah_Skin": [
+    32,
+    32,
+    2
+   ],
+   "T_Noah_Sole": [
+    32,
+    32,
+    1
+   ],
+   "T_Noah_Badge": [
+    32,
+    16,
+    1
+   ],
+   "T_Noah_Hair": [
+    64,
+    64,
+    4
+   ],
+   "T_Noah_Head": [
+    128,
+    64,
+    11
+   ],
+   "T_Noah_Shoes": [
+    64,
+    64,
+    7
+   ]
+  },
+  "glb": "06_Characters/Civilians/CHR_Noah.glb",
+  "triangles": 2740,
+  "parts": {
+   "Noah_Body": 1786,
+   "Noah_Hair": 360,
+   "Noah_Head": 346,
+   "Noah_Shoes": 248
+  },
+  "materials": 11,
+  "height_m": 1.42,
+  "width_m": 0.867
  }
 ]
