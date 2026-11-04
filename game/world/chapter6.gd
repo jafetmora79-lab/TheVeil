@@ -89,7 +89,20 @@ func begin(w: Node, chapter5: Node, restoring: bool) -> void:
 	if not Game.has_flag("ch6_started"):
 		Game.set_flag("ch6_started")
 	_apply(restoring)
+	if Game.has_flag("ch6_rested"):
+		_start_chapter7(true)
 	Game.refresh_objective()
+
+
+## Chapter 7 continues after the night that follows Chapter 6; it is a child of this node.
+var chapter7: Node
+func _start_chapter7(restoring: bool) -> void:
+	if chapter7 != null:
+		return
+	chapter7 = load("res://game/world/chapter7.gd").new()
+	chapter7.name = "Chapter7"
+	add_child(chapter7)
+	chapter7.begin(world, self, restoring)
 
 
 func st() -> Dictionary:
@@ -539,6 +552,8 @@ func _process(delta: float) -> void:
 	if _tick > 0.0 or player == null:
 		return
 	_tick = 0.2
+	if Game.has_flag("ch7_started"):
+		return                                    # Chapter 7 owns the doors and the marker from here on
 	_update_marker()
 	if not Game.has_flag("ch6_eddie_following"):
 		return
@@ -626,7 +641,9 @@ func _report() -> void:
 
 
 func _on_rest(_id: String) -> void:
-	Game.set_flag("ch6_rested")                       # the Chapter 7 checkpoint; nothing starts yet
+	# the next morning is Chapter 7 (game/world/chapter7.gd); started while the screen is still black
+	Game.set_flag("ch6_rested")
+	_start_chapter7(false)
 	if p4.flashlight:
 		p4.flashlight.set_on(false)
 	await get_tree().create_timer(1.0).timeout

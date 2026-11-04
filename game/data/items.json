@@ -88,6 +88,20 @@
    "description": "A blister pack of painkillers from a bathroom medicine cabinet.",
    "model": "res://THE_VEIL_ASSETS_V2/08_Inventory/Medical/INV_PainkillerPack.glb",
    "weight": 0.05
+  },
+  "noahs_backpack": {
+   "name": "Noah's Backpack",
+   "category": "key",
+   "weight": 0.6,
+   "model": "res://THE_VEIL_ASSETS_V2/08_Inventory/Food_And_Supplies/INV_SmallBackpack.glb",
+   "description": "Noah's backpack, found in an abandoned car near the old service road. Marcus bought it for him. Inside: a small keepsake Marcus recognised at once, and a folded handwritten note."
+  },
+  "noahs_note": {
+   "name": "Noah's Note",
+   "category": "note",
+   "weight": 0.01,
+   "model": "res://THE_VEIL_ASSETS_V2/08_Inventory/Story_Items/INV_FoldedNote.glb",
+   "description": "I couldn't stay there.\nA man said he knew somewhere safer, outside town.\nHe said there's a house near the farms.\nI'm going with him.\n— Noah"
   }
  },
  "carry_capacity_kg": 15.0,
