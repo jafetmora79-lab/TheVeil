@@ -273,7 +273,10 @@ func _update_marker() -> void:
 		t = INVESTIGATE_SPOT + Vector3(0, 1.4, 0)
 		label = "VOICE"
 	elif Game.has_flag("ch6_voice_choice_investigate") and not Game.has_flag("ch6_hound_encounter_complete"):
-		t = null                                      # at the spot: the Hound scene, no marker
+		t = null                                      # at the spot: the Hound scene, no marker until it gives chase
+		if _chase_leg >= 0 and _chase_leg < CHASE_ROUTE.size():
+			t = CHASE_ROUTE[_chase_leg] + Vector3(0, 1.2, 0)
+			label = "RUN"
 	elif Game.has_flag("ch6_hound_encounter_started") and not Game.has_flag("ch6_hound_encounter_complete"):
 		t = null
 	elif not Game.has_flag("ch6_returned_to_supermarket"):
@@ -296,7 +299,7 @@ func _talk_marcus(_b: Node) -> void:
 		return
 	_busy["talk"] = true
 	its["npc_Marcus"].prompt_text = ""
-	await c5._say_wait("c6_marcus")
+	await c5._talk("c6_marcus", marcus)
 	Game.set_flag("ch6_marcus_briefing_complete")
 	_busy["talk"] = false
 	_refresh_prompts()
@@ -307,7 +310,7 @@ func _talk_eddie(_b: Node) -> void:
 		return
 	_busy["talk"] = true
 	its["npc_Eddie"].prompt_text = ""
-	await c5._say_wait("c6_eddie")
+	await c5._talk("c6_eddie", eddie)
 	Game.set_flag("ch6_eddie_talked")
 	_busy["talk"] = false
 	_refresh_prompts()
@@ -364,7 +367,7 @@ func _ruth_sarah() -> void:
 	sarah.visible = true
 	if _door and not _door.is_open:
 		_door.set_open(true)
-	Dialogue.say("c6_ruth_sarah", false, true)
+	c5._talk_start("c6_ruth_sarah", ruth)
 
 
 func _on_choices(id: String, choices: Array) -> void:
@@ -437,6 +440,8 @@ func _spawn_hound() -> void:
 	var investigate := Game.has_flag("ch6_voice_choice_investigate")
 	var pts: Array = (ALLEY_PATROL if investigate else RETREAT_PATROL).duplicate()
 	hound.global_position = INVESTIGATE_HOUND if investigate else pts[0]
+	# the Hound's own Pack 07 textures read milky white under the lamps and in the fog: the dark creature look
+	VeilCreatureLook.apply_skitter(hound, hound.global_position.y)
 	hound_ai = HOUND_AI.new()
 	hound_ai.name = "AI"
 	hound.add_child(hound_ai)
@@ -456,6 +461,72 @@ func _spawn_hound() -> void:
 func _on_noticed() -> void:
 	_play("bark", hound.global_position + Vector3(0, 1.0, 0), 0.0)
 	Dialogue.say("c6_hound_noticed", false, true)
+	if Game.has_flag("ch6_voice_choice_investigate") and _chase_leg < 0:
+		_chase_leg = 0                               # the escape route: up between the houses, through the narrow fence gap
+
+
+## The investigate chase (world, collision-mapped): the Hound comes from the west end of the alley, so the escape
+## runs east past the last house (open ground from x 53), north up its side to the front yard, west along the yard
+## fence to the narrow gap at x 49 (z -58), through it to the street, then the supermarket. The Hound does not
+## squeeze through the gap after the player: it leaps the fence beside it.
+const CHASE_ROUTE := [Vector3(55.0, 0.2, -76.6), Vector3(55.0, 0.2, -62.0), Vector3(49.0, 0.2, -59.6), Vector3(49.0, 0.2, -55.0),
+	Vector3(57.0, 0.2, -40.0), Vector3(57.0, 0.2, -24.0)]
+const FENCE_Z := -58.25
+var _chase_leg := -1
+var fence_jumps := 0
+
+
+func _chase_tick() -> void:
+	if _chase_leg < 0 or _chase_leg >= CHASE_ROUTE.size():
+		return
+	var p := player.global_position
+	if Vector2(p.x - CHASE_ROUTE[_chase_leg].x, p.z - CHASE_ROUTE[_chase_leg].z).length() < 2.2:
+		_chase_leg += 1
+	# through the gap: the Hound behind the fence leaps it rather than following through the gap
+	if fence_jumps == 0 and p.z > FENCE_Z + 0.6 and hound != null and is_instance_valid(hound) \
+			and hound.global_position.z < FENCE_Z - 0.4 and hound.global_position.distance_to(p) < 22.0:
+		_fence_jump()
+
+
+func _fence_jump() -> void:
+	fence_jumps += 1
+	hound_ai.set_physics_process(false)
+	var h := hound
+	var x := clampf(h.global_position.x, 34.0, 47.6)           # over the solid run of fence, beside the gap
+	var take_off := Vector3(x, h.global_position.y, FENCE_Z - 1.4)
+	var land := Vector3(x + 0.6, h.global_position.y, FENCE_Z + 2.0)
+	var ap := h.get_node_or_null(String(h.get_meta("animation_player", "Model/AnimationPlayer"))) as AnimationPlayer
+	if ap and ap.has_animation("Run"):
+		ap.play("Run", 0.1)
+	# dash up to the fence (it is right behind the player), then the leap: an arc over the 1.3 m fence
+	var d0 := take_off.distance_to(h.global_position)
+	if d0 > 0.2:
+		h.rotation.y = atan2(take_off.x - h.global_position.x, take_off.z - h.global_position.z)
+		var tw0 := h.create_tween()
+		tw0.tween_property(h, "global_position", take_off, minf(d0 / 6.0, 1.6))
+		await tw0.finished
+	if not is_instance_valid(h):
+		return
+	h.rotation.y = atan2(land.x - take_off.x, land.z - take_off.z)
+	if ap and ap.has_animation("Attack_Bite"):
+		ap.play("Attack_Bite", 0.05)              # forelegs reach forward through the leap
+	_play("bark", take_off + Vector3(0, 1.0, 0), -2.0)
+	var t := 0.0
+	var dur := 0.75
+	while t < dur and is_instance_valid(h):
+		t += get_process_delta_time()
+		var k := clampf(t / dur, 0.0, 1.0)
+		var p := take_off.lerp(land, k)
+		p.y = take_off.y + sin(PI * k) * 1.9
+		h.global_position = p
+		await get_tree().process_frame
+	if not is_instance_valid(h):
+		return
+	_play("impact", land + Vector3(0, 0.3, 0), -6.0)          # it lands hard on the pavement
+	hound_ai.set("_last_seen", player.global_position)
+	hound_ai.set("_unseen", 0.0)
+	hound_ai.state = "CHASE"
+	hound_ai.set_physics_process(true)
 
 
 func _on_bit(_dmg: float) -> void:
@@ -585,6 +656,7 @@ func _process(delta: float) -> void:
 		_busy["voice_reoffer"] = true
 		Dialogue.say("c6_voice_eddie", false, true)
 	_branch_area_tick()
+	_chase_tick()
 	_encounter_tick()
 	# RETREAT only: getting home without ever meeting the Hound ends the encounter (it was avoided by the west lane)
 	if Game.has_flag("ch6_voice_choice_retreat") and not Game.has_flag("ch6_hound_encounter_complete") \
@@ -628,7 +700,7 @@ func _report() -> void:
 		return
 	_busy["report"] = true
 	its["npc_Marcus"].prompt_text = ""
-	await c5._say_wait("c6_report_a")
+	await c5._talk("c6_report_a", marcus)
 	await c5._say_wait("c6_report_" + String(st().get("ruth_sarah_choice", "leave")))
 	await c5._say_wait("c6_report_b")
 	Game.set_flag("chapter_6_complete")              # Chapter 7 is NOT started here
@@ -657,6 +729,7 @@ func _make_sounds() -> void:
 	_streams["growl"] = Sfx._make(3.0, _growl_wave, true)
 	_streams["bark"] = Sfx._make(0.7, _bark_wave)
 	_streams["breath"] = Sfx._make(5.0, _breath_wave)
+	_streams["impact"] = Sfx._make(0.5, _impact_wave)
 
 
 func _growl_wave(t: float, i: int) -> float:
@@ -667,6 +740,12 @@ func _growl_wave(t: float, i: int) -> float:
 func _bark_wave(t: float, i: int) -> float:
 	var env := exp(-t * 7.0) * clampf(t * 60.0, 0.0, 1.0)
 	return (sin(TAU * (220.0 - t * 160.0) * t) * 0.6 + Sfx._noise(i) * 0.35) * env
+
+
+## the Hound landing after the fence leap: a low, dull thump with a scrape of claws
+func _impact_wave(t: float, i: int) -> float:
+	var env := exp(-t * 11.0) * clampf(t * 200.0, 0.0, 1.0)
+	return (sin(TAU * (70.0 - t * 40.0) * t) * 0.8 + Sfx._noise(i) * 0.25 * exp(-t * 4.0)) * env
 
 
 ## restrained environmental audio under the voice subtitles: a faint, wind-like exhale far off (not a voice)
