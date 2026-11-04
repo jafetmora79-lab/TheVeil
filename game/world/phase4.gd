@@ -65,6 +65,9 @@ func begin(w: Node, restoring: bool) -> void:
 	choice = CHOICE_SCRIPT.new()
 	choice.name = "Phase4Choice"
 	add_child(choice)
+	# the front doors were pulled shut by hand (p3_doors_shut): their sensor stays unpowered. The Phase 3 restore
+	# only cuts the power for the not-yet-shut case, so after a load the sensor would open them again.
+	world._doors_powered = false
 	_make_sounds()
 	_take_over_npcs()
 	_setup_lights()
