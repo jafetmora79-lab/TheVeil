@@ -90,7 +90,7 @@ def parapets(h, top_by_room, cap="Arch_TrimPainted"):
         y1 = top_by_room.get(r["id"], top_by_room["*"])
         sid = house_mod.mat_of(r.get("siding", h.cw["siding"]))
         b = MB()
-        b.box(sid or siding_default, (-EXT_T / 2, y0, -EXT_T / 2), (L + EXT_T / 2, y1, EXT_T / 2), skip=("-y", "+y"))
+        b.box(sid or siding_default, (-EXT_T / 2 + 0.002, y0, -EXT_T / 2), (L + EXT_T / 2 - 0.002, y1, EXT_T / 2), skip=("-y", "+y"))   # ends tucked 2 mm inside the corner wall
         b.box(capm, (-EXT_T / 2 - 0.03, y1, -EXT_T / 2 - 0.04), (L + EXT_T / 2 + 0.03, y1 + 0.08, EXT_T / 2 + 0.04), skip=())
         h.ext.merge(b, M)
     roof = m01("Road_Asphalt")
@@ -423,7 +423,7 @@ def _gas_extras(h):
     for x in (-5.5, 2.0, 6.2):
         wall_lamp(h, x, 3.1, zf, "-z")
     slab(h, "Road_SidewalkConcrete", [(-7.5, -1.2), (7.5, -1.2), (7.5, 0.45), (-7.5, 0.45)], y=0.1)
-    abox(h.ext, "concrete", (-7.5, 0.0, -1.2), (7.5, 0.1, -1.05), skip=("-y",))          # curb face
+    abox(h.ext, "concrete", (-7.5, 0.0, -1.2), (7.5, 0.1, -1.05), skip=("-y", "+y"))    # curb face (top = the walk slab)
     for k in range(5):                                   # parking stalls in front of the store
         line(h, -6.6 + 2.6 * k, -1.3, -6.6 + 2.6 * k, -6.3)
     door_sign(h, "Restroom", "restroom", side="MART")

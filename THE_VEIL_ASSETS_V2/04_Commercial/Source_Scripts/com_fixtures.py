@@ -180,8 +180,9 @@ def cooler(name, doors, strips, header, frost=False):
     L = doors * dw
     abox(mb, "enamel_white", (-L / 2, 0, -d / 2), (L / 2, H, -d / 2 + 0.05))          # back
     abox(mb, "cooler_in", (-L / 2 + 0.04, 0.15, -d / 2 + 0.05), (L / 2 - 0.04, 1.85, -d / 2 + 0.06), skip=("-y", "-z"))
-    abox(mb, "enamel_white", (-L / 2, 0, -d / 2), (L / 2, 0.15, d / 2))               # plinth
-    abox(mb, "enamel_white", (-L / 2, 1.85, -d / 2), (L / 2, H, d / 2))               # header
+    e = 0.004                                                                     # plinth / header sit just inside the side + back panels
+    abox(mb, "enamel_white", (-L / 2 + e, 0, -d / 2 + e), (L / 2 - e, 0.15, d / 2))   # plinth
+    abox(mb, "enamel_white", (-L / 2 + e, 1.85, -d / 2 + e), (L / 2 - e, H - e, d / 2))   # header
     for sx in (-1, 1):
         abox(mb, "enamel_white", (sx * L / 2 - 0.04 * (sx > 0), 0, -d / 2), (sx * L / 2 + 0.04 * (sx < 0), H, d / 2))
     decal(mb, header, (0, 1.975, d / 2), min(L - 0.3, 1.2), 0.2, mat=GLOW)
@@ -208,7 +209,7 @@ def chest_freezer(name="COM_Freezer_Chest"):
     mb = MB()
     L, d, H = 2.4, 0.95, 0.88
     abox(mb, "enamel_white", (-L / 2, 0, -d / 2), (L / 2, H, d / 2), skip=("-y", "+y"))
-    abox(mb, "steel_dark", (-L / 2, 0, -d / 2 - 0.01), (L / 2, 0.12, d / 2 + 0.01))
+    abox(mb, "steel_dark", (-L / 2 + 0.004, 0, -d / 2 - 0.01), (L / 2 - 0.004, 0.12, d / 2 + 0.01))
     abox(mb, "cooler_in", (-L / 2 + 0.06, 0.3, -d / 2 + 0.06), (L / 2 - 0.06, 0.32, d / 2 - 0.06))
     for i, st in enumerate(("pizza", "frozen_veg", "icecream")):
         x0 = -L / 2 + 0.08 + i * (L - 0.16) / 3
@@ -252,7 +253,7 @@ def produce_case(name="COM_Produce_WallCase"):
     mb = MB()
     L, d, H = 2.4, 0.9, 2.0
     abox(mb, "enamel_white", (-L / 2, 0, -d / 2), (L / 2, H, -d / 2 + 0.06))
-    abox(mb, "enamel_white", (-L / 2, 1.8, -d / 2), (L / 2, H, 0.0))
+    abox(mb, "enamel_white", (-L / 2 + 0.004, 1.8, -d / 2 + 0.004), (L / 2 - 0.004, H - 0.004, 0.0))   # canopy inside the back / sides
     for sx in (-1, 1):
         abox(mb, "enamel_white", (sx * L / 2 - 0.04 * (sx > 0), 0, -d / 2), (sx * L / 2 + 0.04 * (sx < 0), H, d / 2 - 0.3))
     kinds = ["lettuce", "tomatoes", "apples", "oranges", "bananas", "potatoes"]
@@ -272,10 +273,10 @@ def produce_case(name="COM_Produce_WallCase"):
 
 # =================================================================== counters / checkouts
 def register(mb, x, y, z, face=1):
-    abox(mb, "gray_plastic", (x - 0.2, y, z - 0.18), (x + 0.2, y + 0.12, z + 0.18), faces={"+z" if face > 0 else "-z": "register"})
+    abox(mb, "gray_plastic", (x - 0.2, y + 0.002, z - 0.18), (x + 0.2, y + 0.122, z + 0.18), faces={"+z" if face > 0 else "-z": "register"})
     abox(mb, "black_plastic", (x - 0.05, y + 0.12, z - 0.03), (x + 0.05, y + 0.3, z + 0.03))
     abox(mb, "black_plastic", (x - 0.16, y + 0.3, z - 0.06), (x + 0.16, y + 0.5, z + 0.06), faces={"+z" if face > 0 else "-z": "monitor"})
-    abox(mb, "gray_plastic", (x - 0.22, y - 0.1, z - 0.2), (x + 0.22, y, z + 0.2))   # cash drawer
+    abox(mb, "gray_plastic", (x - 0.22, y - 0.1, z - 0.2), (x + 0.22, y - 0.004, z + 0.2))   # cash drawer (under the top)
 
 
 def checkout_lane(name="COM_Checkout_Lane"):
@@ -426,7 +427,7 @@ def game_rack(name, header, strips):
     """double-sided tiered island rack, 1.8 m long"""
     mb = MB()
     L, d, H = 1.8, 0.9, 1.35
-    abox(mb, "black_plastic", (-L / 2, 0, -d / 2), (L / 2, 0.15, d / 2))
+    abox(mb, "black_plastic", (-L / 2, 0, -d / 2), (L / 2, 0.13, d / 2))        # top sits under the first tier (no coplanar faces)
     abox(mb, "laminate_gray", (-L / 2, 0.15, -0.05), (L / 2, H, 0.05))
     for sx in (-1, 1):
         abox(mb, "black_plastic", (sx * L / 2 - 0.03, 0, -d / 2), (sx * L / 2 + 0.03, H, d / 2))
@@ -487,7 +488,7 @@ def fuel_pump(name="COM_FuelPump"):
     abox(mb, "enamel_white", (-0.5, 0.1, -0.28), (0.5, 1.25, 0.28), faces={"+z": "pump_face", "-z": "pump_face"})
     abox(mb, "red_plastic", (-0.5, 1.25, -0.28), (0.5, 1.9, 0.28), faces={"+z": "sign_fuel", "-z": "sign_fuel", "+x": "red_plastic"})
     for sx in (-1, 1):
-        abox(mb, "black_plastic", (sx * 0.5 - 0.06 * (sx > 0), 0.75, -0.1), (sx * 0.5 + 0.06 * (sx < 0), 1.05, 0.1))   # nozzle holster
+        abox(mb, "black_plastic", (sx * 0.5 - 0.06 * (sx < 0), 0.75, -0.1), (sx * 0.5 + 0.06 * (sx > 0), 1.05, 0.1), skip=("+x" if sx < 0 else "-x",))   # nozzle holster (proud of the side)
         solid(mb, "rubber", "tube", [(sx * 0.53, 0.95, 0.0), (sx * 0.62, 0.6, 0.05), (sx * 0.58, 0.3, 0.15), (sx * 0.5, 0.2, 0.25)], 0.018, 5)
     meta = {}
     interact(meta, "Nozzle_A", (-0.75, 1.0, 0.0), "fuel_nozzle")

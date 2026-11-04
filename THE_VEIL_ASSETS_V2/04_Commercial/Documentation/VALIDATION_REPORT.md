@@ -6,7 +6,7 @@ Automated file, architecture, walkability and engine checks only. **Nothing was 
 
 * GLB names unique across the repository: True
 * T_Com4_Atlas.png 512x512 palette-locked: True; 149 atlas regions
-* GLBs checked: 67, 77318 triangles
+* GLBs checked: 67, 78364 triangles
 * supermarket: 5 rooms, 58 fixtures, walk paths 19/19 from outside the entrance
 * video_game_store: 3 rooms, 25 fixtures, walk paths 13/13 from outside the entrance
 * gas_station: 4 rooms, 28 fixtures, walk paths 13/13 from outside the entrance
@@ -16,7 +16,7 @@ Automated file, architecture, walkability and engine checks only. **Nothing was 
 * storefront_b: 2 rooms, 4 fixtures, walk paths 5/5 from outside the entrance
 * storefront_c: 2 rooms, 4 fixtures, walk paths 5/5 from outside the entrance
 * storefront_d: 2 rooms, 4 fixtures, walk paths 5/5 from outside the entrance
-* res:// references checked: 416
+* res:// references checked: 414
 * gallery lists 67/67 Pack 04 GLBs; Pack 04 filter: True
 * Khronos glTF-Validator: 67 files, 0 errors, 0 warnings
 * Godot 4.3 headless import: exit 0, 0 error/warning lines

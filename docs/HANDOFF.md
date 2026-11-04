@@ -333,3 +333,34 @@ playthrough test to make sure everything still agrees.
   * Eddie's lowered arms and talking;
   * the end card;
   * save/load of the errand state.
+
+### 9.9 Visual polish pass: z-fighting (geometry-checked, not visually verified)
+
+* **Tool:** `THE_VEIL_ASSETS_V2/Source_Scripts/zfight_scan.py`. It finds opaque faces that sit in the same plane, face
+  the same way, overlap, and show different texels. It ignores hidden contact faces. These faces flicker in the
+  Compatibility renderer.
+* **Result:** visible coplanar overlap across Packs 02-05 and 09 fell from about 194 m² to about 99 m².
+* **Fixed in the generators** (then regenerated):
+  * Pack 03 (`arch.py`, `furniture.py`):
+    * shutter front faces were doubled by their frame box;
+    * stair treads ran flush with the stringers;
+    * sofa bases were flush with the arms.
+  * Pack 04 (`com_fixtures.py`, `com_plans.py`):
+    * game-rack base vs first tier;
+    * register cash drawer vs counter top;
+    * cooler and produce-case plinth / header vs side and back panels;
+    * chest-freezer kick plate;
+    * fuel-pump nozzle holsters, which were inside the pump body and now stand proud of it;
+    * gas-station curb top vs walk slab;
+    * parapet wall ends at the corners (all Pack 04 buildings).
+* **Stale outputs refreshed:** rebuilding also refreshed Pack 03 and Pack 04 outputs that were behind the current
+  generators. These were the Pack 03 interactive drawer / cabinet units and the Pack 04 furnishings that embed
+  Pack 03 furniture.
+* **Validation:**
+  * both packs pass full validation: glTF-Validator 0/0, Godot import and scene checks;
+  * `check_world.py`: 0 failures;
+  * `opening_test.gd`: RESULT PASS.
+* **Still open:**
+  * Pack 03 house shells, about 5-10 m² per house: the foundation band vs the siding where neighbouring rooms' walls
+    are 2 cm apart, plus some porch / brick overlaps;
+  * supermarket gondola tops at 1.8 m, above eye height.
