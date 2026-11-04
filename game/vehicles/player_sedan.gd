@@ -31,6 +31,18 @@ var autopilot: Callable = Callable()     # tests: func(delta) -> Vector3(throttl
 ## cinematic assist (arrival shot): while > 0, the car eases down to this forward speed (m/s); steering stays with
 ## the driver, throttle is cut above the cap and a gentle brake is applied - no stop, no teleport
 var speed_cap := -1.0
+## scripted manoeuvre (automatic parking): func(delta) -> Vector2(target speed m/s, signed; target steer angle rad).
+## The car still moves through move_and_slide (collisions respected, no teleport); speed and the front wheels
+## change at realistic rates. Takes precedence over the player's input and the test autopilot.
+var drive_script: Callable = Callable()
+## parked with the brake on: the car holds still until the player presses throttle / brake
+var parking_brake := false:
+	set(v):
+		parking_brake = v
+		_brake_armed = false
+var _brake_armed := false
+const SCRIPT_ACCEL := 1.6        # m/s^2 for scripted speed changes
+const STEER_RATE := 1.3          # rad/s at the front wheels while scripted (a driver turning the wheel)
 var _wheels := {}
 var _wheel_base := {}
 var _spin := 0.0
@@ -191,27 +203,46 @@ func _physics_process(delta: float) -> void:
 			brake = Input.get_action_strength("move_back")
 			steer_in = Input.get_action_strength("move_left") - Input.get_action_strength("move_right")
 			hb = Input.is_action_pressed("handbrake")
+	# arrival assist: a smooth, gentle brake down to the cap (no sudden stop)
 	if speed_cap > 0.0 and speed > speed_cap:
 		throttle = 0.0
-		brake = maxf(brake, clampf((speed - speed_cap) * 0.35, 0.0, 0.45))
-	elif speed_cap > 0.0 and speed > speed_cap * 0.9:
-		throttle = minf(throttle, 0.2)
+		brake = maxf(brake, clampf((speed - speed_cap) * 0.25, 0.03, 0.3))
+	elif speed_cap > 0.0 and speed > speed_cap * 0.85:
+		throttle = minf(throttle, 0.15)
+	var scripted := drive_script.is_valid()
+	if scripted:
+		var cmd: Vector2 = drive_script.call(delta)
+		speed = move_toward(speed, cmd.x, SCRIPT_ACCEL * delta)
+		steer = move_toward(steer, clampf(cmd.y, -MAX_STEER, MAX_STEER), STEER_RATE * delta)
+		throttle = 0.0
+		brake = 0.0
+	elif parking_brake:
+		# released by a fresh press: input still held from before the brake went on is ignored
+		if throttle == 0.0 and brake == 0.0:
+			_brake_armed = true
+		elif _brake_armed:
+			parking_brake = false
+		if parking_brake:
+			speed = 0.0
 	# longitudinal (arcade): S brakes while rolling forward, then reverses
-	if throttle > 0.0:
+	if scripted or parking_brake:
+		pass
+	elif throttle > 0.0:
 		speed += (ACCEL * throttle * (1.0 - clampf(speed / TOP_SPEED, 0.0, 1.0) * 0.55) if speed >= 0.0 else BRAKE * throttle) * delta
 	if brake > 0.0:
 		if speed > 0.2:
 			speed -= BRAKE * brake * delta
 		else:
 			speed -= ACCEL * 0.8 * brake * delta
-	if throttle == 0.0 and brake == 0.0:
+	if throttle == 0.0 and brake == 0.0 and not scripted:
 		speed = move_toward(speed, 0.0, COAST * delta)
 	if hb:
 		speed = move_toward(speed, 0.0, HANDBRAKE * delta)
 	speed = clampf(speed, -REVERSE_SPEED, TOP_SPEED)
 	# steering: full lock at low speed, gentler at speed; returns to centre
-	var lock := MAX_STEER * lerpf(1.0, 0.42, clampf(absf(speed) / TOP_SPEED, 0.0, 1.0))
-	steer = move_toward(steer, steer_in * lock, delta * (2.4 if steer_in != 0.0 else 3.2))
+	if not scripted:
+		var lock := MAX_STEER * lerpf(1.0, 0.42, clampf(absf(speed) / TOP_SPEED, 0.0, 1.0))
+		steer = move_toward(steer, steer_in * lock, delta * (2.4 if steer_in != 0.0 else 3.2))
 	if absf(speed) > 0.05:
 		var yaw_rate := speed / WHEELBASE * tan(steer) * (1.35 if hb else 1.0)
 		rotate_y(yaw_rate * delta)

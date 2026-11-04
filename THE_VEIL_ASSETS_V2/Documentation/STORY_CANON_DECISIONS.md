@@ -37,6 +37,9 @@ suggestions.
 | 2026-11-04 | **Eddie's and the cashier's lines:** marked `"draft": true` in `game/data/dialogue.json`. | Working lines, to be replaced by the script. |
 | 2026-11-04 | **Police officer model:** `CHR_Police_Officer` is an **Officer Hayes candidate** only. | Hayes' identity is TBD (bible 4.9). |
 | 2026-11-04 | **Marcus at the game shop:** placed only once the mist arrives (Phase 3), as in the bible 2.2 working draft. | Not canon. |
+| 2026-11-04 | **Owner's cinematic brief (shots A-H):** Eddie opens the shop door, the foot lands, Eddie calls the protagonist back, both return inside, Marcus joins and the conversation plays without glass in between. | Owner direction; implemented. Positions, timing and camera anchors are production choices. |
+| 2026-11-04 | **Automatic reverse parking:** the stall two spaces east of the supermarket entrance, in the store-side row. | Owner asked for "about two spaces from the entrance"; the exact stall is a production choice. |
+| 2026-11-04 | **Narrative bible v3.1 uploaded** (`docs/THE_VEIL_NARRATIVE_BIBLE.md`). It sets Noah at about 13 (12-14) and approves a Chapter 3 escape where Eddie and Marcus cross Main Street with the protagonist. | The `CHR_Noah` proposal (built as roughly 10-12) does not match yet. The escape waits for its dedicated Chapter 3 prompt (bible section 10). |
 
 ## Still open (bible section 11)
 

@@ -422,12 +422,16 @@ def coat_rack():
     jacket = MB()   # denim jacket hanging on the first hook
     rbox(jacket, DENIM, (-0.25, -0.75, 0.01), (0.12, -0.02, 0.12), r=0.05)
     mb.merge(jacket)
-    keys = MB()      # car keys on the last hook (opening sequence)
-    keys.box(METAL, (0.28, -0.06, 0.05), (0.31, 0.0, 0.06))
-    keys.box(m01("Furn_PlasticDirty"), (0.27, -0.1, 0.045), (0.32, -0.06, 0.065))
-    mb.merge(keys)
+    # car keys on the last hook (opening sequence). They are their own mesh under the pickup node (local to the
+    # hook tip at (0.3, 0.03, 0.07)), so the game can hide them when they are taken: ring on the hook, key blade
+    # and fob hanging below it.
+    keys = MB()
+    keys.tube(METAL, [(-0.012, 0.0, 0.0), (0.0, -0.012, 0.0), (0.012, 0.0, 0.0), (0.0, 0.012, 0.0),
+                      (-0.012, 0.0, 0.0)], 0.0025, 3)
+    keys.box(METAL, (-0.006, -0.065, -0.003), (0.006, -0.012, 0.003))
+    keys.box(m01("Furn_PlasticDirty"), (-0.022, -0.105, -0.01), (0.022, -0.065, 0.01))
     return fmodel(name, "decor", mb, (0.8, 0.12, 0.9), cols=[], wall_mount=True, mount_y=1.65,
-                  nodes=[{"name": "INT_Pickup_CarKeys", "t": (0.295, -0.08, 0.055),
+                  nodes=[{"name": "INT_Pickup_CarKeys", "t": (0.3, 0.018, 0.07), "mb": keys,
                           "extras": {"veil_interact": "pickup", "item": "car_keys"}}])
 
 

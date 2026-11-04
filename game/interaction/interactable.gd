@@ -177,6 +177,27 @@ func _take(instant: bool) -> void:
 			c.set_deferred("disabled", true)
 
 
+## Subtle look-at highlight for small pickups (the player calls this when its ray lands on / leaves us): a faint
+## warm emissive overlay on the target's meshes, so a set of keys reads as takeable without a glowing outline.
+var _hl_mat: StandardMaterial3D      # per instance: a static var breaks --script runs (compiled before autoloads)
+
+
+func set_focus(on: bool) -> void:
+	if kind != "pickup" or target == null:
+		return
+	if _hl_mat == null:
+		_hl_mat = StandardMaterial3D.new()
+		_hl_mat.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
+		_hl_mat.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
+		_hl_mat.blend_mode = BaseMaterial3D.BLEND_MODE_ADD
+		_hl_mat.albedo_color = Color(1.0, 0.85, 0.55, 0.22)
+	var mat: Material = _hl_mat if on and not taken else null
+	for m in target.find_children("*", "GeometryInstance3D", true, false):
+		(m as GeometryInstance3D).material_overlay = mat
+	if target is GeometryInstance3D:
+		(target as GeometryInstance3D).material_overlay = mat
+
+
 func _store() -> void:
 	if state_key != "":
 		Game.world_state[state_key] = {"open": is_open, "taken": taken}
