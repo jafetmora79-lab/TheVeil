@@ -30,6 +30,25 @@ def resample(pts, n):
     return np.array(out)
 
 
+def round_corners(pts, d, min_turn_deg=25.0):
+    """Replace each sharp interior point by two points d before / after it along its segments (clamped to 40 % of
+    each segment), so a swept tube turns with a radius larger than its own and the inner crease never folds."""
+    P = [np.asarray(p, float) for p in pts]
+    out = [P[0]]
+    for i in range(1, len(P) - 1):
+        a, b = P[i] - P[i - 1], P[i + 1] - P[i]
+        la, lb = np.linalg.norm(a), np.linalg.norm(b)
+        turn = math.degrees(math.acos(max(-1.0, min(1.0, float(np.dot(a, b) / max(la * lb, 1e-12))))))
+        dd = d[i] if isinstance(d, (list, tuple)) else d
+        if turn < min_turn_deg or dd <= 0:
+            out.append(P[i])
+            continue
+        out.append(P[i] - a / la * min(dd, 0.4 * la))
+        out.append(P[i] + b / lb * min(dd, 0.4 * lb))
+    out.append(P[-1])
+    return out
+
+
 def arclen(C):
     d = np.r_[0.0, np.cumsum(np.linalg.norm(np.diff(C, axis=0), axis=1))]
     return d / max(d[-1], 1e-9), d[-1]

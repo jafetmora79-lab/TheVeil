@@ -221,6 +221,170 @@
     "min_y": -0.08
    }
   },
+  "CRT_Hound": {
+   "name": "CRT_Hound",
+   "glb": "07_Creatures/Hounds/CRT_Hound.glb",
+   "triangles": 3286,
+   "bones": 24,
+   "bone_names": [
+    "Root",
+    "Hips",
+    "Spine1",
+    "Spine2",
+    "Chest",
+    "Neck",
+    "Head",
+    "Jaw_L",
+    "Jaw_R",
+    "Tail_01",
+    "Tail_02",
+    "Tail_03",
+    "Leg_FL_Upper",
+    "Leg_FL_Lower",
+    "Leg_FL_Foot",
+    "Leg_FR_Upper",
+    "Leg_FR_Lower",
+    "Leg_FR_Foot",
+    "Leg_HL_Upper",
+    "Leg_HL_Lower",
+    "Leg_HL_Foot",
+    "Leg_HR_Upper",
+    "Leg_HR_Lower",
+    "Leg_HR_Foot"
+   ],
+   "materials": [
+    "M_Crt_Hound"
+   ],
+   "sockets": [
+    "Socket_Mouth",
+    "Socket_Chest"
+   ],
+   "clips": [
+    {
+     "name": "Idle",
+     "duration_s": 3.0,
+     "loop": true
+    },
+    {
+     "name": "Walk",
+     "duration_s": 1.2,
+     "loop": true
+    },
+    {
+     "name": "Run",
+     "duration_s": 0.45,
+     "loop": true
+    },
+    {
+     "name": "Alert",
+     "duration_s": 1.4,
+     "loop": false
+    },
+    {
+     "name": "Attack_Bite",
+     "duration_s": 1.3,
+     "loop": false
+    },
+    {
+     "name": "Hit_React",
+     "duration_s": 0.8,
+     "loop": false
+    },
+    {
+     "name": "Death",
+     "duration_s": 1.8,
+     "loop": false
+    }
+   ],
+   "scene": "07_Creatures/Godot_Scenes/CRT_Hound.tscn",
+   "probe_bone": "Jaw_L",
+   "edge_floor": 0.02,
+   "feet": [
+    "Leg_FL_Foot",
+    "Leg_FR_Foot",
+    "Leg_HL_Foot",
+    "Leg_HR_Foot"
+   ],
+   "checks": {
+    "Idle": {
+     "min_y": -0.0036,
+     "max_stretch": 1.0715,
+     "p999_stretch": 1.0564,
+     "min_squash": 0.9407,
+     "lowest_contact_y": -0.0,
+     "highest_lowest_foot_y": 0.0,
+     "planted_slip": 0.0,
+     "loop_seamless": true
+    },
+    "Walk": {
+     "min_y": -0.0036,
+     "max_stretch": 1.5666,
+     "p999_stretch": 1.4701,
+     "min_squash": 0.5547,
+     "lowest_contact_y": -0.0,
+     "highest_lowest_foot_y": 0.0,
+     "planted_slip": 0.0299,
+     "loop_seamless": true
+    },
+    "Run": {
+     "min_y": -0.0036,
+     "max_stretch": 1.8657,
+     "p999_stretch": 1.6902,
+     "min_squash": 0.4594,
+     "lowest_contact_y": -0.0,
+     "highest_lowest_foot_y": 0.0428,
+     "planted_slip": 0.1607,
+     "loop_seamless": true
+    },
+    "Alert": {
+     "min_y": -0.0036,
+     "max_stretch": 1.4508,
+     "p999_stretch": 1.165,
+     "min_squash": 0.7483,
+     "lowest_contact_y": -0.0,
+     "highest_lowest_foot_y": 0.0,
+     "planted_slip": 0.0,
+     "loop_seamless": null
+    },
+    "Attack_Bite": {
+     "min_y": -0.0036,
+     "max_stretch": 1.4044,
+     "p999_stretch": 1.3968,
+     "min_squash": 0.5935,
+     "lowest_contact_y": -0.0,
+     "highest_lowest_foot_y": 0.0,
+     "planted_slip": 0.0471,
+     "loop_seamless": null
+    },
+    "Hit_React": {
+     "min_y": -0.0036,
+     "max_stretch": 1.3396,
+     "p999_stretch": 1.1244,
+     "min_squash": 0.8196,
+     "lowest_contact_y": -0.0,
+     "highest_lowest_foot_y": 0.0,
+     "planted_slip": 0.0,
+     "loop_seamless": null
+    },
+    "Death": {
+     "min_y": -0.0065,
+     "max_stretch": 1.414,
+     "p999_stretch": 1.3708,
+     "min_squash": 0.5532,
+     "lowest_contact_y": -0.0,
+     "highest_lowest_foot_y": 0.0,
+     "planted_slip": 0.0303,
+     "loop_seamless": null
+    }
+   },
+   "limits": {
+    "max_stretch": 2.0,
+    "max_stretch_death": 2.2,
+    "p999_stretch": 1.75,
+    "p999_stretch_death": 1.75,
+    "min_y": -0.03
+   }
+  },
   "CRT_MistTentacle_Large": {
    "name": "CRT_MistTentacle_Large",
    "glb": "07_Creatures/Mist_Tentacles/CRT_MistTentacle_Large.glb",
