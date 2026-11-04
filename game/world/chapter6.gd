@@ -197,7 +197,7 @@ func _refresh_prompts() -> void:
 	if its.has("npc_Eddie"):
 		its["npc_Eddie"].prompt_text = "[E] Talk" if Game.has_flag("ch6_marcus_briefing_complete") and not Game.has_flag("ch6_eddie_talked") else ""
 	c5.its["stash"].prompt_text = "[E] Check the Supplies" if Game.has_flag("ch6_eddie_talked") and not Game.has_flag("ch6_eddie_ready") else ""
-	c5.its["exit"].prompt_text = "[E] Head Out with Eddie" if Game.has_flag("ch6_eddie_ready") and String(st().get("eddie", "")) != "following" \
+	c5.its["exit"].prompt_text = Interactable.key_hint() + "OPEN DOOR" if Game.has_flag("ch6_eddie_ready") and String(st().get("eddie", "")) != "following" \
 		and not Game.has_flag("ch6_returned_to_supermarket") else ""
 
 
@@ -230,7 +230,7 @@ func _update_marker() -> void:
 		t = c5.ml(c5.STASH + Vector3(0, 0.3, 0))
 		label = "SUPPLIES"
 	elif not Game.has_flag("ch6_eddie_following"):
-		t = c5.ml(c5.EXIT_SPOT)
+		t = c5.ml(c5._door_spot())
 		label = "EXIT"
 	elif not Game.has_flag("ch6_left_supermarket"):
 		t = c5.ml(Vector3(0, 1.4, -2.5))

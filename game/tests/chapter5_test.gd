@@ -249,6 +249,8 @@ func _run() -> void:
 	ok("c5_inventory_holds_input", not world.player.controls_enabled)
 	world.hud.toggle_inventory()                   # the player closes the screen (Tab / CLOSE)
 	await frames(3)
+	ok("c5_exit_on_doors", mk.to_local(c5.its["exit"].global_position).z < 1.0, str(mk.to_local(c5.its["exit"].global_position)))
+	ok("c5_eddie_clear_of_counter", c5.EDDIE_SHELTER.z < 4.5 and c5.stash_gap != INF and absf(c5.stash_gap) < 0.3, "gap %.3f" % c5.stash_gap)
 	ok("c5_exit_reach", await aim(c5.its["exit"], [Z, -Z], mk, 1.2))
 	c5.its["exit"].interact(world.player)
 	ok("c5_exit_confirm", await wait_until(func(): return p4.choice.is_open(), 60))
@@ -354,6 +356,16 @@ func _run() -> void:
 	world.hud.toggle_inventory()
 	await frames(5)
 	ok("inv_closes", not inv.visible and world.player.controls_enabled)
+	# quick slots: flashlight in slot 1, key 1 switches it (the existing flashlight action); saved in world_state
+	VeilQuickSlots.assign(0, "flashlight")
+	var was_on: bool = p4.flashlight.on
+	var ev := InputEventKey.new()
+	ev.physical_keycode = KEY_1
+	ev.pressed = true
+	root.push_input(ev)
+	await frames(3)
+	ok("quickslot_use", p4.flashlight.on != was_on and game.world_state.get("quickslots", [])[0] == "flashlight")
+	p4.flashlight.set_on(was_on)
 	_eddie_prev = c5.eddie.global_position          # the inventory frames above were not watched
 	ok("c5_medical_in_inventory", game.has_item("painkillers"))
 	ok("c5_batteries_real", game.has_item("batteries") and p4.flashlight.spares == spares0 + 2, "spares %d -> %d" % [spares0, p4.flashlight.spares])
@@ -400,8 +412,11 @@ func _run() -> void:
 	var sp2: PhysicsDirectSpaceState3D = world.get_world_3d().direct_space_state
 	var bh := sp2.intersect_ray(PhysicsRayQueryParameters3D.create(c5.shouse.global_transform * Vector3(-0.3, 1.5, 1.0),
 		c5.shouse.global_transform * Vector3(-0.3, 1.5, 6.0), 1))
-	ok("c5_survivor_house_not_enterable", bh and (bh["collider"] as Node).name == "C5_SurvivorDoorway"
-		and c5.its["c5/HOUSE_05/INT_Door_Front"].collision_layer == 0, str((bh["collider"] as Node).name) if bh else "nothing")
+	ok("c5_survivor_house_enterable", bh.is_empty() and c5.its["c5/HOUSE_05/INT_Door_Front"].collision_layer == 8,
+		str((bh["collider"] as Node).name) if bh else "clear")
+	var sh := sp2.intersect_ray(PhysicsRayQueryParameters3D.create(c5.shouse.global_transform * Vector3(-0.6, 1.5, 6.9),
+		c5.shouse.global_transform * Vector3(1.4, 1.5, 6.9), 1))
+	ok("c5_survivor_stairs_blocked", sh and (sh["collider"] as Node).name == "C5_SurvivorStairs", str((sh["collider"] as Node).name) if sh else "nothing")
 	p4.choice.pick(0)
 	ok("c5_survivor_helped", await wait_talk(func(): return game.has_flag("c5_survivor_helped") and c5.survivor_follow.active, 30.0))
 	# ---- scene 7: back to the supermarket (out through the neighbour's front path gap at x 29-32)

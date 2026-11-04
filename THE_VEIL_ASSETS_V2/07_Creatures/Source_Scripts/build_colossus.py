@@ -278,10 +278,15 @@ def build_mesh(rig, legs, tents, uv):
         fwd = np.array([0.0, 0.0, 1.0])
         lat = np.array([1.0 if c[0] > 0 else -1.0, 0, 0])
         if kind == "fore":
-            base = w + (c - w) * 0.64                # claw roots inside the foot end of the leg sweep
+            # paw: a broad, flattened palm pad under the leg end carries the weight (its underside sits at y 0.06,
+            # the road plane); three long claws root at the pad's front edge in a loose half-W fan and curve down
+            # and forward, their tips just touching the road (no longer stilts holding the palm in the air)
+            G.plate(atl, np.array([c[0], 0.17, c[2] + 0.2]), (1.3, 0.22, 1.4), {b[2]: 1.0}, uv["hoof"], normal=(0, 1, 0),
+                    along=(lat[0] * 0.1, 0, 1), taper=(0.8, 0.85))
             for dlat, dfw, ln in ((-0.55, 0.85, 1.25), (0.05, 1.05, 1.45), (0.6, 0.7, 1.1)):
-                tipp = np.array([c[0] + lat[0] * dlat, 0.11, c[2] + dfw * ln])
-                mid = base + (tipp - base) * 0.5 + np.array([0, 0.35, 0]) + fwd * 0.15
+                base = np.array([c[0] + lat[0] * dlat * 0.7, 0.24, c[2] + 0.75])
+                tipp = np.array([c[0] + lat[0] * dlat, 0.11, c[2] + dfw * ln + 0.3])
+                mid = base + (tipp - base) * 0.45 + np.array([0, 0.2, 0])
                 Cdg = G.resample([base, mid, tipp], 6)
                 G.sweep(atl, Cdg, [0.22, 0.2, 0.17, 0.13, 0.09, 0.05], lambda p, sv, bb=b[2]: {bb: 1.0}, uv["claw"],
                         n=5, tip=0.12, front=(0, -1, 0))

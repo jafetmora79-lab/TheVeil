@@ -287,6 +287,7 @@ func _run() -> void:
 			if not (l is DirectionalLight3D) and l.is_visible_in_tree() and l.global_position.distance_to(p) < l.distance_fade_begin + l.distance_fade_length:
 				n += 1
 		worst = maxi(worst, n)
+	ok("ground_below_lots", world.ground_dropped)
 	ok("light_budget", unfaded == 0 and worst < cap and ProjectSettings.get_setting("rendering/limits/opengl/max_lights_per_object") >= 16,
 		"%d lights, %d without fade, worst spot %d in range (cap %d)" % [lights.size(), unfaded, worst, cap])
 	# ---- wake up in the bedroom (wait for the sequence)
@@ -501,6 +502,7 @@ func _run() -> void:
 		and pr.get("yaw_err_deg", 99.0) < 6.0 and pr.get("max_dev", 9.0) < 0.6, str(pr))
 	ok("auto_park_camera_clear", pr.get("cam_blocked_frames", 1) == 0)
 	ok("parking_brake_on", sedan.parking_brake and absf(sedan.speed) < 0.01)
+	ok("arrival_caption_not_title", world.hud.title.modulate.a < 0.05)
 	ok("arrival_view_restored", sedan.driver_cam.current and world._cine == null and sedan.speed_cap < 0.0)
 	ok("reached_town", game.has_flag("reached_town"))
 	ok("parked", game.has_flag("parked"), "drive_time=%.1f s, autopilot_time=%.1f s, max=%.0f km/h, cruise=%.0f km/h, route_idx=%d/%d" % [world.drive_time, t, max_kmh, cruise * 3.6, st["idx"], route.size()])
@@ -610,6 +612,8 @@ func _run() -> void:
 	ok("eddie_talks", world.eddie_face._talk_left > 0.0)
 	ok("talk_camera_frames_eddie", root.get_viewport().get_camera_3d().name == "TalkCam" and not player.controls_enabled)
 	ok("conversation_confirm_mode", dlg.confirm_mode and world.conversing)
+	ok("speaker_name_shown", world.hud.speaker_l.text == "EDDIE" or world.hud.speaker_l.text == "PROTAGONIST", world.hud.speaker_l.text)
+	ok("continue_prompt_shown", world.hud.confirm_l.visible and world.hud.confirm_l.text.contains("CONTINUE") and world.hud.confirm_l.text.contains("SKIP"))
 	await frames(60 * 7)
 	ok("talk_camera_restores", player.camera.current and player.controls_enabled and world._talk_cam == null and not dlg.confirm_mode)
 	ok("game_bought", game.has_flag("game_bought"))

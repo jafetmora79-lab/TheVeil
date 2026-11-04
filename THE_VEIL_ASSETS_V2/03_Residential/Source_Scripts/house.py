@@ -329,7 +329,9 @@ class House:
             if not under:
                 M, _ = wall(self.ext, self.col, p0, p1, y0, y_top, EXT_T, siding, None, holes_w,
                             ext={"pos": tuple(e_out)}, faces=("pos",))
-                if not garage and y_floor > 0.05:   # foundation band
+                # foundation band: ground-floor rooms only. Upper-storey rooms used to draw it too, from the ground
+                # up to THEIR floor (3.58 m), a solid concrete slab over the ground-floor doors and windows below
+                if not garage and y_floor > 0.05 and r["lvl"] == 0:   # foundation band
                     fm = MB()
                     for (a, b, c2, d2) in [(-e_out[0], L + e_out[1], 0.0, y_floor)]:
                         z = EXT_T / 2 + 0.02

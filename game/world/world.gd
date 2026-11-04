@@ -79,6 +79,13 @@ func _ready() -> void:
 	_apply_view_ranges()
 	_setup_night()
 	_light_budget_all()
+	# the filler ground (TOWN_Ground_Game) was coplanar with the parking lots / drives laid over it (both at LOT_Y),
+	# so where a ground cell was only partly covered the two z-fought (the brown strips in the supermarket lot).
+	# It sits 1.5 cm lower now: paved surfaces always win; walking is unaffected.
+	var tg := find_child("TOWN_Ground_Game", true, false) as Node3D
+	if tg:
+		tg.position.y -= GROUND_DROP
+		ground_dropped = true
 	get_tree().node_added.connect(_on_node_added)
 	Game.flag_set.connect(_on_flag)
 	Sfx.start_ambience()
@@ -338,6 +345,10 @@ var _auto_open := false
 ## large mesh near several lamps keeps all of them. Nothing is brightened: energies are untouched.
 const LIGHT_FADE_INTERIOR := Vector2(26.0, 10.0)      # begin, length (m) for lights with range <= 8 m
 const LIGHT_FADE_EXTERIOR := Vector2(40.0, 12.0)
+
+
+const GROUND_DROP := 0.015
+var ground_dropped := false
 
 
 func _light_budget(l: Light3D) -> void:
@@ -728,7 +739,7 @@ func focus_shot(target: Vector3, fov_to := 28.0, t_in := 2.6, hold := 1.8, title
 	if my_id != _cine_id:
 		return
 	if title != "":
-		hud.title_card(title, hold)
+		hud.location_caption(title, hold)          # small caption: the storefront sign stays the focus
 	await get_tree().create_timer(hold).timeout
 	if my_id != _cine_id:
 		return
@@ -1287,7 +1298,9 @@ const SHOP_G_CAMS := [Vector3(0.6, 1.75, 3.0), Vector3(0.2, 1.8, 3.6), Vector3(1
 	Vector3(0.9, 1.7, 1.1), Vector3(1.6, 1.7, 1.6), Vector3(0.0, 1.7, 2.1), Vector3(2.2, 1.75, 1.2)]
 ## the fore claw tips of the Colossus in skeleton space at scale 1 (build_colossus.py: LEGS "FL" contact
 ## (-6.1, 0, 6.0), claws (dlat, dfw, ln) -> tip y 0.11 minus the 0.05 tip radius)
-const FL_TIPS := [Vector3(-5.55, 0.06, 7.06), Vector3(-6.15, 0.06, 7.52), Vector3(-6.7, 0.06, 6.77)]
+## front-left paw contact points (skeleton space, scale 1, build_colossus.py): the palm pad's underside (the
+## weight-bearing surface, y 0.06) and the three claw tips (also y 0.06, just touching)
+const FL_TIPS := [Vector3(-6.1, 0.06, 6.2), Vector3(-5.55, 0.06, 7.36), Vector3(-6.15, 0.06, 7.82), Vector3(-6.7, 0.06, 7.07)]
 const FL_FOOT_REST := Vector3(-6.0, 2.4, 5.6)            # Leg_FL_Foot rest origin (sanity check, tests)
 const VEIL_SHADER := preload("res://game/world/colossus_veil.gdshader")
 var _cam_prev := Vector3.INF

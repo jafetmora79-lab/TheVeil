@@ -6938,7 +6938,7 @@
    "category": "House_Variants",
    "glb": "03_Residential/House_Variants/RES_House_TwoStorey.glb",
    "obj": "03_Residential/House_Variants/OBJ/RES_House_TwoStorey.obj",
-   "triangles": 10396,
+   "triangles": 10256,
    "collision_triangles": 1706,
    "collision": [
     "colonly",
@@ -7209,7 +7209,7 @@
    "category": "House_Variants",
    "glb": "03_Residential/House_Variants/RES_House_Farmhouse.glb",
    "obj": "03_Residential/House_Variants/OBJ/RES_House_Farmhouse.obj",
-   "triangles": 11162,
+   "triangles": 11032,
    "collision_triangles": 1736,
    "collision": [
     "colonly",
@@ -7682,7 +7682,7 @@
    "category": "House_Variants",
    "glb": "03_Residential/House_Variants/RES_House_Abandoned.glb",
    "obj": "03_Residential/House_Variants/OBJ/RES_House_Abandoned.obj",
-   "triangles": 5188,
+   "triangles": 5076,
    "collision_triangles": 1084,
    "collision": [
     "colonly",
@@ -7871,7 +7871,7 @@
    "category": "House_Variants",
    "glb": "03_Residential/House_Variants/RES_House_SplitLevel.glb",
    "obj": "03_Residential/House_Variants/OBJ/RES_House_SplitLevel.obj",
-   "triangles": 7804,
+   "triangles": 7684,
    "collision_triangles": 1378,
    "collision": [
     "colonly",
@@ -8326,7 +8326,7 @@
    "category": "House_Variants",
    "glb": "03_Residential/House_Variants/RES_House_MillWorker.glb",
    "obj": "03_Residential/House_Variants/OBJ/RES_House_MillWorker.obj",
-   "triangles": 6306,
+   "triangles": 6188,
    "collision_triangles": 974,
    "collision": [
     "colonly",
@@ -9141,7 +9141,7 @@
    "category": "House_Variants",
    "glb": "03_Residential/House_Variants/RES_House_TwoStorey_B.glb",
    "obj": null,
-   "triangles": 10396,
+   "triangles": 10256,
    "collision_triangles": 1706,
    "collision": [
     "colonly",
@@ -10202,7 +10202,7 @@
    "category": "House_Variants",
    "glb": "03_Residential/House_Variants/RES_House_TwoStorey_Mirror.glb",
    "obj": null,
-   "triangles": 10396,
+   "triangles": 10256,
    "collision_triangles": 1706,
    "collision": [
     "colonly",
@@ -10473,7 +10473,7 @@
    "category": "House_Variants",
    "glb": "03_Residential/House_Variants/RES_House_MillWorker_B.glb",
    "obj": null,
-   "triangles": 6306,
+   "triangles": 6188,
    "collision_triangles": 974,
    "collision": [
     "colonly",
@@ -10603,7 +10603,7 @@
    "category": "House_Variants",
    "glb": "03_Residential/House_Variants/RES_House_SplitLevel_Mirror.glb",
    "obj": null,
-   "triangles": 7804,
+   "triangles": 7684,
    "collision_triangles": 1378,
    "collision": [
     "colonly",
@@ -10867,7 +10867,7 @@
    "category": "House_Variants",
    "glb": "03_Residential/House_Variants/RES_House_SplitLevel_B.glb",
    "obj": null,
-   "triangles": 7804,
+   "triangles": 7684,
    "collision_triangles": 1378,
    "collision": [
     "colonly",

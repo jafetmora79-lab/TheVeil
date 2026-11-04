@@ -15,11 +15,17 @@ var goal_l: Label
 var step_l: Label
 var obj_box: VBoxContainer
 var sub: Label
-var confirm_l: Label         ## "[E] >" under a conversation line that waits for the player
+var confirm_l: Label         ## CLICK / E - CONTINUE  ·  HOLD E - SKIP while a line is up and the player is not free
+var speaker_l: Label         ## the speaker's name above every subtitle
+var caption_l: Label         ## location caption (arrival shot)
+const SPEAKER_NAMES := {"": "PROTAGONIST", "Distant voice": "UNKNOWN VOICE"}
+var _hold := 0.0
+var _hold_spent := false
 var title: Label
 var hint: Label
 var speed_l: Label
 var inv_panel: VeilInventoryPanel
+var quick: VeilQuickSlots
 var pause_panel: Control
 var settings: SettingsPanel
 var end_panel: PanelContainer
@@ -53,12 +59,16 @@ func _ready() -> void:
 	sub = _centered_label("", 21, 0.5, 0.86)
 	sub.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	sub.add_theme_color_override("font_color", Color(1, 1, 1, 1))     # white pixel text, black outline
-	confirm_l = _centered_label("[E]  >", 15, 0.5, 0.91)
-	confirm_l.add_theme_color_override("font_color", Color(1, 1, 1, 0.85))
+	speaker_l = _centered_label("", 15, 0.5, 0.80)         # who is talking, above the line
+	speaker_l.add_theme_color_override("font_color", Color(0.93, 0.83, 0.55, 1))
+	confirm_l = _centered_label("", 13, 0.5, 0.925)
+	confirm_l.add_theme_color_override("font_color", Color(1, 1, 1, 0.8))
 	confirm_l.visible = false
+	caption_l = _centered_label("", 17, 0.5, 0.74)         # small location caption (never over a sign)
+	caption_l.modulate.a = 0.0
 	title = _centered_label("", 34, 0.5, 0.42)
 	title.modulate.a = 0.0
-	hint = _centered_label("", 15, 0.5, 0.94)
+	hint = _centered_label("", 15, 0.5, 0.965)
 	hint.add_theme_color_override("font_color", VeilUI.MUTED)
 	speed_l = VeilUI.label("", 16, VeilUI.MUTED)
 	speed_l.anchor_left = 1.0
@@ -80,9 +90,12 @@ func _ready() -> void:
 	root.add_child(fade)
 	Game.objective_changed.connect(set_objective)
 	Game.inventory_changed.connect(_refresh_inventory)
-	Dialogue.line_started.connect(func(_s, t, _d): show_subtitle(t))
-	Dialogue.line_finished.connect(func(): show_subtitle(""))
-	Dialogue.waiting_confirm.connect(func(on): confirm_l.visible = on)
+	Dialogue.line_started.connect(func(spk, t, _d):
+		speaker_l.text = String(SPEAKER_NAMES.get(spk, String(spk).to_upper()))
+		show_subtitle(t))
+	Dialogue.line_finished.connect(func():
+		speaker_l.text = ""
+		show_subtitle(""))
 
 
 # ------------------------------------------------------------------ survival (health / stamina)
@@ -166,7 +179,23 @@ func _centered_label(text: String, size: int, ax: float, ay: float) -> Label:
 var allow_pause := true
 
 
+## The continue / skip prompt is up while a line is on screen and the player is not walking around freely
+## (conversations, cinematics); then a click / E / tap advances exactly one line.
+func _dialogue_prompt_on() -> bool:
+	if not Dialogue.is_active() or is_paused() or inv_panel.visible:
+		return false
+	var w := get_parent()
+	var p: Node = w.get("player") if w else null
+	return Dialogue.confirm_mode or p == null or p.get("controls_enabled") != true
+
+
 func _unhandled_input(e: InputEvent) -> void:
+	if _dialogue_prompt_on() and ((e.is_action_pressed("interact") and not e.is_echo()) or e.is_action_pressed("ui_accept")
+			or (e is InputEventMouseButton and e.pressed and e.button_index == MOUSE_BUTTON_LEFT)
+			or (e is InputEventScreenTouch and e.pressed)):
+		Dialogue.advance_any()
+		get_viewport().set_input_as_handled()
+		return
 	if e.is_action_pressed("pause") and allow_pause and not end_panel.visible:
 		set_paused(not is_paused())
 		get_viewport().set_input_as_handled()
@@ -179,6 +208,21 @@ func _unhandled_input(e: InputEvent) -> void:
 
 func _process(_d: float) -> void:
 	_update_marker()
+	# continue / skip prompt + hold-to-skip (hold E, the mouse button or a touch for 0.8 s; once per hold)
+	var on := _dialogue_prompt_on()
+	confirm_l.visible = on
+	if on:
+		var touch := DisplayServer.is_touchscreen_available() and OS.has_feature("mobile")
+		confirm_l.text = "TAP - CONTINUE      HOLD - SKIP" if touch else "CLICK / E - CONTINUE      HOLD E - SKIP"
+		var held := Input.is_action_pressed("interact") or Input.is_mouse_button_pressed(MOUSE_BUTTON_LEFT)
+		_hold = _hold + _d if held else 0.0
+		if not held:
+			_hold_spent = false
+		elif _hold > 0.8 and not _hold_spent:
+			_hold_spent = true
+			Dialogue.skip()
+	else:
+		_hold = 0.0
 	click_hint.visible = Input.mouse_mode != Input.MOUSE_MODE_CAPTURED and not is_paused() and not end_panel.visible \
 		and fade.color.a < 0.5 and not inv_panel.visible
 
@@ -220,6 +264,16 @@ func fade_to(alpha: float, t: float) -> void:
 	await tw.finished
 
 
+## Small location caption near the bottom (the arrival shot uses it: the store's own sign is the focus).
+func location_caption(text: String, hold := 2.2) -> void:
+	caption_l.text = text
+	var tw := create_tween()
+	tw.tween_property(caption_l, "modulate:a", 1.0, 0.7)
+	tw.tween_interval(hold)
+	tw.tween_property(caption_l, "modulate:a", 0.0, 1.0)
+	await tw.finished
+
+
 func title_card(text: String, hold := 2.6) -> void:
 	title.text = text
 	var tw := create_tween()
@@ -237,6 +291,9 @@ func _build_inventory() -> void:
 	inv_panel.name = "Inventory"
 	root.add_child(inv_panel)
 	inv_panel.closed.connect(func(): _inventory_input(false))
+	quick = VeilQuickSlots.new()
+	quick.name = "QuickSlots"
+	root.add_child(quick)
 
 
 func _refresh_inventory() -> void:
@@ -306,7 +363,7 @@ func _update_marker() -> void:
 	elif _mk_target is Vector3:
 		pos = _mk_target
 	var cam := get_viewport().get_camera_3d()
-	if pos == null or cam == null or inv_panel.visible or is_paused():
+	if pos == null or cam == null or inv_panel.visible or is_paused() or Dialogue.is_active():
 		_mk.visible = false
 		marker_visible = false
 		return
