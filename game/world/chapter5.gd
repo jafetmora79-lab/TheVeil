@@ -13,7 +13,6 @@ class_name VeilChapter5
 const CAN := preload("res://THE_VEIL_ASSETS_V2/08_Inventory/Food_And_Supplies/INV_CannedFood.glb")
 const WATER := preload("res://THE_VEIL_ASSETS_V2/08_Inventory/Food_And_Supplies/INV_WaterBottle.glb")
 const BATTERY_PACK := preload("res://THE_VEIL_ASSETS_V2/08_Inventory/Food_And_Supplies/INV_SpareBatteries.glb")
-const RADIO := preload("res://THE_VEIL_ASSETS_V2/03_Residential/Furniture/RES_Radio.glb")
 const FOLLOW := preload("res://game/npc/companion_follow.gd")
 const SCAV := preload("res://game/world/scavenge_house.gd")
 
@@ -48,7 +47,7 @@ var survivor: Node3D
 var eddie_follow: VeilCompanionFollow
 var survivor_follow: VeilCompanionFollow
 var its := {}
-var radio: Node3D
+var radio: VeilRadio
 var scav: Node
 var radio_runs := 0
 var _static: AudioStreamPlayer3D
@@ -184,21 +183,17 @@ func _setup_house() -> void:
 		block.add_child(bcs)
 		shouse.add_child(block)
 		block.position = Vector3(-0.3, 0.6 + 1.1, 3.6)    # just inside the front opening (centre x -0.3)
-	radio = RADIO.instantiate() as Node3D
-	radio.name = "C5_Radio"
-	house.add_child(radio)
-	radio.position = RADIO_POS
-	radio.rotation.y = PI * 0.15
-	var rit := Interactable.attach(radio, {"kind": "custom", "label": "Radio", "prompt_text": ""})
-	rit.used.connect(_use_radio)
-	its["radio"] = rit
-	_static = AudioStreamPlayer3D.new()
-	_static.name = "Static"
-	_static.stream = _streams["static_loop"]
-	_static.volume_db = -16.0
-	_static.unit_size = 3.0
-	_static.max_distance = 22.0
-	radio.add_child(_static)
+	# the radio: a reusable prop (game/props/veil_radio.gd), interacted with in place on the dining table
+	var vr := VeilRadio.new()
+	vr.name = "C5_Radio"
+	house.add_child(vr)
+	vr.position = RADIO_POS
+	vr.rotation.y = PI * 0.15
+	vr.setup(_streams["static_loop"])
+	vr.used.connect(_use_radio)
+	radio = vr
+	its["radio"] = vr.interactable
+	_static = vr.hiss
 	var rect: Array = HOUSE_RECT
 	var c := Vector3((rect[0].x + rect[1].x) * 0.5, 1.8, (rect[0].y + rect[1].y) * 0.5)
 	world._area("C5_HouseInside", hl(c), Vector3(rect[1].x - rect[0].x, 2.4, rect[1].y - rect[0].y), 2,
@@ -307,14 +302,76 @@ func _apply() -> void:
 
 func _refresh_prompts() -> void:
 	var talked := Game.has_flag("c5_talked_both")
+	var k := Interactable.key_hint()
 	if its.has("npc_Eddie"):
-		its["npc_Eddie"].prompt_text = "" if Game.has_flag("c5_eddie_talked") else "[E] Talk"
+		its["npc_Eddie"].prompt_text = "" if Game.has_flag("c5_eddie_talked") else k + "TALK TO EDDIE"
 	if its.has("npc_Marcus"):
 		var report := Game.has_flag("c5_returned") and not Game.has_flag("c5_reported")
-		its["npc_Marcus"].prompt_text = "[E] Talk" if (not Game.has_flag("c5_marcus_talked") or report) else ""
-	its["stash"].prompt_text = "[E] Check the Supplies" if talked and not Game.has_flag("c5_supplies_checked") else ""
-	its["exit"].prompt_text = "[E] Head Out with Eddie" if Game.has_flag("c5_supplies_checked") and not Game.has_flag("c5_prepared") else ""
-	its["radio"].prompt_text = "[E] Use the Radio" if Game.has_flag("c5_supplies_done") and not Game.has_flag("c5_radio_used") else ""
+		its["npc_Marcus"].prompt_text = k + "TALK TO MARCUS" if (not Game.has_flag("c5_marcus_talked") or report) else ""
+	its["stash"].prompt_text = k + "CHECK THE SUPPLIES" if talked and not Game.has_flag("c5_supplies_checked") else ""
+	its["exit"].prompt_text = k + "HEAD OUT WITH EDDIE" if Game.has_flag("c5_supplies_checked") and not Game.has_flag("c5_prepared") else ""
+	its["radio"].prompt_text = k + "INVESTIGATE RADIO" if Game.has_flag("c5_supplies_done") and not Game.has_flag("c5_radio_used") else ""
+	_update_marker()
+
+
+## The one active destination for the HUD marker (only the current objective's target; cleared when done).
+func _update_marker() -> void:
+	var t: Variant = null
+	var label := ""
+	if Game.has_flag("c5_complete"):
+		t = null
+	elif not Game.has_flag("c5_eddie_talked") and st().get("eddie", "") != "following":
+		t = eddie
+		label = "EDDIE"
+	elif not Game.has_flag("c5_marcus_talked"):
+		t = marcus
+		label = "MARCUS"
+	elif not Game.has_flag("c5_supplies_checked"):
+		t = ml(STASH + Vector3(0, 0.3, 0))
+		label = "SUPPLIES"
+	elif not Game.has_flag("c5_prepared"):
+		t = ml(EXIT_SPOT)
+		label = "EXIT"
+	elif not Game.has_flag("c5_left_store"):
+		t = ml(Vector3(0, 1.4, -2.5))
+		label = "EXIT"
+	elif not Game.has_flag("c5_house_reached"):
+		t = hl(Vector3(-1.6, 1.6, 3.0))
+		label = "HOUSE"
+	elif not Game.has_flag("c5_supplies_done"):
+		t = _next_container()
+		label = "SEARCH"
+	elif not Game.has_flag("c5_radio_used"):
+		t = radio
+		label = "RADIO"
+	elif not Game.has_flag("c5_returned"):
+		t = ml(Vector3(0, 1.4, -1.5)) if not _in_store(market.to_local(player.global_position)) else ml(Vector3(0, 1.4, 5.0))
+		label = "SUPERMARKET"
+	elif not Game.has_flag("c5_reported"):
+		t = marcus
+		label = "MARCUS"
+	hud.set_marker(t, label)
+	marker_target = t
+
+
+var marker_target: Variant = null      ## tests
+
+
+## The nearest container that still holds loot (the drawer / cabinet itself, not the hidden item).
+func _next_container() -> Variant:
+	var best: Variant = null
+	var bd := INF
+	for id in scav.loot:
+		var it: Interactable = scav.loot[id]
+		if it.taken:
+			continue
+		var c: Interactable = scav._loot_container[id]
+		var p := c.focus_point()
+		var d := p.distance_to(player.global_position)
+		if d < bd:
+			bd = d
+			best = p
+	return best
 
 
 func _reparent(n: Node3D, to: Node) -> void:
@@ -424,8 +481,7 @@ func _use_radio(_b: Node) -> void:
 	radio_runs += 1
 	Game.set_flag("c5_radio_used")
 	its["radio"].prompt_text = ""
-	_static.stop()
-	await _say_wait("c5_radio_broadcast")
+	await (radio as VeilRadio).play_broadcast("c5_radio_broadcast")
 	await get_tree().create_timer(1.2).timeout      # the transmission stops: silence
 	await _say_wait("c5_radio_eddie")
 	Game.set_flag("c5_radio_done")
@@ -513,6 +569,9 @@ func _process(delta: float) -> void:
 			_set_doors(false)                         # home: pulled shut once everyone is clear of them
 	elif near != _doors_open and (_near_doors(pl) or not near):
 		_set_doors(near)
+	if following and not Game.has_flag("c5_left_store") and _away_from_store(pl, 2.0):
+		Game.set_flag("c5_left_store")
+	_update_marker()
 	if following and not Game.has_flag("c5_street_said") and _away_from_store(pl, 10.0) and not Dialogue.is_busy():
 		Game.set_flag("c5_street_said")
 		Dialogue.say("c5_street", false, true)

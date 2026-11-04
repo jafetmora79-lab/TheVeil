@@ -148,6 +148,12 @@
    "text": "Prepare for the search"
   },
   {
+   "id": "c5_leave",
+   "flag": "c5_left_store",
+   "goal": "act2_search",
+   "text": "Leave the supermarket with Eddie"
+  },
+  {
    "id": "c5_reach",
    "flag": "c5_house_reached",
    "goal": "act2_search",
