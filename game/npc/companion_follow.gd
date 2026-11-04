@@ -187,7 +187,19 @@ func recover_behind(dist := 2.4) -> void:
 		want = leader.global_position + back * maxf((hit["position"] as Vector3).distance_to(leader.global_position + Vector3(0, 0.6, 0)) - 0.5, 0.4)
 	var body := npc as VeilSurvivorBody
 	if body:
-		body.place_at(_floor(want))
+		# search at the leader's own floor height (a ray from above can land on furniture, which is refused),
+		# then closer in and to the sides, so a load never leaves the companion wherever it was before
+		var feet_y := leader.global_position.y
+		var side := back.cross(Vector3.UP).normalized()
+		var placed := false
+		for cand in [want, leader.global_position + back * 1.2, leader.global_position + side * 1.2,
+				leader.global_position - side * 1.2, leader.global_position]:
+			var safe := body.nearest_safe(Vector3((cand as Vector3).x, feet_y, (cand as Vector3).z))
+			if safe.is_finite() and body.place_at(safe):
+				placed = true
+				break
+		if not placed:
+			body.place_at(_floor(want))
 	trail = [npc.global_position]
 
 
