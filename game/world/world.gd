@@ -56,6 +56,7 @@ var interactables := {}
 
 
 func _ready() -> void:
+	add_to_group("veil_world")
 	data = JSON.parse_string(FileAccess.get_file_as_string("res://game/world/world_data.json"))
 	home = get_node("Residential/Houses/PLAYER_HOME")
 	hud = HUD_SCRIPT.new()
@@ -73,6 +74,9 @@ func _ready() -> void:
 	sedan.global_position.y += 0.05
 	sedan.entry_area.used.connect(func(_b): enter_car())
 	sedan.speed_changed.connect(hud.set_speed)
+	for furniture in find_children("Furnishing", "Node3D", true, false):
+		for collider in furniture.find_children("*", "CollisionObject3D", true, false):
+			collider.add_to_group("veil_furniture")
 	_setup_home()
 	_setup_town()
 	_setup_triggers()
@@ -447,8 +451,8 @@ func _setup_town() -> void:
 			market_merch.set_glow(id, _glow_mat())
 	_setup_coolers()
 	# checkout: lane 4. The cashier is a generic placeholder (no cashier is named in the bible).
-	# the cashier stands on the staff side of lane 4 (lane-local (1.0, 0, -0.75)), facing the customer aisle (+x)
-	cashier = _spawn_npc(CASHIER, CASHIER_FACE, market, Vector3(-4.25, 0.04, 4.0), -PI * 0.5, "Cashier")
+	# Stand just off the lane 4 approach, with a clear interaction line from the aisle.
+	cashier = _spawn_npc(CASHIER, CASHIER_FACE, market, Vector3(-2.35, 0.04, 4.3), -PI * 0.5, "Cashier")
 	var c_it := Interactable.attach(cashier, {"kind": "custom", "label": "Cashier", "prompt_text": "[E] Pay for Groceries"})
 	c_it.used.connect(_checkout)
 	interactables["market/cashier"] = c_it
@@ -650,10 +654,13 @@ func _on_line(speaker: String, _t: String, dur: float) -> void:
 ## `yaw` is the facing in the parent frame (0 = parent -Z); the animator measures the model's real forward
 ## from its feet, so the facing is right whatever way the GLB was authored.
 func _spawn_npc(scene: PackedScene, face_tex: Texture2D, parent: Node3D, pos: Vector3, yaw: float, speaker: String) -> Node3D:
-	var n := scene.instantiate() as Node3D
+	var n := VeilSurvivorBody.new()
 	n.name = speaker
-	parent.add_child(n)
 	n.position = pos
+	n.add_child(scene.instantiate())
+	parent.add_child(n)
+	if not n.place_at(parent.to_global(pos)):
+		n.hide()
 	var anim: Node = NPC_ANIM.new()
 	anim.name = "Animator"
 	n.add_child(anim)
@@ -667,6 +674,34 @@ func _spawn_npc(scene: PackedScene, face_tex: Texture2D, parent: Node3D, pos: Ve
 	n.add_child(f)
 	faces[speaker] = f
 	return n
+
+
+# Called at authored scene transitions and when reconstructing story state from a save.
+func place_survivor(npc: Node3D, local_point: Vector3) -> bool:
+	var body := npc as VeilSurvivorBody
+	if body == null:
+		return false
+	var animator := body.get_node_or_null("Animator") as NpcAnimator
+	if animator:
+		animator.walk_to([])
+	var requested := body.get_parent_node_3d().to_global(local_point)
+	var key := "%s:%s" % [get_path_to(body.get_parent()), local_point]
+	var record: Dictionary = Game.world_state.get("shelter_npc_positions", {}).get(String(body.name), {})
+	var saved: Array = record.get("feet", [])
+	var restored := false
+	if _restoring_survivors and record.get("home", "") == key and saved.size() == 3:
+		var point := Vector3(saved[0], saved[1], saved[2])
+		var floor_point := VeilSurvivorBody.floor_at(get_world_3d().direct_space_state, point)
+		if floor_point.is_finite() and floor_point.distance_to(point) < 0.15 \
+				and point.distance_to(requested) <= 3.0 and body.is_clear(floor_point):
+			restored = body.place_at(floor_point)
+	var ok := restored or body.place_at(requested)
+	if ok and body.get_parent() == market:
+		body.set_meta("shelter_home", key)
+		body.set_meta("shelter_feet", body.global_position)
+	if not ok and not body.is_clear(body.global_position):
+		body.hide()
+	return ok
 
 
 ## Soft pulsing rim highlight (additive overlay) on everything under `n`.
@@ -1167,8 +1202,8 @@ var mist_ceiling: Node3D
 var shut_it: Interactable
 
 const MARCUS_SHOP_POS := Vector3(-3.6, 0.04, 4.4)        # game-shop local: between the wall shelf and the New Releases rack
-const MARKET_EDDIE_POS := Vector3(-1.6, 0.04, 6.2)       # supermarket local, front of the sales floor, facing the doors
-const MARKET_MARCUS_POS := Vector3(1.4, 0.04, 6.6)
+const MARKET_EDDIE_POS := Vector3(6.2, 0.04, 4.05)       # staff side of customer service
+const MARKET_MARCUS_POS := Vector3(-2.0, 0.04, 6.9)
 const PROTAG_PATH := "res://THE_VEIL_ASSETS_V2/06_Characters/Protagonist/CHR_Protagonist.glb"
 const PROTAG_FACE_PATH := "res://THE_VEIL_ASSETS_V2/06_Characters/Facial/Faces/T_Face_Protagonist.png"
 const TENTACLE_AI := preload("res://game/enemies/tentacle_ai.gd")
@@ -1421,7 +1456,7 @@ func _cam_travel(cam: Camera3D, pts: Array, speed: float, look: Callable) -> voi
 		cam.global_position = b
 
 
-## Walk an NPC (parent-local waypoints) and wait for it; snaps to the last point after `timeout` (never stalls).
+## Wait for authored movement without a visible teleport if the path is blocked.
 func _walk_wait(speaker: String, pts: Array, speed: float, timeout: float) -> void:
 	var a = animators.get(speaker)
 	if a == null:
@@ -1433,8 +1468,6 @@ func _walk_wait(speaker: String, pts: Array, speed: float, timeout: float) -> vo
 		t += get_process_delta_time()
 	if a.is_walking():
 		a.walk_to([])
-		a.root.position = pts[-1]
-		enc_report["walk_snaps"] = enc_report.get("walk_snaps", 0) + 1
 
 
 ## The creature's encounter look: its own textures through colossus_veil.gdshader (see there).
@@ -1882,8 +1915,6 @@ func _shop_regroup(cam: Camera3D, me: Node3D, P: Vector3, n: Vector3, side: Vect
 	for k in names:                                         # never left half-way (timeout only)
 		if animators.has(k) and animators[k].is_walking():
 			animators[k].walk_to([])
-			animators[k].root.position = SHOP_TALK[k]
-			enc_report["walk_snaps"] = enc_report.get("walk_snaps", 0) + 1
 	if sd and sd.is_open:
 		sd.set_open(false)
 	enc_report["door_closed_after_regroup"] = sd == null or not sd.is_open
@@ -2247,7 +2278,7 @@ func _shop_seated_talk() -> void:
 	cam3.queue_free()
 	if animators.has("Marcus"):
 		animators["Marcus"].set_seated(false)
-		animators["Marcus"].root.position = SEAT_DOCS + Vector3(0.75, 0, 0.1)   # stood up clear of the boxes (screen black)
+		place_survivor(animators["Marcus"].root, SEAT_DOCS + Vector3(0.75, 0, 0.1))   # stood up clear of the boxes (screen black)
 	cam.global_position = X * (SEAT_BOX + Vector3(-0.05, STAND_EYE, 0))
 	await hud.fade_to(0.0, 0.8)
 	await _fp_look(cam, X * (STOCK_IN + Vector3(0, 1.4, -0.8)), 0.6)
@@ -2283,7 +2314,8 @@ func _seat(speaker: String, seat: Vector3, height: float, toward: Vector3, edge 
 	var to2: Vector3 = toward - seat
 	to2.y = 0.0
 	a.walk_to([])
-	a.root.position = seat + to2.normalized() * edge          # on the seat's front edge, not inside the box
+	if not place_survivor(a.root, seat + to2.normalized() * edge):
+		return          # on the seat's front edge, not inside the box
 	a.turn_to_face = false
 	a.face_towards(X * toward)
 	a.root.rotate_y(a.world_forward().signed_angle_to((X.basis * to2).normalized(), Vector3.UP))
@@ -2349,12 +2381,19 @@ func _p3_flee_together() -> void:
 		f.run_speed = 4.2
 		n.add_child(f)
 		f.setup(n, player)
-		f.start()
-		# the way out is through the shop door: seed the trail with it so nobody cuts through the shop front
-		var din: Vector3 = (game_shop.get_node("Doorways/Entrance_Inside") as Node3D).global_position
-		var dout: Vector3 = (game_shop.get_node("Doorways/Entrance_Outside") as Node3D).global_position
-		if game_shop.to_local(n.global_position).z > 0.2:
-			f.trail = [n.global_position, din, dout]
+		# Follow the collision-checked route to the door before joining the outdoor trail.
+		var din := game_shop.get_node("Doorways/Entrance_Inside") as Node3D
+		var dout := game_shop.get_node("Doorways/Entrance_Outside") as Node3D
+		var body := n as VeilSurvivorBody
+		var via: Array = []
+		if game_shop.to_local(n.global_position).z > 0.2 and body:
+			var safe := body.nearest_safe(din.global_position)
+			if safe.is_finite():
+				via = npc_route(game_shop, game_shop.to_local(n.global_position), game_shop.to_local(safe), body)
+				via = via.map(func(point): return game_shop.to_global(point))
+				if not via.is_empty():
+					via.append(dout.global_position)
+		f.start(via)
 		_p3_followers.append(f)
 		if animators.has(String(n.name)):
 			animators[String(n.name)].set_mood("scared")
@@ -2377,30 +2416,37 @@ func npc_walk(speaker: String, to: Vector3, speed := 1.3) -> void:
 	if a == null:
 		return
 	var par := a.root.get_parent_node_3d() as Node3D
-	a.walk_to(npc_route(par, a.root.position, to), speed)
+	var body := a.root as VeilSurvivorBody
+	var safe := body.nearest_safe(par.to_global(to))
+	if safe.is_finite():
+		a.walk_to(npc_route(par, body.position, par.to_local(safe), body), speed)
 
 
-## Grid A* (0.3 m cells, a 0.28 m body radius at knee and chest height, layer-1 colliders) in `frame`'s local XZ,
-## then string-pulled with sphere sweeps. Returns frame-local waypoints ending at `to` (straight line if no path).
-func npc_route(frame: Node3D, from: Vector3, to: Vector3) -> Array:
+## Reuse the local XZ grid search for survivor capsules and cinematic camera routes.
+## Survivor searches return an empty path when the requested route is obstructed.
+func npc_route(frame: Node3D, from: Vector3, to: Vector3, body: VeilSurvivorBody = null) -> Array:
 	var space := get_world_3d().direct_space_state
 	var sph := SphereShape3D.new()
 	sph.radius = 0.28
 	var q := PhysicsShapeQueryParameters3D.new()
-	q.shape = sph
-	q.collision_mask = 1
-	q.exclude = [player.get_rid()]
+	q.shape = body.capsule if body else sph
+	q.collision_mask = VeilSurvivorBody.SOLIDS if body else 1 | VeilSurvivorBody.LAYER
+	q.exclude = [body.get_rid()] if body else [player.get_rid()]
+	var heights := [VeilSurvivorBody.HEIGHT * 0.5 + VeilSurvivorBody.FOOT_CLEARANCE] if body else [0.5, 1.3]
 	var X := frame.global_transform
 	var y := from.y
 	var CELL := 0.3
 	var lo := Vector2(minf(from.x, to.x) - 6.0, minf(from.z, to.z) - 6.0)
+	if body:
+		var end := Vector2(to.x, to.z)
+		lo = end + (lo - end).snapped(Vector2.ONE * CELL)
 	var cache := {}
 	var free_at := func(c: Vector2i) -> bool:
 		if cache.has(c):
 			return cache[c]
 		var p := Vector3(lo.x + c.x * CELL, y, lo.y + c.y * CELL)
-		var ok := true
-		for h in [0.5, 1.3]:
+		var ok := not body or VeilSurvivorBody.floor_at(space, X * p).is_finite()
+		for h in heights:
 			q.transform = Transform3D(Basis(), X * (p + Vector3(0, h, 0)))
 			if not space.intersect_shape(q, 1).is_empty():
 				ok = false
@@ -2426,7 +2472,7 @@ func npc_route(frame: Node3D, from: Vector3, to: Vector3) -> Array:
 				best = open[k]
 				cur = k
 		open.erase(cur)
-		if (cur - g).length_squared() <= 1:
+		if cur == g or (not body and (cur - g).length_squared() <= 1):
 			g = cur
 			found = true
 			break
@@ -2442,21 +2488,24 @@ func npc_route(frame: Node3D, from: Vector3, to: Vector3) -> Array:
 				came[nb] = cur
 				open[nb] = nc + Vector2(nb - g).length()
 	if not found:
-		return [to]
+		return [] if body else [to]
 	var cells: Array = [g]
 	while cells[0] != s and came.has(cells[0]):
 		cells.push_front(came[cells[0]])
 	var pts: Array = []
 	for c in cells:
 		pts.append(Vector3(lo.x + c.x * CELL, y, lo.y + c.y * CELL))
+	if pts.size() == 1:
+		return [to]
 	pts[-1] = to
-	# string pulling: keep only the waypoints needed for a clear sphere sweep between them
+	# String pulling: keep only the waypoints needed for clear shape sweeps.
+	pts[0] = from
 	var out: Array = []
 	var i := 0
 	while i < pts.size() - 1:
 		var j := pts.size() - 1
 		while j > i + 1:
-			q.transform = Transform3D(Basis(), X * (pts[i] + Vector3(0, 0.8, 0)))
+			q.transform = Transform3D(Basis(), X * (pts[i] + Vector3(0, heights[0] if body else 0.8, 0)))
 			q.motion = X.basis * (pts[j] - pts[i])
 			var r := space.cast_motion(q)
 			q.motion = Vector3.ZERO
@@ -2474,8 +2523,8 @@ func _p3_move_npcs_to_market() -> void:
 		var n: Node3D = pair[0]
 		if n == null:
 			continue
-		n.reparent(market, false)
-		n.position = pair[1]
+		n.reparent(market, true)
+		place_survivor(n, pair[1])
 		var anim = n.get_node_or_null("Animator")
 		if anim:
 			anim.walk_to([])
@@ -2498,8 +2547,8 @@ func _p3_reach_market() -> void:
 		if l is Light3D and String(l.name).begins_with("Light_"):
 			(l as Light3D).light_energy *= 0.35
 	shut_it.prompt_text = "[E] Pull the Doors Shut"
-	npc_walk("Eddie", Vector3(-1.0, 0.04, 4.3), 1.4)           # around the vestibule wall, carts and baskets
-	npc_walk("Marcus", Vector3(1.1, 0.04, 4.7), 1.4)
+	npc_walk("Eddie", MARKET_EDDIE_POS, 1.4)           # around the vestibule wall, carts and baskets
+	npc_walk("Marcus", MARKET_MARCUS_POS, 1.4)
 	for d in _auto_doors:
 		_glow(d[0], true, Color(0.7, 0.85, 1.0))
 	Dialogue.say("p3_market", false, true)
@@ -2859,9 +2908,64 @@ func _on_flag(f: String) -> void:
 		save()
 
 
+func can_heal_with(id: String) -> bool:
+	return Game.has_item(id) and float(Game.item_info(id).get("heal_amount", 0)) > 0.0 \
+		and player.health > 0.0 and player.health < VeilPlayer.MAX_HEALTH and not in_car
+
+func use_healing_item(id: String) -> bool:
+	if not can_heal_with(id):
+		return false
+	player.heal(float(Game.item_info(id)["heal_amount"]))
+	Game.remove_item(id)
+	save()
+	return true
+
+func shelter_roster() -> Array:
+	var roster := []
+	for speaker in animators:
+		var body := (animators[speaker] as NpcAnimator).root as VeilSurvivorBody
+		if is_instance_valid(body) and body.visible and body.get_parent() == market \
+				and speaker != "Cashier":
+			roster.append(speaker)
+	roster.sort()
+	return roster
+
+func deposit_shelter_item(id: String) -> bool:
+	var resource := Game.shelter_resource(id)
+	if resource.is_empty() or not Game.has_item(id) or not Game.has_flag("p4_started"):
+		return false
+	if id == "batteries":
+		var flashlight := get_tree().get_first_node_in_group("veil_flashlight") as VeilFlashlight
+		if flashlight == null or flashlight.spares <= 0:
+			return false
+		flashlight.add_spares(-1)
+		if flashlight.spares == 0:
+			Game.remove_item(id)
+		else:
+			Game.inventory_changed.emit()
+	else:
+		Game.remove_item(id)
+	var stock := Game.shelter_stock()
+	stock[resource] = int(stock[resource]) + 1
+	Game.world_state["shelter_stock"] = stock
+	save()
+	return true
+
+
+var _restoring_survivors := false
+
 func save() -> void:
+	var positions := {}
+	for speaker in animators:
+		var body := (animators[speaker] as NpcAnimator).root as VeilSurvivorBody
+		if is_instance_valid(body) and body.get_parent() == market and body.visible and body.has_meta("shelter_home"):
+			var feet: Vector3 = body.get_meta("shelter_feet")
+			positions[speaker] = {"home": body.get_meta("shelter_home"), "feet": [feet.x, feet.y, feet.z]}
+	Game.world_state["shelter_npc_positions"] = positions
+	if Game.has_flag("p4_started"):
+		Game.world_state["shelter_roster"] = shelter_roster()
 	var p := player.global_position
-	Game.player_state = {"in_vehicle": in_car, "pos": [p.x, p.y, p.z], "yaw": player.rotation.y}
+	Game.player_state = {"in_vehicle": in_car, "pos": [p.x, p.y, p.z], "yaw": player.rotation.y, "health": player.health}
 	Game.vehicle_state = sedan.state()
 	Game.save_game()
 
@@ -2880,10 +2984,18 @@ func _restore() -> bool:
 		player.activate(false)
 		sedan.set_driven(true)
 		hud.set_hint("W accelerate · S brake / reverse · A/D steer · Space handbrake · E exit")
-	_p3_restore.call_deferred()
-	if Game.has_flag("p3_doors_shut"):
-		_start_phase4.call_deferred(true)
+	player.health = clampf(float(ps.get("health", VeilPlayer.MAX_HEALTH)), 0.0, VeilPlayer.MAX_HEALTH)
+	player.health_changed.emit(player.health, VeilPlayer.MAX_HEALTH)
+	_restore_survivor_story.call_deferred()
 	return true
+
+
+func _restore_survivor_story() -> void:
+	_restoring_survivors = true
+	_p3_restore()
+	if Game.has_flag("p3_doors_shut"):
+		_start_phase4(true)
+	_restoring_survivors = false
 
 
 # ------------------------------------------------------------------ Phase 4 hook (the chapter lives in phase4.gd)

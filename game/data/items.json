@@ -20,6 +20,7 @@
    "weight": 0.05
   },
   "canned_food": {
+   "shelter_resource": "food",
    "name": "Canned Soup",
    "category": "food",
    "description": "Tomato soup. Dinner, technically.",
@@ -27,6 +28,7 @@
    "weight": 0.4
   },
   "water_bottle": {
+   "shelter_resource": "water",
    "name": "Water Bottle",
    "category": "food",
    "description": "A big bottle of spring water.",
@@ -34,6 +36,7 @@
    "weight": 1.0
   },
   "energy_snack": {
+   "shelter_resource": "food",
    "name": "Snack Bar",
    "category": "food",
    "description": "Chocolate and peanuts. For later.",
@@ -55,6 +58,7 @@
    "icon": "res://game/ui/icons/horror_game.png"
   },
   "cola_bottle": {
+   "shelter_resource": "water",
    "name": "Cola",
    "category": "food",
    "description": "A cold bottle of KOLA from the drinks cooler.",
@@ -62,6 +66,7 @@
    "weight": 0.6
   },
   "chocolate_bar": {
+   "shelter_resource": "food",
    "name": "Chocolate",
    "category": "food",
    "description": "A COCOA bar from the rack by the checkout.",
@@ -76,6 +81,7 @@
    "weight": 0.45
   },
   "batteries": {
+   "shelter_resource": "batteries",
    "name": "Batteries",
    "category": "flashlight",
    "description": "Spare flashlight batteries. The count and charge show bottom right while the flashlight is on.",
@@ -83,6 +89,8 @@
    "weight": 0.1
   },
   "painkillers": {
+   "shelter_resource": "medical",
+   "heal_amount": 25.0,
    "name": "Painkillers",
    "category": "medical",
    "description": "A blister pack of painkillers from a bathroom medicine cabinet.",
