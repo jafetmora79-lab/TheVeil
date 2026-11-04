@@ -28,8 +28,8 @@ const REST_SCRIPT := preload("res://game/world/rest_point.gd")
 const SERVICE_FLASHLIGHT := Vector3(5.7, 1.09, 5.8)       # customer service counter (Interaction/Counter_48)
 const SERVICE_BATTERIES := Vector3(6.3, 1.09, 5.8)
 const BREAKER := Vector3(19.83, 1.24, 14.9)               # RES_ElectricalPanel face (x 19.77-19.90, y 0.94-1.54)
-const LOADING_HANDLE := Vector3(19.55, 0.9, 15.9)
-const BACKDOOR_HANDLE := Vector3(8.0, 1.05, 17.35)
+const LOADING_HANDLE := Vector3(19.55, 0.9, 16.35)          # clear of the breaker panel (z 14.7-15.1)
+const BACKDOOR_HANDLE := Vector3(8.0, 1.05, 17.0)          # covers the ajar leaf as well
 const LOADING_PALLET := [Vector3(17.9, 0.04, 16.8), Vector3(19.3, 0.04, 16.45), PI * 0.5]   # start, blocking, yaw
 const BACK_PALLET := [Vector3(10.4, 0.04, 15.9), Vector3(8.0, 0.04, 16.95), 0.0]
 const BEDROLL := Vector3(-18.4, 0.04, 15.75)              # office floor, between the drawers and the desk
@@ -78,12 +78,10 @@ func begin(w: Node, restoring: bool) -> void:
 	if not Game.has_flag("p4_started"):
 		Game.set_flag("p4_started")
 		_apply()
-		_atmo_preset(false)
 		Dialogue.say("p4_start", false, true)
 		world._beacon("p4", market.global_transform * (SERVICE_FLASHLIGHT + Vector3(0, 0.8, 0)), Color(0.8, 0.9, 1.0))
 	else:
 		_apply()
-		_atmo_preset(true)
 		if Game.has_flag("p4_talk_done") and not Game.has_flag("p4_threat_done"):
 			_run_threat.call_deferred()            # an interrupted event plays again; completed ones never do
 	hud.set_objective(Game.current_goal(), Game.current_step().get("text", ""))
@@ -98,8 +96,11 @@ func _take_over_npcs() -> void:
 	# Phase 3 talk prompts (shop lines) are switched off; Phase 4 has its own
 	for k in ["shop/eddie", "p3/marcus"]:
 		if world.interactables.has(k):
+			# the old prompt sits on the same NPC with the same box and would win the player's ray
 			var it: Interactable = world.interactables[k]
-			it.set_deferred("monitorable", false)
+			world.interactables.erase(k)
+			it.collision_layer = 0
+			it.queue_free()
 	for pair in [[world.eddie, "Eddie", EDDIE_POS], [world.marcus, "Marcus", MARCUS_POS]]:
 		var n: Node3D = pair[0]
 		if n == null:
@@ -142,8 +143,8 @@ func _setup_doors() -> void:
 	its["loading_door"] = ld
 	its["back_door"] = bd
 	_base["back_ajar_deg"] = world._toward_deg(bd, 38.0, ml(Vector3(8.0, 1.0, 16.6)))
-	its["loading"] = _spot("P4_LoadingHandle", LOADING_HANDLE, Vector3(0.5, 1.6, 2.6), "[E] Pull the Loading Door Down", _pull_loading)
-	its["backdoor"] = _spot("P4_BackDoor", BACKDOOR_HANDLE, Vector3(1.1, 2.0, 0.35), "[E] Close the Back Door", _close_back)
+	its["loading"] = _spot("P4_LoadingHandle", LOADING_HANDLE, Vector3(0.5, 1.6, 1.7), "[E] Pull the Loading Door Down", _pull_loading)
+	its["backdoor"] = _spot("P4_BackDoor", BACKDOOR_HANDLE, Vector3(1.4, 2.0, 1.1), "[E] Close the Back Door", _close_back)
 	# a gap under the loading door: the mist creeps in
 	var gap: Area3D = world._area("P4_LoadingGapSeen", ml(Vector3(18.0, 1.0, 15.9)), Vector3(4.0, 2.0, 3.2), 2,
 		func(bb): if bb == player and not Game.has_flag("p4_loading_down"): Dialogue.say("p4_loading_gap", true), market.global_transform.basis)
