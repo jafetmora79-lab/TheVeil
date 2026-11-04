@@ -481,7 +481,7 @@ func _process(delta: float) -> void:
 			near = near or _near_doors(market.to_local(survivor.global_position))
 		if near != _doors_open and (_near_doors(pl) or not near):
 			_set_doors(near)
-	if following and not Game.has_flag("c5_street_said") and pl.z < OUTSIDE_Z - 10.0 and not Dialogue.is_busy():
+	if following and not Game.has_flag("c5_street_said") and _away_from_store(pl, 10.0) and not Dialogue.is_busy():
 		Game.set_flag("c5_street_said")
 		Dialogue.say("c5_street", false, true)
 	if Game.has_flag("c5_radio_done") and not Game.has_flag("c5_return_said") and not _in_house(player.global_position) \
@@ -490,13 +490,25 @@ func _process(delta: float) -> void:
 		Dialogue.say("c5_return", false, true)
 	if Game.has_flag("c5_radio_done") and not Game.has_flag("c5_returned"):
 		var surv_following := String(st().get("survivor", "")) == "following"
-		var player_in := pl.z > INSIDE_Z and absf(pl.x) < 20.0
+		var player_in := _in_store(pl)
 		# once the player is in the sales hall the companions close up, so nobody stops in the vestibule
 		eddie_follow.gap = 1.0 if player_in else 2.4
 		survivor_follow.gap = 1.6 if player_in else 4.2
-		var surv_ok := not surv_following or market.to_local(survivor.global_position).z > INSIDE_Z + 0.1
-		if player_in and el.z > INSIDE_Z + 0.1 and absf(el.x) < 20.0 and surv_ok:
+		var surv_ok := not surv_following or _in_store(market.to_local(survivor.global_position), 0.1)
+		if player_in and _in_store(el, 0.1) and surv_ok:
 			_returned()
+
+
+## market-local point inside the sales hall / back rooms (past the vestibule wall), with an optional margin
+func _in_store(l: Vector3, margin := 0.0) -> bool:
+	return l.z > INSIDE_Z + margin and l.z < 17.6 and absf(l.x) < 20.0
+
+
+## market-local point outside the building footprint (x -20..20, z 0..17.6) by at least `m` metres
+func _away_from_store(l: Vector3, m: float) -> bool:
+	var dx := maxf(absf(l.x) - 20.0, 0.0)
+	var dz := maxf(maxf(-l.z, l.z - 17.6), 0.0)
+	return Vector2(dx, dz).length() > m
 
 
 func _near_doors(l: Vector3) -> bool:
