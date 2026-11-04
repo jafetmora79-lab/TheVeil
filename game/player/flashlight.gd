@@ -26,6 +26,7 @@ var _rng := RandomNumberGenerator.new()
 
 func setup(p: Node3D, c: Dictionary) -> void:
 	player = p
+	add_to_group("veil_flashlight")                  # the inventory screen finds it for its item actions
 	for k in c:
 		cfg[k] = c[k]
 	for a in [["flashlight", KEY_F], ["reload", KEY_R]]:

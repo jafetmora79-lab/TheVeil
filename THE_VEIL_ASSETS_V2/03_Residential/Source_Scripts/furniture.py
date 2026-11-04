@@ -513,7 +513,9 @@ def _appl_door(name, x0, y0, w, h, z, mat, notes=False, round_top=False, bins=Fa
     mb.box(METAL, (w - 0.08, h * 0.45, 0.06), (w - 0.05, h * 0.75, 0.1))
     if notes:
         face_quad(mb, DET, drect("fridge_notes"), 0.12, h * 0.45, 0.46, h * 0.8, 0.062)
-    return {"name": name, "t": (x0, y0, z), "mb": mb, "extras": {"veil_interact": "hinge", "axis": "y", "open_deg": 100}}
+    # hinge on the leaf's left edge (local x 0, the leaf spans +x, front +z): a negative angle swings the free
+    # edge forward (+z). +100 swung it back into the appliance body.
+    return {"name": name, "t": (x0, y0, z), "mb": mb, "extras": {"veil_interact": "hinge", "axis": "y", "open_deg": -100}}
 
 
 def stove(name="RES_Stove_Electric", mat=None):
@@ -1204,11 +1206,55 @@ def newspaper():
 
 
 def radio():
+    """Portable AM/FM tabletop radio (early-2000s household): bevelled dark-plastic case, recessed speaker grille
+    with slats, frequency display window (node Radio_Display), volume + tuning knobs, power LED (node Radio_LED),
+    carry handle, telescopic antenna partly extended, battery door on the back, rubber feet. Front = +z.
+    The display and LED are separate nodes so the game can light them (game/props/veil_radio.gd)."""
     name = "RES_Radio"
+    w, h, d = 0.32, 0.18, 0.1
     mb = MB()
-    mb.box(WOOD_D, (-0.2, 0, -0.08), (0.2, 0.22, 0.08), uvrect={"+z": drect("keypad_radio")})
-    mb.tube(METAL, [(0.15, 0.22, 0), (0.25, 0.55, 0)], 0.005, 3)
-    return fmodel(name, "kitchen", mb, (0.4, 0.16, 0.22), cols=[], on_surface=True, prop=True)
+    case = m01("Furn_PlasticDirty")
+    dark = m01("Furn_Rubber")
+    rbox(mb, case, (-w / 2, 0.012, -d / 2), (w / 2, 0.012 + h, d / 2), r=0.022, axis="z", seg=2)
+    zf = d / 2
+    # speaker: recessed dark well + seven horizontal slats
+    mb.box(dark, (-0.145, 0.04, zf - 0.012), (-0.005, 0.165, zf + 0.001), skip=("-z",))
+    for k in range(7):
+        y = 0.05 + k * 0.016
+        mb.box(METAL, (-0.14, y, zf - 0.004), (-0.01, y + 0.007, zf + 0.004))
+    # display bezel; the window itself is a node
+    mb.box(dark, (0.012, 0.11, zf - 0.002), (0.148, 0.165, zf + 0.004))
+    # knobs (volume, tuning): short cylinders facing +z, with a pointer rib
+    for kx, kr in ((0.04, 0.018), (0.115, 0.022)):
+        k = MB()
+        k.cyl(dark, (0, 0, 0), kr, 0.018, seg=10, caps=("top",))
+        k.box(METAL, (-0.002, 0.012, kr * 0.4), (0.002, 0.019, kr * 0.95))
+        mb.merge(k, T(kx, 0.06, zf) @ Rx(math.pi / 2))
+    # band switch, carry handle, feet, back battery door
+    mb.box(METAL, (0.07, 0.092, zf), (0.09, 0.1, zf + 0.008))
+    mb.tube(case, [(-0.12, 0.012 + h, 0.0), (-0.11, 0.012 + h + 0.035, 0.0), (0.11, 0.012 + h + 0.035, 0.0), (0.12, 0.012 + h, 0.0)], 0.007, 4)
+    for fx in (-0.12, 0.12):
+        for fz in (-0.03, 0.03):
+            mb.box(dark, (fx - 0.015, 0.0, fz - 0.01), (fx + 0.015, 0.012, fz + 0.01))
+    mb.box(dark, (-0.09, 0.04, -zf - 0.003), (0.09, 0.13, -zf + 0.001))
+    # telescopic antenna: swivel block on the back-right corner, three sections, partly extended, tipped back
+    mb.box(METAL, (0.12, 0.012 + h, -0.035), (0.145, 0.012 + h + 0.012, -0.015))
+    base = np.array([0.1325, 0.012 + h + 0.012, -0.025])
+    tip_dir = nrm(np.array([0.25, 1.0, -0.35]))
+    pts, r = [base], [0.0045, 0.0035, 0.0026]
+    for i, ln in enumerate((0.11, 0.1, 0.08)):
+        a = pts[-1]
+        b = a + tip_dir * ln
+        mb.tube(METAL, [a, b], r[i], 5)
+        pts.append(b)
+    mb.cyl(METAL, tuple(pts[-1]), 0.005, 0.006, seg=6, caps=("top",))
+    disp = MB()
+    face_quad(disp, DETG, drect("keypad_radio"), -0.062, -0.022, 0.062, 0.022, 0.0)
+    led = MB()
+    led.box(DETG, (-0.004, -0.004, 0.0), (0.004, 0.004, 0.004), uvrect={f: drect("keypad_radio") for f in ("+z", "+x", "-x", "+y", "-y")})
+    return fmodel(name, "kitchen", mb, (w, d, h + 0.05), cols=[((-w / 2, 0.0, -d / 2), (w / 2, h + 0.012, d / 2))], on_surface=True, prop=True,
+                  nodes=[{"name": "Radio_Display", "t": (0.08, 0.1375, zf + 0.0045), "mb": disp},
+                         {"name": "Radio_LED", "t": (0.14, 0.1, zf), "mb": led}])
 
 
 def game_console():

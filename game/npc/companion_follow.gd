@@ -66,8 +66,13 @@ func _physics_process(delta: float) -> void:
 		end -= 1
 	var flat := Vector3(leader.global_position.x - npc.global_position.x, 0, leader.global_position.z - npc.global_position.z)
 	if end <= start or flat.length() < gap * 0.85:
+		if flat.length() < PERSONAL:
+			_step_aside(flat)                       # the player walked into him: make room, never block or clip
+			return
 		if anim.is_walking():
-			anim.walk_to([])                     # the leader stopped: wait
+			anim.walk_to([])                     # the leader stopped: wait, turned towards them
+		if not anim.is_walking():
+			anim.face_towards(leader.global_position)
 		trail = trail.slice(start)
 		return
 	var pts: Array = []
@@ -79,8 +84,59 @@ func _physics_process(delta: float) -> void:
 	for i in range(start, trail.size() - 1):
 		behind += (trail[i] as Vector3).distance_to(trail[i + 1])
 	var speed := walk_speed if behind < gap + 3.0 else lerpf(walk_speed, run_speed, clampf((behind - gap - 3.0) / 6.0, 0.0, 1.0))
+	if not pts.is_empty():
+		_open_doors_ahead(parent.global_transform * (pts[0] as Vector3) if parent else pts[0])
 	anim.walk_to(pts, speed)
 	trail = trail.slice(start)
+
+
+const PERSONAL := 0.95             ## closer than this to the leader and the companion steps aside
+var doors_opened := 0              ## tests
+var steps_aside := 0               ## tests
+
+
+## A door the leader shut behind them lies across the trail: the companion opens it instead of walking through.
+func _open_doors_ahead(next: Vector3) -> void:
+	var a := npc.global_position + Vector3(0, 1.0, 0)
+	var b := next + Vector3(0, 1.0, 0)
+	if a.distance_to(b) < 0.05:
+		return
+	var hit := npc.get_world_3d().direct_space_state.intersect_ray(PhysicsRayQueryParameters3D.create(a, b + (b - a).normalized() * 0.6, 1))
+	if hit.is_empty():
+		return
+	var n: Node = hit["collider"]
+	for _i in 4:
+		if n == null:
+			return
+		var it := n.get_node_or_null("Interact") as Interactable
+		if it and it.kind == "hinge":
+			if not it.is_open:
+				it.set_open(true)
+				Sfx.play("door_open", it.global_position, -2.0)
+				doors_opened += 1
+			return
+		n = n.get_parent()
+
+
+## Sidestep about a metre, perpendicular to the leader, onto walkable floor that no wall separates from him.
+func _step_aside(to_leader: Vector3) -> void:
+	if anim.is_walking():
+		return
+	var d := to_leader.normalized() if to_leader.length() > 0.01 else Vector3.FORWARD
+	var side := d.cross(Vector3.UP).normalized()
+	var space := npc.get_world_3d().direct_space_state
+	for cand in [side, -side, -d]:
+		var want: Vector3 = npc.global_position + (cand as Vector3) * 1.1
+		var q := PhysicsRayQueryParameters3D.create(npc.global_position + Vector3(0, 0.8, 0), want + Vector3(0, 0.8, 0), 1)
+		if not space.intersect_ray(q).is_empty():
+			continue
+		var f := _floor(want)
+		if absf(f.y - npc.global_position.y) > 0.35:
+			continue
+		var parent := npc.get_parent_node_3d()
+		anim.walk_to([parent.global_transform.affine_inverse() * f if parent else f], walk_speed)
+		steps_aside += 1
+		return
 
 
 ## Loads only (screen faded): put the companion back on the trail behind the leader, on solid floor.

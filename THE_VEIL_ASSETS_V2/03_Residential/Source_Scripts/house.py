@@ -445,7 +445,10 @@ class House:
         if o.get("paint"):
             paint = mat_of(o["paint"])
         elif exterior and o.get("style") == "front":
-            paint = mat_of(self.cw.get("door", "Town_PaintRed"))
+            # the Town_Paint* textures are flat, low-contrast stucco paints: on a door leaf at night they read as a
+            # concrete slab. Front doors get stained wood (grain, raised panels) instead.
+            dp = self.cw.get("door", "Town_PaintRed")
+            paint = mat_of("Furn_WoodDark" if dp.startswith("Town_Paint") else dp)
         elif exterior:
             paint = m01("Furn_WoodPainted")
         else:

@@ -642,6 +642,7 @@ func _run() -> void:
 	await frames(20)
 	ok("p3_mist_starts_inside", game.has_flag("p3_mist") and game.has_flag("phase2_done") and world.atmos != null and not world._outdoors())
 	ok("p3_cashier_gone", not world.cashier.visible)
+	ok("p3_marcus_before_colossus", world.marcus != null and world.marcus.is_visible_in_tree() and world.marcus.get_parent() == world.game_shop)
 	ok("p3_objective_look", game.current_step().get("id", "") == "p3_look", game.current_step().get("id", ""))
 	ok("survival_hidden_before", not world.hud.surv.visible and not player.survival_active)
 	await frames(60 * 6)
@@ -658,6 +659,9 @@ func _run() -> void:
 		"body at %.1f m, mist ceiling from %.1f m" % [r.get("body_height_m", -1.0), r.get("ceiling_m", -1.0)])
 	ok("encounter_face_shot", r.get("face_cam_distance_m", 0.0) > 0.6 and r.get("face_cam_distance_m", 9.0) < 1.6)
 	ok("encounter_looks_up", r.get("max_look_up_deg", 0.0) > 55.0, "%.0f deg" % r.get("max_look_up_deg", -1.0))
+	ok("colossus_claws_on_road", absf(r.get("foot_height_m", 9.0) - 0.02) < 0.1, "%.3f m" % r.get("foot_height_m", -1.0))
+	ok("colossus_foot_planted", r.get("foot_planted_drift_m", 9.0) < 0.05, "%.3f m" % r.get("foot_planted_drift_m", -1.0))
+	ok("colossus_audio_cleared", world._enc_sounds.is_empty())
 	ok("encounter_control_restored", not world._encounter_running and player.controls_enabled and player.camera.current)
 	ok("p3_objective_back", game.current_step().get("id", "") == "p3_back", game.current_step().get("text", ""))
 	ok("survival_on", player.survival_active and world.hud.surv.visible)
@@ -718,7 +722,15 @@ func _run() -> void:
 	player.global_position = s_in + gs.global_transform.basis.z * 1.5
 	await frames(20)
 	ok("p3_in_shop", game.has_flag("p3_in_shop"))
-	await frames(60 * 23)                        # Eddie heads for the back at ~22.7 s: sample his stride
+	var wt := 0
+	while not world._p3_shop_talked and wt < 60 * 60:
+		await frames(10)
+		wt += 10
+	ok("p3_shop_talk_finished", world._p3_shop_talked)
+	# the protagonist steps outside: Eddie and Marcus come with him (sample Eddie's stride while he follows)
+	player.global_position = s_out + (s_out - s_in).normalized() * 6.0      # well past the follow gap
+	await frames(30)
+	ok("p3_flee_together", world._p3_followers.size() == 2 and world._p3_followers.all(func(f): return f.active))
 	var leg_min := 999.0
 	var leg_max := -999.0
 	for i in 12:
@@ -734,9 +746,26 @@ func _run() -> void:
 	await frames(60 * 4)
 	ok("p3_shop_talk_done", world._p3_shop_talked and player.controls_enabled and player.camera.current)
 	await frames(10)
-	ok("p3_npcs_to_market", world.eddie.get_parent() == mk and world.marcus.get_parent() == mk)
 	player.global_position = mk.global_transform * Vector3(0, 0.2, 5.5)
 	await frames(60)
+	ok("p3_npcs_to_market", world.eddie.get_parent() == mk and world.marcus.get_parent() == mk and world._p3_followers.is_empty())
+	# the regroup walk from the entrance goes round the vestibule wall / carts, never through them
+	var nroute: Array = world.npc_route(mk, Vector3(0, 0.04, -0.5), Vector3(1.1, 0.04, 4.7))
+	var clear := nroute.size() >= 2
+	var prev := Vector3(0, 0.04, -0.5)
+	var sp := SphereShape3D.new()
+	sp.radius = 0.22
+	var qq := PhysicsShapeQueryParameters3D.new()
+	qq.shape = sp
+	qq.collision_mask = 1
+	for wp in nroute:
+		qq.transform = Transform3D(Basis(), mk.global_transform * (prev + Vector3(0, 0.8, 0)))
+		qq.motion = mk.global_transform.basis * ((wp as Vector3) - prev)
+		var cm: PackedFloat32Array = world.get_world_3d().direct_space_state.cast_motion(qq)
+		if cm.size() == 0 or cm[0] < 1.0:
+			clear = false
+		prev = wp
+	ok("npc_route_around_obstacles", clear, str(nroute))
 	ok("p3_in_market", game.has_flag("p3_in_market") and leaf.position.distance_to(leaf0) > 1.0 and game.current_step().get("id", "") == "mist_doors")
 	await frames(60 * 10)                        # the arrival conversation (talk camera) ends first
 	var shut = world.interactables["market/doors_shut"]
