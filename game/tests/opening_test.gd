@@ -87,9 +87,32 @@ func _run() -> void:
 	ok("fridge_found", fr != null)
 	if fr:
 		player.global_position = fr.global_position + (fr.global_transform.basis.z * 1.2)
+		var fbody := home.find_child("Fridge_Retro_01", true, false) as Node3D
+		var door_c := func() -> float:
+			var d := fr.target as Node3D
+			return (fbody.global_transform.affine_inverse() * (d.global_transform * Interactable.aabb_of(d).get_center())).z
+		var z_closed: float = door_c.call()
 		fr.interact(player)
 		await frames(40)
 		ok("fridge_opens", fr.is_open)
+		ok("fridge_swings_outward", door_c.call() > z_closed + 0.1, "front z %.2f -> %.2f" % [z_closed, door_c.call()])
+		var swung_in := 0
+		var names := []
+		for k in world.interactables:
+			var it = world.interactables[k]
+			if it.kind == "hinge" and k.contains("Furniture/"):
+				var fb := it.target as Node3D
+				while fb.get_parent().name != "Furniture":
+					fb = fb.get_parent()
+				var body: Vector3 = fb.global_transform * Interactable.aabb_of(fb).get_center()
+				var c0: float = (it.target.global_transform * Interactable.aabb_of(it.target).get_center()).distance_to(body)
+				it.set_open(true, true)
+				var c1: float = (it.target.global_transform * Interactable.aabb_of(it.target).get_center()).distance_to(body)
+				it.set_open(k.contains("Fridge"), true)
+				if c1 < c0 - 0.01:
+					swung_in += 1
+					names.append(k.get_file())
+		ok("furniture_doors_swing_outward", swung_in == 0, "inward=%d %s" % [swung_in, names])
 		ok("fridge_flag", game.has_flag("fridge_checked"))
 		ok("objective_keys", game.current_step().get("id", "") == "find_keys", game.current_step().get("text", ""))
 		var fridge_body := home.find_child("Fridge_Retro_01", true, false) as Node3D

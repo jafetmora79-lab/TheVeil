@@ -31,10 +31,6 @@ _subresources={
 "use_external/enabled": true,
 "use_external/path": "res://THE_VEIL_ASSETS_V2/Materials_Godot/Furniture/M_Furn_Cardboard.tres"
 },
-"M_Road_RoadPatch": {
-"use_external/enabled": true,
-"use_external/path": "res://THE_VEIL_ASSETS_V2/Materials_Godot/Roads/M_Road_RoadPatch.tres"
-},
 "M_Res_DetailAtlas": {
 "use_external/enabled": true,
 "use_external/path": "res://THE_VEIL_ASSETS_V2/03_Residential/Materials/M_Res_DetailAtlas.tres"
@@ -62,6 +58,10 @@ _subresources={
 "M_Town_PaintWhite": {
 "use_external/enabled": true,
 "use_external/path": "res://THE_VEIL_ASSETS_V2/02_Town/Materials/M_Town_PaintWhite.tres"
+},
+"M_Furn_Rubber": {
+"use_external/enabled": true,
+"use_external/path": "res://THE_VEIL_ASSETS_V2/Materials_Godot/Furniture/M_Furn_Rubber.tres"
 },
 "M_Furn_PlasticDirty": {
 "use_external/enabled": true,

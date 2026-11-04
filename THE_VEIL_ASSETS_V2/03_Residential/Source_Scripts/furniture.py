@@ -273,7 +273,7 @@ def tv_console():
     legs(mb, WOOD_D, w - 0.1, d - 0.1, 0.1, r=0.02, taper=1.4)
     face_quad(mb, DETG, drect("crt_screen"), -w / 2 + 0.07, 0.3, 0.2, h - 0.07, d / 2 + 0.002)
     face_quad(mb, DET, drect("keypad_radio"), 0.24, 0.3, w / 2 - 0.06, 0.6, d / 2 + 0.002)
-    mb.box(m01("Road_RoadPatch"), (-w / 2 + 0.05, 0.14, d / 2), (w / 2 - 0.05, 0.27, d / 2 + 0.003), skip=("-z",))   # speaker cloth
+    mb.box(TWEED, (-w / 2 + 0.05, 0.14, d / 2), (w / 2 - 0.05, 0.27, d / 2 + 0.003), skip=("-z",))   # speaker cloth
     return fmodel(name, "living", mb, (w, d, h), cols=[((-w / 2, 0, -d / 2), (w / 2, h, d / 2))], wall=True, clear_front=1.5, glow=True)
 
 
@@ -432,7 +432,7 @@ def fridge(name="RES_Fridge_Retro", mat=None, w=0.76, d=0.72, h=1.7, top_freezer
     mat = mat or mr("EnamelHarvest")
     mb = MB()
     rbox(mb, mat, (-w / 2, 0.04, -d / 2), (w / 2, h, d / 2 - 0.06), r=0.08)
-    mb.box(m01("Road_RoadPatch"), (-w / 2 + 0.05, 0.0, -d / 2 + 0.05), (w / 2 - 0.05, 0.04, d / 2 - 0.1))
+    mb.box(RUBBER, (-w / 2 + 0.05, 0.0, -d / 2 + 0.05), (w / 2 - 0.05, 0.04, d / 2 - 0.1))
     nodes = []
     if top_freezer:
         nodes.append(_appl_door("INT_ApplianceDoor_Freezer", -w / 2, h * 0.72, w, h * 0.27, d / 2 - 0.06, mat))
@@ -456,7 +456,7 @@ def stove(name="RES_Stove_Electric", mat=None):
     mb = MB()
     w, d, h = 0.76, 0.65, 0.92
     hollow(mb, mat, (-w / 2, 0.06, -d / 2), (w / 2, h, d / 2 - 0.03), skip=("+z",))
-    mb.box(m01("Road_RoadPatch"), (-w / 2 + 0.02, 0, -d / 2 + 0.03), (w / 2 - 0.02, 0.06, d / 2 - 0.06))
+    mb.box(RUBBER, (-w / 2 + 0.02, 0, -d / 2 + 0.03), (w / 2 - 0.02, 0.06, d / 2 - 0.06))
     mb.box(mat, (-w / 2, h, -d / 2), (w / 2, h + 0.18, -d / 2 + 0.06))              # backsplash with knobs
     for k in range(4):
         mb.box(PLASTIC, (-0.29 + k * 0.18, h + 0.07, -d / 2 + 0.06), (-0.25 + k * 0.18, h + 0.11, -d / 2 + 0.085))
@@ -478,7 +478,7 @@ def counter(name="RES_Counter_Base_1.2", w=1.2, sink=False, drawers=True, top=No
     mb = MB()
     d, h = 0.6, 0.92
     hollow(mb, WOOD_P, (-w / 2, 0.1, -d / 2), (w / 2, h - 0.04, d / 2 - 0.02), skip=("+z",))
-    mb.box(m01("Road_RoadPatch"), (-w / 2 + 0.02, 0, -d / 2 + 0.02), (w / 2 - 0.02, 0.1, d / 2 - 0.08), skip=("-y",))   # toe kick
+    mb.box(WOOD_D, (-w / 2 + 0.02, 0, -d / 2 + 0.02), (w / 2 - 0.02, 0.1, d / 2 - 0.08), skip=("-y",))   # toe kick
     mb.box(top, (-w / 2, h - 0.04, -d / 2), (w / 2, h, d / 2 + 0.02))
     mb.box(top, (-w / 2, h, -d / 2), (w / 2, h + 0.1, -d / 2 + 0.02))   # backsplash
     nodes = []
@@ -536,7 +536,7 @@ def island():
     mb = MB()
     w, d, h = 1.5, 0.8, 0.92
     mb.box(WOOD_P, (-w / 2 + 0.05, 0.1, -d / 2 + 0.05), (w / 2 - 0.05, h - 0.04, d / 2 - 0.05))
-    mb.box(m01("Road_RoadPatch"), (-w / 2 + 0.08, 0, -d / 2 + 0.08), (w / 2 - 0.08, 0.1, d / 2 - 0.08), skip=("-y",))
+    mb.box(WOOD_D, (-w / 2 + 0.08, 0, -d / 2 + 0.08), (w / 2 - 0.08, 0.1, d / 2 - 0.08), skip=("-y",))
     mb.box(WOOD_L, (-w / 2, h - 0.05, -d / 2), (w / 2, h, d / 2))   # butcher block
     return fmodel(name, "kitchen", mb, (w, d, h), cols=[((-w / 2, 0, -d / 2), (w / 2, h, d / 2))], center=True, surface_y=h)
 
@@ -737,7 +737,7 @@ def wardrobe():
     hollow(mb, WOOD_D, (-w / 2, 0.06, -d / 2), (w / 2, h, d / 2 - 0.02), skip=("+z",))
     mb.box(WOOD_D, (-w / 2 - 0.03, h, -d / 2 - 0.02), (w / 2 + 0.03, h + 0.06, d / 2 + 0.01))
     mb.box(WOOD_D, (-w / 2, 0, -d / 2), (w / 2, 0.06, d / 2 - 0.04))
-    hollow(mb, m01("Road_RoadPatch"), (-w / 2 + 0.03, 0.08, -d / 2 + 0.03), (w / 2 - 0.03, h - 0.03, d / 2 - 0.03), skip=("+z",))
+    hollow(mb, WOOD_L, (-w / 2 + 0.03, 0.08, -d / 2 + 0.03), (w / 2 - 0.03, h - 0.03, d / 2 - 0.03), skip=("+z",))
     mb.tube(METAL, [(-w / 2 + 0.05, h - 0.2, 0.0), (w / 2 - 0.05, h - 0.2, 0.0)], 0.012, 4)
     for k in range(4):   # hanging shirts
         rbox(mb, [DENIM, TWEED, mr("Gingham"), mr("FabricPlaid")][k], (-0.35 + k * 0.18, h - 1.05, -0.2), (-0.25 + k * 0.18, h - 0.22, 0.2),
@@ -824,7 +824,7 @@ def bath_sink(name="RES_BathSink_Pedestal", vanity=False):
         mb.cyl(PORC, (0, 0, 0), 0.12, h - 0.15, seg=8, r_top=0.08, caps=())
         rbox(mb, PORC, (-w / 2, h - 0.18, -d / 2), (w / 2, h, d / 2), r=0.06)
         cols = [((-w / 2, 0, -d / 2), (w / 2, h, d / 2))]
-    mb.box(m01("Road_RoadPatch"), (-0.18, h + 0.001, -0.1), (0.18, h + 0.002, 0.14), skip=("-y",))   # basin shadow
+    mb.box(METAL, (-0.18, h + 0.001, -0.1), (0.18, h + 0.002, 0.14), skip=("-y",))   # basin shadow
     mb.tube(METAL, [(0, h, -d / 2 + 0.05), (0, h + 0.16, -d / 2 + 0.05), (0, h + 0.17, -d / 2 + 0.15)], 0.013, 5, caps=True)
     return fmodel(name, "bathroom", mb, (w, d, h), cols=cols, nodes=nodes, wall=True, clear_front=0.6, surface_y=h)
 
@@ -894,7 +894,7 @@ def medicine_cabinet():
     mb = MB()
     w, h, d = 0.5, 0.65, 0.14
     mb.box(WHITE, (-w / 2, -h / 2, 0), (w / 2, h / 2, d), skip=("-z", "+z"))
-    mb.box(m01("Road_RoadPatch"), (-w / 2 + 0.02, -h / 2 + 0.02, 0.0), (w / 2 - 0.02, h / 2 - 0.02, 0.005), skip=("-z",))
+    mb.box(WHITE, (-w / 2 + 0.02, -h / 2 + 0.02, 0.0), (w / 2 - 0.02, h / 2 - 0.02, 0.005), skip=("-z",))
     for y in (-0.1, 0.12):
         mb.box(WHITE, (-w / 2 + 0.02, y, 0.01), (w / 2 - 0.02, y + 0.015, d - 0.01))
     door = MB()
@@ -982,7 +982,7 @@ def cardboard_box(name="RES_CardboardBox_Closed", w=0.5, d=0.4, h=0.4, open_=Fal
             f = MB()
             f.box(CARD, (0, -0.005, -d / 2), (w / 2, 0.0, d / 2), skip=())
             mb.merge(f, T(a * w / 2, h, 0) @ Rz(ang if a < 0 else math.pi + ang))
-        mb.box(m01("Road_RoadPatch"), (-w / 2 + 0.01, h - 0.08, -d / 2 + 0.01), (w / 2 - 0.01, h - 0.079, d / 2 - 0.01), skip=("-y",))
+        mb.box(CARD, (-w / 2 + 0.01, h - 0.08, -d / 2 + 0.01), (w / 2 - 0.01, h - 0.079, d / 2 - 0.01), skip=("-y",))
     else:
         mb.box(m01("Furn_PlasticDirty"), (-0.04, h, -d / 2), (0.04, h + 0.002, d / 2), skip=("-y",))   # tape strip
     return fmodel(name, "garage", mb, (w, d, h), cols=[((-w / 2, 0, -d / 2), (w / 2, h, d / 2))], stackable=True)
@@ -1047,7 +1047,7 @@ def washer(name="RES_WashingMachine", dryer=False):
                       "extras": {"veil_interact": "hinge", "axis": "y", "open_deg": 100}})
         cols = [((-w / 2, 0, -d / 2), (w / 2, h + 0.2, d / 2))]
     else:
-        mb.box(m01("Road_RoadPatch"), (-0.22, h - 0.3, -0.18), (0.22, h - 0.29, 0.26), skip=("-y",))
+        mb.box(METAL, (-0.22, h - 0.3, -0.18), (0.22, h - 0.29, 0.26), skip=("-y",))
         lid = MB()
         lid.box(WHITE, (-w / 2, 0, 0), (w / 2, 0.03, d - 0.13), skip=())
         nodes.append({"name": "INT_Lid_Washer", "t": (0, h, -d / 2 + 0.12), "mb": lid,

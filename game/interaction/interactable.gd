@@ -17,6 +17,8 @@ signal used(by: Node)
 @export var label := "Object"
 @export var target: Node3D
 @export var open_deg := 90.0
+## local hinge axis (doors: Y; oven doors, lids: X)
+@export var hinge_axis := Vector3.UP
 @export var slide_axis := Vector3(0, 0, 1)
 @export var slide_dist := 0.4
 @export var item_id := ""
@@ -97,7 +99,7 @@ func set_open(v: bool, instant := false) -> void:
 		return
 	var t := _base
 	if v and kind == "hinge":
-		t = Transform3D(_base.basis * Basis(Vector3.UP, deg_to_rad(open_deg)), _base.origin)
+		t = Transform3D(_base.basis * Basis(hinge_axis.normalized(), deg_to_rad(open_deg)), _base.origin)
 	elif v and kind == "slide":
 		t = Transform3D(_base.basis, _base.origin + _base.basis * (slide_axis.normalized() * slide_dist))
 	if instant:

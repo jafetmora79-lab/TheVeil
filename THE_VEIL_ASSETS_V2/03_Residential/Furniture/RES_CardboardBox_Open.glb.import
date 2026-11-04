@@ -30,10 +30,6 @@ _subresources={
 "M_Furn_Cardboard": {
 "use_external/enabled": true,
 "use_external/path": "res://THE_VEIL_ASSETS_V2/Materials_Godot/Furniture/M_Furn_Cardboard.tres"
-},
-"M_Road_RoadPatch": {
-"use_external/enabled": true,
-"use_external/path": "res://THE_VEIL_ASSETS_V2/Materials_Godot/Roads/M_Road_RoadPatch.tres"
 }
 }
 }
