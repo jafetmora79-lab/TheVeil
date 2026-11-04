@@ -154,6 +154,16 @@ func look(it: Node3D) -> bool:
 	return player._focus == it
 
 
+## The loot sits inside its container: within the container piece's footprint and below its top.
+func _inside(item: Interactable, container: Interactable) -> bool:
+	var piece := container.get_parent().get_parent() as Node3D
+	var a: AABB = Interactable.aabb_of(piece).grow(0.02)
+	var p := piece.to_local(item.target.global_position + Vector3(0, 0.03, 0))
+	if container.kind == "slide":
+		p = piece.to_local(item.target.global_position + Vector3(0, 0.03, 0))
+	return a.has_point(p)
+
+
 func walk_world(pts: Array) -> bool:
 	for p in pts:
 		if not await walk_to(p as Vector3):
@@ -249,7 +259,7 @@ func _run() -> void:
 	ok("c5_enter_house", await walk_route([Vector3(-1.6, 0.8, 2.6), Vector3(-1.6, 0.8, 4.6)], h) and game.has_flag("c5_house_reached"))
 	for k in ["food", "batteries", "medical"]:
 		var item: Interactable = c5.its["item_" + k]
-		ok("c5_item_hidden_" + k, not item.target.visible and item.collision_layer == 0)
+		ok("c5_item_in_closed_container_" + k, item.collision_layer == 0 and not item.taken)
 	var stands := {
 		"food": [[Vector3(-2.0, 0.8, 6.0), Vector3(-2.0, 0.8, 7.4), Vector3(-2.7, 0.8, 8.6), Vector3(-2.7, 0.8, 10.25), Vector3(-1.8, 0.8, 10.25)], ""],
 		"medical": [[Vector3(-0.6, 0.8, 10.25), Vector3(-0.5, 0.8, 8.6)], "c5/HOUSE_04/INT_Door_Bath",
@@ -268,11 +278,14 @@ func _run() -> void:
 				door.interact(world.player)
 			await watch_frames(40)
 			reached = reached and await walk_route(plan[2], h)
-		var sk: Interactable = c5.its[c5.SEARCH[k][0]]
+		var sk: Interactable = c5.scav._loot_container[k]
 		var item: Interactable = c5.its["item_" + k]
-		ok("c5_search_reach_" + k, reached and await look(sk), str(h.to_local(world.player.global_position)))
+		ok("c5_container_reach_" + k, reached and await look(sk), "%s %s" % [h.to_local(world.player.global_position), sk.get_parent().name])
+		ok("c5_cant_take_through_closed_" + k, item.collision_layer == 0)
 		sk.interact(world.player)
-		await watch_frames(20)
+		await watch_frames(30)
+		ok("c5_container_open_" + k, sk.is_open)
+		ok("c5_item_inside_" + k, _inside(item, sk), str(item.target.global_position))
 		ok("c5_item_reach_" + k, await look(item))
 		item.interact(world.player)
 		await watch_frames(10)
@@ -280,7 +293,7 @@ func _run() -> void:
 			ok("c5_eddie_follows_inside", await wait_until(func(): return c5._in_house(c5.eddie.global_position), 60 * 10),
 				"eddie %s" % h.to_local(c5.eddie.global_position))
 	ok("c5_food_in_inventory", game.has_item("canned_food"))
-	ok("c5_medical_in_inventory", game.has_item("first_aid_kit"))
+	ok("c5_medical_in_inventory", game.has_item("painkillers"))
 	ok("c5_batteries_real", game.has_item("batteries") and p4.flashlight.spares == spares0 + 2, "spares %d -> %d" % [spares0, p4.flashlight.spares])
 	ok("c5_supplies_done", game.has_flag("c5_supplies_done") and game.current_step().get("id", "") == "c5_radio")
 	ok("c5_found_line", game.has_flag("c5_found_said"))
@@ -346,7 +359,7 @@ func _run() -> void:
 	await reload()
 	ok("c5_load_complete", game.has_flag("c5_complete") and c5.eddie.get_parent() == world.market
 		and c5.survivor.visible and c5.st()["survivor"] == "shelter" and world.phase4.rest.interactable.prompt_text == "[E] Sleep"
-		and game.has_item("first_aid_kit") and world.find_children("Eddie", "", true, false).size() == 1)
+		and game.has_item("painkillers") and world.find_children("Eddie", "", true, false).size() == 1)
 	p4.rest.interactable.interact(world.player)
 	ok("c5_rest_confirm", await wait_until(func(): return p4.choice.is_open(), 60))
 	p4.choice.pick(0)
