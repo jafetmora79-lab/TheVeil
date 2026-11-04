@@ -440,7 +440,7 @@ func _talk_eddie(_b: Node) -> void:
 		return
 	_busy["talk"] = true
 	its["npc_Eddie"].prompt_text = ""
-	await _say_wait("c5_eddie_morning")
+	await _talk("c5_eddie_morning", eddie)
 	Game.set_flag("c5_eddie_talked")
 	_busy["talk"] = false
 	_after_talk()
@@ -456,7 +456,7 @@ func _talk_marcus(_b: Node) -> void:
 		return
 	_busy["talk"] = true
 	its["npc_Marcus"].prompt_text = ""
-	await _say_wait("c5_marcus_morning")
+	await _talk("c5_marcus_morning", marcus)
 	Game.set_flag("c5_marcus_talked")
 	_busy["talk"] = false
 	_after_talk()
@@ -538,7 +538,7 @@ func _use_radio(_b: Node) -> void:
 	its["radio"].prompt_text = ""
 	await (radio as VeilRadio).play_broadcast("c5_radio_broadcast")
 	await get_tree().create_timer(1.2).timeout      # the transmission stops: silence
-	await _say_wait("c5_radio_eddie")
+	await _talk("c5_radio_eddie", eddie)
 	Game.set_flag("c5_radio_done")
 	world._beacon("c5", ml(Vector3(0, 3.0, -1.5)), Color(0.8, 0.9, 1.0))
 	_refresh_prompts()
@@ -579,7 +579,7 @@ func _survivor_encounter() -> void:
 	survivor.visible = true
 	if door and not door.is_open:
 		door.set_open(true)
-	Dialogue.say("c5_survivor", false, true)
+	world.converse(["c5_survivor"], [survivor])
 
 
 func _on_choices(id: String, choices: Array) -> void:
@@ -689,7 +689,7 @@ func _report() -> void:
 		return
 	_busy["report"] = true
 	its["npc_Marcus"].prompt_text = ""
-	await _say_wait("c5_report")
+	await _talk("c5_report", marcus)
 	if Game.has_flag("c5_survivor_helped"):
 		await _say_wait("c5_report_survivor")
 	Game.set_flag("c5_reported")
@@ -738,6 +738,19 @@ func _set_doors(open: bool) -> void:
 		tw.tween_property(leaf, "transform", t, 0.8)
 		_door_tweens.append(tw)
 	Sfx.play("door_open" if open else "door_close", ml(Vector3(0, 1.2, 0.2)), -4.0, 0.7)
+
+
+## A stationary NPC conversation: through the world's talk camera (zoom on the speaker, player held); falls
+## back to plain timed lines when no talk camera is possible (in the car, an encounter, NPC not in view).
+func _talk(id: String, npc: Node3D) -> void:
+	var ok := false
+	if npc and world.has_method("converse"):
+		ok = await world.converse([id], [npc])
+	if not ok:
+		Dialogue.say(id, false, true)
+	await get_tree().process_frame
+	while Dialogue.is_busy() or (world.get("conversing") == true):
+		await get_tree().process_frame
 
 
 func _say_wait(id: String) -> void:

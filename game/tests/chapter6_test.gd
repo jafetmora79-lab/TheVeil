@@ -248,6 +248,7 @@ const INTO_STORE := [Vector3(0.3, 0.2, -2.5), Vector3(0.3, 0.2, 1.2), Vector3(1.
 func _run() -> void:
 	game = root.get_node("Game")
 	ps = load("res://game/scenes/World.tscn")
+	root.get_node("Dialogue").auto_confirm = true     # the "player" confirms each conversation line
 	root.get_node("Dialogue").line_started.connect(func(_s, t, _d): said.append(t))
 	DEV.prepare(game)
 	world = ps.instantiate()

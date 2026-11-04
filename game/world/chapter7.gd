@@ -291,7 +291,7 @@ func _talk_marcus(_b: Node) -> void:
 		return
 	_busy["talk"] = true
 	its["npc_Marcus"].prompt_text = ""
-	await c5._say_wait("c7_marcus")
+	await c5._talk("c7_marcus", marcus)
 	Game.set_flag("ch7_marcus_briefing_complete")
 	_busy["talk"] = false
 	_refresh_prompts()
@@ -307,7 +307,7 @@ func _talk_eddie(_b: Node) -> void:
 		return
 	_busy["talk"] = true
 	its["npc_Eddie"].prompt_text = ""
-	await c5._say_wait("c7_eddie")
+	await c5._talk("c7_eddie", eddie)
 	# Marcus is ready: he walks with the player from here (to the doors and out)
 	st()["marcus"] = "following"
 	c5._reparent(marcus, world)
@@ -330,7 +330,7 @@ func _examine_backpack(_b: Node) -> void:
 		return
 	_busy["bag"] = true
 	its["backpack"].prompt_text = ""
-	await c5._say_wait("c7_backpack")
+	await c5._talk("c7_backpack", marcus)
 	# a key item, through the normal inventory (no new interface); the note inside is its own document
 	Game.add_item("noahs_backpack")
 	Game.add_item("noahs_note")
@@ -366,7 +366,7 @@ func _after_note() -> void:
 	_busy["note"] = true
 	if hud.has_method("set_hint"):
 		hud.set_hint("")
-	await c5._say_wait("c7_note")
+	await c5._talk("c7_note", marcus)
 	Game.set_flag("noah_clue_backpack")
 	_busy["note"] = false
 	_guide()
@@ -377,7 +377,7 @@ func _road() -> void:
 	if Game.has_flag("ch7_road_reached") or not Game.has_flag("noah_clue_backpack"):
 		return
 	Game.set_flag("ch7_road_reached")
-	Dialogue.say("c7_road", false, true)
+	world.converse(["c7_road"], [marcus])
 
 
 func _on_choices(id: String, choices: Array) -> void:
@@ -451,7 +451,7 @@ func _report() -> void:
 		return
 	_busy["report"] = true
 	its["npc_Eddie"].prompt_text = ""
-	await c5._say_wait("c7_report")
+	await c5._talk("c7_report", eddie)
 	Game.set_flag("ch7_report_complete")
 	Game.set_flag("chapter_7_complete")              # Chapter 8 is NOT started here
 	_busy["report"] = false

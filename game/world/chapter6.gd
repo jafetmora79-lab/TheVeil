@@ -296,7 +296,7 @@ func _talk_marcus(_b: Node) -> void:
 		return
 	_busy["talk"] = true
 	its["npc_Marcus"].prompt_text = ""
-	await c5._say_wait("c6_marcus")
+	await c5._talk("c6_marcus", marcus)
 	Game.set_flag("ch6_marcus_briefing_complete")
 	_busy["talk"] = false
 	_refresh_prompts()
@@ -307,7 +307,7 @@ func _talk_eddie(_b: Node) -> void:
 		return
 	_busy["talk"] = true
 	its["npc_Eddie"].prompt_text = ""
-	await c5._say_wait("c6_eddie")
+	await c5._talk("c6_eddie", eddie)
 	Game.set_flag("ch6_eddie_talked")
 	_busy["talk"] = false
 	_refresh_prompts()
@@ -364,7 +364,7 @@ func _ruth_sarah() -> void:
 	sarah.visible = true
 	if _door and not _door.is_open:
 		_door.set_open(true)
-	Dialogue.say("c6_ruth_sarah", false, true)
+	world.converse(["c6_ruth_sarah"], [ruth])
 
 
 func _on_choices(id: String, choices: Array) -> void:
@@ -628,7 +628,7 @@ func _report() -> void:
 		return
 	_busy["report"] = true
 	its["npc_Marcus"].prompt_text = ""
-	await c5._say_wait("c6_report_a")
+	await c5._talk("c6_report_a", marcus)
 	await c5._say_wait("c6_report_" + String(st().get("ruth_sarah_choice", "leave")))
 	await c5._say_wait("c6_report_b")
 	Game.set_flag("chapter_6_complete")              # Chapter 7 is NOT started here
