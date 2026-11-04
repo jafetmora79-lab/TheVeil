@@ -155,6 +155,11 @@ func look(it: Node3D) -> bool:
 	var v := (c - eye).normalized()
 	player.set_yaw_pitch(atan2(-v.x, -v.z), asin(clampf(v.y, -1.0, 1.0)))
 	await watch_frames(5)
+	if player._focus != it and it is Interactable:
+		# from a slight angle the nearest face can be the neighbouring door's edge: aim at the box centre instead
+		v = ((it as Interactable).focus_point() - eye).normalized()
+		player.set_yaw_pitch(atan2(-v.x, -v.z), asin(clampf(v.y, -1.0, 1.0)))
+		await watch_frames(5)
 	return player._focus == it
 
 
