@@ -1917,9 +1917,9 @@
     },
     {
      "model": "RES_ElectricalPanel",
-     "x": 19.9,
-     "z": 14.9,
-     "yaw_deg": -90.0,
+     "x": 16.9,
+     "z": 17.5,
+     "yaw_deg": 180.0,
      "room": "BACK",
      "footprint": null,
      "outdoor": false,

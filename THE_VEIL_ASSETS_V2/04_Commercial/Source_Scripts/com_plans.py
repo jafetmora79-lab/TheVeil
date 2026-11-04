@@ -315,7 +315,9 @@ SUPERMARKET = dict(
         [("COM_PalletStack", x, 15.2, 0, "BACK", {}) for x in (2.5, 4.0)] +
         [("RES_Shelving_Metal", x, 17.27, 180, "BACK", {}) for x in (10.2, 11.5, 12.8)] +
         [("RES_CardboardBox_Stack", 6.5, 17.1, 0, "BACK", {}), ("RES_CardboardBox_Closed", 5.4, 17.0, 20, "BACK", {}),
-         ("RES_ElectricalPanel", 19.9, 14.9, -90, "BACK", {"y": 1.2, "fp": False})] +
+         # breaker panel on the back wall beside the loading bay (it used to sit at x 19.9 / z 14.9, i.e. on the
+         # roll-up door itself: the right wall is the 2.8 m door with only 0.3 m of wall either side)
+         ("RES_ElectricalPanel", 16.9, 17.5, 180, "BACK", {"y": 1.2, "fp": False})] +
         [("RES_Desk_Computer", -18.5, 17.2, 180, "OFFICE", {}), ("RES_DeskChair_Office", -18.5, 16.4, 180, "OFFICE", {}),
          ("COM_FilingCabinet", -19.57, 15.0, 90, "OFFICE", {}), ("RES_WallCalendar", -17.07, 16.0, -90, "OFFICE", {"y": 1.5, "fp": False})] +
         [("RES_Toilet", -15.8, 17.15, 180, "RESTRM", {}), ("RES_BathSink_Pedestal", -16.65, 15.3, 90, "RESTRM", {})] +
