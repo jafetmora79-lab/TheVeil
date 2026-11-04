@@ -32,7 +32,7 @@ const SARAH_DOOR := Vector3(1.9, 0.6, 4.9)
 const YARD := [Vector3(0.0, 1.5, -1.6), Vector3(10.0, 3.0, 9.2)]   # front yard, from the fence gap to the porch
 # world (measured on the collision map: open alley z -76..-77 behind the first house row, side street x 56-67)
 const INVESTIGATE_SPOT := Vector3(47.0, 0.2, -77.0)
-const ALLEY_PATROL := [Vector3(26.0, 0.2, -77.0), Vector3(44.0, 0.2, -77.0), Vector3(35.0, 0.2, -76.6)]
+const ALLEY_PATROL := [Vector3(35.0, 0.2, -76.9), Vector3(46.0, 0.2, -76.9)]   # straight, clear of the fence posts
 const RETREAT_PATROL := [Vector3(61.0, 0.2, -36.0), Vector3(65.0, 0.2, -27.0), Vector3(58.0, 0.2, -30.0)]
 const ESCAPE_DISTANCE := 24.0                          # out of the Hound's reach: encounter over
 const CHECKPOINT_HEALTH := 22.0                        # below this a bite ends in the safe checkpoint, not death

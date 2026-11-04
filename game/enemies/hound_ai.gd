@@ -42,6 +42,8 @@ var _bite_t := 0.0
 var _stuck_t := 0.0
 var _last_pos := Vector3.ZERO
 var _anim_cur := ""
+var _patrol_stuck := 0.0
+var _patrol_ref := Vector3.ZERO
 
 
 func setup(p_body: CharacterBody3D, p_player: CharacterBody3D, points: Array) -> void:
@@ -52,6 +54,20 @@ func setup(p_body: CharacterBody3D, p_player: CharacterBody3D, points: Array) ->
 	anim = body.get_node_or_null(String(body.get_meta("animation_player", "Model/AnimationPlayer"))) as AnimationPlayer
 	body.collision_layer = 1
 	body.collision_mask = 1
+	# the scene's long body box + forward head box swing into fences when the Hound turns and wedge it there;
+	# an upright capsule (rotation-invariant) keeps the same footprint for walls without ever turning into them
+	for n in ["BodyShape", "HeadShape"]:
+		var cs := body.get_node_or_null(n) as CollisionShape3D
+		if cs:
+			cs.disabled = true
+	var cap := CollisionShape3D.new()
+	cap.name = "AIShape"
+	var c := CapsuleShape3D.new()
+	c.radius = 0.36
+	c.height = 0.95
+	cap.shape = c
+	cap.position = Vector3(0, 0.78, 0.3)
+	body.add_child(cap)
 	body.floor_snap_length = 0.4
 	_last_pos = body.global_position
 	_target = patrol[0] if patrol.size() > 0 else home
@@ -59,11 +75,18 @@ func setup(p_body: CharacterBody3D, p_player: CharacterBody3D, points: Array) ->
 
 
 func reset_to_patrol(far_from: Vector3) -> void:
-	# loads / checkpoints: back on patrol, at the patrol point farthest from `far_from`, unaware
-	var best := home
+	# loads / checkpoints: back on patrol, unaware, at the nearest patrol point that is still a safe distance
+	# (>= 12 m) from the player, so the encounter goes on instead of counting as escaped
+	var best := Vector3.INF
+	var far := home
 	for p in patrol:
-		if (p as Vector3).distance_to(far_from) > best.distance_to(far_from):
+		var d := (p as Vector3).distance_to(far_from)
+		if d > far.distance_to(far_from):
+			far = p
+		if d >= 12.0 and (best == Vector3.INF or d < best.distance_to(far_from)):
 			best = p
+	if best == Vector3.INF:
+		best = far
 	body.global_position = best
 	body.velocity = Vector3.ZERO
 	_snap_floor()
@@ -94,7 +117,16 @@ func _physics_process(delta: float) -> void:
 					state = "PATROL"
 			if state == "PATROL" or state == "RETURN":
 				var goal: Vector3 = home if state == "RETURN" else _target
-				if state == "PATROL" and _flat(body.global_position, _target) < 1.0 and patrol.size() > 0:
+				# real progress check: under 0.5 m in 3 s means the patrol point is not reachable from here
+				_patrol_stuck += delta
+				if _patrol_stuck > 3.0:
+					var blocked := _flat(body.global_position, _patrol_ref) < 0.5
+					_patrol_ref = body.global_position
+					_patrol_stuck = 0.0
+					if blocked and state == "PATROL" and patrol.size() > 0:
+						_pi = (_pi + 1) % patrol.size()
+						_target = patrol[_pi]
+				if state == "PATROL" and _flat(body.global_position, _target) < 1.3 and patrol.size() > 0:
 					_pi = (_pi + 1) % patrol.size()
 					_target = patrol[_pi]
 				_move_to(goal, walk_speed, delta, "Walk")

@@ -318,13 +318,13 @@ func _run() -> void:
 	# ---- scene 6: the Hound (investigate)
 	_trace = true
 	# stop at the side-street corner: the Hound patrols the alley ahead and comes into view
-	ok("c6_walk_to_alley", await walk_world(TO_ALLEY.slice(0, 2) + [Vector3(58.5, 0.2, -77.0)]), str(world.player.global_position))
+	ok("c6_walk_to_alley", await walk_world(TO_ALLEY.slice(0, 2) + [Vector3(54.0, 0.2, -77.0)]), str(world.player.global_position))
 	ok("c6_encounter_started", await wait_until(func(): return game.has_flag("ch6_hound_encounter_started"), 60 * 25)
-		and game.current_step().get("id", "") == "c6_avoid" and said.has("What the hell is that?"))
+		and game.current_step().get("id", "") == "c6_avoid" and await wait_until(func(): return said.has("What the hell is that?"), 60 * 2))
 	ok("c6_hound_on_floor", is_instance_valid(c6.hound) and absf(c6.hound.global_position.y - 0.15) < 0.25, str(c6.hound.global_position))
 	var hound_snap := snapshot()
 	# A) step into its sight, get noticed, sprint away up the side street: it must lose the player
-	await walk_world([Vector3(55.0, 0.2, -77.0)])
+	await walk_world([Vector3(50.0, 0.2, -77.0)])
 	ok("c6_hound_detects", await wait_until(func(): return is_instance_valid(c6.hound) and c6.hound_ai.state == "CHASE", 60 * 15))
 	ok("c6_run_line", await wait_until(func(): return said.has("RUN!"), 60 * 3))
 	Input.action_press("sprint")
@@ -340,7 +340,7 @@ func _run() -> void:
 	# B) (from the save at first sight) stand in its way: bites, never a death, the checkpoint takes over
 	_watch = false
 	await restore(hound_snap)
-	await walk_world([Vector3(60.0, 0.2, -56.0), Vector3(60.0, 0.2, -76.0), Vector3(55.0, 0.2, -77.0)])
+	await walk_world([Vector3(50.0, 0.2, -77.0)])
 	await wait_until(func(): return is_instance_valid(c6.hound) and c6.hound_ai.state == "CHASE", 60 * 15)
 	var hp0: float = world.player.health
 	ok("c6_hound_bites", await wait_until(func(): return world.player.health < hp0, 60 * 12), "hp %.0f" % world.player.health)
