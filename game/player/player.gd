@@ -170,7 +170,8 @@ func try_interact() -> void:
 
 
 func _input(event: InputEvent) -> void:
-	if event.is_action_pressed("interact") and visible:
+	if event.is_action_pressed("interact") and visible and controls_enabled:
+		get_viewport().set_input_as_handled()
 		try_interact()
 
 

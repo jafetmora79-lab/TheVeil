@@ -144,18 +144,23 @@ func swing_door(open: bool, t := 0.35) -> void:
 
 ## World position for the player to stand after leaving the car (driver side, then passenger side).
 func exit_spot(space: PhysicsDirectSpaceState3D, player_rid: RID) -> Variant:
+	var capsule := CapsuleShape3D.new()
+	capsule.radius = VeilPlayer.RADIUS
+	capsule.height = VeilPlayer.HEIGHT
+	var clearance := PhysicsShapeQueryParameters3D.new()
+	clearance.shape = capsule
+	clearance.collision_mask = 1 | 4
+	clearance.exclude = [player_rid]
 	for side in [-1.0, 1.0]:
-		var p := global_transform * Vector3(1.6 * side, 0.1, -0.3)
-		var q := PhysicsShapeQueryParameters3D.new()
-		var c := CapsuleShape3D.new()
-		c.radius = 0.3
-		c.height = 1.7
-		q.shape = c
-		q.transform = Transform3D(Basis(), p + Vector3(0, 0.95, 0))
-		q.collision_mask = 1 | 4
-		q.exclude = [get_rid(), player_rid]
-		if space.intersect_shape(q, 1).is_empty():
-			return p
+		var p := global_transform * Vector3(1.6 * side, 0.0, -0.3)
+		var ray := PhysicsRayQueryParameters3D.create(p + Vector3.UP * 0.6, p - Vector3.UP * 0.55, 1, [player_rid])
+		var ground := space.intersect_ray(ray)
+		if ground.is_empty() or ground.normal.y < cos(deg_to_rad(46.0)):
+			continue
+		var feet: Vector3 = ground.position + Vector3.UP * 0.03
+		clearance.transform = Transform3D(Basis(), feet + Vector3.UP * capsule.height * 0.5)
+		if space.intersect_shape(clearance, 1).is_empty():
+			return feet
 	return null
 
 
