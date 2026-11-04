@@ -11,8 +11,8 @@ class_name VeilCompanionFollow
 const STEP := 0.45                 # metres between breadcrumbs
 
 var gap := 2.4                     # trail distance kept behind the leader
-var walk_speed := 1.35
-var run_speed := 3.6
+var walk_speed := 1.9
+var run_speed := 4.6
 var leader: Node3D                 # usually the player
 var npc: Node3D
 var anim: Node                     # NpcAnimator
@@ -127,8 +127,13 @@ func _step_aside(to_leader: Vector3) -> void:
 	var space := npc.get_world_3d().direct_space_state
 	for cand in [side, -side, -d]:
 		var want: Vector3 = npc.global_position + (cand as Vector3) * 1.1
-		var q := PhysicsRayQueryParameters3D.create(npc.global_position + Vector3(0, 0.8, 0), want + Vector3(0, 0.8, 0), 1)
-		if not space.intersect_ray(q).is_empty():
+		# knee and chest height: tables and counters (top ~0.75 m) block a sidestep as much as walls do
+		var blocked := false
+		for hgt in [0.4, 0.8]:
+			var q := PhysicsRayQueryParameters3D.create(npc.global_position + Vector3(0, hgt, 0), want + Vector3(0, hgt, 0), 1)
+			if not space.intersect_ray(q).is_empty():
+				blocked = true
+		if blocked:
 			continue
 		var f := _floor(want)
 		if absf(f.y - npc.global_position.y) > 0.35:

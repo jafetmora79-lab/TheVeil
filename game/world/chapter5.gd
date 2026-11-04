@@ -31,7 +31,7 @@ const SURVIVOR_SPOT := Vector3(-1.0, 0.04, 4.3)
 const OUTSIDE_Z := -2.0                               # local z below this = outside the front doors
 const INSIDE_Z := 3.3                                 # local z above this = in the sales hall
 # HOUSE_04-local (Pack 03 cottage: furnishing placement from build_residential.furnish_instances)
-const RADIO_POS := Vector3(-1.55, 1.35, 9.3)                                 # round dining table
+const RADIO_POS := Vector3(-1.5, 1.35, 8.55)                                # round dining table (moved clear of the chimney stack at x -1.2, z 9.4)
 const HOUSE_RECT := [Vector2(-3.75, 2.4), Vector2(3.75, 11.4)]
 # HOUSE_05-local
 const SURVIVOR_POS := Vector3(-0.3, 0.6, 4.7)                                # foyer, behind the front door
