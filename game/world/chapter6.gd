@@ -34,6 +34,10 @@ const YARD := [Vector3(0.0, 1.5, -1.6), Vector3(10.0, 3.0, 9.2)]   # front yard,
 const INVESTIGATE_SPOT := Vector3(47.0, 0.2, -77.0)
 const ALLEY_PATROL := [Vector3(35.0, 0.2, -76.9), Vector3(46.0, 0.2, -76.9)]   # straight, clear of the fence posts
 const RETREAT_PATROL := [Vector3(61.0, 0.2, -36.0), Vector3(65.0, 0.2, -27.0), Vector3(58.0, 0.2, -30.0)]
+# where the branch's Hound scene begins: the player's own position must enter these (checked every tick)
+const INVESTIGATE_AREA := [Vector3(47.0, 1.5, -77.0), Vector3(7.0, 3.0, 3.6)]      # end of the alley, under the marker
+const RETREAT_AREA := [Vector3(58.5, 1.5, -47.5), Vector3(11.0, 3.0, 4.0)]         # east route home, by the store's corner
+const INVESTIGATE_HOUND := Vector3(37.0, 0.2, -76.9)    # it comes out of the fog ~10 m ahead, in view
 const ESCAPE_DISTANCE := 24.0                          # out of the Hound's reach: encounter over
 const CHECKPOINT_HEALTH := 22.0                        # below this a bite ends in the safe checkpoint, not death
 
@@ -61,6 +65,8 @@ var _streams := {}
 var _busy := {}
 var _tick := 0.0
 var _growl: AudioStreamPlayer3D
+var _inv_area: Area3D
+var _ret_area: Area3D
 
 
 func begin(w: Node, chapter5: Node, restoring: bool) -> void:
@@ -136,6 +142,8 @@ func _setup_ruth_sarah() -> void:
 		rs_house.add_child(block)
 		block.position = Vector3(2.6, 1.7, 3.45)
 	_yard = world._area("C6_RuthSarahYard", hl(YARD[0]), YARD[1], 2, func(b): if b == player: _ruth_sarah(), rs_house.global_transform.basis)
+	_inv_area = world._area("C6_InvestigateArea", INVESTIGATE_AREA[0], INVESTIGATE_AREA[1], 2, func(_b): pass)
+	_ret_area = world._area("C6_RetreatRouteArea", RETREAT_AREA[0], RETREAT_AREA[1], 2, func(_b): pass)
 
 
 func _setup_rest() -> void:
@@ -180,8 +188,16 @@ func _apply(restoring: bool) -> void:
 			var shown := Game.has_flag("ch6_ruth_sarah_heard") and not Game.has_flag("ch6_ruth_sarah_met")
 			ruth.visible = shown
 			sarah.visible = shown
-	# the Hound: never two; a load mid-encounter puts it back on patrol away from the player
-	if Game.has_flag("ch6_voice_choice_made") and not Game.has_flag("ch6_hound_encounter_complete"):
+	# saves made before this fix: an encounter already under way counts as its area reached
+	if Game.has_flag("ch6_hound_encounter_started") and not Game.has_flag("ch6_hound_encounter_complete"):
+		if Game.has_flag("ch6_voice_choice_investigate") and not Game.has_flag("ch6_investigation_reached"):
+			Game.flags["ch6_investigation_reached"] = true
+		if Game.has_flag("ch6_voice_choice_retreat") and not Game.has_flag("ch6_retreat_route_reached"):
+			Game.flags["ch6_retreat_route_reached"] = true
+	if Game.has_flag("ch6_voice_choice_made") and not Game.has_flag("ch6_voice_resolved") and Game.has_flag("ch6_investigation_reached"):
+		Game.flags["ch6_voice_resolved"] = true
+	# the Hound: only once its branch area was reached, never two; a load mid-encounter puts it back on patrol
+	if _area_reached() and not Game.has_flag("ch6_hound_encounter_complete"):
 		_spawn_hound()
 		if restoring:
 			hound_ai.reset_to_patrol(player.global_position)
@@ -206,7 +222,7 @@ func _guide() -> void:
 	world._clear_beacon("c6")
 	if Game.has_flag("ch6_left_supermarket") and not Game.has_flag("ch6_house_found"):
 		world._beacon("c6", hl(Vector3(2.6, 3.0, 1.0)), Color(0.8, 0.9, 1.0))
-	elif Game.has_flag("ch6_voice_choice_investigate") and not Game.has_flag("ch6_hound_encounter_started"):
+	elif Game.has_flag("ch6_voice_choice_investigate") and not Game.has_flag("ch6_investigation_reached"):
 		world._beacon("c6", INVESTIGATE_SPOT + Vector3(0, 2.5, 0), Color(0.8, 0.9, 1.0))
 	elif (Game.has_flag("ch6_hound_encounter_complete") or Game.has_flag("ch6_voice_choice_retreat")) \
 			and not Game.has_flag("ch6_returned_to_supermarket"):
@@ -240,9 +256,11 @@ func _update_marker() -> void:
 		label = "HOUSE"
 	elif not Game.has_flag("ch6_voice_choice_made"):
 		t = null
-	elif Game.has_flag("ch6_voice_choice_investigate") and not Game.has_flag("ch6_hound_encounter_started"):
+	elif Game.has_flag("ch6_voice_choice_investigate") and not Game.has_flag("ch6_investigation_reached"):
 		t = INVESTIGATE_SPOT + Vector3(0, 1.4, 0)
 		label = "VOICE"
+	elif Game.has_flag("ch6_voice_choice_investigate") and not Game.has_flag("ch6_hound_encounter_complete"):
+		t = null                                      # at the spot: the Hound scene, no marker
 	elif Game.has_flag("ch6_hound_encounter_started") and not Game.has_flag("ch6_hound_encounter_complete"):
 		t = null
 	elif not Game.has_flag("ch6_returned_to_supermarket"):
@@ -362,8 +380,11 @@ func _on_choices(id: String, choices: Array) -> void:
 		st()["voice_choice"] = key2                     # ch6_voice_choice = "investigate" / "retreat"
 		Game.set_flag(c2["flag"])
 		await c5._say_wait(c2["next"])
-		_spawn_hound()
+		# no Hound yet: investigate keeps "Investigate the distant voice" active until the player walks into the
+		# investigation area; retreat starts the way home (its Hound waits on the east route)
 		Game.set_flag("ch6_voice_choice_made")
+		if key2 == "retreat":
+			Game.set_flag("ch6_voice_resolved")
 		_guide()
 
 
@@ -402,7 +423,7 @@ func _spawn_hound() -> void:
 	hound_spawns += 1
 	var investigate := Game.has_flag("ch6_voice_choice_investigate")
 	var pts: Array = (ALLEY_PATROL if investigate else RETREAT_PATROL).duplicate()
-	hound.global_position = pts[0]
+	hound.global_position = INVESTIGATE_HOUND if investigate else pts[0]
 	hound_ai = HOUND_AI.new()
 	hound_ai.name = "AI"
 	hound.add_child(hound_ai)
@@ -454,8 +475,31 @@ func _checkpoint() -> void:
 	_busy["checkpoint"] = false
 
 
+func _area_reached() -> bool:
+	if Game.has_flag("ch6_voice_choice_investigate"):
+		return Game.has_flag("ch6_investigation_reached")
+	if Game.has_flag("ch6_voice_choice_retreat"):
+		return Game.has_flag("ch6_retreat_route_reached")
+	return false
+
+
+## The branch's scene begins only when the PLAYER (not Eddie, not a timer) is inside its area, once.
+func _branch_area_tick() -> void:
+	if not Game.has_flag("ch6_voice_choice_made") or Game.has_flag("ch6_hound_encounter_complete") or _area_reached():
+		return
+	if Game.has_flag("ch6_voice_choice_investigate") and _inv_area.overlaps_body(player):
+		Game.set_flag("ch6_investigation_reached")
+		Game.set_flag("ch6_voice_resolved")           # "Investigate the distant voice" is done: the player is there
+		_spawn_hound()
+		_guide()
+	elif Game.has_flag("ch6_voice_choice_retreat") and _ret_area.overlaps_body(player):
+		Game.set_flag("ch6_retreat_route_reached")
+		_spawn_hound()
+		_guide()
+
+
 func _encounter_tick() -> void:
-	if hound == null or not is_instance_valid(hound) or Game.has_flag("ch6_hound_encounter_complete"):
+	if hound == null or not is_instance_valid(hound) or Game.has_flag("ch6_hound_encounter_complete") or not _area_reached():
 		return
 	var d := player.global_position.distance_to(hound.global_position)
 	if not Game.has_flag("ch6_hound_encounter_started"):
@@ -525,10 +569,11 @@ func _process(delta: float) -> void:
 			and not _busy.get("voice_reoffer", false) and not Dialogue.is_busy() and not p4.choice.is_open():
 		_busy["voice_reoffer"] = true
 		Dialogue.say("c6_voice_eddie", false, true)
+	_branch_area_tick()
 	_encounter_tick()
-	# retreating home without ever meeting the Hound still ends the encounter (it was avoided)
-	if Game.has_flag("ch6_voice_choice_made") and not Game.has_flag("ch6_hound_encounter_complete") \
-			and not c5._away_from_store(pl, 6.0) and (hound == null or hound_ai.state != "CHASE"):
+	# RETREAT only: getting home without ever meeting the Hound ends the encounter (it was avoided by the west lane)
+	if Game.has_flag("ch6_voice_choice_retreat") and not Game.has_flag("ch6_hound_encounter_complete") \
+			and (c5._near_doors(pl) or c5._in_store(pl)) and (hound == null or hound_ai.state != "CHASE"):
 		if not Game.has_flag("ch6_hound_encounter_started"):
 			Game.set_flag("ch6_hound_encounter_started")
 		_complete_encounter()
