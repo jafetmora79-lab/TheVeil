@@ -1,0 +1,28 @@
+[gd_resource type="Resource" script_class="VeilAtmospherePreset" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://THE_VEIL_ASSETS_V2/09_Horror_Atmosphere/Atmosphere_Presets/veil_atmosphere_preset.gd" id="1_s"]
+
+[resource]
+script = ExtResource("1_s")
+preset_name = "Deep supernatural mist"
+sky_top = Color(0.3, 0.32, 0.33, 1)
+sky_horizon = Color(0.46, 0.49, 0.5, 1)
+ground_horizon = Color(0.44, 0.47, 0.48, 1)
+ambient_color = Color(0.42, 0.45, 0.47, 1)
+ambient_energy = 0.5
+sun_energy = 0
+sun_shadows = false
+fog_color = Color(0.56, 0.59, 0.6, 1)
+fog_density = 0.09
+fog_height = 6
+fog_height_density = 0.12
+fog_sky_affect = 1
+mist_enabled = true
+mist_color = Color(0.64, 0.68, 0.68, 1)
+mist_density = 0.95
+mist_height = 2.8
+mist_speed = 0.8
+mist_cards = 32
+flicker_amount = 0.7
+streetlight_energy = 0.6
+corruption_level = 2

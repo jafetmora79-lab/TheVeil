@@ -1,0 +1,46 @@
+[gd_scene load_steps=12 format=3]
+
+[ext_resource type="Environment" path="res://THE_VEIL_ASSETS_V2/09_Horror_Atmosphere/Atmosphere_Presets/ENV_Veil_Base.tres" id="1_ENV_Veil_Base"]
+[ext_resource type="PackedScene" path="res://THE_VEIL_ASSETS_V2/09_Horror_Atmosphere/Fog/VeilMist.tscn" id="2_VeilMist"]
+[ext_resource type="PackedScene" path="res://THE_VEIL_ASSETS_V2/09_Horror_Atmosphere/Environmental_Effects/LightRain.tscn" id="3_LightRain"]
+[ext_resource type="PackedScene" path="res://THE_VEIL_ASSETS_V2/09_Horror_Atmosphere/Environmental_Effects/DustMotes.tscn" id="4_DustMotes"]
+[ext_resource type="PackedScene" path="res://THE_VEIL_ASSETS_V2/09_Horror_Atmosphere/Environmental_Effects/DriftingLeaves.tscn" id="5_DriftingLeaves"]
+[ext_resource type="Resource" path="res://THE_VEIL_ASSETS_V2/09_Horror_Atmosphere/Atmosphere_Presets/STATE_NORMAL.tres" id="6_STATE_NORMAL"]
+[ext_resource type="Resource" path="res://THE_VEIL_ASSETS_V2/09_Horror_Atmosphere/Atmosphere_Presets/STATE_UNEASY.tres" id="7_STATE_UNEASY"]
+[ext_resource type="Resource" path="res://THE_VEIL_ASSETS_V2/09_Horror_Atmosphere/Atmosphere_Presets/STATE_VEIL_APPROACHING.tres" id="8_STATE_VEIL_APPROACHI"]
+[ext_resource type="Resource" path="res://THE_VEIL_ASSETS_V2/09_Horror_Atmosphere/Atmosphere_Presets/STATE_VEIL_ACTIVE.tres" id="9_STATE_VEIL_ACTIVE"]
+[ext_resource type="Resource" path="res://THE_VEIL_ASSETS_V2/09_Horror_Atmosphere/Atmosphere_Presets/STATE_CORRUPTED.tres" id="10_STATE_CORRUPTED"]
+[ext_resource type="Script" path="res://THE_VEIL_ASSETS_V2/09_Horror_Atmosphere/Atmosphere_Presets/veil_atmosphere.gd" id="11_veil_atmosphere"]
+
+[node name="VeilAtmosphereRig" type="Node3D"]
+
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="."]
+environment = ExtResource("1_ENV_Veil_Base")
+
+[node name="Sun" type="DirectionalLight3D" parent="."]
+transform = Transform3D(-0.7071, 0.0984, -0.7002, 0, 0.9903, 0.1392, 0.7071, 0.0984, -0.7002, 0, 30, 0)
+light_color = Color(1, 0.66, 0.42, 1)
+light_energy = 0.6
+shadow_enabled = true
+directional_shadow_mode = 0
+directional_shadow_max_distance = 45.0
+
+[node name="Mist" parent="." instance=ExtResource("2_VeilMist")]
+
+
+[node name="Rain" parent="Mist" instance=ExtResource("3_LightRain") groups=["veil_rain"]]
+
+
+[node name="Dust" parent="Mist" instance=ExtResource("4_DustMotes") groups=["veil_dust"]]
+
+
+[node name="Leaves" parent="Mist" instance=ExtResource("5_DriftingLeaves") groups=["veil_leaves"]]
+
+
+[node name="Atmosphere" type="Node" parent="." node_paths=PackedStringArray("world_environment", "sun", "mist")]
+script = ExtResource("11_veil_atmosphere")
+states = [ExtResource("6_STATE_NORMAL"), ExtResource("7_STATE_UNEASY"), ExtResource("8_STATE_VEIL_APPROACHI"), ExtResource("9_STATE_VEIL_ACTIVE"), ExtResource("10_STATE_CORRUPTED")]
+world_environment = NodePath("../WorldEnvironment")
+sun = NodePath("../Sun")
+mist = NodePath("../Mist")

@@ -1,0 +1,14 @@
+[gd_resource type="ShaderMaterial" load_steps=4 format=3]
+
+[ext_resource type="Shader" path="res://THE_VEIL_ASSETS_V2/09_Horror_Atmosphere/Supernatural_Details/veil_wrong_reflection.gdshader" id="1_sh"]
+[ext_resource type="Texture2D" path="res://THE_VEIL_ASSETS_V2/01_Textures/Architecture/T_Arch_WindowGlassDirty.png" id="2_t"]
+[ext_resource type="Texture2D" path="res://THE_VEIL_ASSETS_V2/09_Horror_Atmosphere/Textures/T_Veil_MistNoise.png" id="3_t"]
+
+[resource]
+render_priority = 0
+shader = ExtResource("1_sh")
+shader_parameter/glass_tex = ExtResource("2_t")
+shader_parameter/noise_tex = ExtResource("3_t")
+shader_parameter/tint = Color(0.32, 0.38, 0.4, 1)
+shader_parameter/strength = 0.35
+shader_parameter/speed = 0.05

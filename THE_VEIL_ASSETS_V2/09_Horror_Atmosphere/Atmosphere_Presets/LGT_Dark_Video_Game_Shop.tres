@@ -1,0 +1,17 @@
+[gd_resource type="Resource" script_class="VeilAtmospherePreset" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://THE_VEIL_ASSETS_V2/09_Horror_Atmosphere/Atmosphere_Presets/veil_atmosphere_preset.gd" id="1_s"]
+
+[resource]
+script = ExtResource("1_s")
+preset_name = "Dark video game shop (interior)"
+background_is_sky = false
+background_color = Color(0.02, 0.02, 0.03, 1)
+ambient_color = Color(0.3, 0.3, 0.42, 1)
+ambient_energy = 0.38
+sun_energy = 0
+sun_shadows = false
+fog_color = Color(0.08, 0.08, 0.12, 1)
+fog_density = 0.01
+flicker_amount = 0.4
+streetlight_energy = 0.8

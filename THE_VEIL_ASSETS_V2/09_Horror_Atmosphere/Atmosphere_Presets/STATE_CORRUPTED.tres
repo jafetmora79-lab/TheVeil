@@ -1,0 +1,30 @@
+[gd_resource type="Resource" script_class="VeilAtmospherePreset" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://THE_VEIL_ASSETS_V2/09_Horror_Atmosphere/Atmosphere_Presets/veil_atmosphere_preset.gd" id="1_s"]
+
+[resource]
+script = ExtResource("1_s")
+preset_name = "CORRUPTED"
+sky_top = Color(0.08, 0.08, 0.1, 1)
+sky_horizon = Color(0.22, 0.21, 0.24, 1)
+ground_horizon = Color(0.16, 0.15, 0.17, 1)
+ground_bottom = Color(0.04, 0.04, 0.05, 1)
+ambient_color = Color(0.3, 0.29, 0.34, 1)
+ambient_energy = 0.38
+sun_color = Color(0.55, 0.5, 0.6, 1)
+sun_energy = 0.08
+sun_shadows = false
+fog_color = Color(0.3, 0.3, 0.34, 1)
+fog_density = 0.04
+fog_sky_affect = 1
+mist_enabled = true
+mist_color = Color(0.42, 0.42, 0.46, 1)
+mist_density = 0.6
+mist_height = 1.2
+mist_speed = 0.6
+mist_cards = 16
+flicker_amount = 0.85
+streetlight_energy = 0.5
+window_glow = 0.2
+corruption_level = 3
+dust = true

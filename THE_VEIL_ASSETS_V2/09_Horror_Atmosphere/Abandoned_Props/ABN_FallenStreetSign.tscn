@@ -1,0 +1,9 @@
+[gd_scene load_steps=2 format=3]
+
+[ext_resource type="PackedScene" path="res://THE_VEIL_ASSETS_V2/02_Town/Street_Props/SP_Sign_Stop.glb" id="1_SP_Sign_Stop"]
+
+[node name="ABN_FallenStreetSign" type="Node3D"]
+metadata/reuses = "SP_Sign_Stop.glb"
+
+[node name="SP_Sign_Stop" parent="." instance=ExtResource("1_SP_Sign_Stop")]
+transform = Transform3D(0.9397, -0.3418, 0.0119, 0, 0.0349, 0.9994, -0.342, -0.9391, 0.0328, 0, 0.06, 0)

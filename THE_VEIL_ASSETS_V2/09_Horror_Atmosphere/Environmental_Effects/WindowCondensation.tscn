@@ -1,0 +1,15 @@
+[gd_scene load_steps=3 format=3]
+
+[ext_resource type="Material" path="res://THE_VEIL_ASSETS_V2/09_Horror_Atmosphere/Materials/M_Veil_Condensation.tres" id="1_M_Veil_Condensation"]
+
+[sub_resource type="QuadMesh" id="QuadMesh_1"]
+size = Vector2(1, 1.25)
+
+[node name="WindowCondensation" type="Node3D"]
+
+
+[node name="Glass" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.625, 0.01)
+mesh = SubResource("QuadMesh_1")
+material_override = ExtResource("1_M_Veil_Condensation")
+cast_shadow = 0

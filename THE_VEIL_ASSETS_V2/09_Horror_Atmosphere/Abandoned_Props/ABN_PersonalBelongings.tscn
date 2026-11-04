@@ -1,0 +1,29 @@
+[gd_scene load_steps=7 format=3]
+
+[ext_resource type="PackedScene" path="res://THE_VEIL_ASSETS_V2/08_Inventory/Food_And_Supplies/INV_SmallBackpack.glb" id="1_INV_SmallBackpack"]
+[ext_resource type="PackedScene" path="res://THE_VEIL_ASSETS_V2/08_Inventory/Story_Items/INV_Wallet.glb" id="2_INV_Wallet"]
+[ext_resource type="PackedScene" path="res://THE_VEIL_ASSETS_V2/08_Inventory/Story_Items/INV_Keyring.glb" id="3_INV_Keyring"]
+[ext_resource type="PackedScene" path="res://THE_VEIL_ASSETS_V2/08_Inventory/Story_Items/INV_FoldedNote.glb" id="4_INV_FoldedNote"]
+[ext_resource type="PackedScene" path="res://THE_VEIL_ASSETS_V2/08_Inventory/Puzzle_Items/INV_Photograph.glb" id="5_INV_Photograph"]
+[ext_resource type="PackedScene" path="res://THE_VEIL_ASSETS_V2/08_Inventory/Food_And_Supplies/INV_WaterBottle.glb" id="6_INV_WaterBottle"]
+
+[node name="ABN_PersonalBelongings" type="Node3D"]
+metadata/reuses = "INV_FoldedNote.glb, INV_Keyring.glb, INV_Photograph.glb, INV_SmallBackpack.glb, INV_Wallet.glb, INV_WaterBottle.glb"
+
+[node name="INV_SmallBackpack" parent="." instance=ExtResource("1_INV_SmallBackpack")]
+transform = Transform3D(0.1736, 0, 0.9848, 0, 1, 0, -0.9848, 0, 0.1736, 0, 0, 0)
+
+[node name="INV_Wallet" parent="." instance=ExtResource("2_INV_Wallet")]
+transform = Transform3D(0.866, 0, 0.5, 0, 1, 0, -0.5, 0, 0.866, 0.45, 0, 0.2)
+
+[node name="INV_Keyring" parent="." instance=ExtResource("3_INV_Keyring")]
+transform = Transform3D(0.766, 0, -0.6428, 0, 1, 0, 0.6428, 0, 0.766, 0.35, 0, -0.25)
+
+[node name="INV_FoldedNote" parent="." instance=ExtResource("4_INV_FoldedNote")]
+transform = Transform3D(0.9659, 0, 0.2588, 0, 1, 0, -0.2588, 0, 0.9659, -0.4, 0, 0.3)
+
+[node name="INV_Photograph" parent="." instance=ExtResource("5_INV_Photograph")]
+transform = Transform3D(0.5, 0, -0.866, 0, 1, 0, 0.866, 0, 0.5, -0.25, 0, -0.35)
+
+[node name="INV_WaterBottle" parent="." instance=ExtResource("6_INV_WaterBottle")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.6, 0, -0.05)
