@@ -311,7 +311,8 @@ func _run() -> void:
 			reached = reached and await walk_route(plan[2], h)
 		var sk: Interactable = c5.scav._loot_container[k]
 		var item: Interactable = c5.its["item_" + k]
-		ok("c5_container_reach_" + k, reached and await look(sk), "%s %s" % [h.to_local(world.player.global_position), sk.get_parent().name])
+		ok("c5_container_reach_" + k, reached and await look(sk), "%s %s focus %s" % [h.to_local(world.player.global_position), sk.get_parent().name,
+			(world.player._focus as Node).get_parent().name if world.player._focus else "-"])
 		ok("c5_cant_take_through_closed_" + k, item.collision_layer == 0)
 		sk.interact(world.player)
 		await watch_frames(30)

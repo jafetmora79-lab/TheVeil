@@ -285,8 +285,12 @@ func _update_focus() -> void:
 func _same_piece(a: Interactable, f: Node) -> bool:
 	if a.container == null or not (f is Node):
 		return false
-	var piece := a.container.get_parent().get_parent() if a.container.get_parent() else null
-	return piece != null and piece.is_ancestor_of(f)
+	if not a.container.is_open:
+		return false
+	var piece: Node = a.container
+	while piece and piece.get_parent() and not (String(piece.get_parent().name) in ["Furniture", "ScavengeFurniture"]):
+		piece = piece.get_parent()
+	return piece != null and piece.get_parent() != null and piece.is_ancestor_of(f)
 
 
 const ASSIST_COS := 0.985          ## ~10 degrees around the crosshair
