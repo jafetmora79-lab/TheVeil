@@ -26,6 +26,7 @@ const ATMOS_PATH := "res://THE_VEIL_ASSETS_V2/09_Horror_Atmosphere/Godot_Scenes/
 const COLOSSUS_PATH := "res://THE_VEIL_ASSETS_V2/07_Creatures/Godot_Scenes/CRT_Colossus.tscn"
 const TENTACLE_PATH := "res://THE_VEIL_ASSETS_V2/07_Creatures/Godot_Scenes/CRT_MistTentacle_Medium.tscn"
 const GLOW_SHADER := preload("res://game/world/veil_highlight.gdshader")
+const NPC_ANIM := preload("res://game/npc/npc_animator.gd")
 ## supermarket-local shelf spots (Pack 04 com_plans.py: gondolas at x = -11.5 + 3k, z = 10, stock faces +-x)
 const GROCERIES := {
 	"canned_food": [CAN, "Canned Soup", Vector3(-8.97, 0.52, 9.4), "Soup (aisle 1)"],
@@ -280,6 +281,7 @@ var eddie_face: Node
 var cashier: Node3D
 var marcus: Node3D
 var faces := {}               ## speaker name -> VeilFace (talks on that speaker's dialogue lines)
+var animators := {}           ## speaker name -> NpcAnimator (procedural body: idle, look-at, gestures, walk)
 var _auto_doors: Array = []
 var _beacons := {}
 var _in_market := false
@@ -364,16 +366,25 @@ func _on_line(speaker: String, _t: String, dur: float) -> void:
 		st = ["scared", "scared"]
 	f.set_expression(st[0])
 	f.say(dur * 0.85, st[1])
+	if animators.has(speaker):
+		animators[speaker].talk(dur * 0.9)
 
 
-## Instance an approved Pack 06 character as a static NPC: lowered arms (no body animations yet) + VeilFace.
+## Instance an approved Pack 06 character as an NPC: procedural body animation (NpcAnimator) + VeilFace.
+## `yaw` is the facing in the parent frame (0 = parent -Z); the animator measures the model's real forward
+## from its feet, so the facing is right whatever way the GLB was authored.
 func _spawn_npc(scene: PackedScene, face_tex: Texture2D, parent: Node3D, pos: Vector3, yaw: float, speaker: String) -> Node3D:
 	var n := scene.instantiate() as Node3D
 	n.name = speaker
 	parent.add_child(n)
 	n.position = pos
-	n.rotation.y = yaw
-	_lower_arms(n)
+	var anim: Node = NPC_ANIM.new()
+	anim.name = "Animator"
+	n.add_child(anim)
+	animators[speaker] = anim
+	var want := parent.global_transform.basis * (Basis(Vector3.UP, yaw) * Vector3(0, 0, -1))
+	want.y = 0.0
+	n.rotate_y(anim.world_forward().signed_angle_to(want.normalized(), Vector3.UP))
 	var f: Node = FACE_SCRIPT.new()
 	f.name = "VeilFace"
 	f.face_atlas = face_tex
@@ -536,34 +547,6 @@ func _toward_deg(door: Node3D, deg: float, toward: Vector3) -> float:
 	return best
 
 
-## The approved Eddie is exported in his reference pose; bring the upper arms down to the sides at runtime
-## (no body animation set exists yet). Tries both signs about each bone axis and keeps the lowest hand that
-## stays clear of the torso, so it does not depend on the rig's local axis conventions.
-func _lower_arms(chr: Node3D) -> void:
-	var sk := chr.find_children("*", "Skeleton3D", true, false)
-	if sk.is_empty():
-		return
-	var skel := sk[0] as Skeleton3D
-	for side in ["Left", "Right"]:
-		var ua := skel.find_bone(side + "UpperArm")
-		var hand := skel.find_bone(side + "Hand")
-		if ua < 0 or hand < 0:
-			continue
-		var base := skel.get_bone_pose_rotation(ua)
-		var best := base
-		var best_y := skel.get_bone_global_pose(hand).origin.y
-		var side_x := signf(skel.get_bone_global_pose(hand).origin.x)
-		for ax in [Vector3.RIGHT, Vector3.UP, Vector3.BACK]:
-			for sg in [1.0, -1.0]:
-				var q := base * Quaternion(ax, sg * deg_to_rad(68.0))
-				skel.set_bone_pose_rotation(ua, q)
-				var hp := skel.get_bone_global_pose(hand).origin
-				if hp.y < best_y and signf(hp.x) == side_x and absf(hp.x) > 0.16:
-					best_y = hp.y
-					best = q
-		skel.set_bone_pose_rotation(ua, best)
-
-
 func _grocery_hint() -> void:
 	if Game.has_flag("groceries_done"):
 		return
@@ -683,6 +666,8 @@ func _p3_start_mist() -> void:
 	if cashier:
 		cashier.visible = false                 # people are going missing
 		interactables["market/cashier"].set_deferred("monitorable", false)
+	for k in animators:
+		animators[k].set_mood("scared")
 	var a := _atmo()
 	a.set_state(0, true)                       # NORMAL, then roll in
 	a.set_state(2)                             # VEIL_APPROACHING (tweens over the preset transition time)
@@ -781,6 +766,9 @@ func _p3_car_dead() -> void:
 	var sd: Interactable = interactables.get("shop/entrance")
 	if sd and not sd.is_open:
 		sd.set_open(true)                       # Eddie holds the door
+	if eddie and eddie.get_parent() == game_shop and animators.has("Eddie"):
+		# from behind the counter, around it and down the aisle between the rack and the console case
+		animators["Eddie"].walk_to([Vector3(0.9, 0.04, 7.5), Vector3(0.0, 0.04, 5.0), Vector3(-0.4, 0.04, 1.7), Vector3(-2.2, 0.04, 1.3)], 1.7)
 	_beacon("shop", (game_shop.get_node("Doorways/Entrance_Outside") as Node3D).global_position + Vector3(0, 2.4, 0), Color(0.7, 0.85, 1.0))
 	await get_tree().create_timer(4.5).timeout
 	if not Game.has_flag("p3_in_shop"):
@@ -790,6 +778,7 @@ func _p3_car_dead() -> void:
 func _p3_place_marcus_in_shop() -> void:
 	if marcus == null:
 		marcus = _spawn_npc(load(MARCUS_PATH), load(MARCUS_FACE_PATH), game_shop, MARCUS_SHOP_POS, 0.0, "Marcus")
+		animators["Marcus"].set_mood("scared")
 		var m_it := Interactable.attach(marcus, {"kind": "custom", "label": "Marcus", "prompt_text": "[E] Talk"})
 		m_it.used.connect(func(_b): Dialogue.say("p3_marcus_talk", false, true))
 		interactables["p3/marcus"] = m_it
@@ -808,6 +797,11 @@ func _p3_reach_shop() -> void:
 	await get_tree().create_timer(total + 0.3).timeout
 	Dialogue.say("p3_eddie_go")
 	_p3_shop_talked = true
+	# both head for the back of the shop (they are moved to the supermarket once the player is outside)
+	if animators.has("Eddie") and eddie.get_parent() == game_shop:
+		animators["Eddie"].walk_to([Vector3(-0.4, 0.04, 1.7), Vector3(0.0, 0.04, 5.0), Vector3(0.3, 0.04, 7.6)], 1.6)
+	if animators.has("Marcus") and marcus.get_parent() == game_shop:
+		animators["Marcus"].walk_to([Vector3(-3.4, 0.04, 6.8), Vector3(-1.0, 0.04, 7.7)], 1.6)
 	_beacon("market", market.global_transform * Vector3(0, 2.6, -0.9), Color(0.7, 0.85, 1.0))
 
 
@@ -819,7 +813,13 @@ func _p3_move_npcs_to_market() -> void:
 			continue
 		n.reparent(market, false)
 		n.position = pair[1]
-		n.rotation = Vector3.ZERO               # face the entrance (supermarket local -Z)
+		var anim = n.get_node_or_null("Animator")
+		if anim:
+			anim.walk_to([])
+			anim.set_mood("scared")
+			var want := market.global_transform.basis * Vector3(0, 0, -1)   # face the entrance
+			want.y = 0.0
+			n.rotate_y(anim.world_forward().signed_angle_to(want.normalized(), Vector3.UP))
 
 
 func _p3_reach_market() -> void:
@@ -834,6 +834,10 @@ func _p3_reach_market() -> void:
 		if l is Light3D and String(l.name).begins_with("Light_"):
 			(l as Light3D).light_energy *= 0.35
 	shut_it.prompt_text = "[E] Pull the Doors Shut"
+	if animators.has("Eddie"):
+		animators["Eddie"].walk_to([Vector3(-1.0, 0.04, 4.3)], 1.4)
+	if animators.has("Marcus"):
+		animators["Marcus"].walk_to([Vector3(1.1, 0.04, 4.7)], 1.4)
 	for d in _auto_doors:
 		_glow(d[0], true, Color(0.7, 0.85, 1.0))
 	Dialogue.say("p3_market", false, true)
