@@ -190,6 +190,13 @@ func phase4_tests(game, ps: PackedScene) -> void:
 	# something outside, once
 	ok("p4_threat_starts", await wait_until(func(): return p4.threat_runs == 1, 60 * 10))
 	ok("p4_hound_silhouette", p4.hound != null and is_instance_valid(p4.hound))
+	# it must walk the way it faces (the model's front is +Z), not backwards
+	var h0: Vector3 = p4.hound.position
+	await frames(30)
+	var hmove: Vector3 = (p4.hound.position - h0) * Vector3(1, 0, 1)
+	var hface: Vector3 = p4.hound.transform.basis.z.normalized()
+	ok("p4_hound_walks_forward", hmove.length() > 0.2 and hmove.normalized().dot(hface) > 0.9,
+		"move=%s face=%s" % [hmove, hface])
 	ok("p4_threat_done", await wait_until(func(): return game.has_flag("p4_threat_done"), 60 * 40))
 	p4._run_threat()
 	await frames(5)
