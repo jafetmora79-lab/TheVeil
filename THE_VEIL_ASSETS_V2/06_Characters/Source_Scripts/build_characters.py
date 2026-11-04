@@ -92,7 +92,7 @@ def main():
         rig["rest_joints"][c["name"]] = {b: [round(float(v), 4) for v in body.J[b]] for b, _ in chr_core.BONES}
         if c.get("fp_arms"):
             fb = chr_body.fp_arms(c)
-            glb = os.path.join(CHR, c["folder"], f"CHR_{c['name']}_FP_Arms.glb")
+            glb = os.path.join(CHR, c["folder"], f"CHR_{c.get('file', c['name'])}_FP_Arms.glb")
             extras = {"veil_character": c["name"], "kind": "first_person_arms",
                       "space": "camera: origin = Camera3D, looks -Z, +Y up; parent this under the player camera"}
             st = export(c, fb, chr_core.FP_BONES, glb, mat, buf.getvalue(), extras)
