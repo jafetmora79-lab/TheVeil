@@ -32,7 +32,7 @@ ROSTER = [
                    details=["zipper", "jacket_pockets"]),
          acc=[("collar",)]),
     # ---------------------------------------------------------------- Eddie (game-shop clerk)
-    dict(name="Eddie", folder="Commercial_NPCs", title="Eddie - game-shop clerk (34)",
+    dict(name="Eddie", file="Eddie_v1", folder="Commercial_NPCs", title="Eddie - game-shop clerk (34) - rev 1 (superseded by the hand-made reference CHR_Eddie)",
          role="Sarcastic, witty, loyal clerk at Greyhaven's independent video game shop.",
          height=1.74,
          body=body(stoop=9, shoulder_w=0.19, chest_w=0.158, waist_w=0.140, hip_w=0.155, arm_r=0.045, forearm_r=0.040,

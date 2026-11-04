@@ -17,7 +17,7 @@ The roster follows `docs/THE_VEIL_MASTER_CONTEXT.md`. Named story characters wer
 |---|---|---|
 | `Protagonist/CHR_Protagonist.glb` + `CHR_Protagonist_FP_Arms.glb` | Player character (name TBD) | Protagonist |
 | `Marcus/CHR_Marcus.glb` | Marcus, 43, Noah's father | Marcus |
-| `Commercial_NPCs/CHR_Eddie.glb` | Eddie, 34, game-shop clerk | Store clerk |
+| `Commercial_NPCs/CHR_Eddie.glb` | Eddie, 34, game-shop clerk (hand-made reference; generated rev 1 = `CHR_Eddie_v1.glb`) | Store clerk |
 | `Commercial_NPCs/CHR_Frank.glb` | Frank, security guard | Adult male resident |
 | `Civilians/CHR_Ruth.glb` | Ruth, 68, retired librarian | Older resident |
 | `Civilians/CHR_Lena.glb` | Lena, student investigator | Adult female resident |
@@ -27,6 +27,65 @@ The roster follows `docs/THE_VEIL_MASTER_CONTEXT.md`. Named story characters wer
 **Noah is not built.** The bible says not to model him until his age and appearance are confirmed.
 
 **Looks are design proposals.** They follow the bible's DESIGN PROPOSAL notes: the protagonist's gray jacket and dark jeans, Eddie's slouch, messy hair and worn hoodie, and so on. Faces, colours and small accessories are this pack's proposals, not new canon.
+
+## Art-direction reference: the hand-made Eddie (current standard)
+
+`Commercial_NPCs/CHR_Eddie.glb` is the project owner's hand-made Eddie, built in Blender. The source is in
+`Source_Blend/Eddie.blend` with `Eddie_build_report.json`; that folder is ignored by Godot. **Every character in this pack
+follows it from now on.** The earlier generated Eddie is kept as the backup `CHR_Eddie_v1.glb`, alongside v2 and v3.
+
+What the reference defines:
+
+* **Construction:**
+  * a layered clothing body (hoodie, rib cuffs and hem, shirt panel, jeans, jean cuffs, badge, skin only where it
+    shows);
+  * separate head, hair and shoe meshes;
+  * about 2.7k triangles in total.
+* **Rig:** 22 bones with Godot humanoid names, plus `Socket_Head`, `Socket_Back` and `Socket_Left/RightHand`. It rests
+  in an A-pose. Godot imports the sockets as extra bones.
+* **Textures:**
+  * one small texture per material (32–128 px), with 2–20 colours each;
+  * cloth tiles (repeat UVs), so pixel size stays even;
+  * one-off details (face 128x64, shirt print, badge) are clamped;
+  * nearest filtering;
+  * a muted palette of the character's own.
+* **Materials:** double-sided, roughness 0.92, low specular.
+
+### Marcus rev 4 (built from the reference, awaiting approval)
+
+`Marcus/CHR_Marcus_v4.glb` comes from `Source_Scripts/chr_style_from_eddie.py`. Marcus is derived from the reference
+Eddie, so the construction and rig are exactly the same; every texture is new and painted in the reference manner.
+
+* **Geometry:** every vertex is moved by a blend of per-bone deformations, using its own skin weights, so seams stay
+  joined. The changes:
+  * broader torso and shoulders, a slight gut, thicker neck, arms and legs, a heavier jaw;
+  * the hood folded down into a jacket collar;
+  * hair cut short (re-weighted to the head only);
+  * the drawstrings removed;
+  * height 1.76 m.
+
+  Joints and inverse bind matrices are recomputed, and normals follow the deformation.
+* **Textures** (same sizes and UV layouts as Eddie):
+  * weathered canvas work jacket with corduroy cuffs and a chest-pocket flap;
+  * red plaid flannel shirt with buttons;
+  * olive work pants;
+  * brown work boots with laces;
+  * salt-and-pepper short hair;
+  * a worried, tired face: raised inner brows, forehead creases, heavy lids, eye bags, broad nose, downturned mouth and
+    heavier stubble.
+* **Numbers:** 2,716 triangles (Body 1,762, Hair 360, Head 346, Shoes 248) and 11 materials.
+
+Checks:
+
+* Khronos glTF validator: 0 errors. The 4 skinned-mesh warnings also appear on the reference.
+* The rig is exactly consistent in the bind pose (error about 1e-7).
+* The hair covers the whole scalp.
+* Godot 4.3 imports it; in the Compatibility renderer it loads, poses and renders with the same skeleton as the
+  reference.
+* In an extreme test pose the worst edge stretch is 0.90, against 0.64 for the reference. It sits at the back of the
+  folded collar.
+
+The look has only been checked as textures, not as a rendered model.
 
 ## Rev 3: sculpted Eddie and Marcus (new construction method, awaiting approval)
 

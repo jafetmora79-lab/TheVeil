@@ -82,7 +82,7 @@ def main():
         buf = io.BytesIO()
         img.save(buf, format="PNG", optimize=True)
         mat = material(c["name"], png)
-        glb = os.path.join(CHR, c["folder"], f"CHR_{c['name']}.glb")
+        glb = os.path.join(CHR, c["folder"], f"CHR_{c.get('file', c['name'])}.glb")   # Eddie v1 -> CHR_Eddie_v1 (CHR_Eddie = hand-made reference)
         extras = {"veil_character": c["name"], "title": c["title"], "role": c["role"], "height_m": c["height"],
                   "rest_pose": "A-pose", "forward": "+Z"}
         st = export(c, body, chr_core.BONES, glb, mat, buf.getvalue(), extras)
