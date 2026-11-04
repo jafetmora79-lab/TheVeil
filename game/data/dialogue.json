@@ -1327,5 +1327,534 @@
     "time": 2.2
    }
   ]
+ },
+ "c6_marcus": {
+  "source": "Chapter 6 implementation prompt 02 (approved script)",
+  "lines": [
+   {
+    "speaker": "Marcus",
+    "text": "I heard someone outside earlier.",
+    "time": 2.9
+   },
+   {
+    "speaker": "",
+    "text": "Someone?",
+    "time": 1.8
+   },
+   {
+    "speaker": "Marcus",
+    "text": "A voice. Calling for help.",
+    "time": 2.5
+   },
+   {
+    "speaker": "",
+    "text": "Where?",
+    "time": 1.8
+   },
+   {
+    "speaker": "Marcus",
+    "text": "Toward the houses.",
+    "time": 2.0
+   },
+   {
+    "speaker": "Marcus",
+    "text": "I couldn't see anything through the fog.",
+    "time": 3.4
+   },
+   {
+    "speaker": "",
+    "text": "Could've been someone looking for shelter.",
+    "time": 3.5
+   },
+   {
+    "speaker": "Marcus",
+    "text": "That's what I thought.",
+    "time": 2.3
+   },
+   {
+    "speaker": "Marcus",
+    "text": "But the voice stopped.",
+    "time": 2.3
+   },
+   {
+    "speaker": "",
+    "text": "We'll take a look.",
+    "time": 2.0
+   },
+   {
+    "speaker": "Marcus",
+    "text": "Be careful.",
+    "time": 1.8
+   }
+  ]
+ },
+ "c6_eddie": {
+  "source": "Chapter 6 implementation prompt 02 (approved script)",
+  "lines": [
+   {
+    "speaker": "Eddie",
+    "text": "Please tell me we're not going back outside.",
+    "time": 3.6
+   },
+   {
+    "speaker": "",
+    "text": "We're going back outside.",
+    "time": 2.5
+   },
+   {
+    "speaker": "Eddie",
+    "text": "Fantastic.",
+    "time": 1.8
+   },
+   {
+    "speaker": "",
+    "text": "Marcus heard someone calling for help.",
+    "time": 3.3
+   },
+   {
+    "speaker": "Eddie",
+    "text": "People usually call for help when something's wrong.",
+    "time": 4.1
+   },
+   {
+    "speaker": "",
+    "text": "That's why we're checking.",
+    "time": 2.5
+   },
+   {
+    "speaker": "Eddie",
+    "text": "I knew you were going to say that.",
+    "time": 3.0
+   },
+   {
+    "speaker": "Eddie",
+    "text": "Give me a minute.",
+    "time": 2.0
+   }
+  ]
+ },
+ "c6_walk": {
+  "source": "Chapter 6 implementation prompt 02 (approved script)",
+  "lines": [
+   {
+    "speaker": "Eddie",
+    "text": "You know what's bothering me?",
+    "time": 2.7
+   },
+   {
+    "speaker": "",
+    "text": "Only one thing?",
+    "time": 1.8
+   },
+   {
+    "speaker": "Eddie",
+    "text": "Funny.",
+    "time": 1.8
+   },
+   {
+    "speaker": "Eddie",
+    "text": "It's how quiet everything gets.",
+    "time": 2.8
+   },
+   {
+    "speaker": "",
+    "text": "Stay close.",
+    "time": 1.8
+   },
+   {
+    "speaker": "Eddie",
+    "text": "Wasn't planning on doing anything else.",
+    "time": 3.3
+   }
+  ]
+ },
+ "c6_ruth_sarah": {
+  "source": "Chapter 6 implementation prompt 02 (approved script)",
+  "lines": [
+   {
+    "speaker": "Ruth",
+    "text": "Who's there?",
+    "time": 1.8
+   },
+   {
+    "speaker": "",
+    "text": "We're not looking for trouble.",
+    "time": 2.8
+   },
+   {
+    "speaker": "Ruth",
+    "text": "Then keep your hands where I can see them.",
+    "time": 3.5
+   },
+   {
+    "speaker": "Eddie",
+    "text": "Mine are very visible.",
+    "time": 2.3
+   },
+   {
+    "speaker": "Sarah",
+    "text": "Ruth, they're just people.",
+    "time": 2.5
+   },
+   {
+    "speaker": "Ruth",
+    "text": "That's what worries me.",
+    "time": 2.3
+   },
+   {
+    "speaker": "",
+    "text": "We have shelter. A supermarket a few streets over.",
+    "time": 4.0
+   },
+   {
+    "speaker": "Sarah",
+    "text": "There are others?",
+    "time": 2.0
+   },
+   {
+    "speaker": "",
+    "text": "A few.",
+    "time": 1.8
+   },
+   {
+    "speaker": "Ruth",
+    "text": "How safe is it?",
+    "time": 1.8
+   },
+   {
+    "speaker": "",
+    "text": "Safer than being out here.",
+    "time": 2.5
+   }
+  ],
+  "choices": [
+   {
+    "text": "\"Come with us. There's room.\"",
+    "next": "c6_rs_invite",
+    "flag": "ch6_ruth_sarah_choice_invite"
+   },
+   {
+    "text": "\"There's a supermarket a few streets back. You can reach it from the main road.\"",
+    "next": "c6_rs_directions",
+    "flag": "ch6_ruth_sarah_choice_directions"
+   },
+   {
+    "text": "\"We can't take responsibility for anyone else right now.\"",
+    "next": "c6_rs_leave",
+    "flag": "ch6_ruth_sarah_choice_leave"
+   }
+  ]
+ },
+ "c6_rs_invite": {
+  "source": "Chapter 6 implementation prompt 02 (approved script)",
+  "lines": [
+   {
+    "speaker": "",
+    "text": "Come with us. There's room.",
+    "time": 2.6
+   },
+   {
+    "speaker": "Sarah",
+    "text": "Thank you.",
+    "time": 1.8
+   },
+   {
+    "speaker": "Ruth",
+    "text": "We'll gather our things.",
+    "time": 2.4
+   }
+  ]
+ },
+ "c6_rs_directions": {
+  "source": "Chapter 6 implementation prompt 02 (approved script)",
+  "lines": [
+   {
+    "speaker": "",
+    "text": "There's a supermarket a few streets back. You can reach it from the main road.",
+    "time": 5.7
+   },
+   {
+    "speaker": "Sarah",
+    "text": "We'll try.",
+    "time": 1.8
+   },
+   {
+    "speaker": "Ruth",
+    "text": "We'll decide when we're ready.",
+    "time": 2.8
+   }
+  ]
+ },
+ "c6_rs_leave": {
+  "source": "Chapter 6 implementation prompt 02 (approved script)",
+  "lines": [
+   {
+    "speaker": "",
+    "text": "We can't take responsibility for anyone else right now.",
+    "time": 4.3
+   },
+   {
+    "speaker": "Sarah",
+    "text": "I understand.",
+    "time": 1.8
+   },
+   {
+    "speaker": "Ruth",
+    "text": "Then you'd better get moving.",
+    "time": 2.7
+   }
+  ]
+ },
+ "c6_voice": {
+  "source": "Chapter 6 implementation prompt 02 (approved script)",
+  "lines": [
+   {
+    "speaker": "Distant voice",
+    "text": "Hello?",
+    "time": 1.8
+   },
+   {
+    "speaker": "Distant voice",
+    "text": "Can somebody help me?",
+    "time": 2.2
+   },
+   {
+    "speaker": "Distant voice",
+    "text": "Please...",
+    "time": 1.8
+   }
+  ]
+ },
+ "c6_voice_eddie": {
+  "source": "Chapter 6 implementation prompt 02 (approved script)",
+  "lines": [
+   {
+    "speaker": "Eddie",
+    "text": "Tell me you heard that.",
+    "time": 2.3
+   },
+   {
+    "speaker": "",
+    "text": "I heard it.",
+    "time": 1.8
+   },
+   {
+    "speaker": "Eddie",
+    "text": "That's the same direction Marcus mentioned.",
+    "time": 3.6
+   },
+   {
+    "speaker": "",
+    "text": "Could be someone else.",
+    "time": 2.3
+   },
+   {
+    "speaker": "Eddie",
+    "text": "Or something we don't want to meet.",
+    "time": 3.1
+   }
+  ],
+  "choices": [
+   {
+    "text": "\"We should check.\"",
+    "next": "c6_voice_investigate",
+    "flag": "ch6_voice_choice_investigate"
+   },
+   {
+    "text": "\"We're going back.\"",
+    "next": "c6_voice_retreat",
+    "flag": "ch6_voice_choice_retreat"
+   }
+  ]
+ },
+ "c6_voice_investigate": {
+  "source": "Chapter 6 implementation prompt 02 (approved script)",
+  "lines": [
+   {
+    "speaker": "",
+    "text": "We should check.",
+    "time": 1.9
+   },
+   {
+    "speaker": "Eddie",
+    "text": "I really hate that answer.",
+    "time": 2.5
+   }
+  ]
+ },
+ "c6_voice_retreat": {
+  "source": "Chapter 6 implementation prompt 02 (approved script)",
+  "lines": [
+   {
+    "speaker": "",
+    "text": "We're going back.",
+    "time": 2.0
+   },
+   {
+    "speaker": "Eddie",
+    "text": "Best thing you've said all day.",
+    "time": 2.8
+   }
+  ]
+ },
+ "c6_hound_seen": {
+  "source": "Chapter 6 implementation prompt 02 (approved script)",
+  "lines": [
+   {
+    "speaker": "Eddie",
+    "text": "What the hell is that?",
+    "time": 2.3
+   },
+   {
+    "speaker": "",
+    "text": "Don't move.",
+    "time": 1.8
+   },
+   {
+    "speaker": "Eddie",
+    "text": "That is a very difficult instruction right now.",
+    "time": 3.8
+   }
+  ]
+ },
+ "c6_hound_noticed": {
+  "source": "Chapter 6 implementation prompt 02 (approved script)",
+  "lines": [
+   {
+    "speaker": "",
+    "text": "RUN!",
+    "time": 1.8
+   },
+   {
+    "speaker": "Eddie",
+    "text": "ALREADY DOING THAT!",
+    "time": 2.1
+   }
+  ]
+ },
+ "c6_return": {
+  "source": "Chapter 6 implementation prompt 02 (approved script)",
+  "lines": [
+   {
+    "speaker": "Eddie",
+    "text": "I'm never complaining about a boring day again.",
+    "time": 3.8
+   },
+   {
+    "speaker": "",
+    "text": "You said that yesterday.",
+    "time": 2.4
+   },
+   {
+    "speaker": "Eddie",
+    "text": "And I meant it yesterday too.",
+    "time": 2.7
+   }
+  ]
+ },
+ "c6_report_a": {
+  "source": "Chapter 6 implementation prompt 02 (approved script)",
+  "lines": [
+   {
+    "speaker": "Marcus",
+    "text": "You're back.",
+    "time": 1.8
+   },
+   {
+    "speaker": "Eddie",
+    "text": "Against all reasonable expectations.",
+    "time": 3.1
+   },
+   {
+    "speaker": "Marcus",
+    "text": "Did you find anyone?",
+    "time": 2.1
+   }
+  ]
+ },
+ "c6_report_invite": {
+  "source": "Chapter 6 implementation prompt 02 (approved script)",
+  "lines": [
+   {
+    "speaker": "",
+    "text": "Two survivors. Ruth and Sarah. We offered them shelter.",
+    "time": 4.3
+   },
+   {
+    "speaker": "Marcus",
+    "text": "Good. We need to look after each other.",
+    "time": 3.3
+   }
+  ]
+ },
+ "c6_report_directions": {
+  "source": "Chapter 6 implementation prompt 02 (approved script)",
+  "lines": [
+   {
+    "speaker": "",
+    "text": "Two survivors. We told them where to find us.",
+    "time": 3.7
+   },
+   {
+    "speaker": "Marcus",
+    "text": "Hopefully they'll make it.",
+    "time": 2.5
+   }
+  ]
+ },
+ "c6_report_leave": {
+  "source": "Chapter 6 implementation prompt 02 (approved script)",
+  "lines": [
+   {
+    "speaker": "",
+    "text": "Two survivors. They're staying where they are.",
+    "time": 3.8
+   },
+   {
+    "speaker": "Marcus",
+    "text": "I hope they're safe.",
+    "time": 2.1
+   }
+  ]
+ },
+ "c6_report_b": {
+  "source": "Chapter 6 implementation prompt 02 (approved script)",
+  "lines": [
+   {
+    "speaker": "Marcus",
+    "text": "And the voice?",
+    "time": 1.8
+   },
+   {
+    "speaker": "",
+    "text": "We heard it.",
+    "time": 1.8
+   },
+   {
+    "speaker": "Eddie",
+    "text": "We also found something with teeth.",
+    "time": 3.1
+   },
+   {
+    "speaker": "Marcus",
+    "text": "What kind of something?",
+    "time": 2.3
+   },
+   {
+    "speaker": "Eddie",
+    "text": "The kind I'm not going outside to identify.",
+    "time": 3.6
+   },
+   {
+    "speaker": "",
+    "text": "We got away.",
+    "time": 1.8
+   },
+   {
+    "speaker": "Marcus",
+    "text": "Thank God.",
+    "time": 1.8
+   }
+  ]
  }
 }
