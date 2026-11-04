@@ -286,11 +286,12 @@ def build_mesh(rig, legs, tents, uv):
                 G.sweep(atl, Cdg, [0.22, 0.2, 0.17, 0.13, 0.09, 0.05], lambda p, sv, bb=b[2]: {bb: 1.0}, uv["claw"],
                         n=5, tip=0.12, front=(0, -1, 0))
         else:
-            G.plate(atl, np.array([c[0], 0.2, c[2] + 0.25]), (1.1, 0.35, 1.5), {b[2]: 1.0}, uv["hoof"], normal=(0, 1, 0),
+            # hoof plate bottom at y 0.06, the same as the fore claw tips: every planted foot touches the road
+            G.plate(atl, np.array([c[0], 0.235, c[2] + 0.25]), (1.1, 0.35, 1.5), {b[2]: 1.0}, uv["hoof"], normal=(0, 1, 0),
                     along=(lat[0] * 0.15, 0, 1), taper=(0.7, 0.75))
             for dlat in (-0.35, 0.4):
                 base = np.array([c[0] + dlat, 0.3, c[2] + 0.62])     # rooted in the hoof plate
-                tipp = base + np.array([dlat * 0.4, -0.24, 0.65])
+                tipp = base + np.array([dlat * 0.4, -0.2, 0.65])         # tip bottom at y 0.06
                 Cdg = G.resample([base, (base + tipp) / 2 + np.array([0, 0.12, 0]), tipp], 5)
                 G.sweep(atl, Cdg, [0.18, 0.15, 0.11, 0.07, 0.04], lambda p, sv, bb=b[2]: {bb: 1.0}, uv["claw"], n=5,
                         tip=0.1, front=(0, -1, 0))

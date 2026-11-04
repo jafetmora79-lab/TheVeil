@@ -190,6 +190,7 @@ func _spawn_colossus(at: Vector3, dir: Vector3) -> Node3D:
 	(c.get_node("Model") as Node3D).scale = Vector3.ONE * COLOSSUS_SCALE
 	c.rotation.y = atan2(dir.x, dir.z)                        # the model faces +Z
 	var g := _ground_y(at + Vector3(0, 3.0, 0))
+	report["veil_surfaces"] = VeilCreatureLook.apply_colossus(c, g)
 	c.global_position = Vector3(at.x, g - TIP_Y * COLOSSUS_SCALE + 0.02, at.z)   # stance claws on the road
 	var ap := c.get_node_or_null(String(c.get_meta("animation_player", "Model/AnimationPlayer"))) as AnimationPlayer
 	if ap and ap.has_animation("Walk_Heavy"):

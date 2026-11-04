@@ -1025,6 +1025,7 @@ func _colossus_encounter() -> void:
 	c.set_physics_process(false)
 	var model := c.get_node("Model") as Node3D
 	model.scale = Vector3.ONE * COLOSSUS_SCALE
+	enc_report["veil_surfaces"] = VeilCreatureLook.apply_colossus(c, ground)   # dark, textured, sinks into the mist
 	var walk_dir := side
 	c.rotation.y = atan2(walk_dir.x, walk_dir.z)                 # the model faces +Z
 	c.global_position = L
