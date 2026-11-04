@@ -4,7 +4,8 @@
   "groceries": "Get some groceries",
   "errands": "Friday errands",
   "done": "Friday evening - to be continued",
-  "act1": "The Veil"
+  "act1": "The Veil",
+  "act1_night": "Secure the supermarket"
  },
  "steps": [
   {
@@ -90,7 +91,50 @@
    "flag": "p3_doors_shut",
    "goal": "act1",
    "text": "Shut the supermarket doors"
+  },
+  {
+   "id": "p4_flashlight",
+   "flag": "p4_flashlight",
+   "goal": "act1_night",
+   "text": "Find a flashlight at the customer service desk"
+  },
+  {
+   "id": "p4_breaker",
+   "flag": "p4_breaker",
+   "goal": "act1_night",
+   "text": "Restore power at the back-room breaker"
+  },
+  {
+   "id": "p4_loading",
+   "flag": "p4_loading_secured",
+   "goal": "act1_night",
+   "text": "Secure the loading bay door"
+  },
+  {
+   "id": "p4_backexit",
+   "flag": "p4_backexit_secured",
+   "goal": "act1_night",
+   "text": "Secure the rear exit"
+  },
+  {
+   "id": "p4_talk",
+   "flag": "p4_talk_done",
+   "goal": "act1_night",
+   "text": "Talk to Eddie and Marcus"
+  },
+  {
+   "id": "p4_threat",
+   "flag": "p4_threat_done",
+   "goal": "act1_night",
+   "text": "Stay quiet"
+  },
+  {
+   "id": "p4_rest",
+   "flag": "p4_slept",
+   "goal": "act1_night",
+   "text": "Get some rest in the back office"
   }
  ],
- "_comment": "Steps complete in list order for display, but each errand step only checks its own flag, so the supermarket and the game shop can be done in either order (the bible leaves the stop order open). Phase 3 (mist_*) is a WORKING DRAFT sequence of Act I's opening."
+ "_comment": "Steps complete in list order for display, but each errand step only checks its own flag, so the supermarket and the game shop can be done in either order (the bible leaves the stop order open). Phase 3 (mist_*) is a WORKING DRAFT sequence of Act I's opening.",
+ "_comment_p4": "Phase 4 (p4_*) is a WORKING DRAFT of Act I's first night in the supermarket (game/world/phase4.gd). Not canon."
 }
