@@ -171,12 +171,16 @@ func _process(delta: float) -> void:
 	_t += delta
 	_talk_left = maxf(_talk_left - delta, 0.0)
 	_scare = move_toward(_scare, 1.0 if mood == "scared" else 0.0, delta * 0.8)
-	_update_walk(delta)
 	_update_turn(delta)
 	_update_gestures(delta)
 	_update_look(delta)
 	_sit = move_toward(_sit, 1.0 if seated else 0.0, delta * 1.7)
 	_pose()
+
+
+func _physics_process(delta: float) -> void:
+	if skel != null and root.is_visible_in_tree():
+		_update_walk(delta)
 
 
 func _update_walk(delta: float) -> void:
@@ -194,8 +198,29 @@ func _update_walk(delta: float) -> void:
 		return
 	_walk = move_toward(_walk, 1.0, delta * 3.0)
 	var step := minf(walk_speed * _walk * delta, d.length())
-	root.position += d.normalized() * step
-	_phase += step / 0.62 * PI                      # one stride (two steps) ~1.24 m
+	var body := root as VeilSurvivorBody
+	var before := root.global_position
+	if body:
+		var frame := body.get_parent_node_3d()
+		var motion := frame.global_basis * (d.normalized() * step)
+		if body.step_target.is_finite():
+			var remaining := body.step_target - before
+			var advance := Vector3.UP * minf(remaining.y, 4.0 * delta) if remaining.y > 0.012 else remaining.limit_length(walk_speed * delta)
+			if remaining.length() < 0.015 or body.move_and_collide(advance):
+				body.step_target = Vector3.INF
+		else:
+			var fall := -0.5 if body.is_on_floor() else maxf(body.velocity.y - 18.0 * delta, -8.0)
+			body.velocity = motion / delta + Vector3.UP * fall
+			body.move_and_slide()
+			if body.is_on_wall():
+				var probe := motion.normalized() * minf(d.length(), VeilSurvivorBody.RADIUS + 0.06)
+				body.step_target = VeilSurvivorBody.step_landing(body, probe, 0.35)
+	else:
+		root.position += d.normalized() * step
+	var moved := before.distance_to(root.global_position)
+	if moved < 0.001:
+		_walk = move_toward(_walk, 0.0, delta * 3.0)
+	_phase += moved / 0.62 * PI                      # one stride (two steps) ~1.24 m
 	var parent := root.get_parent_node_3d()
 	_turn_goal = (parent.global_transform.basis * d.normalized()) if parent else d.normalized()
 

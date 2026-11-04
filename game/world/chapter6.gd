@@ -22,10 +22,10 @@ const STATE := "ch6"
 
 const RS_HOUSE := "HOUSE_06"                          # single-storey bungalow, front door (2.6, 3.2) house-local
 # supermarket-local
-const MARCUS_WATCH := Vector3(-2.3, 0.04, 4.5)         # watching the entrance, clear of the exit spot
-const EDDIE_SHELTER := Vector3(6.2, 0.04, 4.9)
-const RUTH_SPOT := Vector3(3.0, 0.04, 4.3)
-const SARAH_SPOT := Vector3(3.9, 0.04, 5.1)
+const MARCUS_WATCH := Vector3(-2.0, 0.04, 6.9)
+const EDDIE_SHELTER := Vector3(6.2, 0.04, 4.05)
+const RUTH_SPOT := Vector3(8.6, 0.04, 6.8)
+const SARAH_SPOT := Vector3(-18.6, 0.04, 15.55)
 # HOUSE_06-local
 const RUTH_DOOR := Vector3(2.6, 0.6, 4.2)
 const SARAH_DOOR := Vector3(1.9, 0.6, 4.9)
@@ -179,11 +179,11 @@ func _apply(restoring: bool) -> void:
 		c5.eddie_follow.start()
 	else:
 		c5._reparent(eddie, market)
-		eddie.position = EDDIE_SHELTER
+		world.place_survivor(eddie, EDDIE_SHELTER)
 		world.animators["Eddie"].face_towards(c5.ml(c5.STASH))
 	if marcus:
 		c5._reparent(marcus, market)
-		marcus.position = MARCUS_WATCH
+		world.place_survivor(marcus, MARCUS_WATCH)
 		world.animators["Marcus"].face_towards(c5.ml(Vector3(0.0, 1.5, 0.0)))
 	match String(s.get("ruth_sarah", "house")):
 		"following":
@@ -195,7 +195,7 @@ func _apply(restoring: bool) -> void:
 		"shelter":
 			for pair in [[ruth, RUTH_SPOT], [sarah, SARAH_SPOT]]:
 				c5._reparent(pair[0], market)
-				pair[0].position = pair[1]
+				world.place_survivor(pair[0], pair[1])
 				pair[0].visible = true
 		_:
 			var shown := Game.has_flag("ch6_ruth_sarah_heard") and not Game.has_flag("ch6_ruth_sarah_met")
@@ -340,7 +340,7 @@ func _head_out(_b: Node) -> void:
 	c5.its["exit"].prompt_text = ""
 	c5._set_doors(true)
 	var a: Node = world.animators["Eddie"]
-	a.walk_to([Vector3(1.5, 0.04, 4.3)], 1.5)
+	world.npc_walk("Eddie", Vector3(1.5, 0.04, 4.3), 1.5)
 	await c5._wait_for(func(): return not a.is_walking(), 8.0)
 	st()["eddie"] = "following"
 	c5._reparent(eddie, world)
@@ -683,13 +683,13 @@ func _returned() -> void:
 	c5.eddie_follow.stop()
 	c5._reparent(eddie, market)
 	st()["eddie"] = "shelter"
-	world.animators["Eddie"].walk_to([EDDIE_SHELTER], 1.3)
+	world.npc_walk("Eddie", EDDIE_SHELTER, 1.3)
 	if String(st().get("ruth_sarah", "")) == "following":
 		st()["ruth_sarah"] = "shelter"
 		for pair in [[ruth, ruth_follow, RUTH_SPOT], [sarah, sarah_follow, SARAH_SPOT]]:
 			pair[1].stop()
 			c5._reparent(pair[0], market)
-			world.animators[pair[0].name].walk_to([pair[2]], 1.2)
+			world.npc_walk(String(pair[0].name), pair[2], 1.2)
 	Game.set_flag("ch6_returned_to_supermarket")      # saves with everyone back inside
 	_refresh_prompts()
 
@@ -714,6 +714,7 @@ func _report() -> void:
 
 func _on_rest(_id: String) -> void:
 	# the next morning is Chapter 7 (game/world/chapter7.gd); started while the screen is still black
+	var report: Dictionary = p4.record_night("ch6_rested")
 	Game.set_flag("ch6_rested")
 	_start_chapter7(false)
 	if p4.flashlight:
@@ -721,6 +722,7 @@ func _on_rest(_id: String) -> void:
 	await get_tree().create_timer(1.0).timeout
 	await hud.fade_to(0.0, 2.0)
 	player.set("controls_enabled", true)
+	p4.show_night_report(report)
 	p4.rest.interactable.prompt_text = "[E] Sleep"
 
 

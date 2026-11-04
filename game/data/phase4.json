@@ -1,4 +1,5 @@
 {
+  "shelter_consumption": {"food": 1, "water": 1},
  "_comment": "Phase 4 tuning. Placeholder values, configurable; not balance canon.",
  "flashlight": {
   "battery_seconds": 420.0,
