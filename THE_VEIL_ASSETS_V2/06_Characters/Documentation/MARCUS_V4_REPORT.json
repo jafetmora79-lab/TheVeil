@@ -1,0 +1,110 @@
+{
+ "source": "Commercial_NPCs/CHR_Eddie.glb (hand-made reference)",
+ "removed_primitives": [
+  "Body/drawstrings"
+ ],
+ "textures": {
+  "T_Marcus_Jacket": [
+   64,
+   64,
+   5
+  ],
+  "T_Marcus_JacketCuff": [
+   32,
+   32,
+   3
+  ],
+  "T_Marcus_Flannel": [
+   64,
+   64,
+   7
+  ],
+  "T_Marcus_WorkPants": [
+   64,
+   64,
+   4
+  ],
+  "T_Marcus_PantsHem": [
+   32,
+   32,
+   3
+  ],
+  "T_Marcus_Skin": [
+   32,
+   32,
+   2
+  ],
+  "T_Marcus_Sole": [
+   32,
+   32,
+   2
+  ],
+  "T_Marcus_PocketFlap": [
+   32,
+   16,
+   5
+  ],
+  "T_Marcus_Hair": [
+   64,
+   64,
+   6
+  ],
+  "T_Marcus_Head": [
+   128,
+   64,
+   16
+  ],
+  "T_Marcus_Boots": [
+   64,
+   64,
+   9
+  ]
+ },
+ "triangles": 2716,
+ "parts": {
+  "Marcus_Body": 1762,
+  "Marcus_Hair": 360,
+  "Marcus_Head": 346,
+  "Marcus_Shoes": 248
+ },
+ "materials": [
+  "Marcus_Boots",
+  "Marcus_Flannel",
+  "Marcus_Hair",
+  "Marcus_Head",
+  "Marcus_Jacket",
+  "Marcus_JacketCuff",
+  "Marcus_PantsHem",
+  "Marcus_PocketFlap",
+  "Marcus_Skin",
+  "Marcus_Sole",
+  "Marcus_WorkPants"
+ ],
+ "bones": [
+  "Hips",
+  "LeftUpperLeg",
+  "LeftLowerLeg",
+  "LeftFoot",
+  "LeftToes",
+  "RightUpperLeg",
+  "RightLowerLeg",
+  "RightFoot",
+  "RightToes",
+  "Spine",
+  "Chest",
+  "UpperChest",
+  "LeftShoulder",
+  "LeftUpperArm",
+  "LeftLowerArm",
+  "LeftHand",
+  "Neck",
+  "Head",
+  "RightShoulder",
+  "RightUpperArm",
+  "RightLowerArm",
+  "RightHand"
+ ],
+ "height_m": 1.76,
+ "width_m": 1.173,
+ "glb": "06_Characters/Marcus/CHR_Marcus_v4.glb"
+}

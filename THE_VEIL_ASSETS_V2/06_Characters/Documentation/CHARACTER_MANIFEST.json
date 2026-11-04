@@ -64,11 +64,11 @@
    ]
   },
   {
-   "name": "CHR_Eddie",
+   "name": "CHR_Eddie_v1",
    "character": "Eddie",
-   "title": "Eddie - game-shop clerk (34)",
+   "title": "Eddie - game-shop clerk (34) (superseded by the hand-made reference CHR_Eddie)",
    "role": "Sarcastic, witty, loyal clerk at Greyhaven's independent video game shop.",
-   "glb": "06_Characters/Commercial_NPCs/CHR_Eddie.glb",
+   "glb": "06_Characters/Commercial_NPCs/CHR_Eddie_v1.glb",
    "texture": "06_Characters/Textures/T_Chr_Eddie.png",
    "texture_size": "256x256",
    "material": "06_Characters/Materials/M_Chr_Eddie.tres",
@@ -435,6 +435,93 @@
     "shoe_Left/leg_L": 114,
     "jacket/arm_L": 818,
     "brow/any": 96
+   }
+  }
+ ],
+ "style_models": [
+  {
+   "name": "CHR_Eddie",
+   "character": "Eddie",
+   "glb": "06_Characters/Commercial_NPCs/CHR_Eddie.glb",
+   "source": "hand-made in Blender by the project owner (Source_Blend/Eddie.blend)",
+   "role": "art-direction reference for every Pack 06 character",
+   "triangles": 2740,
+   "height_m": 1.818,
+   "materials": 11,
+   "bones": 22,
+   "sockets": [
+    "Socket_Head",
+    "Socket_Back",
+    "Socket_LeftHand",
+    "Socket_RightHand"
+   ]
+  },
+  {
+   "name": "CHR_Marcus_v4",
+   "character": "Marcus",
+   "glb": "06_Characters/Marcus/CHR_Marcus_v4.glb",
+   "source": "Source_Scripts/chr_style_from_eddie.py (derived from CHR_Eddie)",
+   "role": "style candidate - awaiting approval",
+   "triangles": 2716,
+   "height_m": 1.76,
+   "materials": 11,
+   "bones": 22,
+   "textures": {
+    "T_Marcus_Jacket": [
+     64,
+     64,
+     5
+    ],
+    "T_Marcus_JacketCuff": [
+     32,
+     32,
+     3
+    ],
+    "T_Marcus_Flannel": [
+     64,
+     64,
+     7
+    ],
+    "T_Marcus_WorkPants": [
+     64,
+     64,
+     4
+    ],
+    "T_Marcus_PantsHem": [
+     32,
+     32,
+     3
+    ],
+    "T_Marcus_Skin": [
+     32,
+     32,
+     2
+    ],
+    "T_Marcus_Sole": [
+     32,
+     32,
+     2
+    ],
+    "T_Marcus_PocketFlap": [
+     32,
+     16,
+     5
+    ],
+    "T_Marcus_Hair": [
+     64,
+     64,
+     6
+    ],
+    "T_Marcus_Head": [
+     128,
+     64,
+     16
+    ],
+    "T_Marcus_Boots": [
+     64,
+     64,
+     9
+    ]
    }
   }
  ]
