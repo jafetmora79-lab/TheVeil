@@ -34,7 +34,7 @@ There are no monsters and no mist: the town is still ordinary.
 **Placeholders (not canon):** the cashier is a generic model (`CHR_Cashier`; the bible names no cashier), the horror
 game has no title, the whole Phase 3 sequence and its lines are working draft, the Colossus is scaled 2.2x for the
 far-off glimpse, and every Eddie / Cashier / Marcus line is marked `"draft": true` in `game/data/dialogue.json`. Eddie's
-arms are lowered from his reference pose by a runtime bone rotation, because there is no body animation set yet.
+body is animated procedurally because no animation clips exist yet (see below).
 
 * **Engine:** Godot 4.3, Compatibility renderer (OpenGL 3 / WebGL 2).
 * **Project root:** the repository root (`project.godot`), so every asset keeps its `res://THE_VEIL_ASSETS_V2/...` path.
@@ -153,3 +153,18 @@ The story bible (section 2.1) makes the supermarket the opening's destination: "
 supermarket (signage, building, parking lot) is in the core town. The milestone completes when the car stands still
 for 1 s inside the parking lot, and the end card shows the drive time. The game shop is directly across Main St, and
 the protagonist mentions it (bible: he also wants a horror game) without leaving the scope of Phase 1.
+
+## NPC animation (procedural, `game/npc/npc_animator.gd`)
+
+Every NPC is spawned through `world.gd` `_spawn_npc()` and gets an `NpcAnimator` alongside its VeilFace. Motions are
+defined in skeleton space and use the character's real forward, measured from its feet, so they do not depend on
+bone-axis conventions. It provides:
+
+* **Rest pose:** arms down at the sides with a slight elbow bend, replacing the reference A-pose.
+* **Idle:** breathing, weight shift, arm sway and occasional glances.
+* **Look-at:** the head and neck track the camera. The body turns to face you when you are close or the NPC is
+  talking to you.
+* **Talking:** hand gestures and nods on every line of that speaker.
+* **`set_mood("scared")`:** hunched, faster breathing, arms drawn in. Used from the mist onwards.
+* **`walk_to(points)`:** a walk cycle along parent-local waypoints. Eddie walks to the shop door when the car dies,
+  both head for the back after the shop talk, and they step up to the supermarket doors.

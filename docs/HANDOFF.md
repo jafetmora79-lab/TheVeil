@@ -402,3 +402,17 @@ playthrough test to make sure everything still agrees.
   * A final reload checks the Phase 3 state.
 * **Expected output:** headless runs print `Parameter "m" is null` from the dummy renderer when the world is freed.
   It is harmless.
+
+### 9.11 NPC procedural animation
+
+* **What it is:** `game/npc/npc_animator.gd` (`NpcAnimator`). It covers rest pose, idle, look-at, body turn, talking
+  gestures, scared mood and the walk cycle on the shared humanoid rig. See the "NPC animation" section of
+  `game/README.md`. It replaced `_lower_arms()`.
+* **Tests:**
+  * arms within 25° of straight down;
+  * Eddie and the cashier face the right way;
+  * Eddie's gaze stays within 25° of the player;
+  * forearm gestures above 30° while talking;
+  * Eddie walks to the shop door, with a thigh swing above 20°.
+* **Gotcha:** never name a script method `_set` (it overrides `Object._set`).
+* **No IK:** feet can slide a little on turns. Real animation clips can replace this later.

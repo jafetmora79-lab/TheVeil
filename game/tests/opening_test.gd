@@ -321,10 +321,18 @@ func _run() -> void:
 	ok("shop_door_passable", shop_walk > (s_in - s_out).length() - 0.1, "walked %.2f of %.2f m" % [shop_walk, (s_in - s_out).length()])
 	var eddie_it = world.interactables.get("shop/eddie")
 	ok("eddie_present", world.eddie != null and world.eddie.find_children("*", "Skeleton3D", true, false).size() == 1)
-	var sk: Skeleton3D = world.eddie.find_children("*", "Skeleton3D", true, false)[0]
-	var hand_y := sk.get_bone_global_pose(sk.find_bone("LeftHand")).origin.y
-	var sh_y := sk.get_bone_global_pose(sk.find_bone("LeftUpperArm")).origin.y
-	ok("eddie_arms_lowered", hand_y < sh_y - 0.35, "hand y %.2f shoulder y %.2f" % [hand_y, sh_y])
+	var ea = world.animators["Eddie"]
+	await frames(5)
+	ok("eddie_arms_down", ea.arm_angle_from_down("Left") < 25.0 and ea.arm_angle_from_down("Right") < 25.0,
+		"L %.0f R %.0f deg from straight down" % [ea.arm_angle_from_down("Left"), ea.arm_angle_from_down("Right")])
+	ok("eddie_faces_customers", ea.world_forward().dot(-gs.global_transform.basis.z) > 0.9, str(ea.world_forward()))
+	# look-at: stand off to Eddie's side, his head turns toward the camera
+	player.global_position = world.eddie.global_position + gs.global_transform.basis * Vector3(-1.8, 0.0, -1.2)
+	await frames(60)
+	var gaze: Vector3 = ea.world_forward().rotated(Vector3.UP, ea._look.x)
+	var to_p: Vector3 = (player.global_position - world.eddie.global_position) * Vector3(1, 0, 1)
+	ok("eddie_looks_at_player", rad_to_deg(gaze.angle_to(to_p.normalized())) < 25.0,
+		"gaze off by %.0f deg (head yaw %.2f, body turned %s)" % [rad_to_deg(gaze.angle_to(to_p.normalized())), ea._look.x, ea.world_forward()])
 	ok("eddie_face", world.eddie_face != null and world.eddie_face._mat != null)
 	ok("eddie_talk_reach", await aim_at(player, eddie_it, -gs.global_transform.basis.z, 1.75))
 	var game_it = world.interactables.get("shop/horror_game")
@@ -336,7 +344,14 @@ func _run() -> void:
 	await frames(10)
 	ok("game_picked", game.has_item("horror_game"))
 	eddie_it.interact(player)
-	await frames(10)
+	var max_fore := 0.0
+	for i in 40:
+		await frames(3)
+		var sk: Skeleton3D = ea.skel
+		for side in ["Left", "Right"]:
+			var d: Vector3 = (sk.get_bone_global_pose(sk.find_bone(side + "Hand")).origin - sk.get_bone_global_pose(sk.find_bone(side + "LowerArm")).origin).normalized()
+			max_fore = maxf(max_fore, rad_to_deg(d.angle_to(-ea.U)))
+	ok("eddie_gestures_while_talking", max_fore > 30.0, "forearm up to %.0f deg" % max_fore)
 	ok("game_bought", game.has_flag("game_bought"))
 	ok("eddie_talks", world.eddie_face._talk_left > 0.0)
 	ok("objective_still_groceries", game.current_step().get("id", "") == "buy_groceries")
@@ -360,6 +375,7 @@ func _run() -> void:
 	ok("market_walk_from_lot_over_curb", lot_walk > (m_in - lot).length() - 0.1, "walked %.2f of %.2f m, end y %.2f" % [lot_walk, (m_in - lot).length(), player.global_position.y])
 	# checkout refuses an empty basket
 	var pay = world.interactables.get("market/cashier")
+	ok("cashier_faces_aisle", world.animators["Cashier"].world_forward().dot(mk.global_transform.basis.x) > 0.9)
 	ok("cashier_present", world.cashier != null and world.cashier.visible and world.faces.has("Cashier") and world.faces["Cashier"]._mat != null)
 	ok("cashier_reach", await aim_at(player, pay, ((mk.get_node("NavTargets/Checkout_4") as Node3D).global_position - pay.global_position) * Vector3(1, 0, 1), 1.6))
 	pay.interact(player)
@@ -406,6 +422,19 @@ func _run() -> void:
 	ok("p3_car_dead", not world.in_car and game.has_flag("phase2_done") and game.current_step().get("id", "") == "mist_shop", game.current_step().get("id", ""))
 	ok("p3_marcus_in_shop", world.marcus != null and world.marcus.get_parent() == gs and world.faces["Marcus"]._mat != null)
 	ok("p3_shop_door_held", sd.is_open)
+	ok("p3_npcs_scared", world.animators["Eddie"].mood == "scared" and world.animators["Marcus"].mood == "scared")
+	var leg_min := 999.0
+	var leg_max := -999.0
+	for i in 24:
+		await frames(15)
+		var es: Skeleton3D = world.animators["Eddie"].skel
+		var ld: Vector3 = (es.get_bone_global_pose(es.find_bone("LeftLowerLeg")).origin - es.get_bone_global_pose(es.find_bone("LeftUpperLeg")).origin).normalized()
+		var a: float = rad_to_deg(ld.signed_angle_to(-world.animators["Eddie"].U, world.animators["Eddie"].R))
+		leg_min = minf(leg_min, a)
+		leg_max = maxf(leg_max, a)
+	var e_end: Vector3 = world.eddie.position
+	ok("p3_eddie_walks_to_door", e_end.distance_to(Vector3(-2.2, 0.04, 1.3)) < 0.3, str(e_end))
+	ok("p3_walk_cycle_legs", leg_max - leg_min > 20.0, "thigh swing %.0f deg" % (leg_max - leg_min))
 	player.global_position = s_in + gs.global_transform.basis.z * 1.5
 	await frames(20)
 	ok("p3_in_shop", game.has_flag("p3_in_shop"))
