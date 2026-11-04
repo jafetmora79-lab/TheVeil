@@ -2,11 +2,11 @@
  "pack": "THE VEIL - Pack 06 Greyhaven Characters",
  "models": [
   {
-   "name": "CHR_Protagonist",
+   "name": "CHR_Protagonist_v1",
    "character": "Protagonist",
-   "title": "The protagonist (player character, name TBD)",
+   "title": "The protagonist (player character, name TBD) (rev 1 backup; superseded by the style-rev-4 model)",
    "role": "Ordinary man in his early-to-mid 30s who lives alone; wakes Friday 6:42 PM, goes for groceries and a horror game.",
-   "glb": "06_Characters/Protagonist/CHR_Protagonist.glb",
+   "glb": "06_Characters/Protagonist/CHR_Protagonist_v1.glb",
    "texture": "06_Characters/Textures/T_Chr_Protagonist.png",
    "texture_size": "256x256",
    "material": "06_Characters/Materials/M_Chr_Protagonist.tres",
@@ -34,11 +34,11 @@
    ]
   },
   {
-   "name": "CHR_Protagonist_FP_Arms",
+   "name": "CHR_Protagonist_FP_Arms_v1",
    "character": "Protagonist",
-   "title": "The protagonist (player character, name TBD) - first-person arms",
+   "title": "The protagonist (player character, name TBD) - first-person arms (rev 1 backup; superseded by the style-rev-4 model)",
    "role": "first-person view model",
-   "glb": "06_Characters/Protagonist/CHR_Protagonist_FP_Arms.glb",
+   "glb": "06_Characters/Protagonist/CHR_Protagonist_FP_Arms_v1.glb",
    "texture": "06_Characters/Textures/T_Chr_Protagonist.png",
    "texture_size": "256x256",
    "material": "06_Characters/Materials/M_Chr_Protagonist.tres",
@@ -95,11 +95,11 @@
    ]
   },
   {
-   "name": "CHR_Marcus",
+   "name": "CHR_Marcus_v1",
    "character": "Marcus",
-   "title": "Marcus - Noah's father (43)",
+   "title": "Marcus - Noah's father (43) (rev 1 backup; superseded by the style-rev-4 model)",
    "role": "Protective, impulsive father searching for his missing son Noah; exhausted and worried.",
-   "glb": "06_Characters/Marcus/CHR_Marcus.glb",
+   "glb": "06_Characters/Marcus/CHR_Marcus_v1.glb",
    "texture": "06_Characters/Textures/T_Chr_Marcus.png",
    "texture_size": "256x256",
    "material": "06_Characters/Materials/M_Chr_Marcus.tres",
@@ -126,11 +126,11 @@
    ]
   },
   {
-   "name": "CHR_Ruth",
+   "name": "CHR_Ruth_v1",
    "character": "Ruth",
-   "title": "Ruth - retired librarian (68)",
+   "title": "Ruth - retired librarian (68) (rev 1 backup; superseded by the style-rev-4 model)",
    "role": "Quiet, observant longtime resident with knowledge of Greyhaven's history.",
-   "glb": "06_Characters/Civilians/CHR_Ruth.glb",
+   "glb": "06_Characters/Civilians/CHR_Ruth_v1.glb",
    "texture": "06_Characters/Textures/T_Chr_Ruth.png",
    "texture_size": "256x256",
    "material": "06_Characters/Materials/M_Chr_Ruth.tres",
@@ -157,11 +157,11 @@
    ]
   },
   {
-   "name": "CHR_Sarah",
+   "name": "CHR_Sarah_v1",
    "character": "Sarah",
-   "title": "Sarah - paramedic",
+   "title": "Sarah - paramedic (rev 1 backup; superseded by the style-rev-4 model)",
    "role": "Practical, skeptical emergency medical worker.",
-   "glb": "06_Characters/Civilians/CHR_Sarah.glb",
+   "glb": "06_Characters/Civilians/CHR_Sarah_v1.glb",
    "texture": "06_Characters/Textures/T_Chr_Sarah.png",
    "texture_size": "256x256",
    "material": "06_Characters/Materials/M_Chr_Sarah.tres",
@@ -188,11 +188,11 @@
    ]
   },
   {
-   "name": "CHR_Frank",
+   "name": "CHR_Frank_v1",
    "character": "Frank",
-   "title": "Frank - security guard",
+   "title": "Frank - security guard (rev 1 backup; superseded by the style-rev-4 model)",
    "role": "Serious, overconfident middle-aged security guard; not a tactical commando.",
-   "glb": "06_Characters/Commercial_NPCs/CHR_Frank.glb",
+   "glb": "06_Characters/Commercial_NPCs/CHR_Frank_v1.glb",
    "texture": "06_Characters/Textures/T_Chr_Frank.png",
    "texture_size": "256x256",
    "material": "06_Characters/Materials/M_Chr_Frank.tres",
@@ -219,11 +219,11 @@
    ]
   },
   {
-   "name": "CHR_Lena",
+   "name": "CHR_Lena_v1",
    "character": "Lena",
-   "title": "Lena - student investigator",
+   "title": "Lena - student investigator (rev 1 backup; superseded by the style-rev-4 model)",
    "role": "Curious, determined, analytical student looking into Greyhaven's disappearances.",
-   "glb": "06_Characters/Civilians/CHR_Lena.glb",
+   "glb": "06_Characters/Civilians/CHR_Lena_v1.glb",
    "texture": "06_Characters/Textures/T_Chr_Lena.png",
    "texture_size": "256x256",
    "material": "06_Characters/Materials/M_Chr_Lena.tres",
@@ -250,11 +250,11 @@
    ]
   },
   {
-   "name": "CHR_Police_Officer",
+   "name": "CHR_Police_Officer_v1",
    "character": "Police_Officer",
-   "title": "Greyhaven police officer (Officer Hayes candidate - identity TBD)",
+   "title": "Greyhaven police officer (Officer Hayes candidate - identity TBD) (rev 1 backup; superseded by the style-rev-4 model)",
    "role": "Generic Greyhaven officer; can be assigned to Officer Hayes once the story fixes his/her identity.",
-   "glb": "06_Characters/Police/CHR_Police_Officer.glb",
+   "glb": "06_Characters/Police/CHR_Police_Officer_v1.glb",
    "texture": "06_Characters/Textures/T_Chr_Police_Officer.png",
    "texture_size": "256x256",
    "material": "06_Characters/Materials/M_Chr_Police_Officer.tres",
@@ -457,70 +457,493 @@
    ]
   },
   {
-   "name": "CHR_Marcus_v4",
+   "name": "CHR_Marcus",
    "character": "Marcus",
-   "glb": "06_Characters/Marcus/CHR_Marcus_v4.glb",
-   "source": "Source_Scripts/chr_style_from_eddie.py (derived from CHR_Eddie)",
-   "role": "style candidate - awaiting approval",
+   "glb": "06_Characters/Marcus/CHR_Marcus.glb",
+   "source": "Source_Scripts/chr_style_from_eddie.py",
+   "status": "approved",
    "triangles": 2716,
    "height_m": 1.76,
    "materials": 11,
+   "bones": 22
+  },
+  {
+   "name": "CHR_Protagonist",
+   "character": "Protagonist",
+   "glb": "06_Characters/Protagonist/CHR_Protagonist.glb",
+   "source": "Source_Scripts/chr_style_cast.py",
+   "status": "style rev 4",
+   "triangles": 2706,
+   "parts": {
+    "Protagonist_Body": 1752,
+    "Protagonist_Hair": 360,
+    "Protagonist_Head": 346,
+    "Protagonist_Shoes": 248
+   },
+   "height_m": 1.78,
+   "materials": 11,
    "bones": 22,
    "textures": {
-    "T_Marcus_Jacket": [
-     64,
-     64,
-     5
-    ],
-    "T_Marcus_JacketCuff": [
-     32,
-     32,
-     3
-    ],
-    "T_Marcus_Flannel": [
-     64,
-     64,
-     7
-    ],
-    "T_Marcus_WorkPants": [
+    "T_Protagonist_Top": [
      64,
      64,
      4
     ],
-    "T_Marcus_PantsHem": [
+    "T_Protagonist_TopCuff": [
      32,
      32,
      3
     ],
-    "T_Marcus_Skin": [
+    "T_Protagonist_Shirt": [
+     64,
+     64,
+     2
+    ],
+    "T_Protagonist_Pants": [
+     64,
+     64,
+     3
+    ],
+    "T_Protagonist_PantsHem": [
+     32,
+     32,
+     3
+    ],
+    "T_Protagonist_Skin": [
      32,
      32,
      2
     ],
-    "T_Marcus_Sole": [
+    "T_Protagonist_Sole": [
      32,
      32,
-     2
+     1
     ],
-    "T_Marcus_PocketFlap": [
+    "T_Protagonist_Badge": [
      32,
      16,
-     5
+     1
     ],
-    "T_Marcus_Hair": [
+    "T_Protagonist_Hair": [
+     64,
+     64,
+     4
+    ],
+    "T_Protagonist_Head": [
+     128,
+     64,
+     12
+    ],
+    "T_Protagonist_Shoes": [
+     64,
+     64,
+     8
+    ]
+   }
+  },
+  {
+   "name": "CHR_Protagonist_FP_Arms",
+   "character": "Protagonist",
+   "glb": "06_Characters/Protagonist/CHR_Protagonist_FP_Arms.glb",
+   "source": "Source_Scripts/chr_style_cast.py",
+   "status": "style rev 4",
+   "role": "first-person arms (sleeve + hand triangles of the full model, same rig)",
+   "bones": 22
+  },
+  {
+   "name": "CHR_Ruth",
+   "character": "Ruth",
+   "glb": "06_Characters/Civilians/CHR_Ruth.glb",
+   "source": "Source_Scripts/chr_style_cast.py",
+   "status": "style rev 4",
+   "triangles": 2780,
+   "parts": {
+    "Ruth_Body": 1762,
+    "Ruth_Hair": 360,
+    "Ruth_Head": 346,
+    "Ruth_Shoes": 248,
+    "Ruth_HairExtras": 64
+   },
+   "height_m": 1.6,
+   "materials": 11,
+   "bones": 22,
+   "textures": {
+    "T_Ruth_Top": [
+     64,
+     64,
+     3
+    ],
+    "T_Ruth_TopCuff": [
+     32,
+     32,
+     3
+    ],
+    "T_Ruth_Shirt": [
+     64,
+     64,
+     3
+    ],
+    "T_Ruth_Pants": [
+     64,
+     64,
+     3
+    ],
+    "T_Ruth_PantsHem": [
+     32,
+     32,
+     3
+    ],
+    "T_Ruth_Skin": [
+     32,
+     32,
+     2
+    ],
+    "T_Ruth_Sole": [
+     32,
+     32,
+     1
+    ],
+    "T_Ruth_Badge": [
+     32,
+     16,
+     3
+    ],
+    "T_Ruth_Hair": [
+     64,
+     64,
+     4
+    ],
+    "T_Ruth_Head": [
+     128,
+     64,
+     13
+    ],
+    "T_Ruth_Shoes": [
      64,
      64,
      6
+    ]
+   }
+  },
+  {
+   "name": "CHR_Sarah",
+   "character": "Sarah",
+   "glb": "06_Characters/Civilians/CHR_Sarah.glb",
+   "source": "Source_Scripts/chr_style_cast.py",
+   "status": "style rev 4",
+   "triangles": 2964,
+   "parts": {
+    "Sarah_Body": 1762,
+    "Sarah_Hair": 360,
+    "Sarah_Head": 346,
+    "Sarah_Shoes": 248,
+    "Sarah_HairExtras": 56,
+    "Sarah_GearExtras": 192
+   },
+   "height_m": 1.68,
+   "materials": 12,
+   "bones": 22,
+   "textures": {
+    "T_Sarah_Top": [
+     64,
+     64,
+     2
     ],
-    "T_Marcus_Head": [
+    "T_Sarah_TopCuff": [
+     32,
+     32,
+     3
+    ],
+    "T_Sarah_Shirt": [
+     64,
+     64,
+     4
+    ],
+    "T_Sarah_Pants": [
+     64,
+     64,
+     2
+    ],
+    "T_Sarah_PantsHem": [
+     32,
+     32,
+     3
+    ],
+    "T_Sarah_Skin": [
+     32,
+     32,
+     2
+    ],
+    "T_Sarah_Sole": [
+     32,
+     32,
+     1
+    ],
+    "T_Sarah_Badge": [
+     32,
+     16,
+     2
+    ],
+    "T_Sarah_Hair": [
+     64,
+     64,
+     4
+    ],
+    "T_Sarah_Head": [
      128,
      64,
-     16
+     12
     ],
-    "T_Marcus_Boots": [
+    "T_Sarah_Shoes": [
      64,
      64,
-     9
+     7
+    ],
+    "T_Sarah_Gear": [
+     32,
+     32,
+     16
+    ]
+   }
+  },
+  {
+   "name": "CHR_Frank",
+   "character": "Frank",
+   "glb": "06_Characters/Commercial_NPCs/CHR_Frank.glb",
+   "source": "Source_Scripts/chr_style_cast.py",
+   "status": "style rev 4",
+   "triangles": 2944,
+   "parts": {
+    "Frank_Body": 1762,
+    "Frank_Hair": 360,
+    "Frank_Head": 346,
+    "Frank_Shoes": 248,
+    "Frank_GearExtras": 228
+   },
+   "height_m": 1.76,
+   "materials": 12,
+   "bones": 22,
+   "textures": {
+    "T_Frank_Top": [
+     64,
+     64,
+     2
+    ],
+    "T_Frank_TopCuff": [
+     32,
+     32,
+     3
+    ],
+    "T_Frank_Shirt": [
+     64,
+     64,
+     5
+    ],
+    "T_Frank_Pants": [
+     64,
+     64,
+     2
+    ],
+    "T_Frank_PantsHem": [
+     32,
+     32,
+     3
+    ],
+    "T_Frank_Skin": [
+     32,
+     32,
+     2
+    ],
+    "T_Frank_Sole": [
+     32,
+     32,
+     1
+    ],
+    "T_Frank_Badge": [
+     32,
+     16,
+     3
+    ],
+    "T_Frank_Hair": [
+     64,
+     64,
+     4
+    ],
+    "T_Frank_Head": [
+     128,
+     64,
+     11
+    ],
+    "T_Frank_Shoes": [
+     64,
+     64,
+     7
+    ],
+    "T_Frank_Gear": [
+     32,
+     32,
+     16
+    ]
+   }
+  },
+  {
+   "name": "CHR_Lena",
+   "character": "Lena",
+   "glb": "06_Characters/Civilians/CHR_Lena.glb",
+   "source": "Source_Scripts/chr_style_cast.py",
+   "status": "style rev 4",
+   "triangles": 2752,
+   "parts": {
+    "Lena_Body": 1762,
+    "Lena_Hair": 360,
+    "Lena_Head": 346,
+    "Lena_Shoes": 248,
+    "Lena_GearExtras": 36
+   },
+   "height_m": 1.65,
+   "materials": 12,
+   "bones": 22,
+   "textures": {
+    "T_Lena_Top": [
+     64,
+     64,
+     4
+    ],
+    "T_Lena_TopCuff": [
+     32,
+     32,
+     3
+    ],
+    "T_Lena_Shirt": [
+     64,
+     64,
+     4
+    ],
+    "T_Lena_Pants": [
+     64,
+     64,
+     3
+    ],
+    "T_Lena_PantsHem": [
+     32,
+     32,
+     3
+    ],
+    "T_Lena_Skin": [
+     32,
+     32,
+     2
+    ],
+    "T_Lena_Sole": [
+     32,
+     32,
+     1
+    ],
+    "T_Lena_Badge": [
+     32,
+     16,
+     3
+    ],
+    "T_Lena_Hair": [
+     64,
+     64,
+     4
+    ],
+    "T_Lena_Head": [
+     128,
+     64,
+     12
+    ],
+    "T_Lena_Shoes": [
+     64,
+     64,
+     7
+    ],
+    "T_Lena_Gear": [
+     32,
+     32,
+     16
+    ]
+   }
+  },
+  {
+   "name": "CHR_Police_Officer",
+   "character": "Police_Officer",
+   "glb": "06_Characters/Police/CHR_Police_Officer.glb",
+   "source": "Source_Scripts/chr_style_cast.py",
+   "status": "style rev 4",
+   "triangles": 3154,
+   "parts": {
+    "Police_Officer_Body": 1762,
+    "Police_Officer_Hair": 360,
+    "Police_Officer_Head": 346,
+    "Police_Officer_Shoes": 248,
+    "Police_Officer_HairExtras": 64,
+    "Police_Officer_GearExtras": 374
+   },
+   "height_m": 1.765,
+   "materials": 12,
+   "bones": 22,
+   "textures": {
+    "T_Police_Officer_Top": [
+     64,
+     64,
+     2
+    ],
+    "T_Police_Officer_TopCuff": [
+     32,
+     32,
+     3
+    ],
+    "T_Police_Officer_Shirt": [
+     64,
+     64,
+     5
+    ],
+    "T_Police_Officer_Pants": [
+     64,
+     64,
+     2
+    ],
+    "T_Police_Officer_PantsHem": [
+     32,
+     32,
+     3
+    ],
+    "T_Police_Officer_Skin": [
+     32,
+     32,
+     2
+    ],
+    "T_Police_Officer_Sole": [
+     32,
+     32,
+     1
+    ],
+    "T_Police_Officer_Badge": [
+     32,
+     16,
+     4
+    ],
+    "T_Police_Officer_Hair": [
+     64,
+     64,
+     3
+    ],
+    "T_Police_Officer_Head": [
+     128,
+     64,
+     11
+    ],
+    "T_Police_Officer_Shoes": [
+     64,
+     64,
+     7
+    ],
+    "T_Police_Officer_Gear": [
+     32,
+     32,
+     16
     ]
    }
   }

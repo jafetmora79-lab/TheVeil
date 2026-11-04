@@ -18,7 +18,7 @@ def body(**kw):
 
 ROSTER = [
     # ---------------------------------------------------------------- protagonist (player)
-    dict(name="Protagonist", folder="Protagonist", title="The protagonist (player character, name TBD)",
+    dict(name="Protagonist", file="Protagonist_v1", folder="Protagonist", title="The protagonist (player character, name TBD)",
          role="Ordinary man in his early-to-mid 30s who lives alone; wakes Friday 6:42 PM, goes for groceries and a horror game.",
          height=1.78, eye_marker=True, fp_arms=True,
          body=body(stoop=4, shoulder_w=0.205, chest_w=0.172, belly=0.008, shoulder_tilt=1.5, neck_fwd=0.012),
@@ -49,7 +49,7 @@ ROSTER = [
                    details=["tee_graphic", "name_tag:EDDIE", "drawstrings"]),
          acc=[("hood",), ("front_pocket", 0.60, 0.17, 0.09)]),
     # ---------------------------------------------------------------- Marcus (Noah's father)
-    dict(name="Marcus", folder="Marcus", title="Marcus - Noah's father (43)",
+    dict(name="Marcus", file="Marcus_v1", folder="Marcus", title="Marcus - Noah's father (43)",
          role="Protective, impulsive father searching for his missing son Noah; exhausted and worried.",
          height=1.83,
          body=body(stoop=3, shoulder_w=0.235, chest_w=0.205, chest_d=0.145, waist_w=0.185, waist_d=0.135, hip_w=0.18, belly=0.03,
@@ -65,7 +65,7 @@ ROSTER = [
                    details=["jacket_patch", "jacket_pockets", "zipper", "wear"]),
          acc=[("collar",)]),
     # ---------------------------------------------------------------- Ruth (retired librarian)
-    dict(name="Ruth", folder="Civilians", title="Ruth - retired librarian (68)",
+    dict(name="Ruth", file="Ruth_v1", folder="Civilians", title="Ruth - retired librarian (68)",
          role="Quiet, observant longtime resident with knowledge of Greyhaven's history.",
          height=1.60,
          body=body(stoop=13, shoulder_w=0.175, chest_w=0.150, chest_d=0.115, waist_w=0.140, hip_w=0.165, hip_d=0.12, bust=0.012,
@@ -81,7 +81,7 @@ ROSTER = [
                    details=["buttons", "brooch"]),
          acc=[("glasses", 0.042)]),
     # ---------------------------------------------------------------- Sarah (paramedic)
-    dict(name="Sarah", folder="Civilians", title="Sarah - paramedic",
+    dict(name="Sarah", file="Sarah_v1", folder="Civilians", title="Sarah - paramedic",
          role="Practical, skeptical emergency medical worker.",
          height=1.68,
          body=body(shoulder_w=0.19, chest_w=0.158, chest_d=0.12, waist_w=0.135, hip_w=0.16, bust=0.014,
@@ -96,7 +96,7 @@ ROSTER = [
                    details=["reflective", "patch:EMS", "pocket_flaps"]),
          acc=[("belt", 0.545, 0.045), ("pouch", 1.2), ("pouch", -1.25), ("radio_chest", 0.55)]),
     # ---------------------------------------------------------------- Frank (security guard)
-    dict(name="Frank", folder="Commercial_NPCs", title="Frank - security guard",
+    dict(name="Frank", file="Frank_v1", folder="Commercial_NPCs", title="Frank - security guard",
          role="Serious, overconfident middle-aged security guard; not a tactical commando.",
          height=1.76,
          body=body(stoop=-3, shoulder_w=0.225, chest_w=0.205, chest_d=0.15, waist_w=0.20, waist_d=0.155, hip_w=0.185, hip_d=0.13,
@@ -111,7 +111,7 @@ ROSTER = [
                    details=["patch:SECURITY", "buttons", "pocket_flaps", "epaulettes"]),
          acc=[("belt", 0.535, 0.05), ("radio_belt", 1.35), ("flashlight", -1.3), ("keys", -2.0), ("badge", 0.42)]),
     # ---------------------------------------------------------------- Lena (student investigator)
-    dict(name="Lena", folder="Civilians", title="Lena - student investigator",
+    dict(name="Lena", file="Lena_v1", folder="Civilians", title="Lena - student investigator",
          role="Curious, determined, analytical student looking into Greyhaven's disappearances.",
          height=1.65,
          body=body(stoop=2, shoulder_w=0.18, chest_w=0.15, chest_d=0.118, waist_w=0.128, hip_w=0.155, bust=0.01,
@@ -126,7 +126,7 @@ ROSTER = [
                    details=["bag_strap", "plaid"]),
          acc=[("bag_hip", -1.6)]),
     # ---------------------------------------------------------------- Greyhaven police officer (Officer Hayes candidate)
-    dict(name="Police_Officer", folder="Police", title="Greyhaven police officer (Officer Hayes candidate - identity TBD)",
+    dict(name="Police_Officer", file="Police_Officer_v1", folder="Police", title="Greyhaven police officer (Officer Hayes candidate - identity TBD)",
          role="Generic Greyhaven officer; can be assigned to Officer Hayes once the story fixes his/her identity.",
          height=1.72,
          body=body(shoulder_w=0.20, chest_w=0.17, chest_d=0.128, waist_w=0.15, hip_w=0.168, bust=0.008,

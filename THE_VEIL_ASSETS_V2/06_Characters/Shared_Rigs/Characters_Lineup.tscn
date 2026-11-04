@@ -1,4 +1,4 @@
-[gd_scene load_steps=16 format=3]
+[gd_scene load_steps=23 format=3]
 
 [ext_resource type="PackedScene" path="res://THE_VEIL_ASSETS_V2/06_Characters/Protagonist/CHR_Protagonist.glb" id="1_Protagonist"]
 [ext_resource type="PackedScene" path="res://THE_VEIL_ASSETS_V2/06_Characters/Protagonist/CHR_Protagonist_FP_Arms.glb" id="2_Protagonist"]
@@ -14,7 +14,14 @@
 [ext_resource type="PackedScene" path="res://THE_VEIL_ASSETS_V2/06_Characters/Commercial_NPCs/CHR_Eddie_v3.glb" id="12_Eddie_v3"]
 [ext_resource type="PackedScene" path="res://THE_VEIL_ASSETS_V2/06_Characters/Marcus/CHR_Marcus_v3.glb" id="13_Marcus_v3"]
 [ext_resource type="PackedScene" path="res://THE_VEIL_ASSETS_V2/06_Characters/Commercial_NPCs/CHR_Eddie_v1.glb" id="14_Eddie_v1"]
-[ext_resource type="PackedScene" path="res://THE_VEIL_ASSETS_V2/06_Characters/Marcus/CHR_Marcus_v4.glb" id="15_Marcus_v4"]
+[ext_resource type="PackedScene" path="res://THE_VEIL_ASSETS_V2/06_Characters/Protagonist/CHR_Protagonist_v1.glb" id="16_Protagonist_v1"]
+[ext_resource type="PackedScene" path="res://THE_VEIL_ASSETS_V2/06_Characters/Protagonist/CHR_Protagonist_FP_Arms_v1.glb" id="17_Protagonist_FP_Arms_v1"]
+[ext_resource type="PackedScene" path="res://THE_VEIL_ASSETS_V2/06_Characters/Marcus/CHR_Marcus_v1.glb" id="18_Marcus_v1"]
+[ext_resource type="PackedScene" path="res://THE_VEIL_ASSETS_V2/06_Characters/Civilians/CHR_Ruth_v1.glb" id="19_Ruth_v1"]
+[ext_resource type="PackedScene" path="res://THE_VEIL_ASSETS_V2/06_Characters/Civilians/CHR_Sarah_v1.glb" id="20_Sarah_v1"]
+[ext_resource type="PackedScene" path="res://THE_VEIL_ASSETS_V2/06_Characters/Commercial_NPCs/CHR_Frank_v1.glb" id="21_Frank_v1"]
+[ext_resource type="PackedScene" path="res://THE_VEIL_ASSETS_V2/06_Characters/Civilians/CHR_Lena_v1.glb" id="22_Lena_v1"]
+[ext_resource type="PackedScene" path="res://THE_VEIL_ASSETS_V2/06_Characters/Police/CHR_Police_Officer_v1.glb" id="23_Police_Officer_v1"]
 
 [node name="Characters_Lineup" type="Node3D"]
 
@@ -60,5 +67,26 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 6.05, 0.0, 0)
 [node name="CHR_Eddie_v1" parent="." instance=ExtResource("14_Eddie_v1")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 7.15, 0.0, 0)
 
-[node name="CHR_Marcus_v4" parent="." instance=ExtResource("15_Marcus_v4")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -3.85, 0.0, 1.6)
+[node name="CHR_Protagonist_v1" parent="." instance=ExtResource("16_Protagonist_v1")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -7.15, 0.0, 3.2)
+
+[node name="CHR_Protagonist_FP_Arms_v1" parent="." instance=ExtResource("17_Protagonist_FP_Arms_v1")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -6.05, 1.62, 3.2)
+
+[node name="CHR_Marcus_v1" parent="." instance=ExtResource("18_Marcus_v1")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -4.95, 0.0, 3.2)
+
+[node name="CHR_Ruth_v1" parent="." instance=ExtResource("19_Ruth_v1")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -3.85, 0.0, 3.2)
+
+[node name="CHR_Sarah_v1" parent="." instance=ExtResource("20_Sarah_v1")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2.75, 0.0, 3.2)
+
+[node name="CHR_Frank_v1" parent="." instance=ExtResource("21_Frank_v1")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1.65, 0.0, 3.2)
+
+[node name="CHR_Lena_v1" parent="." instance=ExtResource("22_Lena_v1")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.55, 0.0, 3.2)
+
+[node name="CHR_Police_Officer_v1" parent="." instance=ExtResource("23_Police_Officer_v1")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.55, 0.0, 3.2)

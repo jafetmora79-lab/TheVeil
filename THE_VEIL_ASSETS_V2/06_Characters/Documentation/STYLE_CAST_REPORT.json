@@ -1,0 +1,481 @@
+[
+ {
+  "name": "Protagonist",
+  "source": "Commercial_NPCs/CHR_Eddie.glb (hand-made reference)",
+  "removed": [
+   "drawstrings",
+   "badge"
+  ],
+  "textures": {
+   "T_Protagonist_Top": [
+    64,
+    64,
+    4
+   ],
+   "T_Protagonist_TopCuff": [
+    32,
+    32,
+    3
+   ],
+   "T_Protagonist_Shirt": [
+    64,
+    64,
+    2
+   ],
+   "T_Protagonist_Pants": [
+    64,
+    64,
+    3
+   ],
+   "T_Protagonist_PantsHem": [
+    32,
+    32,
+    3
+   ],
+   "T_Protagonist_Skin": [
+    32,
+    32,
+    2
+   ],
+   "T_Protagonist_Sole": [
+    32,
+    32,
+    1
+   ],
+   "T_Protagonist_Badge": [
+    32,
+    16,
+    1
+   ],
+   "T_Protagonist_Hair": [
+    64,
+    64,
+    4
+   ],
+   "T_Protagonist_Head": [
+    128,
+    64,
+    12
+   ],
+   "T_Protagonist_Shoes": [
+    64,
+    64,
+    8
+   ]
+  },
+  "glb": "06_Characters/Protagonist/CHR_Protagonist.glb",
+  "fp_arms": "06_Characters/Protagonist/CHR_Protagonist_FP_Arms.glb",
+  "triangles": 2706,
+  "parts": {
+   "Protagonist_Body": 1752,
+   "Protagonist_Hair": 360,
+   "Protagonist_Head": 346,
+   "Protagonist_Shoes": 248
+  },
+  "materials": 11,
+  "height_m": 1.78,
+  "width_m": 1.159
+ },
+ {
+  "name": "Ruth",
+  "source": "Commercial_NPCs/CHR_Eddie.glb (hand-made reference)",
+  "removed": [
+   "drawstrings"
+  ],
+  "textures": {
+   "T_Ruth_Top": [
+    64,
+    64,
+    3
+   ],
+   "T_Ruth_TopCuff": [
+    32,
+    32,
+    3
+   ],
+   "T_Ruth_Shirt": [
+    64,
+    64,
+    3
+   ],
+   "T_Ruth_Pants": [
+    64,
+    64,
+    3
+   ],
+   "T_Ruth_PantsHem": [
+    32,
+    32,
+    3
+   ],
+   "T_Ruth_Skin": [
+    32,
+    32,
+    2
+   ],
+   "T_Ruth_Sole": [
+    32,
+    32,
+    1
+   ],
+   "T_Ruth_Badge": [
+    32,
+    16,
+    3
+   ],
+   "T_Ruth_Hair": [
+    64,
+    64,
+    4
+   ],
+   "T_Ruth_Head": [
+    128,
+    64,
+    13
+   ],
+   "T_Ruth_Shoes": [
+    64,
+    64,
+    6
+   ]
+  },
+  "glb": "06_Characters/Civilians/CHR_Ruth.glb",
+  "triangles": 2780,
+  "parts": {
+   "Ruth_Body": 1762,
+   "Ruth_Hair": 360,
+   "Ruth_Head": 346,
+   "Ruth_Shoes": 248,
+   "Ruth_HairExtras": 64
+  },
+  "materials": 11,
+  "height_m": 1.6,
+  "width_m": 0.998
+ },
+ {
+  "name": "Sarah",
+  "source": "Commercial_NPCs/CHR_Eddie.glb (hand-made reference)",
+  "removed": [
+   "drawstrings"
+  ],
+  "textures": {
+   "T_Sarah_Top": [
+    64,
+    64,
+    2
+   ],
+   "T_Sarah_TopCuff": [
+    32,
+    32,
+    3
+   ],
+   "T_Sarah_Shirt": [
+    64,
+    64,
+    4
+   ],
+   "T_Sarah_Pants": [
+    64,
+    64,
+    2
+   ],
+   "T_Sarah_PantsHem": [
+    32,
+    32,
+    3
+   ],
+   "T_Sarah_Skin": [
+    32,
+    32,
+    2
+   ],
+   "T_Sarah_Sole": [
+    32,
+    32,
+    1
+   ],
+   "T_Sarah_Badge": [
+    32,
+    16,
+    2
+   ],
+   "T_Sarah_Hair": [
+    64,
+    64,
+    4
+   ],
+   "T_Sarah_Head": [
+    128,
+    64,
+    12
+   ],
+   "T_Sarah_Shoes": [
+    64,
+    64,
+    7
+   ],
+   "T_Sarah_Gear": [
+    32,
+    32,
+    16
+   ]
+  },
+  "glb": "06_Characters/Civilians/CHR_Sarah.glb",
+  "triangles": 2964,
+  "parts": {
+   "Sarah_Body": 1762,
+   "Sarah_Hair": 360,
+   "Sarah_Head": 346,
+   "Sarah_Shoes": 248,
+   "Sarah_HairExtras": 56,
+   "Sarah_GearExtras": 192
+  },
+  "materials": 12,
+  "height_m": 1.68,
+  "width_m": 1.065
+ },
+ {
+  "name": "Frank",
+  "source": "Commercial_NPCs/CHR_Eddie.glb (hand-made reference)",
+  "removed": [
+   "drawstrings"
+  ],
+  "textures": {
+   "T_Frank_Top": [
+    64,
+    64,
+    2
+   ],
+   "T_Frank_TopCuff": [
+    32,
+    32,
+    3
+   ],
+   "T_Frank_Shirt": [
+    64,
+    64,
+    5
+   ],
+   "T_Frank_Pants": [
+    64,
+    64,
+    2
+   ],
+   "T_Frank_PantsHem": [
+    32,
+    32,
+    3
+   ],
+   "T_Frank_Skin": [
+    32,
+    32,
+    2
+   ],
+   "T_Frank_Sole": [
+    32,
+    32,
+    1
+   ],
+   "T_Frank_Badge": [
+    32,
+    16,
+    3
+   ],
+   "T_Frank_Hair": [
+    64,
+    64,
+    4
+   ],
+   "T_Frank_Head": [
+    128,
+    64,
+    11
+   ],
+   "T_Frank_Shoes": [
+    64,
+    64,
+    7
+   ],
+   "T_Frank_Gear": [
+    32,
+    32,
+    16
+   ]
+  },
+  "glb": "06_Characters/Commercial_NPCs/CHR_Frank.glb",
+  "triangles": 2944,
+  "parts": {
+   "Frank_Body": 1762,
+   "Frank_Hair": 360,
+   "Frank_Head": 346,
+   "Frank_Shoes": 248,
+   "Frank_GearExtras": 228
+  },
+  "materials": 12,
+  "height_m": 1.76,
+  "width_m": 1.181
+ },
+ {
+  "name": "Lena",
+  "source": "Commercial_NPCs/CHR_Eddie.glb (hand-made reference)",
+  "removed": [
+   "drawstrings"
+  ],
+  "textures": {
+   "T_Lena_Top": [
+    64,
+    64,
+    4
+   ],
+   "T_Lena_TopCuff": [
+    32,
+    32,
+    3
+   ],
+   "T_Lena_Shirt": [
+    64,
+    64,
+    4
+   ],
+   "T_Lena_Pants": [
+    64,
+    64,
+    3
+   ],
+   "T_Lena_PantsHem": [
+    32,
+    32,
+    3
+   ],
+   "T_Lena_Skin": [
+    32,
+    32,
+    2
+   ],
+   "T_Lena_Sole": [
+    32,
+    32,
+    1
+   ],
+   "T_Lena_Badge": [
+    32,
+    16,
+    3
+   ],
+   "T_Lena_Hair": [
+    64,
+    64,
+    4
+   ],
+   "T_Lena_Head": [
+    128,
+    64,
+    12
+   ],
+   "T_Lena_Shoes": [
+    64,
+    64,
+    7
+   ],
+   "T_Lena_Gear": [
+    32,
+    32,
+    16
+   ]
+  },
+  "glb": "06_Characters/Civilians/CHR_Lena.glb",
+  "triangles": 2752,
+  "parts": {
+   "Lena_Body": 1762,
+   "Lena_Hair": 360,
+   "Lena_Head": 346,
+   "Lena_Shoes": 248,
+   "Lena_GearExtras": 36
+  },
+  "materials": 12,
+  "height_m": 1.65,
+  "width_m": 1.037
+ },
+ {
+  "name": "Police_Officer",
+  "source": "Commercial_NPCs/CHR_Eddie.glb (hand-made reference)",
+  "removed": [
+   "drawstrings"
+  ],
+  "textures": {
+   "T_Police_Officer_Top": [
+    64,
+    64,
+    2
+   ],
+   "T_Police_Officer_TopCuff": [
+    32,
+    32,
+    3
+   ],
+   "T_Police_Officer_Shirt": [
+    64,
+    64,
+    5
+   ],
+   "T_Police_Officer_Pants": [
+    64,
+    64,
+    2
+   ],
+   "T_Police_Officer_PantsHem": [
+    32,
+    32,
+    3
+   ],
+   "T_Police_Officer_Skin": [
+    32,
+    32,
+    2
+   ],
+   "T_Police_Officer_Sole": [
+    32,
+    32,
+    1
+   ],
+   "T_Police_Officer_Badge": [
+    32,
+    16,
+    4
+   ],
+   "T_Police_Officer_Hair": [
+    64,
+    64,
+    3
+   ],
+   "T_Police_Officer_Head": [
+    128,
+    64,
+    11
+   ],
+   "T_Police_Officer_Shoes": [
+    64,
+    64,
+    7
+   ],
+   "T_Police_Officer_Gear": [
+    32,
+    32,
+    16
+   ]
+  },
+  "glb": "06_Characters/Police/CHR_Police_Officer.glb",
+  "triangles": 3154,
+  "parts": {
+   "Police_Officer_Body": 1762,
+   "Police_Officer_Hair": 360,
+   "Police_Officer_Head": 346,
+   "Police_Officer_Shoes": 248,
+   "Police_Officer_HairExtras": 64,
+   "Police_Officer_GearExtras": 374
+  },
+  "materials": 12,
+  "height_m": 1.765,
+  "width_m": 1.101
+ }
+]
