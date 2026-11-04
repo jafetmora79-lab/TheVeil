@@ -60,6 +60,160 @@ func walk(player, a: Vector3, b: Vector3, seconds := 2.0) -> float:
 	return (player.global_position - a).dot(d.normalized())
 
 
+## Try a few approach directions (market-local) until the player's ray lands on `it`.
+func aim_any(player, it: Node3D, mk: Node3D, dirs: Array, dist := 1.2) -> bool:
+	for d in dirs:
+		if await aim_at(player, it, mk.global_transform.basis * d, dist):
+			return true
+	return false
+
+
+func wait_until(cond: Callable, max_frames: int) -> bool:
+	for i in max_frames:
+		if cond.call():
+			return true
+		await frames(1)
+	return cond.call()
+
+
+## Phase 4 (Act I, first night): every step, the flashlight, the choice, the threat (once), sleep, save / load.
+func phase4_tests(game, ps: PackedScene) -> void:
+	var mk: Node3D = world.market
+	var player = world.player
+	var p4 = world.phase4
+	ok("p4_started", p4 != null and game.has_flag("p4_started") and game.current_step().get("id", "") == "p4_flashlight",
+		game.current_step().get("id", ""))
+	var lit := 0
+	for l in mk.get_node("Lights").get_children():
+		if l is Light3D and l.visible:
+			lit += 1
+	ok("p4_power_out", lit == 0, "lit=%d" % lit)
+	ok("p4_hound_in_build", ResourceLoader.exists(p4.HOUND_PATH))
+	var X := Vector3(1, 0, 0)
+	var Z := Vector3(0, 0, 1)
+	# flashlight + batteries at customer service
+	var fl: Interactable = p4.its["flashlight"]
+	ok("p4_flashlight_reach", await aim_any(player, fl, mk, [Z, -Z, X, -X], 0.9))
+	fl.interact(player)
+	await frames(20)
+	ok("p4_flashlight", game.has_flag("p4_flashlight") and game.has_item("flashlight") and p4.flashlight != null
+		and p4.flashlight.on and p4.flashlight.spot.visible)
+	var bp: Interactable = p4.its["batteries"]
+	ok("p4_batteries_reach", await aim_any(player, bp, mk, [Z, -Z, X, -X], 0.9))
+	bp.interact(player)
+	await frames(10)
+	ok("p4_batteries", p4.flashlight.spares == 2, "spares=%d" % p4.flashlight.spares)
+	var c0: float = p4.flashlight.charge
+	await frames(240)
+	var c1: float = p4.flashlight.charge
+	ok("p4_battery_drains", c1 < c0 and c1 > 0.95, "%.4f -> %.4f" % [c0, c1])
+	p4.flashlight.set_on(false)
+	await frames(120)
+	ok("p4_no_drain_when_off", absf(p4.flashlight.charge - c1) < 1e-6 and not p4.flashlight.spot.visible)
+	p4.flashlight.charge = 0.05
+	ok("p4_battery_swap", p4.flashlight.reload() and p4.flashlight.charge == 1.0 and p4.flashlight.spares == 1)
+	p4.flashlight.set_on(true)
+	ok("p4_flashlight_saved", game.world_state.get("flashlight", {}).get("spares", -1) == 1)
+	# staff door into the back room
+	var staff: Interactable = p4.its["INT_Door_Staff"]
+	ok("p4_staff_door_reach", await aim_any(player, staff, mk, [-Z], 1.3))
+	staff.interact(player)
+	await frames(40)
+	ok("p4_staff_door_opens", staff.is_open)
+	# breaker
+	var br: Interactable = p4.its["breaker"]
+	ok("p4_breaker_reach", await aim_any(player, br, mk, [-X], 1.1))
+	br.interact(player)
+	await frames(60 * 4)
+	var em := 0
+	var flick := 0
+	for l in mk.get_node("Lights").get_children():
+		if l is Light3D and l.visible:
+			em += 1
+			if l.light_energy < p4._base[l.name] * 0.5:
+				flick += 0
+			for c in l.get_children():
+				if c.get_script() == p4.FLICKER:
+					flick += 1
+	ok("p4_breaker", game.has_flag("p4_breaker") and em >= 6 and flick >= 2, "lit=%d flicker=%d" % [em, flick])
+	ok("p4_still_dim", mk.get_node("Lights/Light_SALES_00").light_energy < 0.4)
+	# loading bay: pull the door down, then the pallets
+	var lh: Interactable = p4.its["loading"]
+	ok("p4_loading_reach", await aim_any(player, lh, mk, [-X], 1.0))
+	lh.interact(player)
+	await frames(120)
+	ok("p4_loading_down", game.has_flag("p4_loading_down"))
+	var lp: Interactable = p4.its["pallet_loading"]
+	ok("p4_loading_pallet_reach", await aim_any(player, lp, mk, [-X, -Z], 1.4))
+	lp.interact(player)
+	await frames(120)
+	ok("p4_loading_secured", game.has_flag("p4_loading_secured"))
+	# rear exit: pallets refuse until the door is closed
+	var bpal: Interactable = p4.its["pallet_back"]
+	ok("p4_back_pallet_reach", await aim_any(player, bpal, mk, [-Z, X], 1.4))
+	bpal.interact(player)
+	await frames(10)
+	ok("p4_needs_door_closed_first", not game.has_flag("p4_backexit_secured"))
+	var bd: Interactable = p4.its["backdoor"]
+	ok("p4_backdoor_reach", await aim_any(player, bd, mk, [-Z], 1.2))
+	bd.interact(player)
+	await frames(60)
+	bpal.interact(player)
+	await frames(120)
+	ok("p4_exits_secured", game.has_flag("p4_backexit_secured") and game.has_flag("p4_exits_secured")
+		and game.current_step().get("id", "") == "p4_talk", game.current_step().get("id", ""))
+	# save / load mid-chapter: state rebuilt from flags, nothing replayed
+	world.save()
+	world.free()
+	game.load_game()
+	game.load_requested = true
+	world = ps.instantiate()
+	root.add_child(world)
+	await frames(40)
+	p4 = world.phase4
+	mk = world.market
+	player = world.player
+	ok("p4_load_mid", p4 != null and p4.flashlight != null and p4.flashlight.spares == 1 and p4.threat_runs == 0
+		and mk.get_node("Lights/Light_SALES_00").visible and p4._pallets["back"].position.distance_to(p4.BACK_PALLET[1]) < 0.01
+		and p4.its["fl" + "ashlight"].taken)
+	# the argument: choose Noah
+	var ed: Interactable = p4.its["npc_Eddie"]
+	ok("p4_eddie_reach", await aim_any(player, ed, mk, [Z, -Z, X], 1.4))
+	ed.interact(player)
+	ok("p4_choice_offered", await wait_until(func(): return p4.choice.is_open(), 60 * 40))
+	p4.choice.pick(1)
+	ok("p4_choice_recorded", await wait_until(func(): return game.has_flag("p4_talk_done"), 60 * 20)
+		and game.has_flag("p4_choice_noah") and not game.has_flag("p4_choice_wait"))
+	# something outside, once
+	ok("p4_threat_starts", await wait_until(func(): return p4.threat_runs == 1, 60 * 10))
+	ok("p4_hound_silhouette", p4.hound != null and is_instance_valid(p4.hound))
+	ok("p4_threat_done", await wait_until(func(): return game.has_flag("p4_threat_done"), 60 * 40))
+	p4._run_threat()
+	await frames(5)
+	ok("p4_threat_once", p4.threat_runs == 1)
+	# sleep in the office
+	var od: Interactable = p4.its["INT_Door_Office"]
+	ok("p4_office_door_reach", await aim_any(player, od, mk, [-Z], 1.3))
+	od.interact(player)
+	await frames(40)
+	var rp: Interactable = p4.rest.interactable
+	ok("p4_rest_reach", await aim_any(player, rp, mk, [X, -X], 1.2))
+	rp.interact(player)
+	ok("p4_rest_confirm", await wait_until(func(): return p4.choice.is_open(), 60))
+	p4.choice.pick(0)
+	ok("p4_slept", await wait_until(func(): return game.has_flag("p4_slept"), 60 * 6) and game.world_state.get("day", "") == "saturday")
+	ok("p4_end_card", await wait_until(func(): return world.hud.end_panel.visible, 60 * 15))
+	world.save()
+	world.free()
+	game.load_game()
+	game.load_requested = true
+	world = ps.instantiate()
+	root.add_child(world)
+	await frames(40)
+	ok("p4_load_end", world.phase4 != null and world.phase4.threat_runs == 0 and game.has_flag("p4_slept")
+		and world.phase4.rest.interactable.prompt_text == "" and game.has_flag("p4_choice_noah"))
+
+
 func _initialize() -> void:
 	var args := OS.get_cmdline_user_args()
 	if args.size() > 0:
@@ -450,7 +604,8 @@ func _run() -> void:
 	ok("p3_doors_reach", await aim_at(player, shut, mk.global_transform.basis.z, 1.6))
 	shut.interact(player)
 	await frames(60 * 7)
-	ok("p3_end", game.has_flag("p3_doors_shut") and world.hud.end_panel.visible and leaf.position.distance_to(leaf0) < 0.05)
+	ok("p3_end", game.has_flag("p3_doors_shut") and leaf.position.distance_to(leaf0) < 0.05)
+	await phase4_tests(game, ps)
 	world.save()
 	world.free()
 	game.load_requested = true

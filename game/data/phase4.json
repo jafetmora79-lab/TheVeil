@@ -1,0 +1,36 @@
+{
+ "_comment": "Phase 4 tuning. Placeholder values, configurable; not balance canon.",
+ "flashlight": {
+  "battery_seconds": 420.0,
+  "start_charge": 1.0,
+  "spares_in_pack": 2,
+  "spares_single": 1,
+  "low_warning": 0.2,
+  "flicker_below": 0.08,
+  "range": 18.0,
+  "angle_deg": 30.0,
+  "energy": 2.4,
+  "color": [
+   1.0,
+   0.94,
+   0.82
+  ]
+ },
+ "emergency_lights": {
+  "energy": 0.26,
+  "color": [
+   1.0,
+   0.74,
+   0.56
+  ],
+  "flicker": {
+   "Light_SALES_10": "FLUORESCENT",
+   "Light_BACK_20": "DYING",
+   "Light_SALES_30": "FLUORESCENT",
+   "Light_OFFICE": "FLUORESCENT"
+  }
+ },
+ "threat": {
+  "delay_after_talk": 5.0
+ }
+}

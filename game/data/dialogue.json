@@ -489,5 +489,362 @@
     "time": 1.8
    }
   ]
+ },
+ "p4_start": {
+  "lines": [
+   {
+    "speaker": "Eddie",
+    "text": "Okay. Nobody panic. Well - panic quietly.",
+    "time": 3.0
+   },
+   {
+    "speaker": "Marcus",
+    "text": "It's pitch black in here.",
+    "time": 2.2
+   },
+   {
+    "speaker": "Eddie",
+    "text": "The breaker's in the back room, by the loading door. Customer service keeps a flashlight under the desk.",
+    "time": 4.6
+   },
+   {
+    "speaker": "",
+    "text": "Customer service. Right.",
+    "time": 2.0
+   }
+  ],
+  "draft": true
+ },
+ "p4_flashlight": {
+  "lines": [
+   {
+    "speaker": "",
+    "text": "Flashlight. And a pack of batteries.",
+    "time": 2.6
+   },
+   {
+    "speaker": "",
+    "text": "F turns it on. R swaps the batteries.",
+    "time": 3.0
+   }
+  ],
+  "draft": true
+ },
+ "p4_staff_door": {
+  "lines": [
+   {
+    "speaker": "",
+    "text": "Staff only. Tonight that's me.",
+    "time": 2.4
+   }
+  ],
+  "draft": true
+ },
+ "p4_dark_back": {
+  "lines": [
+   {
+    "speaker": "",
+    "text": "Can't see a thing back here.",
+    "time": 2.2
+   }
+  ],
+  "draft": true
+ },
+ "p4_breaker": {
+  "lines": [
+   {
+    "speaker": "",
+    "text": "Come on...",
+    "time": 1.6
+   },
+   {
+    "speaker": "",
+    "text": "There. Emergency lights, at least.",
+    "time": 2.6
+   },
+   {
+    "speaker": "Eddie",
+    "text": "We've got light! Sort of!",
+    "time": 2.4
+   }
+  ],
+  "draft": true
+ },
+ "p4_breaker_again": {
+  "lines": [
+   {
+    "speaker": "",
+    "text": "It's on. That's all it's got.",
+    "time": 2.2
+   }
+  ],
+  "draft": true
+ },
+ "p4_loading_gap": {
+  "lines": [
+   {
+    "speaker": "",
+    "text": "The loading door isn't all the way down. The mist is getting in under it.",
+    "time": 3.6
+   }
+  ],
+  "draft": true
+ },
+ "p4_loading_down": {
+  "lines": [
+   {
+    "speaker": "",
+    "text": "Down. Now something heavy in front of it.",
+    "time": 2.8
+   }
+  ],
+  "draft": true
+ },
+ "p4_back_ajar": {
+  "lines": [
+   {
+    "speaker": "",
+    "text": "The back door's open. Who left it open?",
+    "time": 2.8
+   }
+  ],
+  "draft": true
+ },
+ "p4_back_closed": {
+  "lines": [
+   {
+    "speaker": "",
+    "text": "Closed. It won't hold if something pushes, though.",
+    "time": 3.0
+   }
+  ],
+  "draft": true
+ },
+ "p4_need_close": {
+  "lines": [
+   {
+    "speaker": "",
+    "text": "Close the door first.",
+    "time": 1.8
+   }
+  ],
+  "draft": true
+ },
+ "p4_pallet": {
+  "lines": [
+   {
+    "speaker": "",
+    "text": "Let's see it get through that.",
+    "time": 2.2
+   }
+  ],
+  "draft": true
+ },
+ "p4_exits_done": {
+  "lines": [
+   {
+    "speaker": "",
+    "text": "That's every way in. Back to the others.",
+    "time": 2.8
+   }
+  ],
+  "draft": true
+ },
+ "p4_wait_talk": {
+  "lines": [
+   {
+    "speaker": "Marcus",
+    "text": "Are the doors shut? All of them?",
+    "time": 2.4
+   }
+  ],
+  "draft": true
+ },
+ "p4_eddie_busy": {
+  "lines": [
+   {
+    "speaker": "Eddie",
+    "text": "Check the back first. I'm not sleeping until I know nothing can walk in.",
+    "time": 3.6
+   }
+  ],
+  "draft": true
+ },
+ "p4_talk": {
+  "lines": [
+   {
+    "speaker": "Marcus",
+    "text": "Lights are on. Good. Then I'm going back out.",
+    "time": 3.0
+   },
+   {
+    "speaker": "Eddie",
+    "text": "Out where? You saw what's out there.",
+    "time": 2.6
+   },
+   {
+    "speaker": "Marcus",
+    "text": "My son is out there. Every minute I wait is a minute he's alone.",
+    "time": 3.6
+   },
+   {
+    "speaker": "Eddie",
+    "text": "And out there you can't see your own hand. You'd be walking around blind.",
+    "time": 3.6
+   },
+   {
+    "speaker": "Marcus",
+    "text": "Then what? We sit here eating chips while he's-",
+    "time": 3.2
+   },
+   {
+    "speaker": "Eddie",
+    "text": "Hey. Hey. Ask them. You were out there too.",
+    "time": 3.0
+   }
+  ],
+  "choices": [
+   {
+    "text": "\"We should wait until morning.\"",
+    "next": "p4_choice_wait",
+    "flag": "p4_choice_wait"
+   },
+   {
+    "text": "\"We can't just leave Noah out there.\"",
+    "next": "p4_choice_noah",
+    "flag": "p4_choice_noah"
+   }
+  ],
+  "draft": true
+ },
+ "p4_choice_wait": {
+  "lines": [
+   {
+    "speaker": "",
+    "text": "We should wait until morning. We can't help him if we get lost out there too.",
+    "time": 3.8
+   },
+   {
+    "speaker": "Marcus",
+    "text": "...First light. Not a minute later.",
+    "time": 2.6
+   },
+   {
+    "speaker": "Eddie",
+    "text": "First light. I'll go with you.",
+    "time": 2.4
+   }
+  ],
+  "draft": true
+ },
+ "p4_choice_noah": {
+  "lines": [
+   {
+    "speaker": "",
+    "text": "We can't just leave Noah out there.",
+    "time": 2.4
+   },
+   {
+    "speaker": "Eddie",
+    "text": "Nobody's leaving him. But nobody's walking into that blind, either.",
+    "time": 3.6
+   },
+   {
+    "speaker": "Marcus",
+    "text": "Then we go the moment it thins. I mean it.",
+    "time": 2.8
+   },
+   {
+    "speaker": "Eddie",
+    "text": "Fine. First light. Together.",
+    "time": 2.4
+   }
+  ],
+  "draft": true
+ },
+ "p4_threat_scrape": {
+  "lines": [
+   {
+    "speaker": "",
+    "text": "...Did you hear that?",
+    "time": 2.2
+   },
+   {
+    "speaker": "Eddie",
+    "text": "Don't. Move.",
+    "time": 1.8
+   }
+  ],
+  "draft": true
+ },
+ "p4_threat_hit": {
+  "lines": [
+   {
+    "speaker": "Marcus",
+    "text": "Something hit the back door.",
+    "time": 2.2
+   }
+  ],
+  "draft": true
+ },
+ "p4_threat_after": {
+  "lines": [
+   {
+    "speaker": "Eddie",
+    "text": "...It's gone. I think it's gone.",
+    "time": 2.8
+   },
+   {
+    "speaker": "",
+    "text": "What was that?",
+    "time": 1.8
+   },
+   {
+    "speaker": "Marcus",
+    "text": "Not a dog. Too big for a dog.",
+    "time": 2.6
+   },
+   {
+    "speaker": "Eddie",
+    "text": "Okay. New rule: nobody goes near the glass.",
+    "time": 3.0
+   }
+  ],
+  "draft": true
+ },
+ "p4_rest_hint": {
+  "lines": [
+   {
+    "speaker": "Eddie",
+    "text": "Get some sleep. There's room in the office - I found blankets in aisle six. I'll take first watch.",
+    "time": 4.6
+   },
+   {
+    "speaker": "Marcus",
+    "text": "Wake me in two hours.",
+    "time": 2.0
+   }
+  ],
+  "draft": true
+ },
+ "p4_not_tired": {
+  "lines": [
+   {
+    "speaker": "",
+    "text": "Not yet. Not while that thing's out there.",
+    "time": 2.4
+   }
+  ],
+  "draft": true
+ },
+ "p4_wake": {
+  "lines": [
+   {
+    "speaker": "",
+    "text": "Morning. I think.",
+    "time": 2.0
+   }
+  ],
+  "draft": true
  }
 }
