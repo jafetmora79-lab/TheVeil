@@ -814,7 +814,7 @@ func _run() -> void:
 	ok("p3_market_looted", world.market_merch.looted)
 	ok("p3_objective_reach_market", game.current_step().get("text", "") == "Reach the supermarket", game.current_step().get("text", ""))
 	# the protagonist steps outside: Eddie and Marcus come with him (sample Eddie's stride while he follows)
-	player.global_position = s_out + (s_out - s_in).normalized() * 6.0      # well past the follow gap
+	player.global_position = s_out + (s_out - s_in).normalized() * 12.0     # well past the follow gap
 	await frames(30)
 	ok("p3_flee_together", world._p3_followers.size() == 2 and world._p3_followers.all(func(f): return f.active))
 	var leg_min := 999.0

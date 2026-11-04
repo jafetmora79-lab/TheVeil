@@ -2036,7 +2036,8 @@ func _shop_seated_talk() -> void:
 	cam.fov = 55.0
 	cam.current = true
 	var center: Vector3 = X * (SHOP_CIRCLE + Vector3(0, 0.9, 0))
-	var c_at = pick_anchor([X * Vector3(0.9, 1.55, 3.5), X * Vector3(0.6, 1.6, 7.6), X * Vector3(-3.9, 1.55, 3.7), X * Vector3(1.2, 1.6, 5.5)], [center])
+	var c_at = pick_anchor([X * Vector3(0.9, 1.55, 3.5), X * Vector3(0.6, 1.6, 7.6), X * Vector3(-3.9, 1.55, 3.7), X * Vector3(1.2, 1.6, 5.5),
+		X * Vector3(0.1, 1.5, 4.9), X * Vector3(-3.4, 1.5, 6.9), X * Vector3(-0.2, 1.45, 6.6), X * Vector3(-2.9, 1.45, 4.3)], [center])
 	seated_report["anchor"] = c_at != null
 	var props: Array = []
 	for st in SHOP_SEATS:
