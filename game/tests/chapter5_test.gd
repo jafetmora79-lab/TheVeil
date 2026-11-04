@@ -213,6 +213,7 @@ func _initialize() -> void:
 func _run() -> void:
 	game = root.get_node("Game")
 	ps = load("res://game/scenes/World.tscn")
+	root.get_node("Dialogue").auto_confirm = true     # the "player" confirms each conversation line
 	DEV.prepare(game)
 	world = ps.instantiate()
 	root.add_child(world)

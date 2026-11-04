@@ -406,9 +406,24 @@ func _add_glass_colliders() -> void:
 var glass_panes := 0
 
 
+## The parking-lot edge piece right in front of the supermarket entrance carries a strip of dry grass that reads as
+## a stray patch on the forecourt: its grass surface gets the sidewalk concrete instead.
+func _pave_forecourt() -> void:
+	var conc := load("res://THE_VEIL_ASSETS_V2/Materials_Godot/Roads/M_Road_SidewalkConcrete.tres")
+	for mi in find_children("SW_ParkingLotEdge_10m_Mesh", "MeshInstance3D", true, false):
+		var m := mi as MeshInstance3D
+		if m.global_position.distance_to(market.global_position) > 14.0 or m.mesh == null:
+			continue
+		for i in m.mesh.get_surface_count():
+			var src := m.get_active_material(i)
+			if src and String(src.resource_path).contains("Grass") and conc:
+				m.set_surface_override_material(i, conc)
+
+
 func _setup_town() -> void:
 	market = get_node("Commercial/SUPERMARKET")
 	game_shop = get_node("Commercial/GAME_SHOP")
+	_pave_forecourt.call_deferred()
 	_add_glass_colliders()
 	# supermarket: bi-parting automatic doors open while the player stands in front of / inside the vestibule
 	for side in [["L", -1.0], ["R", 1.0]]:
@@ -575,6 +590,8 @@ func _talk_camera() -> void:
 				talk_report["cam_hits"] += 1
 		cam.global_transform = cam.global_transform.interpolate_with(want, minf(dt * 3.0, 1.0))
 		cam.fov = lerpf(cam.fov, fov, minf(dt * 3.0, 1.0))
+		player.controls_enabled = false           # held for the whole talk (a closing choice panel re-enables them)
+		player.velocity = Vector3.ZERO
 		await get_tree().process_frame
 	# ease back to the first-person view, then hand control back
 	var t := 0.0
@@ -2230,6 +2247,7 @@ func _shop_seated_talk() -> void:
 	cam3.queue_free()
 	if animators.has("Marcus"):
 		animators["Marcus"].set_seated(false)
+		animators["Marcus"].root.position = SEAT_DOCS + Vector3(0.75, 0, 0.1)   # stood up clear of the boxes (screen black)
 	cam.global_position = X * (SEAT_BOX + Vector3(-0.05, STAND_EYE, 0))
 	await hud.fade_to(0.0, 0.8)
 	await _fp_look(cam, X * (STOCK_IN + Vector3(0, 1.4, -0.8)), 0.6)
@@ -2257,7 +2275,7 @@ func _shop_seated_talk() -> void:
 
 
 ## Sit a character on an existing seat (shop-local), facing `toward`.
-func _seat(speaker: String, seat: Vector3, height: float, toward: Vector3) -> void:
+func _seat(speaker: String, seat: Vector3, height: float, toward: Vector3, edge := 0.22) -> void:
 	var a = animators.get(speaker)
 	if a == null:
 		return
@@ -2265,7 +2283,7 @@ func _seat(speaker: String, seat: Vector3, height: float, toward: Vector3) -> vo
 	var to2: Vector3 = toward - seat
 	to2.y = 0.0
 	a.walk_to([])
-	a.root.position = seat - to2.normalized() * 0.06
+	a.root.position = seat + to2.normalized() * edge          # on the seat's front edge, not inside the box
 	a.turn_to_face = false
 	a.face_towards(X * toward)
 	a.root.rotate_y(a.world_forward().signed_angle_to((X.basis * to2).normalized(), Vector3.UP))

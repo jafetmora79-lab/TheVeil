@@ -478,7 +478,8 @@ func _on_choices(id: String, choices: Array) -> void:
 	while Dialogue.is_busy():
 		await get_tree().process_frame
 	Game.set_flag("p4_talk_done")
-	await get_tree().create_timer(float(cfg.get("threat", {}).get("delay_after_talk", 5.0))).timeout
+	if not Game.has_flag("p4_choice_noah"):           # "we can't leave Noah": the outside scene starts at once
+		await get_tree().create_timer(float(cfg.get("threat", {}).get("delay_after_talk", 5.0))).timeout
 	_run_threat()
 
 
@@ -601,7 +602,7 @@ func _skitter_run(sk: Node3D, ap: AnimationPlayer, to_local: Vector3, speed: flo
 			break
 		var dt := get_process_delta_time()
 		var p := sk.global_position + d.normalized() * minf(speed * dt, d.length())
-		p.y = _floor_y(p)
+		p.y = _floor_y(p) - float(sk.get_meta("feet_y", 0.0))       # its lowest point (the feet) on the ground
 		sk.global_position = p
 		sk.rotation.y = lerp_angle(sk.rotation.y, atan2(d.x, d.z), minf(dt * 10.0, 1.0))   # the model faces +Z
 		charge_report["max_speed"] = maxf(float(charge_report.get("max_speed", 0.0)), speed)
@@ -628,6 +629,7 @@ func _hound_charge() -> void:                   # (name kept: the accept branch'
 		world._doors_powered = false
 	# 1. out of the front doors with Marcus (Eddie waits inside)
 	set_doors.call(true)
+	await get_tree().create_timer(0.8).timeout     # the leaves are fully apart before anyone walks through
 	world.npc_walk("Marcus", Vector3(1.1, 0.04, doors_z - 2.0), 1.4)
 	await _fp_to(cam, [Vector3(1.5, 0.04, 4.4), Vector3(1.5, 0.04, 1.8), Vector3(0.3, 0.04, 1.0), Vector3(0.3, 0.04, doors_z - 2.4)], 1.7)
 	await _fp_face(cam, ml(Vector3(-1.5, 1.5, doors_z - 14.0)), 0.8)
@@ -645,6 +647,13 @@ func _hound_charge() -> void:                   # (name kept: the accept branch'
 			(sk as CollisionObject3D).collision_mask = 0
 		sk.set_physics_process(false)
 		charge_report["dark_surfaces"] = VeilCreatureLook.apply_skitter(sk, market.global_position.y)
+		# where its feet are relative to its origin (measured on the Scuttle_Fast pose): keeps it on, not in, the road
+		var ap0 := sk.get_node_or_null(String(sk.get_meta("animation_player", "Model/AnimationPlayer"))) as AnimationPlayer
+		if ap0 and ap0.has_animation("Scuttle_Fast"):
+			ap0.play("Scuttle_Fast")
+			ap0.seek(0.1, true)
+		sk.set_meta("feet_y", Interactable.aabb_of(sk).position.y * sk.scale.y)
+		charge_report["feet_y"] = sk.get_meta("feet_y")
 		var start := ml(Vector3(-7.0, 0.0, doors_z - 46.0))
 		start.y = _floor_y(start)
 		sk.global_position = start
@@ -676,6 +685,10 @@ func _hound_charge() -> void:                   # (name kept: the accept branch'
 		await _fp_face(cam, ml(Vector3(0.6, 1.5, 3.0)), 0.35)
 		await _fp_to(cam, [Vector3(0.3, 0.04, 1.2), Vector3(0.6, 0.04, 2.5)], 4.6)
 		await _fp_face(cam, ml(Vector3(0.2, 1.3, doors_z - 3.0)), 0.35)
+		var wm := 0.0                                 # Marcus is through before the doors close
+		while wm < 1.5 and market.to_local(world.marcus.global_position).z < doors_z + 0.9:
+			await get_tree().process_frame
+			wm += get_process_delta_time()
 		set_doors.call(false)
 		await get_tree().create_timer(0.75).timeout
 		charge_report["doors_closed"] = true
