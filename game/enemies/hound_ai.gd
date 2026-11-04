@@ -106,6 +106,9 @@ func _physics_process(delta: float) -> void:
 	var far_home := Vector2(body.global_position.x - home.x, body.global_position.z - home.z).length() > leash
 	match state:
 		"PATROL", "RETURN":
+			if far_home:
+				sees = false                          # beyond its leash it ignores the player and heads home
+				hears = false
 			if sees:
 				awareness = minf(awareness + delta * lerpf(1.6, 0.45, clampf(dist / sight_range, 0.0, 1.0)), 1.0)
 				_suspect(player.global_position)
@@ -131,6 +134,10 @@ func _physics_process(delta: float) -> void:
 					_target = patrol[_pi]
 				_move_to(goal, walk_speed, delta, "Walk")
 		"SUSPICIOUS":
+			if far_home:
+				state = "RETURN"                      # never investigates beyond its leash
+				awareness = 0.0
+				return
 			if sees:
 				awareness = minf(awareness + delta * lerpf(2.2, 0.7, clampf(dist / sight_range, 0.0, 1.0)), 1.0)
 				_last_seen = player.global_position
@@ -176,7 +183,7 @@ func _physics_process(delta: float) -> void:
 			_search_t -= delta
 			if sees and dist < sight_range * 0.8 and not far_home:
 				_start_chase()
-			elif _search_t <= 0.0:
+			elif _search_t <= 0.0 or far_home:          # past its leash it gives up at once: no chase across the map
 				state = "RETURN"
 				awareness = 0.0
 				lost.emit()

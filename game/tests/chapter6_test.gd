@@ -66,6 +66,9 @@ func _physics_watch() -> void:
 	# called every frame while walking: Eddie must never jump or cross a wall between two frames
 	if not _watch or c5 == null:
 		return
+	if c6 != null and c6._busy.get("checkpoint", false):
+		_eddie_prev = c5.eddie.global_position     # the checkpoint moves everyone behind a black fade
+		return
 	var e: Vector3 = c5.eddie.global_position
 	var step := e.distance_to(_eddie_prev)
 	step /= maxf(Engine.time_scale, 1.0)            # per real 1/60 s, so the 6x dialogue clock is not a "jump"
@@ -311,27 +314,40 @@ func _run() -> void:
 	var voice_snap := snapshot()
 	p4.choice.pick(0)
 	ok("c6_investigate", await wait_talk(func(): return game.has_flag("ch6_voice_choice_made"), 20.0)
-		and c6.st()["voice_choice"] == "investigate" and c6.hound != null and c6.hound_spawns == 1)
+		and c6.st()["voice_choice"] == "investigate")
+	# BUG FIX CHECK: nothing advances while the player stays where the choice was made
+	await wait_until(func(): return false, 60 * 10)
+	ok("c6_investigate_waits_at_choice", c6.hound == null and c6.hound_spawns == 0 and not game.has_flag("ch6_hound_encounter_started")
+		and not game.has_flag("ch6_hound_encounter_complete") and game.current_step().get("id", "") == "c6_voice"
+		and world._beacons.has("c6") and world.hud.marker_visible, game.current_step().get("id", ""))
 	c6._voice()
 	ok("c6_voice_once", c6.voice_runs == 1)
 	await reload()
-	ok("c6_load_mid_branch", c6.hound != null and c6.hound_spawns == 1 and c6.ruth_follow.active and c5.eddie_follow.active
-		and world.find_children("Ruth", "", true, false).size() == 1)
+	ok("c6_load_mid_branch", c6.hound == null and game.current_step().get("id", "") == "c6_voice" and c6.ruth_follow.active
+		and c5.eddie_follow.active and world.find_children("Ruth", "", true, false).size() == 1)
 	_eddie_prev = c5.eddie.global_position
 	# ---- scene 6: the Hound (investigate)
 	_trace = true
-	# stop at the side-street corner: the Hound patrols the alley ahead and comes into view
-	ok("c6_walk_to_alley", await walk_world(TO_ALLEY.slice(0, 2) + [Vector3(54.0, 0.2, -77.0)]), str(world.player.global_position))
+	# partway down the side street: still travelling, still the voice objective (also across a save / load)
+	ok("c6_walk_partway", await walk_world([TO_ALLEY[0], Vector3(60.0, 0.2, -66.0)]))
+	ok("c6_partway_still_active", game.current_step().get("id", "") == "c6_voice" and c6.hound == null and world.hud.marker_visible)
+	await reload()
+	ok("c6_partway_load", game.current_step().get("id", "") == "c6_voice" and c6.hound == null and c5.eddie_follow.active
+		and world._beacons.has("c6"))
+	_eddie_prev = c5.eddie.global_position
+	ok("c6_walk_to_alley", await walk_world([Vector3(60.0, 0.2, -77.0), Vector3(53.5, 0.2, -77.0)]), str(world.player.global_position))
+	ok("c6_not_before_area", not game.has_flag("ch6_investigation_reached") and c6.hound == null)
+	ok("c6_reach_investigation_area", await walk_world([Vector3(48.5, 0.2, -77.0)]) and await wait_until(func(): return game.has_flag("ch6_investigation_reached"), 60 * 2)
+		and c6.hound != null and c6.hound_spawns == 1 and not world.hud.marker_visible)
 	ok("c6_encounter_started", await wait_until(func(): return game.has_flag("ch6_hound_encounter_started"), 60 * 25)
 		and game.current_step().get("id", "") == "c6_avoid" and await wait_until(func(): return said.has("What the hell is that?"), 60 * 2))
 	ok("c6_hound_on_floor", is_instance_valid(c6.hound) and absf(c6.hound.global_position.y - 0.15) < 0.25, str(c6.hound.global_position))
 	var hound_snap := snapshot()
-	# A) step into its sight, get noticed, sprint away up the side street: it must lose the player
-	await walk_world([Vector3(50.0, 0.2, -77.0)])
+	# A) stay in its sight, get noticed, sprint away up the side street: it must lose the player
 	ok("c6_hound_detects", await wait_until(func(): return is_instance_valid(c6.hound) and c6.hound_ai.state == "CHASE", 60 * 15))
 	ok("c6_run_line", await wait_until(func(): return said.has("RUN!"), 60 * 3))
 	Input.action_press("sprint")
-	await walk_world([Vector3(60.0, 0.2, -76.0), Vector3(60.0, 0.2, -56.0), Vector3(57.0, 0.2, -40.0)])
+	await walk_world([Vector3(60.0, 0.2, -77.0), Vector3(60.0, 0.2, -56.0), Vector3(57.0, 0.2, -40.0), Vector3(57.0, 0.2, -30.0)])
 	Input.action_release("sprint")
 	ok("c6_hound_loses_player", await wait_until(func(): return not is_instance_valid(c6.hound) or c6.hound_ai.state in ["SEARCH", "RETURN", "PATROL"], 60 * 10)
 		and c6.hound_ai.chases >= 1)
@@ -343,7 +359,9 @@ func _run() -> void:
 	# B) (from the save at first sight) stand in its way: bites, never a death, the checkpoint takes over
 	_watch = false
 	await restore(hound_snap)
-	await walk_world([Vector3(50.0, 0.2, -77.0)])
+	ok("c6_load_in_encounter_no_dupes", c6.hound != null and c6.hound_spawns == 1 and game.has_flag("ch6_investigation_reached")
+		and world.player.global_position.distance_to(c6.hound.global_position) >= 11.0)
+	await walk_world([Vector3(47.0, 0.2, -77.0)])
 	await wait_until(func(): return is_instance_valid(c6.hound) and c6.hound_ai.state == "CHASE", 60 * 15)
 	var hp0: float = world.player.health
 	ok("c6_hound_bites", await wait_until(func(): return world.player.health < hp0, 60 * 12), "hp %.0f" % world.player.health)
@@ -353,11 +371,12 @@ func _run() -> void:
 		or world.player.global_position.distance_to(c6.hound.global_position) > 15.0), "hp %.0f" % world.player.health)
 	# back to the main run (escaped by losing it)
 	await restore(main_snap)
+	await frames(10)                               # the load's one-time placement (screen black) is not a "jump"
 	_eddie_prev = c5.eddie.global_position
 	_watch = true
 	ok("c6_no_ammo_needed", not game.has_item("ammo") and game.has_flag("ch6_hound_encounter_complete"))
 	# ---- scene 7: home
-	ok("c6_walk_home", await walk_world([Vector3(57.0, 0.2, -40.0), Vector3(57.0, 0.2, -23.5), Vector3(32.7, 0.2, -23.5)]) and await walk_route(INTO_STORE, world.market),
+	ok("c6_walk_home", await walk_world([Vector3(57.0, 0.2, -23.5), Vector3(32.7, 0.2, -23.5)]) and await walk_route(INTO_STORE, world.market),
 		str(world.market.to_local(world.player.global_position)))
 	ok("c6_return_line", game.has_flag("ch6_return_said"))
 	mk = world.market
@@ -403,13 +422,32 @@ func _run() -> void:
 	ok("c6_retreat_offered", await wait_talk(func(): return p4.choice.is_open(), 30.0))
 	p4.choice.pick(1)
 	ok("c6_retreat", await wait_talk(func(): return game.has_flag("ch6_voice_choice_made"), 20.0)
-		and c6.st()["voice_choice"] == "retreat" and c6.hound != null
-		and c6.hound.global_position.distance_to(world.player.global_position) > 20.0)
+		and c6.st()["voice_choice"] == "retreat")
+	await wait_until(func(): return false, 60 * 6)
+	ok("c6_retreat_no_immediate_hound", c6.hound == null and not game.has_flag("ch6_hound_encounter_started"))
+	var retreat_snap := snapshot()
 	ok("c6_retreat_walk_home", await walk_world(HOME_WEST) and await walk_route(INTO_STORE, world.market), str(world.player.global_position))
 	ok("c6_retreat_complete", game.has_flag("ch6_hound_encounter_complete") and await wait_until(func(): return game.has_flag("ch6_returned_to_supermarket"), 60 * 25))
 	said.clear()
 	c6.its["npc_Marcus"].interact(world.player)
 	ok("c6_retreat_report", await wait_talk(func(): return game.has_flag("chapter_6_complete"), 120.0)
 		and said.has("Two survivors. Ruth and Sarah. We offered them shelter."))
+	# retreat by the east route: the Hound only at the designated point on the way home, then escape back west
+	await restore(retreat_snap)
+	await walk_world([Vector3(57.0, 0.2, -55.0), Vector3(57.0, 0.2, -51.0)])
+	ok("c6_retreat_east_not_yet", c6.hound == null)
+	await walk_world([Vector3(57.0, 0.2, -47.0)])
+	ok("c6_retreat_area_triggers", await wait_until(func(): return game.has_flag("ch6_retreat_route_reached") and c6.hound != null, 60 * 2)
+		and await wait_until(func(): return game.has_flag("ch6_hound_encounter_started"), 60 * 6))
+	await reload()
+	ok("c6_retreat_load_in_encounter", c6.hound != null and c6.hound_spawns == 1)
+	Input.action_press("sprint")
+	await walk_world([Vector3(57.0, 0.2, -55.0), Vector3(30.0, 0.2, -55.0), Vector3(11.5, 0.2, -55.0)])
+	Input.action_release("sprint")
+	ok("c6_retreat_east_escaped", await wait_until(func(): return game.has_flag("ch6_hound_encounter_complete"), 60 * 20))
+	ok("c6_retreat_east_home", await walk_world([Vector3(11.5, 0.2, -23.5), Vector3(32.7, 0.2, -23.5)]) and await walk_route(INTO_STORE, world.market)
+		and await wait_until(func(): return game.has_flag("ch6_returned_to_supermarket"), 60 * 25))
+	c6.its["npc_Marcus"].interact(world.player)
+	ok("c6_retreat_east_complete", await wait_talk(func(): return game.has_flag("chapter_6_complete"), 120.0))
 	print("RESULT %s (%d failures)" % ["PASS" if fails == 0 else "FAIL", fails])
 	quit(1 if fails else 0)
