@@ -120,7 +120,10 @@ func _physics_process(delta: float) -> void:
 				_unseen = 0.0
 			else:
 				_unseen += delta
-			if dist < 1.6 and sees:
+			# reach is measured from the jaws: the body origin sits ~1.2 m behind the head (CRT_Hound HeadShape)
+			var jaws := body.global_position + body.global_transform.basis.z.normalized() * 1.15
+			var jaw_d := Vector2(player.global_position.x - jaws.x, player.global_position.z - jaws.z).length()
+			if (jaw_d < 0.95 or dist < 1.9) and sees:
 				_idle(delta, "Attack_Bite")
 				_face(to_p)
 				if _bite_t <= 0.0:

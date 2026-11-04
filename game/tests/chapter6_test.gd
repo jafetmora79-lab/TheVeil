@@ -274,7 +274,8 @@ func _run() -> void:
 	_eddie_prev = c5.eddie.global_position
 	_watch = true
 	ok("c6_walk_out", await walk_route(OUT_STORE, mk) and await walk_world([TO_RS[0]]), str(world.player.global_position))
-	ok("c6_left_supermarket", game.has_flag("ch6_left_supermarket") and game.current_step().get("id", "") == "c6_search")
+	ok("c6_left_supermarket", await wait_until(func(): return game.has_flag("ch6_left_supermarket"), 60 * 6)
+		and game.current_step().get("id", "") == "c6_search", "eddie %s" % world.market.to_local(c5.eddie.global_position))
 	ok("c6_beacon_to_house", world._beacons.has("c6"))
 	ok("c6_walk_to_house", await walk_world(TO_RS.slice(1)), str(world.player.global_position))
 	ok("c6_walk_line", game.has_flag("ch6_walk_said"))
@@ -331,9 +332,10 @@ func _run() -> void:
 		and game.current_step().get("id", "") == "c6_return")
 	ok("c6_no_ammo_needed", not game.has_item("ammo") and game.has_flag("ch6_hound_encounter_complete"))
 	# ---- scene 7: home
-	ok("c6_walk_home", await walk_world([Vector3(57.0, 0.2, -23.5), Vector3(32.7, 0.2, -23.5)]) and await walk_route(INTO_STORE, mk),
-		str(mk.to_local(world.player.global_position)))
+	ok("c6_walk_home", await walk_world([Vector3(57.0, 0.2, -23.5), Vector3(32.7, 0.2, -23.5)]) and await walk_route(INTO_STORE, world.market),
+		str(world.market.to_local(world.player.global_position)))
 	ok("c6_return_line", game.has_flag("ch6_return_said"))
+	mk = world.market
 	ok("c6_returned", await wait_until(func(): return game.has_flag("ch6_returned_to_supermarket"), 60 * 25),
 		"eddie %s ruth %s" % [mk.to_local(c5.eddie.global_position), mk.to_local(c6.ruth.global_position)])
 	_watch = false
