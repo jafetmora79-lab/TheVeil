@@ -5,13 +5,14 @@ skinning maths and engine compatibility only - **they do not prove visual qualit
 videos were produced.
 
 * Result: **PASS** (0 failures, 0 warnings)
-* Gallery: 16 Pack 07 files listed in `docs/index.html`; `pack07` filter present in `docs/gallery.js`
+* Gallery: 20 Pack 07 files listed in `docs/index.html`; `pack07` filter present in `docs/gallery.js`
 * Khronos glTF-Validator: run
-* Godot 4.3 (Compatibility): headless import exit 0, 0 error/warning lines; renderer run: frames=180 driver=llvmpipe (LLVM 20.1.2, 256 bits) api=4.5 (Core Profile) Mesa 25.2.8-0ubuntu0.24.04.4
+* Godot 4.3 (Compatibility): headless import exit 0, 0 error/warning lines; renderer run: frames=228 driver=llvmpipe (LLVM 20.1.2, 256 bits) api=4.5 (Core Profile) Mesa 25.2.8-0ubuntu0.24.04.4
 
 | Model | Triangles | Height (m) | Extent x/y/z (m) | Unweighted (helper) bones | glTF-Validator | Godot |
 |---|---|---|---|---|---|---|
 | CRT_Colossus | 8476 | 16.50 | [13.19, 16.51, 15.07] | Root | 0 errors, 0 warnings | 65 bones, skinned=true, 3 emissive mats, RESET=true, 7 shapes |
+| CRT_Hound | 3286 | 1.38 | [0.81, 1.38, 3.22] | Root | 0 errors, 0 warnings | 26 bones, skinned=true, 1 emissive mats, RESET=true, 2 shapes |
 | CRT_MistTentacle_Large | 1065 | 3.84 | [1.39, 3.85, 6.13] | - | 0 errors, 0 warnings | 12 bones, skinned=true, 2 emissive mats, RESET=true, 1 shapes |
 | CRT_MistTentacle_Medium | 1219 | 3.15 | [0.97, 3.17, 3.41] | - | 0 errors, 0 warnings | 12 bones, skinned=true, 2 emissive mats, RESET=true, 1 shapes |
 | CRT_MistTentacle_Thin | 883 | 2.99 | [0.53, 3.0, 1.81] | - | 0 errors, 0 warnings | 12 bones, skinned=true, 2 emissive mats, RESET=true, 1 shapes |
@@ -30,6 +31,13 @@ Stretch = 1 + (deformed - rest edge length) / max(rest length, floor). min_y = l
 | CRT_Colossus | Attack_Heavy | 69 | -0.003 | 1.75 | 1.3 |
 | CRT_Colossus | Hit_React | 25 | -0.003 | 1.66 | 1.24 |
 | CRT_Colossus | Death_Collapse | 91 | -0.003 | 2.21 | 1.79 |
+| CRT_Hound | Idle | 91 | -0.004 | 1.07 | 1.06 |
+| CRT_Hound | Walk | 37 | -0.004 | 1.57 | 1.47 |
+| CRT_Hound | Run | 15 | -0.004 | 1.87 | 1.69 |
+| CRT_Hound | Alert | 43 | -0.004 | 1.45 | 1.16 |
+| CRT_Hound | Attack_Bite | 40 | -0.004 | 1.4 | 1.4 |
+| CRT_Hound | Hit_React | 25 | -0.004 | 1.34 | 1.12 |
+| CRT_Hound | Death | 55 | -0.007 | 1.41 | 1.37 |
 | CRT_MistTentacle_Large | Emerge | 63 | -8.343 | 1.33 | 1.31 |
 | CRT_MistTentacle_Large | Search | 145 | -0.013 | 1.12 | 1.1 |
 | CRT_MistTentacle_Large | Coil | 97 | -0.013 | 1.38 | 1.36 |

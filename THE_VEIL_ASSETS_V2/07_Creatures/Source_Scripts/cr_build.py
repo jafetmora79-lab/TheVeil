@@ -190,6 +190,38 @@ def floor_clamp(rig, local, trans, bones, floor, step=4.0, rad=None):
     return local
 
 
+# ------------------------------------------------------------------ legs
+def gait_targets(contact, t, period, stride, duty, phases, lift, pitch=25.0, direction=(0.0, 0.0, 1.0), inward=0.0):
+    """In-place gait: each foot slides back along -direction during stance (ground speed stride / (period * duty))
+    and swings forward with a lift arc. phases {leg: 0..1}; lift float or {leg: m}. Returns (targets, foot rots)."""
+    dv = C.nrm(np.asarray(direction, float))
+    pax = C.nrm(np.cross((0.0, 1.0, 0.0), dv))
+    targets, frots = {}, {}
+    for k, c0 in contact.items():
+        u = (t / period + phases[k]) % 1.0
+        c = np.array(c0, float)
+        if u < duty:
+            c += dv * (stride / 2 - stride * (u / duty))
+        else:
+            q = (u - duty) / (1 - duty)
+            c += dv * (-stride / 2 + stride * C.smooth(q))
+            c[1] += (lift[k] if isinstance(lift, dict) else lift) * math.sin(math.pi * q)
+            if inward:
+                c[0] -= math.copysign(inward, c0[0]) * math.sin(math.pi * q)
+            frots[k] = C.R(pax, -pitch * math.sin(math.pi * q))
+        targets[k] = c
+    return targets, frots
+
+
+def legs_ik(rig, legs, local, trans, targets, frots=None, base_rot=None):
+    """Two-bone IK on every leg {key: [upper, lower, foot]}; unlisted legs keep their rest contact."""
+    Rw, Pw = rig.fk(local, trans)
+    for k, b in legs.items():
+        fr = (frots or {}).get(k, base_rot)
+        C.ik_leg(rig, Rw, Pw, local, b[0], b[1], b[2], targets.get(k, rig.tips[b[2]]), foot_R=fr)
+    return local
+
+
 # ------------------------------------------------------------------ export
 def finish(meshes, rig):
     bi = rig.index()

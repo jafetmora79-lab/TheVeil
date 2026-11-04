@@ -12,7 +12,7 @@ quality, and no screenshots, renders or videos were made.**
 |---|---|---|---|---|
 | 1 | Colossus | done | `Colossus/CRT_Colossus.glb` | `Godot_Scenes/CRT_Colossus.tscn` |
 | 2 | Mist Tentacles (3 variants) | done | `Mist_Tentacles/CRT_MistTentacle_{Thin,Medium,Large}.glb` | `Godot_Scenes/CRT_MistTentacle_{Thin,Medium,Large}.tscn` |
-| 3 | Hound | see below | `Hounds/` | `Godot_Scenes/` |
+| 3 | Hound | done | `Hounds/CRT_Hound.glb` | `Godot_Scenes/CRT_Hound.tscn` |
 | 4 | Skitter | see below | `Skitter/` | `Godot_Scenes/` |
 | 5 | Shellcrawler | see below | `Shellcrawler/` | `Godot_Scenes/` |
 
@@ -186,6 +186,50 @@ There is no damage, AI or targeting.
 
 **Materials:** `M_Crt_Tentacle` (the tiling skin shared with the Colossus tentacles, 2 m repeat on these smaller
 tentacles) + `M_Crt_MistTentacle` (128 px detail atlas: plates, barbs, spike, sensory bulb / nodes, base).
+
+## Creature 03 - The Hound
+
+`Hounds/CRT_Hound.glb` - 24 bones (+2 sockets), 3 286 triangles, one material (`M_Crt_Hound`, 256 px atlas with
+faint emission on the sensory pits and spine seams). Scene: `Godot_Scenes/CRT_Hound.tscn`.
+
+**Size:** about 1.0 m at the shoulder and 3.3 m from nose to tail tip. It keeps the established fast-predator role.
+
+**Anatomy (canine-inspired, but wrong):**
+
+* A low stance with the head carried below the shoulders. The shoulders are powerful and uneven (the right one is
+  heavier), over a gaunt waist and a deep, keeled rib cage with rib ridges and a scar hollow.
+* An unnatural spine: a double hump with a row of hooked vertebral spikes that grow toward the shoulders.
+* A long, narrow, **eyeless** head. Rows of pale sensory pits run down the snout (3 left, 4 right), and two
+  swept-back bone spines sit on the skull.
+* A **split jaw**: the lower jaw is two separately hinged halves (`Jaw_L` / `Jaw_R`). They drop and spread sideways
+  around a ridged maw (rows of teeth), with hooked fangs at each tip.
+* Four digitigrade legs with backward elbow spurs, thin shanks and three long claws per foot. Sharp joints are
+  rounded in the mesh so the inner creases do not fold.
+* A thin whip tail (3 bones).
+
+**Skeleton:**
+
+* `Root > Hips > Spine1 > Spine2 > Chest > Neck > Head > Jaw_L / Jaw_R`
+* `Tail_01-03` from `Hips`
+* Legs `Leg_{FL,FR,HL,HR}_{Upper,Lower,Foot}`
+* Sockets `Socket_Mouth`, `Socket_Chest`
+
+**Clips** (30 fps keys, in place, feet placed by IK):
+
+| Clip | Length | Loop | Notes |
+|---|---|---|---|
+| `Idle` | 3.0 s | yes | breathing, low sniffing head sway, jaw twitch, tail sway |
+| `Walk` | 1.2 s | yes | stalking lateral-sequence walk, 0.7 m stride, 0.9 m/s, spine flex |
+| `Run` | 0.45 s | yes | rotary gallop, 0.9 m stride, 5.0 m/s, strong spine flexion, head held forward |
+| `Alert` | 1.4 s | no | crouches, spine arches, head snaps up and scans, jaw chatters, tail stiffens; ends held |
+| `Attack_Bite` | 1.3 s | no | crouch, lunge (+0.32 m) with the forefeet stepping in, split jaw gapes about 42 degrees, snaps shut at 0.66 s |
+| `Hit_React` | 0.8 s | no | sideways jolt, spine twist, head recoil |
+| `Death` | 1.8 s | no | stagger, then the legs splay and the body drops and rolls; head and tail fall limp |
+
+A ground guard lifts the head and tail so they never pass through the ground.
+
+**Scene:** a `CharacterBody3D` with `Model`, a body box and a head box, `Markers/LookTarget` and `Markers/BiteReach`.
+Its metadata holds the walk / run speeds.
 
 ## Lore notes / conflicts with the project bible (the bible was not modified)
 
