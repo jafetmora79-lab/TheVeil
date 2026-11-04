@@ -22,6 +22,16 @@ func frames(n: int) -> void:
 		await physics_frame
 
 
+func press_interact() -> void:
+	var event := InputEventKey.new()
+	event.physical_keycode = KEY_E
+	event.pressed = true
+	root.push_input(event)
+	event = InputEventKey.new()
+	event.physical_keycode = KEY_E
+	root.push_input(event)
+
+
 func _initialize() -> void:
 	var args := OS.get_cmdline_user_args()
 	if args.size() > 0:
@@ -31,6 +41,7 @@ func _initialize() -> void:
 
 func _run() -> void:
 	var game = root.get_node("Game")
+	var interaction: Script = load("res://game/interaction/interactable.gd")
 	game.new_game()
 	game.delete_save()
 	var ps: PackedScene = load("res://game/scenes/World.tscn")
@@ -90,7 +101,7 @@ func _run() -> void:
 		var fbody := home.find_child("Fridge_Retro_01", true, false) as Node3D
 		var door_c := func() -> float:
 			var d := fr.target as Node3D
-			return (fbody.global_transform.affine_inverse() * (d.global_transform * Interactable.aabb_of(d).get_center())).z
+			return (fbody.global_transform.affine_inverse() * (d.global_transform * interaction.aabb_of(d).get_center())).z
 		var z_closed: float = door_c.call()
 		fr.interact(player)
 		await frames(40)
@@ -104,10 +115,10 @@ func _run() -> void:
 				var fb := it.target as Node3D
 				while fb.get_parent().name != "Furniture":
 					fb = fb.get_parent()
-				var body: Vector3 = fb.global_transform * Interactable.aabb_of(fb).get_center()
-				var c0: float = (it.target.global_transform * Interactable.aabb_of(it.target).get_center()).distance_to(body)
+				var body: Vector3 = fb.global_transform * interaction.aabb_of(fb).get_center()
+				var c0: float = (it.target.global_transform * interaction.aabb_of(it.target).get_center()).distance_to(body)
 				it.set_open(true, true)
-				var c1: float = (it.target.global_transform * Interactable.aabb_of(it.target).get_center()).distance_to(body)
+				var c1: float = (it.target.global_transform * interaction.aabb_of(it.target).get_center()).distance_to(body)
 				it.set_open(k.contains("Fridge"), true)
 				if c1 < c0 - 0.01:
 					swung_in += 1
@@ -148,6 +159,12 @@ func _run() -> void:
 	await frames(60)
 	ok("in_car", world.in_car and sedan.driven and sedan.driver_cam.current)
 	ok("objective_drive", game.current_step().get("id", "") == "drive")
+	press_interact()
+	await frames(45)
+	ok("exit_driveway", not world.in_car and player.is_on_floor())
+	world.enter_car()
+	await frames(45)
+	ok("reenter_driveway", world.in_car and sedan.driven)
 	# ---- drive the route
 	var route: Array = world.data["route"]
 	var st := {"idx": 0}
@@ -209,12 +226,43 @@ func _run() -> void:
 	# ---- exit + save / load
 	sedan.autopilot = Callable()
 	await frames(30)
-	world.exit_car()
+	press_interact()
 	await frames(60)
-	ok("exit_car", not world.in_car and player.visible)
+	ok("exit_car", not world.in_car and player.visible and player.controls_enabled and player.camera.current)
+	world.enter_car()
+	await frames(45)
+	ok("reenter_car", world.in_car and sedan.driven and sedan.driver_cam.current)
+	var obstacle := StaticBody3D.new()
+	var obstacle_shape := CollisionShape3D.new()
+	var box := BoxShape3D.new()
+	box.size = Vector3(0.7, 1.5, 0.7)
+	obstacle_shape.shape = box
+	obstacle.add_child(obstacle_shape)
+	world.add_child(obstacle)
+	obstacle.global_position = sedan.global_transform * Vector3(-1.6, 0.75, -0.3)
+	await frames(4)
+	press_interact()
+	await frames(60)
+	ok("exit_fallback", not world.in_car and sedan.to_local(player.global_position).x > 0.0)
+	obstacle.queue_free()
 	world.save()
 	ok("save_exists", game.has_save())
 	var ok_load: bool = game.load_game()
 	ok("load", ok_load and game.has_item("car_keys") and game.has_flag("parked") and game.world_state.size() > 0)
+	world.enter_car()
+	await frames(45)
+	world.save()
+	var saved_in_car: bool = game.load_game() and game.player_state.get("in_vehicle", false)
+	ok("saved_in_car", saved_in_car)
+	if saved_in_car:
+		world.free()
+		game.load_requested = true
+		world = ps.instantiate()
+		root.add_child(world)
+		await frames(15)
+		ok("restored_in_car", world.in_car and world.sedan.driven)
+		press_interact()
+		await frames(60)
+		ok("exit_after_reload", not world.in_car and world.player.camera.current and world.player.is_on_floor())
 	print("RESULT %s (%d failures)" % ["PASS" if fails == 0 else "FAIL", fails])
 	quit(1 if fails else 0)

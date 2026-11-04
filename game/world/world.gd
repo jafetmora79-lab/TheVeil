@@ -287,7 +287,13 @@ func _setup_triggers() -> void:
 		func(_b): pass)
 
 
+var _exit_requested := false
+
+
 func _physics_process(delta: float) -> void:
+	if _exit_requested:
+		_exit_requested = false
+		exit_car()
 	if in_car:
 		drive_time += delta
 		var pk := get_node_or_null("Trigger_Parking") as Area3D
@@ -334,13 +340,15 @@ func enter_car() -> void:
 
 
 func exit_car() -> void:
-	if not in_car:
+	if not in_car or not sedan.driven:
 		return
 	if absf(sedan.speed) > 1.0:
+		print_debug("[Sedan exit] Vehicle is moving at %.2f m/s" % sedan.speed)
 		Dialogue.say("no_exit", false, true)
 		return
 	var spot: Variant = sedan.exit_spot(get_world_3d().direct_space_state, player.get_rid())
 	if spot == null:
+		print_debug("[Sedan exit] Neither side has walkable ground and standing clearance at %s" % sedan.global_position)
 		Dialogue.say("no_room", false, true)
 		return
 	sedan.speed = 0.0
@@ -348,6 +356,7 @@ func exit_car() -> void:
 	sedan.swing_door(true, 0.25)
 	in_car = false
 	player.global_position = spot
+	player.velocity = Vector3.ZERO
 	player.set_yaw_pitch(sedan.global_rotation.y, 0.0)
 	player.activate(true)
 	hud.set_speed(-1.0)
@@ -356,10 +365,15 @@ func exit_car() -> void:
 	sedan.swing_door(false, 0.35)
 
 
-func _unhandled_input(e: InputEvent) -> void:
+func _input(e: InputEvent) -> void:
 	if in_car and e.is_action_pressed("interact"):
-		exit_car()
-	elif e is InputEventKey and e.pressed and e.physical_keycode == KEY_F10:
+		get_viewport().set_input_as_handled()
+		if sedan.driven and not hud.is_paused():
+			_exit_requested = true
+
+
+func _unhandled_input(e: InputEvent) -> void:
+	if e is InputEventKey and e.pressed and e.physical_keycode == KEY_F10:
 		# developer aid: state to the console / browser console
 		var p := sedan.global_position if in_car else player.global_position
 		print("[Debug] pos=%s in_car=%s speed=%.1f step=%s inv=%s" % [p, in_car, sedan.speed * 3.6,
