@@ -131,9 +131,20 @@ func _run() -> void:
 			var d := fr.target as Node3D
 			return (fbody.global_transform.affine_inverse() * (d.global_transform * interaction.aabb_of(d).get_center())).z
 		var z_closed: float = door_c.call()
-		fr.interact(player)
+		# real interaction path: look at the fridge door, the prompt appears, press E
+		var f_fwd: Vector3 = (fbody.global_transform.basis * Vector3(0, 0, 1)) * Vector3(1, 0, 1)
+		ok("fridge_prompt", await aim_at(player, fr, f_fwd, 1.1) and fr.get_prompt().begins_with("[E] Open"), fr.get_prompt())
+		var lamp := fbody.get_node("Fridge_Light") as OmniLight3D
+		ok("fridge_light_off_closed", not lamp.visible)
+		press_interact()
 		await frames(40)
 		ok("fridge_opens", fr.is_open)
+		ok("fridge_light_on_open", lamp.visible)
+		# the few contents sit on the wire shelves inside the cavity (fridge-local), not inside solid geometry
+		var can := fbody.get_node("Fridge_Can") as Node3D
+		var water := fbody.get_node("Fridge_Water") as Node3D
+		var in_cavity := func(p: Vector3) -> bool: return absf(p.x) < 0.33 and p.y > 0.14 and p.y < 1.6 and p.z > -0.315 and p.z < 0.18
+		ok("fridge_items_on_shelves", in_cavity.call(can.position) and in_cavity.call(water.position) and absf(can.position.y - 0.78) < 0.01 and absf(water.position.y - 1.18) < 0.01)
 		ok("fridge_swings_outward", door_c.call() > z_closed + 0.1, "front z %.2f -> %.2f" % [z_closed, door_c.call()])
 		var swung_in := 0
 		var names := []
@@ -153,6 +164,21 @@ func _run() -> void:
 					names.append(k.get_file())
 		ok("furniture_doors_swing_outward", swung_in == 0, "inward=%d %s" % [swung_in, names])
 		ok("fridge_flag", game.has_flag("fridge_checked"))
+		# close and reopen repeatedly through E: no stuck tween, light follows the door, back to the original pose
+		var cycles_ok := true
+		for c in 3:
+			press_interact()
+			await frames(40)
+			cycles_ok = cycles_ok and not fr.is_open and not lamp.visible
+			press_interact()
+			await frames(40)
+			cycles_ok = cycles_ok and fr.is_open and lamp.visible
+		ok("fridge_open_close_cycles", cycles_ok)
+		press_interact()
+		await frames(40)
+		ok("fridge_closes_to_rest", not fr.is_open and (fr.target as Node3D).transform.is_equal_approx(fr._base))
+		press_interact()
+		await frames(40)
 		ok("objective_keys", game.current_step().get("id", "") == "find_keys", game.current_step().get("text", ""))
 		var fridge_body := home.find_child("Fridge_Retro_01", true, false) as Node3D
 		var inside := fridge_body.find_children("*", "MeshInstance3D", true, false).size()
