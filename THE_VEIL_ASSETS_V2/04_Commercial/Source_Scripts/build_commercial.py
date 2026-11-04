@@ -31,6 +31,7 @@ import com_atlas  # noqa: E402
 
 import com_fixtures as FX  # noqa: E402
 import com_plans as CP  # noqa: E402
+import com_merch  # noqa: E402
 import furnish_build  # noqa: E402
 import placement  # noqa: E402
 from veil_mesh.materials import MATS, town_tres, RES_ROOT  # noqa: E402
@@ -45,6 +46,21 @@ FOLDER = {"supermarket": "Supermarket", "video_game_store": "Video_Game_Store", 
 LIGHT_COL = {"supermarket": "Color(1, 0.97, 0.9, 1)", "video_game_store": "Color(1, 0.88, 0.72, 1)", "gas_station": "Color(1, 0.97, 0.92, 1)",
              "pharmacy": "Color(0.97, 0.98, 1, 1)", "municipal_archive": "Color(1, 0.9, 0.76, 1)"}
 MANIFEST = []
+MERCH_LAYOUT = {}
+MERCH_STORES = {"supermarket": com_merch.supermarket, "video_game_store": com_merch.game_shop}
+
+
+def gallery_add(paths):
+    """append new Pack 04 asset paths to the docs gallery (docs/index.html initialAssets), keeping existing order"""
+    import re
+    idx = os.path.join(V2, "..", "docs", "index.html")
+    s = open(idx, encoding="utf-8").read()
+    m = re.search(r"initialAssets=\[(.*?)\];", s, re.S)
+    cur = json.loads("[" + m.group(1) + "]")
+    add = [p for p in paths if p not in cur]
+    if add:
+        s = s[:m.start(1)] + m.group(1) + "".join(", " + json.dumps(p) for p in add) + s[m.end(1):]
+        open(idx, "w", encoding="utf-8", newline="").write(s)
 
 
 def rel(p):
@@ -164,7 +180,8 @@ def instances(h, plan, specs):
         fp = opts.get("fp", not mounted)
         out.append(dict(model=model, x=x, y=y, z=z, yaw=yaw, room=room, floor_y=fy, outdoor=bool(opts.get("outdoor")),
                         footprint=footprint(m["size"], x, z, yaw) if fp else None, collide=not mounted, size=m["size"],
-                        interact=m.get("interact", []), canopy_lights=m.get("canopy_lights"), straddle=bool(opts.get("straddle"))))
+                        interact=m.get("interact", []), canopy_lights=m.get("canopy_lights"), straddle=bool(opts.get("straddle")),
+                        dyn=bool(opts.get("dyn"))))
     return out
 
 
@@ -225,8 +242,13 @@ def location_scene(key, plan, h, glb, furn_glb, inst):
     t = Tscn(name)
     t.n("Building", None, ".", {}, instance=t.e(res(glb)))
     t.n("Furnishing", None, ".", {}, instance=t.e(res(furn_glb)))
-    if plan.get("dyn"):
+    fixed_dyn = [it for it in inst if it.get("dyn")]
+    if plan.get("dyn") or fixed_dyn:
         t.n("Props", "Node3D", ".")
+        for k, it in enumerate(fixed_dyn):                 # interactive fixtures (e.g. glass-door coolers): own scene instance
+            t.n(f"{it['model'].replace('COM_', '')}_{k}", None, "Props", {"transform": xf(it["x"], it["y"], it["z"], it["yaw"])},
+                instance=t.e(res(os.path.join(P4, "Shared_Props", it["model"] + ".glb"))))
+    if plan.get("dyn"):
         for (path, x, z, yaw, nm) in plan["dyn"]:
             t.n(nm, None, "Props", {"transform": xf(x, 0.0 if z < 0.2 else h.floor_y(list(h.rooms.values())[0]), z, math.radians(yaw))}, instance=t.e(path))
     t.n("Lights", "Node3D", ".")
@@ -295,6 +317,13 @@ def main():
         os.makedirs(os.path.dirname(tp), exist_ok=True)
         open(tp, "w", newline="\n").write(town_tres(MATS[m]))
     specs = dict(furnish_build.specs())                      # Pack 03 furniture (reused by name)
+    merch_rects = com_merch.build_atlas()
+    write_import(com_merch.PNG, res(com_merch.PNG))
+    mt = os.path.join(V2, MATS[com_merch.MERCH]["tres"])
+    open(mt, "w", newline="\n").write(town_tres(MATS[com_merch.MERCH]))
+    lib = com_merch.library(merch_rects)
+    export("Merchandise", {"name": "COM_Merch_Library", "children": [{"name": v, "mb": mb} for v, mb in sorted(lib.items())]},
+           "merchandise", extra=dict(variants=len(lib)))
     exported = []
     for name, fn, exp in FX.all_fixtures():
         sp = fn()
@@ -311,7 +340,9 @@ def main():
         folder = FOLDER.get(key, "Storefronts")
         glb = export(folder, spec, "building", extra=dict(location=key, priority=prio))
         inst = instances(h, plan, specs)
-        fb = batch(inst, specs, plan["name"] + "_Furnishing")
+        fb = batch([i for i in inst if not i.get("dyn")], specs, plan["name"] + "_Furnishing")
+        if key in MERCH_STORES:
+            MERCH_LAYOUT[key] = com_merch.layout_dict(MERCH_STORES[key](inst))
         fglb = export(folder, fb, "furnishing", extra=dict(location=key, pieces=len(inst)))
         path, scene_name = location_scene(key, plan, h, glb, fglb, inst)
         fr = placement.zone_frame(zones[plan["zone"]])
@@ -342,6 +373,11 @@ def main():
                "texture": rel(png), "atlas_rects": {k: list(v) for k, v in rects.items()}, "materials": [MATS[m]["tres"] for m in (FX.ATLAS, FX.GLASS, FX.GLOW)],
                "locations": locs, "models": MANIFEST, "shared_fixtures": exported},
               open(os.path.join(doc, "COMMERCIAL_MANIFEST.json"), "w", newline="\n"), indent=1)
+    json.dump(MERCH_LAYOUT, open(os.path.join(P4, "Merchandise", "MERCH_LAYOUT.json"), "w", newline="\n"), indent=0, separators=(",", ":"))
+    gallery_add(["THE_VEIL_ASSETS_V2/" + m["glb"] for m in MANIFEST] + ["THE_VEIL_ASSETS_V2/04_Commercial/Merchandise/T_Com4_Merch.png",
+                                                                        "THE_VEIL_ASSETS_V2/04_Commercial/Materials/M_Com4_Merch.tres"])
+    for k, v in MERCH_LAYOUT.items():
+        print(f"merch {k}: {v['counts']['instances']} products, {v['counts']['variants']} variants, {len(v['groups'])} pick groups")
     nb = sum(1 for m in MANIFEST if m["category"] == "building")
     print(f"{len(MANIFEST)} GLBs ({len(exported)} shared fixtures, {nb} buildings, {nb} furnishings), "
           f"{sum(m['triangles'] for m in MANIFEST)} triangles, {len(locs)} location scenes")

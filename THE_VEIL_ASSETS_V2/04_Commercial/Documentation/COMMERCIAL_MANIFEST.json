@@ -900,6 +900,12 @@
    348,
    16,
    16
+  ],
+  "movies": [
+   416,
+   348,
+   48,
+   12
   ]
  },
  "materials": [
@@ -1190,7 +1196,7 @@
    ],
    "fixtures": [
     {
-     "model": "COM_Gondola_Bread",
+     "model": "COM_Gondola_Shelf",
      "x": -11.5,
      "z": 10.0,
      "yaw_deg": 90.0,
@@ -1205,7 +1211,7 @@
      "straddle": false
     },
     {
-     "model": "COM_Gondola_Grocery_A",
+     "model": "COM_Gondola_Shelf",
      "x": -8.5,
      "z": 10.0,
      "yaw_deg": 90.0,
@@ -1220,7 +1226,7 @@
      "straddle": false
     },
     {
-     "model": "COM_Gondola_Grocery_B",
+     "model": "COM_Gondola_Shelf",
      "x": -5.5,
      "z": 10.0,
      "yaw_deg": 90.0,
@@ -1235,7 +1241,7 @@
      "straddle": false
     },
     {
-     "model": "COM_Gondola_Grocery_C",
+     "model": "COM_Gondola_Shelf",
      "x": -2.5,
      "z": 10.0,
      "yaw_deg": 90.0,
@@ -1250,7 +1256,7 @@
      "straddle": false
     },
     {
-     "model": "COM_Gondola_Grocery_D",
+     "model": "COM_Gondola_Shelf",
      "x": 0.5,
      "z": 10.0,
      "yaw_deg": 90.0,
@@ -1265,7 +1271,7 @@
      "straddle": false
     },
     {
-     "model": "COM_Gondola_Grocery_A",
+     "model": "COM_Gondola_Shelf",
      "x": 3.5,
      "z": 10.0,
      "yaw_deg": 90.0,
@@ -1280,7 +1286,7 @@
      "straddle": false
     },
     {
-     "model": "COM_Gondola_Grocery_B",
+     "model": "COM_Gondola_Shelf",
      "x": 6.5,
      "z": 10.0,
      "yaw_deg": 90.0,
@@ -1295,7 +1301,7 @@
      "straddle": false
     },
     {
-     "model": "COM_Gondola_Grocery_C",
+     "model": "COM_Gondola_Shelf",
      "x": 9.5,
      "z": 10.0,
      "yaw_deg": 90.0,
@@ -1370,7 +1376,7 @@
      "straddle": false
     },
     {
-     "model": "COM_Cooler_Drinks",
+     "model": "COM_Cooler_Beverage",
      "x": -1.66,
      "z": 13.73,
      "yaw_deg": 180.0,
@@ -1385,7 +1391,7 @@
      "straddle": false
     },
     {
-     "model": "COM_Cooler_Drinks",
+     "model": "COM_Cooler_Beverage",
      "x": 0.7,
      "z": 13.73,
      "yaw_deg": 180.0,
@@ -1400,7 +1406,7 @@
      "straddle": false
     },
     {
-     "model": "COM_Cooler_Drinks",
+     "model": "COM_Cooler_Beverage",
      "x": 3.06,
      "z": 13.73,
      "yaw_deg": 180.0,
@@ -1415,7 +1421,7 @@
      "straddle": false
     },
     {
-     "model": "COM_Cooler_Drinks",
+     "model": "COM_Cooler_Beverage",
      "x": 5.42,
      "z": 13.73,
      "yaw_deg": 180.0,
@@ -2314,7 +2320,7 @@
    ],
    "fixtures": [
     {
-     "model": "COM_GameWallShelf",
+     "model": "COM_GameWallShelf_Empty",
      "x": -5.315,
      "z": 2.25,
      "yaw_deg": 90.0,
@@ -2329,7 +2335,7 @@
      "straddle": false
     },
     {
-     "model": "COM_GameWallShelf_Used",
+     "model": "COM_GameWallShelf_Movies",
      "x": -5.315,
      "z": 4.3,
      "yaw_deg": 90.0,
@@ -2344,7 +2350,7 @@
      "straddle": false
     },
     {
-     "model": "COM_GameWallShelf",
+     "model": "COM_GameWallShelf_Empty",
      "x": -5.315,
      "z": 6.35,
      "yaw_deg": 90.0,
@@ -2394,7 +2400,7 @@
      "straddle": false
     },
     {
-     "model": "COM_GameRack_New",
+     "model": "COM_GameRack_Empty_New",
      "x": -1.6,
      "z": 3.0,
      "yaw_deg": 90.0,
@@ -2409,7 +2415,7 @@
      "straddle": false
     },
     {
-     "model": "COM_GameRack_Used",
+     "model": "COM_GameRack_Empty_Used",
      "x": -1.6,
      "z": 5.6,
      "yaw_deg": 90.0,
@@ -5740,6 +5746,16 @@
  ],
  "models": [
   {
+   "name": "COM_Merch_Library",
+   "glb": "04_Commercial/Merchandise/COM_Merch_Library.glb",
+   "category": "merchandise",
+   "triangles": 2036,
+   "materials": [
+    "M_Com4_Merch"
+   ],
+   "variants": 75
+  },
+  {
    "name": "COM_Gondola_Grocery_A",
    "glb": "04_Commercial/Shared_Props/COM_Gondola_Grocery_A.glb",
    "category": "fixture/shelving",
@@ -6073,6 +6089,97 @@
    "fixture_type": "refrigeration"
   },
   {
+   "name": "COM_Cooler_Beverage",
+   "glb": "04_Commercial/Shared_Props/COM_Cooler_Beverage.glb",
+   "category": "fixture/refrigeration",
+   "triangles": 476,
+   "materials": [
+    "M_Com4_Atlas",
+    "M_Com4_Glow",
+    "M_Com4_Glass"
+   ],
+   "size": [
+    2.34,
+    0.8,
+    2.1
+   ],
+   "interact": [
+    {
+     "name": "CoolerDoor_1",
+     "pos": [
+      -0.78,
+      1.0,
+      0.5
+     ],
+     "kind": "cooler_door"
+    },
+    {
+     "name": "CoolerDoor_2",
+     "pos": [
+      0.0,
+      1.0,
+      0.5
+     ],
+     "kind": "cooler_door"
+    },
+    {
+     "name": "CoolerDoor_3",
+     "pos": [
+      0.78,
+      1.0,
+      0.5
+     ],
+     "kind": "cooler_door"
+    }
+   ],
+   "fixture_type": "refrigeration"
+  },
+  {
+   "name": "COM_Gondola_Shelf",
+   "glb": "04_Commercial/Shared_Props/COM_Gondola_Shelf.glb",
+   "category": "fixture/shelving",
+   "triangles": 186,
+   "materials": [
+    "M_Com4_Atlas"
+   ],
+   "size": [
+    4.28,
+    1.0,
+    1.8
+   ],
+   "fixture_type": "shelving"
+  },
+  {
+   "name": "COM_GameWallShelf_Empty",
+   "glb": "04_Commercial/Shared_Props/COM_GameWallShelf_Empty.glb",
+   "category": "fixture/shelving",
+   "triangles": 102,
+   "materials": [
+    "M_Com4_Atlas"
+   ],
+   "size": [
+    2.0,
+    0.35,
+    2.35
+   ],
+   "fixture_type": "shelving"
+  },
+  {
+   "name": "COM_GameWallShelf_Movies",
+   "glb": "04_Commercial/Shared_Props/COM_GameWallShelf_Movies.glb",
+   "category": "fixture/shelving",
+   "triangles": 102,
+   "materials": [
+    "M_Com4_Atlas"
+   ],
+   "size": [
+    2.0,
+    0.35,
+    2.35
+   ],
+   "fixture_type": "shelving"
+  },
+  {
    "name": "COM_Freezer_Chest",
    "glb": "04_Commercial/Shared_Props/COM_Freezer_Chest.glb",
    "category": "fixture/refrigeration",
@@ -6134,7 +6241,7 @@
    "name": "COM_Checkout_Lane",
    "glb": "04_Commercial/Shared_Props/COM_Checkout_Lane.glb",
    "category": "fixture/checkout",
-   "triangles": 160,
+   "triangles": 250,
    "materials": [
     "M_Com4_Atlas",
     "M_Com4_Glow"
@@ -6440,6 +6547,58 @@
    "glb": "04_Commercial/Shared_Props/COM_GameRack_Used.glb",
    "category": "fixture/games",
    "triangles": 396,
+   "materials": [
+    "M_Com4_Atlas"
+   ],
+   "size": [
+    1.8,
+    0.9,
+    1.8
+   ],
+   "interact": [
+    {
+     "name": "Browse",
+     "pos": [
+      0.0,
+      1.0,
+      0.85
+     ],
+     "kind": "browse"
+    }
+   ],
+   "fixture_type": "games"
+  },
+  {
+   "name": "COM_GameRack_Empty_New",
+   "glb": "04_Commercial/Shared_Props/COM_GameRack_Empty_New.glb",
+   "category": "fixture/games",
+   "triangles": 140,
+   "materials": [
+    "M_Com4_Atlas"
+   ],
+   "size": [
+    1.8,
+    0.9,
+    1.8
+   ],
+   "interact": [
+    {
+     "name": "Browse",
+     "pos": [
+      0.0,
+      1.0,
+      0.85
+     ],
+     "kind": "browse"
+    }
+   ],
+   "fixture_type": "games"
+  },
+  {
+   "name": "COM_GameRack_Empty_Used",
+   "glb": "04_Commercial/Shared_Props/COM_GameRack_Empty_Used.glb",
+   "category": "fixture/games",
+   "triangles": 140,
    "materials": [
     "M_Com4_Atlas"
    ],
@@ -6811,7 +6970,7 @@
    "name": "COM_Supermarket",
    "glb": "04_Commercial/Supermarket/COM_Supermarket.glb",
    "category": "building",
-   "triangles": 5488,
+   "triangles": 6576,
    "materials": [
     "M_Com_StorefrontBrick",
     "M_Arch_TrimPainted",
@@ -6841,7 +7000,7 @@
    "name": "COM_Supermarket_Furnishing",
    "glb": "04_Commercial/Supermarket/COM_Supermarket_Furnishing.glb",
    "category": "furnishing",
-   "triangles": 15882,
+   "triangles": 10050,
    "materials": [
     "M_Com4_Atlas",
     "M_Com4_Glow",
@@ -6865,7 +7024,7 @@
    "name": "COM_GameShop",
    "glb": "04_Commercial/Video_Game_Store/COM_GameShop.glb",
    "category": "building",
-   "triangles": 2238,
+   "triangles": 2926,
    "materials": [
     "M_Com_StorefrontBrick",
     "M_Arch_TrimPainted",
@@ -6893,7 +7052,7 @@
    "name": "COM_GameShop_Furnishing",
    "glb": "04_Commercial/Video_Game_Store/COM_GameShop_Furnishing.glb",
    "category": "furnishing",
-   "triangles": 4232,
+   "triangles": 3240,
    "materials": [
     "M_Com4_Atlas",
     "M_Com4_Glass",
@@ -7252,6 +7411,10 @@
   "COM_Cooler_Dairy",
   "COM_Cooler_Frozen",
   "COM_Cooler_Drinks",
+  "COM_Cooler_Beverage",
+  "COM_Gondola_Shelf",
+  "COM_GameWallShelf_Empty",
+  "COM_GameWallShelf_Movies",
   "COM_Freezer_Chest",
   "COM_Produce_Table",
   "COM_Produce_WallCase",
@@ -7268,6 +7431,8 @@
   "COM_PalletRack",
   "COM_GameRack_New",
   "COM_GameRack_Used",
+  "COM_GameRack_Empty_New",
+  "COM_GameRack_Empty_Used",
   "COM_ConsoleCase",
   "COM_DemoStation",
   "COM_PosterBoard",

@@ -416,3 +416,30 @@ playthrough test to make sure everything still agrees.
   * Eddie walks to the shop door, with a thigh swing above 20°.
 * **Gotcha:** never name a script method `_set` (it overrides `Object._set`).
 * **No IK:** feet can slide a little on turns. Real animation clips can replace this later.
+
+### 9.12 Apartment refrigerator: the "orange wall" (fixed, geometry-verified)
+
+* **Cause:** `furniture.py` `fridge()` built the body as **one solid rounded box** (`rbox`) in harvest-gold enamel,
+  with no interior. Opening the door showed the body's flat front face: the orange wall. The can and water bottle
+  that `world.gd` stocks were buried inside the solid.
+  * Not the cause: the hinge, pivot, swing direction, normals or textures. The door swing was already tested as
+    outward.
+* **Fix:**
+  * `_drop_front_faces()` removes the body's flat front face. The rounded enamel shell stays.
+  * Added a front rim, a white liner (back, sides, top, floor), two wire shelves on rails, a crisper drawer, a light
+    housing and a box of baking soda.
+  * The door gets an inner liner, a rubber gasket and three door bins, one holding a mustard bottle.
+  * The `RES_Fridge_TopFreezer` variant gets the same fix.
+* **Game side:**
+  * The can sits on the lower shelf (y 0.78) and the water on the upper shelf (y 1.18).
+  * An interior OmniLight (`Fridge_Light`) is on only while the door is open.
+  * A `Fridge_Opening` proxy interaction lets the player close the door while looking into the open fridge. The
+    door's own box swings away with the door.
+* **Verification** (no screenshots; geometry and logic only):
+  * A ray grid from the first-person eye position (70 rays) with the door fully open:
+    * before: 70/70 rays hit the orange front;
+    * after: 0 hit it; they hit the liner, shelves, crisper and contents.
+  * At 45°, the door correctly covers most of the view.
+  * `opening_test.gd` covers the prompt when aiming, real E-key open, light on/off, items in the cavity, 3
+    close/open cycles, and return to the exact rest transform. RESULT PASS.
+  * Pack 03 validation passes (Khronos 0/0, Godot).

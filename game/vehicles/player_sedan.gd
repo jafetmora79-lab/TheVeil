@@ -28,6 +28,9 @@ var driven := false
 var speed := 0.0
 var steer := 0.0
 var autopilot: Callable = Callable()     # tests: func(delta) -> Vector3(throttle, brake, steer)
+## cinematic assist (arrival shot): while > 0, the car eases down to this forward speed (m/s); steering stays with
+## the driver, throttle is cut above the cap and a gentle brake is applied - no stop, no teleport
+var speed_cap := -1.0
 var _wheels := {}
 var _wheel_base := {}
 var _spin := 0.0
@@ -188,6 +191,11 @@ func _physics_process(delta: float) -> void:
 			brake = Input.get_action_strength("move_back")
 			steer_in = Input.get_action_strength("move_left") - Input.get_action_strength("move_right")
 			hb = Input.is_action_pressed("handbrake")
+	if speed_cap > 0.0 and speed > speed_cap:
+		throttle = 0.0
+		brake = maxf(brake, clampf((speed - speed_cap) * 0.35, 0.0, 0.45))
+	elif speed_cap > 0.0 and speed > speed_cap * 0.9:
+		throttle = minf(throttle, 0.2)
 	# longitudinal (arcade): S brakes while rolling forward, then reverses
 	if throttle > 0.0:
 		speed += (ACCEL * throttle * (1.0 - clampf(speed / TOP_SPEED, 0.0, 1.0) * 0.55) if speed >= 0.0 else BRAKE * throttle) * delta
