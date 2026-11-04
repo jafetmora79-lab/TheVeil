@@ -408,16 +408,48 @@ func _run() -> void:
 	await frames(5)
 	ok("checkout_needs_items", not game.has_flag("groceries_done"))
 	var reach_fail := []
+	var mmc: Node = world.market_merch
+	var decor_its := mmc.find_children("*", "Interactable", true, false).size()
+	ok("merch_decor_not_interactive", decor_its == mmc.groups.size() and mmc.instance_count > 2000,
+		"%d products, %d multimeshes, %d interactables" % [mmc.instance_count, mmc.mmi_count, decor_its])
 	for id in ["canned_food", "energy_snack", "water_bottle"]:
 		var gi = world.interactables["market/" + id]
-		var lp: Vector3 = mk.to_local(gi.global_position)
-		var gx := -11.5 + 3.0 * roundf((lp.x + 11.5) / 3.0)
-		var outward: Vector3 = mk.global_transform.basis * Vector3(signf(lp.x - gx), 0, 0)
+		ok("grocery_glow_" + id, mmc.groups[id]["mmi"].material_overlay != null)
+		var outward: Vector3 = mk.global_transform.basis * mmc.groups[id]["normal"]
+		if id == "water_bottle":
+			# the water is behind the glass: the closed door blocks it, then "[E] Open Fridge" opens it
+			var door = null
+			for k in world.interactables:
+				if k.begins_with("market/Cooler") and (door == null or world.interactables[k].global_position.distance_to(gi.global_position) < door.global_position.distance_to(gi.global_position)):
+					door = world.interactables[k]
+			ok("cooler_blocked_when_closed", not await aim_at(player, gi, outward, 1.0))
+			ok("cooler_prompt", await aim_at(player, door, outward, 1.1) and door.get_prompt() == "[E] Open Fridge", door.get_prompt())
+			var lamp = door.get_parent().get_parent()
+			while lamp and not lamp.has_node("CoolerLight"):
+				lamp = lamp.get_parent()
+			press_interact()
+			await frames(45)
+			ok("cooler_door_opens", door.is_open and lamp.get_node("CoolerLight").visible)
+			var before: int = mmc.remaining(id)
+			if not await aim_at(player, gi, outward, 0.95):
+				reach_fail.append(id)
+			press_interact()
+			await frames(15)
+			ok("cooler_one_bottle_taken", game.has_item("water_bottle") and mmc.remaining(id) == before - 1, "%d -> %d" % [before, mmc.remaining(id)])
+			press_interact()
+			await frames(10)
+			ok("cooler_no_duplicate", mmc.remaining(id) == before - 1)
+			await aim_at(player, door, outward, 1.1)
+			press_interact()
+			await frames(45)
+			ok("cooler_door_closes", not door.is_open and not lamp.get_node("CoolerLight").visible)
+			continue
+		var before2: int = mmc.remaining(id)
 		if not await aim_at(player, gi, outward, 0.95):
 			reach_fail.append(id)
-		ok("grocery_glow_" + id, gi.target.find_children("*", "GeometryInstance3D", true, false)[0].material_overlay != null)
-		gi.interact(player)
+		press_interact()
 		await frames(15)
+		ok("take_one_" + id, game.has_item(id) and mmc.remaining(id) == before2 - 1, "%d -> %d" % [before2, mmc.remaining(id)])
 	ok("groceries_reachable", reach_fail.is_empty(), str(reach_fail))
 	ok("groceries_picked", game.has_item("canned_food") and game.has_item("water_bottle") and game.has_item("energy_snack"))
 	pay.interact(player)

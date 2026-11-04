@@ -489,5 +489,14 @@
     "time": 1.8
    }
   ]
+ },
+ "merch_have_one": {
+  "lines": [
+   {
+    "speaker": "",
+    "text": "I've already got one.",
+    "time": 1.8
+   }
+  ]
  }
 }

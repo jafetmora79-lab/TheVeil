@@ -559,6 +559,7 @@ def build(path):
     binder_strip(at, "binders")
     bankers_strip(at, "bankers")
     build_decals(at)
+    sign(at, "movies", 48, 12, "MOVIES", ("paint_red", 1), ("paint_white", 4), 1)      # appended last: earlier rects unchanged
     at.image().save(path, format="PNG", optimize=True)
     global RECTS
     RECTS = dict(at.rects)

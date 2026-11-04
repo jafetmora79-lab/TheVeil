@@ -21,6 +21,7 @@ from res_materials import m01  # noqa: E402
 from furniture import fmodel, rng_of  # noqa: E402
 from veil_mesh.mesh import MB, T, Ry, Rx, Rz  # noqa: E402
 from veil_mesh.materials import _reg  # noqa: E402
+from veil_mesh.gltf import COL_KEY  # noqa: E402
 
 import com_atlas as CA  # noqa: E402
 
@@ -113,8 +114,9 @@ def fx(name, cat, mb, size, cols, **meta):
 
 
 # =================================================================== shelving
-def gondola(name, L, H, strips_front, strips_back, levels=None, endcap=True, sign=None):
-    """double-sided gondola: length L along x, 1.0 m deep, stock faces +z (front) and -z (back)"""
+def gondola(name, L, H, strips_front, strips_back, levels=None, endcap=True, sign=None, stock=True):
+    """double-sided gondola: length L along x, 1.0 m deep, stock faces +z (front) and -z (back).
+    stock=False: empty shelving (shelves, price strips, end-cap boards) for separately instanced products."""
     mb = MB()
     d = 0.5
     levels = levels or [0.12, 0.52, 0.92, 1.32][: max(2, int((H - 0.2) / 0.4))]
@@ -133,12 +135,15 @@ def gondola(name, L, H, strips_front, strips_back, levels=None, endcap=True, sig
             # price-tag strip on the shelf edge
             decal(mb, "pricetags", (0, y - 0.015, z_edge), L - 0.08, 0.03, face="+z" if side > 0 else "-z", lift=0.001)
             hh = min(0.32, (levels[k + 1] - y - 0.06) if k + 1 < len(levels) else H - y - 0.12)
-            stock_run(mb, -L / 2 + 0.04, L / 2 - 0.04, y, z_edge - side * 0.03, 0.34, hh, strips[k % len(strips)], face=side)
+            if stock:
+                stock_run(mb, -L / 2 + 0.04, L / 2 - 0.04, y, z_edge - side * 0.03, 0.34, hh, strips[k % len(strips)], face=side)
     if endcap:
         for sx in (-1, 1):
             for k, y in enumerate(levels[:3]):
                 x_out = sx * (L / 2 + 0.32)
                 abox(mb, "enamel_white", (min(sx * L / 2, x_out), y - 0.03, -0.45), (max(sx * L / 2, x_out), y, 0.45))
+                if not stock:
+                    continue
                 st = (strips_front or strips_back)[(k + (sx > 0)) % len(strips_front or strips_back)]
                 u0, v0, u1, v1 = R(st)
                 xa, xb = sorted((sx * (L / 2 + 0.03), x_out - sx * 0.02))
@@ -152,7 +157,7 @@ def gondola(name, L, H, strips_front, strips_back, levels=None, endcap=True, sig
     return fx(name, "shelving", mb, (W, 1.0, H), cols=[((-W / 2, 0, -d), (W / 2, H, d))])
 
 
-def wall_shelf(name, L, H, strips, header=None, depth=0.45, slat=False):
+def wall_shelf(name, L, H, strips, header=None, depth=0.45, slat=False, stock=True):
     """single-sided wall unit, back against -z, stock facing +z"""
     mb = MB()
     abox(mb, "steel_dark", (-L / 2, 0, -depth / 2), (L / 2, 0.12, depth / 2))
@@ -165,8 +170,9 @@ def wall_shelf(name, L, H, strips, header=None, depth=0.45, slat=False):
             abox(mb, "enamel_white", (-L / 2 + 0.03, y - 0.03, -depth / 2 + 0.04), (L / 2 - 0.03, y, depth / 2))
         decal(mb, "pricetags", (0, y - 0.015, depth / 2), L - 0.08, 0.03, lift=0.001)
         hh = min(0.30, (levels[k + 1] - y - 0.05) if k + 1 < len(levels) else H - y - 0.1)
-        stock_run(mb, -L / 2 + 0.04, L / 2 - 0.04, y, depth / 2 - 0.03, min(0.3, depth - 0.1), hh, strips[k % len(strips)],
-                  facing=0.14 if strips[k % len(strips)].startswith("games") else 0.12)
+        if stock:
+            stock_run(mb, -L / 2 + 0.04, L / 2 - 0.04, y, depth / 2 - 0.03, min(0.3, depth - 0.1), hh, strips[k % len(strips)],
+                      facing=0.14 if strips[k % len(strips)].startswith("games") else 0.12)
     if header:
         abox(mb, "navy_paint", (-L / 2, H, -depth / 2), (L / 2, H + 0.25, -depth / 2 + 0.06))
         decal(mb, header, (0, H + 0.125, -depth / 2 + 0.06), min(L - 0.2, 1.2), 0.22)
@@ -203,6 +209,59 @@ def cooler(name, doors, strips, header, frost=False):
     for i in range(doors):
         interact(meta, f"CoolerDoor_{i + 1}", (-L / 2 + (i + 0.5) * dw, 1.0, d / 2 + 0.1), "cooler_door")
     return fx(name, "refrigeration", mb, (L, d, H), cols=[((-L / 2, 0, -d / 2), (L / 2, H, d / 2))], wall=True, **meta)
+
+
+def cooler_beverage(name="COM_Cooler_Beverage", doors=3, header="aisle_dairy"):
+    """Glass-door drinks cooler with an EMPTY interior (bottles are instanced by com_merch) and real doors:
+    each door is a separate hinged node INT_CoolerDoor_<n> (pivot on its hinge edge, own convex collision), so the
+    game can open / close it. Collision of the body is a shell (back, sides, plinth, header) so the products behind
+    the glass can be reached once a door is open."""
+    mb = MB()
+    dw, d, H = 0.78, 0.8, 2.1
+    L = doors * dw
+    e = 0.004
+    abox(mb, "enamel_white", (-L / 2, 0, -d / 2), (L / 2, H, -d / 2 + 0.05))
+    abox(mb, "cooler_in", (-L / 2 + 0.04, 0.15, -d / 2 + 0.05), (L / 2 - 0.04, 1.85, -d / 2 + 0.06), skip=("-y", "-z"))
+    abox(mb, "enamel_white", (-L / 2 + e, 0, -d / 2 + e), (L / 2 - e, 0.15, d / 2))
+    abox(mb, "enamel_white", (-L / 2 + e, 1.85, -d / 2 + e), (L / 2 - e, H - e, d / 2))
+    for sx in (-1, 1):
+        abox(mb, "enamel_white", (sx * L / 2 - 0.04 * (sx > 0), 0, -d / 2), (sx * L / 2 + 0.04 * (sx < 0), H, d / 2))
+        abox(mb, "cooler_in", (sx * L / 2 - 0.041 * (sx > 0) + 0.04 * (sx < 0), 0.15, -d / 2 + 0.06),
+             (sx * L / 2 + 0.041 * (sx < 0) - 0.04 * (sx > 0) + 0.001 * sx, 1.85, d / 2 - 0.05), skip=("-y",))
+    decal(mb, header, (0, 1.975, d / 2), min(L - 0.3, 1.2), 0.2, mat=GLOW)
+    for y in (0.55, 0.95, 1.35):
+        abox(mb, "chrome", (-L / 2 + 0.04, y - 0.02, -d / 2 + 0.06), (L / 2 - 0.04, y, d / 2 - 0.12))
+        abox(mb, "chrome", (-L / 2 + 0.04, y, d / 2 - 0.13), (L / 2 - 0.04, y + 0.035, d / 2 - 0.12))      # shelf lip
+    mb.box(GLOW, (-L / 2 + 0.05, 1.82, -d / 2 + 0.06), (L / 2 - 0.05, 1.85, -d / 2 + 0.12), uvrect={f: R("light_panel") for f in ("+x", "-x", "-y", "+z", "-z", "+y")})
+    for i in range(1, doors):                                                   # mullions between the doors
+        xm = -L / 2 + i * dw
+        abox(mb, "chrome", (xm - 0.02, 0.15, d / 2 - 0.05), (xm + 0.02, 1.85, d / 2), skip=())
+        mb.box(GLOW, (xm - 0.006, 0.2, d / 2 - 0.06), (xm + 0.006, 1.8, d / 2 - 0.05), uvrect={f: R("light_panel") for f in ("+x", "-x", "-y", "+z", "-z", "+y")})
+    nodes = []
+    meta = {}
+    for i in range(doors):
+        x0 = -L / 2 + i * dw + 0.02
+        wd = dw - 0.04
+        dm = MB()
+        abox(dm, "chrome", (0, 0, -0.035), (0.03, 1.7, 0.0), skip=())
+        abox(dm, "chrome", (wd - 0.03, 0, -0.035), (wd, 1.7, 0.0), skip=())
+        abox(dm, "chrome", (0.03, 0, -0.035), (wd - 0.03, 0.04, 0.0), skip=())
+        abox(dm, "chrome", (0.03, 1.66, -0.035), (wd - 0.03, 1.7, 0.0), skip=())
+        dm.box(GLASS, (0.03, 0.04, -0.022), (wd - 0.03, 1.66, -0.014), skip=(),
+               uvrect={f: R("glass_tint") for f in ("+x", "-x", "+y", "-y", "+z", "-z")})
+        abox(dm, "chrome", (wd - 0.1, 0.55, 0.0), (wd - 0.07, 1.25, 0.05), skip=())             # handle
+        abox(dm, "chrome", (wd - 0.1, 0.55, 0.0), (wd - 0.07, 0.58, 0.02), skip=())
+        abox(dm, "chrome", (wd - 0.1, 1.22, 0.0), (wd - 0.07, 1.25, 0.02), skip=())
+        cm = MB()
+        cm.box(COL_KEY, (0, 0, -0.035), (wd, 1.7, 0.0), skip=())
+        nm = f"INT_CoolerDoor_{i + 1}"
+        nodes.append({"name": nm, "t": (x0, 0.15, d / 2), "mb": dm, "extras": {"veil_interact": "hinge", "axis": "y", "open_deg": 100},
+                      "children": [{"name": nm + "_Col-convcolonly", "mb": cm}]})
+        interact(meta, f"CoolerDoor_{i + 1}", (-L / 2 + (i + 0.5) * dw, 1.0, d / 2 + 0.1), "cooler_door")
+    cols = [((-L / 2, 0, -d / 2), (L / 2, H, -d / 2 + 0.06)), ((-L / 2, 0, -d / 2), (L / 2, 0.15, d / 2)),
+            ((-L / 2, 1.85, -d / 2), (L / 2, H, d / 2)), ((-L / 2, 0, -d / 2), (-L / 2 + 0.04, H, d / 2)),
+            ((L / 2 - 0.04, 0, -d / 2), (L / 2, H, d / 2))]
+    return fx(name, "refrigeration", mb, (L, d, H), cols=cols, wall=True, nodes=nodes, **meta)
 
 
 def chest_freezer(name="COM_Freezer_Chest"):
@@ -293,7 +352,17 @@ def checkout_lane(name="COM_Checkout_Lane"):
     abox(mb, "steel", (L / 2 - 0.02, 0.6, -0.3), (L / 2 + 0.45, 0.62, 0.3))               # bagging shelf
     for k in range(2):
         abox(mb, "cardboard", (L / 2 + 0.03 + k * 0.2, 0.62, -0.1), (L / 2 + 0.2 + k * 0.2, 0.98, 0.1), skip=("-y",))
-    abox(mb, "black_plastic", (-L / 2 + 0.1, 0, d / 2), (-L / 2 + 0.6, 1.3, d / 2 + 0.25), faces={"+z": "candy_rack", "-x": "candy_rack"})
+    # candy rack (customer side): back panel, side cheeks, three shelves with a front lip; candy is instanced separately
+    cx0, cx1, cz0, cz1 = -L / 2 + 0.1, -L / 2 + 0.6, d / 2 + 0.02, d / 2 + 0.25
+    abox(mb, "black_plastic", (cx0, 0, d / 2), (cx1, 1.3, cz0), skip=("-y",))
+    for sx in (cx0, cx1 - 0.015):
+        abox(mb, "black_plastic", (sx, 0, cz0), (sx + 0.015, 1.3, cz1), skip=("-y",))
+    abox(mb, "black_plastic", (cx0, 0, cz0), (cx1, 0.42, cz1), skip=("-y",), faces={"+z": "candy_rack", "-x": "candy_rack"})
+    for y in (0.74, 1.06):
+        abox(mb, "black_plastic", (cx0 + 0.015, y - 0.015, cz0), (cx1 - 0.015, y, cz1))
+    for y in (0.42, 0.74, 1.06):
+        abox(mb, "chrome", (cx0 + 0.015, y, cz1 - 0.008), (cx1 - 0.015, y + 0.03, cz1))
+    abox(mb, "black_plastic", (cx0, 1.3, d / 2), (cx1, 1.33, cz1))
     abox(mb, "steel", (L / 2 - 0.05, 0, -d / 2), (L / 2, 2.2, -d / 2 + 0.05))               # lane light pole
     mb.box(GLOW, (L / 2 - 0.15, 2.2, -d / 2 - 0.05), (L / 2 + 0.1, 2.4, -d / 2 + 0.15), uvrect={f: R("light_panel") for f in ("+x", "-x", "-y", "+z", "-z", "+y")})
     meta = {}
@@ -423,7 +492,7 @@ def pallet_rack(name="COM_PalletRack"):
 
 
 # =================================================================== game shop
-def game_rack(name, header, strips):
+def game_rack(name, header, strips, stock=True):
     """double-sided tiered island rack, 1.8 m long"""
     mb = MB()
     L, d, H = 1.8, 0.9, 1.35
@@ -436,7 +505,8 @@ def game_rack(name, header, strips):
             y = 0.15 + k * 0.29
             z_out = side * (d / 2 - 0.05 - k * 0.07)
             abox(mb, "black_plastic", (-L / 2 + 0.03, y - 0.02, min(0.05 * side, z_out)), (L / 2 - 0.03, y, max(0.05 * side, z_out)))
-            stock_run(mb, -L / 2 + 0.05, L / 2 - 0.05, y, z_out - side * 0.02, 0.12, 0.2, strips[(k + (side < 0)) % len(strips)], face=side, facing=0.135)
+            if stock:
+                stock_run(mb, -L / 2 + 0.05, L / 2 - 0.05, y, z_out - side * 0.02, 0.12, 0.2, strips[(k + (side < 0)) % len(strips)], face=side, facing=0.135)
     abox(mb, "steel", (-0.02, H, -0.02), (0.02, H + 0.2, 0.02))
     abox(mb, "red_plastic" if header == "new_rel" else "yellow_paint", (-0.5, H + 0.2, -0.03), (0.5, H + 0.45, 0.03), faces={"+z": header, "-z": header})
     meta = {}
@@ -653,6 +723,10 @@ def all_fixtures():
         ("COM_Cooler_Dairy", lambda: cooler("COM_Cooler_Dairy", 3, ["milk", "yogurt", "juice", "eggs"], "aisle_dairy"), True),
         ("COM_Cooler_Frozen", lambda: cooler("COM_Cooler_Frozen", 3, ["icecream", "pizza", "frozen_veg", "icecream"], "aisle_frozen", frost=True), True),
         ("COM_Cooler_Drinks", lambda: cooler("COM_Cooler_Drinks", 3, ["soda", "cola", "water", "juice"], "aisle_dairy"), True),
+        ("COM_Cooler_Beverage", cooler_beverage, True),
+        ("COM_Gondola_Shelf", lambda: gondola("COM_Gondola_Shelf", 3.6, 1.8, ["-"], ["-"], stock=False), True),
+        ("COM_GameWallShelf_Empty", lambda: wall_shelf("COM_GameWallShelf_Empty", 2.0, 2.1, ["-"], header="new_rel", depth=0.35, slat=True, stock=False), True),
+        ("COM_GameWallShelf_Movies", lambda: wall_shelf("COM_GameWallShelf_Movies", 2.0, 2.1, ["-"], header="movies", depth=0.35, slat=True, stock=False), True),
         ("COM_Freezer_Chest", chest_freezer, True),
         ("COM_Produce_Table", produce_table, True),
         ("COM_Produce_WallCase", produce_case, True),
@@ -669,6 +743,8 @@ def all_fixtures():
         ("COM_PalletRack", pallet_rack, True),
         ("COM_GameRack_New", lambda: game_rack("COM_GameRack_New", "new_rel", ["games_a", "games_b", "games_c", "games_d"]), True),
         ("COM_GameRack_Used", lambda: game_rack("COM_GameRack_Used", "used", ["games_used"]), True),
+        ("COM_GameRack_Empty_New", lambda: game_rack("COM_GameRack_Empty_New", "new_rel", ["-"], stock=False), True),
+        ("COM_GameRack_Empty_Used", lambda: game_rack("COM_GameRack_Empty_Used", "used", ["-"], stock=False), True),
         ("COM_ConsoleCase", console_case, True),
         ("COM_DemoStation", demo_station, True),
         ("COM_PosterBoard", poster_board, True),

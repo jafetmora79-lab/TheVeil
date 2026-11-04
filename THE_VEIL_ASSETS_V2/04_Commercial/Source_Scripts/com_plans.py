@@ -268,10 +268,11 @@ SUPERMARKET = dict(
     extras=[_supermarket_extras],
     fit=(
         # 8 double-sided gondolas = 7 aisles (signs 1-7), power aisle in front, back aisle along the dairy wall
-        [(g, -11.5 + 3.0 * k, 10.0, 90, "SALES", {}) for k, g in enumerate(
-            ["COM_Gondola_Bread", "COM_Gondola_Grocery_A", "COM_Gondola_Grocery_B", "COM_Gondola_Grocery_C",
-             "COM_Gondola_Grocery_D", "COM_Gondola_Grocery_A", "COM_Gondola_Grocery_B", "COM_Gondola_Grocery_C"])] +
-        [("COM_Cooler_Dairy" if i < 4 else "COM_Cooler_Drinks", -11.1 + 2.36 * i, 13.74, 180, "SALES", {}) for i in range(8)] +
+        # empty modular gondolas: products are separate instances (com_merch -> Merchandise/MERCH_LAYOUT.json)
+        [("COM_Gondola_Shelf", -11.5 + 3.0 * k, 10.0, 90, "SALES", {}) for k in range(8)] +
+        # dairy keeps its baked stock; drinks are real glass-door coolers, instanced separately so their doors open
+        [("COM_Cooler_Dairy" if i < 4 else "COM_Cooler_Beverage", -11.1 + 2.36 * i, 13.74, 180, "SALES", {} if i < 4 else {"dyn": True})
+         for i in range(8)] +
         [("COM_Cooler_Frozen", 19.49, z, -90, "SALES", {}) for z in (5.5, 7.9, 10.3, 12.7)] +
         [("COM_Freezer_Chest", 15.0, z, 90, "SALES", {}) for z in (7.6, 11.0)] +
         [("COM_Produce_WallCase", -19.43, z, 90, "SALES", {}) for z in (5.6, 8.0, 10.4, 12.8)] +
@@ -338,12 +339,12 @@ GAME_SHOP = dict(
     ext=dict(siding="Com_StorefrontBrick", trim="Town_PaintNavy", roof="Road_Asphalt", door="Town_PaintNavy", foundation="Com_StorefrontConcrete"),
     extras=[_gameshop_extras],
     fit=[
-        ("COM_GameWallShelf", -5.32, 2.25, 90, "SHOP", {}), ("COM_GameWallShelf_Used", -5.32, 4.3, 90, "SHOP", {}),
-        ("COM_GameWallShelf", -5.32, 6.35, 90, "SHOP", {}),
+        ("COM_GameWallShelf_Empty", -5.32, 2.25, 90, "SHOP", {}), ("COM_GameWallShelf_Movies", -5.32, 4.3, 90, "SHOP", {}),
+        ("COM_GameWallShelf_Empty", -5.32, 6.35, 90, "SHOP", {}),
         ("COM_ConsoleWallShelf", -4.3, 8.115, 180, "SHOP", {}),
         ("COM_PosterBoard", -0.4, 8.33, 180, "SHOP", {"y": 1.3, "fp": False}),
         ("COM_PosterBoard_B", 5.53, 5.3, -90, "SHOP", {"y": 1.4, "fp": False}),
-        ("COM_GameRack_New", -1.6, 3.0, 90, "SHOP", {}), ("COM_GameRack_Used", -1.6, 5.6, 90, "SHOP", {}),
+        ("COM_GameRack_Empty_New", -1.6, 3.0, 90, "SHOP", {}), ("COM_GameRack_Empty_Used", -1.6, 5.6, 90, "SHOP", {}),
         ("COM_ConsoleCase", 1.8, 3.3, 0, "SHOP", {}),
         ("COM_DemoStation", 5.2, 2.6, -90, "SHOP", {"snap": True}),
         ("RES_TVStand", 5.27, 4.3, -90, "SHOP", {}), ("RES_TV_CRT_Small", 5.27, 4.3, -90, "SHOP", {"y": 0.59, "fp": False}),
