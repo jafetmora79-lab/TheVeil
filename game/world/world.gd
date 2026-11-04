@@ -240,19 +240,48 @@ func _outward_deg(door: Node3D, deg: float, axis: Vector3) -> float:
 	return best
 
 
+## The fridge is almost empty on purpose (opening beat "Nothing to eat"): one dented can on the lower wire shelf and
+## a bottle of water on the upper one. The model itself adds a mustard bottle in a door bin and a box of baking soda.
+## Shelf tops are at y 0.78 / 1.18 in the Pack 03 RES_Fridge_Retro model (furniture.py fridge()).
 func _stock_fridge() -> void:
 	var fridge := home.find_child("Fridge_Retro_01", true, false) as Node3D
 	if fridge == null:
 		return
-	var box := Interactable.aabb_of(fridge)
-	var c := box.get_center()
-	var shelf := box.position.y + box.size.y * 0.47
 	var can := CAN.instantiate() as Node3D
-	can.position = Vector3(c.x - box.size.x * 0.16, shelf, c.z + box.size.z * 0.05)
+	can.name = "Fridge_Can"
+	can.position = Vector3(-0.13, 0.781, -0.08)
+	can.rotation.y = 0.5
 	fridge.add_child(can)
 	var water := WATER.instantiate() as Node3D
-	water.position = Vector3(c.x + box.size.x * 0.18, box.position.y + box.size.y * 0.18, c.z + box.size.z * 0.05)
+	water.name = "Fridge_Water"
+	water.position = Vector3(0.11, 1.181, -0.12)
 	fridge.add_child(water)
+	# interior light: on while the door is open (OmniLight works in the Compatibility renderer)
+	var lamp := OmniLight3D.new()
+	lamp.name = "Fridge_Light"
+	lamp.position = Vector3(0.0, 1.45, -0.05)
+	lamp.light_color = Color(1.0, 0.95, 0.85)
+	lamp.light_energy = 0.7
+	lamp.omni_range = 0.95
+	lamp.shadow_enabled = false
+	lamp.visible = interactables.values().any(func(i): return i.label == "Refrigerator" and i.is_open)
+	fridge.add_child(lamp)
+	# the door's own interaction box swings away with the door: a proxy over the opening lets the player close it
+	# while looking into the open fridge (it forwards to the door and mirrors its prompt)
+	var fr_it: Interactable = interactables.values().filter(func(i): return i.label == "Refrigerator")[0]
+	var opening := Node3D.new()
+	opening.name = "Fridge_Opening"
+	fridge.add_child(opening)
+	var px := Interactable.attach(opening, {"kind": "custom", "label": "Fridge opening", "prompt_text": fr_it.get_prompt()})
+	var cs := px.get_child(0) as CollisionShape3D
+	(cs.shape as BoxShape3D).size = Vector3(0.66, 1.46, 0.1)
+	cs.position = Vector3(0.0, 0.87, 0.42)          # just in front of the body's collision hull (front at z 0.36)
+	cs.disabled = not fr_it.is_open                 # closed: the door's own box answers
+	px.used.connect(func(by): fr_it.interact(by))
+	fr_it.used.connect(func(_b):
+		px.prompt_text = fr_it.get_prompt()
+		cs.set_deferred("disabled", not fr_it.is_open))
+	interactables["home/fridge_opening"] = px
 
 
 var _hum: AudioStreamPlayer3D
@@ -261,6 +290,9 @@ var _hum: AudioStreamPlayer3D
 func _on_fridge(_by: Node) -> void:
 	var fridge := home.find_child("Fridge_Retro_01", true, false) as Node3D
 	var fr_it: Interactable = interactables.values().filter(func(i): return i.label == "Refrigerator")[0]
+	var lamp := fridge.get_node_or_null("Fridge_Light") as OmniLight3D
+	if lamp:
+		lamp.visible = fr_it.is_open
 	if fr_it.is_open and _hum == null:
 		_hum = Sfx.loop_at(fridge, "fridge_hum", -14.0)
 	elif not fr_it.is_open and _hum:

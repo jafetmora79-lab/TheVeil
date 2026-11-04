@@ -1109,20 +1109,23 @@
    "category": "Furniture/kitchen",
    "glb": "03_Residential/Furniture/RES_Fridge_Retro.glb",
    "obj": "03_Residential/Furniture/OBJ/RES_Fridge_Retro.obj",
-   "triangles": 112,
+   "triangles": 375,
    "collision_triangles": 12,
    "collision": [
     "convcolonly"
    ],
    "materials": [
     "M_Res_EnamelHarvest",
-    "M_Furn_Rubber",
+    "M_Res_Porcelain",
     "M_Furn_MetalBrushed",
+    "M_Furn_PlasticDirty",
+    "M_Furn_Cardboard",
+    "M_Furn_Rubber",
     "M_Res_DetailAtlas"
    ],
    "bounds_min": [
     -0.38,
-    0.0,
+    0.04,
     -0.36
    ],
    "bounds_max": [
@@ -1132,7 +1135,7 @@
    ],
    "dimensions": [
     0.76,
-    1.7,
+    1.66,
     0.76
    ],
    "interactables": {
@@ -1156,20 +1159,24 @@
    "category": "Furniture/kitchen",
    "glb": "03_Residential/Furniture/RES_Fridge_TopFreezer.glb",
    "obj": "03_Residential/Furniture/OBJ/RES_Fridge_TopFreezer.obj",
-   "triangles": 168,
+   "triangles": 431,
    "collision_triangles": 12,
    "collision": [
     "convcolonly"
    ],
    "materials": [
     "M_Town_PaintWhite",
-    "M_Furn_Rubber",
+    "M_Res_Porcelain",
     "M_Furn_MetalBrushed",
+    "M_Furn_PlasticDirty",
+    "M_Furn_Cardboard",
+    "M_Furn_Rubber",
+    "M_Res_EnamelHarvest",
     "M_Res_DetailAtlas"
    ],
    "bounds_min": [
     -0.4,
-    0.0,
+    0.04,
     -0.36
    ],
    "bounds_max": [
@@ -1179,7 +1186,7 @@
    ],
    "dimensions": [
     0.8,
-    1.75,
+    1.71,
     0.76
    ],
    "interactables": {
@@ -6868,7 +6875,7 @@
    "category": "House_Furnishing",
    "glb": "03_Residential/House_Variants/RES_House_Ranch_Furnishing.glb",
    "obj": null,
-   "triangles": 5530,
+   "triangles": 5793,
    "collision_triangles": 360,
    "collision": [
     "colonly"
@@ -6887,20 +6894,20 @@
     "M_Res_BulbGlow",
     "M_Res_Gingham",
     "M_Town_PaintWhite",
+    "M_Res_Porcelain",
+    "M_Furn_Cardboard",
     "M_Furn_Rubber",
+    "M_Res_EnamelHarvest",
     "M_Furn_WoodPainted",
     "M_Res_Formica",
     "M_Arch_WindowGlassDirty",
-    "M_Res_Porcelain",
     "M_Int_DrywallLight",
     "M_Res_Mirror",
     "M_Town_PaintNavy",
     "M_Res_Quilt",
     "M_Furn_Denim",
     "M_Furn_FabricUpholstery",
-    "M_Res_EnamelHarvest",
     "M_Com_MetalShelving",
-    "M_Furn_Cardboard",
     "M_Res_Pegboard",
     "M_Town_PaintYellow",
     "M_Town_PaintRed"
@@ -7141,7 +7148,7 @@
    "category": "House_Furnishing",
    "glb": "03_Residential/House_Variants/RES_House_TwoStorey_Furnishing.glb",
    "obj": null,
-   "triangles": 6848,
+   "triangles": 7111,
    "collision_triangles": 504,
    "collision": [
     "colonly"
@@ -7161,16 +7168,16 @@
     "M_Res_Gingham",
     "M_Furn_Rubber",
     "M_Res_EnamelHarvest",
+    "M_Res_Porcelain",
+    "M_Furn_PlasticDirty",
     "M_Furn_WoodPainted",
     "M_Res_Formica",
-    "M_Furn_PlasticDirty",
     "M_Arch_WindowGlassDirty",
     "M_Town_PaintWhite",
     "M_Furn_Denim",
     "M_Int_DrywallLight",
     "M_Res_Quilt",
     "M_Res_Mirror",
-    "M_Res_Porcelain",
     "M_Furn_LeatherWorn",
     "M_Com_MetalShelving",
     "M_Town_PaintYellow",
@@ -7408,7 +7415,7 @@
    "category": "House_Furnishing",
    "glb": "03_Residential/House_Variants/RES_House_Farmhouse_Furnishing.glb",
    "obj": null,
-   "triangles": 4888,
+   "triangles": 5151,
    "collision_triangles": 432,
    "collision": [
     "colonly"
@@ -7428,13 +7435,13 @@
     "M_Furn_Cardboard",
     "M_Furn_Rubber",
     "M_Town_PaintWhite",
+    "M_Res_Porcelain",
+    "M_Furn_PlasticDirty",
+    "M_Res_EnamelHarvest",
     "M_Furn_WoodPainted",
     "M_Res_Formica",
-    "M_Res_EnamelHarvest",
-    "M_Furn_PlasticDirty",
     "M_Arch_WindowGlassDirty",
     "M_Furn_Denim",
-    "M_Res_Porcelain",
     "M_Int_DrywallLight",
     "M_Res_Quilt"
    ],
@@ -7622,7 +7629,7 @@
    "category": "House_Furnishing",
    "glb": "03_Residential/House_Variants/RES_House_Bungalow_Furnishing.glb",
    "obj": null,
-   "triangles": 3938,
+   "triangles": 4201,
    "collision_triangles": 288,
    "collision": [
     "colonly"
@@ -7643,14 +7650,14 @@
     "M_Res_Gingham",
     "M_Furn_Cardboard",
     "M_Res_EnamelHarvest",
+    "M_Res_Porcelain",
     "M_Furn_Rubber",
     "M_Furn_WoodPainted",
     "M_Res_Formica",
     "M_Town_PaintWhite",
     "M_Arch_WindowGlassDirty",
     "M_Int_DrywallLight",
-    "M_Res_Quilt",
-    "M_Res_Porcelain"
+    "M_Res_Quilt"
    ],
    "bounds_min": [
     -4.385,
@@ -7818,7 +7825,7 @@
    "category": "House_Furnishing",
    "glb": "03_Residential/House_Variants/RES_House_Abandoned_Furnishing.glb",
    "obj": null,
-   "triangles": 2032,
+   "triangles": 2295,
    "collision_triangles": 192,
    "collision": [
     "colonly"
@@ -7838,7 +7845,8 @@
     "M_Furn_MetalBrushed",
     "M_Furn_WoodPainted",
     "M_Res_Formica",
-    "M_Res_Porcelain"
+    "M_Res_Porcelain",
+    "M_Res_EnamelHarvest"
    ],
    "bounds_min": [
     -2.78,
@@ -8070,7 +8078,7 @@
    "category": "House_Furnishing",
    "glb": "03_Residential/House_Variants/RES_House_SplitLevel_Furnishing.glb",
    "obj": null,
-   "triangles": 5418,
+   "triangles": 5681,
    "collision_triangles": 420,
    "collision": [
     "colonly"
@@ -8087,21 +8095,22 @@
     "M_Res_Lampshade",
     "M_Res_BulbGlow",
     "M_Town_PaintWhite",
+    "M_Res_Porcelain",
+    "M_Furn_PlasticDirty",
+    "M_Furn_Cardboard",
     "M_Furn_Rubber",
+    "M_Res_EnamelHarvest",
     "M_Furn_WoodPainted",
     "M_Res_Formica",
-    "M_Furn_PlasticDirty",
     "M_Arch_WindowGlassDirty",
     "M_Town_PaintRed",
     "M_Furn_LeatherWorn",
     "M_Com_SignageBacking",
-    "M_Furn_Cardboard",
     "M_Res_Pegboard",
     "M_Com_MetalShelving",
     "M_Town_PaintYellow",
     "M_Int_DrywallLight",
     "M_Res_Quilt",
-    "M_Res_Porcelain",
     "M_Res_Gingham"
    ],
    "bounds_min": [
@@ -8263,7 +8272,7 @@
    "category": "House_Furnishing",
    "glb": "03_Residential/House_Variants/RES_House_Cottage_Furnishing.glb",
    "obj": null,
-   "triangles": 2812,
+   "triangles": 3075,
    "collision_triangles": 252,
    "collision": [
     "colonly"
@@ -8282,6 +8291,8 @@
     "M_Res_BulbGlow",
     "M_Res_Gingham",
     "M_Res_EnamelHarvest",
+    "M_Res_Porcelain",
+    "M_Furn_Cardboard",
     "M_Furn_Rubber",
     "M_Res_DetailAtlas",
     "M_Furn_WoodPainted",
@@ -8292,7 +8303,6 @@
     "M_Town_PaintWhite",
     "M_Furn_WoodLight",
     "M_Furn_Denim",
-    "M_Res_Porcelain",
     "M_Int_TilesBathroom"
    ],
    "bounds_min": [
@@ -8450,7 +8460,7 @@
    "category": "House_Furnishing",
    "glb": "03_Residential/House_Variants/RES_House_MillWorker_Furnishing.glb",
    "obj": null,
-   "triangles": 2996,
+   "triangles": 3259,
    "collision_triangles": 228,
    "collision": [
     "colonly"
@@ -8467,14 +8477,15 @@
     "M_Res_Lampshade",
     "M_Res_BulbGlow",
     "M_Res_EnamelHarvest",
+    "M_Res_Porcelain",
+    "M_Furn_PlasticDirty",
+    "M_Furn_Cardboard",
     "M_Furn_Rubber",
     "M_Furn_WoodPainted",
     "M_Res_Formica",
     "M_Town_PaintWhite",
-    "M_Furn_PlasticDirty",
     "M_Arch_WindowGlassDirty",
     "M_Res_Gingham",
-    "M_Res_Porcelain",
     "M_Int_DrywallLight",
     "M_Res_Quilt",
     "M_Furn_Denim"
@@ -8700,7 +8711,7 @@
    "category": "House_Furnishing",
    "glb": "03_Residential/House_Variants/RES_PlayerHome_Furnishing.glb",
    "obj": null,
-   "triangles": 6433,
+   "triangles": 6696,
    "collision_triangles": 372,
    "collision": [
     "colonly"
@@ -8723,13 +8734,13 @@
     "M_Furn_Denim",
     "M_Furn_LeatherWorn",
     "M_Res_EnamelHarvest",
+    "M_Res_Porcelain",
+    "M_Furn_Cardboard",
     "M_Furn_WoodPainted",
     "M_Res_Formica",
     "M_Town_PaintWhite",
     "M_Arch_WindowGlassDirty",
-    "M_Res_Porcelain",
     "M_Town_PaintRed",
-    "M_Furn_Cardboard",
     "M_Town_PaintNavy",
     "M_Int_DrywallLight",
     "M_Res_Quilt",
@@ -8919,7 +8930,7 @@
    "category": "House_Furnishing",
    "glb": "03_Residential/House_Variants/RES_House_Ranch_Mirror_Furnishing.glb",
    "obj": null,
-   "triangles": 5530,
+   "triangles": 5793,
    "collision_triangles": 360,
    "collision": [
     "colonly"
@@ -8938,20 +8949,20 @@
     "M_Res_BulbGlow",
     "M_Res_Gingham",
     "M_Town_PaintWhite",
+    "M_Res_Porcelain",
+    "M_Furn_Cardboard",
     "M_Furn_Rubber",
+    "M_Res_EnamelHarvest",
     "M_Furn_WoodPainted",
     "M_Res_Formica",
     "M_Arch_WindowGlassDirty",
-    "M_Res_Porcelain",
     "M_Int_DrywallLight",
     "M_Res_Mirror",
     "M_Town_PaintNavy",
     "M_Res_Quilt",
     "M_Furn_Denim",
     "M_Furn_FabricUpholstery",
-    "M_Res_EnamelHarvest",
     "M_Com_MetalShelving",
-    "M_Furn_Cardboard",
     "M_Res_Pegboard",
     "M_Town_PaintYellow",
     "M_Town_PaintRed"
@@ -9507,7 +9518,7 @@
    "category": "House_Furnishing",
    "glb": "03_Residential/House_Variants/RES_House_Bungalow_Mirror_Furnishing.glb",
    "obj": null,
-   "triangles": 3938,
+   "triangles": 4201,
    "collision_triangles": 288,
    "collision": [
     "colonly"
@@ -9528,14 +9539,14 @@
     "M_Res_Gingham",
     "M_Furn_Cardboard",
     "M_Res_EnamelHarvest",
+    "M_Res_Porcelain",
     "M_Furn_Rubber",
     "M_Furn_WoodPainted",
     "M_Res_Formica",
     "M_Town_PaintWhite",
     "M_Arch_WindowGlassDirty",
     "M_Int_DrywallLight",
-    "M_Res_Quilt",
-    "M_Res_Porcelain"
+    "M_Res_Quilt"
    ],
    "bounds_min": [
     -4.435,
@@ -10145,7 +10156,7 @@
    "category": "House_Furnishing",
    "glb": "03_Residential/House_Variants/RES_House_Cottage_Mirror_Furnishing.glb",
    "obj": null,
-   "triangles": 2812,
+   "triangles": 3075,
    "collision_triangles": 252,
    "collision": [
     "colonly"
@@ -10164,6 +10175,8 @@
     "M_Res_BulbGlow",
     "M_Res_Gingham",
     "M_Res_EnamelHarvest",
+    "M_Res_Porcelain",
+    "M_Furn_Cardboard",
     "M_Furn_Rubber",
     "M_Res_DetailAtlas",
     "M_Furn_WoodPainted",
@@ -10174,7 +10187,6 @@
     "M_Town_PaintWhite",
     "M_Furn_WoodLight",
     "M_Furn_Denim",
-    "M_Res_Porcelain",
     "M_Int_TilesBathroom"
    ],
    "bounds_min": [
@@ -10413,7 +10425,7 @@
    "category": "House_Furnishing",
    "glb": "03_Residential/House_Variants/RES_House_TwoStorey_Mirror_Furnishing.glb",
    "obj": null,
-   "triangles": 6848,
+   "triangles": 7111,
    "collision_triangles": 504,
    "collision": [
     "colonly"
@@ -10433,16 +10445,16 @@
     "M_Res_Gingham",
     "M_Furn_Rubber",
     "M_Res_EnamelHarvest",
+    "M_Res_Porcelain",
+    "M_Furn_PlasticDirty",
     "M_Furn_WoodPainted",
     "M_Res_Formica",
-    "M_Furn_PlasticDirty",
     "M_Arch_WindowGlassDirty",
     "M_Town_PaintWhite",
     "M_Furn_Denim",
     "M_Int_DrywallLight",
     "M_Res_Quilt",
     "M_Res_Mirror",
-    "M_Res_Porcelain",
     "M_Furn_LeatherWorn",
     "M_Com_MetalShelving",
     "M_Town_PaintYellow",
@@ -10810,7 +10822,7 @@
    "category": "House_Furnishing",
    "glb": "03_Residential/House_Variants/RES_House_SplitLevel_Mirror_Furnishing.glb",
    "obj": null,
-   "triangles": 5418,
+   "triangles": 5681,
    "collision_triangles": 420,
    "collision": [
     "colonly"
@@ -10827,21 +10839,22 @@
     "M_Res_Lampshade",
     "M_Res_BulbGlow",
     "M_Town_PaintWhite",
+    "M_Res_Porcelain",
+    "M_Furn_PlasticDirty",
+    "M_Furn_Cardboard",
     "M_Furn_Rubber",
+    "M_Res_EnamelHarvest",
     "M_Furn_WoodPainted",
     "M_Res_Formica",
-    "M_Furn_PlasticDirty",
     "M_Arch_WindowGlassDirty",
     "M_Town_PaintRed",
     "M_Furn_LeatherWorn",
     "M_Com_SignageBacking",
-    "M_Furn_Cardboard",
     "M_Res_Pegboard",
     "M_Com_MetalShelving",
     "M_Town_PaintYellow",
     "M_Int_DrywallLight",
     "M_Res_Quilt",
-    "M_Res_Porcelain",
     "M_Res_Gingham"
    ],
    "bounds_min": [
