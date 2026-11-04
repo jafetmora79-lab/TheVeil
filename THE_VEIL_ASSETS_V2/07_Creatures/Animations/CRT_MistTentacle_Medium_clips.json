@@ -1,0 +1,42 @@
+{
+  "model": "07_Creatures/Mist_Tentacles/CRT_MistTentacle_Medium.glb",
+  "fps_baked": 23.846,
+  "clips": [
+    {
+      "name": "Emerge",
+      "duration_s": 2.6,
+      "loop": false,
+      "keys": 63
+    },
+    {
+      "name": "Search",
+      "duration_s": 6.0,
+      "loop": true,
+      "keys": 145
+    },
+    {
+      "name": "Coil",
+      "duration_s": 4.0,
+      "loop": true,
+      "keys": 97
+    },
+    {
+      "name": "Reach",
+      "duration_s": 2.2,
+      "loop": false,
+      "keys": 54
+    },
+    {
+      "name": "Strike",
+      "duration_s": 1.8,
+      "loop": false,
+      "keys": 44
+    },
+    {
+      "name": "Retract",
+      "duration_s": 2.2,
+      "loop": false,
+      "keys": 54
+    }
+  ]
+}

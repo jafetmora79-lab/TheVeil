@@ -134,9 +134,9 @@
    "checks": {
     "Idle_Breathe": {
      "min_y": -0.003,
-     "max_stretch": 1.6254,
-     "p999_stretch": 1.1477,
-     "min_squash": 0.9024,
+     "max_stretch": 1.6409,
+     "p999_stretch": 1.1595,
+     "min_squash": 0.8981,
      "lowest_contact_y": -0.0,
      "highest_lowest_foot_y": 0.0,
      "planted_slip": 0.0,
@@ -144,7 +144,7 @@
     },
     "Walk_Heavy": {
      "min_y": -0.003,
-     "max_stretch": 1.7294,
+     "max_stretch": 1.7319,
      "p999_stretch": 1.2651,
      "min_squash": 0.7874,
      "lowest_contact_y": -0.0,
@@ -154,9 +154,9 @@
     },
     "Tentacles_Sway": {
      "min_y": -0.003,
-     "max_stretch": 1.6795,
-     "p999_stretch": 1.2066,
-     "min_squash": 0.8785,
+     "max_stretch": 1.7038,
+     "p999_stretch": 1.2045,
+     "min_squash": 0.8681,
      "lowest_contact_y": -0.0,
      "highest_lowest_foot_y": 0.0,
      "planted_slip": 0.0,
@@ -174,9 +174,9 @@
     },
     "Attack_TentacleStrike": {
      "min_y": -0.003,
-     "max_stretch": 1.6254,
-     "p999_stretch": 1.2146,
-     "min_squash": 0.8323,
+     "max_stretch": 1.6409,
+     "p999_stretch": 1.2655,
+     "min_squash": 0.8195,
      "lowest_contact_y": -0.0,
      "highest_lowest_foot_y": 0.0,
      "planted_slip": 0.0,
@@ -194,7 +194,7 @@
     },
     "Hit_React": {
      "min_y": -0.003,
-     "max_stretch": 1.6595,
+     "max_stretch": 1.66,
      "p999_stretch": 1.2409,
      "min_squash": 0.799,
      "lowest_contact_y": -0.0,
@@ -219,6 +219,360 @@
     "p999_stretch": 1.5,
     "p999_stretch_death": 1.9,
     "min_y": -0.08
+   }
+  },
+  "CRT_MistTentacle_Large": {
+   "name": "CRT_MistTentacle_Large",
+   "glb": "07_Creatures/Mist_Tentacles/CRT_MistTentacle_Large.glb",
+   "triangles": 1065,
+   "bones": 11,
+   "bone_names": [
+    "Root",
+    "T_01",
+    "T_02",
+    "T_03",
+    "T_04",
+    "T_05",
+    "T_06",
+    "T_07",
+    "T_08",
+    "T_09",
+    "T_10"
+   ],
+   "materials": [
+    "M_Crt_MistTentacle",
+    "M_Crt_Tentacle"
+   ],
+   "sockets": [
+    "Socket_Tip"
+   ],
+   "clips": [
+    {
+     "name": "Emerge",
+     "duration_s": 2.6,
+     "loop": false
+    },
+    {
+     "name": "Search",
+     "duration_s": 6.0,
+     "loop": true
+    },
+    {
+     "name": "Coil",
+     "duration_s": 4.0,
+     "loop": true
+    },
+    {
+     "name": "Reach",
+     "duration_s": 2.2,
+     "loop": false
+    },
+    {
+     "name": "Strike",
+     "duration_s": 1.8,
+     "loop": false
+    },
+    {
+     "name": "Retract",
+     "duration_s": 2.2,
+     "loop": false
+    }
+   ],
+   "scene": "07_Creatures/Godot_Scenes/CRT_MistTentacle_Large.tscn",
+   "probe_bone": "T_10",
+   "edge_floor": 0.03,
+   "feet": [],
+   "checks": {
+    "Emerge": {
+     "min_y": -8.3427,
+     "max_stretch": 1.3289,
+     "p999_stretch": 1.3102,
+     "min_squash": 0.7463,
+     "loop_seamless": null
+    },
+    "Search": {
+     "min_y": -0.0132,
+     "max_stretch": 1.1185,
+     "p999_stretch": 1.1039,
+     "min_squash": 0.8841,
+     "loop_seamless": true
+    },
+    "Coil": {
+     "min_y": -0.0132,
+     "max_stretch": 1.3835,
+     "p999_stretch": 1.3633,
+     "min_squash": 0.7252,
+     "loop_seamless": true
+    },
+    "Reach": {
+     "min_y": -0.0132,
+     "max_stretch": 1.1811,
+     "p999_stretch": 1.1618,
+     "min_squash": 0.8765,
+     "loop_seamless": null
+    },
+    "Strike": {
+     "min_y": -0.0132,
+     "max_stretch": 1.339,
+     "p999_stretch": 1.2678,
+     "min_squash": 0.7937,
+     "loop_seamless": null
+    },
+    "Retract": {
+     "min_y": -8.3427,
+     "max_stretch": 1.3289,
+     "p999_stretch": 1.3102,
+     "min_squash": 0.7463,
+     "loop_seamless": null
+    }
+   },
+   "limits": {
+    "max_stretch": 1.8,
+    "max_stretch_death": 1.8,
+    "p999_stretch": 1.4,
+    "p999_stretch_death": 1.4,
+    "min_y": -0.08,
+    "min_y_exempt": [
+     "Emerge",
+     "Retract"
+    ],
+    "override_materials": true
+   }
+  },
+  "CRT_MistTentacle_Medium": {
+   "name": "CRT_MistTentacle_Medium",
+   "glb": "07_Creatures/Mist_Tentacles/CRT_MistTentacle_Medium.glb",
+   "triangles": 1219,
+   "bones": 11,
+   "bone_names": [
+    "Root",
+    "T_01",
+    "T_02",
+    "T_03",
+    "T_04",
+    "T_05",
+    "T_06",
+    "T_07",
+    "T_08",
+    "T_09",
+    "T_10"
+   ],
+   "materials": [
+    "M_Crt_MistTentacle",
+    "M_Crt_Tentacle"
+   ],
+   "sockets": [
+    "Socket_Tip"
+   ],
+   "clips": [
+    {
+     "name": "Emerge",
+     "duration_s": 2.6,
+     "loop": false
+    },
+    {
+     "name": "Search",
+     "duration_s": 6.0,
+     "loop": true
+    },
+    {
+     "name": "Coil",
+     "duration_s": 4.0,
+     "loop": true
+    },
+    {
+     "name": "Reach",
+     "duration_s": 2.2,
+     "loop": false
+    },
+    {
+     "name": "Strike",
+     "duration_s": 1.8,
+     "loop": false
+    },
+    {
+     "name": "Retract",
+     "duration_s": 2.2,
+     "loop": false
+    }
+   ],
+   "scene": "07_Creatures/Godot_Scenes/CRT_MistTentacle_Medium.tscn",
+   "probe_bone": "T_10",
+   "edge_floor": 0.03,
+   "feet": [],
+   "checks": {
+    "Emerge": {
+     "min_y": -5.9628,
+     "max_stretch": 1.2356,
+     "p999_stretch": 1.2091,
+     "min_squash": 0.8103,
+     "loop_seamless": null
+    },
+    "Search": {
+     "min_y": -0.013,
+     "max_stretch": 1.0921,
+     "p999_stretch": 1.0839,
+     "min_squash": 0.9111,
+     "loop_seamless": true
+    },
+    "Coil": {
+     "min_y": -0.013,
+     "max_stretch": 1.2862,
+     "p999_stretch": 1.26,
+     "min_squash": 0.7918,
+     "loop_seamless": true
+    },
+    "Reach": {
+     "min_y": -0.013,
+     "max_stretch": 1.1651,
+     "p999_stretch": 1.1285,
+     "min_squash": 0.8732,
+     "loop_seamless": null
+    },
+    "Strike": {
+     "min_y": -0.013,
+     "max_stretch": 1.2042,
+     "p999_stretch": 1.1636,
+     "min_squash": 0.8655,
+     "loop_seamless": null
+    },
+    "Retract": {
+     "min_y": -5.9628,
+     "max_stretch": 1.2356,
+     "p999_stretch": 1.2091,
+     "min_squash": 0.8103,
+     "loop_seamless": null
+    }
+   },
+   "limits": {
+    "max_stretch": 1.8,
+    "max_stretch_death": 1.8,
+    "p999_stretch": 1.4,
+    "p999_stretch_death": 1.4,
+    "min_y": -0.08,
+    "min_y_exempt": [
+     "Emerge",
+     "Retract"
+    ],
+    "override_materials": true
+   }
+  },
+  "CRT_MistTentacle_Thin": {
+   "name": "CRT_MistTentacle_Thin",
+   "glb": "07_Creatures/Mist_Tentacles/CRT_MistTentacle_Thin.glb",
+   "triangles": 883,
+   "bones": 11,
+   "bone_names": [
+    "Root",
+    "T_01",
+    "T_02",
+    "T_03",
+    "T_04",
+    "T_05",
+    "T_06",
+    "T_07",
+    "T_08",
+    "T_09",
+    "T_10"
+   ],
+   "materials": [
+    "M_Crt_MistTentacle",
+    "M_Crt_Tentacle"
+   ],
+   "sockets": [
+    "Socket_Tip"
+   ],
+   "clips": [
+    {
+     "name": "Emerge",
+     "duration_s": 2.6,
+     "loop": false
+    },
+    {
+     "name": "Search",
+     "duration_s": 6.0,
+     "loop": true
+    },
+    {
+     "name": "Coil",
+     "duration_s": 4.0,
+     "loop": true
+    },
+    {
+     "name": "Reach",
+     "duration_s": 2.2,
+     "loop": false
+    },
+    {
+     "name": "Strike",
+     "duration_s": 1.8,
+     "loop": false
+    },
+    {
+     "name": "Retract",
+     "duration_s": 2.2,
+     "loop": false
+    }
+   ],
+   "scene": "07_Creatures/Godot_Scenes/CRT_MistTentacle_Thin.tscn",
+   "probe_bone": "T_10",
+   "edge_floor": 0.03,
+   "feet": [],
+   "checks": {
+    "Emerge": {
+     "min_y": -3.5743,
+     "max_stretch": 1.229,
+     "p999_stretch": 1.1894,
+     "min_squash": 0.8802,
+     "loop_seamless": null
+    },
+    "Search": {
+     "min_y": -0.0049,
+     "max_stretch": 1.0591,
+     "p999_stretch": 1.0485,
+     "min_squash": 0.9611,
+     "loop_seamless": true
+    },
+    "Coil": {
+     "min_y": -0.0049,
+     "max_stretch": 1.2742,
+     "p999_stretch": 1.2276,
+     "min_squash": 0.8635,
+     "loop_seamless": true
+    },
+    "Reach": {
+     "min_y": -0.0049,
+     "max_stretch": 1.08,
+     "p999_stretch": 1.0691,
+     "min_squash": 0.9311,
+     "loop_seamless": null
+    },
+    "Strike": {
+     "min_y": -0.0049,
+     "max_stretch": 1.1296,
+     "p999_stretch": 1.1184,
+     "min_squash": 0.9076,
+     "loop_seamless": null
+    },
+    "Retract": {
+     "min_y": -3.5743,
+     "max_stretch": 1.229,
+     "p999_stretch": 1.1894,
+     "min_squash": 0.8802,
+     "loop_seamless": null
+    }
+   },
+   "limits": {
+    "max_stretch": 1.8,
+    "max_stretch_death": 1.8,
+    "p999_stretch": 1.4,
+    "p999_stretch_death": 1.4,
+    "min_y": -0.08,
+    "min_y_exempt": [
+     "Emerge",
+     "Retract"
+    ],
+    "override_materials": true
    }
   }
  }

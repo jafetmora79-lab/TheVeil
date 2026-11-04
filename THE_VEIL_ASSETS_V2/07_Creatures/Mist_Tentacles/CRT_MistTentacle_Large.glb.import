@@ -1,0 +1,65 @@
+[remap]
+
+importer="scene"
+importer_version=1
+type="PackedScene"
+path="res://.godot/imported/CRT_MistTentacle_Large.glb-5f90ae1b48bb0c33cac57315e97bd999.scn"
+
+[deps]
+
+source_file="res://THE_VEIL_ASSETS_V2/07_Creatures/Mist_Tentacles/CRT_MistTentacle_Large.glb"
+dest_files=["res://.godot/imported/CRT_MistTentacle_Large.glb-5f90ae1b48bb0c33cac57315e97bd999.scn"]
+
+[params]
+
+nodes/root_type=""
+nodes/root_name=""
+nodes/apply_root_scale=true
+nodes/root_scale=1.0
+meshes/ensure_tangents=false
+meshes/generate_lods=false
+meshes/create_shadow_meshes=true
+meshes/light_baking=1
+meshes/lightmap_texel_size=0.2
+meshes/force_disable_compression=false
+skins/use_named_skins=true
+animation/import=true
+animation/fps=30
+animation/trimming=false
+animation/remove_immutable_tracks=false
+animation/import_rest_as_RESET=true
+import_script/path=""
+_subresources={
+"animations": {
+"Emerge": {
+"settings/loop_mode": 0
+},
+"Search": {
+"settings/loop_mode": 1
+},
+"Coil": {
+"settings/loop_mode": 1
+},
+"Reach": {
+"settings/loop_mode": 0
+},
+"Strike": {
+"settings/loop_mode": 0
+},
+"Retract": {
+"settings/loop_mode": 0
+}
+},
+"materials": {
+"M_Crt_Tentacle": {
+"use_external/enabled": true,
+"use_external/path": "res://THE_VEIL_ASSETS_V2/07_Creatures/Shared_Materials/M_Crt_Tentacle.tres"
+},
+"M_Crt_MistTentacle": {
+"use_external/enabled": true,
+"use_external/path": "res://THE_VEIL_ASSETS_V2/07_Creatures/Shared_Materials/M_Crt_MistTentacle.tres"
+}
+}
+}
+gltf/naming_version=1
+gltf/embedded_image_handling=0

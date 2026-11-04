@@ -1,0 +1,29 @@
+[gd_scene load_steps=4 format=3]
+
+[ext_resource type="PackedScene" path="res://THE_VEIL_ASSETS_V2/07_Creatures/Mist_Tentacles/CRT_MistTentacle_Large.glb" id="1_model"]
+[ext_resource type="Script" path="res://THE_VEIL_ASSETS_V2/07_Creatures/Godot_Scenes/veil_mist_tentacle.gd" id="2_script"]
+
+[sub_resource type="CapsuleShape3D" id="CapsuleShape3D_0"]
+radius = 3.516
+height = 4.753
+
+[node name="MistTentacle_Large" type="Node3D"]
+script = ExtResource("2_script")
+fade_height = 0.936
+metadata/veil_creature = "MistTentacle"
+metadata/variant = "Large"
+metadata/animation_player = "Model/AnimationPlayer"
+metadata/animations = PackedStringArray("Emerge", "Search", "Coil", "Reach", "Strike", "Retract")
+metadata/length_m = 7.798
+
+[node name="Model" parent="." instance=ExtResource("1_model")]
+
+[node name="BoundsArea" type="Area3D" parent="."]
+monitoring = false
+
+[node name="Bounds" type="CollisionShape3D" parent="BoundsArea"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.0474, 1.9263, 2.3194)
+shape = SubResource("CapsuleShape3D_0")
+
+[node name="MistRoot" type="Marker3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0)

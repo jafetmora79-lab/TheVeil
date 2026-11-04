@@ -11,7 +11,7 @@ quality, and no screenshots, renders or videos were made.**
 | # | Creature | Status | Model | Scene |
 |---|---|---|---|---|
 | 1 | Colossus | done | `Colossus/CRT_Colossus.glb` | `Godot_Scenes/CRT_Colossus.tscn` |
-| 2 | Mist Tentacles (3 variants) | see below | `Mist_Tentacles/` | `Godot_Scenes/` |
+| 2 | Mist Tentacles (3 variants) | done | `Mist_Tentacles/CRT_MistTentacle_{Thin,Medium,Large}.glb` | `Godot_Scenes/CRT_MistTentacle_{Thin,Medium,Large}.tscn` |
 | 3 | Hound | see below | `Hounds/` | `Godot_Scenes/` |
 | 4 | Skitter | see below | `Skitter/` | `Godot_Scenes/` |
 | 5 | Shellcrawler | see below | `Shellcrawler/` | `Godot_Scenes/` |
@@ -137,6 +137,55 @@ All tentacle poses pass a deterministic ground guard, so tentacles bend up inste
 * collision: body box, sac box, head box, four leg cylinders;
 * `Markers/LookTarget`, `Markers/CoreTarget`, `Markers/StrikeImpact`;
 * metadata: animation list, walk speed, strike impact time.
+
+## Creature 02 - Mist Tentacles
+
+These are appendages of something unseen that rise straight out of the mist. **There is no body.** The three variants
+share one skeleton, `Root > T_01 ... T_10`, and one clip set. The same pose functions drive every variant, scaled by
+its length, so code written for one variant drives the others.
+
+| Variant | File | Length | Triangles | Shape |
+|---|---|---|---|---|
+| Thin (searching) | `Mist_Tentacles/CRT_MistTentacle_Thin.glb` | 3.4 m | 883 | upright and wavy, dense ridges, a pale sensory bulb and two filaments at the tip, small sensory nodes along the underside |
+| Medium (grasping) | `Mist_Tentacles/CRT_MistTentacle_Medium.glb` | 5.2 m | 1 219 | flattened underside lined with paired hooked barbs, tip curled into a hook |
+| Large (aggressive) | `Mist_Tentacles/CRT_MistTentacle_Large.glb` | 7.8 m | 1 065 | hunched forward, overlapping plates down the back, a knuckled kink ringed with plates, hooked bone spike at the tip |
+
+Every variant rises from a flared base that sinks into the mist. `Root` sits at the origin, on the mist surface.
+
+**Clips** (24 fps keys):
+
+| Clip | Length | Loop | Notes |
+|---|---|---|---|
+| `Emerge` | 2.6 s | no | rises from below the mist (Root from -1.05 x length to 0) while uncoiling; ends in the searching pose |
+| `Search` | 6.0 s | yes | slow travelling-wave sweep with a twitching tip |
+| `Coil` | 4.0 s | yes | coiled into a twisted spiral that slowly tightens and relaxes |
+| `Reach` | 2.2 s | no | straightens and reaches forward (+Z); ends extended with the tip probing |
+| `Strike` | 1.8 s | no | pulls back, then whips forward and down to the ground in front, then recovers |
+| `Retract` | 2.2 s | no | coils and sinks below the mist |
+
+`Search`, `Coil`, `Reach` and `Strike` pass the deterministic ground guard. `Emerge` and `Retract` pass below the
+ground / mist surface on purpose.
+
+**Scenes:** `Godot_Scenes/CRT_MistTentacle_{Thin,Medium,Large}.tscn`. Root `Node3D` with
+`Godot_Scenes/veil_mist_tentacle.gd` (class `VeilMistTentacle`), containing:
+
+* `Model`: the GLB (skeleton + `Model/AnimationPlayer`);
+* `MistRoot`: a `Marker3D` at the mist surface, the placement root;
+* `BoundsArea/Bounds`: a coarse static capsule (an `Area3D` with monitoring off).
+
+Script API:
+
+* `visibility` (0-1) and `fade_height` (metres) control how the tentacle shows. The script swaps the imported
+  materials for `Shared_Materials/crt_mist_fade.gdshader`, which uses the same textures and dithers everything
+  below the `MistRoot` height away. The dither is ordered (Bayer), with no transparency sorting and no screen /
+  depth reads, so it is Compatibility-safe.
+* `autoplay` (default `Search`).
+* `play(clip, blend)`, `emerge()` (Emerge, then Search), `retract()`, `get_animation_player()`.
+
+There is no damage, AI or targeting.
+
+**Materials:** `M_Crt_Tentacle` (the tiling skin shared with the Colossus tentacles, 2 m repeat on these smaller
+tentacles) + `M_Crt_MistTentacle` (128 px detail atlas: plates, barbs, spike, sensory bulb / nodes, base).
 
 ## Lore notes / conflicts with the project bible (the bible was not modified)
 

@@ -44,10 +44,7 @@ def textures():
     X.paint_hide(cv.region(0, 0, 128, 128), "col_hide", cracks=7, glow_cracks=2)
     out["hide"] = (os.path.join(B.TEX, "T_Crt_Colossus_Hide.png"), os.path.join(B.TEX, "T_Crt_Colossus_Hide_Emit.png"))
     cv.save(*out["hide"])
-    tv = X.Canvas(64, 128, seed="tentacle")
-    X.paint_tentacle(tv.region(0, 0, 64, 128), "tentacle")
-    out["tent"] = (os.path.join(B.TEX, "T_Crt_Tentacle.png"), os.path.join(B.TEX, "T_Crt_Tentacle_Emit.png"))
-    tv.save(*out["tent"])
+    out["tent"] = B.shared_tentacle_texture()
     at = X.Canvas(256, 256, seed="col_atlas")
     X.paint_hide(at.region(0, 0, 256, 256), "col_atlas_bg", cracks=0, glow_cracks=0)
     rg = {}
@@ -339,19 +336,21 @@ def pose_factory(rig, legs, tents):
             C.ik_leg(rig, Rw, Pw, local, b[0], b[1], b[2], targets.get(k, contact[k]), foot_R=fr)
         return local
 
-    def tent_layer(local, t, amp=1.0, freq=0.35, extra=None):
+    def tent_layer(local, t, amp=1.0, freq=0.35, period=None):
         for q, (k, bones) in enumerate(tb.items()):
             a = amp * (5.0 if k.startswith("T_Vent") else 7.0)
-            B.wave(rig, local, bones, t, amp=a, amp2=a * 0.8, freq=freq * (1 + 0.13 * q), lag=0.55, phase=q * 1.7)
+            B.wave(rig, local, bones, t, amp=a, amp2=a * 0.8, freq=freq * (1 + 0.13 * q), lag=0.55, phase=q * 1.7,
+                   period=period)
         return local
 
-    def head_layer(local, t, nod=0.0, turn=0.0, maw=0.0, stalk=1.0):
+    def head_layer(local, t, nod=0.0, turn=0.0, maw=0.0, stalk=1.0, period=None):
+        f1, f2 = B.cyc(0.4, period), B.cyc(0.55, period)
         local["Head"] = C.R((0, 1, 0), turn) @ C.R((1, 0, 0), nod)
         local["Maw_L"] = C.R((0, 0, 1), -maw)
         local["Maw_R"] = C.R((0, 0, 1), maw)
         for q, pre in enumerate(("Stalk_L", "Stalk_R")):
-            local[f"{pre}_01"] = C.R((1, 0, 0), stalk * 8 * math.sin(2 * math.pi * 0.4 * t + q * 2))
-            local[f"{pre}_02"] = C.R((0, 0, 1), stalk * 12 * math.sin(2 * math.pi * 0.55 * t + q))
+            local[f"{pre}_01"] = C.R((1, 0, 0), stalk * 8 * math.sin(2 * math.pi * f1 * t + q * 2))
+            local[f"{pre}_02"] = C.R((0, 0, 1), stalk * 12 * math.sin(2 * math.pi * f2 * t + q))
         return local
 
     def guard(local, trans, floor=0.25):
@@ -361,17 +360,16 @@ def pose_factory(rig, legs, tents):
         return local
 
     # ---- clips -------------------------------------------------------------------
-    def idle(t):
-        T = 4.0
+    def idle(t, T=4.0):
         ph = 2 * math.pi * t / T
         local, trans = {}, {}
         trans["Body"] = (0, 0.10 * math.sin(ph), 0)
         local["Body"] = C.R((1, 0, 0), 0.8 * math.sin(ph + 0.6))
         local["Belly"] = C.R((0, 0, 1), 2.2 * math.sin(ph * 0.5 * 2)) @ C.R((1, 0, 0), 1.5 * math.sin(ph + 1.2))
         local["Chest"] = C.R((1, 0, 0), -0.6 * math.sin(ph))
-        head_layer(local, t, nod=2.0 * math.sin(ph + 0.4), turn=3.0 * math.sin(ph * 0.5), maw=3.0 + 3.0 * math.sin(ph))
+        head_layer(local, t, nod=2.0 * math.sin(ph + 0.4), turn=3.0 * math.sin(ph), maw=3.0 + 3.0 * math.sin(ph), period=T)
         legs_ik(local, trans, {})
-        tent_layer(local, t, amp=0.6, freq=0.25)
+        tent_layer(local, t, amp=0.6, freq=0.25, period=T)
         return guard(local, trans), trans
 
     SL, DUTY, WT = 3.0, 0.75, 4.0
@@ -403,17 +401,17 @@ def pose_factory(rig, legs, tents):
         local["Rear"] = C.R((0, 0, 1), -1.6 * math.sin(ph + 0.5))
         local["Chest"] = C.R((0, 1, 0), -1.5 * math.sin(ph + 1.2))
         local["Belly"] = C.R((0, 0, 1), -4.0 * math.sin(ph - 0.6)) @ C.R((1, 0, 0), 2.5 * math.sin(2 * ph - 0.8))
-        head_layer(local, t, nod=3.0 * math.sin(2 * ph + 1.0), turn=-3.0 * math.sin(ph + 1.4), maw=2.0)
+        head_layer(local, t, nod=3.0 * math.sin(2 * ph + 1.0), turn=-3.0 * math.sin(ph + 1.4), maw=2.0, period=WT)
         tg, fr = gait(t)
         legs_ik(local, trans, tg, fr)
-        tent_layer(local, t, amp=0.9, freq=0.5)
+        tent_layer(local, t, amp=0.9, freq=0.5, period=WT)
         for k in ("T_DorsalL", "T_DorsalR"):
             B.curl(rig, local, tb[k][:3], [-3.0 * math.sin(ph)] * 3)
         return guard(local, trans), trans
 
     def sway(t):
-        local, trans = idle(t)
-        tent_layer(local, t, amp=2.2, freq=0.33)
+        local, trans = idle(t, 6.0)
+        tent_layer(local, t, amp=2.2, freq=0.33, period=6.0)
         for q, k in enumerate(tb):
             B.curl(rig, local, tb[k], 6.0 * math.sin(2 * math.pi * t / 6.0 + q * 1.1), axis="sweep")
         return guard(local, trans), trans
