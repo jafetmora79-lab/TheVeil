@@ -262,6 +262,16 @@ driving. `game/tools/build_world.py` therefore uses the Pack 02 `town_layout.py`
   rooms (there was a white post and beam in the player's bedroom). It applies to all 23 variants.
 * **Validation:** `validate_residential.py` passes (0 failures, 6 pre-existing placement warnings).
 
+### 9.4b Later commits from the owner's account (review first)
+
+After `c96bb42`, the owner's account pushed two commits:
+
+* `0e9b50f` "Restore safe sedan exit through the interact key"
+* `9f3df14` "Repair sedan lid edges and residential furniture assemblies"
+
+Read both before touching furniture or the sedan. Re-run `build_residential.py` / the Pack 03 validator and the
+playthrough test to make sure everything still agrees.
+
 ### 9.5 Known issues / limits
 
 * **Visual quality:** never verified by eye by Claude. The owner is the visual tester and reports problems with
