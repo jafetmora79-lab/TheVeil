@@ -1276,21 +1276,19 @@ func _p3_spawn_tentacles() -> void:
 		_tentacles.append(t)
 
 
+## Health reached zero: the death cinematic (game/world/death_sequence.gd) plays once, then YOU DIED with RETRY
+## (last save) / MAIN MENU. Damage cannot retrigger it (player.damage ignores a dead player).
+var death: VeilDeathSequence
+
+
 func _on_player_died() -> void:
-	player.controls_enabled = false
-	await hud.fade_to(1.0, 0.8)
-	var store := _enc_store if _enc_store else game_shop
-	var inside: Vector3 = (store.get_node("Doorways/Entrance_Inside") as Node3D).global_position
-	var into := (inside - (store.get_node("Doorways/Entrance_Outside") as Node3D).global_position) * Vector3(1, 0, 1)
-	player.global_position = inside + into.normalized() * 1.5 + Vector3(0, 0.1, 0)
-	player.velocity = Vector3.ZERO
-	player.health = 60.0
-	player.stamina = player.MAX_STAMINA
-	player.set_survival(true)
-	await get_tree().create_timer(0.6).timeout
-	hud.fade_to(0.0, 1.2)
-	player.controls_enabled = true
-	Dialogue.say("p3_wake_hurt", false, true)
+	if death != null:
+		return
+	_end_cine()
+	death = VeilDeathSequence.new()
+	death.name = "DeathSequence"
+	add_child(death)
+	death.play(self)
 
 
 func _p3_back_inside() -> void:
