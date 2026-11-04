@@ -1,0 +1,37 @@
+[remap]
+
+importer="texture"
+type="CompressedTexture2D"
+uid="uid://bqeu5i8j6fmh8"
+path="res://.godot/imported/COM_GameShop_Furnishing_5.png-a6245b0910203d6d3dd1ab48349d1a76.ctex"
+metadata={
+"vram_texture": false
+}
+generator_parameters={
+"md5": "4723632bf55727f4609fc465d7d10d1e"
+}
+
+[deps]
+
+source_file="res://THE_VEIL_ASSETS_V2/04_Commercial/Video_Game_Store/COM_GameShop_Furnishing_5.png"
+dest_files=["res://.godot/imported/COM_GameShop_Furnishing_5.png-a6245b0910203d6d3dd1ab48349d1a76.ctex"]
+
+[params]
+
+compress/mode=0
+compress/high_quality=false
+compress/lossy_quality=0.7
+compress/hdr_compression=1
+compress/normal_map=0
+compress/channel_pack=0
+mipmaps/generate=true
+mipmaps/limit=-1
+roughness/mode=0
+roughness/src_normal=""
+process/fix_alpha_border=true
+process/premult_alpha=false
+process/normal_map_invert_y=false
+process/hdr_as_srgb=false
+process/hdr_clamp_exposure=false
+process/size_limit=0
+detect_3d/compress_to=1

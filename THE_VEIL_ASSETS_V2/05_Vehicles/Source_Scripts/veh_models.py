@@ -200,12 +200,20 @@ class Vehicle:
                     self.qo(own, "glass", [A["P2"], B["P2"], B["P3"], A["P3"]], "glass", h + V(0, 0.4, 0))
                 elif not glass:
                     self.qo(own, "atlas", [A["P2"], B["P2"], B["P3"], A["P3"]], self.paint(zm, "upper", own), h + V(0, 0.4, 0))
+                    if self.inr(zm, "cabin"):
+                        # inner face of an opaque upper panel (the wedge ahead of a front-door window, the C-pillar
+                        # strip): without it the outward-only face is back-face culled from inside the cabin and the
+                        # driver sees straight through the door
+                        di = V(-sgn * 0.012, 0, 0)
+                        self.qo(own, "atlas", [A["P2"] + di, B["P2"] + di, B["P3"] + di, A["P3"] + di], "headliner", V(-sgn, -0.3, 0))
+                        for E, dz in ((A, -1), (B, 1)):   # jambs: close the 12 mm step to the neighbouring glass
+                            self.qo(own, "atlas", [E["P2"], E["P3"], E["P3"] + di, E["P2"] + di], "trim_black", V(0, 0, dz))
                 # cabin inner trim where no door covers the side
                 if own == "Body" and self.inr(zm, "cabin"):
                     k = c["inset"]
                     fl = c["interior"]["floor"]
                     q = lambda s_, y, wk: V(sgn * (s_[wk] - k), y, s_["z"])  # noqa: E731
-                    self.qo("Body", "atlas", [q(a, fl, "hw"), q(b, fl, "hw"), q(b, b["belt"], "hw"), q(a, a["belt"], "hw")], "dash", V(-sgn, 0, 0))
+                    self.qo("Body", "atlas", [q(a, max(fl, a["yb"]), "hw"), q(b, max(fl, b["yb"]), "hw"), q(b, b["belt"], "hw"), q(a, a["belt"], "hw")], "dash", V(-sgn, 0, 0))
                     if greenhouse and not glass:
                         self.qo("Body", "atlas", [q(a, a["belt"], "hw"), q(b, b["belt"], "hw"), q(b, b["top"] - 0.03, "hwt"), q(a, a["top"] - 0.03, "hwt")],
                                 "headliner", V(-sgn, -0.3, 0))
@@ -265,8 +273,10 @@ class Vehicle:
             p = self.part(name, V(sgn * a["hw"], ymid, z0), axis="local +Y (hinge, front edge)", role="door")
             k = c["inset"]
             ia, ib = sgn * (a["hw"] - k), sgn * (b["hw"] - k)
-            ybot = max(fl + 0.04, a["yb"] + 0.07)
-            self.qo(name, "atlas", [V(ia, ybot, z0 + 0.02), V(ib, ybot, z1 - 0.02), V(ib, b["belt"] - 0.01, z1 - 0.02), V(ia, a["belt"] - 0.01, z0 + 0.02)],
+            ybot = a["yb"] + 0.07                     # meets the bottom edge strip (a higher panel left a sill slit)
+            # the panel spans the whole door length so it meets the front / rear edge caps (a 2 cm inset left
+            # see-through slits at both door ends)
+            self.qo(name, "atlas", [V(ia, ybot, z0 + 0.002), V(ib, ybot, z1 - 0.002), V(ib, b["belt"] - 0.01, z1 - 0.002), V(ia, a["belt"] - 0.01, z0 + 0.002)],
                     "doorpanel", V(-sgn, 0, 0))
             # thickness: top sill strip, front / rear / bottom edges
             self.qo(name, "atlas", [V(sgn * a["hw"], a["belt"], z0), V(sgn * b["hw"], b["belt"], z1), V(ib, b["belt"] - 0.01, z1), V(ia, a["belt"] - 0.01, z0)],
@@ -287,6 +297,31 @@ class Vehicle:
                 hb = V(sgn * (s_["hw"] + 0.10), s_["belt"] + 0.09, mz)
                 self.g(name).box(V(sgn * (s_["hw"] + 0.04), s_["belt"] + 0.05, mz), (0.08, 0.03, 0.06), "trim_black")
                 self.g(name).box(hb, c.get("mirror_size", (0.10, 0.12, 0.08)), self.paint_rect, faces={"+z": "mirror"})
+
+    def wheel_wells(self):
+        """Wheel-well liners: an outward-facing inner wall behind each wheel and a ceiling strip following the arch,
+        so looking into an arch shows a dark liner instead of the back faces of the cabin trim (see-through)."""
+        c = self.c
+        w = c["wheel_w"]
+        for zc, yc, ra in c["arches"]:
+            zs = [zc - ra * math.cos(t) for t in np.linspace(0, math.pi, 9)]
+            for sgn in (-1, 1):
+                prev = None
+                for z in zs:
+                    s_ = self.st(z)
+                    xo, xi = sgn * (s_["hw"] - 0.05), sgn * (s_["hw"] - w - 0.06)
+                    y = s_["yb"]
+                    if prev is not None:
+                        pz, pxo, pxi, py = prev
+                        self.qo("Body", "atlas", [V(pxi, py, pz), V(xi, y, z), V(xo, y, z), V(pxo, py, pz)], "underside", V(0, -1, 0))
+                        wall = [V(pxi, yc, pz), V(xi, yc, z), V(xi, y, z), V(pxi, py, pz)]
+                        if py - yc < 1e-3:            # arch ends: the wall piece is a triangle, not a quad
+                            self.g("Body").tri([wall[0], wall[1], wall[2]], [V(sgn, 0, 0)] * 3, [RR("underside")[:2]] * 3)
+                        elif y - yc < 1e-3:
+                            self.g("Body").tri([wall[0], wall[1], wall[3]], [V(sgn, 0, 0)] * 3, [RR("underside")[:2]] * 3)
+                        else:
+                            self.qo("Body", "atlas", wall, "underside", V(sgn, 0, 0))
+                    prev = (z, xo, xi, y)
 
     def wheels(self):
         c = self.c
@@ -414,6 +449,10 @@ class Vehicle:
                 for sgn in (-1, 1):
                     g.box(V(sgn * (xl + hwf) / 2, (fl + yc + ra + 0.05) / 2, (a + b) / 2), (hwf - xl, yc + ra + 0.05 - fl, b - a), "carpet",
                           skip=("-y", "+x" if sgn > 0 else "-x"))
+                    # the tub is open towards the wheel: its end walls also need faces seen from the wheel well
+                    ty = yc + ra + 0.05
+                    for zz, dz in ((a + 0.002, 1), (b - 0.002, -1)):
+                        self.qo("Body", "atlas", [V(sgn * xl, fl, zz), V(sgn * hwf, fl, zz), V(sgn * hwf, ty, zz), V(sgn * xl, ty, zz)], "underside", V(0, 0, dz))
         # firewall + headliner
         self.qo("Body", "atlas", [V(-hwf, fl, z0), V(hwf, fl, z0), V(hwf, s0["belt"], z0), V(-hwf, s0["belt"], z0)], "dash", V(0, 0, 1))
         rf0, rf1 = I["roof"]
@@ -562,6 +601,7 @@ def build_sedan(name, mats, paint="paint_sedan", cfg_mod=None, glass_rect="glass
     v.doors()
     v.loft()
     v.wheels()
+    v.wheel_wells()
     v.greenhouse_trim()
     v.front_end(hl_y=0.58, hl_x=0.56)
     v.rear_end(tl_y=0.80, tl_x=0.60, plate_y=0.66)

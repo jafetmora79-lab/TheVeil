@@ -6,7 +6,8 @@
   "done": "Friday evening - to be continued",
   "act1": "The Veil",
   "act1_night": "Secure the supermarket",
-  "act2_search": "The First Search"
+  "act2_search": "The First Search",
+  "act2_voices": "Voices in the Mist"
  },
  "steps": [
   {
@@ -185,9 +186,75 @@
   },
   {
    "id": "c5_complete",
-   "flag": "c6_started",
+   "flag": "ch6_started",
    "goal": "act2_search",
    "text": "Chapter 5 complete - The First Search"
+  },
+  {
+   "id": "c6_marcus",
+   "flag": "ch6_marcus_briefing_complete",
+   "goal": "act2_voices",
+   "text": "Talk to Marcus"
+  },
+  {
+   "id": "c6_eddie",
+   "flag": "ch6_eddie_talked",
+   "goal": "act2_voices",
+   "text": "Talk to Eddie"
+  },
+  {
+   "id": "c6_prepare",
+   "flag": "ch6_eddie_ready",
+   "goal": "act2_voices",
+   "text": "Prepare for the search"
+  },
+  {
+   "id": "c6_leave",
+   "flag": "ch6_left_supermarket",
+   "goal": "act2_voices",
+   "text": "Leave the supermarket with Eddie"
+  },
+  {
+   "id": "c6_search",
+   "flag": "ch6_house_found",
+   "goal": "act2_voices",
+   "text": "Search the residential area"
+  },
+  {
+   "id": "c6_house",
+   "flag": "ch6_ruth_sarah_met",
+   "goal": "act2_voices",
+   "text": "Investigate the house"
+  },
+  {
+   "id": "c6_voice",
+   "flag": "ch6_voice_choice_made",
+   "goal": "act2_voices",
+   "text": "Investigate the distant voice"
+  },
+  {
+   "id": "c6_avoid",
+   "flag": "ch6_hound_encounter_complete",
+   "goal": "act2_voices",
+   "text": "Avoid the creature"
+  },
+  {
+   "id": "c6_return",
+   "flag": "ch6_returned_to_supermarket",
+   "goal": "act2_voices",
+   "text": "Return to the supermarket"
+  },
+  {
+   "id": "c6_report",
+   "flag": "chapter_6_complete",
+   "goal": "act2_voices",
+   "text": "Report to Marcus"
+  },
+  {
+   "id": "c6_complete",
+   "flag": "ch7_started",
+   "goal": "act2_voices",
+   "text": "Chapter 6 complete - Voices in the Mist"
   }
  ],
  "_comment": "Steps complete in list order for display, but each errand step only checks its own flag, so the supermarket and the game shop can be done in either order (the bible leaves the stop order open). Phase 3 (mist_*) is a WORKING DRAFT sequence of Act I's opening.",
