@@ -16,6 +16,20 @@ from veil_mesh.mesh import MB, T, Ry, Rx, Rz, S, nrm
 from veil_mesh.gltf import COL_KEY
 from res_textures import DETAIL_RECTS
 
+
+class _FurnMB(MB):
+    """Mesh builder for furniture: MB.box omits the bottom face by default (right for things standing on the
+    floor), but raised parts - table tops, shelves, seats, drawer boxes - must keep their underside or they are
+    see-through from below. Boxes whose bottom is more than 3 cm above the model's floor keep it."""
+
+    def box(self, mat, mn, mx, skip=("-y",), **kw):
+        if "-y" in skip and mn[1] > 0.03:
+            skip = tuple(f for f in skip if f != "-y")
+        return super().box(mat, mn, mx, skip=skip, **kw)
+
+
+MB = _FurnMB  # noqa: F811
+
 WOOD_L, WOOD_D, WOOD_P = m01("Furn_WoodLight"), m01("Furn_WoodDark"), m01("Furn_WoodPainted")
 METAL, PLASTIC, RUBBER = m01("Furn_MetalBrushed"), m01("Furn_PlasticDirty"), m01("Furn_Rubber")
 TWEED, LEATHER, DENIM = m01("Furn_FabricUpholstery"), m01("Furn_LeatherWorn"), m01("Furn_Denim")
@@ -76,6 +90,52 @@ def rbox(mb, mat, mn, mx, r=0.04, axis="x", seg=2):
     mb.merge(loc, M)
 
 
+def hollow(mb, mat, mn, mx, skip=(), t=0.018):
+    """Container box (carcass, drawer, appliance body, crate) with a real inside.
+    skip = the open face ("+z" front / "+y" top). Instead of leaving a see-through hole (the old single-face skip
+    showed the background wherever a door or drawer front did not cover the opening, and every open drawer or
+    cabinet was empty), this builds: the outer shell without the open face, inward-facing inner walls inset by the
+    panel thickness t (same material, so insides are textured), and a rim joining the two on the open face.
+    Panels thinner than 2.5 t, or boxes with no single open face, are simply closed."""
+    skip = tuple(skip)
+    x0, y0, z0 = mn
+    x1, y1, z1 = mx
+    open_ = skip[0] if len(skip) == 1 and skip[0] in ("+z", "+y") else None
+    dims = (x1 - x0, y1 - y0, z1 - z0)
+    if open_ is None or min(dims) < 2.5 * t:
+        mb.box(mat, mn, mx, skip=tuple(f for f in skip if f not in ("+z", "+y")))
+        return
+    mb.box(mat, mn, mx, skip=(open_,))
+    ix0, iy0, iz0, ix1, iy1, iz1 = x0 + t, y0 + t, z0 + t, x1 - t, y1 - t, z1 - t
+    if open_ == "+z":
+        iz1 = z1
+    else:
+        iy1 = y1
+    # inner walls (normals point into the cavity)
+    inner = {
+        "-x": ([ix0, iy0, iz0], [ix0, iy1, iz0], [ix0, iy1, iz1], [ix0, iy0, iz1], (1, 0, 0)),
+        "+x": ([ix1, iy0, iz0], [ix1, iy0, iz1], [ix1, iy1, iz1], [ix1, iy1, iz0], (-1, 0, 0)),
+        "-y": ([ix0, iy0, iz0], [ix0, iy0, iz1], [ix1, iy0, iz1], [ix1, iy0, iz0], (0, 1, 0)),
+        "+y": ([ix0, iy1, iz0], [ix1, iy1, iz0], [ix1, iy1, iz1], [ix0, iy1, iz1], (0, -1, 0)),
+        "-z": ([ix0, iy0, iz0], [ix1, iy0, iz0], [ix1, iy1, iz0], [ix0, iy1, iz0], (0, 0, 1)),
+        "+z": ([ix0, iy0, iz1], [ix0, iy1, iz1], [ix1, iy1, iz1], [ix1, iy0, iz1], (0, 0, -1)),
+    }
+    for k, (a, b, c, d, n) in inner.items():
+        if k != open_:
+            mb.quad(mat, a, b, c, d, n=n)
+    # rim on the open face (frame between the outer edge and the opening)
+    if open_ == "+z":
+        z = z1
+        rims = [((x0, y0), (x1, iy0)), ((x0, iy1), (x1, y1)), ((x0, iy0), (ix0, iy1)), ((ix1, iy0), (x1, iy1))]
+        for (a0, b0), (a1, b1) in rims:
+            mb.quad(mat, [a0, b0, z], [a1, b0, z], [a1, b1, z], [a0, b1, z], n=(0, 0, 1))
+    else:
+        y = y1
+        rims = [((x0, z0), (x1, iz0)), ((x0, iz1), (x1, z1)), ((x0, iz0), (ix0, iz1)), ((ix1, iz0), (x1, iz1))]
+        for (a0, b0), (a1, b1) in rims:
+            mb.quad(mat, [a0, y, b0], [a0, y, b1], [a1, y, b1], [a1, y, b0], n=(0, 1, 0))
+
+
 def legs(mb, mat, w, d, h, inset=0.05, r=0.025, seg=5, taper=0.7):
     for sx in (-1, 1):
         for sz in (-1, 1):
@@ -97,7 +157,7 @@ def drawer(name, x0, y0, x1, y1, z_front, depth, mat, handle=METAL):
     mb = MB()
     w, h = x1 - x0, y1 - y0
     mb.box(mat, (-w / 2, 0, -0.02), (w / 2, h, 0.0), skip=())                 # front panel
-    mb.box(mat, (-w / 2 + 0.02, 0.01, -depth), (w / 2 - 0.02, h * 0.75, -0.02), skip=("+y",))   # box
+    hollow(mb, mat, (-w / 2 + 0.02, 0.01, -depth), (w / 2 - 0.02, h * 0.75, -0.02), skip=("+y",))   # box
     mb.box(handle, (-0.06, h / 2 - 0.012, 0.0), (0.06, h / 2 + 0.012, 0.025), skip=())
     return {"name": name, "t": ((x0 + x1) / 2, y0, z_front), "mb": mb,
             "extras": {"veil_interact": "slide", "axis": "z", "distance": depth * 0.75}}
@@ -185,7 +245,7 @@ def side_table():
     mb = MB()
     w, d, h = 0.5, 0.45, 0.58
     mb.box(WOOD_D, (-w / 2, h - 0.03, -d / 2), (w / 2, h, d / 2))
-    mb.box(WOOD_D, (-w / 2 + 0.03, h - 0.17, -d / 2 + 0.03), (w / 2 - 0.03, h - 0.03, d / 2 - 0.03), skip=("+z",))
+    hollow(mb, WOOD_D, (-w / 2 + 0.03, h - 0.17, -d / 2 + 0.03), (w / 2 - 0.03, h - 0.03, d / 2 - 0.03), skip=("+z",))
     legs(mb, WOOD_D, w - 0.06, d - 0.06, h - 0.17, r=0.02, taper=0.6)
     mb.box(WOOD_D, (-w / 2 + 0.05, 0.12, -d / 2 + 0.05), (w / 2 - 0.05, 0.14, d / 2 - 0.05))
     dr = drawer("INT_Drawer_1", -w / 2 + 0.04, h - 0.16, w / 2 - 0.04, h - 0.04, d / 2 - 0.03, 0.34, WOOD_D)
@@ -196,7 +256,7 @@ def crt_tv(name="RES_TV_CRT_Small", w=0.56, h=0.48, d=0.48, on=True, wood=False)
     mb = MB()
     shell = WOOD_D if wood else m01("Com_SignageBacking")
     mb.box(shell, (-w / 2, 0, -d / 2 + 0.12), (w / 2, h, d / 2))
-    mb.box(shell, (-w / 2 + 0.07, 0.07, -d / 2), (w / 2 - 0.07, h - 0.07, -d / 2 + 0.12), skip=("+z",))   # tube back
+    hollow(mb, shell, (-w / 2 + 0.07, 0.07, -d / 2), (w / 2 - 0.07, h - 0.07, -d / 2 + 0.12), skip=("+z",))   # tube back
     face_quad(mb, DETG if on else DET, drect("crt_screen" if on else "crt_screen_off"), -w / 2 + 0.05, 0.07, w / 2 - 0.12, h - 0.06, d / 2 + 0.002)
     for k in range(2):
         mb.box(PLASTIC, (w / 2 - 0.08, 0.22 + k * 0.1, d / 2), (w / 2 - 0.04, 0.26 + k * 0.1, d / 2 + 0.02))
@@ -221,9 +281,9 @@ def tv_stand():
     name = "RES_TVStand"
     mb = MB()
     w, d, h = 1.0, 0.45, 0.55
-    mb.box(WOOD_L, (-w / 2, 0.05, -d / 2), (w / 2, h, d / 2), skip=("+z",))
+    hollow(mb, WOOD_L, (-w / 2, 0.05, -d / 2), (w / 2, h, d / 2), skip=("+z",))
     mb.box(WOOD_L, (-w / 2, 0, -d / 2 + 0.02), (w / 2, 0.05, d / 2 - 0.02))
-    mb.box(WOOD_D, (-w / 2 + 0.03, 0.08, -d / 2 + 0.03), (w / 2 - 0.03, h - 0.03, d / 2 - 0.02), skip=("+z",))
+    hollow(mb, WOOD_D, (-w / 2 + 0.03, 0.08, -d / 2 + 0.03), (w / 2 - 0.03, h - 0.03, d / 2 - 0.02), skip=("+z",))
     face_quad(mb, DET, drect("game_cartridges"), -w / 2 + 0.06, 0.1, -0.05, 0.25, d / 2 - 0.03)
     nodes = [cab_door("INT_CabinetDoor_L", -w / 2 + 0.02, 0.07, w / 2 - 0.04, h - 0.1, d / 2, WOOD_L, "l"),
              cab_door("INT_CabinetDoor_R", w / 2 - 0.02, 0.07, w / 2 - 0.04, h - 0.1, d / 2, WOOD_L, "r")]
@@ -257,7 +317,7 @@ def bookshelf(name="RES_Bookshelf_Tall", w=0.9, h=1.9, shelves=5):
     d = 0.32
     mb.box(WOOD_D, (-w / 2, 0, -d / 2), (-w / 2 + 0.03, h, d / 2))
     mb.box(WOOD_D, (w / 2 - 0.03, 0, -d / 2), (w / 2, h, d / 2))
-    mb.box(WOOD_D, (-w / 2, 0, -d / 2), (w / 2, h, -d / 2 + 0.01), skip=("+z",))
+    hollow(mb, WOOD_D, (-w / 2, 0, -d / 2), (w / 2, h, -d / 2 + 0.01), skip=("+z",))
     sh = (h - 0.08) / shelves
     for k in range(shelves + 1):
         y = 0.04 + k * sh
@@ -395,7 +455,7 @@ def stove(name="RES_Stove_Electric", mat=None):
     mat = mat or WHITE
     mb = MB()
     w, d, h = 0.76, 0.65, 0.92
-    mb.box(mat, (-w / 2, 0.06, -d / 2), (w / 2, h, d / 2 - 0.03), skip=("+z",))
+    hollow(mb, mat, (-w / 2, 0.06, -d / 2), (w / 2, h, d / 2 - 0.03), skip=("+z",))
     mb.box(m01("Road_RoadPatch"), (-w / 2 + 0.02, 0, -d / 2 + 0.03), (w / 2 - 0.02, 0.06, d / 2 - 0.06))
     mb.box(mat, (-w / 2, h, -d / 2), (w / 2, h + 0.18, -d / 2 + 0.06))              # backsplash with knobs
     for k in range(4):
@@ -417,7 +477,7 @@ def counter(name="RES_Counter_Base_1.2", w=1.2, sink=False, drawers=True, top=No
     top = top or mr("Formica")
     mb = MB()
     d, h = 0.6, 0.92
-    mb.box(WOOD_P, (-w / 2, 0.1, -d / 2), (w / 2, h - 0.04, d / 2 - 0.02), skip=("+z",))
+    hollow(mb, WOOD_P, (-w / 2, 0.1, -d / 2), (w / 2, h - 0.04, d / 2 - 0.02), skip=("+z",))
     mb.box(m01("Road_RoadPatch"), (-w / 2 + 0.02, 0, -d / 2 + 0.02), (w / 2 - 0.02, 0.1, d / 2 - 0.08), skip=("-y",))   # toe kick
     mb.box(top, (-w / 2, h - 0.04, -d / 2), (w / 2, h, d / 2 + 0.02))
     mb.box(top, (-w / 2, h, -d / 2), (w / 2, h + 0.1, -d / 2 + 0.02))   # backsplash
@@ -465,7 +525,7 @@ def counter_corner():
 def wall_cabinet(name="RES_WallCabinet_0.8", w=0.8):
     mb = MB()
     d, h = 0.33, 0.7
-    mb.box(WOOD_P, (-w / 2, 0, -d / 2), (w / 2, h, d / 2 - 0.02), skip=("+z",))
+    hollow(mb, WOOD_P, (-w / 2, 0, -d / 2), (w / 2, h, d / 2 - 0.02), skip=("+z",))
     nodes = [cab_door("INT_CabinetDoor_L", -w / 2 + 0.01, 0.01, w / 2 - 0.015, h - 0.02, d / 2 - 0.02, WOOD_P, "l"),
              cab_door("INT_CabinetDoor_R", w / 2 - 0.01, 0.01, w / 2 - 0.015, h - 0.02, d / 2 - 0.02, WOOD_P, "r")]
     return fmodel(name, "kitchen", mb, (w, d, h), cols=[((-w / 2, 0, -d / 2), (w / 2, h, d / 2))], nodes=nodes, wall_mount=True, mount_y=1.45)
@@ -493,7 +553,7 @@ def dining_table(name="RES_DiningTable_Rect", w=1.5, d=0.9, round_=False, cloth=
         cols = [((-w / 2, 0.0, -w / 2), (w / 2, h, w / 2))]
     else:
         mb.box(WOOD_L, (-w / 2, h - 0.04, -d / 2), (w / 2, h, d / 2))
-        mb.box(WOOD_L, (-w / 2 + 0.05, h - 0.12, -d / 2 + 0.05), (w / 2 - 0.05, h - 0.04, d / 2 - 0.05), skip=("+y",))
+        hollow(mb, WOOD_L, (-w / 2 + 0.05, h - 0.12, -d / 2 + 0.05), (w / 2 - 0.05, h - 0.04, d / 2 - 0.05), skip=("+y",))
         legs(mb, WOOD_D, w - 0.04, d - 0.04, h - 0.04, r=0.03, taper=0.75)
         cols = [((-w / 2, 0, -d / 2), (w / 2, h, d / 2))]
     return fmodel(name, "kitchen", mb, (w, d if not round_ else w, h), cols=cols, center=True, surface_y=h, chairs=True)
@@ -522,7 +582,7 @@ def microwave():
     name = "RES_Microwave"
     mb = MB()
     w, d, h = 0.5, 0.38, 0.3
-    mb.box(WHITE, (-w / 2, 0.01, -d / 2), (w / 2, h, d / 2 - 0.02), skip=("+z",))
+    hollow(mb, WHITE, (-w / 2, 0.01, -d / 2), (w / 2, h, d / 2 - 0.02), skip=("+z",))
     face_quad(mb, DET, drect("microwave_panel"), w / 2 - 0.13, 0.03, w / 2 - 0.01, h - 0.03, d / 2 - 0.018)
     door = MB()
     door.box(WHITE, (0, 0, -0.02), (w - 0.14, h - 0.04, 0.0), skip=())
@@ -640,7 +700,7 @@ def nightstand():
     name = "RES_Nightstand"
     mb = MB()
     w, d, h = 0.48, 0.4, 0.58
-    mb.box(WOOD_D, (-w / 2, 0.05, -d / 2), (w / 2, h, d / 2 - 0.02), skip=("+z",))
+    hollow(mb, WOOD_D, (-w / 2, 0.05, -d / 2), (w / 2, h, d / 2 - 0.02), skip=("+z",))
     legs(mb, WOOD_D, w, d, 0.05, inset=0.03, r=0.02)
     nodes = [drawer("INT_Drawer_1", -w / 2 + 0.03, h - 0.2, w / 2 - 0.03, h - 0.04, d / 2 - 0.02, 0.3, WOOD_D),
              drawer("INT_Drawer_2", -w / 2 + 0.03, 0.08, w / 2 - 0.03, h - 0.24, d / 2 - 0.02, 0.3, WOOD_D)]
@@ -650,7 +710,7 @@ def nightstand():
 def dresser(name="RES_Dresser", w=1.2, rows=3, mirror=False):
     mb = MB()
     d, h = 0.48, 0.85
-    mb.box(WOOD_L, (-w / 2, 0.08, -d / 2), (w / 2, h, d / 2 - 0.02), skip=("+z",))
+    hollow(mb, WOOD_L, (-w / 2, 0.08, -d / 2), (w / 2, h, d / 2 - 0.02), skip=("+z",))
     mb.box(WOOD_L, (-w / 2 - 0.02, h, -d / 2 - 0.01), (w / 2 + 0.02, h + 0.03, d / 2))
     legs(mb, WOOD_D, w, d, 0.08, inset=0.04, r=0.025, taper=1.2)
     nodes = []
@@ -674,10 +734,10 @@ def wardrobe():
     name = "RES_Wardrobe"
     mb = MB()
     w, d, h = 1.0, 0.58, 1.95
-    mb.box(WOOD_D, (-w / 2, 0.06, -d / 2), (w / 2, h, d / 2 - 0.02), skip=("+z",))
+    hollow(mb, WOOD_D, (-w / 2, 0.06, -d / 2), (w / 2, h, d / 2 - 0.02), skip=("+z",))
     mb.box(WOOD_D, (-w / 2 - 0.03, h, -d / 2 - 0.02), (w / 2 + 0.03, h + 0.06, d / 2 + 0.01))
     mb.box(WOOD_D, (-w / 2, 0, -d / 2), (w / 2, 0.06, d / 2 - 0.04))
-    mb.box(m01("Road_RoadPatch"), (-w / 2 + 0.03, 0.08, -d / 2 + 0.03), (w / 2 - 0.03, h - 0.03, d / 2 - 0.03), skip=("+z",))
+    hollow(mb, m01("Road_RoadPatch"), (-w / 2 + 0.03, 0.08, -d / 2 + 0.03), (w / 2 - 0.03, h - 0.03, d / 2 - 0.03), skip=("+z",))
     mb.tube(METAL, [(-w / 2 + 0.05, h - 0.2, 0.0), (w / 2 - 0.05, h - 0.2, 0.0)], 0.012, 4)
     for k in range(4):   # hanging shirts
         rbox(mb, [DENIM, TWEED, mr("Gingham"), mr("FabricPlaid")][k], (-0.35 + k * 0.18, h - 1.05, -0.2), (-0.25 + k * 0.18, h - 0.22, 0.2),
@@ -692,7 +752,7 @@ def desk(name="RES_Desk", pc=False):
     mb = MB()
     w, d, h = 1.2, 0.6, 0.75
     mb.box(WOOD_L, (-w / 2, h - 0.04, -d / 2), (w / 2, h, d / 2))
-    mb.box(WOOD_L, (w / 2 - 0.42, 0.0, -d / 2 + 0.02), (w / 2 - 0.02, h - 0.04, d / 2 - 0.02), skip=("+z",))
+    hollow(mb, WOOD_L, (w / 2 - 0.42, 0.0, -d / 2 + 0.02), (w / 2 - 0.02, h - 0.04, d / 2 - 0.02), skip=("+z",))
     mb.box(WOOD_L, (-w / 2 + 0.02, 0, -d / 2 + 0.02), (-w / 2 + 0.05, h - 0.04, d / 2 - 0.02))
     nodes = [drawer("INT_Drawer_1", w / 2 - 0.41, h - 0.22, w / 2 - 0.03, h - 0.06, d / 2 - 0.02, 0.45, WOOD_L),
              drawer("INT_Drawer_2", w / 2 - 0.41, 0.05, w / 2 - 0.03, h - 0.26, d / 2 - 0.02, 0.45, WOOD_L)]
@@ -754,7 +814,7 @@ def bath_sink(name="RES_BathSink_Pedestal", vanity=False):
     nodes = []
     if vanity:
         w, d = 0.8, 0.5
-        mb.box(WOOD_P, (-w / 2, 0.08, -d / 2), (w / 2, h - 0.03, d / 2 - 0.02), skip=("+z",))
+        hollow(mb, WOOD_P, (-w / 2, 0.08, -d / 2), (w / 2, h - 0.03, d / 2 - 0.02), skip=("+z",))
         mb.box(mr("Formica"), (-w / 2 - 0.02, h - 0.03, -d / 2), (w / 2 + 0.02, h, d / 2 + 0.01))
         nodes = [cab_door("INT_CabinetDoor_L", -w / 2 + 0.01, 0.1, w / 2 - 0.015, h - 0.17, d / 2 - 0.02, WOOD_P, "l"),
                  cab_door("INT_CabinetDoor_R", w / 2 - 0.01, 0.1, w / 2 - 0.015, h - 0.17, d / 2 - 0.02, WOOD_P, "r")]
@@ -874,7 +934,7 @@ def toolbox():
     name = "RES_Toolbox"
     mb = MB()
     w, d, h = 0.5, 0.24, 0.2
-    mb.box(mt("PaintRed"), (-w / 2, 0, -d / 2), (w / 2, h, d / 2), skip=("+y",))
+    hollow(mb, mt("PaintRed"), (-w / 2, 0, -d / 2), (w / 2, h, d / 2), skip=("+y",))
     lid = MB()
     lid.box(mt("PaintRed"), (0, 0, -0.0), (w, 0.04, d), skip=())
     lid.tube(METAL, [(0.15, 0.04, d / 2), (0.15, 0.09, d / 2), (w - 0.15, 0.09, d / 2), (w - 0.15, 0.04, d / 2)], 0.01, 4)
@@ -906,7 +966,7 @@ def workbench():
 def storage_bin(name="RES_StorageBin"):
     mb = MB()
     w, d, h = 0.6, 0.4, 0.35
-    mb.box(PLASTIC, (-w / 2, 0, -d / 2), (w / 2, h, d / 2), skip=("+y",))
+    hollow(mb, PLASTIC, (-w / 2, 0, -d / 2), (w / 2, h, d / 2), skip=("+y",))
     lid = MB()
     lid.box(mt("PaintNavy"), (-w / 2 - 0.01, 0, -d / 2 - 0.01), (w / 2 + 0.01, 0.04, d / 2 + 0.01), skip=())
     return fmodel(name, "garage", mb, (w, d, h + 0.04), cols=[((-w / 2, 0, -d / 2), (w / 2, h + 0.04, d / 2))],
@@ -916,7 +976,7 @@ def storage_bin(name="RES_StorageBin"):
 
 def cardboard_box(name="RES_CardboardBox_Closed", w=0.5, d=0.4, h=0.4, open_=False):
     mb = MB()
-    mb.box(CARD, (-w / 2, 0, -d / 2), (w / 2, h, d / 2), skip=("+y",) if open_ else ())
+    hollow(mb, CARD, (-w / 2, 0, -d / 2), (w / 2, h, d / 2), skip=("+y",) if open_ else ())
     if open_:
         for (a, ang) in ((-1, 0.6), (1, -0.6)):
             f = MB()
@@ -973,7 +1033,7 @@ def electrical_panel():
 def washer(name="RES_WashingMachine", dryer=False):
     mb = MB()
     w, d, h = 0.68, 0.68, 0.92
-    mb.box(WHITE, (-w / 2, 0.02, -d / 2), (w / 2, h, d / 2), skip=("+y",) if not dryer else ())
+    hollow(mb, WHITE, (-w / 2, 0.02, -d / 2), (w / 2, h, d / 2), skip=("+y",) if not dryer else ())
     mb.box(WHITE, (-w / 2, h, -d / 2), (w / 2, h + 0.2, -d / 2 + 0.12))
     face_quad(mb, DET, drect("washer_panel"), -w / 2 + 0.03, h + 0.04, w / 2 - 0.03, h + 0.16, -d / 2 + 0.121)
     nodes = []
@@ -1047,7 +1107,7 @@ def storage_chest():
     name = "RES_StorageChest"
     mb = MB()
     w, d, h = 0.9, 0.45, 0.45
-    mb.box(WOOD_D, (-w / 2, 0.04, -d / 2), (w / 2, h, d / 2), skip=("+y",))
+    hollow(mb, WOOD_D, (-w / 2, 0.04, -d / 2), (w / 2, h, d / 2), skip=("+y",))
     mb.box(METAL, (-w / 2 - 0.005, 0.15, -d / 2 - 0.005), (w / 2 + 0.005, 0.18, d / 2 + 0.005))
     legs(mb, WOOD_D, w, d, 0.04, inset=0.04, r=0.03)
     lid = MB()
