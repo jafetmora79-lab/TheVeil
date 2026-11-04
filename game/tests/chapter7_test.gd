@@ -239,7 +239,7 @@ const TO_DOORS := [Vector3(1.5, 0.2, 4.4), Vector3(1.5, 0.2, 1.8), Vector3(0.3, 
 const OUT_DOORS := [Vector3(0.3, 0.2, -3.5)]
 const TO_CAR := [Vector3(32.7, 0.2, -2.0), Vector3(-20.0, 0.2, 0.0), Vector3(-55.5, 0.2, -0.5)]
 const TO_ROAD := [Vector3(-80.0, 0.2, 0.0), Vector3(-99.0, 0.2, 0.0)]
-const HOME := [Vector3(-60.0, 0.2, -1.0), Vector3(32.7, 0.2, -2.0), Vector3(32.7, 0.2, -25.0)]
+const HOME := [Vector3(-60.0, 0.2, -1.0), Vector3(0.0, 0.2, 1.5), Vector3(30.0, 0.2, 1.5), Vector3(32.7, 0.2, -2.0), Vector3(32.7, 0.2, -25.0)]
 const INTO := [Vector3(0.3, 0.2, 1.2), Vector3(1.5, 0.2, 1.8), Vector3(1.5, 0.2, 4.6), Vector3(2.0, 0.2, 6.0)]
 
 
@@ -302,7 +302,7 @@ func _run() -> void:
 	ok("c7_doors_open", c5._doors_open)
 	ok("c7_leave", await walk_route(OUT_DOORS, world.market) and await wait_until(func(): return game.has_flag("ch7_departure_complete"), 60 * 4)
 		and game.current_step().get("id", "") == "c7_vehicle")
-	ok("c7_marker_vehicle", world.hud.marker_visible and world._beacons.has("c7"))
+	ok("c7_marker_vehicle", await wait_until(func(): return world.hud.marker_visible and world._beacons.has("c7"), 60))
 	# ---- scene 4-5: the walk, the car
 	ok("c7_walk_partway", await walk_world(TO_CAR.slice(0, 2)), str(world.player.global_position))
 	ok("c7_walk_line_once", game.has_flag("ch7_walk_said") and said.count("Noah used to ride his bike around here.") == 1)
@@ -316,6 +316,10 @@ func _run() -> void:
 		and game.current_step().get("id", "") == "c7_search")
 	ok("c7_backpack_not_auto", not game.has_flag("ch7_backpack_found") and not game.has_item("noahs_backpack"))
 	ok("c7_backpack_prompt", c7.its["backpack"].prompt_text == "E - EXAMINE BACKPACK")
+	# walk up to the open rear door (the marker points at the backpack)
+	var bp: Vector3 = c7.its["backpack"].global_position
+	var out: Vector3 = (bp - c7.CAR_POS) * Vector3(1, 0, 1)
+	ok("c7_walk_to_door", await walk_world([bp + out.normalized() * 1.1 * Vector3(1, 0, 1) + Vector3(0, -bp.y + 0.2, 0)]))
 	ok("c7_backpack_reach", await look(c7.its["backpack"]), str(world.player.global_position))
 	c7.its["backpack"].interact(world.player)
 	ok("c7_backpack_found", await wait_talk(func(): return game.has_flag("ch7_backpack_found"), 60.0)
