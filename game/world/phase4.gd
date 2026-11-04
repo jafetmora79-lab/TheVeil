@@ -475,14 +475,19 @@ func _spawn_hound() -> void:
 		m.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
 		(g as GeometryInstance3D).material_override = m
 	hound.position = Vector3(-16.0, 0.0, -2.6)            # outside the storefront, in the mist
-	hound.rotation.y = -PI * 0.5                          # walk along the glass towards +x
+	hound.rotation.y = PI * 0.5                           # the model faces +Z: turn it to face +x, the way it walks
 	var ap := hound.get_node_or_null(String(hound.get_meta("animation_player", "Model/AnimationPlayer"))) as AnimationPlayer
-	if ap and ap.has_animation("Walk"):
-		ap.play("Walk")
-		ap.speed_scale = 0.7
+	# gait speed matched to the tween so the feet don't slide (Run is authored at run_speed_mps, scaled with the model)
+	var along := 18.0 / 6.0
+	var gait := "Run" if ap and ap.has_animation("Run") else "Walk"
+	var authored := float(hound.get_meta("run_speed_mps" if gait == "Run" else "walk_speed_mps", 1.0)) * hound.scale.x
+	if ap and ap.has_animation(gait):
+		ap.play(gait)
+		ap.speed_scale = along / maxf(authored, 0.1)
 	var tw := hound.create_tween()
 	tw.tween_property(hound, "position:x", 2.0, 6.0)
-	tw.tween_property(hound, "position:z", -5.5, 1.2)
+	tw.tween_property(hound, "rotation:y", PI, 0.45).set_trans(Tween.TRANS_SINE)   # turn away from the glass first...
+	tw.tween_property(hound, "position:z", -5.5, 1.2)                              # ...then lope off into the mist
 
 
 func _flicker_burst(seconds: float) -> void:
