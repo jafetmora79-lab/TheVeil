@@ -176,6 +176,8 @@ func phase4_tests(game, ps: PackedScene) -> void:
 	ok("p4_load_mid", p4 != null and p4.flashlight != null and p4.flashlight.spares == 1 and p4.threat_runs == 0
 		and mk.get_node("Lights/Light_SALES_00").visible and p4._pallets["back"].position.distance_to(p4.BACK_PALLET[1]) < 0.01
 		and p4.its["fl" + "ashlight"].taken)
+	ok("p4_load_keeps_veil", world.atmos != null and int(world.atmos.state) == 3, "state=%s" % (str(world.atmos.state) if world.atmos else "none"))
+	ok("p4_old_talk_prompts_gone", not world.interactables.has("shop/eddie") and not world.interactables.has("p3/marcus"))
 	# the argument: choose Noah
 	var ed: Interactable = p4.its["npc_Eddie"]
 	ok("p4_eddie_reach", await aim_any(player, ed, mk, [Z, -Z, X], 1.4))
