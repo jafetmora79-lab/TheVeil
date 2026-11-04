@@ -61,6 +61,7 @@ var radio_runs := 0
 var _static: AudioStreamPlayer3D
 var _streams := {}
 var _doors_open := false
+var _door_tweens: Array = []
 var _busy := {}
 var _tick := 0.0
 
@@ -599,6 +600,10 @@ func _set_doors(open: bool) -> void:
 	if open == _doors_open:
 		return
 	_doors_open = open
+	for tw in _door_tweens:
+		if tw and tw.is_valid():
+			tw.kill()                                 # never two tweens fighting over a door leaf
+	_door_tweens.clear()
 	for d in world._auto_doors:
 		var leaf: Node3D = d[0]
 		var t: Transform3D = d[1]
@@ -606,6 +611,7 @@ func _set_doors(open: bool) -> void:
 			t = Transform3D(t.basis, t.origin + t.basis * d[2])
 		var tw := create_tween().set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
 		tw.tween_property(leaf, "transform", t, 0.8)
+		_door_tweens.append(tw)
 	Sfx.play("door_open" if open else "door_close", ml(Vector3(0, 1.2, 0.2)), -4.0, 0.7)
 
 

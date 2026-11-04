@@ -55,6 +55,7 @@ func _physics_watch() -> void:
 		return
 	var e: Vector3 = c5.eddie.global_position
 	var step := e.distance_to(_eddie_prev)
+	step /= maxf(Engine.time_scale, 1.0)            # per real 1/60 s, so the 6x dialogue clock is not a "jump"
 	if step > 0.2 and eddie_max_step <= 0.2:
 		print("  eddie jump %.2f m: %s -> %s (player %s)" % [step, _eddie_prev, e, world.player.global_position])
 	eddie_max_step = maxf(eddie_max_step, step)
@@ -220,6 +221,7 @@ func _run() -> void:
 		and c5.st()["eddie"] == "following" and c5.eddie_follow.active)
 	ok("c5_doors_open", c5._doors_open)
 	await reload()
+	ok("c5_door_sensor_off_after_load", world._doors_powered == false)
 	ok("c5_load_following", c5 != null and c5.eddie_follow.active and c5.eddie.get_parent() == world
 		and c5.eddie.global_position.distance_to(world.player.global_position) < 4.0
 		and world.find_children("Eddie", "", true, false).size() == 1)
