@@ -57,6 +57,7 @@ func _one(game, outdoors: bool) -> void:
 	ok("death_duration_%s" % outdoors, t > 60 * 7 and t < 60 * 11, "%.1f s" % (t / 60.0))
 	ok("death_camera_smooth_%s" % outdoors, max_jump < 0.12, "%.3f m/frame" % max_jump)
 	ok("death_cam_above_ground_%s" % outdoors, r.get("min_cam_clearance", 0.0) > 0.15, "%.2f m" % r.get("min_cam_clearance", -1.0))
+	ok("death_colossus_veil_%s" % outdoors, r.get("veil_surfaces", 0) >= 3)
 	ok("death_vignette_%s" % outdoors, r.get("vignette", true) == (not outdoors))
 	ok("death_creatures_%s" % outdoors, r.get("creatures", 0) == 4 and absf(r.get("colossus_root_y", 9.0) + 0.34) < 0.05, str(r.get("colossus_root_y", -1)))
 	await frames(20)

@@ -659,6 +659,7 @@ func _run() -> void:
 		"body at %.1f m, mist ceiling from %.1f m" % [r.get("body_height_m", -1.0), r.get("ceiling_m", -1.0)])
 	ok("encounter_face_shot", r.get("face_cam_distance_m", 0.0) > 0.6 and r.get("face_cam_distance_m", 9.0) < 1.6)
 	ok("encounter_looks_up", r.get("max_look_up_deg", 0.0) > 55.0, "%.0f deg" % r.get("max_look_up_deg", -1.0))
+	ok("colossus_veil_material", r.get("veil_surfaces", 0) >= 3, str(r.get("veil_surfaces", 0)))
 	ok("colossus_claws_on_road", absf(r.get("foot_height_m", 9.0) - 0.02) < 0.1, "%.3f m" % r.get("foot_height_m", -1.0))
 	ok("colossus_foot_planted", r.get("foot_planted_drift_m", 9.0) < 0.05, "%.3f m" % r.get("foot_planted_drift_m", -1.0))
 	ok("colossus_audio_cleared", world._enc_sounds.is_empty())
