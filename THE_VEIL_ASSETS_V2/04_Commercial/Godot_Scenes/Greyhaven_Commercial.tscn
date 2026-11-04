@@ -1,0 +1,50 @@
+[gd_scene load_steps=10 format=3]
+
+[ext_resource type="PackedScene" path="res://THE_VEIL_ASSETS_V2/04_Commercial/Godot_Scenes/Supermarket.tscn" id="1_Supermarket"]
+[ext_resource type="PackedScene" path="res://THE_VEIL_ASSETS_V2/04_Commercial/Godot_Scenes/VideoGameStore.tscn" id="2_VideoGameStore"]
+[ext_resource type="PackedScene" path="res://THE_VEIL_ASSETS_V2/04_Commercial/Godot_Scenes/GasStation.tscn" id="3_GasStation"]
+[ext_resource type="PackedScene" path="res://THE_VEIL_ASSETS_V2/04_Commercial/Godot_Scenes/Pharmacy.tscn" id="4_Pharmacy"]
+[ext_resource type="PackedScene" path="res://THE_VEIL_ASSETS_V2/04_Commercial/Godot_Scenes/MunicipalArchive.tscn" id="5_MunicipalArchive"]
+[ext_resource type="PackedScene" path="res://THE_VEIL_ASSETS_V2/04_Commercial/Godot_Scenes/Storefront_A.tscn" id="6_Storefront_A"]
+[ext_resource type="PackedScene" path="res://THE_VEIL_ASSETS_V2/04_Commercial/Godot_Scenes/Storefront_B.tscn" id="7_Storefront_B"]
+[ext_resource type="PackedScene" path="res://THE_VEIL_ASSETS_V2/04_Commercial/Godot_Scenes/Storefront_C.tscn" id="8_Storefront_C"]
+[ext_resource type="PackedScene" path="res://THE_VEIL_ASSETS_V2/04_Commercial/Godot_Scenes/Storefront_D.tscn" id="9_Storefront_D"]
+
+[node name="Greyhaven_Commercial" type="Node3D"]
+metadata/note = "Pack 04 locations in their Pack 02 zones (world coordinates)"
+
+[node name="SUPERMARKET" parent="." instance=ExtResource("1_Supermarket")]
+transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 33, 0.15, -27)
+metadata/zone_id = "SUPERMARKET"
+
+[node name="GAME_SHOP" parent="." instance=ExtResource("2_VideoGameStore")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 14, 0.15, 7)
+metadata/zone_id = "GAME_SHOP"
+
+[node name="GAS_STATION" parent="." instance=ExtResource("3_GasStation")]
+transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 156, 0.15, -26)
+metadata/zone_id = "GAS_STATION"
+
+[node name="PHARMACY" parent="." instance=ExtResource("4_Pharmacy")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -19, 0.15, 7)
+metadata/zone_id = "PHARMACY"
+
+[node name="MUNICIPAL_ARCHIVE" parent="." instance=ExtResource("5_MunicipalArchive")]
+transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, -32, 0.15, -14)
+metadata/zone_id = "MUNICIPAL_ARCHIVE"
+
+[node name="STOREFRONT_A" parent="." instance=ExtResource("6_Storefront_A")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 27.5, 0.15, 7)
+metadata/zone_id = "STOREFRONT_A"
+
+[node name="STOREFRONT_B" parent="." instance=ExtResource("7_Storefront_B")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 45, 0.15, 7)
+metadata/zone_id = "STOREFRONT_B"
+
+[node name="STOREFRONT_C" parent="." instance=ExtResource("8_Storefront_C")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -43, 0.15, 7)
+metadata/zone_id = "STOREFRONT_C"
+
+[node name="STOREFRONT_D" parent="." instance=ExtResource("9_Storefront_D")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 80.5, 0.15, 7)
+metadata/zone_id = "STOREFRONT_D"

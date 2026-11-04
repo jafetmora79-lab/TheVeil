@@ -1,0 +1,7291 @@
+{
+ "pack": "THE VEIL - Pack 04 Commercial Buildings & Stores",
+ "conventions": {
+  "frame": "Pack 03 zone frame",
+  "lot_y": 0.15,
+  "floor_y": 0.04
+ },
+ "texture": "04_Commercial/Textures/T_Com4_Atlas.png",
+ "atlas_rects": {
+  "enamel_white": [
+   0,
+   0,
+   16,
+   16
+  ],
+  "enamel_gray": [
+   16,
+   0,
+   16,
+   16
+  ],
+  "shelf_edge": [
+   32,
+   0,
+   16,
+   16
+  ],
+  "pegboard": [
+   48,
+   0,
+   16,
+   16
+  ],
+  "laminate_cream": [
+   64,
+   0,
+   16,
+   16
+  ],
+  "laminate_gray": [
+   80,
+   0,
+   16,
+   16
+  ],
+  "counter_wood": [
+   96,
+   0,
+   16,
+   16
+  ],
+  "wood_dark": [
+   112,
+   0,
+   16,
+   16
+  ],
+  "wood_light": [
+   128,
+   0,
+   16,
+   16
+  ],
+  "chrome": [
+   144,
+   0,
+   16,
+   16
+  ],
+  "steel": [
+   160,
+   0,
+   16,
+   16
+  ],
+  "steel_dark": [
+   176,
+   0,
+   16,
+   16
+  ],
+  "cooler_in": [
+   192,
+   0,
+   16,
+   16
+  ],
+  "frost": [
+   208,
+   0,
+   16,
+   16
+  ],
+  "black_plastic": [
+   224,
+   0,
+   16,
+   16
+  ],
+  "gray_plastic": [
+   240,
+   0,
+   16,
+   16
+  ],
+  "red_plastic": [
+   256,
+   0,
+   16,
+   16
+  ],
+  "blue_paint": [
+   272,
+   0,
+   16,
+   16
+  ],
+  "green_paint": [
+   288,
+   0,
+   16,
+   16
+  ],
+  "yellow_paint": [
+   304,
+   0,
+   16,
+   16
+  ],
+  "orange_paint": [
+   320,
+   0,
+   16,
+   16
+  ],
+  "navy_paint": [
+   336,
+   0,
+   16,
+   16
+  ],
+  "rubber": [
+   352,
+   0,
+   16,
+   16
+  ],
+  "cardboard": [
+   368,
+   0,
+   16,
+   16
+  ],
+  "crate_wood": [
+   384,
+   0,
+   16,
+   16
+  ],
+  "concrete": [
+   400,
+   0,
+   16,
+   16
+  ],
+  "apples": [
+   416,
+   0,
+   16,
+   16
+  ],
+  "oranges": [
+   432,
+   0,
+   16,
+   16
+  ],
+  "bananas": [
+   448,
+   0,
+   16,
+   16
+  ],
+  "lettuce": [
+   464,
+   0,
+   16,
+   16
+  ],
+  "potatoes": [
+   480,
+   0,
+   16,
+   16
+  ],
+  "tomatoes": [
+   496,
+   0,
+   16,
+   16
+  ],
+  "glass_tint": [
+   0,
+   16,
+   16,
+   16
+  ],
+  "light_panel": [
+   16,
+   16,
+   16,
+   16
+  ],
+  "leather_black": [
+   32,
+   16,
+   16,
+   16
+  ],
+  "fabric_blue": [
+   48,
+   16,
+   16,
+   16
+  ],
+  "fabric_green": [
+   64,
+   16,
+   16,
+   16
+  ],
+  "carpet_blue": [
+   80,
+   16,
+   16,
+   16
+  ],
+  "felt_green": [
+   96,
+   16,
+   16,
+   16
+  ],
+  "paper": [
+   112,
+   16,
+   16,
+   16
+  ],
+  "brass": [
+   128,
+   16,
+   16,
+   16
+  ],
+  "file_olive": [
+   144,
+   16,
+   16,
+   16
+  ],
+  "cereal_a": [
+   0,
+   32,
+   64,
+   24
+  ],
+  "cereal_b": [
+   64,
+   32,
+   64,
+   24
+  ],
+  "crackers": [
+   128,
+   32,
+   64,
+   24
+  ],
+  "pasta": [
+   192,
+   32,
+   64,
+   24
+  ],
+  "rice": [
+   256,
+   32,
+   64,
+   24
+  ],
+  "baking": [
+   320,
+   32,
+   64,
+   24
+  ],
+  "soup": [
+   384,
+   32,
+   64,
+   24
+  ],
+  "beans": [
+   448,
+   32,
+   64,
+   24
+  ],
+  "tomato": [
+   0,
+   56,
+   64,
+   24
+  ],
+  "coffee": [
+   64,
+   56,
+   64,
+   24
+  ],
+  "soda": [
+   128,
+   56,
+   64,
+   24
+  ],
+  "cola": [
+   192,
+   56,
+   64,
+   24
+  ],
+  "water": [
+   256,
+   56,
+   64,
+   24
+  ],
+  "juice": [
+   320,
+   56,
+   64,
+   24
+  ],
+  "milk": [
+   384,
+   56,
+   64,
+   24
+  ],
+  "yogurt": [
+   448,
+   56,
+   64,
+   24
+  ],
+  "icecream": [
+   0,
+   80,
+   64,
+   24
+  ],
+  "pizza": [
+   64,
+   80,
+   64,
+   24
+  ],
+  "frozen_veg": [
+   128,
+   80,
+   64,
+   24
+  ],
+  "chips": [
+   192,
+   80,
+   64,
+   24
+  ],
+  "chips_b": [
+   256,
+   80,
+   64,
+   24
+  ],
+  "candy": [
+   320,
+   80,
+   64,
+   24
+  ],
+  "cookies": [
+   384,
+   80,
+   64,
+   24
+  ],
+  "detergent": [
+   448,
+   80,
+   64,
+   24
+  ],
+  "towels": [
+   0,
+   104,
+   64,
+   24
+  ],
+  "petfood": [
+   64,
+   104,
+   64,
+   24
+  ],
+  "shampoo": [
+   128,
+   104,
+   64,
+   24
+  ],
+  "toothpaste": [
+   192,
+   104,
+   64,
+   24
+  ],
+  "meds": [
+   256,
+   104,
+   64,
+   24
+  ],
+  "pain": [
+   320,
+   104,
+   64,
+   24
+  ],
+  "vitamins": [
+   384,
+   104,
+   64,
+   24
+  ],
+  "bandage": [
+   448,
+   104,
+   64,
+   24
+  ],
+  "pillbottles": [
+   0,
+   128,
+   64,
+   24
+  ],
+  "motoroil": [
+   64,
+   128,
+   64,
+   24
+  ],
+  "jerky": [
+   128,
+   128,
+   64,
+   24
+  ],
+  "gum": [
+   192,
+   128,
+   64,
+   24
+  ],
+  "eggs": [
+   256,
+   128,
+   64,
+   24
+  ],
+  "bread": [
+   320,
+   128,
+   64,
+   24
+  ],
+  "games_a": [
+   384,
+   128,
+   64,
+   24
+  ],
+  "games_b": [
+   448,
+   128,
+   64,
+   24
+  ],
+  "games_c": [
+   0,
+   152,
+   64,
+   24
+  ],
+  "games_d": [
+   64,
+   152,
+   64,
+   24
+  ],
+  "games_used": [
+   128,
+   152,
+   64,
+   24
+  ],
+  "consoles_boxes": [
+   192,
+   152,
+   64,
+   24
+  ],
+  "binders": [
+   256,
+   152,
+   64,
+   24
+  ],
+  "bankers": [
+   320,
+   152,
+   64,
+   24
+  ],
+  "sign_market": [
+   0,
+   176,
+   224,
+   28
+  ],
+  "sign_market_sub": [
+   224,
+   176,
+   128,
+   12
+  ],
+  "sign_games": [
+   0,
+   204,
+   192,
+   32
+  ],
+  "sign_drug": [
+   192,
+   204,
+   192,
+   28
+  ],
+  "sign_fuel": [
+   0,
+   236,
+   160,
+   24
+  ],
+  "sign_mart": [
+   160,
+   236,
+   128,
+   20
+  ],
+  "sign_archive": [
+   288,
+   236,
+   128,
+   16
+  ],
+  "aisle_1": [
+   416,
+   236,
+   32,
+   24
+  ],
+  "aisle_2": [
+   448,
+   236,
+   32,
+   24
+  ],
+  "aisle_3": [
+   480,
+   236,
+   32,
+   24
+  ],
+  "aisle_4": [
+   0,
+   260,
+   32,
+   24
+  ],
+  "aisle_5": [
+   32,
+   260,
+   32,
+   24
+  ],
+  "aisle_6": [
+   64,
+   260,
+   32,
+   24
+  ],
+  "aisle_7": [
+   96,
+   260,
+   32,
+   24
+  ],
+  "aisle_produce": [
+   128,
+   260,
+   48,
+   12
+  ],
+  "aisle_frozen": [
+   176,
+   260,
+   48,
+   12
+  ],
+  "aisle_dairy": [
+   224,
+   260,
+   48,
+   12
+  ],
+  "service": [
+   272,
+   260,
+   72,
+   12
+  ],
+  "staff": [
+   344,
+   260,
+   48,
+   10
+  ],
+  "exit": [
+   392,
+   260,
+   20,
+   10
+  ],
+  "restroom": [
+   412,
+   260,
+   48,
+   10
+  ],
+  "cart_return": [
+   460,
+   260,
+   48,
+   20
+  ],
+  "pharmacy": [
+   0,
+   284,
+   64,
+   14
+  ],
+  "waiting": [
+   64,
+   284,
+   40,
+   10
+  ],
+  "new_rel": [
+   104,
+   284,
+   56,
+   12
+  ],
+  "used": [
+   160,
+   284,
+   56,
+   12
+  ],
+  "consoles": [
+   216,
+   284,
+   56,
+   12
+  ],
+  "playnow": [
+   272,
+   284,
+   40,
+   12
+  ],
+  "open": [
+   312,
+   284,
+   32,
+   14
+  ],
+  "records": [
+   344,
+   284,
+   40,
+   10
+  ],
+  "reading": [
+   384,
+   284,
+   48,
+   10
+  ],
+  "info": [
+   432,
+   284,
+   48,
+   10
+  ],
+  "ice": [
+   480,
+   284,
+   32,
+   16
+  ],
+  "air": [
+   0,
+   300,
+   32,
+   12
+  ],
+  "coffee_sign": [
+   32,
+   300,
+   48,
+   12
+  ],
+  "specials": [
+   80,
+   300,
+   64,
+   16
+  ],
+  "produce_banner": [
+   144,
+   300,
+   64,
+   16
+  ],
+  "tradein": [
+   208,
+   300,
+   32,
+   40
+  ],
+  "preorder": [
+   240,
+   300,
+   32,
+   40
+  ],
+  "prices": [
+   272,
+   300,
+   48,
+   48
+  ],
+  "register": [
+   320,
+   300,
+   32,
+   24
+  ],
+  "pump_face": [
+   352,
+   300,
+   32,
+   48
+  ],
+  "conveyor": [
+   384,
+   300,
+   32,
+   16
+  ],
+  "pricetags": [
+   416,
+   300,
+   64,
+   8
+  ],
+  "coffee_machine": [
+   480,
+   300,
+   32,
+   32
+  ],
+  "drawer4": [
+   0,
+   348,
+   16,
+   32
+  ],
+  "ice_door": [
+   16,
+   348,
+   32,
+   32
+  ],
+  "airpump_face": [
+   48,
+   348,
+   24,
+   32
+  ],
+  "poster_0": [
+   72,
+   348,
+   24,
+   32
+  ],
+  "poster_1": [
+   96,
+   348,
+   24,
+   32
+  ],
+  "poster_2": [
+   120,
+   348,
+   24,
+   32
+  ],
+  "poster_3": [
+   144,
+   348,
+   24,
+   32
+  ],
+  "poster_4": [
+   168,
+   348,
+   24,
+   32
+  ],
+  "poster_5": [
+   192,
+   348,
+   24,
+   32
+  ],
+  "crt_screen": [
+   216,
+   348,
+   24,
+   18
+  ],
+  "monitor": [
+   240,
+   348,
+   16,
+   12
+  ],
+  "rx_board": [
+   256,
+   348,
+   48,
+   24
+  ],
+  "tile_band": [
+   304,
+   348,
+   32,
+   8
+  ],
+  "candy_rack": [
+   336,
+   348,
+   32,
+   24
+  ],
+  "noticeboard": [
+   368,
+   348,
+   32,
+   24
+  ],
+  "bell_papers": [
+   400,
+   348,
+   16,
+   16
+  ]
+ },
+ "materials": [
+  "04_Commercial/Materials/M_Com4_Atlas.tres",
+  "04_Commercial/Materials/M_Com4_Glass.tres",
+  "04_Commercial/Materials/M_Com4_Glow.tres"
+ ],
+ "locations": [
+  {
+   "id": "supermarket",
+   "priority": 1,
+   "zone": "SUPERMARKET",
+   "title": "Greyhaven Market - supermarket",
+   "scene": "04_Commercial/Godot_Scenes/Supermarket.tscn",
+   "building": "04_Commercial/Supermarket/COM_Supermarket.glb",
+   "furnishing": "04_Commercial/Supermarket/COM_Supermarket_Furnishing.glb",
+   "rooms": [
+    {
+     "id": "VEST",
+     "type": "vestibule",
+     "rect": [
+      -3.5,
+      0.2,
+      3.5,
+      3.2
+     ],
+     "floor_y": 0.04,
+     "ceil_y": 3.44
+    },
+    {
+     "id": "SALES",
+     "type": "sales",
+     "rect": [
+      -20.0,
+      3.2,
+      20.0,
+      14.2
+     ],
+     "floor_y": 0.04,
+     "ceil_y": 4.24
+    },
+    {
+     "id": "BACK",
+     "type": "storage",
+     "rect": [
+      -14.5,
+      14.2,
+      20.0,
+      17.6
+     ],
+     "floor_y": 0.04,
+     "ceil_y": 3.64
+    },
+    {
+     "id": "OFFICE",
+     "type": "office",
+     "rect": [
+      -20.0,
+      14.2,
+      -17.0,
+      17.6
+     ],
+     "floor_y": 0.04,
+     "ceil_y": 2.74
+    },
+    {
+     "id": "RESTRM",
+     "type": "restroom",
+     "rect": [
+      -17.0,
+      14.2,
+      -14.5,
+      17.6
+     ],
+     "floor_y": 0.04,
+     "ceil_y": 2.74
+    }
+   ],
+   "doors": [
+    {
+     "name": "INT_Arch_Entrance",
+     "kind": "arch",
+     "w": 2.4000000000000004,
+     "h": 2.3,
+     "exterior": true,
+     "rooms": [
+      "OUT",
+      "VEST"
+     ],
+     "center": [
+      0.0,
+      0.04,
+      0.2
+     ],
+     "normal": [
+      -0.0,
+      -1.0
+     ]
+    },
+    {
+     "name": "INT_Door_BackExit",
+     "kind": "door",
+     "w": 1.0,
+     "h": 2.15,
+     "exterior": true,
+     "rooms": [
+      "OUT",
+      "BACK"
+     ],
+     "center": [
+      8.0,
+      0.04,
+      17.6
+     ],
+     "normal": [
+      -0.0,
+      1.0
+     ],
+     "hinge": [
+      7.510000000000002,
+      17.53
+     ],
+     "yaw": -0.0,
+     "open_deg": 95.0,
+     "leaf": 0.98
+    },
+    {
+     "name": "INT_GarageDoor_Loading",
+     "kind": "garage",
+     "w": 2.8,
+     "h": 3.0,
+     "exterior": true,
+     "rooms": [
+      "OUT",
+      "BACK"
+     ],
+     "center": [
+      20.0,
+      0.0,
+      15.9
+     ],
+     "normal": [
+      1.0,
+      0.0
+     ]
+    },
+    {
+     "name": "INT_Arch_Vestibule",
+     "kind": "arch",
+     "w": 2.0,
+     "h": 2.3,
+     "exterior": false,
+     "rooms": [
+      "SALES",
+      "VEST"
+     ],
+     "center": [
+      -1.6,
+      0.04,
+      3.2
+     ],
+     "normal": [
+      -0.0,
+      1.0
+     ]
+    },
+    {
+     "name": "INT_Arch_VestibuleIn",
+     "kind": "arch",
+     "w": 2.0,
+     "h": 2.3,
+     "exterior": false,
+     "rooms": [
+      "SALES",
+      "VEST"
+     ],
+     "center": [
+      1.5999999999999996,
+      0.04,
+      3.2
+     ],
+     "normal": [
+      -0.0,
+      1.0
+     ]
+    },
+    {
+     "name": "INT_Arch_Stockroom",
+     "kind": "arch",
+     "w": 1.6000000000000014,
+     "h": 2.3,
+     "exterior": false,
+     "rooms": [
+      "BACK",
+      "SALES"
+     ],
+     "center": [
+      8.399999999999999,
+      0.04,
+      14.2
+     ],
+     "normal": [
+      -0.0,
+      1.0
+     ]
+    },
+    {
+     "name": "INT_Door_Staff",
+     "kind": "door",
+     "w": 1.0,
+     "h": 2.2,
+     "exterior": false,
+     "rooms": [
+      "BACK",
+      "SALES"
+     ],
+     "center": [
+      15.5,
+      0.04,
+      14.2
+     ],
+     "normal": [
+      -0.0,
+      1.0
+     ],
+     "hinge": [
+      15.010000000000002,
+      14.229999999999999
+     ],
+     "yaw": -0.0,
+     "open_deg": -95.0,
+     "leaf": 0.98
+    },
+    {
+     "name": "INT_Door_Office",
+     "kind": "door",
+     "w": 0.9500000000000002,
+     "h": 2.1,
+     "exterior": false,
+     "rooms": [
+      "OFFICE",
+      "SALES"
+     ],
+     "center": [
+      -18.5,
+      0.04,
+      14.2
+     ],
+     "normal": [
+      -0.0,
+      1.0
+     ],
+     "hinge": [
+      -18.965,
+      14.229999999999999
+     ],
+     "yaw": -0.0,
+     "open_deg": -95.0,
+     "leaf": 0.9300000000000002
+    },
+    {
+     "name": "INT_Door_Restroom",
+     "kind": "door",
+     "w": 0.8499999999999999,
+     "h": 2.1,
+     "exterior": false,
+     "rooms": [
+      "RESTRM",
+      "BACK"
+     ],
+     "center": [
+      -14.5,
+      0.04,
+      16.0
+     ],
+     "normal": [
+      -1.0,
+      0.0
+     ],
+     "hinge": [
+      -14.53,
+      15.585
+     ],
+     "yaw": -1.5707963267948966,
+     "open_deg": -95.0,
+     "leaf": 0.8299999999999998
+    }
+   ],
+   "fixtures": [
+    {
+     "model": "COM_Gondola_Bread",
+     "x": -11.5,
+     "z": 10.0,
+     "yaw_deg": 90.0,
+     "room": "SALES",
+     "footprint": [
+      -12.0,
+      7.86,
+      -11.0,
+      12.14
+     ],
+     "outdoor": false,
+     "straddle": false
+    },
+    {
+     "model": "COM_Gondola_Grocery_A",
+     "x": -8.5,
+     "z": 10.0,
+     "yaw_deg": 90.0,
+     "room": "SALES",
+     "footprint": [
+      -9.0,
+      7.86,
+      -8.0,
+      12.14
+     ],
+     "outdoor": false,
+     "straddle": false
+    },
+    {
+     "model": "COM_Gondola_Grocery_B",
+     "x": -5.5,
+     "z": 10.0,
+     "yaw_deg": 90.0,
+     "room": "SALES",
+     "footprint": [
+      -6.0,
+      7.86,
+      -5.0,
+      12.14
+     ],
+     "outdoor": false,
+     "straddle": false
+    },
+    {
+     "model": "COM_Gondola_Grocery_C",
+     "x": -2.5,
+     "z": 10.0,
+     "yaw_deg": 90.0,
+     "room": "SALES",
+     "footprint": [
+      -3.0,
+      7.86,
+      -2.0,
+      12.14
+     ],
+     "outdoor": false,
+     "straddle": false
+    },
+    {
+     "model": "COM_Gondola_Grocery_D",
+     "x": 0.5,
+     "z": 10.0,
+     "yaw_deg": 90.0,
+     "room": "SALES",
+     "footprint": [
+      -0.0,
+      7.86,
+      1.0,
+      12.14
+     ],
+     "outdoor": false,
+     "straddle": false
+    },
+    {
+     "model": "COM_Gondola_Grocery_A",
+     "x": 3.5,
+     "z": 10.0,
+     "yaw_deg": 90.0,
+     "room": "SALES",
+     "footprint": [
+      3.0,
+      7.86,
+      4.0,
+      12.14
+     ],
+     "outdoor": false,
+     "straddle": false
+    },
+    {
+     "model": "COM_Gondola_Grocery_B",
+     "x": 6.5,
+     "z": 10.0,
+     "yaw_deg": 90.0,
+     "room": "SALES",
+     "footprint": [
+      6.0,
+      7.86,
+      7.0,
+      12.14
+     ],
+     "outdoor": false,
+     "straddle": false
+    },
+    {
+     "model": "COM_Gondola_Grocery_C",
+     "x": 9.5,
+     "z": 10.0,
+     "yaw_deg": 90.0,
+     "room": "SALES",
+     "footprint": [
+      9.0,
+      7.86,
+      10.0,
+      12.14
+     ],
+     "outdoor": false,
+     "straddle": false
+    },
+    {
+     "model": "COM_Cooler_Dairy",
+     "x": -11.1,
+     "z": 13.73,
+     "yaw_deg": 180.0,
+     "room": "SALES",
+     "footprint": [
+      -12.27,
+      13.33,
+      -9.93,
+      14.13
+     ],
+     "outdoor": false,
+     "straddle": false
+    },
+    {
+     "model": "COM_Cooler_Dairy",
+     "x": -8.74,
+     "z": 13.73,
+     "yaw_deg": 180.0,
+     "room": "SALES",
+     "footprint": [
+      -9.91,
+      13.33,
+      -7.57,
+      14.13
+     ],
+     "outdoor": false,
+     "straddle": false
+    },
+    {
+     "model": "COM_Cooler_Dairy",
+     "x": -6.38,
+     "z": 13.73,
+     "yaw_deg": 180.0,
+     "room": "SALES",
+     "footprint": [
+      -7.55,
+      13.33,
+      -5.21,
+      14.13
+     ],
+     "outdoor": false,
+     "straddle": false
+    },
+    {
+     "model": "COM_Cooler_Dairy",
+     "x": -4.02,
+     "z": 13.73,
+     "yaw_deg": 180.0,
+     "room": "SALES",
+     "footprint": [
+      -5.19,
+      13.33,
+      -2.85,
+      14.13
+     ],
+     "outdoor": false,
+     "straddle": false
+    },
+    {
+     "model": "COM_Cooler_Drinks",
+     "x": -1.66,
+     "z": 13.73,
+     "yaw_deg": 180.0,
+     "room": "SALES",
+     "footprint": [
+      -2.83,
+      13.33,
+      -0.49,
+      14.13
+     ],
+     "outdoor": false,
+     "straddle": false
+    },
+    {
+     "model": "COM_Cooler_Drinks",
+     "x": 0.7,
+     "z": 13.73,
+     "yaw_deg": 180.0,
+     "room": "SALES",
+     "footprint": [
+      -0.47,
+      13.33,
+      1.87,
+      14.13
+     ],
+     "outdoor": false,
+     "straddle": false
+    },
+    {
+     "model": "COM_Cooler_Drinks",
+     "x": 3.06,
+     "z": 13.73,
+     "yaw_deg": 180.0,
+     "room": "SALES",
+     "footprint": [
+      1.89,
+      13.33,
+      4.23,
+      14.13
+     ],
+     "outdoor": false,
+     "straddle": false
+    },
+    {
+     "model": "COM_Cooler_Drinks",
+     "x": 5.42,
+     "z": 13.73,
+     "yaw_deg": 180.0,
+     "room": "SALES",
+     "footprint": [
+      4.25,
+      13.33,
+      6.59,
+      14.13
+     ],
+     "outdoor": false,
+     "straddle": false
+    },
+    {
+     "model": "COM_Cooler_Frozen",
+     "x": 19.49,
+     "z": 5.5,
+     "yaw_deg": -90.0,
+     "room": "SALES",
+     "footprint": [
+      19.09,
+      4.33,
+      19.89,
+      6.67
+     ],
+     "outdoor": false,
+     "straddle": false
+    },
+    {
+     "model": "COM_Cooler_Frozen",
+     "x": 19.49,
+     "z": 7.9,
+     "yaw_deg": -90.0,
+     "room": "SALES",
+     "footprint": [
+      19.09,
+      6.73,
+      19.89,
+      9.07
+     ],
+     "outdoor": false,
+     "straddle": false
+    },
+    {
+     "model": "COM_Cooler_Frozen",
+     "x": 19.49,
+     "z": 10.3,
+     "yaw_deg": -90.0,
+     "room": "SALES",
+     "footprint": [
+      19.09,
+      9.13,
+      19.89,
+      11.47
+     ],
+     "outdoor": false,
+     "straddle": false
+    },
+    {
+     "model": "COM_Cooler_Frozen",
+     "x": 19.49,
+     "z": 12.7,
+     "yaw_deg": -90.0,
+     "room": "SALES",
+     "footprint": [
+      19.09,
+      11.53,
+      19.89,
+      13.87
+     ],
+     "outdoor": false,
+     "straddle": false
+    },
+    {
+     "model": "COM_Freezer_Chest",
+     "x": 15.0,
+     "z": 7.6,
+     "yaw_deg": 90.0,
+     "room": "SALES",
+     "footprint": [
+      14.525,
+      6.4,
+      15.475,
+      8.8
+     ],
+     "outdoor": false,
+     "straddle": false
+    },
+    {
+     "model": "COM_Freezer_Chest",
+     "x": 15.0,
+     "z": 11.0,
+     "yaw_deg": 90.0,
+     "room": "SALES",
+     "footprint": [
+      14.525,
+      9.8,
+      15.475,
+      12.2
+     ],
+     "outdoor": false,
+     "straddle": false
+    },
+    {
+     "model": "COM_Produce_WallCase",
+     "x": -19.44,
+     "z": 5.6,
+     "yaw_deg": 90.0,
+     "room": "SALES",
+     "footprint": [
+      -19.89,
+      4.4,
+      -18.99,
+      6.8
+     ],
+     "outdoor": false,
+     "straddle": false
+    },
+    {
+     "model": "COM_Produce_WallCase",
+     "x": -19.44,
+     "z": 8.0,
+     "yaw_deg": 90.0,
+     "room": "SALES",
+     "footprint": [
+      -19.89,
+      6.8,
+      -18.99,
+      9.2
+     ],
+     "outdoor": false,
+     "straddle": false
+    },
+    {
+     "model": "COM_Produce_WallCase",
+     "x": -19.44,
+     "z": 10.4,
+     "yaw_deg": 90.0,
+     "room": "SALES",
+     "footprint": [
+      -19.89,
+      9.2,
+      -18.99,
+      11.6
+     ],
+     "outdoor": false,
+     "straddle": false
+    },
+    {
+     "model": "COM_Produce_WallCase",
+     "x": -19.44,
+     "z": 12.8,
+     "yaw_deg": 90.0,
+     "room": "SALES",
+     "footprint": [
+      -19.89,
+      11.6,
+      -18.99,
+      14.0
+     ],
+     "outdoor": false,
+     "straddle": false
+    },
+    {
+     "model": "COM_Produce_Table",
+     "x": -16.0,
+     "z": 7.4,
+     "yaw_deg": 90.0,
+     "room": "SALES",
+     "footprint": [
+      -16.65,
+      6.3,
+      -15.35,
+      8.5
+     ],
+     "outdoor": false,
+     "straddle": false
+    },
+    {
+     "model": "COM_Produce_Table",
+     "x": -16.0,
+     "z": 11.0,
+     "yaw_deg": 90.0,
+     "room": "SALES",
+     "footprint": [
+      -16.65,
+      9.9,
+      -15.35,
+      12.1
+     ],
+     "outdoor": false,
+     "straddle": false
+    },
+    {
+     "model": "COM_Checkout_Lane",
+     "x": -12.5,
+     "z": 5.0,
+     "yaw_deg": 90.0,
+     "room": "SALES",
+     "footprint": [
+      -13.025,
+      3.35,
+      -11.975,
+      6.65
+     ],
+     "outdoor": false,
+     "straddle": false
+    },
+    {
+     "model": "COM_Checkout_Lane",
+     "x": -9.5,
+     "z": 5.0,
+     "yaw_deg": 90.0,
+     "room": "SALES",
+     "footprint": [
+      -10.025,
+      3.35,
+      -8.975,
+      6.65
+     ],
+     "outdoor": false,
+     "straddle": false
+    },
+    {
+     "model": "COM_Checkout_Lane",
+     "x": -6.5,
+     "z": 5.0,
+     "yaw_deg": 90.0,
+     "room": "SALES",
+     "footprint": [
+      -7.025,
+      3.35,
+      -5.975,
+      6.65
+     ],
+     "outdoor": false,
+     "straddle": false
+    },
+    {
+     "model": "COM_Checkout_Lane",
+     "x": -3.5,
+     "z": 5.0,
+     "yaw_deg": 90.0,
+     "room": "SALES",
+     "footprint": [
+      -4.025,
+      3.35,
+      -2.975,
+      6.65
+     ],
+     "outdoor": false,
+     "straddle": false
+    },
+    {
+     "model": "COM_ServiceCounter",
+     "x": 6.0,
+     "z": 5.0,
+     "yaw_deg": 0.0,
+     "room": "SALES",
+     "footprint": [
+      4.47,
+      4.585,
+      7.53,
+      5.415
+     ],
+     "outdoor": false,
+     "straddle": false
+    },
+    {
+     "model": "COM_BasketStack",
+     "x": 4.2,
+     "z": 3.6,
+     "yaw_deg": 0.0,
+     "room": "SALES",
+     "footprint": [
+      3.95,
+      3.4,
+      4.45,
+      3.8
+     ],
+     "outdoor": false,
+     "straddle": false
+    },
+    {
+     "model": "COM_BasketStack",
+     "x": -4.6,
+     "z": 3.6,
+     "yaw_deg": 0.0,
+     "room": "SALES",
+     "footprint": [
+      -4.85,
+      3.4,
+      -4.35,
+      3.8
+     ],
+     "outdoor": false,
+     "straddle": false
+    },
+    {
+     "model": "COM_GroceryBag",
+     "x": -11.0,
+     "z": 4.4,
+     "yaw_deg": 0.0,
+     "room": "SALES",
+     "footprint": null,
+     "outdoor": false,
+     "straddle": false
+    },
+    {
+     "model": "COM_GroceryBag",
+     "x": -8.0,
+     "z": 4.4,
+     "yaw_deg": 0.0,
+     "room": "SALES",
+     "footprint": null,
+     "outdoor": false,
+     "straddle": false
+    },
+    {
+     "model": "COM_GroceryBag",
+     "x": -5.0,
+     "z": 4.4,
+     "yaw_deg": 0.0,
+     "room": "SALES",
+     "footprint": null,
+     "outdoor": false,
+     "straddle": false
+    },
+    {
+     "model": "COM_PalletRack",
+     "x": -11.0,
+     "z": 16.99,
+     "yaw_deg": 180.0,
+     "room": "BACK",
+     "footprint": [
+      -12.35,
+      16.49,
+      -9.65,
+      17.49
+     ],
+     "outdoor": false,
+     "straddle": false
+    },
+    {
+     "model": "COM_PalletRack",
+     "x": -8.1,
+     "z": 16.99,
+     "yaw_deg": 180.0,
+     "room": "BACK",
+     "footprint": [
+      -9.45,
+      16.49,
+      -6.75,
+      17.49
+     ],
+     "outdoor": false,
+     "straddle": false
+    },
+    {
+     "model": "COM_PalletRack",
+     "x": -5.2,
+     "z": 16.99,
+     "yaw_deg": 180.0,
+     "room": "BACK",
+     "footprint": [
+      -6.55,
+      16.49,
+      -3.85,
+      17.49
+     ],
+     "outdoor": false,
+     "straddle": false
+    },
+    {
+     "model": "COM_PalletRack",
+     "x": -2.3,
+     "z": 16.99,
+     "yaw_deg": 180.0,
+     "room": "BACK",
+     "footprint": [
+      -3.65,
+      16.49,
+      -0.95,
+      17.49
+     ],
+     "outdoor": false,
+     "straddle": false
+    },
+    {
+     "model": "COM_PalletStack",
+     "x": 2.5,
+     "z": 15.2,
+     "yaw_deg": 0.0,
+     "room": "BACK",
+     "footprint": [
+      1.9,
+      14.7,
+      3.1,
+      15.7
+     ],
+     "outdoor": false,
+     "straddle": false
+    },
+    {
+     "model": "COM_PalletStack",
+     "x": 4.0,
+     "z": 15.2,
+     "yaw_deg": 0.0,
+     "room": "BACK",
+     "footprint": [
+      3.4,
+      14.7,
+      4.6,
+      15.7
+     ],
+     "outdoor": false,
+     "straddle": false
+    },
+    {
+     "model": "RES_Shelving_Metal",
+     "x": 10.2,
+     "z": 17.265,
+     "yaw_deg": 180.0,
+     "room": "BACK",
+     "footprint": [
+      9.6,
+      17.04,
+      10.8,
+      17.49
+     ],
+     "outdoor": false,
+     "straddle": false
+    },
+    {
+     "model": "RES_Shelving_Metal",
+     "x": 11.5,
+     "z": 17.265,
+     "yaw_deg": 180.0,
+     "room": "BACK",
+     "footprint": [
+      10.9,
+      17.04,
+      12.1,
+      17.49
+     ],
+     "outdoor": false,
+     "straddle": false
+    },
+    {
+     "model": "RES_Shelving_Metal",
+     "x": 12.8,
+     "z": 17.265,
+     "yaw_deg": 180.0,
+     "room": "BACK",
+     "footprint": [
+      12.2,
+      17.04,
+      13.4,
+      17.49
+     ],
+     "outdoor": false,
+     "straddle": false
+    },
+    {
+     "model": "RES_CardboardBox_Stack",
+     "x": 6.5,
+     "z": 17.1,
+     "yaw_deg": 0.0,
+     "room": "BACK",
+     "footprint": [
+      6.2,
+      16.85,
+      6.8,
+      17.35
+     ],
+     "outdoor": false,
+     "straddle": false
+    },
+    {
+     "model": "RES_CardboardBox_Closed",
+     "x": 5.4,
+     "z": 17.0,
+     "yaw_deg": 20.0,
+     "room": "BACK",
+     "footprint": [
+      5.097,
+      16.727,
+      5.703,
+      17.273
+     ],
+     "outdoor": false,
+     "straddle": false
+    },
+    {
+     "model": "RES_ElectricalPanel",
+     "x": 19.9,
+     "z": 14.9,
+     "yaw_deg": -90.0,
+     "room": "BACK",
+     "footprint": null,
+     "outdoor": false,
+     "straddle": false
+    },
+    {
+     "model": "RES_Desk_Computer",
+     "x": -18.5,
+     "z": 17.19,
+     "yaw_deg": 180.0,
+     "room": "OFFICE",
+     "footprint": [
+      -19.1,
+      16.89,
+      -17.9,
+      17.49
+     ],
+     "outdoor": false,
+     "straddle": false
+    },
+    {
+     "model": "RES_DeskChair_Office",
+     "x": -18.5,
+     "z": 16.4,
+     "yaw_deg": 180.0,
+     "room": "OFFICE",
+     "footprint": [
+      -18.8,
+      16.1,
+      -18.2,
+      16.7
+     ],
+     "outdoor": false,
+     "straddle": false
+    },
+    {
+     "model": "COM_FilingCabinet",
+     "x": -19.56,
+     "z": 15.0,
+     "yaw_deg": 90.0,
+     "room": "OFFICE",
+     "footprint": [
+      -19.89,
+      14.77,
+      -19.23,
+      15.23
+     ],
+     "outdoor": false,
+     "straddle": false
+    },
+    {
+     "model": "RES_WallCalendar",
+     "x": -17.07,
+     "z": 16.0,
+     "yaw_deg": -90.0,
+     "room": "OFFICE",
+     "footprint": null,
+     "outdoor": false,
+     "straddle": false
+    },
+    {
+     "model": "RES_Toilet",
+     "x": -15.8,
+     "z": 17.16,
+     "yaw_deg": 180.0,
+     "room": "RESTRM",
+     "footprint": [
+      -16.03,
+      16.83,
+      -15.57,
+      17.49
+     ],
+     "outdoor": false,
+     "straddle": false
+    },
+    {
+     "model": "RES_BathSink_Pedestal",
+     "x": -16.7,
+     "z": 15.3,
+     "yaw_deg": 90.0,
+     "room": "RESTRM",
+     "footprint": [
+      -16.93,
+      15.02,
+      -16.47,
+      15.58
+     ],
+     "outdoor": false,
+     "straddle": false
+    },
+    {
+     "model": "COM_CartCorral",
+     "x": -12.0,
+     "z": -9.0,
+     "yaw_deg": 0.0,
+     "room": null,
+     "footprint": [
+      -13.6,
+      -9.65,
+      -10.4,
+      -8.35
+     ],
+     "outdoor": true,
+     "straddle": false
+    },
+    {
+     "model": "COM_CartCorral",
+     "x": 12.0,
+     "z": -14.0,
+     "yaw_deg": 0.0,
+     "room": null,
+     "footprint": [
+      10.4,
+      -14.65,
+      13.6,
+      -13.35
+     ],
+     "outdoor": true,
+     "straddle": false
+    }
+   ],
+   "nav": [
+    [
+     "Entrance",
+     0.0,
+     -0.4
+    ],
+    [
+     "Checkout_1",
+     -11.8,
+     5.0
+    ],
+    [
+     "Checkout_4",
+     -2.8,
+     5.0
+    ],
+    [
+     "CustomerService",
+     6.0,
+     6.0
+    ],
+    [
+     "Aisle_1",
+     -10.0,
+     10.0
+    ],
+    [
+     "Aisle_4",
+     -1.0,
+     10.0
+    ],
+    [
+     "Aisle_7",
+     8.0,
+     10.0
+    ],
+    [
+     "Produce",
+     -17.5,
+     9.3
+    ],
+    [
+     "Dairy",
+     -10.0,
+     12.75
+    ],
+    [
+     "Freezers",
+     17.4,
+     9.3
+    ],
+    [
+     "Backroom",
+     0.0,
+     15.6
+    ],
+    [
+     "LoadingDoor",
+     18.8,
+     15.9
+    ],
+    [
+     "Office",
+     -18.5,
+     15.4
+    ],
+    [
+     "Restroom",
+     -15.8,
+     15.8
+    ]
+   ],
+   "lights": 16,
+   "reused_from_other_packs": [
+    "RES_BathSink_Pedestal",
+    "RES_CardboardBox_Closed",
+    "RES_CardboardBox_Stack",
+    "RES_DeskChair_Office",
+    "RES_Desk_Computer",
+    "RES_ElectricalPanel",
+    "RES_Shelving_Metal",
+    "RES_Toilet",
+    "RES_WallCalendar",
+    "TRN_ShoppingCart"
+   ],
+   "zone_frame": {
+    "yaw": 3.141593,
+    "origin": [
+     33.0,
+     0.15,
+     -27.0
+    ]
+   }
+  },
+  {
+   "id": "video_game_store",
+   "priority": 1,
+   "zone": "GAME_SHOP",
+   "title": "Game Haven - independent video game shop",
+   "scene": "04_Commercial/Godot_Scenes/VideoGameStore.tscn",
+   "building": "04_Commercial/Video_Game_Store/COM_GameShop.glb",
+   "furnishing": "04_Commercial/Video_Game_Store/COM_GameShop_Furnishing.glb",
+   "rooms": [
+    {
+     "id": "SHOP",
+     "type": "sales",
+     "rect": [
+      -5.6,
+      0.3,
+      5.6,
+      8.4
+     ],
+     "floor_y": 0.04,
+     "ceil_y": 3.34
+    },
+    {
+     "id": "STOCK",
+     "type": "storage",
+     "rect": [
+      -5.6,
+      8.4,
+      0.8,
+      11.6
+     ],
+     "floor_y": 0.04,
+     "ceil_y": 3.04
+    },
+    {
+     "id": "OFFICE",
+     "type": "office",
+     "rect": [
+      0.8,
+      8.4,
+      5.6,
+      11.6
+     ],
+     "floor_y": 0.04,
+     "ceil_y": 2.84
+    }
+   ],
+   "doors": [
+    {
+     "name": "INT_Door_Entrance",
+     "kind": "door",
+     "w": 1.0,
+     "h": 2.2,
+     "exterior": true,
+     "rooms": [
+      "OUT",
+      "SHOP"
+     ],
+     "center": [
+      -3.200000000000001,
+      0.04,
+      0.3
+     ],
+     "normal": [
+      -0.0,
+      -1.0
+     ],
+     "hinge": [
+      -2.710000000000001,
+      0.37
+     ],
+     "yaw": -3.141592653589793,
+     "open_deg": 95.0,
+     "leaf": 0.98
+    },
+    {
+     "name": "INT_Door_BackExit",
+     "kind": "door",
+     "w": 1.0,
+     "h": 2.15,
+     "exterior": true,
+     "rooms": [
+      "OUT",
+      "STOCK"
+     ],
+     "center": [
+      -3.5,
+      0.04,
+      11.6
+     ],
+     "normal": [
+      -0.0,
+      1.0
+     ],
+     "hinge": [
+      -3.99,
+      11.53
+     ],
+     "yaw": -0.0,
+     "open_deg": 95.0,
+     "leaf": 0.98
+    },
+    {
+     "name": "INT_Door_StockRoom",
+     "kind": "door",
+     "w": 0.9499999999999997,
+     "h": 2.1,
+     "exterior": false,
+     "rooms": [
+      "STOCK",
+      "SHOP"
+     ],
+     "center": [
+      -2.0,
+      0.04,
+      8.4
+     ],
+     "normal": [
+      -0.0,
+      1.0
+     ],
+     "hinge": [
+      -2.4650000000000003,
+      8.43
+     ],
+     "yaw": -0.0,
+     "open_deg": -95.0,
+     "leaf": 0.9299999999999997
+    },
+    {
+     "name": "INT_Door_Office",
+     "kind": "door",
+     "w": 0.9500000000000002,
+     "h": 2.1,
+     "exterior": false,
+     "rooms": [
+      "OFFICE",
+      "SHOP"
+     ],
+     "center": [
+      3.5999999999999996,
+      0.04,
+      8.4
+     ],
+     "normal": [
+      -0.0,
+      1.0
+     ],
+     "hinge": [
+      3.135,
+      8.43
+     ],
+     "yaw": -0.0,
+     "open_deg": -95.0,
+     "leaf": 0.9300000000000002
+    },
+    {
+     "name": "INT_Door_StockOffice",
+     "kind": "door",
+     "w": 0.9000000000000001,
+     "h": 2.1,
+     "exterior": false,
+     "rooms": [
+      "OFFICE",
+      "STOCK"
+     ],
+     "center": [
+      0.8,
+      0.04,
+      10.0
+     ],
+     "normal": [
+      1.0,
+      0.0
+     ],
+     "hinge": [
+      0.8300000000000001,
+      10.44
+     ],
+     "yaw": 1.5707963267948966,
+     "open_deg": -95.0,
+     "leaf": 0.8800000000000001
+    }
+   ],
+   "fixtures": [
+    {
+     "model": "COM_GameWallShelf",
+     "x": -5.315,
+     "z": 2.25,
+     "yaw_deg": 90.0,
+     "room": "SHOP",
+     "footprint": [
+      -5.49,
+      1.25,
+      -5.14,
+      3.25
+     ],
+     "outdoor": false,
+     "straddle": false
+    },
+    {
+     "model": "COM_GameWallShelf_Used",
+     "x": -5.315,
+     "z": 4.3,
+     "yaw_deg": 90.0,
+     "room": "SHOP",
+     "footprint": [
+      -5.49,
+      3.3,
+      -5.14,
+      5.3
+     ],
+     "outdoor": false,
+     "straddle": false
+    },
+    {
+     "model": "COM_GameWallShelf",
+     "x": -5.315,
+     "z": 6.35,
+     "yaw_deg": 90.0,
+     "room": "SHOP",
+     "footprint": [
+      -5.49,
+      5.35,
+      -5.14,
+      7.35
+     ],
+     "outdoor": false,
+     "straddle": false
+    },
+    {
+     "model": "COM_ConsoleWallShelf",
+     "x": -4.3,
+     "z": 8.105,
+     "yaw_deg": 180.0,
+     "room": "SHOP",
+     "footprint": [
+      -5.3,
+      7.88,
+      -3.3,
+      8.33
+     ],
+     "outdoor": false,
+     "straddle": false
+    },
+    {
+     "model": "COM_PosterBoard",
+     "x": -0.4,
+     "z": 8.33,
+     "yaw_deg": 180.0,
+     "room": "SHOP",
+     "footprint": null,
+     "outdoor": false,
+     "straddle": false
+    },
+    {
+     "model": "COM_PosterBoard_B",
+     "x": 5.53,
+     "z": 5.3,
+     "yaw_deg": -90.0,
+     "room": "SHOP",
+     "footprint": null,
+     "outdoor": false,
+     "straddle": false
+    },
+    {
+     "model": "COM_GameRack_New",
+     "x": -1.6,
+     "z": 3.0,
+     "yaw_deg": 90.0,
+     "room": "SHOP",
+     "footprint": [
+      -2.05,
+      2.1,
+      -1.15,
+      3.9
+     ],
+     "outdoor": false,
+     "straddle": false
+    },
+    {
+     "model": "COM_GameRack_Used",
+     "x": -1.6,
+     "z": 5.6,
+     "yaw_deg": 90.0,
+     "room": "SHOP",
+     "footprint": [
+      -2.05,
+      4.7,
+      -1.15,
+      6.5
+     ],
+     "outdoor": false,
+     "straddle": false
+    },
+    {
+     "model": "COM_ConsoleCase",
+     "x": 1.8,
+     "z": 3.3,
+     "yaw_deg": 0.0,
+     "room": "SHOP",
+     "footprint": [
+      1.0,
+      3.0,
+      2.6,
+      3.6
+     ],
+     "outdoor": false,
+     "straddle": false
+    },
+    {
+     "model": "COM_DemoStation",
+     "x": 5.19,
+     "z": 2.6,
+     "yaw_deg": -90.0,
+     "room": "SHOP",
+     "footprint": [
+      4.89,
+      2.15,
+      5.49,
+      3.05
+     ],
+     "outdoor": false,
+     "straddle": false
+    },
+    {
+     "model": "RES_TVStand",
+     "x": 5.265,
+     "z": 4.3,
+     "yaw_deg": -90.0,
+     "room": "SHOP",
+     "footprint": [
+      5.04,
+      3.8,
+      5.49,
+      4.8
+     ],
+     "outdoor": false,
+     "straddle": false
+    },
+    {
+     "model": "RES_TV_CRT_Small",
+     "x": 5.27,
+     "z": 4.3,
+     "yaw_deg": -90.0,
+     "room": "SHOP",
+     "footprint": null,
+     "outdoor": false,
+     "straddle": false
+    },
+    {
+     "model": "RES_GameConsole",
+     "x": 5.25,
+     "z": 3.85,
+     "yaw_deg": -90.0,
+     "room": "SHOP",
+     "footprint": null,
+     "outdoor": false,
+     "straddle": false
+    },
+    {
+     "model": "COM_RetailCounter",
+     "x": 2.8,
+     "z": 6.6,
+     "yaw_deg": 180.0,
+     "room": "SHOP",
+     "footprint": [
+      1.57,
+      6.235,
+      4.03,
+      6.965
+     ],
+     "outdoor": false,
+     "straddle": false
+    },
+    {
+     "model": "RES_Shelving_Metal",
+     "x": 1.6,
+     "z": 8.105,
+     "yaw_deg": 180.0,
+     "room": "SHOP",
+     "footprint": [
+      1.0,
+      7.88,
+      2.2,
+      8.33
+     ],
+     "outdoor": false,
+     "straddle": false
+    },
+    {
+     "model": "RES_WallClock",
+     "x": 5.57,
+     "z": 7.0,
+     "yaw_deg": -90.0,
+     "room": "SHOP",
+     "footprint": null,
+     "outdoor": false,
+     "straddle": false
+    },
+    {
+     "model": "RES_Desk_Computer",
+     "x": 3.2,
+     "z": 11.19,
+     "yaw_deg": 180.0,
+     "room": "OFFICE",
+     "footprint": [
+      2.6,
+      10.89,
+      3.8,
+      11.49
+     ],
+     "outdoor": false,
+     "straddle": false
+    },
+    {
+     "model": "RES_DeskChair_Office",
+     "x": 3.2,
+     "z": 10.4,
+     "yaw_deg": 180.0,
+     "room": "OFFICE",
+     "footprint": [
+      2.9,
+      10.1,
+      3.5,
+      10.7
+     ],
+     "outdoor": false,
+     "straddle": false
+    },
+    {
+     "model": "RES_CardboardBox_Stack",
+     "x": 5.1,
+     "z": 9.0,
+     "yaw_deg": 0.0,
+     "room": "OFFICE",
+     "footprint": [
+      4.8,
+      8.75,
+      5.4,
+      9.25
+     ],
+     "outdoor": false,
+     "straddle": false
+    },
+    {
+     "model": "RES_WallCalendar",
+     "x": 5.57,
+     "z": 10.3,
+     "yaw_deg": -90.0,
+     "room": "OFFICE",
+     "footprint": null,
+     "outdoor": false,
+     "straddle": false
+    },
+    {
+     "model": "RES_Shelving_Metal",
+     "x": -4.8,
+     "z": 11.265,
+     "yaw_deg": 180.0,
+     "room": "STOCK",
+     "footprint": [
+      -5.4,
+      11.04,
+      -4.2,
+      11.49
+     ],
+     "outdoor": false,
+     "straddle": false
+    },
+    {
+     "model": "RES_Shelving_Metal",
+     "x": -0.1,
+     "z": 11.265,
+     "yaw_deg": 180.0,
+     "room": "STOCK",
+     "footprint": [
+      -0.7,
+      11.04,
+      0.5,
+      11.49
+     ],
+     "outdoor": false,
+     "straddle": false
+    },
+    {
+     "model": "RES_Shelving_Metal",
+     "x": -1.6,
+     "z": 11.265,
+     "yaw_deg": 180.0,
+     "room": "STOCK",
+     "footprint": [
+      -2.2,
+      11.04,
+      -1.0,
+      11.49
+     ],
+     "outdoor": false,
+     "straddle": false
+    },
+    {
+     "model": "COM_DocumentBoxes",
+     "x": -5.0,
+     "z": 9.2,
+     "yaw_deg": 90.0,
+     "room": "STOCK",
+     "footprint": [
+      -5.24,
+      8.79,
+      -4.76,
+      9.61
+     ],
+     "outdoor": false,
+     "straddle": false
+    },
+    {
+     "model": "RES_CardboardBox_Closed",
+     "x": -0.6,
+     "z": 9.3,
+     "yaw_deg": 15.0,
+     "room": "STOCK",
+     "footprint": [
+      -0.893,
+      9.042,
+      -0.307,
+      9.558
+     ],
+     "outdoor": false,
+     "straddle": false
+    }
+   ],
+   "nav": [
+    [
+     "Entrance",
+     -3.2,
+     -0.4
+    ],
+    [
+     "NewReleases",
+     -1.6,
+     1.6
+    ],
+    [
+     "UsedGames",
+     -3.0,
+     5.6
+    ],
+    [
+     "WallGames",
+     -4.4,
+     4.3
+    ],
+    [
+     "Consoles",
+     -4.3,
+     7.3
+    ],
+    [
+     "DemoStation",
+     4.4,
+     2.6
+    ],
+    [
+     "Counter_Customer",
+     2.8,
+     5.7
+    ],
+    [
+     "BehindCounter",
+     2.8,
+     7.5
+    ],
+    [
+     "Office",
+     3.2,
+     9.6
+    ],
+    [
+     "StockRoom",
+     -2.5,
+     9.6
+    ]
+   ],
+   "lights": 5,
+   "reused_from_other_packs": [
+    "RES_CardboardBox_Closed",
+    "RES_CardboardBox_Stack",
+    "RES_DeskChair_Office",
+    "RES_Desk_Computer",
+    "RES_GameConsole",
+    "RES_Shelving_Metal",
+    "RES_TVStand",
+    "RES_TV_CRT_Small",
+    "RES_WallCalendar",
+    "RES_WallClock"
+   ],
+   "zone_frame": {
+    "yaw": 0.0,
+    "origin": [
+     14.0,
+     0.15,
+     7.0
+    ]
+   }
+  },
+  {
+   "id": "gas_station",
+   "priority": 2,
+   "zone": "GAS_STATION",
+   "title": "Quarry Fuel - gas station & Food Mart",
+   "scene": "04_Commercial/Godot_Scenes/GasStation.tscn",
+   "building": "04_Commercial/Gas_Station/COM_GasStation.glb",
+   "furnishing": "04_Commercial/Gas_Station/COM_GasStation_Furnishing.glb",
+   "rooms": [
+    {
+     "id": "MART",
+     "type": "sales",
+     "rect": [
+      -7.0,
+      0.5,
+      7.0,
+      8.2
+     ],
+     "floor_y": 0.04,
+     "ceil_y": 3.24
+    },
+    {
+     "id": "STORE",
+     "type": "storage",
+     "rect": [
+      -7.0,
+      8.2,
+      1.5,
+      11.5
+     ],
+     "floor_y": 0.04,
+     "ceil_y": 3.04
+    },
+    {
+     "id": "RR",
+     "type": "restroom",
+     "rect": [
+      1.5,
+      8.2,
+      4.2,
+      11.5
+     ],
+     "floor_y": 0.04,
+     "ceil_y": 2.74
+    },
+    {
+     "id": "OFFICE",
+     "type": "office",
+     "rect": [
+      4.2,
+      8.2,
+      7.0,
+      11.5
+     ],
+     "floor_y": 0.04,
+     "ceil_y": 2.74
+    }
+   ],
+   "doors": [
+    {
+     "name": "INT_Door_Entrance",
+     "kind": "door",
+     "w": 1.0,
+     "h": 2.2,
+     "exterior": true,
+     "rooms": [
+      "OUT",
+      "MART"
+     ],
+     "center": [
+      4.0,
+      0.04,
+      0.5
+     ],
+     "normal": [
+      -0.0,
+      -1.0
+     ],
+     "hinge": [
+      4.49,
+      0.5700000000000001
+     ],
+     "yaw": -3.141592653589793,
+     "open_deg": 95.0,
+     "leaf": 0.98
+    },
+    {
+     "name": "INT_Door_BackExit",
+     "kind": "door",
+     "w": 1.0,
+     "h": 2.15,
+     "exterior": true,
+     "rooms": [
+      "OUT",
+      "STORE"
+     ],
+     "center": [
+      -5.0,
+      0.04,
+      11.5
+     ],
+     "normal": [
+      -0.0,
+      1.0
+     ],
+     "hinge": [
+      -5.49,
+      11.43
+     ],
+     "yaw": -0.0,
+     "open_deg": 95.0,
+     "leaf": 0.98
+    },
+    {
+     "name": "INT_Door_Storage",
+     "kind": "door",
+     "w": 0.9499999999999997,
+     "h": 2.1,
+     "exterior": false,
+     "rooms": [
+      "STORE",
+      "MART"
+     ],
+     "center": [
+      -3.0,
+      0.04,
+      8.2
+     ],
+     "normal": [
+      -0.0,
+      1.0
+     ],
+     "hinge": [
+      -3.4650000000000003,
+      8.229999999999999
+     ],
+     "yaw": -0.0,
+     "open_deg": -95.0,
+     "leaf": 0.9299999999999997
+    },
+    {
+     "name": "INT_Door_Restroom",
+     "kind": "door",
+     "w": 0.8500000000000001,
+     "h": 2.1,
+     "exterior": false,
+     "rooms": [
+      "RR",
+      "MART"
+     ],
+     "center": [
+      2.85,
+      0.04,
+      8.2
+     ],
+     "normal": [
+      -0.0,
+      1.0
+     ],
+     "hinge": [
+      2.435,
+      8.229999999999999
+     ],
+     "yaw": -0.0,
+     "open_deg": -95.0,
+     "leaf": 0.8300000000000001
+    },
+    {
+     "name": "INT_Door_Office",
+     "kind": "door",
+     "w": 0.8999999999999999,
+     "h": 2.1,
+     "exterior": false,
+     "rooms": [
+      "OFFICE",
+      "MART"
+     ],
+     "center": [
+      5.6,
+      0.04,
+      8.2
+     ],
+     "normal": [
+      -0.0,
+      1.0
+     ],
+     "hinge": [
+      5.16,
+      8.229999999999999
+     ],
+     "yaw": -0.0,
+     "open_deg": -95.0,
+     "leaf": 0.8799999999999999
+    }
+   ],
+   "fixtures": [
+    {
+     "model": "COM_Cooler_Drinks",
+     "x": -6.49,
+     "z": 2.6,
+     "yaw_deg": 90.0,
+     "room": "MART",
+     "footprint": [
+      -6.89,
+      1.43,
+      -6.09,
+      3.77
+     ],
+     "outdoor": false,
+     "straddle": false
+    },
+    {
+     "model": "COM_Cooler_Drinks",
+     "x": -6.49,
+     "z": 5.0,
+     "yaw_deg": 90.0,
+     "room": "MART",
+     "footprint": [
+      -6.89,
+      3.83,
+      -6.09,
+      6.17
+     ],
+     "outdoor": false,
+     "straddle": false
+    },
+    {
+     "model": "COM_Gondola_Snacks",
+     "x": -3.5,
+     "z": 4.4,
+     "yaw_deg": 90.0,
+     "room": "MART",
+     "footprint": [
+      -4.0,
+      2.86,
+      -3.0,
+      5.94
+     ],
+     "outdoor": false,
+     "straddle": false
+    },
+    {
+     "model": "COM_Gondola_Snacks",
+     "x": -0.5,
+     "z": 4.4,
+     "yaw_deg": 90.0,
+     "room": "MART",
+     "footprint": [
+      -1.0,
+      2.86,
+      0.0,
+      5.94
+     ],
+     "outdoor": false,
+     "straddle": false
+    },
+    {
+     "model": "COM_MartCounter",
+     "x": 4.6,
+     "z": 3.4,
+     "yaw_deg": -90.0,
+     "room": "MART",
+     "footprint": [
+      4.185,
+      1.97,
+      5.015,
+      4.83
+     ],
+     "outdoor": false,
+     "straddle": false
+    },
+    {
+     "model": "COM_CoffeeStation",
+     "x": 0.2,
+     "z": 7.815,
+     "yaw_deg": 180.0,
+     "room": "MART",
+     "footprint": [
+      -0.73,
+      7.5,
+      1.13,
+      8.13
+     ],
+     "outdoor": false,
+     "straddle": false
+    },
+    {
+     "model": "COM_WallShelf_Mart",
+     "x": -5.4,
+     "z": 7.905,
+     "yaw_deg": 180.0,
+     "room": "MART",
+     "footprint": [
+      -6.6,
+      7.68,
+      -4.2,
+      8.13
+     ],
+     "outdoor": false,
+     "straddle": false
+    },
+    {
+     "model": "RES_Shelving_Metal",
+     "x": -6.2,
+     "z": 11.165,
+     "yaw_deg": 180.0,
+     "room": "STORE",
+     "footprint": [
+      -6.8,
+      10.94,
+      -5.6,
+      11.39
+     ],
+     "outdoor": false,
+     "straddle": false
+    },
+    {
+     "model": "RES_Shelving_Metal",
+     "x": -1.0,
+     "z": 11.165,
+     "yaw_deg": 180.0,
+     "room": "STORE",
+     "footprint": [
+      -1.6,
+      10.94,
+      -0.4,
+      11.39
+     ],
+     "outdoor": false,
+     "straddle": false
+    },
+    {
+     "model": "RES_Shelving_Metal",
+     "x": 0.3,
+     "z": 11.165,
+     "yaw_deg": 180.0,
+     "room": "STORE",
+     "footprint": [
+      -0.3,
+      10.94,
+      0.9,
+      11.39
+     ],
+     "outdoor": false,
+     "straddle": false
+    },
+    {
+     "model": "RES_CardboardBox_Stack",
+     "x": -4.6,
+     "z": 9.6,
+     "yaw_deg": 0.0,
+     "room": "STORE",
+     "footprint": [
+      -4.9,
+      9.35,
+      -4.3,
+      9.85
+     ],
+     "outdoor": false,
+     "straddle": false
+    },
+    {
+     "model": "COM_PalletStack",
+     "x": -2.6,
+     "z": 10.6,
+     "yaw_deg": 0.0,
+     "room": "STORE",
+     "footprint": [
+      -3.2,
+      10.1,
+      -2.0,
+      11.1
+     ],
+     "outdoor": false,
+     "straddle": false
+    },
+    {
+     "model": "RES_Toilet",
+     "x": 2.85,
+     "z": 11.06,
+     "yaw_deg": 180.0,
+     "room": "RR",
+     "footprint": [
+      2.62,
+      10.73,
+      3.08,
+      11.39
+     ],
+     "outdoor": false,
+     "straddle": false
+    },
+    {
+     "model": "RES_BathSink_Pedestal",
+     "x": 3.9,
+     "z": 9.3,
+     "yaw_deg": -90.0,
+     "room": "RR",
+     "footprint": [
+      3.67,
+      9.02,
+      4.13,
+      9.58
+     ],
+     "outdoor": false,
+     "straddle": false
+    },
+    {
+     "model": "RES_Mirror_Bathroom",
+     "x": 4.13,
+     "z": 9.3,
+     "yaw_deg": -90.0,
+     "room": "RR",
+     "footprint": null,
+     "outdoor": false,
+     "straddle": false
+    },
+    {
+     "model": "RES_Desk_Computer",
+     "x": 5.6,
+     "z": 11.09,
+     "yaw_deg": 180.0,
+     "room": "OFFICE",
+     "footprint": [
+      5.0,
+      10.79,
+      6.2,
+      11.39
+     ],
+     "outdoor": false,
+     "straddle": false
+    },
+    {
+     "model": "RES_DeskChair_Office",
+     "x": 5.6,
+     "z": 10.3,
+     "yaw_deg": 180.0,
+     "room": "OFFICE",
+     "footprint": [
+      5.3,
+      10.0,
+      5.9,
+      10.6
+     ],
+     "outdoor": false,
+     "straddle": false
+    },
+    {
+     "model": "COM_FilingCabinet",
+     "x": 6.56,
+     "z": 9.0,
+     "yaw_deg": -90.0,
+     "room": "OFFICE",
+     "footprint": [
+      6.23,
+      8.77,
+      6.89,
+      9.23
+     ],
+     "outdoor": false,
+     "straddle": false
+    },
+    {
+     "model": "COM_IceChest",
+     "x": 6.0,
+     "z": -0.02,
+     "yaw_deg": 180.0,
+     "room": null,
+     "footprint": [
+      5.3,
+      -0.42,
+      6.7,
+      0.38
+     ],
+     "outdoor": true,
+     "straddle": false
+    },
+    {
+     "model": "COM_AirPump",
+     "x": -7.6,
+     "z": 2.0,
+     "yaw_deg": -90.0,
+     "room": null,
+     "footprint": [
+      -7.9,
+      1.7,
+      -7.3,
+      2.3
+     ],
+     "outdoor": true,
+     "straddle": false
+    },
+    {
+     "model": "COM_GasCanopy",
+     "x": 14.0,
+     "z": -10.0,
+     "yaw_deg": 0.0,
+     "room": null,
+     "footprint": null,
+     "outdoor": true,
+     "straddle": false
+    },
+    {
+     "model": "COM_PumpIsland",
+     "x": 11.0,
+     "z": -10.0,
+     "yaw_deg": 90.0,
+     "room": null,
+     "footprint": [
+      10.35,
+      -12.5,
+      11.65,
+      -7.5
+     ],
+     "outdoor": true,
+     "straddle": false
+    },
+    {
+     "model": "COM_PumpIsland",
+     "x": 17.0,
+     "z": -10.0,
+     "yaw_deg": 90.0,
+     "room": null,
+     "footprint": [
+      16.35,
+      -12.5,
+      17.65,
+      -7.5
+     ],
+     "outdoor": true,
+     "straddle": false
+    },
+    {
+     "model": "COM_FuelPump",
+     "x": 11.0,
+     "z": -11.2,
+     "yaw_deg": 90.0,
+     "room": null,
+     "footprint": [
+      10.68,
+      -11.75,
+      11.32,
+      -10.65
+     ],
+     "outdoor": true,
+     "straddle": false
+    },
+    {
+     "model": "COM_FuelPump",
+     "x": 11.0,
+     "z": -8.8,
+     "yaw_deg": 90.0,
+     "room": null,
+     "footprint": [
+      10.68,
+      -9.35,
+      11.32,
+      -8.25
+     ],
+     "outdoor": true,
+     "straddle": false
+    },
+    {
+     "model": "COM_FuelPump",
+     "x": 17.0,
+     "z": -11.2,
+     "yaw_deg": 90.0,
+     "room": null,
+     "footprint": [
+      16.68,
+      -11.75,
+      17.32,
+      -10.65
+     ],
+     "outdoor": true,
+     "straddle": false
+    },
+    {
+     "model": "COM_FuelPump",
+     "x": 17.0,
+     "z": -8.8,
+     "yaw_deg": 90.0,
+     "room": null,
+     "footprint": [
+      16.68,
+      -9.35,
+      17.32,
+      -8.25
+     ],
+     "outdoor": true,
+     "straddle": false
+    },
+    {
+     "model": "COM_PriceSign",
+     "x": 22.5,
+     "z": -18.5,
+     "yaw_deg": 180.0,
+     "room": null,
+     "footprint": [
+      21.5,
+      -18.85,
+      23.5,
+      -18.15
+     ],
+     "outdoor": true,
+     "straddle": false
+    }
+   ],
+   "nav": [
+    [
+     "Entrance",
+     4.0,
+     -0.6
+    ],
+    [
+     "Coolers",
+     -5.6,
+     3.8
+    ],
+    [
+     "SnackAisle",
+     -2.0,
+     4.4
+    ],
+    [
+     "Counter_Customer",
+     3.5,
+     3.4
+    ],
+    [
+     "BehindCounter",
+     5.9,
+     3.4
+    ],
+    [
+     "Coffee",
+     0.2,
+     7.0
+    ],
+    [
+     "Restroom",
+     2.85,
+     9.6
+    ],
+    [
+     "Storage",
+     -3.0,
+     9.4
+    ],
+    [
+     "Office",
+     5.6,
+     9.4
+    ]
+   ],
+   "lights": 8,
+   "reused_from_other_packs": [
+    "RES_BathSink_Pedestal",
+    "RES_CardboardBox_Stack",
+    "RES_DeskChair_Office",
+    "RES_Desk_Computer",
+    "RES_Mirror_Bathroom",
+    "RES_Shelving_Metal",
+    "RES_Toilet",
+    "SP_TrashBin_Public"
+   ],
+   "zone_frame": {
+    "yaw": 3.141593,
+    "origin": [
+     156.0,
+     0.15,
+     -26.0
+    ]
+   }
+  },
+  {
+   "id": "pharmacy",
+   "priority": 2,
+   "zone": "PHARMACY",
+   "title": "Hollis Drug - pharmacy",
+   "scene": "04_Commercial/Godot_Scenes/Pharmacy.tscn",
+   "building": "04_Commercial/Pharmacy/COM_Pharmacy.glb",
+   "furnishing": "04_Commercial/Pharmacy/COM_Pharmacy_Furnishing.glb",
+   "rooms": [
+    {
+     "id": "STORE",
+     "type": "sales",
+     "rect": [
+      -10.5,
+      0.3,
+      10.5,
+      7.6
+     ],
+     "floor_y": 0.04,
+     "ceil_y": 3.44
+    },
+    {
+     "id": "DISP",
+     "type": "dispensary",
+     "rect": [
+      3.0,
+      7.6,
+      10.5,
+      10.6
+     ],
+     "floor_y": 0.04,
+     "ceil_y": 3.04
+    },
+    {
+     "id": "STOCK",
+     "type": "storage",
+     "rect": [
+      -10.5,
+      7.6,
+      3.0,
+      10.6
+     ],
+     "floor_y": 0.04,
+     "ceil_y": 3.04
+    }
+   ],
+   "doors": [
+    {
+     "name": "INT_Door_Entrance",
+     "kind": "door",
+     "w": 1.0,
+     "h": 2.2,
+     "exterior": true,
+     "rooms": [
+      "OUT",
+      "STORE"
+     ],
+     "center": [
+      -6.0,
+      0.04,
+      0.3
+     ],
+     "normal": [
+      -0.0,
+      -1.0
+     ],
+     "hinge": [
+      -5.510000000000002,
+      0.37
+     ],
+     "yaw": -3.141592653589793,
+     "open_deg": 95.0,
+     "leaf": 0.98
+    },
+    {
+     "name": "INT_Door_BackExit",
+     "kind": "door",
+     "w": 1.0,
+     "h": 2.15,
+     "exterior": true,
+     "rooms": [
+      "OUT",
+      "STOCK"
+     ],
+     "center": [
+      -8.0,
+      0.04,
+      10.6
+     ],
+     "normal": [
+      -0.0,
+      1.0
+     ],
+     "hinge": [
+      -8.49,
+      10.53
+     ],
+     "yaw": -0.0,
+     "open_deg": 95.0,
+     "leaf": 0.98
+    },
+    {
+     "name": "INT_Door_Dispensary",
+     "kind": "door",
+     "w": 0.9500000000000001,
+     "h": 2.1,
+     "exterior": false,
+     "rooms": [
+      "DISP",
+      "STORE"
+     ],
+     "center": [
+      3.7,
+      0.04,
+      7.6
+     ],
+     "normal": [
+      -0.0,
+      1.0
+     ],
+     "hinge": [
+      3.2350000000000003,
+      7.63
+     ],
+     "yaw": -0.0,
+     "open_deg": -95.0,
+     "leaf": 0.93
+    },
+    {
+     "name": "INT_Arch_PharmacyWindow",
+     "kind": "arch",
+     "w": 3.0,
+     "h": 2.2,
+     "exterior": false,
+     "rooms": [
+      "DISP",
+      "STORE"
+     ],
+     "center": [
+      7.5,
+      0.04,
+      7.6
+     ],
+     "normal": [
+      -0.0,
+      1.0
+     ]
+    },
+    {
+     "name": "INT_Door_Stock",
+     "kind": "door",
+     "w": 0.9499999999999993,
+     "h": 2.1,
+     "exterior": false,
+     "rooms": [
+      "STOCK",
+      "STORE"
+     ],
+     "center": [
+      -4.0,
+      0.04,
+      7.6
+     ],
+     "normal": [
+      -0.0,
+      1.0
+     ],
+     "hinge": [
+      -4.465,
+      7.63
+     ],
+     "yaw": -0.0,
+     "open_deg": -95.0,
+     "leaf": 0.9299999999999993
+    },
+    {
+     "name": "INT_Door_StockDisp",
+     "kind": "door",
+     "w": 0.8999999999999999,
+     "h": 2.1,
+     "exterior": false,
+     "rooms": [
+      "STOCK",
+      "DISP"
+     ],
+     "center": [
+      3.0,
+      0.04,
+      9.1
+     ],
+     "normal": [
+      -1.0,
+      0.0
+     ],
+     "hinge": [
+      3.03,
+      8.66
+     ],
+     "yaw": -1.5707963267948966,
+     "open_deg": 95.0,
+     "leaf": 0.8799999999999999
+    }
+   ],
+   "fixtures": [
+    {
+     "model": "COM_RetailCounter",
+     "x": -8.8,
+     "z": 3.0,
+     "yaw_deg": 90.0,
+     "room": "STORE",
+     "footprint": [
+      -9.165,
+      1.77,
+      -8.435,
+      4.23
+     ],
+     "outdoor": false,
+     "straddle": false
+    },
+    {
+     "model": "COM_Gondola_Health",
+     "x": -4.0,
+     "z": 4.3,
+     "yaw_deg": 90.0,
+     "room": "STORE",
+     "footprint": [
+      -4.5,
+      2.16,
+      -3.5,
+      6.44
+     ],
+     "outdoor": false,
+     "straddle": false
+    },
+    {
+     "model": "COM_Gondola_Health",
+     "x": -1.0,
+     "z": 4.3,
+     "yaw_deg": 90.0,
+     "room": "STORE",
+     "footprint": [
+      -1.5,
+      2.16,
+      -0.5,
+      6.44
+     ],
+     "outdoor": false,
+     "straddle": false
+    },
+    {
+     "model": "COM_Gondola_Health",
+     "x": 2.0,
+     "z": 4.3,
+     "yaw_deg": 90.0,
+     "room": "STORE",
+     "footprint": [
+      1.5,
+      2.16,
+      2.5,
+      6.44
+     ],
+     "outdoor": false,
+     "straddle": false
+    },
+    {
+     "model": "COM_WallShelf_Health",
+     "x": 10.165,
+     "z": 2.0,
+     "yaw_deg": -90.0,
+     "room": "STORE",
+     "footprint": [
+      9.94,
+      0.8,
+      10.39,
+      3.2
+     ],
+     "outdoor": false,
+     "straddle": false
+    },
+    {
+     "model": "COM_WallShelf_Health",
+     "x": 10.165,
+     "z": 4.4,
+     "yaw_deg": -90.0,
+     "room": "STORE",
+     "footprint": [
+      9.94,
+      3.2,
+      10.39,
+      5.6
+     ],
+     "outdoor": false,
+     "straddle": false
+    },
+    {
+     "model": "COM_PharmacyCounter",
+     "x": 7.5,
+     "z": 7.6,
+     "yaw_deg": 180.0,
+     "room": "STORE",
+     "footprint": [
+      5.87,
+      7.185,
+      9.13,
+      8.015
+     ],
+     "outdoor": false,
+     "straddle": true
+    },
+    {
+     "model": "COM_WaitingChairs",
+     "x": 7.0,
+     "z": 4.9,
+     "yaw_deg": 0.0,
+     "room": "STORE",
+     "footprint": [
+      6.05,
+      4.625,
+      7.95,
+      5.175
+     ],
+     "outdoor": false,
+     "straddle": false
+    },
+    {
+     "model": "COM_DispensaryShelf",
+     "x": 5.0,
+     "z": 10.29,
+     "yaw_deg": 180.0,
+     "room": "DISP",
+     "footprint": [
+      4.0,
+      10.09,
+      6.0,
+      10.49
+     ],
+     "outdoor": false,
+     "straddle": false
+    },
+    {
+     "model": "COM_DispensaryShelf",
+     "x": 7.2,
+     "z": 10.29,
+     "yaw_deg": 180.0,
+     "room": "DISP",
+     "footprint": [
+      6.2,
+      10.09,
+      8.2,
+      10.49
+     ],
+     "outdoor": false,
+     "straddle": false
+    },
+    {
+     "model": "COM_DispensaryShelf",
+     "x": 9.35,
+     "z": 10.29,
+     "yaw_deg": 180.0,
+     "room": "DISP",
+     "footprint": [
+      8.35,
+      10.09,
+      10.35,
+      10.49
+     ],
+     "outdoor": false,
+     "straddle": false
+    },
+    {
+     "model": "COM_FilingCabinet",
+     "x": 10.06,
+     "z": 8.6,
+     "yaw_deg": -90.0,
+     "room": "DISP",
+     "footprint": [
+      9.73,
+      8.37,
+      10.39,
+      8.83
+     ],
+     "outdoor": false,
+     "straddle": false
+    },
+    {
+     "model": "RES_Shelving_Metal",
+     "x": -9.75,
+     "z": 10.265,
+     "yaw_deg": 180.0,
+     "room": "STOCK",
+     "footprint": [
+      -10.35,
+      10.04,
+      -9.15,
+      10.49
+     ],
+     "outdoor": false,
+     "straddle": false
+    },
+    {
+     "model": "RES_Shelving_Metal",
+     "x": -6.6,
+     "z": 10.265,
+     "yaw_deg": 180.0,
+     "room": "STOCK",
+     "footprint": [
+      -7.2,
+      10.04,
+      -6.0,
+      10.49
+     ],
+     "outdoor": false,
+     "straddle": false
+    },
+    {
+     "model": "RES_Shelving_Metal",
+     "x": -5.3,
+     "z": 10.265,
+     "yaw_deg": 180.0,
+     "room": "STOCK",
+     "footprint": [
+      -5.9,
+      10.04,
+      -4.7,
+      10.49
+     ],
+     "outdoor": false,
+     "straddle": false
+    },
+    {
+     "model": "RES_Shelving_Metal",
+     "x": -4.0,
+     "z": 10.265,
+     "yaw_deg": 180.0,
+     "room": "STOCK",
+     "footprint": [
+      -4.6,
+      10.04,
+      -3.4,
+      10.49
+     ],
+     "outdoor": false,
+     "straddle": false
+    },
+    {
+     "model": "RES_CardboardBox_Stack",
+     "x": -2.0,
+     "z": 10.1,
+     "yaw_deg": 0.0,
+     "room": "STOCK",
+     "footprint": [
+      -2.3,
+      9.85,
+      -1.7,
+      10.35
+     ],
+     "outdoor": false,
+     "straddle": false
+    },
+    {
+     "model": "COM_PalletStack",
+     "x": 0.5,
+     "z": 9.6,
+     "yaw_deg": 90.0,
+     "room": "STOCK",
+     "footprint": [
+      0.0,
+      9.0,
+      1.0,
+      10.2
+     ],
+     "outdoor": false,
+     "straddle": false
+    },
+    {
+     "model": "RES_WallClock",
+     "x": -10.43,
+     "z": 5.5,
+     "yaw_deg": 90.0,
+     "room": "STORE",
+     "footprint": null,
+     "outdoor": false,
+     "straddle": false
+    }
+   ],
+   "nav": [
+    [
+     "Entrance",
+     -6.0,
+     -0.4
+    ],
+    [
+     "FrontCounter",
+     -7.9,
+     3.0
+    ],
+    [
+     "Aisle_A",
+     -5.5,
+     4.3
+    ],
+    [
+     "Aisle_C",
+     0.5,
+     4.3
+    ],
+    [
+     "WallShelves",
+     9.2,
+     3.2
+    ],
+    [
+     "PharmacyCounter",
+     7.5,
+     6.6
+    ],
+    [
+     "Waiting",
+     7.0,
+     5.9
+    ],
+    [
+     "Dispensary",
+     6.0,
+     8.9
+    ],
+    [
+     "Stock",
+     -4.0,
+     9.0
+    ]
+   ],
+   "lights": 7,
+   "reused_from_other_packs": [
+    "RES_CardboardBox_Stack",
+    "RES_Shelving_Metal",
+    "RES_WallClock"
+   ],
+   "zone_frame": {
+    "yaw": 0.0,
+    "origin": [
+     -19.0,
+     0.15,
+     7.0
+    ]
+   }
+  },
+  {
+   "id": "municipal_archive",
+   "priority": 3,
+   "zone": "MUNICIPAL_ARCHIVE",
+   "title": "Greyhaven Municipal Archive",
+   "scene": "04_Commercial/Godot_Scenes/MunicipalArchive.tscn",
+   "building": "04_Commercial/Municipal_Archive/COM_MunicipalArchive.glb",
+   "furnishing": "04_Commercial/Municipal_Archive/COM_MunicipalArchive_Furnishing.glb",
+   "rooms": [
+    {
+     "id": "READ",
+     "type": "reading",
+     "rect": [
+      -11.0,
+      7.0,
+      -3.0,
+      13.0
+     ],
+     "floor_y": 0.75,
+     "ceil_y": 4.35
+    },
+    {
+     "id": "LOBBY",
+     "type": "lobby",
+     "rect": [
+      -3.0,
+      7.0,
+      3.0,
+      13.0
+     ],
+     "floor_y": 0.75,
+     "ceil_y": 4.35
+    },
+    {
+     "id": "OFFICE",
+     "type": "office",
+     "rect": [
+      3.0,
+      7.0,
+      11.0,
+      13.0
+     ],
+     "floor_y": 0.75,
+     "ceil_y": 4.35
+    },
+    {
+     "id": "RECORDS",
+     "type": "records",
+     "rect": [
+      -11.0,
+      13.0,
+      4.0,
+      21.0
+     ],
+     "floor_y": 0.75,
+     "ceil_y": 4.35
+    },
+    {
+     "id": "STORAGE",
+     "type": "storage",
+     "rect": [
+      4.0,
+      13.0,
+      11.0,
+      21.0
+     ],
+     "floor_y": 0.75,
+     "ceil_y": 4.35
+    }
+   ],
+   "doors": [
+    {
+     "name": "INT_Door_Entrance",
+     "kind": "door",
+     "w": 1.2000000000000002,
+     "h": 2.4,
+     "exterior": true,
+     "rooms": [
+      "OUT",
+      "LOBBY"
+     ],
+     "center": [
+      0.0,
+      0.75,
+      7.0
+     ],
+     "normal": [
+      -0.0,
+      -1.0
+     ],
+     "hinge": [
+      0.5900000000000003,
+      7.07
+     ],
+     "yaw": -3.141592653589793,
+     "open_deg": 95.0,
+     "leaf": 1.1800000000000002
+    },
+    {
+     "name": "INT_Door_BackExit",
+     "kind": "door",
+     "w": 1.0,
+     "h": 2.15,
+     "exterior": true,
+     "rooms": [
+      "OUT",
+      "STORAGE"
+     ],
+     "center": [
+      7.5,
+      0.75,
+      21.0
+     ],
+     "normal": [
+      -0.0,
+      1.0
+     ],
+     "hinge": [
+      7.01,
+      20.93
+     ],
+     "yaw": -0.0,
+     "open_deg": 95.0,
+     "leaf": 0.98
+    },
+    {
+     "name": "INT_Door_ReadRecords",
+     "kind": "door",
+     "w": 1.0,
+     "h": 2.1,
+     "exterior": false,
+     "rooms": [
+      "RECORDS",
+      "READ"
+     ],
+     "center": [
+      -7.0,
+      0.75,
+      13.0
+     ],
+     "normal": [
+      -0.0,
+      1.0
+     ],
+     "hinge": [
+      -7.49,
+      13.03
+     ],
+     "yaw": -0.0,
+     "open_deg": -95.0,
+     "leaf": 0.98
+    },
+    {
+     "name": "INT_Arch_ReadingRoom",
+     "kind": "arch",
+     "w": 1.5999999999999996,
+     "h": 2.3,
+     "exterior": false,
+     "rooms": [
+      "LOBBY",
+      "READ"
+     ],
+     "center": [
+      -3.0,
+      0.75,
+      10.0
+     ],
+     "normal": [
+      1.0,
+      0.0
+     ]
+    },
+    {
+     "name": "INT_Door_Records",
+     "kind": "door",
+     "w": 1.0,
+     "h": 2.1,
+     "exterior": false,
+     "rooms": [
+      "RECORDS",
+      "LOBBY"
+     ],
+     "center": [
+      0.0,
+      0.75,
+      13.0
+     ],
+     "normal": [
+      -0.0,
+      1.0
+     ],
+     "hinge": [
+      -0.4900000000000002,
+      13.03
+     ],
+     "yaw": -0.0,
+     "open_deg": -95.0,
+     "leaf": 0.98
+    },
+    {
+     "name": "INT_Door_Office",
+     "kind": "door",
+     "w": 0.9500000000000002,
+     "h": 2.1,
+     "exterior": false,
+     "rooms": [
+      "OFFICE",
+      "LOBBY"
+     ],
+     "center": [
+      3.0,
+      0.75,
+      10.5
+     ],
+     "normal": [
+      1.0,
+      0.0
+     ],
+     "hinge": [
+      3.03,
+      10.965
+     ],
+     "yaw": 1.5707963267948966,
+     "open_deg": -95.0,
+     "leaf": 0.9300000000000002
+    },
+    {
+     "name": "INT_Door_OfficeStorage",
+     "kind": "door",
+     "w": 0.9500000000000002,
+     "h": 2.1,
+     "exterior": false,
+     "rooms": [
+      "STORAGE",
+      "OFFICE"
+     ],
+     "center": [
+      7.5,
+      0.75,
+      13.0
+     ],
+     "normal": [
+      -0.0,
+      1.0
+     ],
+     "hinge": [
+      7.035,
+      13.03
+     ],
+     "yaw": -0.0,
+     "open_deg": -95.0,
+     "leaf": 0.9300000000000002
+    },
+    {
+     "name": "INT_Door_Storage",
+     "kind": "door",
+     "w": 1.0,
+     "h": 2.1,
+     "exterior": false,
+     "rooms": [
+      "STORAGE",
+      "RECORDS"
+     ],
+     "center": [
+      4.0,
+      0.75,
+      17.0
+     ],
+     "normal": [
+      1.0,
+      0.0
+     ],
+     "hinge": [
+      4.03,
+      17.490000000000002
+     ],
+     "yaw": 1.5707963267948966,
+     "open_deg": -95.0,
+     "leaf": 0.98
+    }
+   ],
+   "fixtures": [
+    {
+     "model": "COM_ReceptionDesk",
+     "x": 0.0,
+     "z": 9.6,
+     "yaw_deg": 180.0,
+     "room": "LOBBY",
+     "footprint": [
+      -1.23,
+      9.185,
+      1.23,
+      10.015
+     ],
+     "outdoor": false,
+     "straddle": false
+    },
+    {
+     "model": "RES_DeskChair_Office",
+     "x": 0.0,
+     "z": 10.6,
+     "yaw_deg": 180.0,
+     "room": "LOBBY",
+     "footprint": [
+      -0.3,
+      10.3,
+      0.3,
+      10.9
+     ],
+     "outdoor": false,
+     "straddle": false
+    },
+    {
+     "model": "COM_NoticeBoard",
+     "x": -2.93,
+     "z": 9.0,
+     "yaw_deg": 90.0,
+     "room": "LOBBY",
+     "footprint": null,
+     "outdoor": false,
+     "straddle": false
+    },
+    {
+     "model": "COM_ReadingTable",
+     "x": -7.0,
+     "z": 8.6,
+     "yaw_deg": 0.0,
+     "room": "READ",
+     "footprint": [
+      -8.2,
+      8.1,
+      -5.8,
+      9.1
+     ],
+     "outdoor": false,
+     "straddle": false
+    },
+    {
+     "model": "COM_ReadingTable",
+     "x": -7.0,
+     "z": 11.8,
+     "yaw_deg": 0.0,
+     "room": "READ",
+     "footprint": [
+      -8.2,
+      11.3,
+      -5.8,
+      12.3
+     ],
+     "outdoor": false,
+     "straddle": false
+    },
+    {
+     "model": "RES_DiningChair_Wood",
+     "x": -7.7,
+     "z": 7.85,
+     "yaw_deg": 0.0,
+     "room": "READ",
+     "footprint": [
+      -7.92,
+      7.62,
+      -7.48,
+      8.08
+     ],
+     "outdoor": false,
+     "straddle": false
+    },
+    {
+     "model": "RES_DiningChair_Wood",
+     "x": -6.3,
+     "z": 7.85,
+     "yaw_deg": 0.0,
+     "room": "READ",
+     "footprint": [
+      -6.52,
+      7.62,
+      -6.08,
+      8.08
+     ],
+     "outdoor": false,
+     "straddle": false
+    },
+    {
+     "model": "RES_DiningChair_Wood",
+     "x": -7.7,
+     "z": 9.35,
+     "yaw_deg": 180.0,
+     "room": "READ",
+     "footprint": [
+      -7.92,
+      9.12,
+      -7.48,
+      9.58
+     ],
+     "outdoor": false,
+     "straddle": false
+    },
+    {
+     "model": "RES_DiningChair_Wood",
+     "x": -6.3,
+     "z": 9.35,
+     "yaw_deg": 180.0,
+     "room": "READ",
+     "footprint": [
+      -6.52,
+      9.12,
+      -6.08,
+      9.58
+     ],
+     "outdoor": false,
+     "straddle": false
+    },
+    {
+     "model": "RES_DiningChair_Wood",
+     "x": -7.7,
+     "z": 11.05,
+     "yaw_deg": 0.0,
+     "room": "READ",
+     "footprint": [
+      -7.92,
+      10.82,
+      -7.48,
+      11.28
+     ],
+     "outdoor": false,
+     "straddle": false
+    },
+    {
+     "model": "RES_DiningChair_Wood",
+     "x": -6.3,
+     "z": 11.05,
+     "yaw_deg": 0.0,
+     "room": "READ",
+     "footprint": [
+      -6.52,
+      10.82,
+      -6.08,
+      11.28
+     ],
+     "outdoor": false,
+     "straddle": false
+    },
+    {
+     "model": "RES_DiningChair_Wood",
+     "x": -7.7,
+     "z": 12.55,
+     "yaw_deg": 180.0,
+     "room": "READ",
+     "footprint": [
+      -7.92,
+      12.32,
+      -7.48,
+      12.78
+     ],
+     "outdoor": false,
+     "straddle": false
+    },
+    {
+     "model": "RES_DiningChair_Wood",
+     "x": -6.3,
+     "z": 12.55,
+     "yaw_deg": 180.0,
+     "room": "READ",
+     "footprint": [
+      -6.52,
+      12.32,
+      -6.08,
+      12.78
+     ],
+     "outdoor": false,
+     "straddle": false
+    },
+    {
+     "model": "COM_RecordsShelf",
+     "x": -8.6,
+     "z": 15.4,
+     "yaw_deg": 0.0,
+     "room": "RECORDS",
+     "footprint": [
+      -9.8,
+      14.9,
+      -7.4,
+      15.9
+     ],
+     "outdoor": false,
+     "straddle": false
+    },
+    {
+     "model": "COM_RecordsShelf",
+     "x": -8.6,
+     "z": 18.4,
+     "yaw_deg": 0.0,
+     "room": "RECORDS",
+     "footprint": [
+      -9.8,
+      17.9,
+      -7.4,
+      18.9
+     ],
+     "outdoor": false,
+     "straddle": false
+    },
+    {
+     "model": "COM_RecordsShelf",
+     "x": -5.6,
+     "z": 15.4,
+     "yaw_deg": 0.0,
+     "room": "RECORDS",
+     "footprint": [
+      -6.8,
+      14.9,
+      -4.4,
+      15.9
+     ],
+     "outdoor": false,
+     "straddle": false
+    },
+    {
+     "model": "COM_RecordsShelf",
+     "x": -5.6,
+     "z": 18.4,
+     "yaw_deg": 0.0,
+     "room": "RECORDS",
+     "footprint": [
+      -6.8,
+      17.9,
+      -4.4,
+      18.9
+     ],
+     "outdoor": false,
+     "straddle": false
+    },
+    {
+     "model": "COM_RecordsShelf",
+     "x": -2.0,
+     "z": 18.4,
+     "yaw_deg": 0.0,
+     "room": "RECORDS",
+     "footprint": [
+      -3.2,
+      17.9,
+      -0.8,
+      18.9
+     ],
+     "outdoor": false,
+     "straddle": false
+    },
+    {
+     "model": "COM_FilingCabinet",
+     "x": 0.6,
+     "z": 20.56,
+     "yaw_deg": 180.0,
+     "room": "RECORDS",
+     "footprint": [
+      0.37,
+      20.23,
+      0.83,
+      20.89
+     ],
+     "outdoor": false,
+     "straddle": false
+    },
+    {
+     "model": "COM_FilingCabinet",
+     "x": 1.2,
+     "z": 20.56,
+     "yaw_deg": 180.0,
+     "room": "RECORDS",
+     "footprint": [
+      0.97,
+      20.23,
+      1.43,
+      20.89
+     ],
+     "outdoor": false,
+     "straddle": false
+    },
+    {
+     "model": "COM_FilingCabinet",
+     "x": 1.8,
+     "z": 20.56,
+     "yaw_deg": 180.0,
+     "room": "RECORDS",
+     "footprint": [
+      1.57,
+      20.23,
+      2.03,
+      20.89
+     ],
+     "outdoor": false,
+     "straddle": false
+    },
+    {
+     "model": "COM_FilingCabinet",
+     "x": 2.4,
+     "z": 20.56,
+     "yaw_deg": 180.0,
+     "room": "RECORDS",
+     "footprint": [
+      2.17,
+      20.23,
+      2.63,
+      20.89
+     ],
+     "outdoor": false,
+     "straddle": false
+    },
+    {
+     "model": "COM_ReadingTable",
+     "x": 1.5,
+     "z": 15.6,
+     "yaw_deg": 0.0,
+     "room": "RECORDS",
+     "footprint": [
+      0.3,
+      15.1,
+      2.7,
+      16.1
+     ],
+     "outdoor": false,
+     "straddle": false
+    },
+    {
+     "model": "RES_DiningChair_Wood",
+     "x": 1.0,
+     "z": 16.35,
+     "yaw_deg": 180.0,
+     "room": "RECORDS",
+     "footprint": [
+      0.78,
+      16.12,
+      1.22,
+      16.58
+     ],
+     "outdoor": false,
+     "straddle": false
+    },
+    {
+     "model": "COM_DocumentBoxes",
+     "x": -10.3,
+     "z": 14.0,
+     "yaw_deg": 90.0,
+     "room": "RECORDS",
+     "footprint": [
+      -10.54,
+      13.59,
+      -10.06,
+      14.41
+     ],
+     "outdoor": false,
+     "straddle": false
+    },
+    {
+     "model": "RES_Desk_Computer",
+     "x": 5.0,
+     "z": 12.63,
+     "yaw_deg": 180.0,
+     "room": "OFFICE",
+     "footprint": [
+      4.4,
+      12.33,
+      5.6,
+      12.93
+     ],
+     "outdoor": false,
+     "straddle": false
+    },
+    {
+     "model": "RES_DeskChair_Office",
+     "x": 5.0,
+     "z": 11.8,
+     "yaw_deg": 180.0,
+     "room": "OFFICE",
+     "footprint": [
+      4.7,
+      11.5,
+      5.3,
+      12.1
+     ],
+     "outdoor": false,
+     "straddle": false
+    },
+    {
+     "model": "RES_Desk",
+     "x": 9.0,
+     "z": 12.63,
+     "yaw_deg": 180.0,
+     "room": "OFFICE",
+     "footprint": [
+      8.4,
+      12.33,
+      9.6,
+      12.93
+     ],
+     "outdoor": false,
+     "straddle": false
+    },
+    {
+     "model": "RES_DeskChair_Office",
+     "x": 9.0,
+     "z": 11.8,
+     "yaw_deg": 180.0,
+     "room": "OFFICE",
+     "footprint": [
+      8.7,
+      11.5,
+      9.3,
+      12.1
+     ],
+     "outdoor": false,
+     "straddle": false
+    },
+    {
+     "model": "COM_FilingCabinet",
+     "x": 10.56,
+     "z": 8.2,
+     "yaw_deg": -90.0,
+     "room": "OFFICE",
+     "footprint": [
+      10.23,
+      7.97,
+      10.89,
+      8.43
+     ],
+     "outdoor": false,
+     "straddle": false
+    },
+    {
+     "model": "COM_FilingCabinet",
+     "x": 10.56,
+     "z": 8.7,
+     "yaw_deg": -90.0,
+     "room": "OFFICE",
+     "footprint": [
+      10.23,
+      8.47,
+      10.89,
+      8.93
+     ],
+     "outdoor": false,
+     "straddle": false
+    },
+    {
+     "model": "RES_Lamp_Table",
+     "x": 9.3,
+     "z": 12.64,
+     "yaw_deg": 0.0,
+     "room": "OFFICE",
+     "footprint": null,
+     "outdoor": false,
+     "straddle": false
+    },
+    {
+     "model": "RES_Shelving_Metal",
+     "x": 4.75,
+     "z": 20.665,
+     "yaw_deg": 180.0,
+     "room": "STORAGE",
+     "footprint": [
+      4.15,
+      20.44,
+      5.35,
+      20.89
+     ],
+     "outdoor": false,
+     "straddle": false
+    },
+    {
+     "model": "RES_Shelving_Metal",
+     "x": 6.05,
+     "z": 20.665,
+     "yaw_deg": 180.0,
+     "room": "STORAGE",
+     "footprint": [
+      5.45,
+      20.44,
+      6.65,
+      20.89
+     ],
+     "outdoor": false,
+     "straddle": false
+    },
+    {
+     "model": "RES_Shelving_Metal",
+     "x": 9.0,
+     "z": 20.665,
+     "yaw_deg": 180.0,
+     "room": "STORAGE",
+     "footprint": [
+      8.4,
+      20.44,
+      9.6,
+      20.89
+     ],
+     "outdoor": false,
+     "straddle": false
+    },
+    {
+     "model": "RES_Shelving_Metal",
+     "x": 10.25,
+     "z": 20.665,
+     "yaw_deg": 180.0,
+     "room": "STORAGE",
+     "footprint": [
+      9.65,
+      20.44,
+      10.85,
+      20.89
+     ],
+     "outdoor": false,
+     "straddle": false
+    },
+    {
+     "model": "COM_DocumentBoxes",
+     "x": 5.2,
+     "z": 15.0,
+     "yaw_deg": 0.0,
+     "room": "STORAGE",
+     "footprint": [
+      4.79,
+      14.76,
+      5.61,
+      15.24
+     ],
+     "outdoor": false,
+     "straddle": false
+    },
+    {
+     "model": "COM_DocumentBoxes",
+     "x": 6.2,
+     "z": 15.0,
+     "yaw_deg": 0.0,
+     "room": "STORAGE",
+     "footprint": [
+      5.79,
+      14.76,
+      6.61,
+      15.24
+     ],
+     "outdoor": false,
+     "straddle": false
+    },
+    {
+     "model": "COM_DocumentBoxes",
+     "x": 7.2,
+     "z": 15.0,
+     "yaw_deg": 0.0,
+     "room": "STORAGE",
+     "footprint": [
+      6.79,
+      14.76,
+      7.61,
+      15.24
+     ],
+     "outdoor": false,
+     "straddle": false
+    },
+    {
+     "model": "COM_PalletStack",
+     "x": 9.8,
+     "z": 15.2,
+     "yaw_deg": 90.0,
+     "room": "STORAGE",
+     "footprint": [
+      9.3,
+      14.6,
+      10.3,
+      15.8
+     ],
+     "outdoor": false,
+     "straddle": false
+    },
+    {
+     "model": "RES_WallClock",
+     "x": -2.93,
+     "z": 11.6,
+     "yaw_deg": 90.0,
+     "room": "LOBBY",
+     "footprint": null,
+     "outdoor": false,
+     "straddle": false
+    }
+   ],
+   "nav": [
+    [
+     "Walkway",
+     -2.0,
+     -0.3
+    ],
+    [
+     "Reception",
+     0.0,
+     8.4
+    ],
+    [
+     "ReadingRoom",
+     -7.0,
+     10.2
+    ],
+    [
+     "Records_Stacks",
+     -7.1,
+     16.9
+    ],
+    [
+     "Records_Files",
+     1.5,
+     19.6
+    ],
+    [
+     "Office",
+     7.0,
+     10.0
+    ],
+    [
+     "Storage",
+     7.5,
+     17.5
+    ]
+   ],
+   "lights": 8,
+   "reused_from_other_packs": [
+    "RES_Desk",
+    "RES_DeskChair_Office",
+    "RES_Desk_Computer",
+    "RES_DiningChair_Wood",
+    "RES_Lamp_Table",
+    "RES_Shelving_Metal",
+    "RES_WallClock"
+   ],
+   "zone_frame": {
+    "yaw": 3.141593,
+    "origin": [
+     -32.0,
+     0.15,
+     -14.0
+    ]
+   }
+  },
+  {
+   "id": "storefront_a",
+   "priority": 3,
+   "zone": "STOREFRONT_A",
+   "title": "Main Street storefront (unassigned tenant)",
+   "scene": "04_Commercial/Godot_Scenes/Storefront_A.tscn",
+   "building": "04_Commercial/Storefronts/COM_Storefront_A.glb",
+   "furnishing": "04_Commercial/Storefronts/COM_Storefront_A_Furnishing.glb",
+   "rooms": [
+    {
+     "id": "SHOP",
+     "type": "sales",
+     "rect": [
+      -6.0,
+      0.3,
+      6.0,
+      8.6
+     ],
+     "floor_y": 0.04,
+     "ceil_y": 3.34
+    },
+    {
+     "id": "BACK",
+     "type": "storage",
+     "rect": [
+      -6.0,
+      8.6,
+      6.0,
+      11.6
+     ],
+     "floor_y": 0.04,
+     "ceil_y": 3.04
+    }
+   ],
+   "doors": [
+    {
+     "name": "INT_Door_Entrance",
+     "kind": "door",
+     "w": 1.0,
+     "h": 2.2,
+     "exterior": true,
+     "rooms": [
+      "OUT",
+      "SHOP"
+     ],
+     "center": [
+      -4.0,
+      0.04,
+      0.3
+     ],
+     "normal": [
+      -0.0,
+      -1.0
+     ],
+     "hinge": [
+      -3.51,
+      0.37
+     ],
+     "yaw": -3.141592653589793,
+     "open_deg": 95.0,
+     "leaf": 0.98
+    },
+    {
+     "name": "INT_Door_BackExit",
+     "kind": "door",
+     "w": 1.0,
+     "h": 2.15,
+     "exterior": true,
+     "rooms": [
+      "OUT",
+      "BACK"
+     ],
+     "center": [
+      -4.0,
+      0.04,
+      11.6
+     ],
+     "normal": [
+      -0.0,
+      1.0
+     ],
+     "hinge": [
+      -4.49,
+      11.53
+     ],
+     "yaw": -0.0,
+     "open_deg": 95.0,
+     "leaf": 0.98
+    },
+    {
+     "name": "INT_Door_Back",
+     "kind": "door",
+     "w": 0.9499999999999993,
+     "h": 2.1,
+     "exterior": false,
+     "rooms": [
+      "BACK",
+      "SHOP"
+     ],
+     "center": [
+      4.5,
+      0.04,
+      8.6
+     ],
+     "normal": [
+      -0.0,
+      1.0
+     ],
+     "hinge": [
+      4.035,
+      8.629999999999999
+     ],
+     "yaw": -0.0,
+     "open_deg": -95.0,
+     "leaf": 0.9299999999999993
+    }
+   ],
+   "fixtures": [
+    {
+     "model": "RES_Shelving_Metal",
+     "x": 5.0,
+     "z": 11.265,
+     "yaw_deg": 180.0,
+     "room": "BACK",
+     "footprint": [
+      4.4,
+      11.04,
+      5.6,
+      11.49
+     ],
+     "outdoor": false,
+     "straddle": false
+    },
+    {
+     "model": "RES_CardboardBox_Stack",
+     "x": -2.4,
+     "z": 11.1,
+     "yaw_deg": 0.0,
+     "room": "BACK",
+     "footprint": [
+      -2.7,
+      10.85,
+      -2.1,
+      11.35
+     ],
+     "outdoor": false,
+     "straddle": false
+    },
+    {
+     "model": "COM_RetailCounter",
+     "x": 4.0,
+     "z": 7.0,
+     "yaw_deg": 180.0,
+     "room": "SHOP",
+     "footprint": [
+      2.77,
+      6.635,
+      5.23,
+      7.365
+     ],
+     "outdoor": false,
+     "straddle": false
+    },
+    {
+     "model": "RES_Bookshelf_Tall",
+     "x": -5.73,
+     "z": 3.5,
+     "yaw_deg": 90.0,
+     "room": "SHOP",
+     "footprint": [
+      -5.89,
+      3.05,
+      -5.57,
+      3.95
+     ],
+     "outdoor": false,
+     "straddle": false
+    }
+   ],
+   "nav": [
+    [
+     "Entrance",
+     -4.0,
+     -0.4
+    ],
+    [
+     "Shop",
+     0.0,
+     4.3
+    ],
+    [
+     "Back",
+     4.5,
+     10.1
+    ]
+   ],
+   "lights": 4,
+   "reused_from_other_packs": [
+    "RES_Bookshelf_Tall",
+    "RES_CardboardBox_Stack",
+    "RES_Shelving_Metal"
+   ],
+   "zone_frame": {
+    "yaw": 0.0,
+    "origin": [
+     27.5,
+     0.15,
+     7.0
+    ]
+   }
+  },
+  {
+   "id": "storefront_b",
+   "priority": 3,
+   "zone": "STOREFRONT_B",
+   "title": "Main Street storefront (unassigned tenant)",
+   "scene": "04_Commercial/Godot_Scenes/Storefront_B.tscn",
+   "building": "04_Commercial/Storefronts/COM_Storefront_B.glb",
+   "furnishing": "04_Commercial/Storefronts/COM_Storefront_B_Furnishing.glb",
+   "rooms": [
+    {
+     "id": "SHOP",
+     "type": "sales",
+     "rect": [
+      -9.5,
+      0.3,
+      9.5,
+      8.6
+     ],
+     "floor_y": 0.04,
+     "ceil_y": 3.34
+    },
+    {
+     "id": "BACK",
+     "type": "storage",
+     "rect": [
+      -9.5,
+      8.6,
+      9.5,
+      11.6
+     ],
+     "floor_y": 0.04,
+     "ceil_y": 3.04
+    }
+   ],
+   "doors": [
+    {
+     "name": "INT_Door_Entrance",
+     "kind": "door",
+     "w": 1.0,
+     "h": 2.2,
+     "exterior": true,
+     "rooms": [
+      "OUT",
+      "SHOP"
+     ],
+     "center": [
+      -7.5,
+      0.04,
+      0.3
+     ],
+     "normal": [
+      -0.0,
+      -1.0
+     ],
+     "hinge": [
+      -7.010000000000002,
+      0.37
+     ],
+     "yaw": -3.141592653589793,
+     "open_deg": 95.0,
+     "leaf": 0.98
+    },
+    {
+     "name": "INT_Door_BackExit",
+     "kind": "door",
+     "w": 1.0,
+     "h": 2.15,
+     "exterior": true,
+     "rooms": [
+      "OUT",
+      "BACK"
+     ],
+     "center": [
+      -7.5,
+      0.04,
+      11.6
+     ],
+     "normal": [
+      -0.0,
+      1.0
+     ],
+     "hinge": [
+      -7.99,
+      11.53
+     ],
+     "yaw": -0.0,
+     "open_deg": 95.0,
+     "leaf": 0.98
+    },
+    {
+     "name": "INT_Door_Back",
+     "kind": "door",
+     "w": 0.9500000000000028,
+     "h": 2.1,
+     "exterior": false,
+     "rooms": [
+      "BACK",
+      "SHOP"
+     ],
+     "center": [
+      8.0,
+      0.04,
+      8.6
+     ],
+     "normal": [
+      -0.0,
+      1.0
+     ],
+     "hinge": [
+      7.535,
+      8.629999999999999
+     ],
+     "yaw": -0.0,
+     "open_deg": -95.0,
+     "leaf": 0.9300000000000028
+    }
+   ],
+   "fixtures": [
+    {
+     "model": "RES_Shelving_Metal",
+     "x": 8.5,
+     "z": 11.265,
+     "yaw_deg": 180.0,
+     "room": "BACK",
+     "footprint": [
+      7.9,
+      11.04,
+      9.1,
+      11.49
+     ],
+     "outdoor": false,
+     "straddle": false
+    },
+    {
+     "model": "RES_CardboardBox_Stack",
+     "x": -5.9,
+     "z": 11.1,
+     "yaw_deg": 0.0,
+     "room": "BACK",
+     "footprint": [
+      -6.2,
+      10.85,
+      -5.6,
+      11.35
+     ],
+     "outdoor": false,
+     "straddle": false
+    },
+    {
+     "model": "COM_RetailCounter",
+     "x": 7.5,
+     "z": 7.0,
+     "yaw_deg": 180.0,
+     "room": "SHOP",
+     "footprint": [
+      6.27,
+      6.635,
+      8.73,
+      7.365
+     ],
+     "outdoor": false,
+     "straddle": false
+    },
+    {
+     "model": "RES_Bookshelf_Tall",
+     "x": -9.23,
+     "z": 3.5,
+     "yaw_deg": 90.0,
+     "room": "SHOP",
+     "footprint": [
+      -9.39,
+      3.05,
+      -9.07,
+      3.95
+     ],
+     "outdoor": false,
+     "straddle": false
+    }
+   ],
+   "nav": [
+    [
+     "Entrance",
+     -7.5,
+     -0.4
+    ],
+    [
+     "Shop",
+     0.0,
+     4.3
+    ],
+    [
+     "Back",
+     8.0,
+     10.1
+    ]
+   ],
+   "lights": 6,
+   "reused_from_other_packs": [
+    "RES_Bookshelf_Tall",
+    "RES_CardboardBox_Stack",
+    "RES_Shelving_Metal"
+   ],
+   "zone_frame": {
+    "yaw": 0.0,
+    "origin": [
+     45.0,
+     0.15,
+     7.0
+    ]
+   }
+  },
+  {
+   "id": "storefront_c",
+   "priority": 3,
+   "zone": "STOREFRONT_C",
+   "title": "Main Street storefront (unassigned tenant)",
+   "scene": "04_Commercial/Godot_Scenes/Storefront_C.tscn",
+   "building": "04_Commercial/Storefronts/COM_Storefront_C.glb",
+   "furnishing": "04_Commercial/Storefronts/COM_Storefront_C_Furnishing.glb",
+   "rooms": [
+    {
+     "id": "SHOP",
+     "type": "sales",
+     "rect": [
+      -11.0,
+      0.3,
+      11.0,
+      7.6
+     ],
+     "floor_y": 0.04,
+     "ceil_y": 3.34
+    },
+    {
+     "id": "BACK",
+     "type": "storage",
+     "rect": [
+      -11.0,
+      7.6,
+      11.0,
+      10.6
+     ],
+     "floor_y": 0.04,
+     "ceil_y": 3.04
+    }
+   ],
+   "doors": [
+    {
+     "name": "INT_Door_Entrance",
+     "kind": "door",
+     "w": 1.0,
+     "h": 2.2,
+     "exterior": true,
+     "rooms": [
+      "OUT",
+      "SHOP"
+     ],
+     "center": [
+      -9.0,
+      0.04,
+      0.3
+     ],
+     "normal": [
+      -0.0,
+      -1.0
+     ],
+     "hinge": [
+      -8.510000000000002,
+      0.37
+     ],
+     "yaw": -3.141592653589793,
+     "open_deg": 95.0,
+     "leaf": 0.98
+    },
+    {
+     "name": "INT_Door_BackExit",
+     "kind": "door",
+     "w": 1.0,
+     "h": 2.15,
+     "exterior": true,
+     "rooms": [
+      "OUT",
+      "BACK"
+     ],
+     "center": [
+      -9.0,
+      0.04,
+      10.6
+     ],
+     "normal": [
+      -0.0,
+      1.0
+     ],
+     "hinge": [
+      -9.49,
+      10.53
+     ],
+     "yaw": -0.0,
+     "open_deg": 95.0,
+     "leaf": 0.98
+    },
+    {
+     "name": "INT_Door_Back",
+     "kind": "door",
+     "w": 0.9500000000000028,
+     "h": 2.1,
+     "exterior": false,
+     "rooms": [
+      "BACK",
+      "SHOP"
+     ],
+     "center": [
+      9.5,
+      0.04,
+      7.6
+     ],
+     "normal": [
+      -0.0,
+      1.0
+     ],
+     "hinge": [
+      9.035,
+      7.63
+     ],
+     "yaw": -0.0,
+     "open_deg": -95.0,
+     "leaf": 0.9300000000000028
+    }
+   ],
+   "fixtures": [
+    {
+     "model": "RES_Shelving_Metal",
+     "x": 10.0,
+     "z": 10.265,
+     "yaw_deg": 180.0,
+     "room": "BACK",
+     "footprint": [
+      9.4,
+      10.04,
+      10.6,
+      10.49
+     ],
+     "outdoor": false,
+     "straddle": false
+    },
+    {
+     "model": "RES_CardboardBox_Stack",
+     "x": -7.4,
+     "z": 10.1,
+     "yaw_deg": 0.0,
+     "room": "BACK",
+     "footprint": [
+      -7.7,
+      9.85,
+      -7.1,
+      10.35
+     ],
+     "outdoor": false,
+     "straddle": false
+    },
+    {
+     "model": "COM_RetailCounter",
+     "x": 9.0,
+     "z": 6.0,
+     "yaw_deg": 180.0,
+     "room": "SHOP",
+     "footprint": [
+      7.77,
+      5.635,
+      10.23,
+      6.365
+     ],
+     "outdoor": false,
+     "straddle": false
+    },
+    {
+     "model": "RES_Bookshelf_Tall",
+     "x": -10.73,
+     "z": 3.5,
+     "yaw_deg": 90.0,
+     "room": "SHOP",
+     "footprint": [
+      -10.89,
+      3.05,
+      -10.57,
+      3.95
+     ],
+     "outdoor": false,
+     "straddle": false
+    }
+   ],
+   "nav": [
+    [
+     "Entrance",
+     -9.0,
+     -0.4
+    ],
+    [
+     "Shop",
+     0.0,
+     3.8
+    ],
+    [
+     "Back",
+     9.5,
+     9.1
+    ]
+   ],
+   "lights": 6,
+   "reused_from_other_packs": [
+    "RES_Bookshelf_Tall",
+    "RES_CardboardBox_Stack",
+    "RES_Shelving_Metal"
+   ],
+   "zone_frame": {
+    "yaw": 0.0,
+    "origin": [
+     -43.0,
+     0.15,
+     7.0
+    ]
+   }
+  },
+  {
+   "id": "storefront_d",
+   "priority": 3,
+   "zone": "STOREFRONT_D",
+   "title": "Main Street storefront (unassigned tenant)",
+   "scene": "04_Commercial/Godot_Scenes/Storefront_D.tscn",
+   "building": "04_Commercial/Storefronts/COM_Storefront_D.glb",
+   "furnishing": "04_Commercial/Storefronts/COM_Storefront_D_Furnishing.glb",
+   "rooms": [
+    {
+     "id": "SHOP",
+     "type": "sales",
+     "rect": [
+      -10.5,
+      0.3,
+      10.5,
+      9.6
+     ],
+     "floor_y": 0.04,
+     "ceil_y": 3.34
+    },
+    {
+     "id": "BACK",
+     "type": "storage",
+     "rect": [
+      -10.5,
+      9.6,
+      10.5,
+      12.6
+     ],
+     "floor_y": 0.04,
+     "ceil_y": 3.04
+    }
+   ],
+   "doors": [
+    {
+     "name": "INT_Door_Entrance",
+     "kind": "door",
+     "w": 1.0,
+     "h": 2.2,
+     "exterior": true,
+     "rooms": [
+      "OUT",
+      "SHOP"
+     ],
+     "center": [
+      -8.5,
+      0.04,
+      0.3
+     ],
+     "normal": [
+      -0.0,
+      -1.0
+     ],
+     "hinge": [
+      -8.010000000000002,
+      0.37
+     ],
+     "yaw": -3.141592653589793,
+     "open_deg": 95.0,
+     "leaf": 0.98
+    },
+    {
+     "name": "INT_Door_BackExit",
+     "kind": "door",
+     "w": 1.0,
+     "h": 2.15,
+     "exterior": true,
+     "rooms": [
+      "OUT",
+      "BACK"
+     ],
+     "center": [
+      -8.5,
+      0.04,
+      12.6
+     ],
+     "normal": [
+      -0.0,
+      1.0
+     ],
+     "hinge": [
+      -8.99,
+      12.53
+     ],
+     "yaw": -0.0,
+     "open_deg": 95.0,
+     "leaf": 0.98
+    },
+    {
+     "name": "INT_Door_Back",
+     "kind": "door",
+     "w": 0.9500000000000028,
+     "h": 2.1,
+     "exterior": false,
+     "rooms": [
+      "BACK",
+      "SHOP"
+     ],
+     "center": [
+      9.0,
+      0.04,
+      9.6
+     ],
+     "normal": [
+      -0.0,
+      1.0
+     ],
+     "hinge": [
+      8.535,
+      9.629999999999999
+     ],
+     "yaw": -0.0,
+     "open_deg": -95.0,
+     "leaf": 0.9300000000000028
+    }
+   ],
+   "fixtures": [
+    {
+     "model": "RES_Shelving_Metal",
+     "x": 9.5,
+     "z": 12.265,
+     "yaw_deg": 180.0,
+     "room": "BACK",
+     "footprint": [
+      8.9,
+      12.04,
+      10.1,
+      12.49
+     ],
+     "outdoor": false,
+     "straddle": false
+    },
+    {
+     "model": "RES_CardboardBox_Stack",
+     "x": -6.9,
+     "z": 12.1,
+     "yaw_deg": 0.0,
+     "room": "BACK",
+     "footprint": [
+      -7.2,
+      11.85,
+      -6.6,
+      12.35
+     ],
+     "outdoor": false,
+     "straddle": false
+    },
+    {
+     "model": "COM_RetailCounter",
+     "x": 8.5,
+     "z": 8.0,
+     "yaw_deg": 180.0,
+     "room": "SHOP",
+     "footprint": [
+      7.27,
+      7.635,
+      9.73,
+      8.365
+     ],
+     "outdoor": false,
+     "straddle": false
+    },
+    {
+     "model": "RES_Bookshelf_Tall",
+     "x": -10.23,
+     "z": 3.5,
+     "yaw_deg": 90.0,
+     "room": "SHOP",
+     "footprint": [
+      -10.39,
+      3.05,
+      -10.07,
+      3.95
+     ],
+     "outdoor": false,
+     "straddle": false
+    }
+   ],
+   "nav": [
+    [
+     "Entrance",
+     -8.5,
+     -0.4
+    ],
+    [
+     "Shop",
+     0.0,
+     4.8
+    ],
+    [
+     "Back",
+     9.0,
+     11.1
+    ]
+   ],
+   "lights": 6,
+   "reused_from_other_packs": [
+    "RES_Bookshelf_Tall",
+    "RES_CardboardBox_Stack",
+    "RES_Shelving_Metal"
+   ],
+   "zone_frame": {
+    "yaw": 0.0,
+    "origin": [
+     80.5,
+     0.15,
+     7.0
+    ]
+   }
+  }
+ ],
+ "models": [
+  {
+   "name": "COM_Gondola_Grocery_A",
+   "glb": "04_Commercial/Shared_Props/COM_Gondola_Grocery_A.glb",
+   "category": "fixture/shelving",
+   "triangles": 758,
+   "materials": [
+    "M_Com4_Atlas"
+   ],
+   "size": [
+    4.28,
+    1.0,
+    1.8
+   ],
+   "fixture_type": "shelving"
+  },
+  {
+   "name": "COM_Gondola_Grocery_B",
+   "glb": "04_Commercial/Shared_Props/COM_Gondola_Grocery_B.glb",
+   "category": "fixture/shelving",
+   "triangles": 758,
+   "materials": [
+    "M_Com4_Atlas"
+   ],
+   "size": [
+    4.28,
+    1.0,
+    1.8
+   ],
+   "fixture_type": "shelving"
+  },
+  {
+   "name": "COM_Gondola_Grocery_C",
+   "glb": "04_Commercial/Shared_Props/COM_Gondola_Grocery_C.glb",
+   "category": "fixture/shelving",
+   "triangles": 758,
+   "materials": [
+    "M_Com4_Atlas"
+   ],
+   "size": [
+    4.28,
+    1.0,
+    1.8
+   ],
+   "fixture_type": "shelving"
+  },
+  {
+   "name": "COM_Gondola_Grocery_D",
+   "glb": "04_Commercial/Shared_Props/COM_Gondola_Grocery_D.glb",
+   "category": "fixture/shelving",
+   "triangles": 758,
+   "materials": [
+    "M_Com4_Atlas"
+   ],
+   "size": [
+    4.28,
+    1.0,
+    1.8
+   ],
+   "fixture_type": "shelving"
+  },
+  {
+   "name": "COM_Gondola_Bread",
+   "glb": "04_Commercial/Shared_Props/COM_Gondola_Bread.glb",
+   "category": "fixture/shelving",
+   "triangles": 758,
+   "materials": [
+    "M_Com4_Atlas"
+   ],
+   "size": [
+    4.28,
+    1.0,
+    1.8
+   ],
+   "fixture_type": "shelving"
+  },
+  {
+   "name": "COM_Gondola_Snacks",
+   "glb": "04_Commercial/Shared_Props/COM_Gondola_Snacks.glb",
+   "category": "fixture/shelving",
+   "triangles": 462,
+   "materials": [
+    "M_Com4_Atlas"
+   ],
+   "size": [
+    3.08,
+    1.0,
+    1.5
+   ],
+   "fixture_type": "shelving"
+  },
+  {
+   "name": "COM_Gondola_Health",
+   "glb": "04_Commercial/Shared_Props/COM_Gondola_Health.glb",
+   "category": "fixture/shelving",
+   "triangles": 606,
+   "materials": [
+    "M_Com4_Atlas"
+   ],
+   "size": [
+    4.28,
+    1.0,
+    1.6
+   ],
+   "fixture_type": "shelving"
+  },
+  {
+   "name": "COM_WallShelf_Grocery",
+   "glb": "04_Commercial/Shared_Props/COM_WallShelf_Grocery.glb",
+   "category": "fixture/shelving",
+   "triangles": 290,
+   "materials": [
+    "M_Com4_Atlas"
+   ],
+   "size": [
+    2.4,
+    0.45,
+    2.0
+   ],
+   "fixture_type": "shelving"
+  },
+  {
+   "name": "COM_WallShelf_Health",
+   "glb": "04_Commercial/Shared_Props/COM_WallShelf_Health.glb",
+   "category": "fixture/shelving",
+   "triangles": 290,
+   "materials": [
+    "M_Com4_Atlas"
+   ],
+   "size": [
+    2.4,
+    0.45,
+    1.9
+   ],
+   "fixture_type": "shelving"
+  },
+  {
+   "name": "COM_WallShelf_Mart",
+   "glb": "04_Commercial/Shared_Props/COM_WallShelf_Mart.glb",
+   "category": "fixture/shelving",
+   "triangles": 238,
+   "materials": [
+    "M_Com4_Atlas"
+   ],
+   "size": [
+    2.4,
+    0.45,
+    1.8
+   ],
+   "fixture_type": "shelving"
+  },
+  {
+   "name": "COM_GameWallShelf",
+   "glb": "04_Commercial/Shared_Props/COM_GameWallShelf.glb",
+   "category": "fixture/shelving",
+   "triangles": 262,
+   "materials": [
+    "M_Com4_Atlas"
+   ],
+   "size": [
+    2.0,
+    0.35,
+    2.35
+   ],
+   "fixture_type": "shelving"
+  },
+  {
+   "name": "COM_GameWallShelf_Used",
+   "glb": "04_Commercial/Shared_Props/COM_GameWallShelf_Used.glb",
+   "category": "fixture/shelving",
+   "triangles": 262,
+   "materials": [
+    "M_Com4_Atlas"
+   ],
+   "size": [
+    2.0,
+    0.35,
+    2.35
+   ],
+   "fixture_type": "shelving"
+  },
+  {
+   "name": "COM_ConsoleWallShelf",
+   "glb": "04_Commercial/Shared_Props/COM_ConsoleWallShelf.glb",
+   "category": "fixture/shelving",
+   "triangles": 262,
+   "materials": [
+    "M_Com4_Atlas"
+   ],
+   "size": [
+    2.0,
+    0.45,
+    2.35
+   ],
+   "fixture_type": "shelving"
+  },
+  {
+   "name": "COM_Cooler_Dairy",
+   "glb": "04_Commercial/Shared_Props/COM_Cooler_Dairy.glb",
+   "category": "fixture/refrigeration",
+   "triangles": 404,
+   "materials": [
+    "M_Com4_Atlas",
+    "M_Com4_Glow",
+    "M_Com4_Glass"
+   ],
+   "size": [
+    2.34,
+    0.8,
+    2.1
+   ],
+   "interact": [
+    {
+     "name": "CoolerDoor_1",
+     "pos": [
+      -0.78,
+      1.0,
+      0.5
+     ],
+     "kind": "cooler_door"
+    },
+    {
+     "name": "CoolerDoor_2",
+     "pos": [
+      0.0,
+      1.0,
+      0.5
+     ],
+     "kind": "cooler_door"
+    },
+    {
+     "name": "CoolerDoor_3",
+     "pos": [
+      0.78,
+      1.0,
+      0.5
+     ],
+     "kind": "cooler_door"
+    }
+   ],
+   "fixture_type": "refrigeration"
+  },
+  {
+   "name": "COM_Cooler_Frozen",
+   "glb": "04_Commercial/Shared_Props/COM_Cooler_Frozen.glb",
+   "category": "fixture/refrigeration",
+   "triangles": 404,
+   "materials": [
+    "M_Com4_Atlas",
+    "M_Com4_Glow",
+    "M_Com4_Glass"
+   ],
+   "size": [
+    2.34,
+    0.8,
+    2.1
+   ],
+   "interact": [
+    {
+     "name": "CoolerDoor_1",
+     "pos": [
+      -0.78,
+      1.0,
+      0.5
+     ],
+     "kind": "cooler_door"
+    },
+    {
+     "name": "CoolerDoor_2",
+     "pos": [
+      0.0,
+      1.0,
+      0.5
+     ],
+     "kind": "cooler_door"
+    },
+    {
+     "name": "CoolerDoor_3",
+     "pos": [
+      0.78,
+      1.0,
+      0.5
+     ],
+     "kind": "cooler_door"
+    }
+   ],
+   "fixture_type": "refrigeration"
+  },
+  {
+   "name": "COM_Cooler_Drinks",
+   "glb": "04_Commercial/Shared_Props/COM_Cooler_Drinks.glb",
+   "category": "fixture/refrigeration",
+   "triangles": 404,
+   "materials": [
+    "M_Com4_Atlas",
+    "M_Com4_Glow",
+    "M_Com4_Glass"
+   ],
+   "size": [
+    2.34,
+    0.8,
+    2.1
+   ],
+   "interact": [
+    {
+     "name": "CoolerDoor_1",
+     "pos": [
+      -0.78,
+      1.0,
+      0.5
+     ],
+     "kind": "cooler_door"
+    },
+    {
+     "name": "CoolerDoor_2",
+     "pos": [
+      0.0,
+      1.0,
+      0.5
+     ],
+     "kind": "cooler_door"
+    },
+    {
+     "name": "CoolerDoor_3",
+     "pos": [
+      0.78,
+      1.0,
+      0.5
+     ],
+     "kind": "cooler_door"
+    }
+   ],
+   "fixture_type": "refrigeration"
+  },
+  {
+   "name": "COM_Freezer_Chest",
+   "glb": "04_Commercial/Shared_Props/COM_Freezer_Chest.glb",
+   "category": "fixture/refrigeration",
+   "triangles": 106,
+   "materials": [
+    "M_Com4_Atlas",
+    "M_Com4_Glass"
+   ],
+   "size": [
+    2.4,
+    0.95,
+    0.88
+   ],
+   "interact": [
+    {
+     "name": "FreezerLid",
+     "pos": [
+      0.0,
+      0.98,
+      0.0
+     ],
+     "kind": "freezer_lid"
+    }
+   ],
+   "fixture_type": "refrigeration"
+  },
+  {
+   "name": "COM_Produce_Table",
+   "glb": "04_Commercial/Shared_Props/COM_Produce_Table.glb",
+   "category": "fixture/produce",
+   "triangles": 72,
+   "materials": [
+    "M_Com4_Atlas"
+   ],
+   "size": [
+    2.2,
+    1.3,
+    0.85
+   ],
+   "fixture_type": "produce"
+  },
+  {
+   "name": "COM_Produce_WallCase",
+   "glb": "04_Commercial/Shared_Props/COM_Produce_WallCase.glb",
+   "category": "fixture/produce",
+   "triangles": 104,
+   "materials": [
+    "M_Com4_Atlas",
+    "M_Com4_Glow"
+   ],
+   "size": [
+    2.4,
+    0.9,
+    2.0
+   ],
+   "fixture_type": "produce"
+  },
+  {
+   "name": "COM_Checkout_Lane",
+   "glb": "04_Commercial/Shared_Props/COM_Checkout_Lane.glb",
+   "category": "fixture/checkout",
+   "triangles": 160,
+   "materials": [
+    "M_Com4_Atlas",
+    "M_Com4_Glow"
+   ],
+   "size": [
+    3.3,
+    1.05,
+    0.9
+   ],
+   "interact": [
+    {
+     "name": "Register",
+     "pos": [
+      1.0,
+      1.1,
+      -0.6
+     ],
+     "kind": "register"
+    },
+    {
+     "name": "Conveyor",
+     "pos": [
+      -0.4,
+      0.95,
+      0.6
+     ],
+     "kind": "checkout"
+    }
+   ],
+   "fixture_type": "checkout"
+  },
+  {
+   "name": "COM_ServiceCounter",
+   "glb": "04_Commercial/Shared_Props/COM_ServiceCounter.glb",
+   "category": "fixture/counter",
+   "triangles": 144,
+   "materials": [
+    "M_Com4_Atlas"
+   ],
+   "size": [
+    3.06,
+    0.8300000000000001,
+    1.05
+   ],
+   "interact": [
+    {
+     "name": "Register",
+     "pos": [
+      1.05,
+      1.25,
+      -0.8
+     ],
+     "kind": "register"
+    },
+    {
+     "name": "Counter",
+     "pos": [
+      0.0,
+      1.05,
+      0.8
+     ],
+     "kind": "counter"
+    }
+   ],
+   "fixture_type": "counter"
+  },
+  {
+   "name": "COM_RetailCounter",
+   "glb": "04_Commercial/Shared_Props/COM_RetailCounter.glb",
+   "category": "fixture/counter",
+   "triangles": 146,
+   "materials": [
+    "M_Com4_Atlas",
+    "M_Com4_Glass"
+   ],
+   "size": [
+    2.46,
+    0.73,
+    1.0
+   ],
+   "interact": [
+    {
+     "name": "Register",
+     "pos": [
+      0.75,
+      1.2,
+      -0.75
+     ],
+     "kind": "register"
+    },
+    {
+     "name": "Counter",
+     "pos": [
+      0.0,
+      1.0,
+      0.75
+     ],
+     "kind": "counter"
+    }
+   ],
+   "fixture_type": "counter"
+  },
+  {
+   "name": "COM_MartCounter",
+   "glb": "04_Commercial/Shared_Props/COM_MartCounter.glb",
+   "category": "fixture/counter",
+   "triangles": 104,
+   "materials": [
+    "M_Com4_Atlas"
+   ],
+   "size": [
+    2.86,
+    0.8300000000000001,
+    1.0
+   ],
+   "interact": [
+    {
+     "name": "Register",
+     "pos": [
+      0.95,
+      1.2,
+      -0.8
+     ],
+     "kind": "register"
+    },
+    {
+     "name": "Counter",
+     "pos": [
+      0.0,
+      1.0,
+      0.8
+     ],
+     "kind": "counter"
+    }
+   ],
+   "fixture_type": "counter"
+  },
+  {
+   "name": "COM_PharmacyCounter",
+   "glb": "04_Commercial/Shared_Props/COM_PharmacyCounter.glb",
+   "category": "fixture/counter",
+   "triangles": 164,
+   "materials": [
+    "M_Com4_Atlas",
+    "M_Com4_Glass"
+   ],
+   "size": [
+    3.2600000000000002,
+    0.8300000000000001,
+    1.05
+   ],
+   "interact": [
+    {
+     "name": "Register",
+     "pos": [
+      1.15,
+      1.25,
+      -0.8
+     ],
+     "kind": "register"
+    },
+    {
+     "name": "Counter",
+     "pos": [
+      0.0,
+      1.05,
+      0.8
+     ],
+     "kind": "counter"
+    }
+   ],
+   "fixture_type": "counter"
+  },
+  {
+   "name": "COM_CoffeeStation",
+   "glb": "04_Commercial/Shared_Props/COM_CoffeeStation.glb",
+   "category": "fixture/counter",
+   "triangles": 130,
+   "materials": [
+    "M_Com4_Atlas"
+   ],
+   "size": [
+    1.86,
+    0.63,
+    0.95
+   ],
+   "interact": [
+    {
+     "name": "Counter",
+     "pos": [
+      0.0,
+      0.95,
+      0.7
+     ],
+     "kind": "counter"
+    }
+   ],
+   "fixture_type": "counter"
+  },
+  {
+   "name": "COM_BasketStack",
+   "glb": "04_Commercial/Shared_Props/COM_BasketStack.glb",
+   "category": "fixture/supermarket",
+   "triangles": 80,
+   "materials": [
+    "M_Com4_Atlas"
+   ],
+   "size": [
+    0.5,
+    0.4,
+    0.72
+   ],
+   "fixture_type": "supermarket"
+  },
+  {
+   "name": "COM_CartCorral",
+   "glb": "04_Commercial/Shared_Props/COM_CartCorral.glb",
+   "category": "fixture/supermarket",
+   "triangles": 200,
+   "materials": [
+    "M_Com4_Atlas"
+   ],
+   "size": [
+    3.2,
+    1.3,
+    2.0
+   ],
+   "fixture_type": "supermarket"
+  },
+  {
+   "name": "COM_GroceryBag",
+   "glb": "04_Commercial/Shared_Props/COM_GroceryBag.glb",
+   "category": "fixture/supermarket",
+   "triangles": 32,
+   "materials": [
+    "M_Com4_Atlas"
+   ],
+   "size": [
+    0.32,
+    0.18,
+    0.55
+   ],
+   "fixture_type": "supermarket"
+  },
+  {
+   "name": "COM_PalletStack",
+   "glb": "04_Commercial/Shared_Props/COM_PalletStack.glb",
+   "category": "fixture/storage",
+   "triangles": 130,
+   "materials": [
+    "M_Com4_Atlas"
+   ],
+   "size": [
+    1.2,
+    1.0,
+    1.35
+   ],
+   "fixture_type": "storage"
+  },
+  {
+   "name": "COM_PalletRack",
+   "glb": "04_Commercial/Shared_Props/COM_PalletRack.glb",
+   "category": "fixture/storage",
+   "triangles": 208,
+   "materials": [
+    "M_Com4_Atlas"
+   ],
+   "size": [
+    2.7,
+    1.0,
+    3.0
+   ],
+   "fixture_type": "storage"
+  },
+  {
+   "name": "COM_GameRack_New",
+   "glb": "04_Commercial/Shared_Props/COM_GameRack_New.glb",
+   "category": "fixture/games",
+   "triangles": 396,
+   "materials": [
+    "M_Com4_Atlas"
+   ],
+   "size": [
+    1.8,
+    0.9,
+    1.8
+   ],
+   "interact": [
+    {
+     "name": "Browse",
+     "pos": [
+      0.0,
+      1.0,
+      0.85
+     ],
+     "kind": "browse"
+    }
+   ],
+   "fixture_type": "games"
+  },
+  {
+   "name": "COM_GameRack_Used",
+   "glb": "04_Commercial/Shared_Props/COM_GameRack_Used.glb",
+   "category": "fixture/games",
+   "triangles": 396,
+   "materials": [
+    "M_Com4_Atlas"
+   ],
+   "size": [
+    1.8,
+    0.9,
+    1.8
+   ],
+   "interact": [
+    {
+     "name": "Browse",
+     "pos": [
+      0.0,
+      1.0,
+      0.85
+     ],
+     "kind": "browse"
+    }
+   ],
+   "fixture_type": "games"
+  },
+  {
+   "name": "COM_ConsoleCase",
+   "glb": "04_Commercial/Shared_Props/COM_ConsoleCase.glb",
+   "category": "fixture/games",
+   "triangles": 76,
+   "materials": [
+    "M_Com4_Atlas",
+    "M_Com4_Glass"
+   ],
+   "size": [
+    1.6,
+    0.6,
+    1.0
+   ],
+   "interact": [
+    {
+     "name": "Display",
+     "pos": [
+      0.0,
+      0.9,
+      0.7
+     ],
+     "kind": "browse"
+    }
+   ],
+   "fixture_type": "games"
+  },
+  {
+   "name": "COM_DemoStation",
+   "glb": "04_Commercial/Shared_Props/COM_DemoStation.glb",
+   "category": "fixture/games",
+   "triangles": 76,
+   "materials": [
+    "M_Com4_Atlas",
+    "M_Com4_Glow"
+   ],
+   "size": [
+    0.9,
+    0.6,
+    1.8
+   ],
+   "interact": [
+    {
+     "name": "DemoController",
+     "pos": [
+      0.0,
+      1.05,
+      0.7
+     ],
+     "kind": "demo_station"
+    }
+   ],
+   "fixture_type": "games"
+  },
+  {
+   "name": "COM_PosterBoard",
+   "glb": "04_Commercial/Shared_Props/COM_PosterBoard.glb",
+   "category": "fixture/decor",
+   "triangles": 16,
+   "materials": [
+    "M_Com4_Atlas"
+   ],
+   "size": [
+    2.0999999999999996,
+    0.03,
+    0.95
+   ],
+   "fixture_type": "decor"
+  },
+  {
+   "name": "COM_FuelPump",
+   "glb": "04_Commercial/Shared_Props/COM_FuelPump.glb",
+   "category": "fixture/gas",
+   "triangles": 110,
+   "materials": [
+    "M_Com4_Atlas"
+   ],
+   "size": [
+    1.1,
+    0.64,
+    1.9
+   ],
+   "interact": [
+    {
+     "name": "Nozzle_A",
+     "pos": [
+      -0.75,
+      1.0,
+      0.0
+     ],
+     "kind": "fuel_nozzle"
+    },
+    {
+     "name": "Nozzle_B",
+     "pos": [
+      0.75,
+      1.0,
+      0.0
+     ],
+     "kind": "fuel_nozzle"
+    }
+   ],
+   "fixture_type": "gas"
+  },
+  {
+   "name": "COM_PumpIsland",
+   "glb": "04_Commercial/Shared_Props/COM_PumpIsland.glb",
+   "category": "fixture/gas",
+   "triangles": 64,
+   "materials": [
+    "M_Com4_Atlas"
+   ],
+   "size": [
+    5.0,
+    1.3,
+    1.06
+   ],
+   "fixture_type": "gas"
+  },
+  {
+   "name": "COM_GasCanopy",
+   "glb": "04_Commercial/Shared_Props/COM_GasCanopy.glb",
+   "category": "fixture/gas",
+   "triangles": 136,
+   "materials": [
+    "M_Com4_Atlas",
+    "M_Com4_Glow"
+   ],
+   "size": [
+    14.0,
+    9.0,
+    5.9
+   ],
+   "fixture_type": "gas"
+  },
+  {
+   "name": "COM_PriceSign",
+   "glb": "04_Commercial/Shared_Props/COM_PriceSign.glb",
+   "category": "fixture/gas",
+   "triangles": 34,
+   "materials": [
+    "M_Com4_Atlas",
+    "M_Com4_Glow"
+   ],
+   "size": [
+    2.0,
+    0.7,
+    5.6
+   ],
+   "fixture_type": "gas"
+  },
+  {
+   "name": "COM_AirPump",
+   "glb": "04_Commercial/Shared_Props/COM_AirPump.glb",
+   "category": "fixture/gas",
+   "triangles": 44,
+   "materials": [
+    "M_Com4_Atlas"
+   ],
+   "size": [
+    0.6,
+    0.6,
+    1.35
+   ],
+   "interact": [
+    {
+     "name": "AirHose",
+     "pos": [
+      0.3,
+      0.9,
+      0.5
+     ],
+     "kind": "air_pump"
+    }
+   ],
+   "fixture_type": "gas"
+  },
+  {
+   "name": "COM_IceChest",
+   "glb": "04_Commercial/Shared_Props/COM_IceChest.glb",
+   "category": "fixture/gas",
+   "triangles": 20,
+   "materials": [
+    "M_Com4_Atlas"
+   ],
+   "size": [
+    1.4,
+    0.8,
+    1.4
+   ],
+   "interact": [
+    {
+     "name": "IceDoor",
+     "pos": [
+      0.0,
+      0.8,
+      0.8
+     ],
+     "kind": "cooler_door"
+    }
+   ],
+   "fixture_type": "gas"
+  },
+  {
+   "name": "COM_DispensaryShelf",
+   "glb": "04_Commercial/Shared_Props/COM_DispensaryShelf.glb",
+   "category": "fixture/shelving",
+   "triangles": 250,
+   "materials": [
+    "M_Com4_Atlas"
+   ],
+   "size": [
+    2.0,
+    0.4,
+    2.0
+   ],
+   "fixture_type": "shelving"
+  },
+  {
+   "name": "COM_WaitingChairs",
+   "glb": "04_Commercial/Shared_Props/COM_WaitingChairs.glb",
+   "category": "fixture/seating",
+   "triangles": 90,
+   "materials": [
+    "M_Com4_Atlas"
+   ],
+   "size": [
+    1.9,
+    0.55,
+    0.88
+   ],
+   "fixture_type": "seating"
+  },
+  {
+   "name": "COM_FilingCabinet",
+   "glb": "04_Commercial/Shared_Props/COM_FilingCabinet.glb",
+   "category": "fixture/archive",
+   "triangles": 10,
+   "materials": [
+    "M_Com4_Atlas"
+   ],
+   "size": [
+    0.46,
+    0.66,
+    1.32
+   ],
+   "interact": [
+    {
+     "name": "Drawers",
+     "pos": [
+      0.0,
+      0.9,
+      0.7
+     ],
+     "kind": "drawer"
+    }
+   ],
+   "fixture_type": "archive"
+  },
+  {
+   "name": "COM_RecordsShelf",
+   "glb": "04_Commercial/Shared_Props/COM_RecordsShelf.glb",
+   "category": "fixture/shelving",
+   "triangles": 550,
+   "materials": [
+    "M_Com4_Atlas"
+   ],
+   "size": [
+    2.4,
+    1.0,
+    2.2
+   ],
+   "fixture_type": "shelving"
+  },
+  {
+   "name": "COM_DocumentBoxes",
+   "glb": "04_Commercial/Shared_Props/COM_DocumentBoxes.glb",
+   "category": "fixture/archive",
+   "triangles": 56,
+   "materials": [
+    "M_Com4_Atlas"
+   ],
+   "size": [
+    0.82,
+    0.48,
+    0.8
+   ],
+   "fixture_type": "archive"
+  },
+  {
+   "name": "COM_ReadingTable",
+   "glb": "04_Commercial/Shared_Props/COM_ReadingTable.glb",
+   "category": "fixture/archive",
+   "triangles": 134,
+   "materials": [
+    "M_Com4_Atlas",
+    "M_Com4_Glow"
+   ],
+   "size": [
+    2.4,
+    1.0,
+    1.1400000000000001
+   ],
+   "fixture_type": "archive"
+  },
+  {
+   "name": "COM_ReceptionDesk",
+   "glb": "04_Commercial/Shared_Props/COM_ReceptionDesk.glb",
+   "category": "fixture/counter",
+   "triangles": 84,
+   "materials": [
+    "M_Com4_Atlas"
+   ],
+   "size": [
+    2.46,
+    0.8300000000000001,
+    1.05
+   ],
+   "interact": [
+    {
+     "name": "Counter",
+     "pos": [
+      0.0,
+      1.05,
+      0.8
+     ],
+     "kind": "counter"
+    }
+   ],
+   "fixture_type": "counter"
+  },
+  {
+   "name": "COM_NoticeBoard",
+   "glb": "04_Commercial/Shared_Props/COM_NoticeBoard.glb",
+   "category": "fixture/decor",
+   "triangles": 10,
+   "materials": [
+    "M_Com4_Atlas"
+   ],
+   "size": [
+    1.2,
+    0.03,
+    0.8
+   ],
+   "fixture_type": "decor"
+  },
+  {
+   "name": "COM_Supermarket",
+   "glb": "04_Commercial/Supermarket/COM_Supermarket.glb",
+   "category": "building",
+   "triangles": 5488,
+   "materials": [
+    "M_Com_StorefrontBrick",
+    "M_Arch_TrimPainted",
+    "M_Furn_WoodDark",
+    "M_Arch_WindowGlassDirty",
+    "M_Road_Asphalt",
+    "M_Com4_Atlas",
+    "M_Com4_Glow",
+    "M_Road_SidewalkConcrete",
+    "M_Int_BasementConcrete",
+    "M_Com_StorefrontConcrete",
+    "M_Int_DrywallLight",
+    "M_Com_StorageConcrete",
+    "M_Int_TilesBathroom",
+    "M_Com_SupermarketFloorTiles",
+    "M_Com_CeilingTiles",
+    "M_Int_Linoleum",
+    "M_Furn_WoodPainted",
+    "M_Furn_MetalBrushed",
+    "M_Res_GarageDoor",
+    "M_Town_PaintWhite"
+   ],
+   "location": "supermarket",
+   "priority": 1
+  },
+  {
+   "name": "COM_Supermarket_Furnishing",
+   "glb": "04_Commercial/Supermarket/COM_Supermarket_Furnishing.glb",
+   "category": "furnishing",
+   "triangles": 15744,
+   "materials": [
+    "M_Com4_Atlas",
+    "M_Com4_Glow",
+    "M_Com4_Glass",
+    "M_Com_MetalShelving",
+    "M_Furn_Cardboard",
+    "M_Furn_MetalBrushed",
+    "M_Furn_PlasticDirty",
+    "M_Com_SignageBacking",
+    "M_Res_DetailAtlas",
+    "M_Furn_WoodLight",
+    "M_Res_DetailAtlasGlow",
+    "M_Furn_Rubber",
+    "M_Furn_FabricUpholstery",
+    "M_Res_Porcelain",
+    "M_Road_RoadPatch"
+   ],
+   "location": "supermarket",
+   "pieces": 58
+  },
+  {
+   "name": "COM_GameShop",
+   "glb": "04_Commercial/Video_Game_Store/COM_GameShop.glb",
+   "category": "building",
+   "triangles": 2238,
+   "materials": [
+    "M_Com_StorefrontBrick",
+    "M_Arch_TrimPainted",
+    "M_Town_PaintNavy",
+    "M_Furn_WoodDark",
+    "M_Arch_WindowGlassDirty",
+    "M_Road_Asphalt",
+    "M_Com4_Atlas",
+    "M_Com4_Glow",
+    "M_Road_SidewalkConcrete",
+    "M_Int_WallpaperFaded",
+    "M_Com_StorageConcrete",
+    "M_Int_DrywallLight",
+    "M_Int_CarpetWorn",
+    "M_Com_CeilingTiles",
+    "M_Int_BasementConcrete",
+    "M_Int_Linoleum",
+    "M_Furn_MetalBrushed",
+    "M_Furn_WoodPainted"
+   ],
+   "location": "video_game_store",
+   "priority": 1
+  },
+  {
+   "name": "COM_GameShop_Furnishing",
+   "glb": "04_Commercial/Video_Game_Store/COM_GameShop_Furnishing.glb",
+   "category": "furnishing",
+   "triangles": 4020,
+   "materials": [
+    "M_Com4_Atlas",
+    "M_Com4_Glass",
+    "M_Com4_Glow",
+    "M_Furn_WoodLight",
+    "M_Furn_WoodDark",
+    "M_Res_DetailAtlas",
+    "M_Furn_MetalBrushed",
+    "M_Com_SignageBacking",
+    "M_Res_DetailAtlasGlow",
+    "M_Furn_PlasticDirty",
+    "M_Furn_Rubber",
+    "M_Com_MetalShelving",
+    "M_Furn_Cardboard",
+    "M_Furn_FabricUpholstery"
+   ],
+   "location": "video_game_store",
+   "pieces": 25
+  },
+  {
+   "name": "COM_GasStation",
+   "glb": "04_Commercial/Gas_Station/COM_GasStation.glb",
+   "category": "building",
+   "triangles": 2566,
+   "materials": [
+    "M_Com_StorefrontConcrete",
+    "M_Arch_TrimPainted",
+    "M_Town_PaintRed",
+    "M_Furn_WoodDark",
+    "M_Arch_WindowGlassDirty",
+    "M_Road_Asphalt",
+    "M_Com4_Atlas",
+    "M_Com4_Glow",
+    "M_Road_SidewalkConcrete",
+    "M_Road_MarkingWhite",
+    "M_Int_DrywallLight",
+    "M_Com_StorageConcrete",
+    "M_Int_TilesBathroom",
+    "M_Com_SupermarketFloorTiles",
+    "M_Com_CeilingTiles",
+    "M_Int_BasementConcrete",
+    "M_Int_Linoleum",
+    "M_Furn_MetalBrushed",
+    "M_Furn_WoodPainted"
+   ],
+   "location": "gas_station",
+   "priority": 2
+  },
+  {
+   "name": "COM_GasStation_Furnishing",
+   "glb": "04_Commercial/Gas_Station/COM_GasStation_Furnishing.glb",
+   "category": "furnishing",
+   "triangles": 4598,
+   "materials": [
+    "M_Com4_Atlas",
+    "M_Com4_Glow",
+    "M_Com4_Glass",
+    "M_Com_MetalShelving",
+    "M_Furn_Cardboard",
+    "M_Furn_MetalBrushed",
+    "M_Res_Porcelain",
+    "M_Road_RoadPatch",
+    "M_Furn_WoodPainted",
+    "M_Res_Mirror",
+    "M_Furn_WoodLight",
+    "M_Furn_PlasticDirty",
+    "M_Res_DetailAtlasGlow",
+    "M_Furn_Rubber",
+    "M_Furn_FabricUpholstery"
+   ],
+   "location": "gas_station",
+   "pieces": 28
+  },
+  {
+   "name": "COM_Pharmacy",
+   "glb": "04_Commercial/Pharmacy/COM_Pharmacy.glb",
+   "category": "building",
+   "triangles": 2962,
+   "materials": [
+    "M_Com_StorefrontConcrete",
+    "M_Arch_TrimPainted",
+    "M_Town_PaintRed",
+    "M_Furn_WoodDark",
+    "M_Arch_WindowGlassDirty",
+    "M_Road_Asphalt",
+    "M_Com4_Atlas",
+    "M_Com4_Glow",
+    "M_Road_SidewalkConcrete",
+    "M_Int_DrywallLight",
+    "M_Com_StorageConcrete",
+    "M_Int_Linoleum",
+    "M_Com_CeilingTiles",
+    "M_Int_BasementConcrete",
+    "M_Furn_MetalBrushed",
+    "M_Furn_WoodPainted"
+   ],
+   "location": "pharmacy",
+   "priority": 2
+  },
+  {
+   "name": "COM_Pharmacy_Furnishing",
+   "glb": "04_Commercial/Pharmacy/COM_Pharmacy_Furnishing.glb",
+   "category": "furnishing",
+   "triangles": 4892,
+   "materials": [
+    "M_Com4_Atlas",
+    "M_Com4_Glass",
+    "M_Com_MetalShelving",
+    "M_Furn_Cardboard",
+    "M_Furn_MetalBrushed",
+    "M_Furn_WoodDark",
+    "M_Res_DetailAtlas"
+   ],
+   "location": "pharmacy",
+   "pieces": 19
+  },
+  {
+   "name": "COM_MunicipalArchive",
+   "glb": "04_Commercial/Municipal_Archive/COM_MunicipalArchive.glb",
+   "category": "building",
+   "triangles": 6220,
+   "materials": [
+    "M_Arch_BrickRed",
+    "M_Arch_TrimPainted",
+    "M_Com_StorefrontConcrete",
+    "M_Town_VentGrille",
+    "M_Arch_WindowGlassDirty",
+    "M_Furn_WoodDark",
+    "M_Arch_WoodPlanksAged",
+    "M_Res_Lattice",
+    "M_Arch_RoofShinglesDarkGray",
+    "M_Town_PaintWhite",
+    "M_Com4_Atlas",
+    "M_Com4_Glow",
+    "M_Road_SidewalkConcrete",
+    "M_Int_WallpaperFaded",
+    "M_Int_DrywallLight",
+    "M_Com_StorageConcrete",
+    "M_Int_FloorboardsOld",
+    "M_Int_Linoleum",
+    "M_Int_CarpetWorn",
+    "M_Com_CeilingTiles",
+    "M_Int_BasementConcrete",
+    "M_Furn_MetalBrushed",
+    "M_Furn_WoodPainted"
+   ],
+   "location": "municipal_archive",
+   "priority": 3
+  },
+  {
+   "name": "COM_MunicipalArchive_Furnishing",
+   "glb": "04_Commercial/Municipal_Archive/COM_MunicipalArchive_Furnishing.glb",
+   "category": "furnishing",
+   "triangles": 6824,
+   "materials": [
+    "M_Com4_Atlas",
+    "M_Furn_Rubber",
+    "M_Furn_MetalBrushed",
+    "M_Furn_FabricUpholstery",
+    "M_Com4_Glow",
+    "M_Furn_WoodDark",
+    "M_Furn_WoodLight",
+    "M_Furn_PlasticDirty",
+    "M_Res_DetailAtlasGlow",
+    "M_Res_EnamelHarvest",
+    "M_Res_Lampshade",
+    "M_Com_MetalShelving",
+    "M_Furn_Cardboard",
+    "M_Res_DetailAtlas"
+   ],
+   "location": "municipal_archive",
+   "pieces": 41
+  },
+  {
+   "name": "COM_Storefront_A",
+   "glb": "04_Commercial/Storefronts/COM_Storefront_A.glb",
+   "category": "building",
+   "triangles": 1642,
+   "materials": [
+    "M_Com_StorefrontBrick",
+    "M_Arch_TrimPainted",
+    "M_Town_PaintGreen",
+    "M_Furn_WoodDark",
+    "M_Arch_WindowGlassDirty",
+    "M_Road_Asphalt",
+    "M_Com4_Atlas",
+    "M_Com4_Glow",
+    "M_Road_SidewalkConcrete",
+    "M_Int_WallpaperFaded",
+    "M_Com_StorageConcrete",
+    "M_Int_FloorboardsOld",
+    "M_Com_CeilingTiles",
+    "M_Int_BasementConcrete",
+    "M_Furn_MetalBrushed",
+    "M_Furn_WoodPainted"
+   ],
+   "location": "storefront_a",
+   "priority": 3
+  },
+  {
+   "name": "COM_Storefront_A_Furnishing",
+   "glb": "04_Commercial/Storefronts/COM_Storefront_A_Furnishing.glb",
+   "category": "furnishing",
+   "triangles": 600,
+   "materials": [
+    "M_Com_MetalShelving",
+    "M_Furn_Cardboard",
+    "M_Furn_MetalBrushed",
+    "M_Com4_Atlas",
+    "M_Com4_Glass",
+    "M_Furn_WoodDark"
+   ],
+   "location": "storefront_a",
+   "pieces": 4
+  },
+  {
+   "name": "COM_Storefront_B",
+   "glb": "04_Commercial/Storefronts/COM_Storefront_B.glb",
+   "category": "building",
+   "triangles": 1806,
+   "materials": [
+    "M_Arch_BrickWeatheredBrown",
+    "M_Arch_TrimPainted",
+    "M_Town_PaintNavy",
+    "M_Furn_WoodDark",
+    "M_Arch_WindowGlassDirty",
+    "M_Road_Asphalt",
+    "M_Com4_Atlas",
+    "M_Com4_Glow",
+    "M_Road_SidewalkConcrete",
+    "M_Int_WallpaperFaded",
+    "M_Com_StorageConcrete",
+    "M_Int_FloorboardsOld",
+    "M_Com_CeilingTiles",
+    "M_Int_BasementConcrete",
+    "M_Furn_MetalBrushed",
+    "M_Furn_WoodPainted"
+   ],
+   "location": "storefront_b",
+   "priority": 3
+  },
+  {
+   "name": "COM_Storefront_B_Furnishing",
+   "glb": "04_Commercial/Storefronts/COM_Storefront_B_Furnishing.glb",
+   "category": "furnishing",
+   "triangles": 600,
+   "materials": [
+    "M_Com_MetalShelving",
+    "M_Furn_Cardboard",
+    "M_Furn_MetalBrushed",
+    "M_Com4_Atlas",
+    "M_Com4_Glass",
+    "M_Furn_WoodDark"
+   ],
+   "location": "storefront_b",
+   "pieces": 4
+  },
+  {
+   "name": "COM_Storefront_C",
+   "glb": "04_Commercial/Storefronts/COM_Storefront_C.glb",
+   "category": "building",
+   "triangles": 1886,
+   "materials": [
+    "M_Com_StorefrontConcrete",
+    "M_Arch_TrimPainted",
+    "M_Town_PaintRed",
+    "M_Furn_WoodDark",
+    "M_Arch_WindowGlassDirty",
+    "M_Road_Asphalt",
+    "M_Com4_Atlas",
+    "M_Com4_Glow",
+    "M_Road_SidewalkConcrete",
+    "M_Int_WallpaperFaded",
+    "M_Com_StorageConcrete",
+    "M_Int_FloorboardsOld",
+    "M_Com_CeilingTiles",
+    "M_Int_BasementConcrete",
+    "M_Furn_MetalBrushed",
+    "M_Furn_WoodPainted"
+   ],
+   "location": "storefront_c",
+   "priority": 3
+  },
+  {
+   "name": "COM_Storefront_C_Furnishing",
+   "glb": "04_Commercial/Storefronts/COM_Storefront_C_Furnishing.glb",
+   "category": "furnishing",
+   "triangles": 600,
+   "materials": [
+    "M_Com_MetalShelving",
+    "M_Furn_Cardboard",
+    "M_Furn_MetalBrushed",
+    "M_Com4_Atlas",
+    "M_Com4_Glass",
+    "M_Furn_WoodDark"
+   ],
+   "location": "storefront_c",
+   "pieces": 4
+  },
+  {
+   "name": "COM_Storefront_D",
+   "glb": "04_Commercial/Storefronts/COM_Storefront_D.glb",
+   "category": "building",
+   "triangles": 2026,
+   "materials": [
+    "M_Com_StorefrontBrick",
+    "M_Arch_TrimPainted",
+    "M_Town_PaintYellow",
+    "M_Furn_WoodDark",
+    "M_Arch_WindowGlassDirty",
+    "M_Road_Asphalt",
+    "M_Com4_Atlas",
+    "M_Com4_Glow",
+    "M_Road_SidewalkConcrete",
+    "M_Int_WallpaperFaded",
+    "M_Com_StorageConcrete",
+    "M_Int_FloorboardsOld",
+    "M_Com_CeilingTiles",
+    "M_Int_BasementConcrete",
+    "M_Furn_MetalBrushed",
+    "M_Furn_WoodPainted"
+   ],
+   "location": "storefront_d",
+   "priority": 3
+  },
+  {
+   "name": "COM_Storefront_D_Furnishing",
+   "glb": "04_Commercial/Storefronts/COM_Storefront_D_Furnishing.glb",
+   "category": "furnishing",
+   "triangles": 600,
+   "materials": [
+    "M_Com_MetalShelving",
+    "M_Furn_Cardboard",
+    "M_Furn_MetalBrushed",
+    "M_Com4_Atlas",
+    "M_Com4_Glass",
+    "M_Furn_WoodDark"
+   ],
+   "location": "storefront_d",
+   "pieces": 4
+  }
+ ],
+ "shared_fixtures": [
+  "COM_Gondola_Grocery_A",
+  "COM_Gondola_Grocery_B",
+  "COM_Gondola_Grocery_C",
+  "COM_Gondola_Grocery_D",
+  "COM_Gondola_Bread",
+  "COM_Gondola_Snacks",
+  "COM_Gondola_Health",
+  "COM_WallShelf_Grocery",
+  "COM_WallShelf_Health",
+  "COM_WallShelf_Mart",
+  "COM_GameWallShelf",
+  "COM_GameWallShelf_Used",
+  "COM_ConsoleWallShelf",
+  "COM_Cooler_Dairy",
+  "COM_Cooler_Frozen",
+  "COM_Cooler_Drinks",
+  "COM_Freezer_Chest",
+  "COM_Produce_Table",
+  "COM_Produce_WallCase",
+  "COM_Checkout_Lane",
+  "COM_ServiceCounter",
+  "COM_RetailCounter",
+  "COM_MartCounter",
+  "COM_PharmacyCounter",
+  "COM_CoffeeStation",
+  "COM_BasketStack",
+  "COM_CartCorral",
+  "COM_GroceryBag",
+  "COM_PalletStack",
+  "COM_PalletRack",
+  "COM_GameRack_New",
+  "COM_GameRack_Used",
+  "COM_ConsoleCase",
+  "COM_DemoStation",
+  "COM_PosterBoard",
+  "COM_FuelPump",
+  "COM_PumpIsland",
+  "COM_GasCanopy",
+  "COM_PriceSign",
+  "COM_AirPump",
+  "COM_IceChest",
+  "COM_DispensaryShelf",
+  "COM_WaitingChairs",
+  "COM_FilingCabinet",
+  "COM_RecordsShelf",
+  "COM_DocumentBoxes",
+  "COM_ReadingTable",
+  "COM_ReceptionDesk",
+  "COM_NoticeBoard"
+ ]
+}

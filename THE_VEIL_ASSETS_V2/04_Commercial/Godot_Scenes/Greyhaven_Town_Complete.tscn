@@ -1,0 +1,13 @@
+[gd_scene load_steps=3 format=3]
+
+[ext_resource type="PackedScene" path="res://THE_VEIL_ASSETS_V2/03_Residential/Residential_Scenes/Greyhaven_Town_With_Houses.tscn" id="1_Greyhaven_Town_With_Hous"]
+[ext_resource type="PackedScene" path="res://THE_VEIL_ASSETS_V2/04_Commercial/Godot_Scenes/Greyhaven_Commercial.tscn" id="2_Greyhaven_Commercial"]
+
+[node name="Greyhaven_Town_Complete" type="Node3D"]
+
+
+[node name="Town_With_Houses" parent="." instance=ExtResource("1_Greyhaven_Town_With_Hous")]
+
+
+[node name="Commercial" parent="." instance=ExtResource("2_Greyhaven_Commercial")]
+
