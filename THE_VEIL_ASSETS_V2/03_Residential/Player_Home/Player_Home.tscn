@@ -341,7 +341,7 @@ metadata/veil_interactables = [{
 "open_deg": 100
 }, {
 "node": "Furniture/CoatRack_Wall_01/RES_CoatRack_Wall/INT_Pickup_CarKeys",
-"pos": [-1.155, 2.17, 2.417],
+"pos": [-1.15, 2.268, 2.432],
 "veil_interact": "pickup",
 "item": "car_keys"
 }, {
@@ -780,7 +780,7 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.5, 0, -2)
 metadata/note = "Pack 02 journey point 2_SEDAN_ON_DRIVEWAY; -Z (forward) faces the street; driver door on -X"
 
 [node name="Pickup_CarKeys" type="Marker3D" parent="Markers"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1.155, 2.17, 2.417)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1.15, 2.268, 2.432)
 
 [node name="WakePath" type="Node3D" parent="Markers"]
 

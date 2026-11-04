@@ -598,14 +598,222 @@ func focus_shot(target: Vector3, fov_to := 28.0, t_in := 2.6, hold := 1.8, title
 		player.controls_enabled = was_controls or player.controls_enabled
 
 
-## While driving past the store front: the car eases down to ~17 km/h (driver keeps steering), the view turns and
-## zooms gently onto the supermarket and its sign, then hands control back; the car rolls on into the lot.
+## While driving past the store front: the car eases smoothly down to 5 km/h (driver keeps steering), the view turns
+## and zooms gently onto the supermarket and its sign, then hands control back; the car rolls on into the lot.
+const ARRIVAL_SPEED := 1.39          # m/s = 5 km/h
+## Approaching the store front (before the arrival shot): a speed cap that follows a gentle braking curve
+## (1.4 m/s^2) so the car is down to 5 km/h when it reaches the shot point. Only while heading towards it.
+func _arrival_ease() -> void:
+	if not in_car or not sedan.driven or Game.has_flag("arrival_shot") or _auto_parking:
+		return
+	var tr := get_node_or_null("Trigger_ArrivalShot") as Area3D
+	if tr == null:
+		return
+	var to := tr.global_position - sedan.global_position
+	to.y = 0.0
+	var d := to.length() - 6.0
+	var fwd := -sedan.global_transform.basis.z
+	if d < 60.0 and sedan.speed > 0.5 and to.normalized().dot(fwd) > 0.5:
+		sedan.speed_cap = sqrt(ARRIVAL_SPEED * ARRIVAL_SPEED + 2.0 * 1.4 * maxf(d, 0.0))
+	elif sedan.speed_cap > 0.0 and not _cine:
+		sedan.speed_cap = -1.0
+
+
 func _arrival_shot() -> void:
 	Game.set_flag("arrival_shot")
-	sedan.speed_cap = 4.8
+	sedan.speed_cap = ARRIVAL_SPEED
 	Dialogue.say("town", true)
 	await focus_shot(market.global_transform * Vector3(0.0, 4.2, -0.3), 30.0, 2.0, 1.6, "GREYHAVEN MARKET")
 	sedan.speed_cap = -1.0
+
+
+# ------------------------------------------------------------------ automatic reverse parking
+## Once the sedan rolls into the middle of the supermarket lot, the driver parks it: a scripted approach along the
+## aisle past the chosen stall (two spaces east of the entrance, store-side row), a stop, the wheel turned while
+## stationary, a reverse arc into the space, straightening, a stop at the wheel stop and the parking brake. The car is
+## driven through its own physics the whole time (pure-pursuit path tracking, no teleport). Plays once
+## (flag `auto_parked`); a blocked path or a timeout hands control back and the manual parking trigger still works.
+const PARK_LOT := "RD_ParkingLot_10x20m_003"     # the lot module in front of the entrance (local z 0 = Main St)
+const PARK_STALL_X := -3.70                      # stall centre (lot-local x): two stalls east of the entrance
+const PARK_FINAL_Z := 17.1                       # car centre at rest: rear wheels just short of the wheel stop
+const PARK_STRAIGHT := 1.5                       # straight reverse after the arc
+const PARK_R := 5.0                              # reverse arc radius (car centre), ~28 deg of steering
+var _auto_parking := false
+var park_report := {}
+
+
+func _park_lot_xf() -> Transform3D:
+	var lot := find_child(PARK_LOT, true, false) as Node3D
+	return lot.global_transform if lot else Transform3D(Basis(Vector3.UP, PI), Vector3(31, 0, -6))
+
+
+## The three legs of the manoeuvre as world-space polylines (car-centre paths).
+func park_paths() -> Dictionary:
+	var L := _park_lot_xf()
+	var zl := PARK_FINAL_Z - PARK_STRAIGHT - PARK_R        # approach lane (lot-local z)
+	var xs := PARK_STALL_X - PARK_R                         # where the car stops before reversing
+	var approach: Array[Vector3] = []
+	for k in range(0, 61):
+		approach.append(L * Vector3(lerpf(22.0, xs, k / 60.0), 0.0, zl))
+	var rev: Array[Vector3] = []
+	var c := Vector2(xs, PARK_FINAL_Z - PARK_STRAIGHT)
+	for k in range(0, 31):
+		var ph := lerpf(-PI / 2, 0.0, k / 30.0)
+		rev.append(L * Vector3(c.x + PARK_R * cos(ph), 0.0, c.y + PARK_R * sin(ph)))
+	for k in range(1, 11):
+		rev.append(L * Vector3(PARK_STALL_X, 0.0, PARK_FINAL_Z - PARK_STRAIGHT + PARK_STRAIGHT * k / 10.0))
+	return {"approach": approach, "reverse": rev, "final_fwd": L.basis * Vector3(0, 0, -1)}
+
+
+## Pure-pursuit tracker on a polyline. dir = +1 forward / -1 reverse. Returns Vector2(target speed, steer angle).
+func _pursue(path: Array[Vector3], st: Dictionary, dir: float, v_max: float, ld: float) -> Vector2:
+	var p := sedan.global_position
+	var p2 := Vector2(p.x, p.z)
+	var i: int = st["i"]
+	while i < path.size() - 1 and Vector2(path[i + 1].x, path[i + 1].z).distance_to(p2) <= Vector2(path[i].x, path[i].z).distance_to(p2):
+		i += 1
+	st["i"] = i
+	# remaining length along the path (from the closest point)
+	var rem := Vector2(path[i].x, path[i].z).distance_to(p2) if i == path.size() - 1 else 0.0
+	for j in range(i, path.size() - 1):
+		rem += Vector2(path[j].x, path[j].z).distance_to(Vector2(path[j + 1].x, path[j + 1].z))
+	# past the end (projection beyond the last point)?
+	var end := Vector2(path[-1].x, path[-1].z)
+	var prev := Vector2(path[-2].x, path[-2].z)
+	if (p2 - end).dot(end - prev) > 0.0:
+		rem = 0.0
+	st["rem"] = rem
+	var tgt := end
+	var acc := 0.0
+	for j in range(i, path.size() - 1):
+		var a := Vector2(path[j].x, path[j].z)
+		var b := Vector2(path[j + 1].x, path[j + 1].z)
+		acc += a.distance_to(b)
+		if acc >= ld:
+			tgt = b
+			break
+	if rem < ld:                                    # extend the last segment so the car keeps tracking the line
+		tgt = end + (end - prev).normalized() * (ld - rem)
+	var fwd := -sedan.global_transform.basis.z
+	var d := Vector2(fwd.x, fwd.z).normalized() * dir           # motion direction
+	var to := (tgt - p2)
+	var la := maxf(to.length(), 0.5)
+	# y-up rotation moves d towards (d.y, -d.x) in (x, z): sin(alpha) = to . that / |to|
+	var left := Vector2(d.y, -d.x)
+	var sin_a := to.normalized().dot(left)
+	if to.normalized().dot(d) < 0.0:                # target behind the motion direction: full lock that way
+		sin_a = signf(sin_a) if absf(sin_a) > 0.01 else 1.0
+	var kappa := 2.0 * sin_a / la
+	var steer_ang := atan(kappa * PlayerSedan.WHEELBASE * dir)
+	var v := minf(v_max, sqrt(maxf(2.0 * 0.7 * rem, 0.0)))
+	if rem < 0.06:
+		v = 0.0
+	return Vector2(v * dir, steer_ang)
+
+
+func _maybe_auto_park(b: Node) -> void:
+	if b != sedan or not in_car or not sedan.driven or _auto_parking or _ending:
+		return
+	if Game.has_flag("auto_parked") or Game.has_flag("parked") or not Game.has_flag("entered_car"):
+		return
+	_auto_park()
+
+
+func _auto_park() -> void:
+	_auto_parking = true
+	park_report = {"started": true}
+	var paths := park_paths()
+	var S := {"phase": "approach", "st": {"i": 0, "rem": 99.0}}      # shared with the drive lambda (by reference)
+	var t := 0.0
+	var stuck_t := 0.0
+	var last := sedan.global_position
+	var max_dev := 0.0
+	hud.set_hint("Parking...")
+	# elevated shot over the open lot (nothing between it and the stall); used only while its view of the car is clear
+	var pcam := Camera3D.new()
+	pcam.name = "ParkCam"
+	pcam.fov = 48.0
+	pcam.far = 400.0
+	add_child(pcam)
+	var lot_xf := _park_lot_xf()
+	pcam.global_position = lot_xf * Vector3(1.0, 6.5, 6.0)
+	park_report["cam_blocked_frames"] = 0
+	sedan.drive_script = func(_dt: float) -> Vector2:
+		match S["phase"]:
+			"approach":
+				return _pursue(paths["approach"], S["st"], 1.0, 3.0, 4.5)
+			"turn":                                     # steer while stationary before reversing
+				var c := _pursue(paths["reverse"], {"i": 0, "rem": 99.0}, -1.0, 0.0, 2.6)
+				return Vector2(0.0, c.y)
+			"reverse":
+				return _pursue(paths["reverse"], S["st"], -1.0, 1.3, 2.6)
+		return Vector2(0.0, 0.0)
+	var ok := true
+	while true:
+		await get_tree().physics_frame
+		if not is_instance_valid(sedan) or not in_car:
+			ok = false
+			break
+		var dt := get_physics_process_delta_time()
+		t += dt
+		var phase: String = S["phase"]
+		var st: Dictionary = S["st"]
+		if sedan.global_position.distance_to(last) < 0.002 and phase in ["approach", "reverse"] and st["rem"] > 0.2 and t > 3.0:
+			stuck_t += dt
+		else:
+			stuck_t = 0.0
+		last = sedan.global_position
+		var aim := sedan.global_position + Vector3.UP * 0.7
+		pcam.look_at(aim, Vector3.UP)
+		var clear := get_world_3d().direct_space_state.intersect_ray(
+			PhysicsRayQueryParameters3D.create(pcam.global_position, aim, 1 | 2, [sedan.get_rid(), player.get_rid()])).is_empty()
+		if clear and _cine == null:
+			pcam.current = true
+		elif not clear:
+			park_report["cam_blocked_frames"] += 1
+			sedan.driver_cam.current = true
+		if phase == "reverse":
+			var p := sedan.global_position
+			var best := 99.0
+			for q in paths["reverse"]:
+				best = minf(best, Vector2(q.x, q.z).distance_to(Vector2(p.x, p.z)))
+			max_dev = maxf(max_dev, best)
+		if stuck_t > 1.5 or t > 45.0:
+			ok = false
+			break
+		if phase == "approach" and st["rem"] < 0.06 and absf(sedan.speed) < 0.03:
+			S["phase"] = "turn"
+			S["st"] = {"i": 0, "rem": 99.0}
+			park_report["stop_err"] = Vector2(sedan.global_position.x, sedan.global_position.z).distance_to(
+				Vector2(paths["approach"][-1].x, paths["approach"][-1].z))
+		elif phase == "turn":
+			var want := _pursue(paths["reverse"], {"i": 0, "rem": 99.0}, -1.0, 0.0, 2.6).y
+			if absf(sedan.steer - clampf(want, -PlayerSedan.MAX_STEER, PlayerSedan.MAX_STEER)) < 0.03:
+				S["phase"] = "reverse"
+		elif phase == "reverse" and st["rem"] < 0.06 and absf(sedan.speed) < 0.03:
+			break
+	sedan.drive_script = Callable()
+	sedan.speed = 0.0
+	_auto_parking = false
+	hud.set_hint("")
+	if is_instance_valid(sedan) and in_car:
+		sedan.driver_cam.current = true
+	pcam.queue_free()
+	var fin := sedan.global_position
+	var endp: Vector3 = paths["reverse"][-1]
+	var f := -sedan.global_transform.basis.z
+	park_report.merge({"ok": ok, "time": t, "pos_err": Vector2(fin.x, fin.z).distance_to(Vector2(endp.x, endp.z)),
+		"yaw_err_deg": rad_to_deg(absf(Vector2(f.x, f.z).angle_to(Vector2(paths["final_fwd"].x, paths["final_fwd"].z)))),
+		"max_dev": max_dev}, true)
+	if not ok:
+		return                                     # control is back with the driver; the manual parking check remains
+	sedan.parking_brake = true
+	Sfx.play("door_close", sedan.global_position, -14.0, 0.6)     # handbrake ratchet stand-in
+	Game.set_flag("auto_parked")
+	Game.set_flag("reached_town")
+	Game.set_flag("parked")
+	Dialogue.say("parked", true, true)
+	save()
 
 
 func _end_cine() -> void:
@@ -1517,6 +1725,9 @@ func _setup_triggers() -> void:
 	var dp: Array = d["parking_center"]
 	_area("Trigger_Parking", Vector3(dp[0], dp[1] + 1.0, dp[2]), Vector3(d["trigger_size"][0], 4, d["trigger_size"][2]), 4,
 		func(_b): pass)
+	# automatic reverse parking starts in the middle of the lot (west / centre modules, the aisle between the rows)
+	var lot := _park_lot_xf()
+	_area("Trigger_AutoPark", lot * Vector3(6.5, 1.0, 10.0), Vector3(17.0, 4.0, 9.0), 4, _maybe_auto_park, lot.basis)
 
 
 var _exit_requested := false
@@ -1524,6 +1735,7 @@ var _exit_requested := false
 
 func _physics_process(delta: float) -> void:
 	_p3_tick(delta)
+	_arrival_ease()
 	if _exit_requested:
 		_exit_requested = false
 		exit_car()
@@ -1577,7 +1789,7 @@ func enter_car() -> void:
 
 
 func exit_car() -> void:
-	if not in_car or not sedan.driven:
+	if not in_car or not sedan.driven or _auto_parking:
 		return
 	if absf(sedan.speed) > 1.0:
 		print_debug("[Sedan exit] Vehicle is moving at %.2f m/s" % sedan.speed)

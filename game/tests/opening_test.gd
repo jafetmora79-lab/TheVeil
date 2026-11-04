@@ -356,9 +356,24 @@ func _run() -> void:
 			keys = world.interactables[k]
 	ok("keys_found", keys != null)
 	if keys:
+		# the keys are their own mesh hanging on the rack's last hook (not merged into the rack)
+		var key_meshes: Array = keys.target.find_children("*", "MeshInstance3D", true, false)
+		if keys.target is MeshInstance3D:
+			key_meshes.push_front(keys.target)
+		var rack := keys.target.get_parent() as Node3D
+		var hook_tip: Vector3 = rack.global_transform * Vector3(0.3, 0.03, 0.07)
+		ok("keys_own_mesh_on_hook", key_meshes.size() > 0 and keys.target.global_position.distance_to(hook_tip) < 0.03,
+			"%d meshes, %.3f m from the hook tip" % [key_meshes.size(), keys.target.global_position.distance_to(hook_tip)])
+		keys.set_focus(true)
+		ok("keys_highlight", (key_meshes[0] as GeometryInstance3D).material_overlay != null if key_meshes.size() > 0 else false)
 		keys.interact(player)
 		await frames(20)
 		ok("keys_in_inventory", game.has_item("car_keys"))
+		var shapes_off: bool = keys.get_children().all(func(c): return not (c is CollisionShape3D) or c.disabled)
+		ok("keys_hidden_after_pickup", not keys.target.visible and keys.taken and shapes_off and keys.get_prompt() == "")
+		keys.interact(player)
+		await frames(2)
+		ok("keys_not_collected_twice", game.inventory.count("car_keys") == 1)
 		ok("objective_leave", game.current_step().get("id", "") == "leave_house")
 	# ---- front door + leaving
 	var fd = world.interactables.get("home/INT_Door_Front")
@@ -446,8 +461,13 @@ func _run() -> void:
 			if stuck > 4.0:
 				print("STUCK at ", sedan.global_position, " idx ", st["idx"])
 				break
-	ok("arrival_shot_while_driving", game.has_flag("arrival_shot") and arrival_min_kmh < 22.0 and arrival_flag_before_park,
-		"slowest in front of the store %.0f km/h" % arrival_min_kmh)
+	ok("arrival_shot_while_driving", game.has_flag("arrival_shot") and arrival_min_kmh < 7.0 and arrival_min_kmh > 1.0 and arrival_flag_before_park,
+		"slowest in front of the store %.1f km/h (target 5)" % arrival_min_kmh)
+	var pr: Dictionary = world.park_report
+	ok("auto_reverse_park", game.has_flag("auto_parked") and pr.get("ok", false) and pr.get("pos_err", 9.0) < 0.35
+		and pr.get("yaw_err_deg", 99.0) < 6.0 and pr.get("max_dev", 9.0) < 0.6, str(pr))
+	ok("auto_park_camera_clear", pr.get("cam_blocked_frames", 1) == 0)
+	ok("parking_brake_on", sedan.parking_brake and absf(sedan.speed) < 0.01)
 	ok("arrival_view_restored", sedan.driver_cam.current and world._cine == null and sedan.speed_cap < 0.0)
 	ok("reached_town", game.has_flag("reached_town"))
 	ok("parked", game.has_flag("parked"), "drive_time=%.1f s, autopilot_time=%.1f s, max=%.0f km/h, cruise=%.0f km/h, route_idx=%d/%d" % [world.drive_time, t, max_kmh, cruise * 3.6, st["idx"], route.size()])

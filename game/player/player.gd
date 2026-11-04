@@ -262,6 +262,11 @@ func _update_focus() -> void:
 		var c := ray.get_collider()
 		if c and c.has_method("get_prompt"):
 			f = c
+	if f != _focus:
+		if _focus and is_instance_valid(_focus) and _focus.has_method("set_focus"):
+			_focus.set_focus(false)
+		if f and f.has_method("set_focus"):
+			f.set_focus(true)
 	_focus = f
 	_set_prompt(f.get_prompt() if f else "")
 
