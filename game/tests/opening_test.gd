@@ -177,7 +177,9 @@ func phase4_tests(game, ps: PackedScene) -> void:
 		and mk.get_node("Lights/Light_SALES_00").visible and p4._pallets["back"].position.distance_to(p4.BACK_PALLET[1]) < 0.01
 		and p4.its["fl" + "ashlight"].taken)
 	var veil: Node = world.atmos.get_node_or_null("Atmosphere") if world.atmos else null
-	ok("p4_load_keeps_veil", veil != null and int(veil.get("state")) == 3, "state=%s" % (str(veil.get("state")) if veil else "none"))
+	var vcur = veil.get("current") if veil else null
+	var vname := str(vcur.get("preset_name")) if vcur else "none"
+	ok("p4_load_keeps_veil", vcur != null and vcur.get("fog_enabled") and (vname == "NIGHT_ACTIVE" or int(veil.get("state")) == 3), vname)
 	ok("p4_old_talk_prompts_gone", not world.interactables.has("shop/eddie") and not world.interactables.has("p3/marcus"))
 	# the argument: choose Noah
 	var ed: Interactable = p4.its["npc_Eddie"]
@@ -295,9 +297,20 @@ func _run() -> void:
 			var d := fr.target as Node3D
 			return (fbody.global_transform.affine_inverse() * (d.global_transform * interaction.aabb_of(d).get_center())).z
 		var z_closed: float = door_c.call()
-		fr.interact(player)
+		# real interaction path: look at the fridge door, the prompt appears, press E
+		var f_fwd: Vector3 = (fbody.global_transform.basis * Vector3(0, 0, 1)) * Vector3(1, 0, 1)
+		ok("fridge_prompt", await aim_at(player, fr, f_fwd, 1.1) and fr.get_prompt().begins_with("[E] Open"), fr.get_prompt())
+		var lamp := fbody.get_node("Fridge_Light") as OmniLight3D
+		ok("fridge_light_off_closed", not lamp.visible)
+		press_interact()
 		await frames(40)
 		ok("fridge_opens", fr.is_open)
+		ok("fridge_light_on_open", lamp.visible)
+		# the few contents sit on the wire shelves inside the cavity (fridge-local), not inside solid geometry
+		var can := fbody.get_node("Fridge_Can") as Node3D
+		var water := fbody.get_node("Fridge_Water") as Node3D
+		var in_cavity := func(p: Vector3) -> bool: return absf(p.x) < 0.33 and p.y > 0.14 and p.y < 1.6 and p.z > -0.315 and p.z < 0.18
+		ok("fridge_items_on_shelves", in_cavity.call(can.position) and in_cavity.call(water.position) and absf(can.position.y - 0.78) < 0.01 and absf(water.position.y - 1.18) < 0.01)
 		ok("fridge_swings_outward", door_c.call() > z_closed + 0.1, "front z %.2f -> %.2f" % [z_closed, door_c.call()])
 		var swung_in := 0
 		var names := []
@@ -317,6 +330,21 @@ func _run() -> void:
 					names.append(k.get_file())
 		ok("furniture_doors_swing_outward", swung_in == 0, "inward=%d %s" % [swung_in, names])
 		ok("fridge_flag", game.has_flag("fridge_checked"))
+		# close and reopen repeatedly through E: no stuck tween, light follows the door, back to the original pose
+		var cycles_ok := true
+		for c in 3:
+			press_interact()
+			await frames(40)
+			cycles_ok = cycles_ok and not fr.is_open and not lamp.visible
+			press_interact()
+			await frames(40)
+			cycles_ok = cycles_ok and fr.is_open and lamp.visible
+		ok("fridge_open_close_cycles", cycles_ok)
+		press_interact()
+		await frames(40)
+		ok("fridge_closes_to_rest", not fr.is_open and (fr.target as Node3D).transform.is_equal_approx(fr._base))
+		press_interact()
+		await frames(40)
 		ok("objective_keys", game.current_step().get("id", "") == "find_keys", game.current_step().get("text", ""))
 		var fridge_body := home.find_child("Fridge_Retro_01", true, false) as Node3D
 		var inside := fridge_body.find_children("*", "MeshInstance3D", true, false).size()
@@ -365,6 +393,8 @@ func _run() -> void:
 	var t := 0.0
 	var max_kmh := 0.0
 	var min_clear := 99.0
+	var arrival_min_kmh := 999.0
+	var arrival_flag_before_park := false
 	sedan.autopilot = func(delta: float) -> Vector3:
 		var p: Vector3 = sedan.global_position
 		var p2 := Vector2(p.x, p.z)
@@ -402,6 +432,11 @@ func _run() -> void:
 		await physics_frame
 		t += 1.0 / 60.0
 		max_kmh = maxf(max_kmh, sedan.speed * 3.6)
+		var sf: Vector3 = world.market.to_local(sedan.global_position)
+		if game.has_flag("arrival_shot") and not game.has_flag("parked"):
+			arrival_flag_before_park = true
+			if absf(sf.z + 27.0) < 6.0 and sf.x > -16.0 and sf.x < 6.0:      # on Main St right in front of the store
+				arrival_min_kmh = minf(arrival_min_kmh, sedan.speed * 3.6)
 		if fmod(t, 1.0) < 1.0 / 60.0:
 			if sedan.global_position.distance_to(last_pos) < 0.3 and st["idx"] < route.size() - 3:
 				stuck += 1.0
@@ -411,6 +446,9 @@ func _run() -> void:
 			if stuck > 4.0:
 				print("STUCK at ", sedan.global_position, " idx ", st["idx"])
 				break
+	ok("arrival_shot_while_driving", game.has_flag("arrival_shot") and arrival_min_kmh < 22.0 and arrival_flag_before_park,
+		"slowest in front of the store %.0f km/h" % arrival_min_kmh)
+	ok("arrival_view_restored", sedan.driver_cam.current and world._cine == null and sedan.speed_cap < 0.0)
 	ok("reached_town", game.has_flag("reached_town"))
 	ok("parked", game.has_flag("parked"), "drive_time=%.1f s, autopilot_time=%.1f s, max=%.0f km/h, cruise=%.0f km/h, route_idx=%d/%d" % [world.drive_time, t, max_kmh, cruise * 3.6, st["idx"], route.size()])
 	ok("drive_over_60s", world.drive_time >= 60.0, "%.1f s" % world.drive_time)
@@ -546,16 +584,48 @@ func _run() -> void:
 	await frames(5)
 	ok("checkout_needs_items", not game.has_flag("groceries_done"))
 	var reach_fail := []
+	var mmc: Node = world.market_merch
+	var decor_its := mmc.find_children("*", "Interactable", true, false).size()
+	ok("merch_decor_not_interactive", decor_its == mmc.groups.size() and mmc.instance_count > 2000,
+		"%d products, %d multimeshes, %d interactables" % [mmc.instance_count, mmc.mmi_count, decor_its])
 	for id in ["canned_food", "energy_snack", "water_bottle"]:
 		var gi = world.interactables["market/" + id]
-		var lp: Vector3 = mk.to_local(gi.global_position)
-		var gx := -11.5 + 3.0 * roundf((lp.x + 11.5) / 3.0)
-		var outward: Vector3 = mk.global_transform.basis * Vector3(signf(lp.x - gx), 0, 0)
+		ok("grocery_glow_" + id, mmc.groups[id]["mmi"].material_overlay != null)
+		var outward: Vector3 = mk.global_transform.basis * mmc.groups[id]["normal"]
+		if id == "water_bottle":
+			# the water is behind the glass: the closed door blocks it, then "[E] Open Fridge" opens it
+			var door = null
+			for k in world.interactables:
+				if k.begins_with("market/Cooler") and (door == null or world.interactables[k].global_position.distance_to(gi.global_position) < door.global_position.distance_to(gi.global_position)):
+					door = world.interactables[k]
+			ok("cooler_blocked_when_closed", not await aim_at(player, gi, outward, 1.0))
+			ok("cooler_prompt", await aim_at(player, door, outward, 1.1) and door.get_prompt() == "[E] Open Fridge", door.get_prompt())
+			var lamp = door.get_parent().get_parent()
+			while lamp and not lamp.has_node("CoolerLight"):
+				lamp = lamp.get_parent()
+			press_interact()
+			await frames(45)
+			ok("cooler_door_opens", door.is_open and lamp.get_node("CoolerLight").visible)
+			var before: int = mmc.remaining(id)
+			if not await aim_at(player, gi, outward, 0.95):
+				reach_fail.append(id)
+			press_interact()
+			await frames(15)
+			ok("cooler_one_bottle_taken", game.has_item("water_bottle") and mmc.remaining(id) == before - 1, "%d -> %d" % [before, mmc.remaining(id)])
+			press_interact()
+			await frames(10)
+			ok("cooler_no_duplicate", mmc.remaining(id) == before - 1)
+			await aim_at(player, door, outward, 1.1)
+			press_interact()
+			await frames(45)
+			ok("cooler_door_closes", not door.is_open and not lamp.get_node("CoolerLight").visible)
+			continue
+		var before2: int = mmc.remaining(id)
 		if not await aim_at(player, gi, outward, 0.95):
 			reach_fail.append(id)
-		ok("grocery_glow_" + id, gi.target.find_children("*", "GeometryInstance3D", true, false)[0].material_overlay != null)
-		gi.interact(player)
+		press_interact()
 		await frames(15)
+		ok("take_one_" + id, game.has_item(id) and mmc.remaining(id) == before2 - 1, "%d -> %d" % [before2, mmc.remaining(id)])
 	ok("groceries_reachable", reach_fail.is_empty(), str(reach_fail))
 	ok("groceries_picked", game.has_item("canned_food") and game.has_item("water_bottle") and game.has_item("energy_snack"))
 	pay.interact(player)

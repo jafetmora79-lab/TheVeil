@@ -86,6 +86,10 @@ _subresources={
 "M_Res_Porcelain": {
 "use_external/enabled": true,
 "use_external/path": "res://THE_VEIL_ASSETS_V2/03_Residential/Materials/M_Res_Porcelain.tres"
+},
+"M_Res_EnamelHarvest": {
+"use_external/enabled": true,
+"use_external/path": "res://THE_VEIL_ASSETS_V2/03_Residential/Materials/M_Res_EnamelHarvest.tres"
 }
 }
 }

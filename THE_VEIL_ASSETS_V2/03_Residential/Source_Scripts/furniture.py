@@ -435,22 +435,81 @@ def coat_rack():
 # KITCHEN
 # ============================================================================
 def fridge(name="RES_Fridge_Retro", mat=None, w=0.76, d=0.72, h=1.7, top_freezer=False):
+    """Retro fridge with a real, mostly empty inside (the opening story needs an almost empty fridge).
+    The rounded enamel body keeps its look; its flat front face is removed and replaced by a front rim around the
+    opening, a white liner (back / sides / top / floor), two wire shelves, a crisper drawer and a light housing.
+    The door gets an inner liner, a rubber gasket and three door bins. Food is kept to a mustard bottle and a box of
+    baking soda (the game adds one dented can and a bottle of water)."""
     mat = mat or mr("EnamelHarvest")
+    liner = PORC
     mb = MB()
-    rbox(mb, mat, (-w / 2, 0.04, -d / 2), (w / 2, h, d / 2 - 0.06), r=0.08)
-    mb.box(RUBBER, (-w / 2 + 0.05, 0.0, -d / 2 + 0.05), (w / 2 - 0.05, 0.04, d / 2 - 0.1))
+    zf = d / 2 - 0.06                                   # front plane of the body (the door closes against it)
+    body = MB()
+    rbox(body, mat, (-w / 2, 0.04, -d / 2), (w / 2, h, zf), r=0.08)
+    _drop_front_faces(body, zf)
+    mb.merge(body)
+    t = 0.045                                           # insulated wall
+    ix0, ix1, iy0, iy1, iz0 = -w / 2 + t, w / 2 - t, 0.04 + 0.1, h - 0.1, -d / 2 + t
+    # front rim around the opening (enamel), closing the body where the flat front face was
+    fy0, fy1 = 0.04 + 0.08, h - 0.08                     # where the rounded profile meets the flat front
+    for (a0, b0), (a1, b1) in (((-w / 2, fy0), (w / 2, iy0)), ((-w / 2, iy1), (w / 2, fy1)),
+                               ((-w / 2, iy0), (ix0, iy1)), ((ix1, iy0), (w / 2, iy1))):
+        mb.quad(mat, [a0, b0, zf], [a1, b0, zf], [a1, b1, zf], [a0, b1, zf], n=(0, 0, 1))
+    # liner: inward-facing walls of the cavity
+    for a, b, c, d_, n in (([ix0, iy0, iz0], [ix0, iy1, iz0], [ix0, iy1, zf], [ix0, iy0, zf], (1, 0, 0)),
+                           ([ix1, iy0, iz0], [ix1, iy0, zf], [ix1, iy1, zf], [ix1, iy1, iz0], (-1, 0, 0)),
+                           ([ix0, iy0, iz0], [ix0, iy0, zf], [ix1, iy0, zf], [ix1, iy0, iz0], (0, 1, 0)),
+                           ([ix0, iy1, iz0], [ix1, iy1, iz0], [ix1, iy1, zf], [ix0, iy1, zf], (0, -1, 0)),
+                           ([ix0, iy0, iz0], [ix1, iy0, iz0], [ix1, iy1, iz0], [ix0, iy1, iz0], (0, 0, 1))):
+        mb.quad(liner, a, b, c, d_, n=n)
+    # two wire shelves (stop short of the door bins), shelf rails on the side walls
+    zs = zf - 0.12
+    for y in (0.78, 1.18):
+        mb.box(METAL, (ix0 + 0.005, y - 0.012, iz0 + 0.01), (ix1 - 0.005, y, zs), skip=())
+        for sx in (ix0, ix1 - 0.012):
+            mb.box(liner, (sx, y - 0.03, iz0), (sx + 0.012, y - 0.012, zs), skip=())
+    # crisper drawer (open top) on the floor, light housing under the ceiling
+    hollow(mb, PLASTIC, (ix0 + 0.01, iy0, iz0 + 0.01), (ix1 - 0.01, iy0 + 0.2, zs - 0.02), skip=("+y",), t=0.012)
+    mb.box(METAL, (ix0 + 0.01, iy0 + 0.2, zs - 0.03), (ix1 - 0.01, iy0 + 0.23, zs - 0.01), skip=())
+    mb.box(liner, (-0.09, iy1 - 0.05, iz0), (0.09, iy1, iz0 + 0.12), skip=("+y",))
+    # baking soda box at the back of the top shelf
+    mb.box(CARD, (ix1 - 0.16, 1.18, iz0 + 0.03), (ix1 - 0.06, 1.30, iz0 + 0.1), skip=("-y",))
     nodes = []
     if top_freezer:
-        nodes.append(_appl_door("INT_ApplianceDoor_Freezer", -w / 2, h * 0.72, w, h * 0.27, d / 2 - 0.06, mat))
-        nodes.append(_appl_door("INT_ApplianceDoor_Fridge", -w / 2, 0.06, w, h * 0.65, d / 2 - 0.06, mat, notes=True))
+        nodes.append(_appl_door("INT_ApplianceDoor_Freezer", -w / 2, h * 0.72, w, h * 0.27, zf, mat))
+        nodes.append(_appl_door("INT_ApplianceDoor_Fridge", -w / 2, 0.06, w, h * 0.65, zf, mat, notes=True, bins=True))
     else:
-        nodes.append(_appl_door("INT_ApplianceDoor_Fridge", -w / 2, 0.06, w, h - 0.1, d / 2 - 0.06, mat, notes=True, round_top=True))
+        nodes.append(_appl_door("INT_ApplianceDoor_Fridge", -w / 2, 0.06, w, h - 0.1, zf, mat, notes=True, round_top=True, bins=True))
     return fmodel(name, "kitchen", mb, (w, d, h), cols=[((-w / 2, 0, -d / 2), (w / 2, h, d / 2))], nodes=nodes, wall=True, clear_front=0.9)
 
 
-def _appl_door(name, x0, y0, w, h, z, mat, notes=False, round_top=False):
+def _drop_front_faces(mb, z, eps=1e-4):
+    """Remove the flat, front-facing (+z) triangles lying in the plane z (opens a rounded body's front)."""
+    for g in mb.parts.values():
+        keep = []
+        for k in range(0, len(g["i"]), 3):
+            tri = g["i"][k:k + 3]
+            if all(abs(g["p"][v][2] - z) < eps for v in tri) and all(g["n"][v][2] > 0.99 for v in tri):
+                continue
+            keep.extend(tri)
+        g["i"] = keep
+
+
+def _appl_door(name, x0, y0, w, h, z, mat, notes=False, round_top=False, bins=False):
     mb = MB()
     rbox(mb, mat, (0, 0, 0), (w, h, 0.06), r=0.05 if round_top else 0.02, axis="z")
+    if bins:
+        # inner side of the door: liner panel, rubber gasket, three shallow bins (a mustard bottle in the middle one)
+        g = 0.03
+        mb.quad(PORC, [g + 0.02, 0.05, -0.002], [w - g - 0.02, 0.05, -0.002], [w - g - 0.02, h - 0.05, -0.002],
+                [g + 0.02, h - 0.05, -0.002], n=(0, 0, -1))
+        for (a0, b0), (a1, b1) in (((g, 0.03), (w - g, 0.05)), ((g, h - 0.05), (w - g, h - 0.03)),
+                                   ((g, 0.05), (g + 0.02, h - 0.05)), ((w - g - 0.02, 0.05), (w - g, h - 0.05))):
+            mb.quad(RUBBER, [a0, b0, -0.003], [a1, b0, -0.003], [a1, b1, -0.003], [a0, b1, -0.003], n=(0, 0, -1))
+        for yb in (h * 0.22, h * 0.48, h * 0.74):
+            hollow(mb, PORC, (0.08, yb, -0.085), (w - 0.08, yb + 0.1, -0.002), skip=("+y",), t=0.008)
+        mb.cyl(mr("EnamelHarvest"), (0.22, h * 0.48 + 0.008, -0.045), 0.024, 0.15, seg=6, caps=("top",))
+        mb.cyl(PLASTIC, (0.22, h * 0.48 + 0.158, -0.045), 0.012, 0.03, seg=5, caps=("top",))
     mb.box(METAL, (w - 0.08, h * 0.45, 0.06), (w - 0.05, h * 0.75, 0.1))
     if notes:
         face_quad(mb, DET, drect("fridge_notes"), 0.12, h * 0.45, 0.46, h * 0.8, 0.062)

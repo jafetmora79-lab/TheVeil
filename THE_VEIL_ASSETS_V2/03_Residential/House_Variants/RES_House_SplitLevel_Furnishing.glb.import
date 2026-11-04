@@ -71,9 +71,25 @@ _subresources={
 "use_external/enabled": true,
 "use_external/path": "res://THE_VEIL_ASSETS_V2/02_Town/Materials/M_Town_PaintWhite.tres"
 },
+"M_Res_Porcelain": {
+"use_external/enabled": true,
+"use_external/path": "res://THE_VEIL_ASSETS_V2/03_Residential/Materials/M_Res_Porcelain.tres"
+},
+"M_Furn_PlasticDirty": {
+"use_external/enabled": true,
+"use_external/path": "res://THE_VEIL_ASSETS_V2/Materials_Godot/Furniture/M_Furn_PlasticDirty.tres"
+},
+"M_Furn_Cardboard": {
+"use_external/enabled": true,
+"use_external/path": "res://THE_VEIL_ASSETS_V2/Materials_Godot/Furniture/M_Furn_Cardboard.tres"
+},
 "M_Furn_Rubber": {
 "use_external/enabled": true,
 "use_external/path": "res://THE_VEIL_ASSETS_V2/Materials_Godot/Furniture/M_Furn_Rubber.tres"
+},
+"M_Res_EnamelHarvest": {
+"use_external/enabled": true,
+"use_external/path": "res://THE_VEIL_ASSETS_V2/03_Residential/Materials/M_Res_EnamelHarvest.tres"
 },
 "M_Furn_WoodPainted": {
 "use_external/enabled": true,
@@ -82,10 +98,6 @@ _subresources={
 "M_Res_Formica": {
 "use_external/enabled": true,
 "use_external/path": "res://THE_VEIL_ASSETS_V2/03_Residential/Materials/M_Res_Formica.tres"
-},
-"M_Furn_PlasticDirty": {
-"use_external/enabled": true,
-"use_external/path": "res://THE_VEIL_ASSETS_V2/Materials_Godot/Furniture/M_Furn_PlasticDirty.tres"
 },
 "M_Arch_WindowGlassDirty": {
 "use_external/enabled": true,
@@ -102,10 +114,6 @@ _subresources={
 "M_Com_SignageBacking": {
 "use_external/enabled": true,
 "use_external/path": "res://THE_VEIL_ASSETS_V2/Materials_Godot/Commercial/M_Com_SignageBacking.tres"
-},
-"M_Furn_Cardboard": {
-"use_external/enabled": true,
-"use_external/path": "res://THE_VEIL_ASSETS_V2/Materials_Godot/Furniture/M_Furn_Cardboard.tres"
 },
 "M_Res_Pegboard": {
 "use_external/enabled": true,
@@ -126,10 +134,6 @@ _subresources={
 "M_Res_Quilt": {
 "use_external/enabled": true,
 "use_external/path": "res://THE_VEIL_ASSETS_V2/03_Residential/Materials/M_Res_Quilt.tres"
-},
-"M_Res_Porcelain": {
-"use_external/enabled": true,
-"use_external/path": "res://THE_VEIL_ASSETS_V2/03_Residential/Materials/M_Res_Porcelain.tres"
 },
 "M_Res_Gingham": {
 "use_external/enabled": true,

@@ -27,12 +27,14 @@ const COLOSSUS_PATH := "res://THE_VEIL_ASSETS_V2/07_Creatures/Godot_Scenes/CRT_C
 const TENTACLE_PATH := "res://THE_VEIL_ASSETS_V2/07_Creatures/Godot_Scenes/CRT_MistTentacle_Medium.tscn"
 const GLOW_SHADER := preload("res://game/world/veil_highlight.gdshader")
 const NPC_ANIM := preload("res://game/npc/npc_animator.gd")
-## supermarket-local shelf spots (Pack 04 com_plans.py: gondolas at x = -11.5 + 3k, z = 10, stock faces +-x)
+const MERCH_SCRIPT := preload("res://game/world/store_merch.gd")
+## the shopping list: item -> where to find it (pick groups in Pack 04 Merchandise/MERCH_LAYOUT.json)
 const GROCERIES := {
-	"canned_food": [CAN, "Canned Soup", Vector3(-8.97, 0.52, 9.4), "Soup (aisle 1)"],
-	"energy_snack": [SNACK, "Snack Bar", Vector3(-5.97, 0.92, 10.6), "Snack bar (aisle 2)"],
-	"water_bottle": [WATER, "Water Bottle", Vector3(-2.03, 0.92, 10.2), "Water (aisle 4)"],
+	"canned_food": "Soup (aisle 1)",
+	"energy_snack": "Snack bar (candy rack, lane 4)",
+	"water_bottle": "Water (drinks cooler, back wall)",
 }
+const EXTRAS := ["cola_bottle", "chocolate_bar"]       ## optional extras, paid at the same checkout
 
 const OBSERVE := {
 	"AlarmClock_01": ["Alarm Clock", "obs_alarm"], "WallCalendar_01": ["Calendar", "obs_calendar"],
@@ -75,6 +77,7 @@ func _ready() -> void:
 	_setup_town()
 	_setup_triggers()
 	_apply_view_ranges()
+	_setup_night()
 	Game.flag_set.connect(_on_flag)
 	Sfx.start_ambience()
 	print("[World] ready: houses=%d interactables=%d" % [get_node("Residential/Houses").get_child_count(), interactables.size()])
@@ -240,19 +243,48 @@ func _outward_deg(door: Node3D, deg: float, axis: Vector3) -> float:
 	return best
 
 
+## The fridge is almost empty on purpose (opening beat "Nothing to eat"): one dented can on the lower wire shelf and
+## a bottle of water on the upper one. The model itself adds a mustard bottle in a door bin and a box of baking soda.
+## Shelf tops are at y 0.78 / 1.18 in the Pack 03 RES_Fridge_Retro model (furniture.py fridge()).
 func _stock_fridge() -> void:
 	var fridge := home.find_child("Fridge_Retro_01", true, false) as Node3D
 	if fridge == null:
 		return
-	var box := Interactable.aabb_of(fridge)
-	var c := box.get_center()
-	var shelf := box.position.y + box.size.y * 0.47
 	var can := CAN.instantiate() as Node3D
-	can.position = Vector3(c.x - box.size.x * 0.16, shelf, c.z + box.size.z * 0.05)
+	can.name = "Fridge_Can"
+	can.position = Vector3(-0.13, 0.781, -0.08)
+	can.rotation.y = 0.5
 	fridge.add_child(can)
 	var water := WATER.instantiate() as Node3D
-	water.position = Vector3(c.x + box.size.x * 0.18, box.position.y + box.size.y * 0.18, c.z + box.size.z * 0.05)
+	water.name = "Fridge_Water"
+	water.position = Vector3(0.11, 1.181, -0.12)
 	fridge.add_child(water)
+	# interior light: on while the door is open (OmniLight works in the Compatibility renderer)
+	var lamp := OmniLight3D.new()
+	lamp.name = "Fridge_Light"
+	lamp.position = Vector3(0.0, 1.45, -0.05)
+	lamp.light_color = Color(1.0, 0.95, 0.85)
+	lamp.light_energy = 0.7
+	lamp.omni_range = 0.95
+	lamp.shadow_enabled = false
+	lamp.visible = interactables.values().any(func(i): return i.label == "Refrigerator" and i.is_open)
+	fridge.add_child(lamp)
+	# the door's own interaction box swings away with the door: a proxy over the opening lets the player close it
+	# while looking into the open fridge (it forwards to the door and mirrors its prompt)
+	var fr_it: Interactable = interactables.values().filter(func(i): return i.label == "Refrigerator")[0]
+	var opening := Node3D.new()
+	opening.name = "Fridge_Opening"
+	fridge.add_child(opening)
+	var px := Interactable.attach(opening, {"kind": "custom", "label": "Fridge opening", "prompt_text": fr_it.get_prompt()})
+	var cs := px.get_child(0) as CollisionShape3D
+	(cs.shape as BoxShape3D).size = Vector3(0.66, 1.46, 0.1)
+	cs.position = Vector3(0.0, 0.87, 0.42)          # just in front of the body's collision hull (front at z 0.36)
+	cs.disabled = not fr_it.is_open                 # closed: the door's own box answers
+	px.used.connect(func(by): fr_it.interact(by))
+	fr_it.used.connect(func(_b):
+		px.prompt_text = fr_it.get_prompt()
+		cs.set_deferred("disabled", not fr_it.is_open))
+	interactables["home/fridge_opening"] = px
 
 
 var _hum: AudioStreamPlayer3D
@@ -261,6 +293,9 @@ var _hum: AudioStreamPlayer3D
 func _on_fridge(_by: Node) -> void:
 	var fridge := home.find_child("Fridge_Retro_01", true, false) as Node3D
 	var fr_it: Interactable = interactables.values().filter(func(i): return i.label == "Refrigerator")[0]
+	var lamp := fridge.get_node_or_null("Fridge_Light") as OmniLight3D
+	if lamp:
+		lamp.visible = fr_it.is_open
 	if fr_it.is_open and _hum == null:
 		_hum = Sfx.loop_at(fridge, "fridge_hum", -14.0)
 	elif not fr_it.is_open and _hum:
@@ -305,19 +340,13 @@ func _setup_town() -> void:
 		_in_market = false
 		if not Game.has_flag("p3_mist"):
 			hud.set_hint(""))
-	# three groceries on the gondola shelves
+	# stocked shelves: separate product meshes (MultiMesh), only the pick groups are interactive
+	market_merch = _merch(market, "supermarket", "market")
+	market_merch.taken.connect(func(_g, _i): _grocery_hint())
 	for id in GROCERIES:
-		var g: Array = GROCERIES[id]
-		var m := (g[0] as PackedScene).instantiate() as Node3D
-		m.name = "Grocery_" + id
-		m.position = g[2]
-		m.rotation.y = PI * 0.5 if g[2].x < (-11.5 + 3.0 * roundf((g[2].x + 11.5) / 3.0)) else -PI * 0.5
-		market.add_child(m)
-		var it := Interactable.attach(m, {"kind": "pickup", "label": g[1], "item_id": id, "state_key": "market/" + id})
-		if not it.taken:
-			_glow(m, true)
-		it.used.connect(func(_b): _grocery_hint())
-		interactables["market/" + id] = it
+		if not Game.has_item(id) and not Game.has_flag("groceries_done"):
+			market_merch.set_glow(id, _glow_mat())
+	_setup_coolers()
 	# checkout: lane 4. The cashier is a generic placeholder (no cashier is named in the bible).
 	# the cashier stands on the staff side of lane 4 (lane-local (1.0, 0, -0.75)), facing the customer aisle (+x)
 	cashier = _spawn_npc(CASHIER, CASHIER_FACE, market, Vector3(-4.25, 0.04, 4.0), -PI * 0.5, "Cashier")
@@ -334,15 +363,12 @@ func _setup_town() -> void:
 		interactables["shop/entrance"] = d_it
 	_area("Trigger_ShopInside", game_shop.global_transform * Vector3(0, 1.2, 3.0), Vector3(9, 2.4, 3), 2,
 		func(b): if b == player: Dialogue.say("shop_enter", true), game_shop.global_transform.basis)
-	var rack := Node3D.new()
-	rack.name = "NewReleasePick"
-	game_shop.add_child(rack)
-	var browse := game_shop.get_node_or_null("Interaction/Browse_1") as Node3D
-	rack.position = browse.position if browse else Vector3(-0.75, 1.04, 3.0)
-	var pick := Interactable.attach(rack, {"kind": "pickup", "label": "Horror Game", "item_id": "horror_game",
-		"dialogue_id": "game_pick", "state_key": "shop/horror_game"})
-	pick.target = null           # the copy comes off a full rack: nothing to hide
-	interactables["shop/horror_game"] = pick
+	shop_merch = _merch(game_shop, "video_game_store", "shop")
+	shop_merch.taken.connect(func(g, _i): if g == "horror_game":
+		Dialogue.say("game_pick", false, true)
+		shop_merch.set_glow("horror_game", null))
+	if not Game.has_item("horror_game") and not Game.has_flag("game_bought"):
+		shop_merch.set_glow("horror_game", _glow_mat(Color(1.0, 0.35, 0.3)))
 	var behind := game_shop.get_node_or_null("NavTargets/BehindCounter") as Node3D
 	eddie = _spawn_npc(EDDIE, EDDIE_FACE, game_shop, Vector3(behind.position.x, 0.04, behind.position.z) if behind else Vector3(2.8, 0.04, 7.5), 0.0, "Eddie")
 	eddie_face = faces["Eddie"]
@@ -499,6 +525,16 @@ func focus_shot(target: Vector3, fov_to := 28.0, t_in := 2.6, hold := 1.8, title
 		player.controls_enabled = was_controls or player.controls_enabled
 
 
+## While driving past the store front: the car eases down to ~17 km/h (driver keeps steering), the view turns and
+## zooms gently onto the supermarket and its sign, then hands control back; the car rolls on into the lot.
+func _arrival_shot() -> void:
+	Game.set_flag("arrival_shot")
+	sedan.speed_cap = 4.8
+	Dialogue.say("town", true)
+	await focus_shot(market.global_transform * Vector3(0.0, 4.2, -0.3), 30.0, 2.0, 1.6, "GREYHAVEN MARKET")
+	sedan.speed_cap = -1.0
+
+
 func _end_cine() -> void:
 	_cine_id += 1                           # any focus_shot still awaiting sees this and stops
 	if _cine_tw and _cine_tw.is_valid():
@@ -547,6 +583,60 @@ func _toward_deg(door: Node3D, deg: float, toward: Vector3) -> float:
 	return best
 
 
+var market_merch: Node
+var shop_merch: Node
+
+
+## Products for one store; pick-group interactables are registered as "<prefix>/<group id>".
+func _merch(store: Node3D, key: String, prefix: String) -> Node:
+	var m: Node3D = MERCH_SCRIPT.new()
+	m.name = "Merchandise"
+	store.add_child(m)
+	m.build(key)
+	for gid in m.groups:
+		interactables[prefix + "/" + gid] = m.groups[gid]["it"]
+	m.taken.connect(func(g, _i): m.set_glow(g, null))
+	return m
+
+
+func _glow_mat(col := Color(1.0, 0.78, 0.32)) -> ShaderMaterial:
+	var mat := ShaderMaterial.new()
+	mat.shader = GLOW_SHADER
+	mat.set_shader_parameter("glow_color", col)
+	return mat
+
+
+## Glass-door drinks coolers (Pack 04 COM_Cooler_Beverage, instanced under Props): every door is a hinge
+## ("[E] Open Fridge"), swinging outward; a cold interior light comes on while any door of that cooler is open.
+func _setup_coolers() -> void:
+	var props := market.get_node_or_null("Props")
+	if props == null:
+		return
+	for cool in props.get_children():
+		if not String(cool.name).begins_with("Cooler_Beverage"):
+			continue
+		var lamp := OmniLight3D.new()
+		lamp.name = "CoolerLight"
+		lamp.light_color = Color(0.85, 0.95, 1.0)
+		lamp.light_energy = 0.9
+		lamp.omni_range = 2.2
+		lamp.shadow_enabled = false
+		lamp.position = Vector3(0, 1.55, 0.05)
+		lamp.visible = false
+		cool.add_child(lamp)
+		var doors: Array = []
+		for d in cool.find_children("INT_CoolerDoor_*", "Node3D", true, false):
+			var key := "market/%s/%s" % [cool.name, d.name]
+			var it := Interactable.attach(d, {"kind": "hinge", "label": "Fridge", "state_key": key, "open_deg": 100.0, "anim_time": 0.5})
+			var front := (cool as Node3D).global_transform * Vector3(0, 1.0, 1.6)
+			it.open_deg = _toward_deg(d, 100.0, front)
+			doors.append(it)
+			interactables[key] = it
+		for it in doors:
+			it.used.connect(func(_b): lamp.visible = doors.any(func(x): return x.is_open))
+		lamp.visible = doors.any(func(x): return x.is_open)
+
+
 func _grocery_hint() -> void:
 	if Game.has_flag("groceries_done"):
 		return
@@ -555,7 +645,7 @@ func _grocery_hint() -> void:
 	for id in GROCERIES:
 		var got := Game.has_item(id)
 		n += int(got)
-		parts.append(("[x] " if got else "[  ] ") + GROCERIES[id][3])
+		parts.append(("[x] " if got else "[  ] ") + GROCERIES[id])
 	var tail := "  -  then pay the cashier at lane 4, by the doors" if n == 3 else "  -  look for the glowing items"
 	if n == 3 and cashier:
 		_glow(cashier, true, Color(0.55, 0.9, 0.6))
@@ -569,7 +659,7 @@ func _checkout(_by: Node) -> void:
 	if not need.all(func(i): return Game.has_item(i)):
 		Dialogue.say("market_need_items", false, true)
 		return
-	for i in need:
+	for i in need + EXTRAS:
 		Game.remove_item(i)
 	Game.add_item("groceries")
 	Sfx.play("pickup", market.global_transform * Vector3(-4.1, 1.1, 4.0))
@@ -669,14 +759,13 @@ func _p3_start_mist() -> void:
 	for k in animators:
 		animators[k].set_mood("scared")
 	var a := _atmo()
-	a.set_state(0, true)                       # NORMAL, then roll in
-	a.set_state(2)                             # VEIL_APPROACHING (tweens over the preset transition time)
+	a.apply_preset(night_preset("approach"))    # the Veil rolls into the night (tweens over the transition time)
 	Sfx.play("veil_rumble", player.global_position + Vector3(0, 2, 0), -2.0)
 	Dialogue.say("p3_fog", false, true)
 	await get_tree().create_timer(6.0).timeout
 	_p3_colossus()
 	await get_tree().create_timer(8.0).timeout
-	_atmo().set_state(3)                       # VEIL_ACTIVE
+	_atmo().apply_preset(night_preset("active"))
 	_p3_spawn_tentacles()
 
 
@@ -869,7 +958,7 @@ func _p3_restore() -> void:
 		cashier.visible = false
 		interactables["market/cashier"].set_deferred("monitorable", false)
 	_clear_beacon("market")
-	_atmo().set_state(3, true)
+	_atmo().apply_preset(night_preset("active"), true)
 	if not Game.has_flag("p3_doors_shut"):
 		_p3_spawn_tentacles()
 	if Game.has_flag("phase2_done"):
@@ -882,6 +971,154 @@ func _p3_restore() -> void:
 		_set_auto_doors(true)
 		_doors_powered = false
 		shut_it.prompt_text = "[E] Pull the Doors Shut"
+
+# ------------------------------------------------------------------ night (Friday ~7 PM, dark)
+const PRESET_SCRIPT := "res://THE_VEIL_ASSETS_V2/09_Horror_Atmosphere/Atmosphere_Presets/veil_atmosphere_preset.gd"
+var headlights: Array = []
+
+
+## Game-side presets for the Pack 09 atmosphere controller (the pack's own presets stay untouched):
+##   night    - ordinary small town at night: dark navy sky, dim cool ambient, lamps carry the light
+##   approach - the Veil rolling in: dark grey-green haze, low mist sheets
+##   active   - the Veil: dense, DARK depth fog (distant shapes sink into darkness instead of turning flat
+##              light grey), thick ground layer, mist sheets; nearby things stay readable under the lamps
+func night_preset(kind: String) -> Resource:
+	var p: Resource = (load(PRESET_SCRIPT) as Script).new()
+	p.set("preset_name", "NIGHT_" + kind.to_upper())
+	p.set("sky_top", Color(0.012, 0.016, 0.04))
+	p.set("sky_horizon", Color(0.06, 0.065, 0.1))
+	p.set("ground_horizon", Color(0.035, 0.035, 0.045))
+	p.set("ground_bottom", Color(0.01, 0.01, 0.012))
+	p.set("ambient_color", Color(0.17, 0.19, 0.27))
+	p.set("ambient_energy", 0.42)
+	p.set("sun_color", Color(0.55, 0.62, 0.85))
+	p.set("sun_energy", 0.16)
+	p.set("sun_pitch", -38.0)
+	p.set("sun_yaw", 200.0)
+	p.set("sun_shadows", true)
+	p.set("shadow_distance", 40.0)
+	p.set("fog_color", Color(0.035, 0.04, 0.065))
+	p.set("fog_density", 0.006)
+	p.set("fog_sky_affect", 0.5)
+	p.set("streetlight_energy", 1.0)
+	match kind:
+		"approach":
+			p.set("ambient_color", Color(0.15, 0.17, 0.2))
+			p.set("fog_color", Color(0.06, 0.07, 0.075))
+			p.set("fog_density", 0.022)
+			p.set("fog_height", 2.0)
+			p.set("fog_height_density", 0.03)
+			p.set("fog_sky_affect", 0.85)
+			p.set("mist_enabled", true)
+			p.set("mist_color", Color(0.26, 0.29, 0.29))
+			p.set("mist_density", 0.35)
+			p.set("mist_height", 1.8)
+			p.set("mist_cards", 12)
+			p.set("flicker_amount", 0.3)
+			p.set("sun_energy", 0.1)
+		"active":
+			p.set("sky_top", Color(0.03, 0.035, 0.04))
+			p.set("sky_horizon", Color(0.07, 0.08, 0.08))
+			p.set("ambient_color", Color(0.14, 0.16, 0.19))
+			p.set("ambient_energy", 0.46)
+			p.set("fog_color", Color(0.075, 0.085, 0.09))
+			p.set("fog_density", 0.05)
+			p.set("fog_height", 3.0)
+			p.set("fog_height_density", 0.06)
+			p.set("fog_sky_affect", 1.0)
+			p.set("mist_enabled", true)
+			p.set("mist_color", Color(0.3, 0.33, 0.33))
+			p.set("mist_density", 0.75)
+			p.set("mist_height", 2.4)
+			p.set("mist_cards", 24)
+			p.set("flicker_amount", 0.6)
+			p.set("streetlight_energy", 0.8)
+			p.set("sun_energy", 0.06)
+			p.set("sun_shadows", false)
+			p.set("corruption_level", 2)
+	return p
+
+
+func _setup_night() -> void:
+	# 1) a lamp on every street-lamp post (a few posts had no light); offset learned from posts that have one
+	var lamps: Array = []
+	var lights: Array = []
+	for part in ["Core", "Extension"]:
+		for n in get_node(part).find_children("SP_Lamp_*", "Node3D", true, false):
+			if String(n.name).begins_with("SP_Lamp_Residential") or String(n.name).begins_with("SP_Lamp_Commercial"):
+				if n.get_parent() and not String(n.get_parent().name).begins_with("SP_Lamp_"):
+					lamps.append(n)
+		for l in get_node(part).find_children("StreetLight_*", "OmniLight3D", true, false):
+			lights.append(l)
+	var offs := {}
+	for l in lights:
+		var best: Node3D = null
+		var bd := 3.5
+		for lp in lamps:
+			var d := Vector2(lp.global_position.x - l.global_position.x, lp.global_position.z - l.global_position.z).length()
+			if d < bd:
+				bd = d
+				best = lp
+		if best:
+			offs[String(best.name).get_slice("_0", 0)] = best.global_transform.affine_inverse() * l.global_position
+	var added := 0
+	for lp in lamps:
+		var has := lights.any(func(l): return Vector2(lp.global_position.x - l.global_position.x, lp.global_position.z - l.global_position.z).length() < 3.5)
+		if has:
+			continue
+		var off: Vector3 = offs.get(String(lp.name).get_slice("_0", 0), Vector3(0, 5.75, 0))
+		var nl := OmniLight3D.new()
+		nl.name = "StreetLight_auto_%d" % added
+		nl.light_color = Color(1, 0.8, 0.55)
+		add_child(nl)
+		nl.global_position = lp.global_transform * off
+		lights.append(nl)
+		added += 1
+	# 2) lamps carry the night: brighter pools on the road, faded out with distance (cheap on the GL renderer)
+	for l in lights:
+		var ol := l as OmniLight3D
+		ol.light_energy = 2.1
+		ol.omni_range = 15.0
+		ol.omni_attenuation = 1.15
+		ol.shadow_enabled = false
+		ol.distance_fade_enabled = true
+		ol.distance_fade_begin = 75.0
+		ol.distance_fade_length = 25.0
+		ol.add_to_group("veil_streetlight")
+	# 3) storefront / canopy lights a little stronger; interior lights already show through the windows
+	for part in ["Commercial"]:
+		for l in get_node(part).find_children("ExtLight_*", "OmniLight3D", true, false):
+			(l as OmniLight3D).light_energy = 1.5
+			(l as OmniLight3D).omni_range = 9.0
+	# 4) sedan headlights + tail lights
+	var box := Interactable.aabb_of(sedan)
+	var zf := box.position.z if box.size.length() > 0.5 else -2.2
+	var zb := box.end.z if box.size.length() > 0.5 else 2.2
+	for sx in [-1.0, 1.0]:
+		var h := SpotLight3D.new()
+		h.name = "Headlight_%s" % ("L" if sx < 0 else "R")
+		h.light_color = Color(1.0, 0.93, 0.78)
+		h.light_energy = 3.2
+		h.spot_range = 42.0
+		h.spot_angle = 27.0
+		h.spot_attenuation = 0.9
+		h.spot_angle_attenuation = 1.6
+		h.shadow_enabled = false
+		h.position = Vector3(sx * 0.58, 0.68, zf + 0.05)
+		h.rotation.x = deg_to_rad(-4.0)
+		sedan.add_child(h)
+		headlights.append(h)
+		var t := OmniLight3D.new()
+		t.name = "TailLight_%s" % ("L" if sx < 0 else "R")
+		t.light_color = Color(1.0, 0.12, 0.08)
+		t.light_energy = 0.5
+		t.omni_range = 1.8
+		t.position = Vector3(sx * 0.6, 0.75, zb + 0.08)
+		sedan.add_child(t)
+	# 5) the night sky / ambient / fog through the Pack 09 controller (it takes over the Core environment)
+	_atmo().apply_preset(night_preset("night"), true)
+	print("[World] night: %d street lights (%d added)" % [lights.size(), added])
+
 
 # ------------------------------------------------------------------ triggers
 func _area(n: String, pos: Vector3, size: Vector3, mask: int, cb: Callable, basis := Basis()) -> Area3D:
@@ -916,6 +1153,10 @@ func _setup_triggers() -> void:
 		if b == sedan and in_car:
 			Game.set_flag("reached_town")
 			Dialogue.say("town", true))
+	# drive-by arrival shot: the road right in front of the supermarket (Main St, heading west)
+	_area("Trigger_ArrivalShot", market.global_transform * Vector3(-6.0, 1.0, -27.0), Vector3(16, 6, 12), 4, func(b):
+		if b == sedan and in_car and sedan.driven and not Game.has_flag("arrival_shot"):
+			_arrival_shot(), market.global_transform.basis)
 	var d: Dictionary = data["destination"]
 	var dp: Array = d["parking_center"]
 	_area("Trigger_Parking", Vector3(dp[0], dp[1] + 1.0, dp[2]), Vector3(d["trigger_size"][0], 4, d["trigger_size"][2]), 4,
@@ -940,7 +1181,6 @@ func _physics_process(delta: float) -> void:
 				Game.set_flag("parked")
 				Dialogue.say("parked", true, true)
 				save()
-				focus_shot(market.global_transform * Vector3(0, 3.0, 0.0), 26.0, 2.8, 1.8, "GREYHAVEN MARKET")
 		else:
 			_park_t = 0.0
 

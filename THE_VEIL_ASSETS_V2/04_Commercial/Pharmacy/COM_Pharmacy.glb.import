@@ -3,6 +3,7 @@
 importer="scene"
 importer_version=1
 type="PackedScene"
+uid="uid://b3kyk0clcmh4g"
 path="res://.godot/imported/COM_Pharmacy.glb-b6f155882d2bead94e81e4f03fe08db5.scn"
 
 [deps]
@@ -16,6 +17,7 @@ nodes/root_type=""
 nodes/root_name=""
 nodes/apply_root_scale=true
 nodes/root_scale=1.0
+nodes/import_as_skeleton_bones=false
 meshes/ensure_tangents=false
 meshes/generate_lods=false
 meshes/create_shadow_meshes=true
@@ -24,32 +26,20 @@ meshes/lightmap_texel_size=0.2
 meshes/force_disable_compression=false
 skins/use_named_skins=true
 animation/import=false
+animation/fps=30
+animation/trimming=false
+animation/remove_immutable_tracks=true
+animation/import_rest_as_RESET=false
 import_script/path=""
 _subresources={
 "materials": {
-"M_Com_StorefrontConcrete": {
-"use_external/enabled": true,
-"use_external/path": "res://THE_VEIL_ASSETS_V2/Materials_Godot/Commercial/M_Com_StorefrontConcrete.tres"
-},
 "M_Arch_TrimPainted": {
 "use_external/enabled": true,
 "use_external/path": "res://THE_VEIL_ASSETS_V2/Materials_Godot/Architecture/M_Arch_TrimPainted.tres"
 },
-"M_Town_PaintRed": {
-"use_external/enabled": true,
-"use_external/path": "res://THE_VEIL_ASSETS_V2/02_Town/Materials/M_Town_PaintRed.tres"
-},
-"M_Furn_WoodDark": {
-"use_external/enabled": true,
-"use_external/path": "res://THE_VEIL_ASSETS_V2/Materials_Godot/Furniture/M_Furn_WoodDark.tres"
-},
 "M_Arch_WindowGlassDirty": {
 "use_external/enabled": true,
 "use_external/path": "res://THE_VEIL_ASSETS_V2/Materials_Godot/Architecture/M_Arch_WindowGlassDirty.tres"
-},
-"M_Road_Asphalt": {
-"use_external/enabled": true,
-"use_external/path": "res://THE_VEIL_ASSETS_V2/Materials_Godot/Roads/M_Road_Asphalt.tres"
 },
 "M_Com4_Atlas": {
 "use_external/enabled": true,
@@ -59,37 +49,53 @@ _subresources={
 "use_external/enabled": true,
 "use_external/path": "res://THE_VEIL_ASSETS_V2/04_Commercial/Materials/M_Com4_Glow.tres"
 },
-"M_Road_SidewalkConcrete": {
+"M_Com_CeilingTiles": {
 "use_external/enabled": true,
-"use_external/path": "res://THE_VEIL_ASSETS_V2/Materials_Godot/Roads/M_Road_SidewalkConcrete.tres"
-},
-"M_Int_DrywallLight": {
-"use_external/enabled": true,
-"use_external/path": "res://THE_VEIL_ASSETS_V2/Materials_Godot/Interiors/M_Int_DrywallLight.tres"
+"use_external/path": "res://THE_VEIL_ASSETS_V2/Materials_Godot/Commercial/M_Com_CeilingTiles.tres"
 },
 "M_Com_StorageConcrete": {
 "use_external/enabled": true,
 "use_external/path": "res://THE_VEIL_ASSETS_V2/Materials_Godot/Commercial/M_Com_StorageConcrete.tres"
 },
-"M_Int_Linoleum": {
+"M_Com_StorefrontConcrete": {
 "use_external/enabled": true,
-"use_external/path": "res://THE_VEIL_ASSETS_V2/Materials_Godot/Interiors/M_Int_Linoleum.tres"
-},
-"M_Com_CeilingTiles": {
-"use_external/enabled": true,
-"use_external/path": "res://THE_VEIL_ASSETS_V2/Materials_Godot/Commercial/M_Com_CeilingTiles.tres"
-},
-"M_Int_BasementConcrete": {
-"use_external/enabled": true,
-"use_external/path": "res://THE_VEIL_ASSETS_V2/Materials_Godot/Interiors/M_Int_BasementConcrete.tres"
+"use_external/path": "res://THE_VEIL_ASSETS_V2/Materials_Godot/Commercial/M_Com_StorefrontConcrete.tres"
 },
 "M_Furn_MetalBrushed": {
 "use_external/enabled": true,
 "use_external/path": "res://THE_VEIL_ASSETS_V2/Materials_Godot/Furniture/M_Furn_MetalBrushed.tres"
 },
+"M_Furn_WoodDark": {
+"use_external/enabled": true,
+"use_external/path": "res://THE_VEIL_ASSETS_V2/Materials_Godot/Furniture/M_Furn_WoodDark.tres"
+},
 "M_Furn_WoodPainted": {
 "use_external/enabled": true,
 "use_external/path": "res://THE_VEIL_ASSETS_V2/Materials_Godot/Furniture/M_Furn_WoodPainted.tres"
+},
+"M_Int_BasementConcrete": {
+"use_external/enabled": true,
+"use_external/path": "res://THE_VEIL_ASSETS_V2/Materials_Godot/Interiors/M_Int_BasementConcrete.tres"
+},
+"M_Int_DrywallLight": {
+"use_external/enabled": true,
+"use_external/path": "res://THE_VEIL_ASSETS_V2/Materials_Godot/Interiors/M_Int_DrywallLight.tres"
+},
+"M_Int_Linoleum": {
+"use_external/enabled": true,
+"use_external/path": "res://THE_VEIL_ASSETS_V2/Materials_Godot/Interiors/M_Int_Linoleum.tres"
+},
+"M_Road_Asphalt": {
+"use_external/enabled": true,
+"use_external/path": "res://THE_VEIL_ASSETS_V2/Materials_Godot/Roads/M_Road_Asphalt.tres"
+},
+"M_Road_SidewalkConcrete": {
+"use_external/enabled": true,
+"use_external/path": "res://THE_VEIL_ASSETS_V2/Materials_Godot/Roads/M_Road_SidewalkConcrete.tres"
+},
+"M_Town_PaintRed": {
+"use_external/enabled": true,
+"use_external/path": "res://THE_VEIL_ASSETS_V2/02_Town/Materials/M_Town_PaintRed.tres"
 }
 }
 }

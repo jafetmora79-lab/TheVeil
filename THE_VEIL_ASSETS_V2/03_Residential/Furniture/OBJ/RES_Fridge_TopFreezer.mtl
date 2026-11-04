@@ -5,12 +5,12 @@ Ks 0 0 0
 illum 1
 map_Kd ../../../02_Town/Textures/T_Town_PaintWhite.png
 
-newmtl M_Furn_Rubber
+newmtl M_Res_Porcelain
 Ka 0 0 0
 Kd 1 1 1
 Ks 0 0 0
 illum 1
-map_Kd ../../../01_Textures/Furniture/T_Furn_Rubber.png
+map_Kd ../../Textures/T_Res_Porcelain.png
 
 newmtl M_Furn_MetalBrushed
 Ka 0 0 0
@@ -18,6 +18,34 @@ Kd 1 1 1
 Ks 0 0 0
 illum 1
 map_Kd ../../../01_Textures/Furniture/T_Furn_MetalBrushed.png
+
+newmtl M_Furn_PlasticDirty
+Ka 0 0 0
+Kd 1 1 1
+Ks 0 0 0
+illum 1
+map_Kd ../../../01_Textures/Furniture/T_Furn_PlasticDirty.png
+
+newmtl M_Furn_Cardboard
+Ka 0 0 0
+Kd 1 1 1
+Ks 0 0 0
+illum 1
+map_Kd ../../../01_Textures/Furniture/T_Furn_Cardboard.png
+
+newmtl M_Furn_Rubber
+Ka 0 0 0
+Kd 1 1 1
+Ks 0 0 0
+illum 1
+map_Kd ../../../01_Textures/Furniture/T_Furn_Rubber.png
+
+newmtl M_Res_EnamelHarvest
+Ka 0 0 0
+Kd 1 1 1
+Ks 0 0 0
+illum 1
+map_Kd ../../Textures/T_Res_EnamelHarvest.png
 
 newmtl M_Res_DetailAtlas
 Ka 0 0 0

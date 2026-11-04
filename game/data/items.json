@@ -40,7 +40,17 @@
   "horror_game": {
    "name": "Horror Game",
    "category": "misc",
-   "description": "A new horror game for tonight. (Title TBD - placeholder, not in the story bible.)"
+   "description": "HOLLOW HILL - a new horror game for tonight. (Title from the store art; not confirmed in the story bible.)"
+  },
+  "cola_bottle": {
+   "name": "Cola",
+   "category": "food",
+   "description": "A cold bottle of KOLA from the drinks cooler."
+  },
+  "chocolate_bar": {
+   "name": "Chocolate",
+   "category": "food",
+   "description": "A COCOA bar from the rack by the checkout."
   },
   "flashlight": {
    "name": "Flashlight",
