@@ -61,6 +61,11 @@
    "name": "Batteries",
    "category": "flashlight",
    "description": "Spare flashlight batteries. The count and charge show bottom right while the flashlight is on."
+  },
+  "painkillers": {
+   "name": "Painkillers",
+   "category": "medical",
+   "description": "A blister pack of painkillers from a bathroom medicine cabinet."
   }
  }
 }
