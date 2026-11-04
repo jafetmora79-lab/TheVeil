@@ -1,0 +1,225 @@
+{
+ "pack": "07_Creatures",
+ "creatures": {
+  "CRT_Colossus": {
+   "name": "CRT_Colossus",
+   "glb": "07_Creatures/Colossus/CRT_Colossus.glb",
+   "triangles": 8476,
+   "bones": 62,
+   "bone_names": [
+    "Root",
+    "Body",
+    "Chest",
+    "Head",
+    "Maw_L",
+    "Maw_R",
+    "Stalk_L_01",
+    "Stalk_L_02",
+    "Stalk_R_01",
+    "Stalk_R_02",
+    "Rear",
+    "Belly",
+    "Leg_FL_Upper",
+    "Leg_FL_Lower",
+    "Leg_FL_Foot",
+    "Leg_FR_Upper",
+    "Leg_FR_Lower",
+    "Leg_FR_Foot",
+    "Leg_HL_Upper",
+    "Leg_HL_Lower",
+    "Leg_HL_Foot",
+    "Leg_HR_Upper",
+    "Leg_HR_Lower",
+    "Leg_HR_Foot",
+    "T_DorsalL_01",
+    "T_DorsalL_02",
+    "T_DorsalL_03",
+    "T_DorsalL_04",
+    "T_DorsalL_05",
+    "T_DorsalL_06",
+    "T_DorsalL_07",
+    "T_DorsalL_08",
+    "T_DorsalR_01",
+    "T_DorsalR_02",
+    "T_DorsalR_03",
+    "T_DorsalR_04",
+    "T_DorsalR_05",
+    "T_DorsalR_06",
+    "T_DorsalR_07",
+    "T_FlankL_01",
+    "T_FlankL_02",
+    "T_FlankL_03",
+    "T_FlankL_04",
+    "T_FlankL_05",
+    "T_FlankL_06",
+    "T_FlankR_01",
+    "T_FlankR_02",
+    "T_FlankR_03",
+    "T_FlankR_04",
+    "T_FlankR_05",
+    "T_FlankR_06",
+    "T_VentA_01",
+    "T_VentA_02",
+    "T_VentA_03",
+    "T_VentA_04",
+    "T_VentA_05",
+    "T_VentA_06",
+    "T_VentB_01",
+    "T_VentB_02",
+    "T_VentB_03",
+    "T_VentB_04",
+    "T_VentB_05"
+   ],
+   "materials": [
+    "M_Crt_Colossus",
+    "M_Crt_Colossus_Hide",
+    "M_Crt_Tentacle"
+   ],
+   "sockets": [
+    "Socket_Head",
+    "Socket_Core",
+    "Socket_DorsalTip"
+   ],
+   "clips": [
+    {
+     "name": "Idle_Breathe",
+     "duration_s": 4.0,
+     "loop": true
+    },
+    {
+     "name": "Walk_Heavy",
+     "duration_s": 4.0,
+     "loop": true
+    },
+    {
+     "name": "Tentacles_Sway",
+     "duration_s": 6.0,
+     "loop": true
+    },
+    {
+     "name": "Alert",
+     "duration_s": 2.4,
+     "loop": false
+    },
+    {
+     "name": "Attack_TentacleStrike",
+     "duration_s": 2.4,
+     "loop": false
+    },
+    {
+     "name": "Attack_Heavy",
+     "duration_s": 3.4,
+     "loop": false
+    },
+    {
+     "name": "Hit_React",
+     "duration_s": 1.2,
+     "loop": false
+    },
+    {
+     "name": "Death_Collapse",
+     "duration_s": 4.5,
+     "loop": false
+    }
+   ],
+   "scene": "07_Creatures/Godot_Scenes/CRT_Colossus.tscn",
+   "probe_bone": "T_DorsalL_08",
+   "edge_floor": 0.15,
+   "feet": [
+    "Leg_FL_Foot",
+    "Leg_FR_Foot",
+    "Leg_HL_Foot",
+    "Leg_HR_Foot"
+   ],
+   "checks": {
+    "Idle_Breathe": {
+     "min_y": -0.003,
+     "max_stretch": 1.6254,
+     "p999_stretch": 1.1477,
+     "min_squash": 0.9024,
+     "lowest_contact_y": -0.0,
+     "highest_lowest_foot_y": 0.0,
+     "planted_slip": 0.0,
+     "loop_seamless": true
+    },
+    "Walk_Heavy": {
+     "min_y": -0.003,
+     "max_stretch": 1.7294,
+     "p999_stretch": 1.2651,
+     "min_squash": 0.7874,
+     "lowest_contact_y": -0.0,
+     "highest_lowest_foot_y": 0.0,
+     "planted_slip": 0.05,
+     "loop_seamless": true
+    },
+    "Tentacles_Sway": {
+     "min_y": -0.003,
+     "max_stretch": 1.6795,
+     "p999_stretch": 1.2066,
+     "min_squash": 0.8785,
+     "lowest_contact_y": -0.0,
+     "highest_lowest_foot_y": 0.0,
+     "planted_slip": 0.0,
+     "loop_seamless": true
+    },
+    "Alert": {
+     "min_y": -0.003,
+     "max_stretch": 1.6002,
+     "p999_stretch": 1.3062,
+     "min_squash": 0.7757,
+     "lowest_contact_y": -0.0,
+     "highest_lowest_foot_y": 0.0,
+     "planted_slip": 0.0,
+     "loop_seamless": null
+    },
+    "Attack_TentacleStrike": {
+     "min_y": -0.003,
+     "max_stretch": 1.6254,
+     "p999_stretch": 1.2146,
+     "min_squash": 0.8323,
+     "lowest_contact_y": -0.0,
+     "highest_lowest_foot_y": 0.0,
+     "planted_slip": 0.0,
+     "loop_seamless": null
+    },
+    "Attack_Heavy": {
+     "min_y": -0.003,
+     "max_stretch": 1.7532,
+     "p999_stretch": 1.3,
+     "min_squash": 0.8013,
+     "lowest_contact_y": -0.0,
+     "highest_lowest_foot_y": 0.0,
+     "planted_slip": 0.0972,
+     "loop_seamless": null
+    },
+    "Hit_React": {
+     "min_y": -0.003,
+     "max_stretch": 1.6595,
+     "p999_stretch": 1.2409,
+     "min_squash": 0.799,
+     "lowest_contact_y": -0.0,
+     "highest_lowest_foot_y": 0.0,
+     "planted_slip": 0.0,
+     "loop_seamless": null
+    },
+    "Death_Collapse": {
+     "min_y": -0.003,
+     "max_stretch": 2.2095,
+     "p999_stretch": 1.7916,
+     "min_squash": 0.4598,
+     "lowest_contact_y": -0.0,
+     "highest_lowest_foot_y": 0.0,
+     "planted_slip": 0.0733,
+     "loop_seamless": null
+    }
+   },
+   "limits": {
+    "max_stretch": 2.0,
+    "max_stretch_death": 2.5,
+    "p999_stretch": 1.5,
+    "p999_stretch_death": 1.9,
+    "min_y": -0.08
+   }
+  }
+ }
+}
