@@ -33,6 +33,8 @@ common/physics_ticks_per_second=60
 [rendering]
 
 renderer/rendering_method="gl_compatibility"
+limits/opengl/max_renderable_lights=64
+limits/opengl/max_lights_per_object=16
 renderer/rendering_method.mobile="gl_compatibility"
 textures/vram_compression/import_etc2_astc=true
 environment/defaults/default_clear_color=Color(0.039, 0.043, 0.055, 1)

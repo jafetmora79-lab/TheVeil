@@ -523,3 +523,77 @@ playthrough test to make sure everything still agrees.
 * **Not on this branch:** the light-budget fix, window-glass colliders and conversation camera live on
   `claude/practical-cray-hi2y54`. Merging the two touches `world.gd`, `player.gd`, `hud.gd` and
   `interactable.gd`.
+### 9.14 Cinematic repair, gameplay polish and Chapter 4 quality pass
+
+None of this was observed in a renderer (no screenshots). All checks are data-based in
+`game/tests/opening_test.gd`, which now also plays a second slice where the game is bought last, so the Veil
+arrives inside the game shop (the owner's case).
+
+* **Keys:**
+  * The keys are their own mesh under `INT_Pickup_CarKeys` (Pack 03 `coat_rack()`), hanging from the rack's last
+    hook.
+  * The root cause of "the keys don't disappear": they were merged into the rack mesh.
+  * Pickups get a faint highlight while looked at (`Interactable.set_focus`).
+  * The car refuses entry with "I need my keys.".
+* **Sedan see-through:**
+  * Found with a ray scan of the closed car from the seats and from outside. The opaque wedge ahead of each front
+    window and the C-pillar strip had no inside face; door inner panels left slits; the wheel arches showed
+    back faces.
+  * Fixes in `veh_models.py`: inner faces and jambs, a full-length door panel, `wheel_wells()` and tub end walls.
+  * Leak rays dropped from about 1,000 to 4 single-ray seams.
+* **Arrival and parking:**
+  * `_arrival_ease()` follows a 1.4 m/s^2 curve to 5 km/h at the shot point.
+  * `_auto_park()`:
+    * pure-pursuit approach, steering while stationary, a 5 m reverse arc into the store-row stall two spaces
+      east of the entrance, straighten, parking brake;
+    * driven through `PlayerSedan.drive_script` (physics, no teleport);
+    * flag `auto_parked`. Measured: 0.17 m and 0.5 degrees from the target.
+* **Window glass:**
+  * The panes had no collision above the sills, so cameras and sight checks went through them.
+  * `game/tools/extract_glass.py` writes `game/data/glass_panes.json` (43 panes from the Pack 04 building GLBs);
+    `_add_glass_colliders()` adds them.
+  * Prop glass (coolers) is excluded so items behind it stay clickable.
+* **Colossus:**
+  * *Geometry:* the leg sweeps now run into the feet. The hind hoofs used to sit about 0.3 m (1.8 m at 6x) below
+    the leg; the fore claws are rooted inside the leg, and the joint plates are sunk.
+  * *Look:* `game/world/colossus_veil.gdshader`, used for the encounter only:
+    * the creature's own textures with fixed dim moonlight (unshaded), so no scene light can blow it out to white;
+    * contrast falls and the colour sinks into the mist from 3 to 13 m;
+    * the leg dither-dissolves between 10 and 17 m.
+  * *Fog cards:* the Pack 09 fog cards fade near the camera during the cinematic, so no billboard edge fills the
+    frame.
+  * *Contact:* the claw tips (`FL_TIPS`, from the build data) define contact, not the foot bone. They rest 2 cm
+    above the road, the foot holds raised until the view arrives, and the animation freezes on contact to plant.
+* **Staging (game shop):** A Eddie opens the door (the exterior is not framed before it is open); B first-person
+  through the doorway; C foot; D up the leg (an anchor that sees the leg at 2 / 6 / 11 m); E face; F Eddie calls
+  from the threshold (the protagonist is kept out of the sight line); G both walk in, Eddie shuts the door, Marcus
+  joins, everyone faces each other; H the standard conversation. The doorway staging (supermarket) is unchanged
+  apart from validated anchors.
+* **Camera safety:**
+  * `cam_point_ok`, `cam_path_ok` (sphere sweep), `sight_ok` and `pick_anchor`.
+  * A per-frame watchdog counts frames where the camera is inside geometry or an NPC, or crossed a surface.
+  * The test requires 0 violations in both stagings.
+* **NPC conversations:**
+  * `converse(ids, npcs)` refuses through walls, doors or glass, turns the NPCs to the player, and holds the talk
+    camera until the last line.
+  * `Dialogue.confirm_mode`: each line waits for E, click, Space or touch, with a "[E] >" cue.
+  * Used for Eddie, the cashier, Marcus, the Phase 3 talks and Chapter 4 (choices stay inside the talk).
+  * `Dialogue.auto_confirm` is for tests only.
+* **Chapter 4 (`phase4.gd`, flags and objectives unchanged):**
+  * The flashlight and batteries were 0.4 m behind the service counter in mid-air. They now sit on its top and are
+    settled onto the collider below.
+  * The breaker panel sat on the loading roll-up door. It moved to the back wall (Pack 04 `com_plans.py`); the
+    interaction box is in front of the panel and generous, and is not reachable through the wall.
+  * The barricades take three shoves, end flush with the doors, and hold the player during the push.
+  * The hound physically strikes the rear exit: the Attack_Bite contact frame is measured from the rig, and the
+    impact, leaf jolt, pallet jolt and flicker all happen on that frame.
+* **Lighting root cause:**
+  * There were 160 lights, and 87 omni lights had no distance fade, so 90-112 lights were in range anywhere in town
+    against the Compatibility cap of 32 per frame and 8 per object. The excess was dropped in camera-dependent
+    order.
+  * Now every omni and spot light fades (`_light_budget`, also for lights spawned later), and the street lamps fade
+    at 50 + 15 m.
+  * `project.godot` sets 64 lights per frame and 16 per object. The worst spot has 51 in range.
+  * Energies are unchanged (not brighter).
+* **Pre-existing, not fixed:** `--script` runs print "Identifier not found: Game" for `interactable.gd` before the
+  autoloads exist. The test still runs; it appears at the merged Phase 4 base (ae21bca).
