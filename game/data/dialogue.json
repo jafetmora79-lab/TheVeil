@@ -1227,7 +1227,7 @@
    },
    {
     "speaker": "Survivor",
-    "text": "Wait\u2014",
+    "text": "Wait—",
     "time": 1.8
    }
   ]
@@ -1990,6 +1990,373 @@
     "speaker": "Eddie",
     "text": "I was really hoping we could.",
     "time": 2.5
+   }
+  ]
+ },
+ "c7_marcus": {
+  "source": "Chapter 7 implementation prompt (approved script)",
+  "lines": [
+   {
+    "speaker": "Marcus",
+    "text": "Someone told me about a car near the old service road.",
+    "time": 4.2
+   },
+   {
+    "speaker": "",
+    "text": "What about it?",
+    "time": 1.8
+   },
+   {
+    "speaker": "Marcus",
+    "text": "They saw a backpack inside. Said it looked like a kid's.",
+    "time": 4.4
+   },
+   {
+    "speaker": "",
+    "text": "That doesn't mean it's Noah's.",
+    "time": 2.8
+   },
+   {
+    "speaker": "Marcus",
+    "text": "I know.",
+    "time": 1.8
+   },
+   {
+    "speaker": "Marcus",
+    "text": "But it's something.",
+    "time": 2.1
+   },
+   {
+    "speaker": "",
+    "text": "Where is it?",
+    "time": 1.8
+   },
+   {
+    "speaker": "Marcus",
+    "text": "Not far. Past the residential blocks.",
+    "time": 3.2
+   },
+   {
+    "speaker": "",
+    "text": "Then we'll take a look.",
+    "time": 2.3
+   },
+   {
+    "speaker": "Marcus",
+    "text": "Thank you.",
+    "time": 1.8
+   }
+  ]
+ },
+ "c7_eddie": {
+  "source": "Chapter 7 implementation prompt (approved script)",
+  "lines": [
+   {
+    "speaker": "Eddie",
+    "text": "Marcus told me about the car.",
+    "time": 2.7
+   },
+   {
+    "speaker": "",
+    "text": "He's convinced it's Noah's.",
+    "time": 2.6
+   },
+   {
+    "speaker": "Eddie",
+    "text": "He's convinced because he needs it to be.",
+    "time": 3.4
+   },
+   {
+    "speaker": "",
+    "text": "You think we shouldn't go?",
+    "time": 2.5
+   },
+   {
+    "speaker": "Eddie",
+    "text": "No. I think we should.",
+    "time": 2.3
+   },
+   {
+    "speaker": "Eddie",
+    "text": "Just don't let him do anything stupid.",
+    "time": 3.3
+   },
+   {
+    "speaker": "",
+    "text": "I'll try.",
+    "time": 1.8
+   },
+   {
+    "speaker": "Eddie",
+    "text": "That's about as reassuring as anything gets around here.",
+    "time": 4.4
+   }
+  ]
+ },
+ "c7_walk": {
+  "source": "Chapter 7 implementation prompt (approved script)",
+  "lines": [
+   {
+    "speaker": "Marcus",
+    "text": "Noah used to ride his bike around here.",
+    "time": 3.3
+   },
+   {
+    "speaker": "",
+    "text": "Did he know the neighborhood well?",
+    "time": 3.0
+   },
+   {
+    "speaker": "Marcus",
+    "text": "Better than I did.",
+    "time": 2.0
+   },
+   {
+    "speaker": "Marcus",
+    "text": "He was always finding shortcuts.",
+    "time": 2.9
+   }
+  ]
+ },
+ "c7_backpack": {
+  "source": "Chapter 7 implementation prompt (approved script)",
+  "lines": [
+   {
+    "speaker": "Marcus",
+    "text": "Wait.",
+    "time": 1.8
+   },
+   {
+    "speaker": "",
+    "text": "What?",
+    "time": 1.8
+   },
+   {
+    "speaker": "Marcus",
+    "text": "That bag.",
+    "time": 1.8
+   },
+   {
+    "speaker": "Marcus",
+    "text": "That's Noah's.",
+    "time": 1.8
+   },
+   {
+    "speaker": "",
+    "text": "You're sure?",
+    "time": 1.8
+   },
+   {
+    "speaker": "Marcus",
+    "text": "I bought it for him.",
+    "time": 2.1
+   },
+   {
+    "speaker": "Marcus",
+    "text": "He complained about the color for a week.",
+    "time": 3.4
+   }
+  ]
+ },
+ "c7_note": {
+  "source": "Chapter 7 implementation prompt (approved script)",
+  "lines": [
+   {
+    "speaker": "Marcus",
+    "text": "He wrote this.",
+    "time": 1.8
+   },
+   {
+    "speaker": "",
+    "text": "Looks like he got out of town.",
+    "time": 2.8
+   },
+   {
+    "speaker": "Marcus",
+    "text": "Someone helped him.",
+    "time": 2.1
+   },
+   {
+    "speaker": "",
+    "text": "We don't know where they went.",
+    "time": 2.8
+   },
+   {
+    "speaker": "Marcus",
+    "text": "But he was alive.",
+    "time": 2.0
+   },
+   {
+    "speaker": "Marcus",
+    "text": "After all of this started, he was alive.",
+    "time": 3.4
+   }
+  ]
+ },
+ "c7_road": {
+  "source": "Chapter 7 implementation prompt (approved script)",
+  "lines": [
+   {
+    "speaker": "Marcus",
+    "text": "He could've gone this way.",
+    "time": 2.5
+   },
+   {
+    "speaker": "",
+    "text": "Maybe.",
+    "time": 1.8
+   },
+   {
+    "speaker": "Marcus",
+    "text": "We should keep going.",
+    "time": 2.2
+   },
+   {
+    "speaker": "",
+    "text": "We don't know what's out there.",
+    "time": 2.8
+   },
+   {
+    "speaker": "Marcus",
+    "text": "We know Noah might be.",
+    "time": 2.3
+   }
+  ],
+  "choices": [
+   {
+    "text": "\"We'll find him. But we need to prepare first.\"",
+    "next": "c7_road_promise",
+    "flag": "marcus_trust_search"
+   },
+   {
+    "text": "\"We can't keep going without supplies and a plan.\"",
+    "next": "c7_road_safety",
+    "flag": "marcus_cautious_search"
+   }
+  ]
+ },
+ "c7_road_promise": {
+  "source": "Chapter 7 implementation prompt (approved script)",
+  "lines": [
+   {
+    "speaker": "",
+    "text": "We'll find him. But we need to prepare first.",
+    "time": 3.7
+   },
+   {
+    "speaker": "Marcus",
+    "text": "You mean that?",
+    "time": 1.8
+   },
+   {
+    "speaker": "",
+    "text": "Yes.",
+    "time": 1.8
+   },
+   {
+    "speaker": "Marcus",
+    "text": "Okay.",
+    "time": 1.8
+   },
+   {
+    "speaker": "Marcus",
+    "text": "Then I'll wait.",
+    "time": 1.8
+   }
+  ]
+ },
+ "c7_road_safety": {
+  "source": "Chapter 7 implementation prompt (approved script)",
+  "lines": [
+   {
+    "speaker": "",
+    "text": "We can't keep going without supplies and a plan.",
+    "time": 3.9
+   },
+   {
+    "speaker": "Marcus",
+    "text": "Every hour we wait, he could be in danger.",
+    "time": 3.5
+   },
+   {
+    "speaker": "",
+    "text": "And if we die out here, nobody finds him.",
+    "time": 3.4
+   },
+   {
+    "speaker": "Marcus",
+    "text": "...Fine.",
+    "time": 1.8
+   }
+  ]
+ },
+ "c7_report": {
+  "source": "Chapter 7 implementation prompt (approved script)",
+  "lines": [
+   {
+    "speaker": "Eddie",
+    "text": "You found something?",
+    "time": 2.1
+   },
+   {
+    "speaker": "Marcus",
+    "text": "His backpack.",
+    "time": 1.8
+   },
+   {
+    "speaker": "Eddie",
+    "text": "You're sure it's his?",
+    "time": 2.2
+   },
+   {
+    "speaker": "Marcus",
+    "text": "Yes.",
+    "time": 1.8
+   },
+   {
+    "speaker": "Marcus",
+    "text": "And there was a note.",
+    "time": 2.2
+   },
+   {
+    "speaker": "",
+    "text": "Someone helped him get toward the farms.",
+    "time": 3.4
+   },
+   {
+    "speaker": "Eddie",
+    "text": "That's good, right?",
+    "time": 2.1
+   },
+   {
+    "speaker": "Marcus",
+    "text": "It means he made it out of town.",
+    "time": 2.9
+   },
+   {
+    "speaker": "Eddie",
+    "text": "Then we've got somewhere to start.",
+    "time": 3.0
+   },
+   {
+    "speaker": "Marcus",
+    "text": "We need to find those farms.",
+    "time": 2.6
+   },
+   {
+    "speaker": "",
+    "text": "We will. But not tonight.",
+    "time": 2.5
+   },
+   {
+    "speaker": "Marcus",
+    "text": "I know.",
+    "time": 1.8
+   },
+   {
+    "speaker": "Eddie",
+    "text": "One thing at a time.",
+    "time": 2.1
    }
   ]
  }

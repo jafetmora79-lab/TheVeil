@@ -7,7 +7,8 @@
   "act1": "The Veil",
   "act1_night": "Secure the supermarket",
   "act2_search": "The First Search",
-  "act2_voices": "Voices in the Mist"
+  "act2_voices": "Voices in the Mist",
+  "act2_trace": "A Trace of Noah"
  },
  "steps": [
   {
@@ -255,6 +256,66 @@
    "flag": "ch7_started",
    "goal": "act2_voices",
    "text": "Chapter 6 complete - Voices in the Mist"
+  },
+  {
+   "id": "c7_marcus",
+   "flag": "ch7_marcus_briefing_complete",
+   "goal": "act2_trace",
+   "text": "Talk to Marcus"
+  },
+  {
+   "id": "c7_prepare",
+   "flag": "ch7_eddie_warning_complete",
+   "goal": "act2_trace",
+   "text": "Prepare to leave with Marcus"
+  },
+  {
+   "id": "c7_leave",
+   "flag": "ch7_departure_complete",
+   "goal": "act2_trace",
+   "text": "Leave the supermarket with Marcus"
+  },
+  {
+   "id": "c7_vehicle",
+   "flag": "ch7_vehicle_reached",
+   "goal": "act2_trace",
+   "text": "Reach the abandoned vehicle"
+  },
+  {
+   "id": "c7_search",
+   "flag": "ch7_backpack_found",
+   "goal": "act2_trace",
+   "text": "Search the abandoned vehicle"
+  },
+  {
+   "id": "c7_examine",
+   "flag": "noah_clue_backpack",
+   "goal": "act2_trace",
+   "text": "Examine Noah's backpack"
+  },
+  {
+   "id": "c7_road",
+   "flag": "ch7_road_investigation_complete",
+   "goal": "act2_trace",
+   "text": "Investigate the old service road"
+  },
+  {
+   "id": "c7_return",
+   "flag": "ch7_returned_to_supermarket",
+   "goal": "act2_trace",
+   "text": "Return to the supermarket"
+  },
+  {
+   "id": "c7_report",
+   "flag": "ch7_report_complete",
+   "goal": "act2_trace",
+   "text": "Report to Eddie"
+  },
+  {
+   "id": "c7_complete",
+   "flag": "ch8_started",
+   "goal": "act2_trace",
+   "text": "Chapter 7 complete - A Trace of Noah"
   }
  ],
  "_comment": "Steps complete in list order for display, but each errand step only checks its own flag, so the supermarket and the game shop can be done in either order (the bible leaves the stop order open). Phase 3 (mist_*) is a WORKING DRAFT sequence of Act I's opening.",
