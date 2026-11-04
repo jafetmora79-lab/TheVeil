@@ -213,6 +213,47 @@ func _guide() -> void:
 		world._beacon("c6", c5.ml(Vector3(0, 3.0, -1.5)), Color(0.8, 0.9, 1.0))
 
 
+## The HUD destination marker (Chapter 5 polish system): only the current objective's target. Hidden while the
+## Hound hunts the player, so the encounter keeps its tension.
+func _update_marker() -> void:
+	if not hud.has_method("set_marker"):
+		return
+	var t: Variant = null
+	var label := ""
+	if not Game.has_flag("ch6_marcus_briefing_complete"):
+		t = marcus
+		label = "MARCUS"
+	elif not Game.has_flag("ch6_eddie_talked"):
+		t = eddie
+		label = "EDDIE"
+	elif not Game.has_flag("ch6_eddie_ready"):
+		t = c5.ml(c5.STASH + Vector3(0, 0.3, 0))
+		label = "SUPPLIES"
+	elif not Game.has_flag("ch6_eddie_following"):
+		t = c5.ml(c5.EXIT_SPOT)
+		label = "EXIT"
+	elif not Game.has_flag("ch6_left_supermarket"):
+		t = c5.ml(Vector3(0, 1.4, -2.5))
+		label = "EXIT"
+	elif not Game.has_flag("ch6_ruth_sarah_met"):
+		t = hl(Vector3(2.6, 1.6, 3.0))
+		label = "HOUSE"
+	elif not Game.has_flag("ch6_voice_choice_made"):
+		t = null
+	elif Game.has_flag("ch6_voice_choice_investigate") and not Game.has_flag("ch6_hound_encounter_started"):
+		t = INVESTIGATE_SPOT + Vector3(0, 1.4, 0)
+		label = "VOICE"
+	elif Game.has_flag("ch6_hound_encounter_started") and not Game.has_flag("ch6_hound_encounter_complete"):
+		t = null
+	elif not Game.has_flag("ch6_returned_to_supermarket"):
+		t = c5.ml(Vector3(0, 1.4, -1.5)) if not c5._in_store(market.to_local(player.global_position)) else c5.ml(Vector3(0, 1.4, 5.0))
+		label = "SUPERMARKET"
+	elif not Game.has_flag("chapter_6_complete"):
+		t = marcus
+		label = "MARCUS"
+	hud.set_marker(t, label)
+
+
 # ------------------------------------------------------------------ scenes 1-2: Marcus, Eddie, preparing
 func _talk_marcus(_b: Node) -> void:
 	if _busy.get("talk", false):
@@ -454,6 +495,7 @@ func _process(delta: float) -> void:
 	if _tick > 0.0 or player == null:
 		return
 	_tick = 0.2
+	_update_marker()
 	if not Game.has_flag("ch6_eddie_following"):
 		return
 	var pl: Vector3 = market.to_local(player.global_position)

@@ -329,6 +329,8 @@ func _refresh_prompts() -> void:
 
 ## The one active destination for the HUD marker (only the current objective's target; cleared when done).
 func _update_marker() -> void:
+	if Game.has_flag("ch6_started"):
+		return                                    # Chapter 6 owns the marker from here on
 	var t: Variant = null
 	var label := ""
 	if Game.has_flag("c5_complete"):
