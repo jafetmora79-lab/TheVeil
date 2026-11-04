@@ -225,10 +225,14 @@ func _setup_home() -> void:
 ## doors, up for lids, down-and-out for oven doors). Some Pack 03 hinge data has the sign reversed.
 func _outward_deg(door: Node3D, deg: float, axis: Vector3) -> float:
 	var furn := door
-	while furn and furn.get_parent() and furn.get_parent().name != "Furniture":
+	# the furniture piece: its parent is a house's "Furniture" batch or a scavenge house's "ScavengeFurniture"
+	while furn and furn.get_parent() and not (String(furn.get_parent().name) in ["Furniture", "ScavengeFurniture"]):
 		furn = furn.get_parent() as Node3D
-	if furn == null:
+	if furn == null or furn.get_parent() == null:
 		return deg
+	var probe := Interactable.aabb_of(door)
+	if probe.size.length() < 0.01:
+		return deg                     # no mesh bounds (headless): the authored sign is already outward
 	var body := Interactable.aabb_of(furn).get_center()
 	var c := Interactable.aabb_of(door).get_center()
 	var to_furn := furn.global_transform.affine_inverse() * door.get_parent_node_3d().global_transform

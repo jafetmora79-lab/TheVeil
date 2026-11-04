@@ -15,57 +15,80 @@
   "car_keys": {
    "name": "Car Keys",
    "category": "key",
-   "description": "Keys to the old sedan. A worn rubber tag and a house key on the same ring."
+   "description": "Keys to the old sedan. A worn rubber tag and a house key on the same ring.",
+   "model": "res://THE_VEIL_ASSETS_V2/08_Inventory/Story_Items/INV_CarKey.glb",
+   "weight": 0.05
   },
   "canned_food": {
    "name": "Canned Soup",
    "category": "food",
-   "description": "Tomato soup. Dinner, technically."
+   "description": "Tomato soup. Dinner, technically.",
+   "model": "res://THE_VEIL_ASSETS_V2/08_Inventory/Food_And_Supplies/INV_CannedFood.glb",
+   "weight": 0.4
   },
   "water_bottle": {
    "name": "Water Bottle",
    "category": "food",
-   "description": "A big bottle of spring water."
+   "description": "A big bottle of spring water.",
+   "model": "res://THE_VEIL_ASSETS_V2/08_Inventory/Food_And_Supplies/INV_WaterBottle.glb",
+   "weight": 1.0
   },
   "energy_snack": {
    "name": "Snack Bar",
    "category": "food",
-   "description": "Chocolate and peanuts. For later."
+   "description": "Chocolate and peanuts. For later.",
+   "model": "res://THE_VEIL_ASSETS_V2/08_Inventory/Food_And_Supplies/INV_EnergySnack.glb",
+   "weight": 0.1
   },
   "groceries": {
    "name": "Groceries",
    "category": "food",
-   "description": "A paper bag: soup, water, snacks. Enough for the weekend."
+   "description": "A paper bag: soup, water, snacks. Enough for the weekend.",
+   "model": "res://THE_VEIL_ASSETS_V2/08_Inventory/Food_And_Supplies/INV_SmallBackpack.glb",
+   "weight": 2.5
   },
   "horror_game": {
    "name": "Horror Game",
    "category": "misc",
-   "description": "HOLLOW HILL - a new horror game for tonight. (Title from the store art; not confirmed in the story bible.)"
+   "description": "HOLLOW HILL - a new horror game for tonight. (Title from the store art; not confirmed in the story bible.)",
+   "weight": 0.1
   },
   "cola_bottle": {
    "name": "Cola",
    "category": "food",
-   "description": "A cold bottle of KOLA from the drinks cooler."
+   "description": "A cold bottle of KOLA from the drinks cooler.",
+   "model": "res://THE_VEIL_ASSETS_V2/08_Inventory/Food_And_Supplies/INV_WaterBottle.glb",
+   "weight": 0.6
   },
   "chocolate_bar": {
    "name": "Chocolate",
    "category": "food",
-   "description": "A COCOA bar from the rack by the checkout."
+   "description": "A COCOA bar from the rack by the checkout.",
+   "model": "res://THE_VEIL_ASSETS_V2/08_Inventory/Food_And_Supplies/INV_EnergySnack.glb",
+   "weight": 0.1
   },
   "flashlight": {
    "name": "Flashlight",
    "category": "flashlight",
-   "description": "A heavy store flashlight from the customer service desk. F to switch on, R to change batteries."
+   "description": "A heavy store flashlight from the customer service desk. F to switch on, R to change batteries.",
+   "model": "res://THE_VEIL_ASSETS_V2/08_Inventory/Story_Items/INV_Flashlight.glb",
+   "weight": 0.45
   },
   "batteries": {
    "name": "Batteries",
    "category": "flashlight",
-   "description": "Spare flashlight batteries. The count and charge show bottom right while the flashlight is on."
+   "description": "Spare flashlight batteries. The count and charge show bottom right while the flashlight is on.",
+   "model": "res://THE_VEIL_ASSETS_V2/08_Inventory/Food_And_Supplies/INV_SpareBatteries.glb",
+   "weight": 0.1
   },
   "painkillers": {
    "name": "Painkillers",
    "category": "medical",
-   "description": "A blister pack of painkillers from a bathroom medicine cabinet."
+   "description": "A blister pack of painkillers from a bathroom medicine cabinet.",
+   "model": "res://THE_VEIL_ASSETS_V2/08_Inventory/Medical/INV_PainkillerPack.glb",
+   "weight": 0.05
   }
- }
+ },
+ "carry_capacity_kg": 15.0,
+ "weight_note": "Placeholder weights (display only, not enforced). The bible's early design mentions about 15 kg; final values are TBD."
 }

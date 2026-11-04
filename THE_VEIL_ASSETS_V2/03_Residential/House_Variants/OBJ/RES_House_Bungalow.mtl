@@ -146,13 +146,6 @@ Kd 1 1 1
 Ks 0 0 0
 illum 1
 
-newmtl M_Town_PaintGreen
-Ka 0 0 0
-Kd 1 1 1
-Ks 0 0 0
-illum 1
-map_Kd ../../../02_Town/Textures/T_Town_PaintGreen.png
-
 newmtl M_Furn_MetalBrushed
 Ka 0 0 0
 Kd 1 1 1

@@ -18,8 +18,7 @@ var sub: Label
 var title: Label
 var hint: Label
 var speed_l: Label
-var inv_panel: PanelContainer
-var inv_list: VBoxContainer
+var inv_panel: VeilInventoryPanel
 var pause_panel: Control
 var settings: SettingsPanel
 var end_panel: PanelContainer
@@ -167,14 +166,15 @@ func _unhandled_input(e: InputEvent) -> void:
 		get_viewport().set_input_as_handled()
 	elif e.is_action_pressed("inventory") and not is_paused():
 		toggle_inventory()
-	elif e is InputEventMouseButton and e.pressed and not is_paused() and not end_panel.visible \
+	elif e is InputEventMouseButton and e.pressed and not is_paused() and not end_panel.visible and not inv_panel.visible \
 			and Input.mouse_mode != Input.MOUSE_MODE_CAPTURED:
 		Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
 
 
 func _process(_d: float) -> void:
+	_update_marker()
 	click_hint.visible = Input.mouse_mode != Input.MOUSE_MODE_CAPTURED and not is_paused() and not end_panel.visible \
-		and fade.color.a < 0.5
+		and fade.color.a < 0.5 and not inv_panel.visible
 
 
 # ------------------------------------------------------------------ basics
@@ -225,40 +225,110 @@ func title_card(text: String, hold := 2.6) -> void:
 
 # ------------------------------------------------------------------ inventory
 func _build_inventory() -> void:
-	inv_panel = PanelContainer.new()
-	inv_panel.add_theme_stylebox_override("panel", VeilUI.panel_style())
-	inv_panel.anchor_left = 0.62
-	inv_panel.anchor_right = 0.97
-	inv_panel.anchor_top = 0.12
-	inv_panel.anchor_bottom = 0.12
-	inv_panel.visible = false
-	var v := VBoxContainer.new()
-	v.add_theme_constant_override("separation", 10)
-	inv_panel.add_child(v)
-	v.add_child(VeilUI.label("INVENTORY", 22))
-	inv_list = VBoxContainer.new()
-	inv_list.add_theme_constant_override("separation", 8)
-	v.add_child(inv_list)
+	# the survival-horror inventory screen (game/ui/inventory_panel.gd); inv_panel / toggle_inventory() keep
+	# their old meaning for callers (Chapter 5 opens it to check the supplies)
+	inv_panel = VeilInventoryPanel.new()
+	inv_panel.name = "Inventory"
 	root.add_child(inv_panel)
-	_refresh_inventory()
+	inv_panel.closed.connect(func(): _inventory_input(false))
 
 
 func _refresh_inventory() -> void:
-	for c in inv_list.get_children():
-		c.queue_free()
-	if Game.inventory.is_empty():
-		inv_list.add_child(VeilUI.label("Pockets are empty.", 16, VeilUI.MUTED))
-	for id in Game.inventory:
-		var info := Game.item_info(id)
-		inv_list.add_child(VeilUI.label("%s   [%s]" % [info.get("name", id), str(info.get("category", "")).to_upper()], 18))
-		var d := VeilUI.label(info.get("description", ""), 14, VeilUI.MUTED)
-		d.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-		d.custom_minimum_size = Vector2(360, 0)
-		inv_list.add_child(d)
+	if inv_panel:
+		inv_panel.refresh()
+
+
+## While the inventory is open the world gets no input (no interacting or walking behind the screen).
+var _inv_held := false
+
+
+func _inventory_input(open: bool) -> void:
+	var w := get_parent()
+	var p: Node = w.get("player") if w else null
+	if open:
+		_inv_held = p != null and p.get("controls_enabled") == true
+		if _inv_held:
+			p.set("controls_enabled", false)
+		Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
+	else:
+		if _inv_held and p:
+			p.set("controls_enabled", true)
+		_inv_held = false
+		if not is_paused():
+			Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
+
+
+# ------------------------------------------------------------------ destination marker (one, reusable)
+## set_marker(target, label): target is a Node3D (followed) or a Vector3; null hides it. A small pale diamond with
+## the distance, clamped to the screen edge (pointing the way) when the target is off-screen or behind you.
+var _mk: Control
+var _mk_label: Label
+var _mk_target: Variant = null
+var _mk_name := ""
+var marker_visible := false             ## tests
+
+
+func set_marker(target: Variant, label := "") -> void:
+	_mk_target = target
+	_mk_name = label
+	if _mk == null:
+		_mk = Control.new()
+		_mk.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		var d := ColorRect.new()
+		d.color = Color(0.86, 0.9, 0.86, 0.85)
+		d.size = Vector2(9, 9)
+		d.pivot_offset = Vector2(4.5, 4.5)
+		d.position = Vector2(-4.5, -4.5)
+		d.rotation = PI / 4
+		d.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		_mk.add_child(d)
+		_mk_label = VeilUI.label("", 13, VeilUI.MUTED)
+		_mk_label.position = Vector2(-60, 8)
+		_mk_label.size = Vector2(120, 20)
+		_mk_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+		_mk.add_child(_mk_label)
+		root.add_child(_mk)
+		_mk.visible = false
+
+
+func _update_marker() -> void:
+	if _mk == null:
+		return
+	var pos: Variant = null
+	if _mk_target is Node3D and is_instance_valid(_mk_target):
+		pos = (_mk_target as Node3D).global_position
+	elif _mk_target is Vector3:
+		pos = _mk_target
+	var cam := get_viewport().get_camera_3d()
+	if pos == null or cam == null or inv_panel.visible or is_paused():
+		_mk.visible = false
+		marker_visible = false
+		return
+	var p: Vector3 = pos
+	var dist := cam.global_position.distance_to(p)
+	if dist < 1.6:
+		_mk.visible = false                       # you are there: the interaction prompt takes over
+		marker_visible = false
+		return
+	var vs := get_viewport().get_visible_rect().size
+	var sp := cam.unproject_position(p)
+	if cam.is_position_behind(p):
+		sp = vs - sp
+		sp.y = vs.y - 40.0
+	var m := 36.0
+	sp = Vector2(clampf(sp.x, m, vs.x - m), clampf(sp.y, m, vs.y - m - 30.0))
+	_mk.position = sp
+	_mk_label.text = ("%s  %d m" % [_mk_name, roundi(dist)]) if _mk_name != "" else "%d m" % roundi(dist)
+	_mk.visible = true
+	marker_visible = true
 
 
 func toggle_inventory() -> void:
-	inv_panel.visible = not inv_panel.visible
+	if inv_panel.visible:
+		inv_panel.close()
+	else:
+		inv_panel.open()
+		_inventory_input(true)
 
 
 # ------------------------------------------------------------------ pause

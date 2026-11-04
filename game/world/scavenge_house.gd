@@ -191,6 +191,9 @@ func _place_loot() -> void:
 				var back := cs2.position.z - bs2.size.z * 0.5
 				bs2.size.z = front - back
 				cs2.position.z = back + bs2.size.z * 0.5
+		it.container = c
+		for co in piece.find_children("*", "CollisionObject3D", true, false):
+			it.los_ignore.append((co as CollisionObject3D).get_rid())
 		it.collision_layer = 0
 		it.used.connect(func(_b): looted.emit(id))
 		loot[id] = it

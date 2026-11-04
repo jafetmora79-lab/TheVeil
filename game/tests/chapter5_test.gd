@@ -158,6 +158,20 @@ func look(it: Node3D) -> bool:
 	return player._focus == it
 
 
+## Aim deliberately OFF the item (by `off` metres sideways) - the aim assist must still select it.
+func look_near(it: Interactable, off: float) -> bool:
+	var player = world.player
+	await frames(2)
+	var eye: Vector3 = player.camera.global_position
+	var c: Vector3 = it.focus_point()
+	var v := (c - eye).normalized()
+	var side := v.cross(Vector3.UP).normalized()
+	v = (c + side * off - eye).normalized()
+	player.set_yaw_pitch(atan2(-v.x, -v.z), asin(clampf(v.y, -1.0, 1.0)))
+	await watch_frames(5)
+	return player._focus == it
+
+
 ## The loot sits inside its container: within the container piece's footprint and below its top.
 func _inside(item: Interactable, container: Interactable) -> bool:
 	var piece := container.get_parent().get_parent() as Node3D
@@ -247,9 +261,14 @@ func _run() -> void:
 	_watch = true
 	var out_store := [Vector3(1.5, 0.2, 4.4), Vector3(1.5, 0.2, 1.8), Vector3(0.3, 0.2, 1.0), Vector3(0.3, 0.2, -3.5)]
 	var walked := await walk_route(out_store, mk)
+	await watch_frames(20)
+	ok("c5_leave_then_house", game.has_flag("c5_left_store") and game.current_step().get("id", "") == "c5_reach", game.current_step().get("id", ""))
+	ok("c5_marker_house", c5.marker_target is Vector3 and (c5.marker_target as Vector3).distance_to(c5.hl(Vector3(-1.6, 1.6, 3.0))) < 0.1
+		and world.hud.marker_visible)
 	walked = walked and await walk_world([Vector3(11.5, 0.2, -23.5), Vector3(11.5, 0.2, -60.5), Vector3(15.6, 0.2, -62.5),
 		Vector3(15.6, 0.2, -66.6)])
 	ok("c5_house_reachable_walk", walked, str(world.player.global_position))
+	ok("c5_left_store_objective", game.has_flag("c5_left_store"))
 	ok("c5_doors_shut_behind", not c5._doors_open)
 	ok("c5_street_line", game.has_flag("c5_street_said"))
 	ok("c5_eddie_kept_up", await wait_until(func(): return c5.eddie.global_position.distance_to(world.player.global_position) < 4.5, 60 * 12),
@@ -261,6 +280,11 @@ func _run() -> void:
 	fd.interact(world.player)
 	await watch_frames(40)
 	ok("c5_enter_house", await walk_route([Vector3(-1.6, 0.8, 2.6), Vector3(-1.6, 0.8, 4.6)], h) and game.has_flag("c5_house_reached"))
+	var fr: Interactable = c5.scav.parts.get("RES_Fridge_Retro/INT_ApplianceDoor_Fridge")
+	if fr:
+		# hinge on the leaf's left edge, leaf along +x, front +z: opening must swing the free edge forward
+		var swung: Vector3 = Basis(fr.hinge_axis, deg_to_rad(fr.open_deg)) * Vector3(1, 0, 0)
+		ok("c5_fridge_opens_forward", swung.z > 0.5, "open_deg %.0f" % fr.open_deg)
 	for k in ["food", "batteries", "medical"]:
 		var item: Interactable = c5.its["item_" + k]
 		ok("c5_item_in_closed_container_" + k, item.collision_layer == 0 and not item.taken)
@@ -290,13 +314,38 @@ func _run() -> void:
 		await watch_frames(30)
 		ok("c5_container_open_" + k, sk.is_open)
 		ok("c5_item_inside_" + k, _inside(item, sk), str(item.target.global_position))
+		ok("c5_marker_container_" + k, c5.marker_target is Vector3)
+		ok("c5_item_assist_" + k, await look_near(item, 0.09), "focus %s" % world.player._focus)
 		ok("c5_item_reach_" + k, await look(item))
+		var geo: Array = item.target.find_children("*", "GeometryInstance3D", true, false)
+		ok("c5_item_highlight_" + k, geo.size() > 0 and (geo[0] as GeometryInstance3D).material_overlay != null)
+		ok("c5_item_prompt_" + k, world.player._prompt.contains("TAKE " + String(game.item_info(item.item_id)["name"]).to_upper()), world.player._prompt)
 		item.interact(world.player)
 		await watch_frames(10)
 		if k == "food":
 			ok("c5_eddie_follows_inside", await wait_until(func(): return c5._in_house(c5.eddie.global_position), 60 * 10),
 				"eddie %s" % h.to_local(c5.eddie.global_position))
 	ok("c5_food_in_inventory", game.has_item("canned_food"))
+	# the inventory screen: grid shows every carried item, real quantities, weight, and holds the world's input
+	world.hud.toggle_inventory()
+	await frames(5)
+	var inv: VeilInventoryPanel = world.hud.inv_panel
+	var occupied := 0
+	for b in inv._slots:
+		if not (b as Button).disabled:
+			occupied += 1
+	ok("inv_grid", inv.visible and occupied == game.inventory.size() and not world.player.controls_enabled, "%d slots for %d items" % [occupied, game.inventory.size()])
+	ok("inv_battery_qty", VeilInventoryPanel.quantity("batteries") == p4.flashlight.spares)
+	var wsum := 0.0
+	for id in game.inventory:
+		wsum += float(game.item_info(id).get("weight", 0.0)) * (p4.flashlight.spares if id == "batteries" else 1)
+	ok("inv_weight", absf(VeilInventoryPanel.carried_weight() - wsum) < 0.001 and inv._weight.text.contains("/ 15.0 kg"), inv._weight.text)
+	inv.select(game.inventory.find("flashlight"))
+	ok("inv_details", inv._name.text == "FLASHLIGHT" and inv._actions.get_child_count() >= 1, inv._name.text)
+	world.hud.toggle_inventory()
+	await frames(5)
+	ok("inv_closes", not inv.visible and world.player.controls_enabled)
+	_eddie_prev = c5.eddie.global_position          # the inventory frames above were not watched
 	ok("c5_medical_in_inventory", game.has_item("painkillers"))
 	ok("c5_batteries_real", game.has_item("batteries") and p4.flashlight.spares == spares0 + 2, "spares %d -> %d" % [spares0, p4.flashlight.spares])
 	ok("c5_supplies_done", game.has_flag("c5_supplies_done") and game.current_step().get("id", "") == "c5_radio")
@@ -314,8 +363,12 @@ func _run() -> void:
 	var rit: Interactable = c5.its["radio"]
 	ok("c5_radio_static", c5._static.playing)
 	ok("c5_radio_reach", await look(rit))
+	ok("c5_radio_prompt", world.player._prompt.contains("INVESTIGATE RADIO"), world.player._prompt)
+	ok("c5_marker_radio", c5.marker_target == c5.radio)
 	rit.interact(world.player)
-	ok("c5_radio_done", await wait_talk(func(): return game.has_flag("c5_radio_done"), 120.0) and not c5._static.playing)
+	await frames(30)
+	ok("c5_radio_lit_while_playing", c5.radio.on and c5.radio._m_led.emission_energy_multiplier > 1.0)
+	ok("c5_radio_done", await wait_talk(func(): return game.has_flag("c5_radio_done"), 120.0) and not c5._static.playing and not c5.radio.on)
 	rit.interact(world.player)
 	await frames(5)
 	ok("c5_radio_once", c5.radio_runs == 1 and rit.prompt_text == "")
@@ -358,11 +411,13 @@ func _run() -> void:
 	await frames(100)
 	ok("c5_doors_closed_home", not c5._doors_open)
 	# ---- scene 8: report
-	ok("c5_report_prompt", c5.its["npc_Marcus"].prompt_text == "[E] Talk")
+	ok("c5_report_prompt", c5.its["npc_Marcus"].prompt_text.ends_with("TALK TO MARCUS"), c5.its["npc_Marcus"].prompt_text)
 	ok("c5_marcus_reach_back", await aim(c5.its["npc_Marcus"], [Z, -Z, X, -X], mk, 1.4))
 	c5.its["npc_Marcus"].interact(world.player)
 	ok("c5_reported", await wait_talk(func(): return game.has_flag("c5_reported") and game.has_flag("c5_complete"), 90.0))
 	ok("c5_complete_card", world.hud.title.text.begins_with("CHAPTER 5 COMPLETE"), world.hud.title.text)
+	await frames(3)
+	ok("c5_marker_cleared", c5.marker_target == null and not world.hud.marker_visible)
 	ok("c5_no_chapter6", not game.has_flag("c6_started") and game.current_step().get("id", "") == "c5_complete")
 	ok("c5_sleep_available", p4.rest.interactable.prompt_text == "[E] Sleep")
 	await reload()

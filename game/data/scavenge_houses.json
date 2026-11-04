@@ -5,7 +5,7 @@
    "INT_ApplianceDoor_Fridge": {
     "veil_interact": "hinge",
     "axis": "y",
-    "open_deg": 100
+    "open_deg": -100
    }
   },
   "RES_Counter_Sink": {
