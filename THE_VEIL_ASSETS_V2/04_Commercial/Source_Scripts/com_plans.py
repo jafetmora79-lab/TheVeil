@@ -121,7 +121,9 @@ def sign_3d(mb, text, x, y, z, w, h, board_sw, letter_sw, frame="enamel_white", 
     abox(mb, board_sw, (x - w / 2, y - h / 2, zf), (x + w / 2, y + h / 2, z - depth), skip=("+z",))
     cols = len(text) * 4 - 1
     k = min(w * 0.92 / cols, h * 0.78 / 5)
-    x0 = x - cols * k / 2
+    # the sign is read from the street, i.e. looking along +z: the reader's left is +x. Text therefore runs from
+    # +x towards -x (laying it out along +x mirrored every 3D sign: "TEKRAM NEVAHYERG")
+    xr = x + cols * k / 2
     yt = y + 2.5 * k
     for i, ch in enumerate(text.upper()):
         g = CA.FONT.get(ch)
@@ -136,7 +138,7 @@ def sign_3d(mb, text, x, y, z, w, h, board_sw, letter_sw, frame="enamel_white", 
                     while c < 3 and bits[c] == "1":
                         c += 1
                     px0, px1 = i * 4 + c0, i * 4 + c
-                    abox(mb, letter_sw, (x0 + px0 * k, yt - (row + 1) * k, zf - letter_depth), (x0 + px1 * k, yt - row * k, zf),
+                    abox(mb, letter_sw, (xr - px1 * k, yt - (row + 1) * k, zf - letter_depth), (xr - px0 * k, yt - row * k, zf),
                          skip=("+z",), mat=GLOW)
                 else:
                     c += 1

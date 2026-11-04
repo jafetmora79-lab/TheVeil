@@ -258,12 +258,83 @@ func _can_stand() -> bool:
 # ------------------------------------------------------------------ interaction
 func _update_focus() -> void:
 	var f: Node = null
+	var hit_d := INF
 	if controls_enabled and ray.is_colliding():
 		var c := ray.get_collider()
+		hit_d = camera.global_position.distance_to(ray.get_collision_point())
 		if c and c.has_method("get_prompt"):
 			f = c
+	# aim assist for small collectibles (loot in an open drawer or cabinet, items on shelves): no pixel hunting.
+	# A visible pickup close to the crosshair wins over the container part / surface the ray happened to hit.
+	# only when the ray found nothing to use, or found the container a loot item sits in (never over NPCs / doors)
+	var container := f is Interactable and (f as Interactable).kind in ["hinge", "slide"]
+	if controls_enabled and (f == null or container):
+		var a := _assist_pickup(hit_d, ray.get_collider() if ray.is_colliding() else null)
+		if a and (f == null or a.container == f or _same_piece(a, f)):
+			f = a
+	if f != _focus:
+		if _focus and is_instance_valid(_focus) and _focus.has_method("set_focus"):
+			_focus.set_focus(false)
+		if f and f.has_method("set_focus"):
+			f.set_focus(true)
 	_focus = f
 	_set_prompt(f.get_prompt() if f else "")
+
+
+## The ray hit another door / drawer of the piece the loot sits in (e.g. the neighbouring closed cabinet door).
+func _same_piece(a: Interactable, f: Node) -> bool:
+	if a.container == null or not (f is Node):
+		return false
+	if not a.container.is_open:
+		return false
+	var piece: Node = a.container
+	while piece and piece.get_parent() and not (String(piece.get_parent().name) in ["Furniture", "ScavengeFurniture"]):
+		piece = piece.get_parent()
+	return piece != null and piece.get_parent() != null and piece.is_ancestor_of(f)
+
+
+const ASSIST_COS := 0.985          ## ~10 degrees around the crosshair
+const ASSIST_RADIUS := 0.16        ## or within 16 cm of the view line
+
+
+## Nearest-to-the-crosshair pickup within reach that the player can actually see (no walls, closed doors or
+## drawers in between: closed containers switch their loot's layer off, so it is never offered).
+func _assist_pickup(ray_hit_d: float, ray_hit: Object) -> Interactable:
+	var eye := camera.global_position
+	var fwd := -camera.global_transform.basis.z
+	var best: Interactable = null
+	var best_score := INF
+	var space := get_world_3d().direct_space_state
+	for n in get_tree().get_nodes_in_group("veil_pickup"):
+		var it := n as Interactable
+		if it == null or it.taken or (it.collision_layer & 8) == 0 or not it.monitorable or not it.is_visible_in_tree():
+			continue
+		var p := it.focus_point()
+		var to := p - eye
+		var d := to.length()
+		if d > REACH + 0.3 or d < 0.05:
+			continue
+		var along := to.dot(fwd)
+		if along <= 0.0:
+			continue
+		var off := (to - fwd * along).length()
+		if to.normalized().dot(fwd) < ASSIST_COS and off > ASSIST_RADIUS:
+			continue
+		var own: Array[RID] = it.los_ignore
+		var hit_own := ray_hit is CollisionObject3D and own.has((ray_hit as CollisionObject3D).get_rid())
+		if ray_hit_d < d - 0.35 and not hit_own and ray_hit != it.container:
+			continue                                   # something solid well in front of it on the view line
+		var ex: Array[RID] = [get_rid()]
+		ex.append_array(own)
+		var q := PhysicsRayQueryParameters3D.create(eye, p, 1, ex)
+		var hit := space.intersect_ray(q)
+		if not hit.is_empty() and (hit["position"] as Vector3).distance_to(p) > 0.3:
+			continue                                   # hidden behind something
+		var score := off + d * 0.02
+		if score < best_score:
+			best_score = score
+			best = it
+	return best
 
 
 func _set_prompt(t: String) -> void:
