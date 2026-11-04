@@ -66,6 +66,7 @@ func reset_to_patrol(far_from: Vector3) -> void:
 			best = p
 	body.global_position = best
 	body.velocity = Vector3.ZERO
+	_snap_floor()
 	state = "PATROL"
 	awareness = 0.0
 	_unseen = 0.0
@@ -202,10 +203,9 @@ func _move_to(goal: Vector3, speed: float, delta: float, clip: String) -> void:
 	if d.length() > 0.05:
 		v = d.normalized() * speed
 		_face(d)
-	body.velocity.x = v.x
-	body.velocity.z = v.z
-	body.velocity.y = 0.0 if body.is_on_floor() else body.velocity.y - GRAVITY * delta
+	body.velocity = Vector3(v.x, 0.0, v.z)
 	body.move_and_slide()
+	_snap_floor()
 	_play(clip, speed)
 	# wedged on a corner: sidestep along the wall instead of grinding into it
 	var moved := _flat(body.global_position, _last_pos)
@@ -219,11 +219,20 @@ func _move_to(goal: Vector3, speed: float, delta: float, clip: String) -> void:
 
 
 func _idle(delta: float, clip: String) -> void:
-	body.velocity.x = 0.0
-	body.velocity.z = 0.0
-	body.velocity.y = 0.0 if body.is_on_floor() else body.velocity.y - GRAVITY * delta
-	body.move_and_slide()
+	body.velocity = Vector3.ZERO
+	_snap_floor()
 	_play(clip)
+
+
+## The Hound's collision boxes start ~0.4 m above its paws (CRT_Hound BodyShape), so gravity would sink the legs
+## into the ground: instead the paws are kept on the floor under it (curbs, yards, kerbs) with a ray.
+func _snap_floor() -> void:
+	var p := body.global_position
+	var q := PhysicsRayQueryParameters3D.create(p + Vector3(0, 1.0, 0), p + Vector3(0, -2.0, 0), 1)
+	q.exclude = [body.get_rid(), player.get_rid()]
+	var hit := body.get_world_3d().direct_space_state.intersect_ray(q)
+	if hit:
+		body.global_position.y = move_toward(p.y, (hit["position"] as Vector3).y, 0.08)
 
 
 func _face(d: Vector3) -> void:
