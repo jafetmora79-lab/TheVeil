@@ -231,8 +231,11 @@ def build_mesh(rig, legs, tents, uv):
         b = legs[k]
         s, e, w, c = (np.array(v, float) for v in (s, e, w, c))
         inside = s + (np.array([0.0, 0.1, 0.0]) - np.array([s[0], 0, 0])) * 0.45
+        # the sweep runs down into the foot (fore: under the claw roots; hind: onto the hoof plate) - ending it at
+        # 0.55 left the hind hoofs ~0.3 m (1.8 m at encounter scale) below the leg and the fore claws detached
+        end_f = 0.86 if kind == "hind" else 0.78
         pts = [inside, s, s + (e - s) * 0.5 + np.array([0, 0.35, 0]), e, e + (w - e) * 0.25, e + (w - e) * 0.62, w,
-               w + (c - w) * 0.55]
+               w + (c - w) * 0.55, w + (c - w) * end_f]
         Cl = G.resample(pts, 22)
         S, Ll = G.arclen(Cl)
         stops = G.stops_from_joints(Cl, [inside, s, e, w], [par, b[0], b[1], b[2]])
@@ -260,7 +263,7 @@ def build_mesh(rig, legs, tents, uv):
         for q, (ang, sz) in enumerate([(0.3, 1.0), (1.9, 0.8), (3.6, 0.9)]):
             a_, b_ = C.tube_frame(C.nrm(dir_up + dir_dn), (0, 1, 0))
             nrmv = a_ * math.cos(ang) + b_ * math.sin(ang)
-            G.plate(atl, e + nrmv * rj * 1.05, (0.9 * sz * rj * 1.6, 0.14, 1.0 * sz * rj * 1.7), {b[0]: 0.5, b[1]: 0.5},
+            G.plate(atl, e + nrmv * rj * 0.92, (0.9 * sz * rj * 1.6, 0.14, 1.0 * sz * rj * 1.7), {b[0]: 0.5, b[1]: 0.5},
                     uv["plate_glow" if (q == 1 and k in ("FL", "HR")) else "plate_char"], normal=nrmv, along=dir_dn)
         spur_dir = C.nrm(np.cross(dir_dn, np.cross(dir_up, dir_dn)) * -1 + np.array([0, 0.4, 0]))
         if kind == "hind":
@@ -275,7 +278,7 @@ def build_mesh(rig, legs, tents, uv):
         fwd = np.array([0.0, 0.0, 1.0])
         lat = np.array([1.0 if c[0] > 0 else -1.0, 0, 0])
         if kind == "fore":
-            base = w + (c - w) * 0.7
+            base = w + (c - w) * 0.64                # claw roots inside the foot end of the leg sweep
             for dlat, dfw, ln in ((-0.55, 0.85, 1.25), (0.05, 1.05, 1.45), (0.6, 0.7, 1.1)):
                 tipp = np.array([c[0] + lat[0] * dlat, 0.11, c[2] + dfw * ln])
                 mid = base + (tipp - base) * 0.5 + np.array([0, 0.35, 0]) + fwd * 0.15
@@ -286,7 +289,7 @@ def build_mesh(rig, legs, tents, uv):
             G.plate(atl, np.array([c[0], 0.2, c[2] + 0.25]), (1.1, 0.35, 1.5), {b[2]: 1.0}, uv["hoof"], normal=(0, 1, 0),
                     along=(lat[0] * 0.15, 0, 1), taper=(0.7, 0.75))
             for dlat in (-0.35, 0.4):
-                base = np.array([c[0] + dlat, 0.3, c[2] + 0.75])
+                base = np.array([c[0] + dlat, 0.3, c[2] + 0.62])     # rooted in the hoof plate
                 tipp = base + np.array([dlat * 0.4, -0.24, 0.65])
                 Cdg = G.resample([base, (base + tipp) / 2 + np.array([0, 0.12, 0]), tipp], 5)
                 G.sweep(atl, Cdg, [0.18, 0.15, 0.11, 0.07, 0.04], lambda p, sv, bb=b[2]: {bb: 1.0}, uv["claw"], n=5,
