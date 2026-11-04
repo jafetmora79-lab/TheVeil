@@ -976,6 +976,88 @@
      18
     ]
    }
+  },
+  {
+   "name": "Noah",
+   "glb": "Civilians/CHR_Noah.glb",
+   "head_texture": "T_Noah_Head",
+   "atlas": "06_Characters/Facial/Faces/T_Face_Noah.png",
+   "neutral_identical": true,
+   "eyes": [
+    {
+     "side": "L",
+     "white_rows": [
+      28
+     ],
+     "lid_row": 27,
+     "x": [
+      53,
+      59
+     ]
+    },
+    {
+     "side": "R",
+     "white_rows": [
+      28
+     ],
+     "lid_row": 27,
+     "x": [
+      69,
+      75
+     ]
+    }
+   ],
+   "mouth": {
+    "row": 46,
+    "x": [
+     61,
+     67
+    ]
+   },
+   "brow_pixels": 20,
+   "static_pixels": 11,
+   "changed_pixels_vs_neutral": {
+    "neutral": [
+     0,
+     0
+    ],
+    "happy": [
+     40,
+     9
+    ],
+    "angry": [
+     76,
+     2
+    ],
+    "scared": [
+     72,
+     4
+    ],
+    "shocked": [
+     72,
+     11
+    ],
+    "sad": [
+     60,
+     5
+    ],
+    "suspicious": [
+     76,
+     5
+    ],
+    "confused": [
+     30,
+     5
+    ],
+    "determined": [
+     76,
+     0
+    ],
+    "pain": [
+     64,
+     12
+    ]
+   }
   }
  ]
 }

@@ -29,7 +29,7 @@ it.
 | Frank | `Commercial_NPCs/CHR_Frank.glb` | Style rev 4 | Security guard (WORKING DRAFT) | Local security | TBD |
 | Lena | `Civilians/CHR_Lena.glb` | Style rev 4 | Student investigator (WORKING DRAFT) | Disappearances | TBD |
 | Officer Hayes? | `Police/CHR_Police_Officer.glb` | Style rev 4. **Candidate only**. | Police officer (WORKING DRAFT, details TBD) | TBD | TBD |
-| Noah | none | Do not model until his age and look are confirmed | Marcus's missing son (ESTABLISHED) | Son of Marcus | TBD |
+| Noah | `Civilians/CHR_Noah.glb` + `T_Face_Noah.png` (2,740 tris, 1.42 m) | **DESIGN PROPOSAL**: age TBD in the bible, built as roughly 10-12 at the owner's request. Not placed in the game. | Marcus's missing son (ESTABLISHED) | Son of Marcus | TBD |
 | Danny, Walter, Kevin, Mr. Bell | none | Roles TBD | Named in earlier planning only | TBD | TBD |
 | Cashier (supermarket) | `Commercial_NPCs/CHR_Cashier.glb` + `T_Face_Cashier.png` | **Generic placeholder**, style rev 4. Not in the bible. | Phase 2 checkout; gone when the mist arrives (Phase 3) | - | TBD |
 

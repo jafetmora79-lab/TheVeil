@@ -188,6 +188,8 @@ Descriptions below distinguish narrative facts from suggested looks. Character m
 - **Role/relationship:** Marcus's missing child. **ESTABLISHED**
 - **Exact age, appearance, location, fate, and whether he is encountered in person:** **TBD**.
 - **3D instruction:** Do not guess his age or produce a definitive model until the story establishes it.
+- **UPDATE 2026-11-04:** at the owner's request, a **design-proposal** model `CHR_Noah` exists (built as roughly 10-12).
+  It is not canon and not placed in the game. Age, look and fate stay TBD.
 
 ### 4.5 Ruth — retired librarian
 
