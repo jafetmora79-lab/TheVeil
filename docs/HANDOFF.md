@@ -30,11 +30,11 @@ This is for the next Claude session (or person) continuing the asset packs. Read
 |---|---|---|
 | 01 Textures + materials | `01_Textures/`, `Materials_Godot/` | Done. Master pixel-art library; its palette ramps are reused everywhere. |
 | 02 Town | `02_Town/` | Done. Greyhaven roads, sidewalks, street props, vegetation, utilities, and the **town layout** (`Town_Layout/greyhaven_layout.json`: zones, placements, journey). `Godot_Scenes/Greyhaven_Town.tscn`. |
-| 03 Residential | `03_Residential/` | Done. 23 house variants, all enterable. Player home staged for the opening. 85 furniture GLBs. Reusable **building kit** (`house.py`, `arch.py`, `plans.py`) and **walk checker** (`navcheck.py`). `Residential_Scenes/Greyhaven_Town_With_Houses.tscn`. |
+| 03 Residential | `03_Residential/` | Done (furniture and house fixes in Phase 1, see section 9). 23 house variants, all enterable. Player home staged for the opening. 85 furniture GLBs. Reusable **building kit** (`house.py`, `arch.py`, `plans.py`) and **walk checker** (`navcheck.py`). `Residential_Scenes/Greyhaven_Town_With_Houses.tscn`. |
 | 04 Commercial | `04_Commercial/` | Done (P1/P2/P3). The locations: supermarket, video game store, gas station + canopy, pharmacy, municipal archive. Storefronts A–D are **generic explorable shells, tenants unassigned**; `COMMERCIAL_SPARE` is still empty, because the bible names no business for these. 49 shared fixtures. Each location has a scene in `Godot_Scenes/` and is placed via `Greyhaven_Commercial.tscn`. `Greyhaven_Town_Complete.tscn` = town + houses + commercial. |
 | 05 Vehicles | `05_Vehicles/` | Done. Protagonist sedan (full interior, movable doors / hood / trunk / wheels / steering wheel, seat + camera markers, `Godot_Scenes/Protagonist_Sedan.tscn`). Also a police cruiser, pickup, delivery van, 2 traffic variants, 5 abandoned variants and roadside props. No driving physics (by request). |
 | 06 Characters | `06_Characters/` | **Approved** (see section 4). Facial expressions + talking are done (`Facial/`). |
-| 07 Creatures / enemies | - | **Not started.** It was postponed; ask the owner before starting. |
+| 07 Creatures | `07_Creatures/` | Done: Colossus, Mist Tentacles (3 variants), Hound, Skitter, Shellcrawler. Each is skinned and animated, with a scene and a validator. See `07_Creatures/Documentation/README.md`. No Wanderer, by the owner's request. |
 | 08 Inventory | `08_Inventory/` | Done. 53 items on one atlas, with Grip / Inspect markers. |
 | 09 Horror atmosphere | `09_Horror_Atmosphere/` | Done. Mist, corruption dressing, supernatural details, effects, lighting presets, and the Veil state system (`VeilAtmosphere`: NORMAL, UNEASY, VEIL_APPROACHING, VEIL_ACTIVE, CORRUPTED). |
 
@@ -192,12 +192,110 @@ None of this is in the repo; set it up in a scratch folder.
 
 ## 8. Open items / suggested next steps
 
-* **Pack 07** (supernatural creatures / enemies): not started. Ask the owner for direction. It should match the
-  approved character style and the Pack 09 Veil states.
-* **Storefronts A–D and `COMMERCIAL_SPARE`:** they need tenants or story assignments before fitting them out.
-* **Characters:** optional extras if the owner wants them: a skirt for Ruth, short sleeves for Frank, a different
-  silhouette for the women, or more face variety.
-* **Gameplay systems:** none exist yet. Driving, door logic, dialogue, quests and NPC AI were all explicitly out of
-  scope for the asset packs. The scenes carry markers and metadata ready for them.
-* **The opening sequence:** stop order and timing (supermarket vs. game shop, mist arrival) is still open in the bible
-  (section 2.2 and the open questions).
+The asset packs are finished. Development has moved to the **game**; see section 9. The next steps are listed in
+section 9.6.
+
+## 9. Phase 1 game: the playable opening (current work)
+
+### 9.1 Status
+
+The repository root is a **Godot 4.3 project** (`project.godot`, Compatibility renderer). The opening is playable
+end to end:
+
+1. Main menu.
+2. Wake up at 6:42 PM; the player can move.
+3. Open the fridge: it is nearly empty.
+4. Take the car keys; they go into the inventory.
+5. Open the front door and leave the house.
+6. Get into the sedan.
+7. Drive 1,069 m through Greyhaven (77-99 s measured).
+8. Park at the supermarket.
+
+There is no mist and there are no monsters, as the bible requires for the opening.
+
+* **Browser build:** `docs/play/` → <https://jafetmora79-lab.github.io/TheVeil/play/>. Pages deploys this branch's
+  `docs/`. The owner reported it does **not** run well in their browser and prefers the desktop Godot project. Treat
+  the web build as secondary.
+* **Owner's local test:** download the branch zip, unzip into a **fresh** folder, Import `project.godot` in Godot,
+  press F5.
+* **Full details** (architecture, controls, measurements): `game/README.md`.
+
+### 9.2 Layout of the game code
+
+| Path | Purpose |
+|---|---|
+| `game/autoload/` | `Game` (flags, objectives, inventory, save / load, settings, input map), `Dialogue` (subtitles; data in `game/data/dialogue.json`), `Sfx` (synthesised sounds; there are no audio files in the repo) |
+| `game/player/player.gd` | first-person controller |
+| `game/interaction/interactable.gd` | one component: hinge (with `hinge_axis`), slide, pickup, light toggle, observe, custom |
+| `game/vehicles/player_sedan.gd` | arcade driving on the Pack 05 sedan |
+| `game/world/world.gd` | wires the assets: Player_Home `veil_interactables` metadata, triggers, car entry / exit, parking, save / restore, distance culling, `_outward_deg` (furniture doors swing away from their body) |
+| `game/scenes/MainMenu.tscn`, `World.tscn` | entry points |
+| `game/tools/build_world.py` | **world generator** (see 9.3) |
+| `game/tools/check_world.py` | top-down crack / coverage check of the whole map |
+| `game/tests/opening_test.gd` | automated playthrough. Run before every push: `godot --headless --path . --fixed-fps 60 --script res://game/tests/opening_test.gd -- 50` must print `RESULT PASS` |
+| `game/tests/render_smoke.gd` | real OpenGL3 run (xvfb) that prints draw calls |
+
+### 9.3 Greyhaven was extended (important)
+
+In the Pack 02 layout the house is only about 200 m from the supermarket, and the brief requires at least 60 s of
+driving. `game/tools/build_world.py` therefore uses the Pack 02 `town_layout.py` and the Pack 03
+`placement.py` / `build_residential` **as libraries** and writes into `game/world/`:
+
+* Route 9 continues as a county road to a new subdivision: Harlow Ln, Aspen Ct, and Fern Ct.
+* The **hero house was moved to Fern Ct** with identical lot geometry (the generator asserts this). The old Maple
+  Ave lot now holds a Ranch B neighbour house.
+* `Greyhaven_Core.tscn` is a game copy of the Pack 02 town scene, without the old ground / woods / zone labels and
+  without 34 fence posts that Pack 02 placed inside driveways.
+* The ground is regenerated with cut-outs for the new roads, plus a crack filler. The woods are MultiMesh
+  (`scatter.json`, `scatter.gd`).
+* After any Pack 02 or Pack 03 change, run `python3 game/tools/build_world.py`, then
+  `python3 game/tools/check_world.py` (it must report 0 holes), then the playthrough test.
+
+### 9.4 Asset fixes made during Phase 1 (Pack 03, regenerated by `build_residential.py`)
+
+* **Furniture:**
+  * `furniture.hollow()`: carcasses and drawers now have textured inner walls and a front rim. Before, they had an
+    open hole: the background showed through and drawers were empty.
+  * Raised parts keep their undersides (the `_FurnMB` wrapper).
+  * The asphalt `Road_RoadPatch` stand-in material was replaced by proper furniture materials.
+* **Houses:** `House.clip_gutters_inside()` removes gutter and downspout pieces that the roof builder placed inside
+  rooms (there was a white post and beam in the player's bedroom). It applies to all 23 variants.
+* **Validation:** `validate_residential.py` passes (0 failures, 6 pre-existing placement warnings).
+
+### 9.5 Known issues / limits
+
+* **Visual quality:** never verified by eye by Claude. The owner is the visual tester and reports problems with
+  screenshots. The owner said "there are still a lot of things that don't look good": expect more furniture and
+  building polish requests. **Ask the owner** whether private diagnostic screenshots are allowed for debugging. Until
+  then, find defects with geometry checks (open-edge scan, room-volume tests) as was done for furniture and gutters.
+* **Remaining open edges:** about 141 m of open mesh edges remain across all furniture. They are mostly harmless
+  (flush overlay panels, buried cylinder ends, curtain sheets).
+* **Draw calls:** about 2,300 draw calls / frame with the whole town loaded at once. This is acceptable on desktop
+  and heavy for browsers. Possible next steps: merge static props per block, or stream chunks.
+* **Driving model:** simple. Locomotion is flat-ground only, with no reversing camera or traffic. No NPCs appear in
+  the opening yet.
+* **Godot `.import` files:** opening the project creates `.import` files for a few Pack 09 PNGs and documentation
+  CSVs that never had them. They were left uncommitted.
+* **Web export filters:** the "all resources minus exclusions" filter in `export_presets.cfg` is deliberate.
+  Class-name scripts and dynamically loaded models were missing with the "scenes" filter.
+
+### 9.6 Suggested next steps (ask the owner which first)
+
+1. **Visual polish pass** on what the owner reports (furniture, house interiors, exteriors), with the same root-cause
+   approach: fix the generator, regenerate, validate, re-export.
+2. **Phase 2: the supermarket.** Interior entry from the parking lot, a shopping objective, NPCs (Pack 06
+   characters), and the game shop across Main St with Eddie (bible 2.1 / 2.2). The stop order is still open in the
+   bible.
+3. **Performance:** batching and streaming. The web build only matters if the owner still wants it.
+4. **Audio:** real recorded / licensed sounds if the owner provides them (currently synthesised).
+
+### 9.7 Tooling notes
+
+* Test in a **synced scratch copy** of the repo, not the repo itself, so Godot cannot rewrite pack `.import` files.
+* Web export:
+  * needs the 4.3 export templates; only `web_nothreads_release.zip` is required;
+  * export with `--export-release "Web" build/web/index.html`, then copy the result into `docs/play/`.
+* Browser checks:
+  * use Playwright Chromium with SwiftShader;
+  * `play/index.html?autotest` runs the story interactions in the exported build;
+  * the F10 key prints the game state to the console.
