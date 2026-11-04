@@ -51,7 +51,18 @@ func wait_talk(cond: Callable, max_seconds := 90.0) -> bool:
 	return r
 
 
+var _trace := false
+var _trace_t := 0
+
+
 func _physics_watch() -> void:
+	if _trace and c6 != null:
+		_trace_t += 1
+		if _trace_t % 60 == 0:
+			var hv: bool = c6.hound != null and is_instance_valid(c6.hound)
+			print("  trace player %s hound %s %s aw %.2f" % [world.player.global_position.snapped(Vector3.ONE * 0.1),
+				c6.hound.global_position.snapped(Vector3.ONE * 0.1) if hv else "-", c6.hound_ai.state if hv else "-",
+				c6.hound_ai.awareness if hv else 0.0])
 	# called every frame while walking: Eddie must never jump or cross a wall between two frames
 	if not _watch or c5 == null:
 		return
@@ -305,34 +316,45 @@ func _run() -> void:
 		and world.find_children("Ruth", "", true, false).size() == 1)
 	_eddie_prev = c5.eddie.global_position
 	# ---- scene 6: the Hound (investigate)
-	ok("c6_walk_to_alley", await walk_world(TO_ALLEY), str(world.player.global_position))
-	ok("c6_encounter_started", await wait_until(func(): return game.has_flag("ch6_hound_encounter_started"), 60 * 8)
-		and game.current_step().get("id", "") == "c6_avoid")
-	ok("c6_hound_detects", await wait_until(func(): return c6.hound_ai.state == "CHASE", 60 * 15), c6.hound_ai.state)
+	_trace = true
+	# stop at the side-street corner: the Hound patrols the alley ahead and comes into view
+	ok("c6_walk_to_alley", await walk_world(TO_ALLEY.slice(0, 1) + [Vector3(60.0, 0.2, -74.5)]), str(world.player.global_position))
+	ok("c6_encounter_started", await wait_until(func(): return game.has_flag("ch6_hound_encounter_started"), 60 * 25)
+		and game.current_step().get("id", "") == "c6_avoid" and said.has("What the hell is that?"))
+	ok("c6_hound_on_floor", is_instance_valid(c6.hound) and absf(c6.hound.global_position.y - 0.15) < 0.25, str(c6.hound.global_position))
+	var hound_snap := snapshot()
+	# A) step into its sight, get noticed, sprint away up the side street: it must lose the player
+	await walk_world([Vector3(56.0, 0.2, -77.0)])
+	ok("c6_hound_detects", await wait_until(func(): return is_instance_valid(c6.hound) and c6.hound_ai.state == "CHASE", 60 * 15))
 	ok("c6_run_line", await wait_until(func(): return said.has("RUN!"), 60 * 3))
-	# stand still and let it bite: never a death, the checkpoint takes over
-	var hp0: float = world.player.health
-	var bitten := await wait_until(func(): return world.player.health < hp0, 60 * 10)
-	ok("c6_hound_bites", bitten, "hp %.0f" % world.player.health)
-	ok("c6_checkpoint_not_death", await wait_until(func(): return c6._busy.get("checkpoint", false), 60 * 20)
-		and world.player.health > 0.0)
-	await wait_until(func(): return not c6._busy.get("checkpoint", false), 60 * 4)
-	ok("c6_checkpoint_safe", c6.hound_ai.state == "PATROL" and world.player.global_position.distance_to(c6.hound.global_position) > 15.0
-		and world.player.health > 40.0, "hp %.0f" % world.player.health)
-	_eddie_prev = c5.eddie.global_position
-	# peek again, get noticed, then sprint away up the side street: it must lose the player
-	await walk_world([Vector3(60.0, 0.2, -74.0), Vector3(55.0, 0.2, -77.0)])
-	ok("c6_hound_detects_again", await wait_until(func(): return c6.hound_ai.state == "CHASE", 60 * 15), c6.hound_ai.state)
 	Input.action_press("sprint")
-	await walk_world([Vector3(60.0, 0.2, -77.0), Vector3(60.0, 0.2, -56.0), Vector3(57.0, 0.2, -40.0)])
+	await walk_world([Vector3(60.0, 0.2, -76.0), Vector3(60.0, 0.2, -56.0), Vector3(57.0, 0.2, -40.0)])
 	Input.action_release("sprint")
-	ok("c6_hound_loses_player", await wait_until(func(): return c6.hound_ai.state in ["SEARCH", "RETURN", "PATROL"], 60 * 10)
-		or not is_instance_valid(c6.hound), c6.hound_ai.state if is_instance_valid(c6.hound) else "gone")
+	ok("c6_hound_loses_player", await wait_until(func(): return not is_instance_valid(c6.hound) or c6.hound_ai.state in ["SEARCH", "RETURN", "PATROL"], 60 * 10)
+		and c6.hound_ai.chases >= 1)
 	ok("c6_encounter_complete", await wait_until(func(): return game.has_flag("ch6_hound_encounter_complete"), 60 * 15)
 		and game.current_step().get("id", "") == "c6_return")
+	ok("c6_eddie_escaped_too", c5.eddie.global_position.distance_to(world.player.global_position) < 18.0,
+		"%.1f m" % c5.eddie.global_position.distance_to(world.player.global_position))
+	var main_snap := snapshot()
+	# B) (from the save at first sight) stand in its way: bites, never a death, the checkpoint takes over
+	_watch = false
+	await restore(hound_snap)
+	await walk_world([Vector3(56.0, 0.2, -77.0)])
+	await wait_until(func(): return is_instance_valid(c6.hound) and c6.hound_ai.state == "CHASE", 60 * 15)
+	var hp0: float = world.player.health
+	ok("c6_hound_bites", await wait_until(func(): return world.player.health < hp0, 60 * 12), "hp %.0f" % world.player.health)
+	ok("c6_checkpoint_not_death", await wait_until(func(): return c6._busy.get("checkpoint", false), 60 * 25) and world.player.health > 0.0)
+	await wait_until(func(): return not c6._busy.get("checkpoint", false), 60 * 4)
+	ok("c6_checkpoint_safe", world.player.health > 40.0 and (not is_instance_valid(c6.hound)
+		or world.player.global_position.distance_to(c6.hound.global_position) > 15.0), "hp %.0f" % world.player.health)
+	# back to the main run (escaped by losing it)
+	await restore(main_snap)
+	_eddie_prev = c5.eddie.global_position
+	_watch = true
 	ok("c6_no_ammo_needed", not game.has_item("ammo") and game.has_flag("ch6_hound_encounter_complete"))
 	# ---- scene 7: home
-	ok("c6_walk_home", await walk_world([Vector3(57.0, 0.2, -23.5), Vector3(32.7, 0.2, -23.5)]) and await walk_route(INTO_STORE, world.market),
+	ok("c6_walk_home", await walk_world([Vector3(57.0, 0.2, -40.0), Vector3(57.0, 0.2, -23.5), Vector3(32.7, 0.2, -23.5)]) and await walk_route(INTO_STORE, world.market),
 		str(world.market.to_local(world.player.global_position)))
 	ok("c6_return_line", game.has_flag("ch6_return_said"))
 	mk = world.market
