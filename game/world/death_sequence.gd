@@ -217,6 +217,7 @@ func _spawn_hounds(center: Vector3, dir: Vector3) -> Array:
 			(h as CollisionObject3D).collision_mask = 0
 		h.set_physics_process(false)
 		h.scale = Vector3.ONE * 1.35
+		report["hound_veil_surfaces"] = report.get("hound_veil_surfaces", 0) + VeilCreatureLook.apply_ground(h, center.y)
 		var start: Vector3 = center - dir * (16.0 + i * 3.5) + Vector3(0, 0, 0) + dir.cross(Vector3.UP) * (i - 1) * 1.6
 		start.y = _ground_y(start + Vector3(0, 2.0, 0))
 		h.global_position = start
