@@ -41,6 +41,16 @@
    "name": "Horror Game",
    "category": "misc",
    "description": "A new horror game for tonight. (Title TBD - placeholder, not in the story bible.)"
+  },
+  "flashlight": {
+   "name": "Flashlight",
+   "category": "flashlight",
+   "description": "A heavy store flashlight from the customer service desk. F to switch on, R to change batteries."
+  },
+  "batteries": {
+   "name": "Batteries",
+   "category": "flashlight",
+   "description": "Spare flashlight batteries. The count and charge show bottom right while the flashlight is on."
   }
  }
 }

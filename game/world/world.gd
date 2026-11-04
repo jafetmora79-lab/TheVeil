@@ -858,7 +858,7 @@ func _p3_shut_doors(_by: Node) -> void:
 			t.retract()
 	Dialogue.say("p3_doors", false, true)
 	Game.set_flag("p3_doors_shut")
-	_finish()
+	_start_phase4(false)            # Phase 4 continues the night inside (game/world/phase4.gd)
 
 
 ## Rebuild Phase 3 state after loading a save.
@@ -1050,7 +1050,22 @@ func _restore() -> bool:
 		sedan.set_driven(true)
 		hud.set_hint("W accelerate · S brake / reverse · A/D steer · Space handbrake · E exit")
 	_p3_restore.call_deferred()
+	if Game.has_flag("p3_doors_shut"):
+		_start_phase4.call_deferred(true)
 	return true
+
+
+# ------------------------------------------------------------------ Phase 4 hook (the chapter lives in phase4.gd)
+var phase4: Node
+
+
+func _start_phase4(restoring: bool) -> void:
+	if phase4 != null:
+		return
+	phase4 = load("res://game/world/phase4.gd").new()
+	phase4.name = "Phase4"
+	add_child(phase4)
+	phase4.begin(self, restoring)
 
 
 ## Opt-in browser check (play/?autotest): runs the story interactions inside the exported build and logs results.

@@ -1,0 +1,58 @@
+extends Node3D
+class_name VeilRestPoint
+## THE VEIL - a place to sleep (first used in Phase 4: the supermarket office).
+## Shows "[E] Sleep", asks for confirmation, fades to black and emits `slept(shelter_id)`; the caller decides
+## what the night changes (story flags, day counter). Kept independent so a later shelter system can register
+## many rest points (shelter_id, availability via `can_rest`) without changing this script.
+
+signal slept(shelter_id: String)
+signal refused(shelter_id: String)
+
+@export var shelter_id := "shelter"
+@export var prompt := "[E] Sleep"
+@export var confirm_title := "Rest until morning?"
+## Callable returning true when resting is allowed right now (story gate); empty = always.
+var can_rest: Callable = Callable()
+var interactable: Interactable
+var choice: VeilChoicePanel
+var hud: Node
+var player: Node3D
+var _busy := false
+
+
+func setup(size: Vector3, p_choice: VeilChoicePanel, p_hud: Node, p_player: Node3D) -> void:
+	choice = p_choice
+	hud = p_hud
+	player = p_player
+	interactable = Interactable.new()
+	interactable.name = "Interact"
+	interactable.kind = "custom"
+	interactable.label = "Rest"
+	interactable.prompt_text = prompt
+	var cs := CollisionShape3D.new()
+	var bs := BoxShape3D.new()
+	bs.size = size
+	cs.shape = bs
+	cs.position = Vector3(0, size.y * 0.5, 0)
+	interactable.add_child(cs)
+	add_child(interactable)
+	interactable.used.connect(func(_b): request())
+
+
+func request() -> void:
+	if _busy:
+		return
+	if can_rest.is_valid() and not can_rest.call():
+		refused.emit(shelter_id)
+		return
+	_busy = true
+	var i: int = await choice.ask(confirm_title, ["Sleep", "Not yet"], player)
+	if i != 0:
+		_busy = false
+		return
+	if player:
+		player.set("controls_enabled", false)
+	await hud.fade_to(1.0, 2.0)
+	interactable.prompt_text = ""
+	slept.emit(shelter_id)
+	_busy = false
