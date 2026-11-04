@@ -406,7 +406,8 @@ func _run() -> void:
 	p4.rest.interactable.interact(world.player)
 	ok("c6_rest_confirm", await wait_until(func(): return p4.choice.is_open(), 60))
 	p4.choice.pick(0)
-	ok("c6_rest_no_ch7", await wait_until(func(): return game.has_flag("ch6_rested"), 60 * 8) and not game.has_flag("ch7_started"))
+	ok("c6_rest_starts_ch7", await wait_until(func(): return game.has_flag("ch6_rested"), 60 * 8) and game.has_flag("ch7_started")
+		and game.current_step().get("id", "") == "c7_marcus")
 	# ---- survivor choices B and C persist (from the save before the conversation)
 	for pick in [[1, "directions"], [2, "leave"]]:
 		await restore(rs_snap)
