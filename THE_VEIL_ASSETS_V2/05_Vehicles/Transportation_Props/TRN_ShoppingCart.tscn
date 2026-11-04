@@ -1,0 +1,9 @@
+[gd_scene load_steps=2 format=3]
+
+[ext_resource type="PackedScene" path="res://THE_VEIL_ASSETS_V2/09_Horror_Atmosphere/Abandoned_Props/ABN_ShoppingCart_Overturned.glb" id="1_ABN_ShoppingCart_Ove"]
+
+[node name="TRN_ShoppingCart" type="Node3D"]
+
+
+[node name="Model" parent="." instance=ExtResource("1_ABN_ShoppingCart_Ove")]
+transform = Transform3D(0, 1, 0, -1, 0, 0, 0, 0, 1, -0.306, 0.481776, 0)

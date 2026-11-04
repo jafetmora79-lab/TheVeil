@@ -1,0 +1,2577 @@
+{
+ "pack": "THE VEIL - Pack 05 Vehicles & Transportation",
+ "conventions": {
+  "units": "metres",
+  "up": "+Y",
+  "forward": "-Z",
+  "origin": "ground level, centred between the axles"
+ },
+ "textures": [
+  "05_Vehicles/Textures/T_Veh_Atlas.png",
+  "05_Vehicles/Textures/T_Veh_Atlas_Weathered.png"
+ ],
+ "materials": [
+  "M_Veh_Atlas",
+  "M_Veh_Glass",
+  "M_Veh_Lights",
+  "M_Veh_Atlas_Weathered",
+  "M_Veh_Glass_Dirty",
+  "M_Veh_Lights_Off"
+ ],
+ "models": [
+  {
+   "name": "VEH_ProtagonistSedan",
+   "folder": "Protagonist_Sedan",
+   "glb": "05_Vehicles/Protagonist_Sedan/VEH_ProtagonistSedan.glb",
+   "category": "hero vehicle",
+   "triangles": 2430,
+   "materials": [
+    "M_Veh_Atlas",
+    "M_Veh_Glass",
+    "M_Veh_Lights"
+   ],
+   "size_m": [
+    2.07,
+    1.44,
+    4.824
+   ],
+   "bounds": [
+    [
+     -1.035,
+     -0.0,
+     -2.412
+    ],
+    [
+     1.035,
+     1.44,
+     2.412
+    ]
+   ],
+   "movable_parts": [
+    {
+     "node": "Hood",
+     "role": "lid",
+     "pivot": [
+      0.0,
+      0.89,
+      -0.76
+     ],
+     "axis": "local +X (hinge, rear edge)"
+    },
+    {
+     "node": "Trunk",
+     "role": "lid",
+     "pivot": [
+      0.0,
+      0.98,
+      1.55
+     ],
+     "axis": "local +X (hinge, front edge)"
+    },
+    {
+     "node": "Door_FL",
+     "role": "door",
+     "pivot": [
+      -0.8843,
+      0.5354,
+      -0.86
+     ],
+     "axis": "local +Y (hinge, front edge)"
+    },
+    {
+     "node": "Door_FR",
+     "role": "door",
+     "pivot": [
+      0.8843,
+      0.5354,
+      -0.86
+     ],
+     "axis": "local +Y (hinge, front edge)"
+    },
+    {
+     "node": "Door_RL",
+     "role": "door",
+     "pivot": [
+      -0.885,
+      0.5595,
+      0.24
+     ],
+     "axis": "local +Y (hinge, front edge)"
+    },
+    {
+     "node": "Door_RR",
+     "role": "door",
+     "pivot": [
+      0.885,
+      0.5595,
+      0.24
+     ],
+     "axis": "local +Y (hinge, front edge)"
+    },
+    {
+     "node": "Wheel_FL",
+     "role": "wheel",
+     "pivot": [
+      -0.7611,
+      0.31,
+      -1.36
+     ],
+     "axis": "spin local X, steer local Y"
+    },
+    {
+     "node": "Wheel_FR",
+     "role": "wheel",
+     "pivot": [
+      0.7611,
+      0.31,
+      -1.36
+     ],
+     "axis": "spin local X, steer local Y"
+    },
+    {
+     "node": "Wheel_RL",
+     "role": "wheel",
+     "pivot": [
+      -0.765,
+      0.31,
+      1.36
+     ],
+     "axis": "spin local X"
+    },
+    {
+     "node": "Wheel_RR",
+     "role": "wheel",
+     "pivot": [
+      0.765,
+      0.31,
+      1.36
+     ],
+     "axis": "spin local X"
+    },
+    {
+     "node": "SteeringWheel",
+     "role": "steering",
+     "pivot": [
+      -0.37,
+      0.87,
+      -0.27
+     ],
+     "axis": "spin local Z (column axis)"
+    }
+   ],
+   "markers": {
+    "Marker_Headlight_L": [
+     -0.56,
+     0.58,
+     -2.384
+    ],
+    "Marker_Headlight_R": [
+     0.56,
+     0.58,
+     -2.384
+    ],
+    "Marker_Taillight_L": [
+     -0.6,
+     0.8,
+     2.384
+    ],
+    "Marker_Taillight_R": [
+     0.6,
+     0.8,
+     2.384
+    ],
+    "Marker_Seat_Rear_L": [
+     -0.37,
+     0.48,
+     0.8
+    ],
+    "Marker_Seat_Rear_R": [
+     0.37,
+     0.48,
+     0.8
+    ],
+    "Marker_Seat_Driver": [
+     -0.37,
+     0.52,
+     0.05
+    ],
+    "Marker_Seat_Passenger": [
+     0.37,
+     0.52,
+     0.05
+    ],
+    "Marker_Camera_FirstPerson": [
+     -0.37,
+     1.18,
+     0.15
+    ],
+    "Marker_Entry_Driver": [
+     -1.535,
+     0.0,
+     -0.31
+    ],
+    "Marker_Entry_Passenger": [
+     1.535,
+     0.0,
+     -0.31
+    ]
+   },
+   "description": "The protagonist's older everyday sedan (early-2000s mid-size, muted slate blue): full exterior, complete first-person interior, separate wheels / doors / hood / trunk / steering wheel, seat + camera markers.",
+   "status": "new",
+   "variant_of": null,
+   "sight_targets": {
+    "cluster": [
+     -0.37,
+     0.92,
+     -0.398
+    ],
+    "mirror": [
+     0.0,
+     1.27,
+     -0.12
+    ],
+    "wheel_hub": [
+     -0.37,
+     0.87,
+     -0.27
+    ]
+   }
+  },
+  {
+   "name": "VEH_PoliceCruiser",
+   "folder": "Police_Cruiser",
+   "glb": "05_Vehicles/Police_Cruiser/VEH_PoliceCruiser.glb",
+   "category": "vehicle",
+   "triangles": 2684,
+   "materials": [
+    "M_Veh_Atlas",
+    "M_Veh_Glass",
+    "M_Veh_Lights"
+   ],
+   "size_m": [
+    2.16,
+    1.82,
+    5.247
+   ],
+   "bounds": [
+    [
+     -1.08,
+     -0.0,
+     -2.695
+    ],
+    [
+     1.08,
+     1.82,
+     2.552
+    ]
+   ],
+   "movable_parts": [
+    {
+     "node": "Hood",
+     "role": "lid",
+     "pivot": [
+      0.0,
+      0.91,
+      -0.8
+     ],
+     "axis": "local +X (hinge, rear edge)"
+    },
+    {
+     "node": "Trunk",
+     "role": "lid",
+     "pivot": [
+      0.0,
+      1.0,
+      1.62
+     ],
+     "axis": "local +X (hinge, front edge)"
+    },
+    {
+     "node": "Door_FL",
+     "role": "door",
+     "pivot": [
+      -0.9293,
+      0.5498,
+      -0.92
+     ],
+     "axis": "local +Y (hinge, front edge)"
+    },
+    {
+     "node": "Door_FR",
+     "role": "door",
+     "pivot": [
+      0.9293,
+      0.5498,
+      -0.92
+     ],
+     "axis": "local +Y (hinge, front edge)"
+    },
+    {
+     "node": "Door_RL",
+     "role": "door",
+     "pivot": [
+      -0.93,
+      0.5748,
+      0.26
+     ],
+     "axis": "local +Y (hinge, front edge)"
+    },
+    {
+     "node": "Door_RR",
+     "role": "door",
+     "pivot": [
+      0.93,
+      0.5748,
+      0.26
+     ],
+     "axis": "local +Y (hinge, front edge)"
+    },
+    {
+     "node": "Wheel_FL",
+     "role": "wheel",
+     "pivot": [
+      -0.796,
+      0.33,
+      -1.45
+     ],
+     "axis": "spin local X, steer local Y"
+    },
+    {
+     "node": "Wheel_FR",
+     "role": "wheel",
+     "pivot": [
+      0.796,
+      0.33,
+      -1.45
+     ],
+     "axis": "spin local X, steer local Y"
+    },
+    {
+     "node": "Wheel_RL",
+     "role": "wheel",
+     "pivot": [
+      -0.8,
+      0.33,
+      1.45
+     ],
+     "axis": "spin local X"
+    },
+    {
+     "node": "Wheel_RR",
+     "role": "wheel",
+     "pivot": [
+      0.8,
+      0.33,
+      1.45
+     ],
+     "axis": "spin local X"
+    },
+    {
+     "node": "SteeringWheel",
+     "role": "steering",
+     "pivot": [
+      -0.4,
+      0.89,
+      -0.31
+     ],
+     "axis": "spin local Z (column axis)"
+    }
+   ],
+   "markers": {
+    "Marker_Headlight_L": [
+     -0.6,
+     0.6,
+     -2.524
+    ],
+    "Marker_Headlight_R": [
+     0.6,
+     0.6,
+     -2.524
+    ],
+    "Marker_Taillight_L": [
+     -0.64,
+     0.82,
+     2.524
+    ],
+    "Marker_Taillight_R": [
+     0.64,
+     0.82,
+     2.524
+    ],
+    "Marker_Seat_Rear_L": [
+     -0.4,
+     0.49,
+     0.82
+    ],
+    "Marker_Seat_Rear_R": [
+     0.4,
+     0.49,
+     0.82
+    ],
+    "Marker_Seat_Driver": [
+     -0.4,
+     0.53,
+     0.02
+    ],
+    "Marker_Seat_Passenger": [
+     0.4,
+     0.53,
+     0.02
+    ],
+    "Marker_Camera_FirstPerson": [
+     -0.4,
+     1.19,
+     0.12
+    ],
+    "Marker_Entry_Driver": [
+     -1.58,
+     0.0,
+     -0.33
+    ],
+    "Marker_Entry_Passenger": [
+     1.58,
+     0.0,
+     -0.33
+    ]
+   },
+   "description": "Greyhaven Police cruiser (fictional): black / white livery, lightbar, push bar, A-pillar spotlight, partition, vinyl seats, separate wheels / doors / hood / trunk / steering wheel.",
+   "status": "new",
+   "variant_of": null,
+   "sight_targets": {
+    "cluster": [
+     -0.4,
+     0.94,
+     -0.438
+    ],
+    "mirror": [
+     0.0,
+     1.31,
+     -0.14
+    ],
+    "wheel_hub": [
+     -0.4,
+     0.89,
+     -0.31
+    ]
+   }
+  },
+  {
+   "name": "VEH_PickupTruck",
+   "folder": "Pickup",
+   "glb": "05_Vehicles/Pickup/VEH_PickupTruck.glb",
+   "category": "vehicle",
+   "triangles": 2131,
+   "materials": [
+    "M_Veh_Atlas",
+    "M_Veh_Glass",
+    "M_Veh_Lights"
+   ],
+   "size_m": [
+    2.22,
+    1.83,
+    5.424
+   ],
+   "bounds": [
+    [
+     -1.11,
+     0.0,
+     -2.672
+    ],
+    [
+     1.11,
+     1.83,
+     2.752
+    ]
+   ],
+   "movable_parts": [
+    {
+     "node": "Hood",
+     "role": "lid",
+     "pivot": [
+      0.0,
+      1.15,
+      -1.02
+     ],
+     "axis": "local +X (hinge, rear edge)"
+    },
+    {
+     "node": "Door_FL",
+     "role": "door",
+     "pivot": [
+      -0.9499,
+      0.7695,
+      -1.04
+     ],
+     "axis": "local +Y (hinge, front edge)"
+    },
+    {
+     "node": "Door_FR",
+     "role": "door",
+     "pivot": [
+      0.9499,
+      0.7695,
+      -1.04
+     ],
+     "axis": "local +Y (hinge, front edge)"
+    },
+    {
+     "node": "Wheel_FL",
+     "role": "wheel",
+     "pivot": [
+      -0.8062,
+      0.38,
+      -1.6
+     ],
+     "axis": "spin local X, steer local Y"
+    },
+    {
+     "node": "Wheel_FR",
+     "role": "wheel",
+     "pivot": [
+      0.8062,
+      0.38,
+      -1.6
+     ],
+     "axis": "spin local X, steer local Y"
+    },
+    {
+     "node": "Wheel_RL",
+     "role": "wheel",
+     "pivot": [
+      -0.81,
+      0.38,
+      1.6
+     ],
+     "axis": "spin local X"
+    },
+    {
+     "node": "Wheel_RR",
+     "role": "wheel",
+     "pivot": [
+      0.81,
+      0.38,
+      1.6
+     ],
+     "axis": "spin local X"
+    },
+    {
+     "node": "Tailgate",
+     "role": "tailgate",
+     "pivot": [
+      0.0,
+      0.8,
+      2.59
+     ],
+     "axis": "local +X (hinge, bottom edge)"
+    },
+    {
+     "node": "SteeringWheel",
+     "role": "steering",
+     "pivot": [
+      -0.4,
+      1.1,
+      -0.53
+     ],
+     "axis": "spin local Z (column axis)"
+    }
+   ],
+   "markers": {
+    "Marker_Headlight_L": [
+     -0.62,
+     0.86,
+     -2.644
+    ],
+    "Marker_Headlight_R": [
+     0.62,
+     0.86,
+     -2.644
+    ],
+    "Marker_Taillight_L": [
+     -0.92,
+     0.98,
+     2.67
+    ],
+    "Marker_Taillight_R": [
+     0.92,
+     0.98,
+     2.67
+    ],
+    "Marker_Seat_Driver": [
+     -0.4,
+     0.76,
+     -0.22
+    ],
+    "Marker_Seat_Passenger": [
+     0.4,
+     0.76,
+     -0.22
+    ],
+    "Marker_Camera_FirstPerson": [
+     -0.4,
+     1.42,
+     -0.12
+    ],
+    "Marker_Entry_Driver": [
+     -1.6,
+     0.0,
+     -0.37
+    ],
+    "Marker_Entry_Passenger": [
+     1.6,
+     0.0,
+     -0.37
+    ]
+   },
+   "description": "Regular-cab pickup (faded red): cargo bed with wheel tubs, drop-down tailgate, bench-seat cabin, separate wheels / doors / hood / tailgate / steering wheel.",
+   "status": "new",
+   "variant_of": null,
+   "sight_targets": {
+    "cluster": [
+     -0.4,
+     1.12,
+     -0.658
+    ],
+    "mirror": [
+     0.0,
+     1.66,
+     -0.38
+    ],
+    "wheel_hub": [
+     -0.4,
+     1.1,
+     -0.53
+    ]
+   }
+  },
+  {
+   "name": "VEH_DeliveryVan",
+   "folder": "Delivery_Van",
+   "glb": "05_Vehicles/Delivery_Van/VEH_DeliveryVan.glb",
+   "category": "vehicle",
+   "triangles": 2283,
+   "materials": [
+    "M_Veh_Atlas",
+    "M_Veh_Glass",
+    "M_Veh_Lights"
+   ],
+   "size_m": [
+    2.32,
+    2.26,
+    5.625
+   ],
+   "bounds": [
+    [
+     -1.16,
+     -0.0,
+     -2.502
+    ],
+    [
+     1.16,
+     2.26,
+     3.123
+    ]
+   ],
+   "movable_parts": [
+    {
+     "node": "Hood",
+     "role": "lid",
+     "pivot": [
+      0.0,
+      1.13,
+      -1.85
+     ],
+     "axis": "local +X (hinge, rear edge)"
+    },
+    {
+     "node": "Door_FL",
+     "role": "door",
+     "pivot": [
+      -1.0,
+      0.76,
+      -1.22
+     ],
+     "axis": "local +Y (hinge, front edge)"
+    },
+    {
+     "node": "Door_FR",
+     "role": "door",
+     "pivot": [
+      1.0,
+      0.76,
+      -1.22
+     ],
+     "axis": "local +Y (hinge, front edge)"
+    },
+    {
+     "node": "Wheel_FL",
+     "role": "wheel",
+     "pivot": [
+      -0.87,
+      0.36,
+      -1.75
+     ],
+     "axis": "spin local X, steer local Y"
+    },
+    {
+     "node": "Wheel_FR",
+     "role": "wheel",
+     "pivot": [
+      0.87,
+      0.36,
+      -1.75
+     ],
+     "axis": "spin local X, steer local Y"
+    },
+    {
+     "node": "Wheel_RL",
+     "role": "wheel",
+     "pivot": [
+      -0.87,
+      0.36,
+      1.75
+     ],
+     "axis": "spin local X"
+    },
+    {
+     "node": "Wheel_RR",
+     "role": "wheel",
+     "pivot": [
+      0.87,
+      0.36,
+      1.75
+     ],
+     "axis": "spin local X"
+    },
+    {
+     "node": "RearDoor_L",
+     "role": "door",
+     "pivot": [
+      -0.985,
+      1.33,
+      2.95
+     ],
+     "axis": "local +Y (hinge, outer edge)"
+    },
+    {
+     "node": "RearDoor_R",
+     "role": "door",
+     "pivot": [
+      0.985,
+      1.33,
+      2.95
+     ],
+     "axis": "local +Y (hinge, outer edge)"
+    },
+    {
+     "node": "SteeringWheel",
+     "role": "steering",
+     "pivot": [
+      -0.45,
+      1.16,
+      -1.3
+     ],
+     "axis": "spin local Z (column axis)"
+    }
+   ],
+   "markers": {
+    "Marker_Headlight_L": [
+     -0.64,
+     0.8,
+     -2.474
+    ],
+    "Marker_Headlight_R": [
+     0.64,
+     0.8,
+     -2.474
+    ],
+    "Marker_Taillight_L": [
+     -0.93,
+     0.86,
+     3.0
+    ],
+    "Marker_Taillight_R": [
+     0.93,
+     0.86,
+     3.0
+    ],
+    "Marker_Seat_Driver": [
+     -0.45,
+     0.96,
+     -0.92
+    ],
+    "Marker_Seat_Passenger": [
+     0.45,
+     0.96,
+     -0.92
+    ],
+    "Marker_Camera_FirstPerson": [
+     -0.45,
+     1.64,
+     -0.82
+    ],
+    "Marker_Entry_Driver": [
+     -1.65,
+     0.0,
+     -0.81
+    ],
+    "Marker_Entry_Passenger": [
+     1.65,
+     0.0,
+     -0.81
+    ]
+   },
+   "description": "Harlow Bakery delivery van (fictional livery): cargo compartment with plywood floor, two hinged rear doors, two-seat cabin, separate wheels / cab doors / hood / rear doors / steering wheel.",
+   "status": "new",
+   "variant_of": null,
+   "sight_targets": {
+    "cluster": [
+     -0.45,
+     1.12,
+     -1.498
+    ],
+    "mirror": [
+     0.0,
+     2.02,
+     -1.12
+    ],
+    "wheel_hub": [
+     -0.45,
+     1.16,
+     -1.3
+    ]
+   }
+  },
+  {
+   "name": "VEH_Sedan_Traffic_Green",
+   "folder": "Traffic_Variants",
+   "glb": "05_Vehicles/Traffic_Variants/VEH_Sedan_Traffic_Green.glb",
+   "category": "traffic variant",
+   "triangles": 2430,
+   "materials": [
+    "M_Veh_Atlas",
+    "M_Veh_Glass",
+    "M_Veh_Lights"
+   ],
+   "size_m": [
+    2.07,
+    1.44,
+    4.824
+   ],
+   "bounds": [
+    [
+     -1.035,
+     -0.0,
+     -2.412
+    ],
+    [
+     1.035,
+     1.44,
+     2.412
+    ]
+   ],
+   "movable_parts": [
+    {
+     "node": "Hood",
+     "role": "lid",
+     "pivot": [
+      0.0,
+      0.89,
+      -0.76
+     ],
+     "axis": "local +X (hinge, rear edge)"
+    },
+    {
+     "node": "Trunk",
+     "role": "lid",
+     "pivot": [
+      0.0,
+      0.98,
+      1.55
+     ],
+     "axis": "local +X (hinge, front edge)"
+    },
+    {
+     "node": "Door_FL",
+     "role": "door",
+     "pivot": [
+      -0.8843,
+      0.5354,
+      -0.86
+     ],
+     "axis": "local +Y (hinge, front edge)"
+    },
+    {
+     "node": "Door_FR",
+     "role": "door",
+     "pivot": [
+      0.8843,
+      0.5354,
+      -0.86
+     ],
+     "axis": "local +Y (hinge, front edge)"
+    },
+    {
+     "node": "Door_RL",
+     "role": "door",
+     "pivot": [
+      -0.885,
+      0.5595,
+      0.24
+     ],
+     "axis": "local +Y (hinge, front edge)"
+    },
+    {
+     "node": "Door_RR",
+     "role": "door",
+     "pivot": [
+      0.885,
+      0.5595,
+      0.24
+     ],
+     "axis": "local +Y (hinge, front edge)"
+    },
+    {
+     "node": "Wheel_FL",
+     "role": "wheel",
+     "pivot": [
+      -0.7611,
+      0.31,
+      -1.36
+     ],
+     "axis": "spin local X, steer local Y"
+    },
+    {
+     "node": "Wheel_FR",
+     "role": "wheel",
+     "pivot": [
+      0.7611,
+      0.31,
+      -1.36
+     ],
+     "axis": "spin local X, steer local Y"
+    },
+    {
+     "node": "Wheel_RL",
+     "role": "wheel",
+     "pivot": [
+      -0.765,
+      0.31,
+      1.36
+     ],
+     "axis": "spin local X"
+    },
+    {
+     "node": "Wheel_RR",
+     "role": "wheel",
+     "pivot": [
+      0.765,
+      0.31,
+      1.36
+     ],
+     "axis": "spin local X"
+    },
+    {
+     "node": "SteeringWheel",
+     "role": "steering",
+     "pivot": [
+      -0.37,
+      0.87,
+      -0.27
+     ],
+     "axis": "spin local Z (column axis)"
+    }
+   ],
+   "markers": {
+    "Marker_Headlight_L": [
+     -0.56,
+     0.58,
+     -2.384
+    ],
+    "Marker_Headlight_R": [
+     0.56,
+     0.58,
+     -2.384
+    ],
+    "Marker_Taillight_L": [
+     -0.6,
+     0.8,
+     2.384
+    ],
+    "Marker_Taillight_R": [
+     0.6,
+     0.8,
+     2.384
+    ],
+    "Marker_Seat_Rear_L": [
+     -0.37,
+     0.48,
+     0.8
+    ],
+    "Marker_Seat_Rear_R": [
+     0.37,
+     0.48,
+     0.8
+    ],
+    "Marker_Seat_Driver": [
+     -0.37,
+     0.52,
+     0.05
+    ],
+    "Marker_Seat_Passenger": [
+     0.37,
+     0.52,
+     0.05
+    ],
+    "Marker_Camera_FirstPerson": [
+     -0.37,
+     1.18,
+     0.15
+    ],
+    "Marker_Entry_Driver": [
+     -1.535,
+     0.0,
+     -0.31
+    ],
+    "Marker_Entry_Passenger": [
+     1.535,
+     0.0,
+     -0.31
+    ]
+   },
+   "description": "Sedan platform repainted (green) for ordinary town traffic.",
+   "status": "new",
+   "variant_of": "VEH_ProtagonistSedan",
+   "sight_targets": {
+    "cluster": [
+     -0.37,
+     0.92,
+     -0.398
+    ],
+    "mirror": [
+     0.0,
+     1.27,
+     -0.12
+    ],
+    "wheel_hub": [
+     -0.37,
+     0.87,
+     -0.27
+    ]
+   }
+  },
+  {
+   "name": "VEH_Sedan_Traffic_Beige",
+   "folder": "Traffic_Variants",
+   "glb": "05_Vehicles/Traffic_Variants/VEH_Sedan_Traffic_Beige.glb",
+   "category": "traffic variant",
+   "triangles": 2430,
+   "materials": [
+    "M_Veh_Atlas",
+    "M_Veh_Glass",
+    "M_Veh_Lights"
+   ],
+   "size_m": [
+    2.07,
+    1.44,
+    4.824
+   ],
+   "bounds": [
+    [
+     -1.035,
+     -0.0,
+     -2.412
+    ],
+    [
+     1.035,
+     1.44,
+     2.412
+    ]
+   ],
+   "movable_parts": [
+    {
+     "node": "Hood",
+     "role": "lid",
+     "pivot": [
+      0.0,
+      0.89,
+      -0.76
+     ],
+     "axis": "local +X (hinge, rear edge)"
+    },
+    {
+     "node": "Trunk",
+     "role": "lid",
+     "pivot": [
+      0.0,
+      0.98,
+      1.55
+     ],
+     "axis": "local +X (hinge, front edge)"
+    },
+    {
+     "node": "Door_FL",
+     "role": "door",
+     "pivot": [
+      -0.8843,
+      0.5354,
+      -0.86
+     ],
+     "axis": "local +Y (hinge, front edge)"
+    },
+    {
+     "node": "Door_FR",
+     "role": "door",
+     "pivot": [
+      0.8843,
+      0.5354,
+      -0.86
+     ],
+     "axis": "local +Y (hinge, front edge)"
+    },
+    {
+     "node": "Door_RL",
+     "role": "door",
+     "pivot": [
+      -0.885,
+      0.5595,
+      0.24
+     ],
+     "axis": "local +Y (hinge, front edge)"
+    },
+    {
+     "node": "Door_RR",
+     "role": "door",
+     "pivot": [
+      0.885,
+      0.5595,
+      0.24
+     ],
+     "axis": "local +Y (hinge, front edge)"
+    },
+    {
+     "node": "Wheel_FL",
+     "role": "wheel",
+     "pivot": [
+      -0.7611,
+      0.31,
+      -1.36
+     ],
+     "axis": "spin local X, steer local Y"
+    },
+    {
+     "node": "Wheel_FR",
+     "role": "wheel",
+     "pivot": [
+      0.7611,
+      0.31,
+      -1.36
+     ],
+     "axis": "spin local X, steer local Y"
+    },
+    {
+     "node": "Wheel_RL",
+     "role": "wheel",
+     "pivot": [
+      -0.765,
+      0.31,
+      1.36
+     ],
+     "axis": "spin local X"
+    },
+    {
+     "node": "Wheel_RR",
+     "role": "wheel",
+     "pivot": [
+      0.765,
+      0.31,
+      1.36
+     ],
+     "axis": "spin local X"
+    },
+    {
+     "node": "SteeringWheel",
+     "role": "steering",
+     "pivot": [
+      -0.37,
+      0.87,
+      -0.27
+     ],
+     "axis": "spin local Z (column axis)"
+    }
+   ],
+   "markers": {
+    "Marker_Headlight_L": [
+     -0.56,
+     0.58,
+     -2.384
+    ],
+    "Marker_Headlight_R": [
+     0.56,
+     0.58,
+     -2.384
+    ],
+    "Marker_Taillight_L": [
+     -0.6,
+     0.8,
+     2.384
+    ],
+    "Marker_Taillight_R": [
+     0.6,
+     0.8,
+     2.384
+    ],
+    "Marker_Seat_Rear_L": [
+     -0.37,
+     0.48,
+     0.8
+    ],
+    "Marker_Seat_Rear_R": [
+     0.37,
+     0.48,
+     0.8
+    ],
+    "Marker_Seat_Driver": [
+     -0.37,
+     0.52,
+     0.05
+    ],
+    "Marker_Seat_Passenger": [
+     0.37,
+     0.52,
+     0.05
+    ],
+    "Marker_Camera_FirstPerson": [
+     -0.37,
+     1.18,
+     0.15
+    ],
+    "Marker_Entry_Driver": [
+     -1.535,
+     0.0,
+     -0.31
+    ],
+    "Marker_Entry_Passenger": [
+     1.535,
+     0.0,
+     -0.31
+    ]
+   },
+   "description": "Sedan platform repainted (beige) for ordinary town traffic.",
+   "status": "new",
+   "variant_of": "VEH_ProtagonistSedan",
+   "sight_targets": {
+    "cluster": [
+     -0.37,
+     0.92,
+     -0.398
+    ],
+    "mirror": [
+     0.0,
+     1.27,
+     -0.12
+    ],
+    "wheel_hub": [
+     -0.37,
+     0.87,
+     -0.27
+    ]
+   }
+  },
+  {
+   "name": "VEH_Sedan_Dusty",
+   "folder": "Abandoned_Variants",
+   "glb": "05_Vehicles/Abandoned_Variants/VEH_Sedan_Dusty.glb",
+   "category": "abandoned variant",
+   "triangles": 2430,
+   "materials": [
+    "M_Veh_Atlas_Weathered",
+    "M_Veh_Glass_Dirty",
+    "M_Veh_Lights_Off"
+   ],
+   "size_m": [
+    2.07,
+    1.44,
+    4.824
+   ],
+   "bounds": [
+    [
+     -1.035,
+     -0.0,
+     -2.412
+    ],
+    [
+     1.035,
+     1.44,
+     2.412
+    ]
+   ],
+   "movable_parts": [
+    {
+     "node": "Hood",
+     "role": "lid",
+     "pivot": [
+      0.0,
+      0.89,
+      -0.76
+     ],
+     "axis": "local +X (hinge, rear edge)"
+    },
+    {
+     "node": "Trunk",
+     "role": "lid",
+     "pivot": [
+      0.0,
+      0.98,
+      1.55
+     ],
+     "axis": "local +X (hinge, front edge)"
+    },
+    {
+     "node": "Door_FL",
+     "role": "door",
+     "pivot": [
+      -0.8843,
+      0.5354,
+      -0.86
+     ],
+     "axis": "local +Y (hinge, front edge)"
+    },
+    {
+     "node": "Door_FR",
+     "role": "door",
+     "pivot": [
+      0.8843,
+      0.5354,
+      -0.86
+     ],
+     "axis": "local +Y (hinge, front edge)"
+    },
+    {
+     "node": "Door_RL",
+     "role": "door",
+     "pivot": [
+      -0.885,
+      0.5595,
+      0.24
+     ],
+     "axis": "local +Y (hinge, front edge)"
+    },
+    {
+     "node": "Door_RR",
+     "role": "door",
+     "pivot": [
+      0.885,
+      0.5595,
+      0.24
+     ],
+     "axis": "local +Y (hinge, front edge)"
+    },
+    {
+     "node": "Wheel_FL",
+     "role": "wheel",
+     "pivot": [
+      -0.7611,
+      0.31,
+      -1.36
+     ],
+     "axis": "spin local X, steer local Y"
+    },
+    {
+     "node": "Wheel_FR",
+     "role": "wheel",
+     "pivot": [
+      0.7611,
+      0.31,
+      -1.36
+     ],
+     "axis": "spin local X, steer local Y"
+    },
+    {
+     "node": "Wheel_RL",
+     "role": "wheel",
+     "pivot": [
+      -0.765,
+      0.31,
+      1.36
+     ],
+     "axis": "spin local X"
+    },
+    {
+     "node": "Wheel_RR",
+     "role": "wheel",
+     "pivot": [
+      0.765,
+      0.31,
+      1.36
+     ],
+     "axis": "spin local X"
+    },
+    {
+     "node": "SteeringWheel",
+     "role": "steering",
+     "pivot": [
+      -0.37,
+      0.87,
+      -0.27
+     ],
+     "axis": "spin local Z (column axis)"
+    }
+   ],
+   "markers": {
+    "Marker_Headlight_L": [
+     -0.56,
+     0.58,
+     -2.384
+    ],
+    "Marker_Headlight_R": [
+     0.56,
+     0.58,
+     -2.384
+    ],
+    "Marker_Taillight_L": [
+     -0.6,
+     0.8,
+     2.384
+    ],
+    "Marker_Taillight_R": [
+     0.6,
+     0.8,
+     2.384
+    ],
+    "Marker_Seat_Rear_L": [
+     -0.37,
+     0.48,
+     0.8
+    ],
+    "Marker_Seat_Rear_R": [
+     0.37,
+     0.48,
+     0.8
+    ],
+    "Marker_Seat_Driver": [
+     -0.37,
+     0.52,
+     0.05
+    ],
+    "Marker_Seat_Passenger": [
+     0.37,
+     0.52,
+     0.05
+    ],
+    "Marker_Camera_FirstPerson": [
+     -0.37,
+     1.18,
+     0.15
+    ],
+    "Marker_Entry_Driver": [
+     -1.535,
+     0.0,
+     -0.31
+    ],
+    "Marker_Entry_Passenger": [
+     1.535,
+     0.0,
+     -0.31
+    ]
+   },
+   "description": "Sedan left for weeks: dusty / rusty weathered atlas, dirty glass, dead lights.",
+   "status": "new",
+   "variant_of": "VEH_ProtagonistSedan",
+   "sight_targets": {
+    "cluster": [
+     -0.37,
+     0.92,
+     -0.398
+    ],
+    "mirror": [
+     0.0,
+     1.27,
+     -0.12
+    ],
+    "wheel_hub": [
+     -0.37,
+     0.87,
+     -0.27
+    ]
+   }
+  },
+  {
+   "name": "VEH_Sedan_Damaged",
+   "folder": "Abandoned_Variants",
+   "glb": "05_Vehicles/Abandoned_Variants/VEH_Sedan_Damaged.glb",
+   "category": "abandoned variant",
+   "triangles": 2428,
+   "materials": [
+    "M_Veh_Atlas_Weathered",
+    "M_Veh_Glass_Dirty",
+    "M_Veh_Lights_Off"
+   ],
+   "size_m": [
+    1.944,
+    1.44,
+    4.824
+   ],
+   "bounds": [
+    [
+     -0.909,
+     -0.0,
+     -2.412
+    ],
+    [
+     1.035,
+     1.44,
+     2.412
+    ]
+   ],
+   "movable_parts": [
+    {
+     "node": "Hood",
+     "role": "lid",
+     "pivot": [
+      0.0,
+      0.89,
+      -0.76
+     ],
+     "axis": "local +X (hinge, rear edge)"
+    },
+    {
+     "node": "Trunk",
+     "role": "lid",
+     "pivot": [
+      0.0,
+      0.98,
+      1.55
+     ],
+     "axis": "local +X (hinge, front edge)"
+    },
+    {
+     "node": "Door_FL",
+     "role": "door",
+     "pivot": [
+      -0.8843,
+      0.5354,
+      -0.86
+     ],
+     "axis": "local +Y (hinge, front edge)"
+    },
+    {
+     "node": "Door_FR",
+     "role": "door",
+     "pivot": [
+      0.8843,
+      0.5354,
+      -0.86
+     ],
+     "axis": "local +Y (hinge, front edge)"
+    },
+    {
+     "node": "Door_RL",
+     "role": "door",
+     "pivot": [
+      -0.885,
+      0.5595,
+      0.24
+     ],
+     "axis": "local +Y (hinge, front edge)"
+    },
+    {
+     "node": "Door_RR",
+     "role": "door",
+     "pivot": [
+      0.885,
+      0.5595,
+      0.24
+     ],
+     "axis": "local +Y (hinge, front edge)"
+    },
+    {
+     "node": "Wheel_FL",
+     "role": "wheel",
+     "pivot": [
+      -0.7611,
+      0.31,
+      -1.36
+     ],
+     "axis": "spin local X, steer local Y"
+    },
+    {
+     "node": "Wheel_FR",
+     "role": "wheel",
+     "pivot": [
+      0.7611,
+      0.31,
+      -1.36
+     ],
+     "axis": "spin local X, steer local Y"
+    },
+    {
+     "node": "Wheel_RL",
+     "role": "wheel",
+     "pivot": [
+      -0.765,
+      0.31,
+      1.36
+     ],
+     "axis": "spin local X"
+    },
+    {
+     "node": "Wheel_RR",
+     "role": "wheel",
+     "pivot": [
+      0.765,
+      0.31,
+      1.36
+     ],
+     "axis": "spin local X"
+    },
+    {
+     "node": "SteeringWheel",
+     "role": "steering",
+     "pivot": [
+      -0.37,
+      0.87,
+      -0.27
+     ],
+     "axis": "spin local Z (column axis)"
+    }
+   ],
+   "markers": {
+    "Marker_Headlight_L": [
+     -0.56,
+     0.58,
+     -2.384
+    ],
+    "Marker_Headlight_R": [
+     0.56,
+     0.58,
+     -2.384
+    ],
+    "Marker_Taillight_L": [
+     -0.6,
+     0.8,
+     2.384
+    ],
+    "Marker_Taillight_R": [
+     0.6,
+     0.8,
+     2.384
+    ],
+    "Marker_Seat_Rear_L": [
+     -0.37,
+     0.48,
+     0.8
+    ],
+    "Marker_Seat_Rear_R": [
+     0.37,
+     0.48,
+     0.8
+    ],
+    "Marker_Seat_Driver": [
+     -0.37,
+     0.52,
+     0.05
+    ],
+    "Marker_Seat_Passenger": [
+     0.37,
+     0.52,
+     0.05
+    ],
+    "Marker_Camera_FirstPerson": [
+     -0.37,
+     1.18,
+     0.15
+    ],
+    "Marker_Entry_Driver": [
+     -1.535,
+     0.0,
+     -0.31
+    ],
+    "Marker_Entry_Passenger": [
+     1.535,
+     0.0,
+     -0.31
+    ]
+   },
+   "description": "Damaged sedan: cracked windshield, passenger window gone, driver door hanging open, hood sprung.",
+   "status": "new",
+   "variant_of": "VEH_ProtagonistSedan",
+   "sight_targets": {
+    "cluster": [
+     -0.37,
+     0.92,
+     -0.398
+    ],
+    "mirror": [
+     0.0,
+     1.27,
+     -0.12
+    ],
+    "wheel_hub": [
+     -0.37,
+     0.87,
+     -0.27
+    ]
+   }
+  },
+  {
+   "name": "VEH_PoliceCruiser_Abandoned",
+   "folder": "Abandoned_Variants",
+   "glb": "05_Vehicles/Abandoned_Variants/VEH_PoliceCruiser_Abandoned.glb",
+   "category": "abandoned variant",
+   "triangles": 2684,
+   "materials": [
+    "M_Veh_Atlas_Weathered",
+    "M_Veh_Glass_Dirty",
+    "M_Veh_Lights_Off"
+   ],
+   "size_m": [
+    1.974,
+    1.82,
+    5.247
+   ],
+   "bounds": [
+    [
+     -1.02,
+     -0.0,
+     -2.695
+    ],
+    [
+     0.954,
+     1.82,
+     2.552
+    ]
+   ],
+   "movable_parts": [
+    {
+     "node": "Hood",
+     "role": "lid",
+     "pivot": [
+      0.0,
+      0.91,
+      -0.8
+     ],
+     "axis": "local +X (hinge, rear edge)"
+    },
+    {
+     "node": "Trunk",
+     "role": "lid",
+     "pivot": [
+      0.0,
+      1.0,
+      1.62
+     ],
+     "axis": "local +X (hinge, front edge)"
+    },
+    {
+     "node": "Door_FL",
+     "role": "door",
+     "pivot": [
+      -0.9293,
+      0.5498,
+      -0.92
+     ],
+     "axis": "local +Y (hinge, front edge)"
+    },
+    {
+     "node": "Door_FR",
+     "role": "door",
+     "pivot": [
+      0.9293,
+      0.5498,
+      -0.92
+     ],
+     "axis": "local +Y (hinge, front edge)"
+    },
+    {
+     "node": "Door_RL",
+     "role": "door",
+     "pivot": [
+      -0.93,
+      0.5748,
+      0.26
+     ],
+     "axis": "local +Y (hinge, front edge)"
+    },
+    {
+     "node": "Door_RR",
+     "role": "door",
+     "pivot": [
+      0.93,
+      0.5748,
+      0.26
+     ],
+     "axis": "local +Y (hinge, front edge)"
+    },
+    {
+     "node": "Wheel_FL",
+     "role": "wheel",
+     "pivot": [
+      -0.796,
+      0.33,
+      -1.45
+     ],
+     "axis": "spin local X, steer local Y"
+    },
+    {
+     "node": "Wheel_FR",
+     "role": "wheel",
+     "pivot": [
+      0.796,
+      0.33,
+      -1.45
+     ],
+     "axis": "spin local X, steer local Y"
+    },
+    {
+     "node": "Wheel_RL",
+     "role": "wheel",
+     "pivot": [
+      -0.8,
+      0.33,
+      1.45
+     ],
+     "axis": "spin local X"
+    },
+    {
+     "node": "Wheel_RR",
+     "role": "wheel",
+     "pivot": [
+      0.8,
+      0.33,
+      1.45
+     ],
+     "axis": "spin local X"
+    },
+    {
+     "node": "SteeringWheel",
+     "role": "steering",
+     "pivot": [
+      -0.4,
+      0.89,
+      -0.31
+     ],
+     "axis": "spin local Z (column axis)"
+    }
+   ],
+   "markers": {
+    "Marker_Headlight_L": [
+     -0.6,
+     0.6,
+     -2.524
+    ],
+    "Marker_Headlight_R": [
+     0.6,
+     0.6,
+     -2.524
+    ],
+    "Marker_Taillight_L": [
+     -0.64,
+     0.82,
+     2.524
+    ],
+    "Marker_Taillight_R": [
+     0.64,
+     0.82,
+     2.524
+    ],
+    "Marker_Seat_Rear_L": [
+     -0.4,
+     0.49,
+     0.82
+    ],
+    "Marker_Seat_Rear_R": [
+     0.4,
+     0.49,
+     0.82
+    ],
+    "Marker_Seat_Driver": [
+     -0.4,
+     0.53,
+     0.02
+    ],
+    "Marker_Seat_Passenger": [
+     0.4,
+     0.53,
+     0.02
+    ],
+    "Marker_Camera_FirstPerson": [
+     -0.4,
+     1.19,
+     0.12
+    ],
+    "Marker_Entry_Driver": [
+     -1.58,
+     0.0,
+     -0.33
+    ],
+    "Marker_Entry_Passenger": [
+     1.58,
+     0.0,
+     -0.33
+    ]
+   },
+   "description": "Police cruiser abandoned mid-call: weathered, both front doors open.",
+   "status": "new",
+   "variant_of": "VEH_PoliceCruiser",
+   "sight_targets": {
+    "cluster": [
+     -0.4,
+     0.94,
+     -0.438
+    ],
+    "mirror": [
+     0.0,
+     1.31,
+     -0.14
+    ],
+    "wheel_hub": [
+     -0.4,
+     0.89,
+     -0.31
+    ]
+   }
+  },
+  {
+   "name": "VEH_Pickup_Abandoned",
+   "folder": "Abandoned_Variants",
+   "glb": "05_Vehicles/Abandoned_Variants/VEH_Pickup_Abandoned.glb",
+   "category": "abandoned variant",
+   "triangles": 2131,
+   "materials": [
+    "M_Veh_Atlas_Weathered",
+    "M_Veh_Glass_Dirty",
+    "M_Veh_Lights_Off"
+   ],
+   "size_m": [
+    2.22,
+    1.746,
+    5.424
+   ],
+   "bounds": [
+    [
+     -1.11,
+     -0.0,
+     -2.672
+    ],
+    [
+     1.11,
+     1.746,
+     2.752
+    ]
+   ],
+   "movable_parts": [
+    {
+     "node": "Hood",
+     "role": "lid",
+     "pivot": [
+      0.0,
+      1.15,
+      -1.02
+     ],
+     "axis": "local +X (hinge, rear edge)"
+    },
+    {
+     "node": "Door_FL",
+     "role": "door",
+     "pivot": [
+      -0.9499,
+      0.7695,
+      -1.04
+     ],
+     "axis": "local +Y (hinge, front edge)"
+    },
+    {
+     "node": "Door_FR",
+     "role": "door",
+     "pivot": [
+      0.9499,
+      0.7695,
+      -1.04
+     ],
+     "axis": "local +Y (hinge, front edge)"
+    },
+    {
+     "node": "Wheel_FL",
+     "role": "wheel",
+     "pivot": [
+      -0.8062,
+      0.38,
+      -1.6
+     ],
+     "axis": "spin local X, steer local Y"
+    },
+    {
+     "node": "Wheel_FR",
+     "role": "wheel",
+     "pivot": [
+      0.8062,
+      0.38,
+      -1.6
+     ],
+     "axis": "spin local X, steer local Y"
+    },
+    {
+     "node": "Wheel_RL",
+     "role": "wheel",
+     "pivot": [
+      -0.81,
+      0.38,
+      1.6
+     ],
+     "axis": "spin local X"
+    },
+    {
+     "node": "Wheel_RR",
+     "role": "wheel",
+     "pivot": [
+      0.81,
+      0.38,
+      1.6
+     ],
+     "axis": "spin local X"
+    },
+    {
+     "node": "Tailgate",
+     "role": "tailgate",
+     "pivot": [
+      0.0,
+      0.8,
+      2.59
+     ],
+     "axis": "local +X (hinge, bottom edge)"
+    },
+    {
+     "node": "SteeringWheel",
+     "role": "steering",
+     "pivot": [
+      -0.4,
+      1.1,
+      -0.53
+     ],
+     "axis": "spin local Z (column axis)"
+    }
+   ],
+   "markers": {
+    "Marker_Headlight_L": [
+     -0.62,
+     0.86,
+     -2.644
+    ],
+    "Marker_Headlight_R": [
+     0.62,
+     0.86,
+     -2.644
+    ],
+    "Marker_Taillight_L": [
+     -0.92,
+     0.98,
+     2.67
+    ],
+    "Marker_Taillight_R": [
+     0.92,
+     0.98,
+     2.67
+    ],
+    "Marker_Seat_Driver": [
+     -0.4,
+     0.76,
+     -0.22
+    ],
+    "Marker_Seat_Passenger": [
+     0.4,
+     0.76,
+     -0.22
+    ],
+    "Marker_Camera_FirstPerson": [
+     -0.4,
+     1.42,
+     -0.12
+    ],
+    "Marker_Entry_Driver": [
+     -1.6,
+     0.0,
+     -0.37
+    ],
+    "Marker_Entry_Passenger": [
+     1.6,
+     0.0,
+     -0.37
+    ]
+   },
+   "description": "Abandoned pickup: weathered, sitting on flat tyres, tailgate down.",
+   "status": "new",
+   "variant_of": "VEH_PickupTruck",
+   "sight_targets": {
+    "cluster": [
+     -0.4,
+     1.12,
+     -0.658
+    ],
+    "mirror": [
+     0.0,
+     1.66,
+     -0.38
+    ],
+    "wheel_hub": [
+     -0.4,
+     1.1,
+     -0.53
+    ]
+   }
+  },
+  {
+   "name": "VEH_DeliveryVan_BrokenDown",
+   "folder": "Abandoned_Variants",
+   "glb": "05_Vehicles/Abandoned_Variants/VEH_DeliveryVan_BrokenDown.glb",
+   "category": "abandoned variant",
+   "triangles": 2283,
+   "materials": [
+    "M_Veh_Atlas_Weathered",
+    "M_Veh_Glass_Dirty",
+    "M_Veh_Lights_Off"
+   ],
+   "size_m": [
+    2.32,
+    2.26,
+    5.625
+   ],
+   "bounds": [
+    [
+     -1.16,
+     -0.0,
+     -2.502
+    ],
+    [
+     1.16,
+     2.26,
+     3.123
+    ]
+   ],
+   "movable_parts": [
+    {
+     "node": "Hood",
+     "role": "lid",
+     "pivot": [
+      0.0,
+      1.13,
+      -1.85
+     ],
+     "axis": "local +X (hinge, rear edge)"
+    },
+    {
+     "node": "Door_FL",
+     "role": "door",
+     "pivot": [
+      -1.0,
+      0.76,
+      -1.22
+     ],
+     "axis": "local +Y (hinge, front edge)"
+    },
+    {
+     "node": "Door_FR",
+     "role": "door",
+     "pivot": [
+      1.0,
+      0.76,
+      -1.22
+     ],
+     "axis": "local +Y (hinge, front edge)"
+    },
+    {
+     "node": "Wheel_FL",
+     "role": "wheel",
+     "pivot": [
+      -0.87,
+      0.36,
+      -1.75
+     ],
+     "axis": "spin local X, steer local Y"
+    },
+    {
+     "node": "Wheel_FR",
+     "role": "wheel",
+     "pivot": [
+      0.87,
+      0.36,
+      -1.75
+     ],
+     "axis": "spin local X, steer local Y"
+    },
+    {
+     "node": "Wheel_RL",
+     "role": "wheel",
+     "pivot": [
+      -0.87,
+      0.36,
+      1.75
+     ],
+     "axis": "spin local X"
+    },
+    {
+     "node": "Wheel_RR",
+     "role": "wheel",
+     "pivot": [
+      0.87,
+      0.36,
+      1.75
+     ],
+     "axis": "spin local X"
+    },
+    {
+     "node": "RearDoor_L",
+     "role": "door",
+     "pivot": [
+      -0.985,
+      1.33,
+      2.95
+     ],
+     "axis": "local +Y (hinge, outer edge)"
+    },
+    {
+     "node": "RearDoor_R",
+     "role": "door",
+     "pivot": [
+      0.985,
+      1.33,
+      2.95
+     ],
+     "axis": "local +Y (hinge, outer edge)"
+    },
+    {
+     "node": "SteeringWheel",
+     "role": "steering",
+     "pivot": [
+      -0.45,
+      1.16,
+      -1.3
+     ],
+     "axis": "spin local Z (column axis)"
+    }
+   ],
+   "markers": {
+    "Marker_Headlight_L": [
+     -0.64,
+     0.8,
+     -2.474
+    ],
+    "Marker_Headlight_R": [
+     0.64,
+     0.8,
+     -2.474
+    ],
+    "Marker_Taillight_L": [
+     -0.93,
+     0.86,
+     3.0
+    ],
+    "Marker_Taillight_R": [
+     0.93,
+     0.86,
+     3.0
+    ],
+    "Marker_Seat_Driver": [
+     -0.45,
+     0.96,
+     -0.92
+    ],
+    "Marker_Seat_Passenger": [
+     0.45,
+     0.96,
+     -0.92
+    ],
+    "Marker_Camera_FirstPerson": [
+     -0.45,
+     1.64,
+     -0.82
+    ],
+    "Marker_Entry_Driver": [
+     -1.65,
+     0.0,
+     -0.81
+    ],
+    "Marker_Entry_Passenger": [
+     1.65,
+     0.0,
+     -0.81
+    ]
+   },
+   "description": "Broken-down delivery van: weathered, hood propped open, one rear door swung out.",
+   "status": "new",
+   "variant_of": "VEH_DeliveryVan",
+   "sight_targets": {
+    "cluster": [
+     -0.45,
+     1.12,
+     -1.498
+    ],
+    "mirror": [
+     0.0,
+     2.02,
+     -1.12
+    ],
+    "wheel_hub": [
+     -0.45,
+     1.16,
+     -1.3
+    ]
+   }
+  },
+  {
+   "name": "TRN_Tire",
+   "folder": "Transportation_Props",
+   "glb": "05_Vehicles/Transportation_Props/TRN_Tire.glb",
+   "category": "transportation prop",
+   "triangles": 128,
+   "materials": [
+    "M_Veh_Atlas"
+   ],
+   "size_m": [
+    0.62,
+    0.2,
+    0.62
+   ],
+   "bounds": [
+    [
+     -0.31,
+     0.0,
+     -0.31
+    ],
+    [
+     0.31,
+     0.2,
+     0.31
+    ]
+   ],
+   "movable_parts": [],
+   "markers": {
+    "Inspect_Center": [
+     0.0,
+     0.1,
+     0.0
+    ]
+   },
+   "description": "Loose worn tyre lying flat (185/65 R14 class).",
+   "status": "new",
+   "variant_of": null
+  },
+  {
+   "name": "TRN_SpareTire",
+   "folder": "Transportation_Props",
+   "glb": "05_Vehicles/Transportation_Props/TRN_SpareTire.glb",
+   "category": "transportation prop",
+   "triangles": 168,
+   "materials": [
+    "M_Veh_Atlas"
+   ],
+   "size_m": [
+    0.13,
+    0.585,
+    0.6
+   ],
+   "bounds": [
+    [
+     -0.065,
+     0.0,
+     -0.3
+    ],
+    [
+     0.065,
+     0.585,
+     0.3
+    ]
+   ],
+   "movable_parts": [],
+   "markers": {
+    "Inspect_Center": [
+     0.0,
+     0.2925,
+     0.0
+    ]
+   },
+   "description": "Compact spare wheel: narrow tyre on a black steel rim, standing.",
+   "status": "new",
+   "variant_of": null
+  },
+  {
+   "name": "TRN_WheelRim",
+   "folder": "Transportation_Props",
+   "glb": "05_Vehicles/Transportation_Props/TRN_WheelRim.glb",
+   "category": "transportation prop",
+   "triangles": 112,
+   "materials": [
+    "M_Veh_Atlas"
+   ],
+   "size_m": [
+    0.37,
+    0.13,
+    0.38
+   ],
+   "bounds": [
+    [
+     -0.185,
+     0.0,
+     -0.19
+    ],
+    [
+     0.185,
+     0.13,
+     0.19
+    ]
+   ],
+   "movable_parts": [],
+   "markers": {
+    "Inspect_Center": [
+     0.0,
+     0.065,
+     0.0
+    ]
+   },
+   "description": "Bare 14-inch steel wheel rim lying flat.",
+   "status": "new",
+   "variant_of": null
+  },
+  {
+   "name": "TRN_GasCan",
+   "folder": "Transportation_Props",
+   "glb": "05_Vehicles/Transportation_Props/TRN_GasCan.glb",
+   "category": "transportation prop",
+   "triangles": 100,
+   "materials": [
+    "M_Veh_Atlas"
+   ],
+   "size_m": [
+    0.17,
+    0.427,
+    0.362
+   ],
+   "bounds": [
+    [
+     -0.085,
+     0.0,
+     -0.181
+    ],
+    [
+     0.085,
+     0.427,
+     0.181
+    ]
+   ],
+   "movable_parts": [],
+   "markers": {
+    "Inspect_Center": [
+     0.0,
+     0.2136,
+     0.0
+    ],
+    "Grip": [
+     0.0,
+     0.41,
+     0.0209
+    ]
+   },
+   "description": "Red 5-gallon plastic gas can with spout and carry handle.",
+   "status": "new",
+   "variant_of": null
+  },
+  {
+   "name": "TRN_EmergencyTriangle",
+   "folder": "Transportation_Props",
+   "glb": "05_Vehicles/Transportation_Props/TRN_EmergencyTriangle.glb",
+   "category": "transportation prop",
+   "triangles": 60,
+   "materials": [
+    "M_Veh_Atlas"
+   ],
+   "size_m": [
+    0.493,
+    0.442,
+    0.18
+   ],
+   "bounds": [
+    [
+     -0.247,
+     0.0,
+     -0.09
+    ],
+    [
+     0.247,
+     0.442,
+     0.09
+    ]
+   ],
+   "movable_parts": [],
+   "markers": {
+    "Inspect_Center": [
+     0.0,
+     0.2211,
+     0.0
+    ]
+   },
+   "description": "Folding roadside warning triangle on a steel stand.",
+   "status": "new",
+   "variant_of": null
+  }
+ ],
+ "reused_props": [
+  {
+   "name": "TRN_Bicycle",
+   "scene": "05_Vehicles/Transportation_Props/TRN_Bicycle.tscn",
+   "source": "09_Horror_Atmosphere/Abandoned_Props/ABN_FallenBicycle.glb",
+   "size_m": [
+    0.48,
+    0.885,
+    1.72
+   ],
+   "description": "Upright bicycle (Pack 09 mesh stood up)."
+  },
+  {
+   "name": "TRN_ShoppingCart",
+   "scene": "05_Vehicles/Transportation_Props/TRN_ShoppingCart.tscn",
+   "source": "09_Horror_Atmosphere/Abandoned_Props/ABN_ShoppingCart_Overturned.glb",
+   "size_m": [
+    0.612,
+    0.964,
+    0.992
+   ],
+   "description": "Upright shopping cart (Pack 09 mesh stood up)."
+  },
+  {
+   "name": "SP_TrafficCone",
+   "source": "02_Town/Street_Props/SP_TrafficCone.glb",
+   "description": "Pack 02 street prop, used as-is (no duplicate)."
+  },
+  {
+   "name": "SP_RoadBarrier",
+   "source": "02_Town/Street_Props/SP_RoadBarrier.glb",
+   "description": "Pack 02 street prop, used as-is (no duplicate)."
+  },
+  {
+   "name": "SP_ParkingMeter",
+   "source": "02_Town/Street_Props/SP_ParkingMeter.glb",
+   "description": "Pack 02 street prop, used as-is (no duplicate)."
+  },
+  {
+   "name": "SP_Sign_BusStop",
+   "source": "02_Town/Street_Props/SP_Sign_BusStop.glb",
+   "description": "Pack 02 street prop, used as-is (no duplicate)."
+  },
+  {
+   "name": "SP_Bench_Wood",
+   "source": "02_Town/Street_Props/SP_Bench_Wood.glb",
+   "description": "Pack 02 street prop, used as-is (no duplicate)."
+  },
+  {
+   "name": "SP_BusShelter",
+   "source": "02_Town/Street_Props/SP_BusShelter.glb",
+   "description": "Pack 02 street prop, used as-is (no duplicate)."
+  }
+ ],
+ "scenes": [
+  "05_Vehicles/Godot_Scenes/Protagonist_Sedan.tscn",
+  "05_Vehicles/Godot_Scenes/Greyhaven_Opening_Driveway.tscn",
+  "05_Vehicles/Abandoned_Variants/Roadside_BrokenDown_Van.tscn",
+  "05_Vehicles/Transportation_Props/TRN_Bicycle.tscn",
+  "05_Vehicles/Transportation_Props/TRN_ShoppingCart.tscn"
+ ]
+}
