@@ -313,6 +313,7 @@ func _run() -> void:
 	h = c5.house
 	ok("c5_leave_house", await walk_route([Vector3(-2.0, 0.8, 7.4), Vector3(-2.0, 0.8, 6.0), Vector3(-1.6, 0.8, 4.6),
 		Vector3(-1.6, 0.8, 2.4), Vector3(-1.6, 0.4, 1.0)], h))
+	ok("c5_survivor_cues", c5._surv_sound.playing and c5._surv_lamp.light_energy > 0.0)
 	ok("c5_walk_to_neighbour", await walk_world([Vector3(15.6, 0.2, -62.5), Vector3(22.0, 0.2, -62.0), Vector3(30.9, 0.2, -64.6)]))
 	ok("c5_return_line", game.has_flag("c5_return_said"))
 	ok("c5_survivor_choice_offered", await wait_talk(func(): return p4.choice.is_open(), 40.0))

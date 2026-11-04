@@ -667,7 +667,7 @@ func _run() -> void:
 	player.set_yaw_pitch(atan2(-(m_in - m_out).x, -(m_in - m_out).z) + PI, 0.0)
 	Input.action_press("move_forward")
 	Input.action_press("sprint")
-	await frames(90)
+	await frames(210)                    # 3.5 s of sprinting (drain 8.5/s, ~12 s from full)
 	var st_run: float = player.stamina
 	Input.action_release("sprint")
 	Input.action_release("move_forward")
