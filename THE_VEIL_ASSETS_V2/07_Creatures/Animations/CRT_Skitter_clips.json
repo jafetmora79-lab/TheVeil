@@ -1,0 +1,48 @@
+{
+  "model": "07_Creatures/Skitter/CRT_Skitter.glb",
+  "fps_baked": 30.0,
+  "clips": [
+    {
+      "name": "Idle_Twitch",
+      "duration_s": 3.0,
+      "loop": true,
+      "keys": 91
+    },
+    {
+      "name": "Crawl",
+      "duration_s": 1.2,
+      "loop": true,
+      "keys": 37
+    },
+    {
+      "name": "Scuttle_Fast",
+      "duration_s": 0.34,
+      "loop": true,
+      "keys": 11
+    },
+    {
+      "name": "Alert",
+      "duration_s": 1.2,
+      "loop": false,
+      "keys": 37
+    },
+    {
+      "name": "Attack_Lunge",
+      "duration_s": 1.0,
+      "loop": false,
+      "keys": 31
+    },
+    {
+      "name": "Hit_React",
+      "duration_s": 0.6,
+      "loop": false,
+      "keys": 19
+    },
+    {
+      "name": "Death",
+      "duration_s": 1.6,
+      "loop": false,
+      "keys": 49
+    }
+  ]
+}

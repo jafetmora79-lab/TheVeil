@@ -1,0 +1,35 @@
+[gd_scene load_steps=4 format=3]
+
+[ext_resource type="PackedScene" path="res://THE_VEIL_ASSETS_V2/07_Creatures/Skitter/CRT_Skitter.glb" id="1_model"]
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_0"]
+size = Vector3(0.42, 0.3, 1.25)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_1"]
+size = Vector3(1.9, 0.45, 1.6)
+
+[node name="Skitter" type="CharacterBody3D"]
+metadata/veil_creature = "Skitter"
+metadata/faces = "+Z"
+metadata/animation_player = "Model/AnimationPlayer"
+metadata/animations = PackedStringArray("Idle_Twitch", "Crawl", "Scuttle_Fast", "Alert", "Attack_Lunge", "Hit_React", "Death")
+metadata/crawl_speed_mps = 0.472
+metadata/scuttle_speed_mps = 2.588
+
+[node name="Model" parent="." instance=ExtResource("1_model")]
+
+[node name="BodyShape" type="CollisionShape3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.32, -0.15)
+shape = SubResource("BoxShape3D_0")
+
+[node name="LegSpan" type="CollisionShape3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.32, 0.02)
+shape = SubResource("BoxShape3D_1")
+
+[node name="Markers" type="Node3D" parent="."]
+
+[node name="LookTarget" type="Marker3D" parent="Markers"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.34, 0.5)
+
+[node name="LungeReach" type="Marker3D" parent="Markers"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.3, 1.25)
