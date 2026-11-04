@@ -123,7 +123,7 @@ func refresh_objective() -> void:
 
 # ------------------------------------------------------------------ inventory
 func add_item(id: String) -> void:
-	if id in inventory:
+	if id in inventory and (shelter_resource(id).is_empty() or id == "batteries"):
 		return
 	inventory.append(id)
 	inventory_changed.emit()
@@ -141,6 +141,36 @@ func has_item(id: String) -> bool:
 
 func item_info(id: String) -> Dictionary:
 	return items.get("items", {}).get(id, {"name": id, "category": "misc", "description": ""})
+
+
+# ------------------------------------------------------------------ communal shelter supplies
+const SUPPLY_TYPES := ["food", "water", "medical", "batteries"]
+
+func shelter_resource(id: String) -> String:
+	var resource: String = item_info(id).get("shelter_resource", "")
+	return resource if resource in SUPPLY_TYPES else ""
+
+func shelter_stock() -> Dictionary:
+	return world_state.get("shelter_stock", {"food": 0, "water": 0, "medical": 0, "batteries": 0})
+
+func record_shelter_night(transition: String, roster: Array, rates: Dictionary) -> Dictionary:
+	var history: Dictionary = world_state.get("shelter_nights", {})
+	if history.has(transition):
+		return {}
+	var stock := shelter_stock()
+	var report := {"roster": roster.duplicate()}
+	for resource in ["food", "water"]:
+		var demand := maxi(0, int(rates.get(resource, 1))) * roster.size()
+		var used := mini(demand, int(stock[resource]))
+		stock[resource] = int(stock[resource]) - used
+		report[resource + "_used"] = used
+		report[resource + "_left"] = stock[resource]
+		report[resource + "_needed"] = demand
+	history[transition] = report
+	world_state["shelter_stock"] = stock
+	world_state["shelter_nights"] = history
+	world_state["shelter_latest_report"] = report
+	return report
 
 
 # ------------------------------------------------------------------ save / load
