@@ -330,7 +330,7 @@
     "M_Furn_WoodDark",
     "M_Res_DetailAtlasGlow",
     "M_Res_DetailAtlas",
-    "M_Road_RoadPatch"
+    "M_Furn_FabricUpholstery"
    ],
    "bounds_min": [
     -0.525,
@@ -1116,7 +1116,7 @@
    ],
    "materials": [
     "M_Res_EnamelHarvest",
-    "M_Road_RoadPatch",
+    "M_Furn_Rubber",
     "M_Furn_MetalBrushed",
     "M_Res_DetailAtlas"
    ],
@@ -1163,7 +1163,7 @@
    ],
    "materials": [
     "M_Town_PaintWhite",
-    "M_Road_RoadPatch",
+    "M_Furn_Rubber",
     "M_Furn_MetalBrushed",
     "M_Res_DetailAtlas"
    ],
@@ -1215,7 +1215,7 @@
    ],
    "materials": [
     "M_Town_PaintWhite",
-    "M_Road_RoadPatch",
+    "M_Furn_Rubber",
     "M_Furn_PlasticDirty",
     "M_Arch_WindowGlassDirty",
     "M_Furn_MetalBrushed"
@@ -1264,7 +1264,7 @@
    ],
    "materials": [
     "M_Res_EnamelHarvest",
-    "M_Road_RoadPatch",
+    "M_Furn_Rubber",
     "M_Furn_PlasticDirty",
     "M_Arch_WindowGlassDirty",
     "M_Furn_MetalBrushed"
@@ -1313,7 +1313,7 @@
    ],
    "materials": [
     "M_Furn_WoodPainted",
-    "M_Road_RoadPatch",
+    "M_Furn_WoodDark",
     "M_Res_Formica",
     "M_Furn_MetalBrushed"
    ],
@@ -1387,7 +1387,7 @@
    ],
    "materials": [
     "M_Furn_WoodPainted",
-    "M_Road_RoadPatch",
+    "M_Furn_WoodDark",
     "M_Res_Formica",
     "M_Furn_MetalBrushed"
    ],
@@ -1441,7 +1441,7 @@
    ],
    "materials": [
     "M_Furn_WoodPainted",
-    "M_Road_RoadPatch",
+    "M_Furn_WoodDark",
     "M_Res_Formica",
     "M_Furn_MetalBrushed"
    ],
@@ -1646,7 +1646,7 @@
    ],
    "materials": [
     "M_Furn_WoodPainted",
-    "M_Road_RoadPatch",
+    "M_Furn_WoodDark",
     "M_Furn_WoodLight"
    ],
    "bounds_min": [
@@ -2514,7 +2514,7 @@
    ],
    "materials": [
     "M_Furn_WoodDark",
-    "M_Road_RoadPatch",
+    "M_Furn_WoodLight",
     "M_Furn_MetalBrushed",
     "M_Furn_Denim",
     "M_Furn_FabricUpholstery",
@@ -2840,7 +2840,6 @@
    ],
    "materials": [
     "M_Res_Porcelain",
-    "M_Road_RoadPatch",
     "M_Furn_MetalBrushed"
    ],
    "bounds_min": [
@@ -2881,7 +2880,6 @@
    "materials": [
     "M_Furn_WoodPainted",
     "M_Res_Formica",
-    "M_Road_RoadPatch",
     "M_Furn_MetalBrushed"
    ],
    "bounds_min": [
@@ -3088,7 +3086,6 @@
    ],
    "materials": [
     "M_Town_PaintWhite",
-    "M_Road_RoadPatch",
     "M_Res_Mirror"
    ],
    "bounds_min": [
@@ -3338,8 +3335,7 @@
     "convcolonly"
    ],
    "materials": [
-    "M_Furn_Cardboard",
-    "M_Road_RoadPatch"
+    "M_Furn_Cardboard"
    ],
    "bounds_min": [
     -0.275,
@@ -3498,7 +3494,7 @@
    "materials": [
     "M_Town_PaintWhite",
     "M_Res_DetailAtlas",
-    "M_Road_RoadPatch"
+    "M_Furn_MetalBrushed"
    ],
    "bounds_min": [
     -0.34,
@@ -6715,7 +6711,7 @@
    "category": "House_Variants",
    "glb": "03_Residential/House_Variants/RES_House_Ranch.glb",
    "obj": "03_Residential/House_Variants/OBJ/RES_House_Ranch.obj",
-   "triangles": 5590,
+   "triangles": 5580,
    "collision_triangles": 1090,
    "collision": [
     "colonly",
@@ -6890,12 +6886,11 @@
     "M_Res_BulbGlow",
     "M_Res_Gingham",
     "M_Town_PaintWhite",
-    "M_Road_RoadPatch",
+    "M_Furn_Rubber",
     "M_Furn_WoodPainted",
     "M_Res_Formica",
     "M_Arch_WindowGlassDirty",
     "M_Res_Porcelain",
-    "M_Furn_Rubber",
     "M_Int_DrywallLight",
     "M_Res_Mirror",
     "M_Town_PaintNavy",
@@ -7157,14 +7152,13 @@
     "M_Furn_WoodLight",
     "M_Res_DetailAtlas",
     "M_Res_DetailAtlasGlow",
-    "M_Road_RoadPatch",
+    "M_Furn_FabricUpholstery",
     "M_Furn_Cardboard",
     "M_Furn_MetalBrushed",
     "M_Res_Lampshade",
     "M_Res_BulbGlow",
     "M_Res_Gingham",
     "M_Furn_Rubber",
-    "M_Furn_FabricUpholstery",
     "M_Res_EnamelHarvest",
     "M_Furn_WoodPainted",
     "M_Res_Formica",
@@ -7207,7 +7201,7 @@
    "category": "House_Variants",
    "glb": "03_Residential/House_Variants/RES_House_Farmhouse.glb",
    "obj": "03_Residential/House_Variants/OBJ/RES_House_Farmhouse.obj",
-   "triangles": 11172,
+   "triangles": 11162,
    "collision_triangles": 1736,
    "collision": [
     "colonly",
@@ -7427,7 +7421,6 @@
     "M_Furn_WoodLight",
     "M_Res_DetailAtlas",
     "M_Res_DetailAtlasGlow",
-    "M_Road_RoadPatch",
     "M_Res_Gingham",
     "M_Furn_MetalBrushed",
     "M_Town_PaintRed",
@@ -7649,7 +7642,7 @@
     "M_Res_Gingham",
     "M_Furn_Cardboard",
     "M_Res_EnamelHarvest",
-    "M_Road_RoadPatch",
+    "M_Furn_Rubber",
     "M_Furn_WoodPainted",
     "M_Res_Formica",
     "M_Town_PaintWhite",
@@ -7831,7 +7824,6 @@
    ],
    "materials": [
     "M_Furn_Cardboard",
-    "M_Road_RoadPatch",
     "M_Res_DetailAtlas",
     "M_Furn_WoodDark",
     "M_Furn_FabricUpholstery",
@@ -7839,6 +7831,7 @@
     "M_Int_DrywallLight",
     "M_Furn_WoodLight",
     "M_Town_PaintWhite",
+    "M_Furn_Rubber",
     "M_Furn_PlasticDirty",
     "M_Arch_WindowGlassDirty",
     "M_Furn_MetalBrushed",
@@ -7871,7 +7864,7 @@
    "category": "House_Variants",
    "glb": "03_Residential/House_Variants/RES_House_SplitLevel.glb",
    "obj": "03_Residential/House_Variants/OBJ/RES_House_SplitLevel.obj",
-   "triangles": 7814,
+   "triangles": 7804,
    "collision_triangles": 1378,
    "collision": [
     "colonly",
@@ -8088,12 +8081,12 @@
     "M_Furn_WoodLight",
     "M_Res_DetailAtlas",
     "M_Res_DetailAtlasGlow",
-    "M_Road_RoadPatch",
     "M_Furn_FabricUpholstery",
     "M_Furn_MetalBrushed",
     "M_Res_Lampshade",
     "M_Res_BulbGlow",
     "M_Town_PaintWhite",
+    "M_Furn_Rubber",
     "M_Furn_WoodPainted",
     "M_Res_Formica",
     "M_Furn_PlasticDirty",
@@ -8135,7 +8128,7 @@
    "category": "House_Variants",
    "glb": "03_Residential/House_Variants/RES_House_Cottage.glb",
    "obj": "03_Residential/House_Variants/OBJ/RES_House_Cottage.obj",
-   "triangles": 4916,
+   "triangles": 4918,
    "collision_triangles": 880,
    "collision": [
     "colonly",
@@ -8288,7 +8281,7 @@
     "M_Res_BulbGlow",
     "M_Res_Gingham",
     "M_Res_EnamelHarvest",
-    "M_Road_RoadPatch",
+    "M_Furn_Rubber",
     "M_Res_DetailAtlas",
     "M_Furn_WoodPainted",
     "M_Res_Formica",
@@ -8296,10 +8289,10 @@
     "M_Int_DrywallLight",
     "M_Res_Quilt",
     "M_Town_PaintWhite",
+    "M_Furn_WoodLight",
     "M_Furn_Denim",
     "M_Res_Porcelain",
-    "M_Int_TilesBathroom",
-    "M_Furn_WoodLight"
+    "M_Int_TilesBathroom"
    ],
    "bounds_min": [
     -3.9,
@@ -8469,11 +8462,11 @@
     "M_Res_DetailAtlas",
     "M_Furn_FabricUpholstery",
     "M_Res_DetailAtlasGlow",
-    "M_Road_RoadPatch",
     "M_Furn_MetalBrushed",
     "M_Res_Lampshade",
     "M_Res_BulbGlow",
     "M_Res_EnamelHarvest",
+    "M_Furn_Rubber",
     "M_Furn_WoodPainted",
     "M_Res_Formica",
     "M_Town_PaintWhite",
@@ -8510,7 +8503,7 @@
    "category": "House_Variants",
    "glb": "03_Residential/House_Variants/RES_PlayerHome.glb",
    "obj": "03_Residential/House_Variants/OBJ/RES_PlayerHome.obj",
-   "triangles": 5566,
+   "triangles": 5580,
    "collision_triangles": 1078,
    "collision": [
     "colonly",
@@ -8729,7 +8722,6 @@
     "M_Furn_Denim",
     "M_Furn_LeatherWorn",
     "M_Res_EnamelHarvest",
-    "M_Road_RoadPatch",
     "M_Furn_WoodPainted",
     "M_Res_Formica",
     "M_Town_PaintWhite",
@@ -8770,7 +8762,7 @@
    "category": "House_Variants",
    "glb": "03_Residential/House_Variants/RES_House_Ranch_Mirror.glb",
    "obj": null,
-   "triangles": 5590,
+   "triangles": 5580,
    "collision_triangles": 1090,
    "collision": [
     "colonly",
@@ -8945,12 +8937,11 @@
     "M_Res_BulbGlow",
     "M_Res_Gingham",
     "M_Town_PaintWhite",
-    "M_Road_RoadPatch",
+    "M_Furn_Rubber",
     "M_Furn_WoodPainted",
     "M_Res_Formica",
     "M_Arch_WindowGlassDirty",
     "M_Res_Porcelain",
-    "M_Furn_Rubber",
     "M_Int_DrywallLight",
     "M_Res_Mirror",
     "M_Town_PaintNavy",
@@ -8989,7 +8980,7 @@
    "category": "House_Variants",
    "glb": "03_Residential/House_Variants/RES_House_Ranch_B.glb",
    "obj": null,
-   "triangles": 5590,
+   "triangles": 5580,
    "collision_triangles": 1090,
    "collision": [
     "colonly",
@@ -9536,7 +9527,7 @@
     "M_Res_Gingham",
     "M_Furn_Cardboard",
     "M_Res_EnamelHarvest",
-    "M_Road_RoadPatch",
+    "M_Furn_Rubber",
     "M_Furn_WoodPainted",
     "M_Res_Formica",
     "M_Town_PaintWhite",
@@ -9730,7 +9721,7 @@
    "category": "House_Variants",
    "glb": "03_Residential/House_Variants/RES_House_Cottage_B.glb",
    "obj": null,
-   "triangles": 4916,
+   "triangles": 4918,
    "collision_triangles": 880,
    "collision": [
     "colonly",
@@ -9864,7 +9855,7 @@
    "category": "House_Variants",
    "glb": "03_Residential/House_Variants/RES_House_Ranch_C_Mirror.glb",
    "obj": null,
-   "triangles": 5590,
+   "triangles": 5580,
    "collision_triangles": 1090,
    "collision": [
     "colonly",
@@ -10019,7 +10010,7 @@
    "category": "House_Variants",
    "glb": "03_Residential/House_Variants/RES_House_Cottage_B_Mirror.glb",
    "obj": null,
-   "triangles": 4916,
+   "triangles": 4918,
    "collision_triangles": 880,
    "collision": [
     "colonly",
@@ -10172,7 +10163,7 @@
     "M_Res_BulbGlow",
     "M_Res_Gingham",
     "M_Res_EnamelHarvest",
-    "M_Road_RoadPatch",
+    "M_Furn_Rubber",
     "M_Res_DetailAtlas",
     "M_Furn_WoodPainted",
     "M_Res_Formica",
@@ -10180,10 +10171,10 @@
     "M_Int_DrywallLight",
     "M_Res_Quilt",
     "M_Town_PaintWhite",
+    "M_Furn_WoodLight",
     "M_Furn_Denim",
     "M_Res_Porcelain",
-    "M_Int_TilesBathroom",
-    "M_Furn_WoodLight"
+    "M_Int_TilesBathroom"
    ],
    "bounds_min": [
     -3.635,
@@ -10433,14 +10424,13 @@
     "M_Furn_WoodLight",
     "M_Res_DetailAtlas",
     "M_Res_DetailAtlasGlow",
-    "M_Road_RoadPatch",
+    "M_Furn_FabricUpholstery",
     "M_Furn_Cardboard",
     "M_Furn_MetalBrushed",
     "M_Res_Lampshade",
     "M_Res_BulbGlow",
     "M_Res_Gingham",
     "M_Furn_Rubber",
-    "M_Furn_FabricUpholstery",
     "M_Res_EnamelHarvest",
     "M_Furn_WoodPainted",
     "M_Res_Formica",
@@ -10614,7 +10604,7 @@
    "category": "House_Variants",
    "glb": "03_Residential/House_Variants/RES_House_SplitLevel_Mirror.glb",
    "obj": null,
-   "triangles": 7814,
+   "triangles": 7804,
    "collision_triangles": 1378,
    "collision": [
     "colonly",
@@ -10831,12 +10821,12 @@
     "M_Furn_WoodLight",
     "M_Res_DetailAtlas",
     "M_Res_DetailAtlasGlow",
-    "M_Road_RoadPatch",
     "M_Furn_FabricUpholstery",
     "M_Furn_MetalBrushed",
     "M_Res_Lampshade",
     "M_Res_BulbGlow",
     "M_Town_PaintWhite",
+    "M_Furn_Rubber",
     "M_Furn_WoodPainted",
     "M_Res_Formica",
     "M_Furn_PlasticDirty",
@@ -10878,7 +10868,7 @@
    "category": "House_Variants",
    "glb": "03_Residential/House_Variants/RES_House_SplitLevel_B.glb",
    "obj": null,
-   "triangles": 7814,
+   "triangles": 7804,
    "collision_triangles": 1378,
    "collision": [
     "colonly",
@@ -11083,7 +11073,7 @@
    "category": "House_Variants",
    "glb": "03_Residential/House_Variants/RES_House_Ranch_C.glb",
    "obj": null,
-   "triangles": 5590,
+   "triangles": 5580,
    "collision_triangles": 1090,
    "collision": [
     "colonly",

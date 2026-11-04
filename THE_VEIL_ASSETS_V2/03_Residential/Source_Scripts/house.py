@@ -186,12 +186,96 @@ class House:
             self.build_roof(rf)
         for ch in self.p.get("chimneys", []):
             arch.chimney(self.ext, self.col, *ch[:5], mat=mat_of(self.cw.get("chimney", "Arch_BrickRed")))
+        self.clip_gutters_inside()
         if self.p.get("driveway_flare"):     # flared concrete apron from the Pack 02 driveway to the garage
             self.ext.ground_poly(m01("Road_SidewalkConcrete"), self.p["driveway_flare"], y=0.006)
         for extra in self.p.get("extras", []):
             extra(self)
         self.add_lights()
         return self
+
+    def clip_gutters_inside(self):
+        """Gutters and downspouts are generated per roof eave. Where a roof's eave runs over another part of the
+        house (a front gable joining the main hip roof, a garage gable against the house) they ended up inside
+        rooms - a white post and beam standing in the bedroom. Cut every gutter / downspout box out of every
+        room volume it passes through (rooms of all levels, floor to ceiling)."""
+        key = mt("PaintWhite")
+        g = self.ext.parts.get(key)
+        if not g or not g["i"]:
+            return
+        P = np.asarray(g["p"])
+        I = np.asarray(g["i"]).reshape(-1, 3)
+        keyv = [tuple(np.round(p, 4)) for p in P]
+        par = list(range(len(I)))
+
+        def f(x):
+            while par[x] != x:
+                par[x] = par[par[x]]
+                x = par[x]
+            return x
+        seen = {}
+        for ti, t in enumerate(I):
+            for v in t:
+                k = keyv[v]
+                if k in seen:
+                    par[f(ti)] = f(seen[k])
+                else:
+                    seen[k] = ti
+        comps = {}
+        for ti in range(len(I)):
+            comps.setdefault(f(ti), []).append(ti)
+        rooms = [(r["rect"], self.floor_y(r) + 0.02, self.ceil_y(r)) for r in self.p["rooms"] if r.get("type") != "attic"]
+        drop, add = set(), []
+        for tris in comps.values():
+            Q = P[I[tris]].reshape(-1, 3)
+            mn, mx = Q.min(0), Q.max(0)
+            a = 0 if (mx[0] - mn[0]) >= (mx[2] - mn[2]) else 2          # long horizontal axis
+            b = 2 - a
+            cuts = []
+            for (rc, fy, cy) in rooms:
+                lo_a, hi_a = (rc[0], rc[2]) if a == 0 else (rc[1], rc[3])
+                lo_b, hi_b = (rc[0], rc[2]) if b == 0 else (rc[1], rc[3])
+                if mx[b] <= lo_b or mn[b] >= hi_b or mx[1] <= fy or mn[1] >= cy:
+                    continue
+                if mx[a] <= lo_a or mn[a] >= hi_a:
+                    continue
+                cuts.append((lo_a, hi_a))
+            if not cuts:
+                continue
+            drop.update(tris)
+            segs = [(mn[a], mx[a])]
+            for c0, c1 in cuts:
+                nxt = []
+                for s0, s1 in segs:
+                    if c1 <= s0 or c0 >= s1:
+                        nxt.append((s0, s1))
+                        continue
+                    if c0 > s0:
+                        nxt.append((s0, c0))
+                    if c1 < s1:
+                        nxt.append((c1, s1))
+                segs = nxt
+            for s0, s1 in segs:
+                if s1 - s0 > 0.05:
+                    lo, hi = mn.copy(), mx.copy()
+                    lo[a], hi[a] = s0, s1
+                    add.append((tuple(lo), tuple(hi)))
+        if not drop:
+            return
+        keep = [t for ti, t in enumerate(I) if ti not in drop]
+        old = g
+        self.ext.parts[key] = {"p": [], "n": [], "uv": [], "i": []}
+        ng = self.ext.parts[key]
+        for t in keep:
+            base = len(ng["p"])
+            for v in t:
+                ng["p"].append(old["p"][v])
+                ng["n"].append(old["n"][v])
+                ng["uv"].append(old["uv"][v])
+            ng["i"].extend([base, base + 1, base + 2])
+        for lo, hi in add:
+            self.ext.box(key, lo, hi, skip=())
+        self.meta["gutter_boxes_clipped"] = len({f(t) for t in drop})
 
     # exterior walls --------------------------------------------------------
     def build_exterior_walls(self, ext):

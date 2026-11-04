@@ -5,12 +5,12 @@ Ks 0 0 0
 illum 1
 map_Kd ../../Textures/T_Res_EnamelHarvest.png
 
-newmtl M_Road_RoadPatch
+newmtl M_Furn_Rubber
 Ka 0 0 0
 Kd 1 1 1
 Ks 0 0 0
 illum 1
-map_Kd ../../../01_Textures/Roads/T_Road_RoadPatch.png
+map_Kd ../../../01_Textures/Furniture/T_Furn_Rubber.png
 
 newmtl M_Furn_MetalBrushed
 Ka 0 0 0

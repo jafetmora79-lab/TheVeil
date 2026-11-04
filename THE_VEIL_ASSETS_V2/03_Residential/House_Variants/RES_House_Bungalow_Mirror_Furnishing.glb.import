@@ -87,9 +87,9 @@ _subresources={
 "use_external/enabled": true,
 "use_external/path": "res://THE_VEIL_ASSETS_V2/03_Residential/Materials/M_Res_EnamelHarvest.tres"
 },
-"M_Road_RoadPatch": {
+"M_Furn_Rubber": {
 "use_external/enabled": true,
-"use_external/path": "res://THE_VEIL_ASSETS_V2/Materials_Godot/Roads/M_Road_RoadPatch.tres"
+"use_external/path": "res://THE_VEIL_ASSETS_V2/Materials_Godot/Furniture/M_Furn_Rubber.tres"
 },
 "M_Furn_WoodPainted": {
 "use_external/enabled": true,

@@ -155,7 +155,11 @@ func _setup_home() -> void:
 		var cfg := {"label": _label_for(n.name), "state_key": key}
 		match kind:
 			"hinge":
-				cfg.merge({"kind": "hinge", "open_deg": float(e.get("open_deg", 90.0))})
+				var deg := float(e.get("open_deg", 90.0))
+				var ax: Vector3 = {"x": Vector3.RIGHT, "y": Vector3.UP, "z": Vector3.BACK}.get(e.get("axis", "y"), Vector3.UP)
+				if path.contains("Furniture/"):
+					deg = _outward_deg(n, deg, ax)
+				cfg.merge({"kind": "hinge", "open_deg": deg, "hinge_axis": ax})
 			"slide":
 				var ax := Vector3(0, 0, 1)
 				if n.name.contains("SlidingDoor"):
@@ -187,6 +191,28 @@ func _setup_home() -> void:
 		if f:
 			Interactable.attach(f, {"kind": "observe", "label": OBSERVE[nm][0], "dialogue_id": OBSERVE[nm][1]})
 	_stock_fridge()
+
+
+## Pick the swing direction that moves a furniture door / lid away from the piece's body (out in front for
+## doors, up for lids, down-and-out for oven doors). Some Pack 03 hinge data has the sign reversed.
+func _outward_deg(door: Node3D, deg: float, axis: Vector3) -> float:
+	var furn := door
+	while furn and furn.get_parent() and furn.get_parent().name != "Furniture":
+		furn = furn.get_parent() as Node3D
+	if furn == null:
+		return deg
+	var body := Interactable.aabb_of(furn).get_center()
+	var c := Interactable.aabb_of(door).get_center()
+	var to_furn := furn.global_transform.affine_inverse() * door.get_parent_node_3d().global_transform
+	var best := deg
+	var best_d := -INF
+	for d in [absf(deg), -absf(deg)]:
+		var t := Transform3D(door.transform.basis * Basis(axis, deg_to_rad(d)), door.transform.origin)
+		var dist := (to_furn * (t * c)).distance_to(body)
+		if dist > best_d:
+			best_d = dist
+			best = d
+	return best
 
 
 func _stock_fridge() -> void:
