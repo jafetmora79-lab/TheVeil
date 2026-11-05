@@ -573,6 +573,7 @@ func _field() -> void:
 	var h := ps.instantiate() as Node3D
 	h.name = "C11_FieldShape"
 	world.add_child(h)
+	field_shape = h
 	if h is CollisionObject3D:
 		(h as CollisionObject3D).collision_layer = 0
 		(h as CollisionObject3D).collision_mask = 0
@@ -884,32 +885,55 @@ func _process(delta: float) -> void:
 		_guide()
 
 
-## (QA-007) A Hound that has done its part goes on into the fog and is removed only once out of view (or far off
-## in it): it keeps on the way it faces, checked every 0.2 s, for up to 12 s.
-var hounds_left_in_view := 0       ## tests
+## (QA-007) A Hound that has done its part goes on into the fog and is removed only once it is concealed: out of
+## the camera's view, behind solid cover, or far off in the fog. While the player keeps watching it stays: it walks
+## on the way it faces (scripted Hounds; at its pace, up to WANDER m, then it stands), checked every 0.25 s by one
+## timer at a time - never deleted on a timeout.
+const LEAVE_FAR := 60.0
+const WANDER := 40.0
+var hounds_left_in_view := 0       ## tests (must stay 0)
 var hounds_removed := 0            ## tests
+var conceal_reason := ""           ## tests
+var field_shape: Node3D            ## tests
+
+
+func hound_concealed(h: Node3D) -> bool:
+	var cam := get_viewport().get_camera_3d()
+	if cam == null:
+		return true
+	var at := h.global_position + Vector3(0, 0.7, 0)
+	if not cam.is_position_in_frustum(at):
+		conceal_reason = "out of view"
+		return true
+	if cam.global_position.distance_to(at) > LEAVE_FAR:
+		conceal_reason = "far"
+		return true
+	var ex: Array = [player.get_rid()] if player is CollisionObject3D else []
+	if h is CollisionObject3D:
+		ex.append((h as CollisionObject3D).get_rid())
+	var hit := h.get_world_3d().direct_space_state.intersect_ray(PhysicsRayQueryParameters3D.create(cam.global_position, at, 1, ex))
+	conceal_reason = "cover: %s" % (hit["collider"] as Node).name if not hit.is_empty() else ""
+	return not hit.is_empty() and (hit["position"] as Vector3).distance_to(at) > 0.8     # solid cover in between
 
 
 func _leave_unseen(h: Node3D, wait := 0.0) -> void:
 	if wait > 0.0:
 		await get_tree().create_timer(wait).timeout
-	if not is_instance_valid(h):
-		return
-	var dir := Vector3(sin(h.rotation.y), 0.0, cos(h.rotation.y))
-	for i in 60:
-		if not is_instance_valid(h):
+	var walked := 0.0
+	var stood := false
+	while is_instance_valid(h) and is_inside_tree():
+		if hound_concealed(h):
+			hounds_removed += 1
+			h.queue_free()
 			return
-		var cam := get_viewport().get_camera_3d()
-		var at := h.global_position + Vector3(0, 0.7, 0)
-		if cam == null or not cam.is_position_in_frustum(at) or cam.global_position.distance_to(at) > 60.0:
-			break
 		if h.get_node_or_null("AI") == null:
-			var tw := h.create_tween()                  # scripted: keep walking on, at its pace, into the fog
-			tw.tween_property(h, "global_position", h.global_position + dir * 0.6, 0.2)
-		await get_tree().create_timer(0.2).timeout
-	if is_instance_valid(h):
-		var cam2 := get_viewport().get_camera_3d()
-		if cam2 and cam2.is_position_in_frustum(h.global_position + Vector3(0, 0.7, 0)) and cam2.global_position.distance_to(h.global_position) <= 60.0:
-			hounds_left_in_view += 1
-		hounds_removed += 1
-		h.queue_free()
+			if walked < WANDER:
+				var dir := Vector3(sin(h.rotation.y), 0.0, cos(h.rotation.y))
+				var to := h.global_position + dir * 0.75
+				to.y = _floor(to)
+				h.create_tween().tween_property(h, "global_position", to, 0.25)    # on at its walking pace
+				walked += 0.75
+			elif not stood:
+				stood = true
+				c8._hplay(h, "Idle", 0.0)                # far out in the fog: it stands, watching back
+		await get_tree().create_timer(0.25).timeout

@@ -296,6 +296,36 @@ func D(p: Vector3) -> Vector3:
 	return c13.D(p)
 
 
+## Boot the pre-decision checkpoint and pick an ending.
+func at_decision(i: int) -> void:
+	await boot_checkpoint("chapter16_decision")
+	await wait_talk(func(): return p4.choice.is_open(), 40.0)
+	p4.choice.pick(i)
+
+
+## Ending A from its pick: through the tunnel and out (the outside scene).
+func a_to_outside() -> bool:
+	return await wait_until(func(): return c15._busy.get("outer_open", false), 60 * 20) \
+		and await walk_world([UL(Vector3(28.6, 0.2, 70.0)), UL(Vector3(42.4, 0.2, 70.0))]) and await use(c15.its["outer"], [Vector3(-1, 0, 0)], 1.0) \
+		and await wait_talk(func(): return said.has("We keep going.") and world.player.global_position.distance_to(c15.BEYOND) < 3.0, 60.0)
+
+
+## After a load: the decision is offered again, in the chamber, with the same group beside the player; nothing
+## of the interrupted ending is left; endings seen are kept.
+func back_at_decision(roster: Array, seen: Array) -> bool:
+	var asked: bool = await wait_talk(func(): return p4.choice.is_open(), 40.0)
+	var p: Vector3 = world.player.global_position
+	var near: bool = c15.present().all(func(k): return c15._node(k).visible and c15._node(k).global_position.distance_to(p) < 25.0)
+	var st: Dictionary = game.world_state["ch15"]
+	var good: bool = asked and not game.has_flag("ch15_decided") and not game.has_flag("ch15_ended") and not game.has_flag("chapter_15_complete") \
+		and p.distance_to(c15.UL(c15.GREAT)) < 40.0 and near and c15.present() == roster and String(st.get("ending", "")) == "" \
+		and seen.all(func(e): return e in st.get("endings_seen", []))
+	if not good:
+		print("  back_at_decision: asked %s decided %s ended %s dist %.1f near %s roster %s seen %s" % [asked, game.has_flag("ch15_decided"),
+			game.has_flag("ch15_ended"), p.distance_to(c15.UL(c15.GREAT)), near, c15.present(), st.get("endings_seen")])
+	return good
+
+
 func boot_checkpoint(cp: String) -> void:
 	game.load_checkpoint(cp)
 	game.save_game()
@@ -484,6 +514,67 @@ func _run() -> void:
 		and c15.st()["epilogue"][0] == "They waited at the tunnel mouth until morning. Nobody came out.")
 	rec = JSON.parse_string(FileAccess.get_file_as_string("user://veil_endings.json"))
 	ok("c15_all_endings_recorded", rec is Dictionary and rec["endings"].has("A") and rec["endings"].has("B") and rec["endings"].has("C"), str(rec["endings"]))
+
+	# ---- (QA-001) a save at every stage after the decision loads back at a usable decision; each ending finishes
+	var seen0: Array = (game.world_state["ch15"]["endings_seen"] as Array).duplicate()
+	var roster0: Array = c15.present()
+	# A: right after choosing
+	await at_decision(0)
+	await frames(30)
+	await reload()
+	ok("qa1_a_chosen", await back_at_decision(roster0, seen0))
+	# A: after the outside transition
+	p4.choice.pick(0)
+	await a_to_outside()
+	ok("qa1_a_outside_reached", world.player.global_position.distance_to(c15.UL(c15.GREAT)) > 100.0)
+	await reload()
+	ok("qa1_a_outside", await back_at_decision(roster0, seen0))
+	# A: during the epilogue
+	p4.choice.pick(0)
+	await a_to_outside()
+	ok("qa1_a_epilogue_reached", await wait_talk(func(): return game.has_flag("ch15_ended") and not game.has_flag("chapter_15_complete"), 60.0))
+	await reload()
+	ok("qa1_a_epilogue", await back_at_decision(roster0, seen0))
+	# A: completes after those loads; then a save made after the end loads back at the decision too
+	p4.choice.pick(0)
+	await a_to_outside()
+	ok("qa1_a_completes", await wait_talk(func(): return credits_up(), 120.0) and game.has_flag("chapter_15_complete"))
+	await reload()
+	ok("qa1_a_after_end", await back_at_decision(roster0, seen0) and "A" in game.world_state["ch15"]["endings_seen"])
+	# B: right after choosing; after the outside transition; completes
+	p4.choice.pick(1)
+	await frames(30)
+	await reload()
+	ok("qa1_b_chosen", await back_at_decision(roster0, seen0))
+	p4.choice.pick(1)
+	await frames(30)
+	ok("qa1_b_to_outside", await seal_steps() and await wait_until(func(): return c15._busy.get("outer_open", false), 60 * 10)
+		and await walk_world([UL(Vector3(28.6, 0.2, 70.0)), UL(Vector3(42.4, 0.2, 70.0))]) and await use(c15.its["outer"], [Vector3(-1, 0, 0)], 1.0)
+		and await wait_until(func(): return world.player.global_position.distance_to(c15.UL(c15.GREAT)) > 100.0, 60 * 30))
+	await reload()
+	ok("qa1_b_outside", await back_at_decision(roster0, seen0))
+	p4.choice.pick(1)
+	await frames(30)
+	ok("qa1_b_completes", await seal_steps() and await wait_until(func(): return c15._busy.get("outer_open", false), 60 * 10)
+		and await walk_world([UL(Vector3(28.6, 0.2, 70.0)), UL(Vector3(42.4, 0.2, 70.0))]) and await use(c15.its["outer"], [Vector3(-1, 0, 0)], 1.0)
+		and await wait_talk(func(): return credits_up(), 160.0) and String(c15.st()["ending"]) == "B")
+	await reload()
+	ok("qa1_b_after_end", await back_at_decision(roster0, seen0))
+	# C: right after choosing; after the outside transition; completes
+	p4.choice.pick(2)
+	await frames(30)
+	await reload()
+	ok("qa1_c_chosen", await back_at_decision(roster0, seen0))
+	p4.choice.pick(2)
+	ok("qa1_c_to_outside", await wait_talk(func(): return c15._busy.get("seal_mode", false) and world.player.controls_enabled, 40.0) and await seal_steps()
+		and await wait_talk(func(): return world.player.global_position.distance_to(c15.UL(c15.GREAT)) > 100.0, 120.0))
+	await reload()
+	ok("qa1_c_outside", await back_at_decision(roster0, seen0))
+	p4.choice.pick(2)
+	ok("qa1_c_completes", await wait_talk(func(): return c15._busy.get("seal_mode", false) and world.player.controls_enabled, 40.0) and await seal_steps()
+		and await wait_talk(func(): return credits_up(), 200.0) and String(c15.st()["ending"]) == "C")
+	await reload()
+	ok("qa1_c_after_end", await back_at_decision(roster0, seen0) and c15.present() == roster0)
 
 	# ---- other rosters: the epilogue never invents a fate
 	world.free()

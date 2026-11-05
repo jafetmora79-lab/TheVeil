@@ -314,10 +314,42 @@ func _run() -> void:
 	ok("c11_field_starts", await wait_until(func(): return game.has_flag("ch11_field_seen"), 60 * 3))
 	ok("c11_field_zoom", await wait_until(func(): return float(c11.report.get("field_min_fov", 99.0)) < fov0 * 0.85, 60 * 6),
 		"min fov %s" % str(c11.report.get("field_min_fov")))
-	ok("c11_field_hound_unseen", await wait_until(func(): return c11.hounds_removed >= 1, 60 * 16) and c11.hounds_left_in_view == 0,
-		"removed %d, in view %d" % [c11.hounds_removed, c11.hounds_left_in_view])
 	ok("c11_field_done", await wait_until(func(): return world.player.controls_enabled and not c11._busy.get("field", false), 60 * 10)
 		and absf(world.player.camera.fov - fov0) < 0.01 and world.find_children("C11_FieldShape", "", true, false).is_empty())
+	# (QA-007) the Hound's leaving (_leave_unseen) on a probe Hound 20 m ahead: watched, it is never removed in
+	# plain view; looked away from, it goes
+	var hp := (load(c11.HOUND_PATH) as PackedScene).instantiate() as Node3D
+	world.add_child(hp)
+	if hp is CollisionObject3D:
+		(hp as CollisionObject3D).collision_layer = 0
+		(hp as CollisionObject3D).collision_mask = 0
+	hp.set_physics_process(false)
+	var cam0: Camera3D = world.player.camera
+	var fw: Vector3 = (-cam0.global_transform.basis.z * Vector3(1, 0, 1)).normalized()
+	var at: Vector3 = world.player.global_position + fw * 20.0
+	hp.global_position = Vector3(at.x, c11._floor(at), at.z)
+	hp.rotation.y = atan2(fw.x, fw.z)                     # walking away from the player
+	var removed0: int = c11.hounds_removed
+	c11._leave_unseen(hp)
+	var gone_in_view := false
+	var last_open := false
+	var watched := 0
+	for i in 60 * 6:
+		if not is_instance_valid(hp):
+			gone_in_view = last_open
+			break
+		var cam: Camera3D = world.player.camera
+		var v: Vector3 = hp.global_position + Vector3(0, 0.7, 0) - cam.global_position
+		world.player.set_yaw_pitch(atan2(-v.x, -v.z), asin(clampf(v.normalized().y, -1.0, 1.0)))
+		last_open = not c11.hound_concealed(hp) and v.length() < c11.LEAVE_FAR - 3.0
+		if last_open:
+			watched += 1
+		await process_frame
+	ok("c11_hound_stays_while_watched", not gone_in_view and watched > 60 and is_instance_valid(hp),
+		"watched %d frames, still there %s (%s)" % [watched, is_instance_valid(hp), c11.conceal_reason])
+	if is_instance_valid(hp):
+		world.player.set_yaw_pitch(world.player.rotation.y + PI, 0.0)
+	ok("c11_hound_goes_when_unseen", await wait_until(func(): return not is_instance_valid(hp), 60) and c11.hounds_removed == removed0 + 1)
 	ok("c11_field_lines", await wait_talk(func(): return said.has("Keep going. We're almost there."), 30.0))
 	await reload()
 	ok("c11_load_field_once", game.has_flag("ch11_field_seen") and c11.report["field_runs"] == 0)
