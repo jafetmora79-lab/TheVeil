@@ -4,6 +4,8 @@ extends Control
 var menu: VBoxContainer
 var settings: SettingsPanel
 var loading: Label
+var name_dialog: ConfirmationDialog
+var name_input: LineEdit
 
 
 func _ready() -> void:
@@ -15,14 +17,18 @@ func _ready() -> void:
 	bg.color = Color(0.039, 0.043, 0.055)
 	bg.set_anchors_preset(Control.PRESET_FULL_RECT)
 	add_child(bg)
-	var glow := ColorRect.new()          # faint warm horizon band: Friday evening, not mist
-	glow.color = Color(0.42, 0.27, 0.18, 0.10)
-	glow.anchor_right = 1.0
-	glow.anchor_top = 0.62
-	glow.anchor_bottom = 0.78
-	add_child(glow)
+	# Actual Compatibility-renderer capture of the existing market, not concept art.
+	var backdrop := TextureRect.new()
+	backdrop.texture = preload("res://game/ui/backgrounds/greyhaven_market.png")
+	backdrop.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	backdrop.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_COVERED
+	backdrop.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
+	backdrop.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	backdrop.set_anchors_preset(Control.PRESET_FULL_RECT)
+	add_child(backdrop)
 	var c := CenterContainer.new()
 	c.set_anchors_preset(Control.PRESET_FULL_RECT)
+	c.anchor_left = 0.5
 	add_child(c)
 	menu = VBoxContainer.new()
 	menu.add_theme_constant_override("separation", 14)
@@ -72,8 +78,27 @@ func _ready() -> void:
 
 
 func _new_game() -> void:
-	Game.new_game()
-	_start()
+	if not is_instance_valid(name_dialog):
+		name_dialog = ConfirmationDialog.new()
+		name_dialog.title = "New Game"
+		var fields := VBoxContainer.new()
+		fields.add_theme_constant_override("separation", 12)
+		name_dialog.add_child(fields)
+		fields.add_child(VeilUI.label("What is your name?", 18))
+		name_dialog.ok_button_text = "Begin"
+		name_input = LineEdit.new()
+		name_input.max_length = 24
+		name_input.placeholder_text = "Your name (optional)"
+		name_input.custom_minimum_size = Vector2(360, 40)
+		fields.add_child(name_input)
+		name_dialog.register_text_enter(name_input)
+		name_dialog.confirmed.connect(func():
+			Game.new_game(name_input.text)
+			_start())
+		add_child(name_dialog)
+	name_input.text = ""
+	name_dialog.popup_centered(Vector2i(420, 160))
+	name_input.grab_focus()
 
 
 func _continue() -> void:

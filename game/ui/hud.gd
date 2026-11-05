@@ -18,7 +18,7 @@ var sub: Label
 var confirm_l: Label         ## CLICK / E - CONTINUE  ·  HOLD E - SKIP while a line is up and the player is not free
 var speaker_l: Label         ## the speaker's name above every subtitle
 var caption_l: Label         ## location caption (arrival shot)
-const SPEAKER_NAMES := {"": "PROTAGONIST", "Distant voice": "UNKNOWN VOICE"}
+const SPEAKER_NAMES := {"Distant voice": "UNKNOWN VOICE"}
 var _hold := 0.0
 const SKIP_HOLD := 0.8                  ## seconds E / the mouse button is held to skip the rest of a conversation
 var skip_progress := 0.0               ## 0..1 while holding to skip (tests)
@@ -95,7 +95,7 @@ func _ready() -> void:
 	Game.objective_changed.connect(set_objective)
 	Game.inventory_changed.connect(_refresh_inventory)
 	Dialogue.line_started.connect(func(spk, t, _d):
-		speaker_l.text = String(SPEAKER_NAMES.get(spk, String(spk).to_upper()))
+		speaker_l.text = Game.player_name.to_upper() if spk == "" else String(SPEAKER_NAMES.get(spk, String(spk).to_upper()))
 		show_subtitle(t))
 	Dialogue.line_finished.connect(func():
 		speaker_l.text = ""
