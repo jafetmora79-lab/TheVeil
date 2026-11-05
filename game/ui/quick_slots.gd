@@ -6,6 +6,7 @@ class_name VeilQuickSlots
 ## stay passive and are never consumed). Items no longer carried show as empty.
 
 const N := 5
+const SLOT := 52
 var _btn: Array = []
 var selected := -1
 
@@ -35,11 +36,16 @@ func _ready() -> void:
 	anchor_bottom = 1.0
 	offset_left = -300
 	offset_top = -118
+	offset_bottom = -118 + SLOT                  # the bar is exactly one slot tall: square slots, not tall rectangles
+	offset_right = -300 + N * SLOT + (N - 1) * 6
 	add_theme_constant_override("separation", 6)
+	alignment = BoxContainer.ALIGNMENT_END
 	mouse_filter = Control.MOUSE_FILTER_IGNORE
 	for i in N:
 		var b := Button.new()
-		b.custom_minimum_size = Vector2(52, 52)
+		b.custom_minimum_size = Vector2(SLOT, SLOT)
+		b.size_flags_vertical = Control.SIZE_SHRINK_BEGIN
+		b.size_flags_horizontal = Control.SIZE_SHRINK_BEGIN
 		b.focus_mode = Control.FOCUS_NONE
 		var st := StyleBoxFlat.new()
 		st.bg_color = Color(0.04, 0.05, 0.06, 0.7)
