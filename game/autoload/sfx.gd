@@ -120,14 +120,10 @@ var _music_then := ""                  ## a one-shot hands back to this loop whe
 var _music_tw: Tween
 
 
-static func _looped(path: String, loop: bool) -> AudioStream:
-	var st := load(path) as AudioStream
-	if st is AudioStreamWAV:
-		var w := st as AudioStreamWAV
-		w.loop_mode = AudioStreamWAV.LOOP_FORWARD if loop else AudioStreamWAV.LOOP_DISABLED
-		w.loop_begin = 0
-		w.loop_end = int(w.get_length() * w.mix_rate)
-	return st
+## The tracks' looping is set in their import settings (menu, gameplay and radio loop; the Colossus theme plays once):
+## nothing is changed on the shared audio resources at runtime.
+static func _looped(path: String, _loop: bool) -> AudioStream:
+	return load(path) as AudioStream
 
 
 ## Play a music track (fades out the current one). loop: repeat; then_loop: after a one-shot, go back to that loop.
