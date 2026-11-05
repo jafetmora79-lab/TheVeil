@@ -69,7 +69,8 @@ func setup(w: Node, h: Node3D) -> void:
 
 ## The piece's bounding box in the home's frame.
 func _local_box(n: Node3D) -> AABB:
-	return home.global_transform.affine_inverse() * Interactable.aabb_of(n)
+	# aabb_of is in the node's own frame: bring it into the home's frame
+	return (home.global_transform.affine_inverse() * n.global_transform) * Interactable.aabb_of(n)
 
 
 ## Slide a piece so the given side of its box touches a wall ("x-": its min x on x; "z+": its max z on z).
@@ -164,17 +165,35 @@ func wash_face() -> void:
 	player.set_physics_process(false)
 	for q in ROUTE:
 		await _step_to(player, cam, home.to_global(q), 1.5)
-	# at the sink: look down at the basin, the tap runs, two splashes
-	var basin := home.to_global(Vector3(SINK_X, FLOOR + 0.85, WALL_BACK - 0.35))
+	# at the sink: look down at the basin; the tap runs (a visible stream); his hands cup the water and bring it
+	# up to his face, twice (first-person arms, posed towards hand targets; splash droplets at the face)
+	var sink_box := _local_box(home.get_node("Furniture/BathSink_Pedestal_01"))
+	var tap := home.to_global(Vector3(SINK_X, sink_box.end.y + 0.06, sink_box.end.z - 0.1))
+	var basin := home.to_global(Vector3(SINK_X, sink_box.end.y - 0.05, sink_box.get_center().z))
 	await _look(cam, basin, 0.6)
+	var stream := _water_stream(tap, basin)
 	Sfx.play("water_run", basin, -6.0)
+	var arms := _fp_arms(cam)
 	var base_pos := cam.global_position
+	var cup := (tap + basin) * 0.5 + Vector3(0, -0.02, 0)
 	for k in 2:
+		# hands down under the tap
+		await _arms_to(arms, cam, func(): return cup, 0.45)
+		await get_tree().create_timer(0.35).timeout
+		# up to the face, the head dips to meet them
 		var tw := create_tween()
-		tw.tween_property(cam, "global_position", base_pos + Vector3(0, -0.22, 0) + (basin - base_pos).normalized() * 0.12, 0.35).set_trans(Tween.TRANS_SINE)
-		tw.tween_property(cam, "global_position", base_pos, 0.45).set_trans(Tween.TRANS_SINE)
-		await tw.finished
-		Sfx.play("splash", basin, -4.0)
+		tw.tween_property(cam, "global_position", base_pos + Vector3(0, -0.16, 0) + (basin - base_pos).normalized() * 0.1, 0.4).set_trans(Tween.TRANS_SINE)
+		await _arms_to(arms, cam, func(): return cam.global_position - cam.global_basis.z * 0.13 - cam.global_basis.y * 0.04, 0.4)
+		Sfx.play("splash", cam.global_position, -3.0)
+		_splash(cam.global_position - cam.global_basis.z * 0.12)
+		await get_tree().create_timer(0.25).timeout
+		var tb := create_tween()
+		tb.tween_property(cam, "global_position", base_pos, 0.45).set_trans(Tween.TRANS_SINE)
+	await _arms_to(arms, cam, func(): return cup + Vector3(0, 0.05, 0), 0.4)
+	stream.emitting = false                              # the tap is turned off
+	if arms:
+		arms.queue_free()
+	report["hands_and_water"] = arms != null
 	await get_tree().create_timer(0.3).timeout
 	# look up into the mirror: the reflection (a stand-in on visual layer 2, where the protagonist stands)
 	var me: Node3D = world.call("_spawn_npc", load(PROTAG), load(PROTAG_FACE), home, SINK_STAND, 0.0, "Protagonist")
@@ -213,6 +232,136 @@ func wash_face() -> void:
 	player.set("controls_enabled", true)
 	Game.set_flag("washed_face")
 	report["washed"] = true
+
+
+# ------------------------------------------------------------------ water and hands
+func _water_stream(tap: Vector3, basin: Vector3) -> CPUParticles3D:
+	var p := CPUParticles3D.new()
+	p.name = "TapWater"
+	p.amount = 90
+	p.lifetime = maxf(sqrt(2.0 * maxf(tap.y - basin.y, 0.05) / 9.8), 0.12)
+	p.emission_shape = CPUParticles3D.EMISSION_SHAPE_SPHERE
+	p.emission_sphere_radius = 0.008
+	p.direction = Vector3.DOWN
+	p.spread = 2.0
+	p.initial_velocity_min = 0.2
+	p.initial_velocity_max = 0.3
+	p.gravity = Vector3(0, -9.8, 0)
+	p.scale_amount_min = 0.5
+	p.scale_amount_max = 0.8
+	var qm := QuadMesh.new()
+	qm.size = Vector2(0.018, 0.05)
+	var mat := StandardMaterial3D.new()
+	mat.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
+	mat.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
+	mat.billboard_mode = BaseMaterial3D.BILLBOARD_FIXED_Y
+	mat.albedo_color = Color(0.72, 0.82, 0.9, 0.55)
+	qm.material = mat
+	p.mesh = qm
+	add_child(p)
+	p.global_position = tap
+	p.emitting = true
+	return p
+
+
+func _splash(at: Vector3) -> void:
+	var p := CPUParticles3D.new()
+	p.one_shot = true
+	p.explosiveness = 0.95
+	p.amount = 40
+	p.lifetime = 0.6
+	p.direction = Vector3.UP
+	p.spread = 70.0
+	p.initial_velocity_min = 0.4
+	p.initial_velocity_max = 1.1
+	p.gravity = Vector3(0, -6.0, 0)
+	var qm := QuadMesh.new()
+	qm.size = Vector2(0.012, 0.012)
+	var mat := StandardMaterial3D.new()
+	mat.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
+	mat.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
+	mat.billboard_mode = BaseMaterial3D.BILLBOARD_ENABLED
+	mat.albedo_color = Color(0.8, 0.88, 0.95, 0.7)
+	qm.material = mat
+	p.mesh = qm
+	add_child(p)
+	p.global_position = at
+	p.emitting = true
+	get_tree().create_timer(1.2).timeout.connect(p.queue_free)
+
+
+const ARMS := "res://THE_VEIL_ASSETS_V2/06_Characters/Protagonist/CHR_Protagonist_FP_Arms.glb"
+## The protagonist's first-person arms (Pack 06, T-pose rig, no animations), hung under the camera: the shoulders
+## just below and behind the eyes. Posed by _pose_arms (two-bone reach towards hand targets).
+func _fp_arms(cam: Camera3D) -> Node3D:
+	if not ResourceLoader.exists(ARMS):
+		return null
+	var a := (load(ARMS) as PackedScene).instantiate() as Node3D
+	cam.add_child(a)
+	# the rig's shoulders are at ~1.36 m: put them 0.2 m below and 0.12 m behind the eyes; facing the view (-Z)
+	a.position = Vector3(0, -1.56, 0.12)
+	var sk := a.find_children("*", "Skeleton3D", true, false)[0] as Skeleton3D
+	# which way the model faces: the side its toes point to
+	var toe := sk.get_bone_global_rest(sk.find_bone("LeftToes")).origin - sk.get_bone_global_rest(sk.find_bone("LeftFoot")).origin
+	if toe.z > 0.0:
+		a.rotation.y = PI                               # model faces +Z: turn it to face the camera's -Z
+	for vi in a.find_children("*", "VisualInstance3D", true, false):
+		(vi as VisualInstance3D).layers = 1
+	a.set_meta("sk", sk)
+	return a
+
+
+func _arms_to(arms: Node3D, cam: Camera3D, target: Callable, seconds: float) -> void:
+	if arms == null:
+		await get_tree().create_timer(seconds).timeout
+		return
+	var from: Vector3 = arms.get_meta("hands", target.call())
+	var t := 0.0
+	while t < seconds:
+		t += get_process_delta_time()
+		var k := clampf(t / seconds, 0.0, 1.0)
+		var h: Vector3 = from.lerp(target.call(), k * k * (3.0 - 2.0 * k))
+		_pose_arms(arms, cam, h)
+		await get_tree().process_frame
+	arms.set_meta("hands", target.call())
+
+
+## Two-bone reach: each arm's upper and lower bone are turned (from their rest directions) so the hand lands near
+## `centre` (the two hands side by side, cupped together).
+func _pose_arms(arms: Node3D, cam: Camera3D, centre: Vector3) -> void:
+	var sk: Skeleton3D = arms.get_meta("sk")
+	var side := cam.global_basis.x.normalized()
+	for s in [["Left", -1.0], ["Right", 1.0]]:
+		var u := sk.find_bone(s[0] + "UpperArm")
+		var l := sk.find_bone(s[0] + "LowerArm")
+		var hnd := sk.find_bone(s[0] + "Hand")
+		if u < 0 or l < 0 or hnd < 0:
+			continue
+		var X := sk.global_transform
+		var inv := X.affine_inverse()
+		var shoulder := X * sk.get_bone_global_rest(u).origin
+		var la := (sk.get_bone_global_rest(l).origin - sk.get_bone_global_rest(u).origin).length() * X.basis.get_scale().x
+		var lb := (sk.get_bone_global_rest(hnd).origin - sk.get_bone_global_rest(l).origin).length() * X.basis.get_scale().x
+		var goal: Vector3 = centre + side * float(s[1]) * 0.045
+		var to_goal := goal - shoulder
+		var dist := clampf(to_goal.length(), 0.05, (la + lb) * 0.999)
+		var dir := to_goal.normalized()
+		# elbow: bent outward and down from the shoulder-hand line
+		var bend := (side * float(s[1]) - Vector3.UP * 0.6).normalized()
+		bend = (bend - dir * bend.dot(dir)).normalized()
+		var a := acos(clampf((la * la + dist * dist - lb * lb) / (2.0 * la * dist), -1.0, 1.0))
+		var elbow := shoulder + (dir * cos(a) + bend * sin(a)) * la
+		var hand := shoulder + dir * dist
+		_aim_bone(sk, u, l, inv * shoulder, inv * elbow)
+		_aim_bone(sk, l, hnd, inv * elbow, inv * hand)
+
+
+func _aim_bone(sk: Skeleton3D, b: int, child: int, from_sk: Vector3, to_sk: Vector3) -> void:
+	var rest := sk.get_bone_global_rest(b)
+	var rest_dir := (sk.get_bone_global_rest(child).origin - rest.origin).normalized()
+	var want := (to_sk - from_sk).normalized()
+	var q := Quaternion(rest_dir, want) if rest_dir.dot(want) > -0.999 else Quaternion(Vector3.UP, PI)
+	sk.set_bone_global_pose_override(b, Transform3D(Basis(q) * rest.basis, from_sk), 1.0, true)
 
 
 func _step_to(player: Node3D, cam: Camera3D, target: Vector3, speed: float) -> void:
