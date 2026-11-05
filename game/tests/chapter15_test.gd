@@ -397,12 +397,14 @@ func _run() -> void:
 		and said.has("Everybody down!") and c15.colossus != null and c15.report.get("colossus_in_view", false) and FileAccess.file_exists(game.checkpoint_path("chapter16_colossus")))
 	# seen in the open while it looks: it reacts, then back to the last cover
 	await wait_until(func(): return c15._col_phase == "look", 60 * 12)
+	var away: Vector3 = (c15.COVERS[0] - c15.COVERS[1]) * Vector3(1, 0, 1)
+	world.player.set_yaw_pitch(atan2(-away.x, -away.z), 0.0)          # walking away from every cover point
 	Input.action_press("move_forward")
 	await frames(110)
 	Input.action_release("move_forward")
 	ok("c15_detected", await wait_until(func(): return c15.report["detections"] >= 1, 60 * 2))
 	ok("c15_retry", await wait_until(func(): return c15.report["retries"] >= 1 and world.player.controls_enabled, 60 * 8)
-		and c15._cover_index(world.player.global_position) >= 0, "cover %d / last %d" % [c15._cover_index(world.player.global_position), c15._last_cover])
+		and c15._cover_index(world.player.global_position) == c15._last_cover, "cover %d / last %d" % [c15._cover_index(world.player.global_position), c15._last_cover])
 	# cover to cover, moving only while it walks
 	var crossed := true
 	for i in range(c15._last_cover + 1, c15.COVERS.size() + 1):

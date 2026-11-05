@@ -316,16 +316,7 @@ func _apply() -> void:
 	if not Game.has_flag("ch15_set_out"):
 		_place_refuge()
 	elif Game.has_flag("ch15_chamber_reached"):
-		# a load in the great chamber (the decision checkpoint): the group stands by its entrance
-		var i := 0
-		for k in present():
-			(c9.follows[k] as VeilCompanionFollow).stop()
-			c9.c5._reparent(_node(k), world)
-			world.place_survivor(_node(k), UL(GREAT + Vector3(-2.0 + 1.4 * i, 0.0, -12.5)))
-			i += 1
-		for k in present():
-			c9._start_follow(k)
-		_slow_injured()
+		_place_in_chamber.call_deferred()
 	else:
 		for k in present():
 			c9._start_follow(k)
@@ -344,6 +335,22 @@ func _apply() -> void:
 		_decide.call_deferred()
 	_refresh_prompts()
 	_guide()
+
+
+## A load in the great chamber (the decision checkpoint): the group stands by its entrance. The chamber was only
+## just built, so this waits for the physics world to know its floor (else every placement is refused).
+func _place_in_chamber() -> void:
+	for f in 3:
+		await get_tree().physics_frame
+	var i := 0
+	for k in present():
+		(c9.follows[k] as VeilCompanionFollow).stop()
+		c9.c5._reparent(_node(k), world)
+		world.place_survivor(_node(k), UL(GREAT + Vector3(-2.0 + 1.4 * i, 0.0, -12.5)))
+		i += 1
+	for k in present():
+		c9._start_follow(k)
+	_slow_injured()
 
 
 func _place_refuge() -> void:
