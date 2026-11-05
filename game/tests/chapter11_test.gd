@@ -395,11 +395,15 @@ func _run() -> void:
 	ok("c11_ending", await wait_talk(func(): return game.has_flag("chapter_11_complete"), 120.0) and said.has("At first light.")
 		and c11.report["ending_fov_restored"] and world.player.controls_enabled)
 	ok("c11_complete_card", await wait_until(func(): return world.hud.chapter_l.text == "CHAPTER 12 COMPLETE  —  THE FARM ROAD", 60 * 4), world.hud.chapter_l.text)
-	ok("c11_no_next_chapter", not game.has_flag("ch12_started") and game.chapter_number() == 12 and game.current_step().get("id", "") == "c11_complete")
+	ok("c11_card_before_next", game.chapter_number() == 12 and game.current_step().get("id", "") == "c11_complete")
+	# after the card, displayed Chapter 13 begins back at the mill house (chapter12.gd)
+	ok("c11_next_chapter", await wait_until(func(): return game.has_flag("ch12_started") and c11.chapter12 != null, 60 * 10)
+		and game.chapter_number() == 13)
+	await wait_until(func(): return not c11.chapter12._busy.get("opening", false), 60 * 8)
 	ok("c11_npcs_apart_end", npcs_ok() == "", npcs_ok())
 	await reload()
 	ok("c11_load_complete", game.has_flag("chapter_11_complete") and c11.hound == null and c11.report["ending_runs"] == 0 and c11.report["attack_runs"] == 0
-		and c11.group().all(func(k): return c11._node(k).global_position.distance_to(c11.SAFE) < 5.0)
+		and c11.chapter12 != null and c11.group().all(func(k): return c11.c10.inside_room(c11._node(k)))
 		and game.inventory.count("noahs_message") == 1 and game.inventory.count("campsite_note") == 1)
 
 	# ---- without Marcus: never spawned; the essential lines come from the others

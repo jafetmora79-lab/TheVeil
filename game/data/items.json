@@ -166,6 +166,34 @@
    "weight": 0.1,
    "model": "res://THE_VEIL_ASSETS_V2/08_Inventory/Tools/INV_PortableFuse.glb",
    "description": "A replacement fuse. The car's main fuse burned out when the mist came."
+  },
+  "utility_map": {
+   "name": "Utility Map",
+   "category": "note",
+   "weight": 0.05,
+   "model": "res://THE_VEIL_ASSETS_V2/08_Inventory/Story_Items/INV_TownMap.glb",
+   "description": "An old municipal utility map from the town records. Maintenance Station 3 is circled. Beside it, the same symbol as on Noah's message."
+  },
+  "station_fuse": {
+   "name": "Main Fuse",
+   "category": "key",
+   "weight": 0.2,
+   "model": "res://THE_VEIL_ASSETS_V2/08_Inventory/Tools/INV_PortableFuse.glb",
+   "description": "A heavy cartridge fuse from the station's storage locker."
+  },
+  "maintenance_log": {
+   "name": "Maintenance Log",
+   "category": "note",
+   "weight": 0.1,
+   "model": "res://THE_VEIL_ASSETS_V2/08_Inventory/Story_Items/INV_Notebook.glb",
+   "description": "Station 3 maintenance log. Entries go back decades.\n'Lower level sealed after the third disappearance. Do not reopen.'\n'Vibration again tonight. Logged, not reported.'"
+  },
+  "underground_records": {
+   "name": "Underground Records",
+   "category": "note",
+   "weight": 0.3,
+   "model": "res://THE_VEIL_ASSETS_V2/08_Inventory/Story_Items/INV_FoldedNote.glb",
+   "description": "Survey sheets from the sealed chamber. Several service tunnels converge on one place deeper beneath Greyhaven - an old district that is not on any modern map. Workers were ordered to seal the area decades ago."
   }
  },
  "carry_capacity_kg": 15.0,

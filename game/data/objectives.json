@@ -12,7 +12,8 @@
   "act3_doors": "Something at the Doors",
   "act3_fall": "The Fall of the Supermarket",
   "act3_road": "No Safe Road",
-  "act4_farm_road": "The Farm Road"
+  "act4_farm_road": "The Farm Road",
+  "act5_truth": "The Truth Beneath Greyhaven"
  },
  "steps": [
   {
@@ -554,6 +555,96 @@
    "flag": "ch12_started",
    "goal": "act4_farm_road",
    "text": "Chapter 12 complete - The Farm Road"
+  },
+  {
+   "id": "c12_talk",
+   "flag": "ch12_talk_done",
+   "goal": "act5_truth",
+   "text": "Talk to Eddie"
+  },
+  {
+   "id": "c12_setout",
+   "flag": "ch12_set_out",
+   "goal": "act5_truth",
+   "text": "Prepare and set out with Eddie"
+  },
+  {
+   "id": "c12_station",
+   "flag": "ch12_station_reached",
+   "goal": "act5_truth",
+   "text": "Investigate the old maintenance station"
+  },
+  {
+   "id": "c12_fuse",
+   "flag": "ch12_fuse_found",
+   "goal": "act5_truth",
+   "text": "Find a way to restore power"
+  },
+  {
+   "id": "c12_power",
+   "flag": "ch12_power_on",
+   "goal": "act5_truth",
+   "text": "Restore power to the lower level"
+  },
+  {
+   "id": "c12_access",
+   "flag": "ch12_access_open",
+   "goal": "act5_truth",
+   "text": "Open the access door"
+  },
+  {
+   "id": "c12_descend",
+   "flag": "ch12_descended",
+   "goal": "act5_truth",
+   "text": "Go down to the service tunnels"
+  },
+  {
+   "id": "c12_chamber",
+   "flag": "ch12_chamber_open",
+   "goal": "act5_truth",
+   "text": "Explore the tunnels"
+  },
+  {
+   "id": "c12_records",
+   "flag": "ch12_records_taken",
+   "goal": "act5_truth",
+   "text": "Recover the underground records"
+  },
+  {
+   "id": "c12_escape",
+   "flag": "ch12_door_secured",
+   "goal": "act5_truth",
+   "text": "Get back up and shut the access door"
+  },
+  {
+   "id": "c12_choice",
+   "flag": "ch12_supply_choice",
+   "goal": "act5_truth",
+   "text": "Take the supplies or leave now"
+  },
+  {
+   "id": "c12_leave",
+   "flag": "ch12_left_station",
+   "goal": "act5_truth",
+   "text": "Leave the station"
+  },
+  {
+   "id": "c12_return",
+   "flag": "ch12_returned",
+   "goal": "act5_truth",
+   "text": "Return to the mill house"
+  },
+  {
+   "id": "c12_map",
+   "flag": "chapter_12_complete",
+   "goal": "act5_truth",
+   "text": "Look at the map with the group"
+  },
+  {
+   "id": "c12_complete",
+   "flag": "ch13_started",
+   "goal": "act5_truth",
+   "text": "Chapter 13 complete - The Truth Beneath Greyhaven"
   }
  ],
  "_comment": "Steps complete in list order for display, but each errand step only checks its own flag, so the supermarket and the game shop can be done in either order (the bible leaves the stop order open). Phase 3 (mist_*) is a WORKING DRAFT sequence of Act I's opening.",

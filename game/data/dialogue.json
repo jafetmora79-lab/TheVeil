@@ -4044,5 +4044,380 @@
     "time": 3.6
    }
   ]
+ },
+ "c12_symbol": {
+  "source": "Chapter 13 (The Truth Beneath Greyhaven) implementation prompt (approved script)",
+  "lines": [
+   {
+    "speaker": "",
+    "text": "Noah's message. In the corner, in pencil - a symbol. I never noticed it.",
+    "time": 4.2
+   },
+   {
+    "speaker": "Eddie",
+    "text": "Tell me I'm not the only one seeing that.",
+    "time": 3.2
+   },
+   {
+    "speaker": "",
+    "text": "It's the same symbol.",
+    "time": 2.1
+   },
+   {
+    "speaker": "Ruth",
+    "text": "Where did you find this map?",
+    "time": 2.4
+   },
+   {
+    "speaker": "Eddie",
+    "text": "Old town records. Looks like some kind of maintenance station.",
+    "time": 4.2
+   },
+   {
+    "speaker": "",
+    "text": "And what's underneath it?",
+    "time": 2.3
+   },
+   {
+    "speaker": "Eddie",
+    "text": "That's the part I don't like.",
+    "time": 2.5
+   }
+  ]
+ },
+ "c12_symbol_marcus": {
+  "source": "Chapter 13: supporting lines (implementation)",
+  "lines": [
+   {
+    "speaker": "Marcus",
+    "text": "Noah drew that. Or he saw it somewhere.",
+    "time": 3.0
+   },
+   {
+    "speaker": "",
+    "text": "Then it matters.",
+    "time": 1.8
+   },
+   {
+    "speaker": "Marcus",
+    "text": "Go. I'll keep watch here. If it leads to him, you tell me first.",
+    "time": 4.2
+   }
+  ]
+ },
+ "c12_setout": {
+  "source": "Chapter 13: supporting lines (implementation)",
+  "lines": [
+   {
+    "speaker": "Eddie",
+    "text": "Okay. Station's just across the road. Stay close.",
+    "time": 3.6
+   }
+  ]
+ },
+ "c12_fog": {
+  "source": "Chapter 13 (The Truth Beneath Greyhaven) implementation prompt (approved script)",
+  "lines": [
+   {
+    "speaker": "Eddie",
+    "text": "You ever notice how the fog never seems to move with the wind?",
+    "time": 4.2
+   },
+   {
+    "speaker": "",
+    "text": "I've noticed.",
+    "time": 1.6
+   },
+   {
+    "speaker": "Eddie",
+    "text": "Yeah. That's not comforting.",
+    "time": 2.4
+   }
+  ]
+ },
+ "c12_inside": {
+  "source": "Chapter 13: supporting lines (implementation)",
+  "lines": [
+   {
+    "speaker": "Eddie",
+    "text": "Nobody's been here in a long time. Power's dead.",
+    "time": 3.5
+   },
+   {
+    "speaker": "",
+    "text": "There'll be a panel somewhere.",
+    "time": 2.5
+   }
+  ]
+ },
+ "c12_clue_radio": {
+  "source": "Chapter 13: supporting lines (implementation)",
+  "lines": [
+   {
+    "speaker": "",
+    "text": "A worker's radio, still switched on. The battery died a long time ago.",
+    "time": 4.2
+   }
+  ]
+ },
+ "c12_clue_report": {
+  "source": "Chapter 13: supporting lines (implementation)",
+  "lines": [
+   {
+    "speaker": "",
+    "text": "Inspection report, water-damaged. '...lower access: vibration persists. Recommend no further entry.'",
+    "time": 4.2
+   }
+  ]
+ },
+ "c12_clue_log": {
+  "source": "Chapter 13: supporting lines (implementation)",
+  "lines": [
+   {
+    "speaker": "",
+    "text": "Maintenance log. Dates go back decades. The same entry, over and over: 'Lower level sealed. Do not reopen.'",
+    "time": 4.2
+   }
+  ]
+ },
+ "c12_clue_map": {
+  "source": "Chapter 13: supporting lines (implementation)",
+  "lines": [
+   {
+    "speaker": "",
+    "text": "An old map of the service tunnels. Someone circled a chamber below this building - and drew the symbol beside it.",
+    "time": 4.2
+   }
+  ]
+ },
+ "c12_clue_stone": {
+  "source": "Chapter 13: supporting lines (implementation)",
+  "lines": [
+   {
+    "speaker": "",
+    "text": "Stone blocks under the concrete. Older than the town. Much older.",
+    "time": 4.2
+   }
+  ]
+ },
+ "c12_fuse": {
+  "source": "Chapter 13: supporting lines (implementation)",
+  "lines": [
+   {
+    "speaker": "",
+    "text": "A main fuse, still in its box. This should fit the panel.",
+    "time": 4.0
+   }
+  ]
+ },
+ "c12_panel_nofuse": {
+  "source": "Chapter 13: supporting lines (implementation)",
+  "lines": [
+   {
+    "speaker": "",
+    "text": "The main fuse is missing. There might be a spare in storage.",
+    "time": 4.2
+   }
+  ]
+ },
+ "c12_access_locked": {
+  "source": "Chapter 13: supporting lines (implementation)",
+  "lines": [
+   {
+    "speaker": "",
+    "text": "Electric lock. No power.",
+    "time": 2.2
+   }
+  ]
+ },
+ "c12_power": {
+  "source": "Chapter 13 (The Truth Beneath Greyhaven) implementation prompt (approved script)",
+  "lines": [
+   {
+    "speaker": "Eddie",
+    "text": "Please tell me that was the generator.",
+    "time": 3.0
+   },
+   {
+    "speaker": "",
+    "text": "I don't think it was.",
+    "time": 2.1
+   }
+  ]
+ },
+ "c12_low_locker": {
+  "source": "Chapter 13: supporting lines (implementation)",
+  "lines": [
+   {
+    "speaker": "",
+    "text": "Batteries and a pack of painkillers. Someone stocked this for a long shift.",
+    "time": 4.2
+   }
+  ]
+ },
+ "c12_scratches": {
+  "source": "Chapter 13 (The Truth Beneath Greyhaven) implementation prompt (approved script)",
+  "lines": [
+   {
+    "speaker": "Eddie",
+    "text": "These scratches... they don't look like tools made them.",
+    "time": 4.0
+   },
+   {
+    "speaker": "",
+    "text": "Then what did?",
+    "time": 1.7
+   },
+   {
+    "speaker": "Eddie",
+    "text": "I was hoping you knew.",
+    "time": 2.1
+   }
+  ]
+ },
+ "c12_chamber": {
+  "source": "Chapter 13 (The Truth Beneath Greyhaven) implementation prompt (approved script)",
+  "lines": [
+   {
+    "speaker": "",
+    "text": "This was here before the town.",
+    "time": 2.5
+   },
+   {
+    "speaker": "Eddie",
+    "text": "How much before?",
+    "time": 1.8
+   },
+   {
+    "speaker": "",
+    "text": "I don't know.",
+    "time": 1.6
+   },
+   {
+    "speaker": "Eddie",
+    "text": "I really hate that answer.",
+    "time": 2.3
+   }
+  ]
+ },
+ "c12_not_yet": {
+  "source": "Chapter 13 (The Truth Beneath Greyhaven) implementation prompt (approved script)",
+  "lines": [
+   {
+    "speaker": "Eddie",
+    "text": "We need to leave.",
+    "time": 1.8
+   },
+   {
+    "speaker": "",
+    "text": "Not yet. I've almost got it.",
+    "time": 2.4
+   },
+   {
+    "speaker": "Eddie",
+    "text": "Whatever's in there isn't waiting!",
+    "time": 2.8
+   }
+  ]
+ },
+ "c12_move": {
+  "source": "Chapter 13 (The Truth Beneath Greyhaven) implementation prompt (approved script)",
+  "lines": [
+   {
+    "speaker": "Eddie",
+    "text": "MOVE!",
+    "time": 1.6
+   }
+  ]
+ },
+ "c12_below": {
+  "source": "Chapter 13 (The Truth Beneath Greyhaven) implementation prompt (approved script)",
+  "lines": [
+   {
+    "speaker": "Eddie",
+    "text": "That wasn't the thing chasing us.",
+    "time": 2.7
+   },
+   {
+    "speaker": "",
+    "text": "No.",
+    "time": 1.6
+   },
+   {
+    "speaker": "Eddie",
+    "text": "Then what the hell was it?",
+    "time": 2.3
+   }
+  ]
+ },
+ "c12_took": {
+  "source": "Chapter 13: supporting lines (implementation)",
+  "lines": [
+   {
+    "speaker": "Eddie",
+    "text": "Got it? Good. Now let's GO.",
+    "time": 2.4
+   }
+  ]
+ },
+ "c12_left": {
+  "source": "Chapter 13: supporting lines (implementation)",
+  "lines": [
+   {
+    "speaker": "Eddie",
+    "text": "Leave it. Nothing in there is worth staying for.",
+    "time": 3.5
+   }
+  ]
+ },
+ "c12_return": {
+  "source": "Chapter 13 (The Truth Beneath Greyhaven) implementation prompt (approved script)",
+  "lines": [
+   {
+    "speaker": "Ruth",
+    "text": "Did you find anything?",
+    "time": 2.1
+   },
+   {
+    "speaker": "",
+    "text": "Something underneath this town.",
+    "time": 2.6
+   },
+   {
+    "speaker": "Eddie",
+    "text": "And whatever it is, I don't think it wants visitors.",
+    "time": 3.8
+   }
+  ]
+ },
+ "c12_map": {
+  "source": "Chapter 13 (The Truth Beneath Greyhaven) implementation prompt (approved script)",
+  "lines": [
+   {
+    "speaker": "",
+    "text": "This is where the tunnels meet.",
+    "time": 2.6
+   },
+   {
+    "speaker": "Ruth",
+    "text": "That part of town was abandoned years ago.",
+    "time": 3.2
+   },
+   {
+    "speaker": "Eddie",
+    "text": "So we're not going there, right?",
+    "time": 2.7
+   },
+   {
+    "speaker": "",
+    "text": "...",
+    "time": 1.6
+   },
+   {
+    "speaker": "",
+    "text": "We need answers.",
+    "time": 1.8
+   }
+  ]
  }
 }
