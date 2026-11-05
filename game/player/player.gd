@@ -155,7 +155,7 @@ func _physics_process(delta: float) -> void:
 		_bob_t = lerpf(_bob_t, roundf(_bob_t / PI) * PI, delta * 6.0)
 	if moving and int(_bob_t / PI) != _last_step:
 		_last_step = int(_bob_t / PI)
-		Sfx.play("step_soft" if crouching else "step", global_position, -10.0 if crouching else -6.0, randf_range(0.9, 1.1))
+		Sfx.play("step_soft" if crouching else "step", global_position, -10.0 if crouching else -6.0, randf_range(0.82, 0.95))
 	var amp := 0.028 if sprinting else 0.016
 	_step_smooth = move_toward(_step_smooth, 0.0, delta * 1.6)
 	head.position.y = _eye + sin(_bob_t * 2.0) * amp - _step_smooth

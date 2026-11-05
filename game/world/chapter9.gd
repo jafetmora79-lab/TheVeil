@@ -243,6 +243,10 @@ func _setup_debris() -> void:
 		market.add_child(n)
 		n.position = spec[1]
 		n.rotation.y = spec[2]
+		# floor clutter only (papers, spilled bags and cans): walked over, never a wall in the aisle
+		for co in n.find_children("*", "CollisionObject3D", true, false):
+			(co as CollisionObject3D).collision_layer = 0
+			(co as CollisionObject3D).collision_mask = 0
 		_props.append(n)
 
 
