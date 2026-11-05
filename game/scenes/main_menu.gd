@@ -17,15 +17,24 @@ func _ready() -> void:
 	bg.color = Color(0.039, 0.043, 0.055)
 	bg.set_anchors_preset(Control.PRESET_FULL_RECT)
 	add_child(bg)
-	# Actual Compatibility-renderer capture of the existing market, not concept art.
+	# Actual Compatibility-renderer capture of the existing game shop, not concept art.
 	var backdrop := TextureRect.new()
-	backdrop.texture = preload("res://game/ui/backgrounds/greyhaven_market.png")
+	backdrop.texture = preload("res://game/ui/backgrounds/game_haven_mist.png")
 	backdrop.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 	backdrop.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_COVERED
 	backdrop.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
 	backdrop.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	backdrop.set_anchors_preset(Control.PRESET_FULL_RECT)
 	add_child(backdrop)
+	var mist := ColorRect.new()
+	mist.name = "MenuMist"
+	mist.set_anchors_preset(Control.PRESET_FULL_RECT)
+	mist.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	var mist_material := ShaderMaterial.new()
+	mist_material.shader = preload("res://game/ui/backgrounds/menu_mist.gdshader")
+	mist_material.set_shader_parameter("noise_tex", preload("res://THE_VEIL_ASSETS_V2/09_Horror_Atmosphere/Textures/T_Veil_MistNoise.png"))
+	mist.material = mist_material
+	add_child(mist)
 	var c := CenterContainer.new()
 	c.set_anchors_preset(Control.PRESET_FULL_RECT)
 	c.anchor_left = 0.5
