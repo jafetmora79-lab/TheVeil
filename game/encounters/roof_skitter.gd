@@ -35,6 +35,12 @@ const CRAWL_NATIVE:= 0.472                       ## CRT_Skitter.tscn metadata: c
 const SCUTTLE_NATIVE:= 2.588
 const ESCAPE_SPEED:= 12.0
 var grounded:= false
+## The house's collision is a simplified block whose top stands well above the visible pitched roof (the creature
+## crawled on it in mid-air). On the roof everything is measured against a collision copy of the VISIBLE roof meshes,
+## on a layer of its own, built only while the encounter runs.
+const VIS_LAYER:= 1 << 19
+var on_roof:= false
+var _vis_bodies: Array = []
 var _skel: Skeleton3D
 var _feet: Array = []
 var _tip_drop:= 0.0
@@ -114,6 +120,22 @@ func _process(_delta: float) -> void :
 
 ## The Skitter's feet: the six Foot bones, and how far below a Foot bone its claw tip reaches (rest pose: the
 ## lowest mesh vertex vs the lowest Foot bone, in the creature's own frame).
+func _build_visual_roof() -> void:
+	for mi in house.find_children("*", "MeshInstance3D", true, false):
+		var m: Mesh = (mi as MeshInstance3D).mesh
+		if m == null or "Furnishing" in String(mi.get_path()): continue
+		var body:= StaticBody3D.new()
+		body.collision_layer = VIS_LAYER
+		body.collision_mask = 0
+		var cs:= CollisionShape3D.new()
+		cs.shape = m.create_trimesh_shape()
+		body.add_child(cs)
+		world.add_child(body)
+		body.global_transform = (mi as MeshInstance3D).global_transform
+		_vis_bodies.append(body)
+	report["visual_roof_bodies"] = _vis_bodies.size()
+
+
 func _measure_feet() -> void:
 	var rigs:= creature.find_children("*", "Skeleton3D", true, false)
 	if rigs.is_empty(): return
@@ -155,7 +177,9 @@ func _lowest_foot() -> float:
 func _snap() -> void:
 	if not grounded or not is_instance_valid(creature) or creature.get_parent() != world or _skel == null or _feet.is_empty(): return
 	var space:= house.get_world_3d().direct_space_state
-	var hit:= space.intersect_ray(PhysicsRayQueryParameters3D.create(creature.global_position + Vector3.UP * 1.5, creature.global_position - Vector3.UP * 3.0, 1))
+	var hit:= space.intersect_ray(PhysicsRayQueryParameters3D.create(creature.global_position + Vector3.UP * 1.5, creature.global_position - Vector3.UP * 3.0, VIS_LAYER if on_roof else 1))
+	if on_roof:
+		report["roof_contact_frames" if not hit.is_empty() else "roof_miss_frames"] = int(report.get("roof_contact_frames" if not hit.is_empty() else "roof_miss_frames", 0)) + 1
 	if hit.is_empty(): return
 	var n: Vector3 = hit.normal
 	var fwd: Vector3 = creature.global_basis.z
@@ -180,8 +204,8 @@ func _play(name: String) -> void :
 	if animation and animation.has_animation(name): animation.play(name)
 
 func _spawn() -> void :
-	var at:= house.to_global(Vector3(-4.0, 0, 10.0))
-	var query:= PhysicsRayQueryParameters3D.create(at + Vector3.UP * 25, at + Vector3.UP * 2, 1)
+	var at:= house.to_global(Vector3(6.0, 0, 11.0))     # on the visible front gable (the old spot had no roof)
+	var query:= PhysicsRayQueryParameters3D.create(at + Vector3.UP * 25, at + Vector3.UP * 0.5, VIS_LAYER)
 	var hit:= house.get_world_3d().direct_space_state.intersect_ray(query)
 	roof = hit.position if not hit.is_empty() else house.to_global(Vector3(0, 4.5, 2.5))
 	creature = MODEL.instantiate()
@@ -252,7 +276,7 @@ func _ui() -> void :
 
 func _roof_at(z: float, x:= 0.0) -> Vector3:
 	var at:= house.to_global(Vector3(x, 0, z))
-	var hit:= house.get_world_3d().direct_space_state.intersect_ray(PhysicsRayQueryParameters3D.create(at + Vector3.UP * 25, at + Vector3.UP * 2, 1))
+	var hit:= house.get_world_3d().direct_space_state.intersect_ray(PhysicsRayQueryParameters3D.create(at + Vector3.UP * 25, at + Vector3.UP * 0.5, VIS_LAYER))
 	return hit.position if not hit.is_empty() else Vector3(at.x, roof.y, at.z)
 
 func _encounter() -> void :
@@ -270,6 +294,9 @@ func _encounter() -> void :
 	p.controls_enabled = false
 	p.look_enabled = false
 	p.velocity = Vector3.ZERO
+	_build_visual_roof()
+	await get_tree().physics_frame
+	await get_tree().physics_frame
 	_spawn()
 	sound.play()
 	var direction:= (creature.global_position + Vector3.UP * 0.3 - cam.global_position).normalized()
@@ -284,16 +311,17 @@ func _encounter() -> void :
 		await get_tree().process_frame
 
 	_play("Crawl")
-	var crawl_start:= _roof_at(10.0, -4.0) - Vector3.UP * feet_y
-	if animation: animation.speed_scale = clampf(crawl_start.distance_to(_roof_at(10.8, 0.0) - Vector3.UP * feet_y) / 2.8 / CRAWL_NATIVE, 0.5, 4.0)
+	var crawl_start:= _roof_at(11.0, 6.0) - Vector3.UP * feet_y
+	if animation: animation.speed_scale = clampf(crawl_start.distance_to(_roof_at(11.6, 2.5) - Vector3.UP * feet_y) / 2.8 / CRAWL_NATIVE, 0.5, 4.0)
 	grounded = true
+	on_roof = true
 	report["roof_visible_frames"] = 0
 	creature.global_position = crawl_start
 	t = 0.0
 	while t < 2.8:
 		t += get_process_delta_time()
 		var k:= clampf(t / 2.8, 0, 1)
-		creature.global_position = _roof_at(lerpf(10.0, 10.8, k), lerpf(-4.0, 0.0, k)) - Vector3.UP * feet_y
+		creature.global_position = _roof_at(lerpf(11.0, 11.6, k), lerpf(6.0, 2.5, k)) - Vector3.UP * feet_y
 		_snap()
 		var visible_ray:= PhysicsRayQueryParameters3D.create(cam.global_position, creature.global_position + Vector3.UP * 0.4, 1)
 		if house.get_world_3d().direct_space_state.intersect_ray(visible_ray).is_empty(): report["roof_visible_frames"] += 1
@@ -308,6 +336,7 @@ func _encounter() -> void :
 	report["crawl_s"] = t
 	if animation: animation.speed_scale = 1.0
 	grounded = false
+	on_roof = false
 	_play("Attack_Lunge")
 	var start:= creature.global_position
 	var jump_rotation:= creature.quaternion
@@ -515,6 +544,10 @@ func _track_ground(cam: Camera3D, p: Node, k: float) -> void :
 
 func _cleanup() -> void :
 	grounded = false
+	on_roof = false
+	for b in _vis_bodies:
+		if is_instance_valid(b): b.queue_free()
+	_vis_bodies.clear()
 	for light in test_lights:
 		if is_instance_valid(light): light.visible = false
 	if is_instance_valid(creature): creature.queue_free()
