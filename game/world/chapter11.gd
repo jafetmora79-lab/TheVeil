@@ -286,6 +286,8 @@ func _setup_farmhouse() -> void:
 		var it := Interactable.attach(d, {"kind": "hinge", "label": String(pair[0]).trim_prefix("INT_Door_").replace("Bed1", "Bedroom") + " Door",
 			"open_deg": deg, "hinge_axis": Vector3.UP, "state_key": "ch11/%s/%s" % [FARM, pair[0]]})
 		its[pair[0]] = it
+		it.used.connect(func(_b): _door_collision.call_deferred(it))
+		_door_collision.call_deferred(it)
 	for k in AREAS:
 		areas[k] = AREAS[k]
 	its["rear"] = _spot("C11_BackDoor", fl(REAR_SPOT[0]), REAR_SPOT[1], _inspect.bind("rear"), farm.global_transform.basis)
@@ -300,6 +302,20 @@ func _setup_farmhouse() -> void:
 	mit.used.connect(func(_b): _got_message())
 	its["message"] = mit
 	_settle.call_deferred([msg])
+
+
+## An open farmhouse door does not block: the upstairs bedroom doorway is narrow, and the swung leaf beside it caught
+## the player coming off the stairs. A closed door blocks as before.
+func _door_collision(it: Interactable) -> void:
+	if not is_instance_valid(it) or it.target == null:
+		return
+	for co in it.target.find_children("*", "CollisionObject3D", true, false):
+		if co == it:
+			continue
+		var c := co as CollisionObject3D
+		if not c.has_meta("door_layer"):
+			c.set_meta("door_layer", c.collision_layer)
+		c.collision_layer = 0 if it.is_open else int(c.get_meta("door_layer"))
 
 
 func hl_dir(p: Vector3) -> Vector3:

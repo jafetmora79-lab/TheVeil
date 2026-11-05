@@ -354,7 +354,7 @@ func _run() -> void:
 		ok("c11_bed_door_reach", await aim_w(bed1, [Vector3(-1, 0, 0), Vector3(-1, 0, 0.5)], 1.0))
 		bed1.interact(world.player)
 		await frames(40)
-	ok("c11_bedroom", await walk_world([c11.fl(Vector3(0.0, 3.7, 4.9)), c11.fl(Vector3(1.0, 3.7, 5.4))]) and c11.searched().get("bedroom", false),
+	ok("c11_bedroom", await walk_world([c11.fl(Vector3(-1.75, 3.7, 4.4)), c11.fl(Vector3(-0.6, 3.7, 4.4)), c11.fl(Vector3(1.0, 3.7, 5.4))]) and c11.searched().get("bedroom", false),
 		str(c11.farm.to_local(world.player.global_position)))
 	ok("c11_message_reach", await aim_w(c11.its["message"], [Vector3(-1, 0, 0), Vector3(0, 0, -1), Vector3(0, 0, 1), Vector3(1, 0, 0)], 0.9),
 		str(c11.farm.to_local(c11.its["message"].global_position)))
