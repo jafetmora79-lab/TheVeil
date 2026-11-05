@@ -355,25 +355,31 @@ func _encounter() -> void :
 	var drop_from:= creature.global_position
 	var drop_to:= _ground(drop_from + face_dir * 2.2)
 	creature.rotation = Vector3(0, atan2(face_dir.x, face_dir.z), 0)
+	# a fence (or anything solid) between the yard and the player: no run through it - one leap from the roof instead
+	var rush_to:= (saved_position - drop_to) * Vector3(1, 0, 1)
+	var open_yard:= _clear_run(drop_to, _ground(drop_to + rush_to.normalized() * maxf(rush_to.length() - LEAP_FROM, 0.0)))
+	report["open_yard"] = open_yard
 	_play("Attack_Lunge")
 	t = 0.0
-	while t < DROP_S:
+	while open_yard and t < DROP_S:
 		t += get_process_delta_time()
 		var k:= clampf(t / DROP_S, 0, 1)
 		creature.global_position = drop_from.lerp(drop_to, k) + Vector3.UP * sin(k * PI) * 0.6
 		_aim_at_creature(cam, p, 0.3)
 		cam.fov = lerpf(43.0, 58.0, k)
 		await get_tree().process_frame
-	creature.global_position = drop_to
-	grounded = true
-	_snap()
+	if open_yard:
+		creature.global_position = drop_to
+		grounded = true
+		_snap()
 	# the run straight at the player
-	_play("Scuttle_Fast")
+	if open_yard: _play("Scuttle_Fast")
 	if animation: animation.speed_scale = RUSH_SPEED / SCUTTLE_NATIVE
 	var run_from:= creature.global_position
 	var to_player:= (saved_position - run_from) * Vector3(1, 0, 1)
 	var run_to:= _ground(run_from + to_player.normalized() * maxf(to_player.length() - LEAP_FROM, 0.0))
-	var run_s:= maxf(run_from.distance_to(run_to) / RUSH_SPEED, 0.05)
+	if not open_yard: run_to = run_from
+	var run_s:= maxf(run_from.distance_to(run_to) / RUSH_SPEED, 0.05) if open_yard else 0.0
 	report["rush_m"] = run_from.distance_to(run_to)
 	report["rush_s"] = run_s
 	t = 0.0
@@ -397,18 +403,21 @@ func _encounter() -> void :
 	var down_back:= Vector3.DOWN * eye_drop + fwd * 0.55      # the head ends up on the ground, behind where they stood
 	var yaw_hold:= atan2(fwd.x, fwd.z)                 # still facing it, now along the body (the camera looks along -z)
 	var pitch0: float = p.head.rotation.x
+	var leap_s:= LEAP_S if open_yard else LEAP_S * 1.6
+	var fov_start:= cam.fov
+	var arc:= maxf(1.1, Vector2(leap_from.x - chest.x, leap_from.z - chest.z).length() * 0.3)    # well over any fence
 	t = 0.0
-	while t < LEAP_S:
+	while t < leap_s:
 		t += get_process_delta_time()
-		var k:= clampf(t / LEAP_S, 0, 1)
+		var k:= clampf(t / leap_s, 0, 1)
 		var fall:= smoothstep(0.15, 1.0, k)
-		creature.global_position = leap_from.lerp(chest, k) + Vector3.UP * sin(k * PI) * 1.1
+		creature.global_position = leap_from.lerp(chest, k) + Vector3.UP * sin(k * PI) * arc
 		creature.rotation = Vector3(-0.5 * sin(k * PI), atan2(fwd.x, fwd.z), 0)
 		p.set_yaw_pitch(yaw_hold, lerpf(pitch0, PINNED_PITCH, fall))
 		_hold_still(p)
 		cam.position = cam0 + p.head.global_basis.inverse() * (down_back * fall)
 		cam.rotation.z = sin(fall * PI) * 0.25
-		cam.fov = lerpf(saved_fov, 64.0, fall)
+		cam.fov = lerpf(fov_start, 64.0, fall)
 		await get_tree().process_frame
 	Sfx.play("hurt", cam.global_position, 0.0, 0.8)
 	creature.global_position = chest
