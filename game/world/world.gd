@@ -156,6 +156,7 @@ func _opening() -> void:
 	await hud.fade_to(0.0, 3.0)
 	Dialogue.say("wake", true)
 	await get_tree().create_timer(3.2).timeout
+	await bathroom.wash_face()                       # first: the bathroom, a splash of water, the mirror
 	hud.allow_pause = true
 	hud.set_objective(Game.current_goal(), Game.current_step().get("text", ""))
 	hud.set_hint("WASD move · Mouse look · Shift sprint · Ctrl crouch · E interact · Tab inventory · Esc pause")
@@ -186,7 +187,12 @@ func _label_for(n: String) -> String:
 	return n.trim_prefix("INT_").capitalize()
 
 
+var bathroom: VeilHomeBathroom
 func _setup_home() -> void:
+	bathroom = VeilHomeBathroom.new()                 # bathroom layout + working mirror + the first-day wash
+	bathroom.name = "HomeBathroom"
+	add_child(bathroom)
+	bathroom.setup(self, home)
 	var meta: Array = home.get_meta("veil_interactables", [])
 	for e in meta:
 		var path: String = e["node"]
