@@ -57,6 +57,9 @@ var interactables := {}
 
 func _ready() -> void:
 	add_to_group("veil_world")
+	# a conversation cut off by a load / quit never resumes half-way: no queued lines, no confirm mode, no lock
+	Dialogue.clear()
+	Dialogue.confirm_mode = false
 	data = JSON.parse_string(FileAccess.get_file_as_string("res://game/world/world_data.json"))
 	home = get_node("Residential/Houses/PLAYER_HOME")
 	hud = HUD_SCRIPT.new()
@@ -499,43 +502,96 @@ func _dlg_time(ids: Array) -> float:
 	return t
 
 
-## STANDARD NPC CONVERSATION (Eddie, Marcus, the cashier, Chapter 4 survivors). converse(ids, npcs):
-##   1. refuses (returns false) when a wall, door or window separates the player from any listed NPC;
-##   2. the NPCs turn to face the protagonist;
-##   3. a talk camera borrows the first-person view and eases (<= 0.35 m, FOV 52) toward whoever is speaking,
-##      never closer than 1.25 m and never through geometry (checked every frame);
-##   4. VeilFace talking + gestures play (_on_line); white pixel subtitles with a black outline;
-##   5. every line waits for the player's confirmation (Dialogue.confirm_mode; [E] / click / Space);
-##   6. choices (choice panel) and follow-up lines queued during the talk stay inside it;
-##   7. after the last line the view returns smoothly to first person and control is restored.
+## STANDARD NPC CONVERSATION - the one shared path for every spoken exchange with an NPC in Chapters 1-8.
+## converse(ids, npcs):
+##   1. refuses (returns false) only when a wall, door or window really separates the player from the NPC spoken
+##      to (several sight lines: head, face, chest; one clear line is enough, so a door frame no longer blocks it);
+##   2. the player stops (velocity 0, movement and interaction locked) and the NPCs turn to face the protagonist;
+##   3. the talk camera stays at the protagonist's own eye position (it never moves toward the NPC, so it cannot
+##      clip into a head, a counter or a wall) and only turns toward the current speaker's face and upper body,
+##      with a subtle zoom (FOV -10 %) over ~0.4 s; a new speaker gets a gentler re-aim;
+##   4. VeilFace talking + gestures play (_on_line); speaker name + subtitle on the HUD;
+##   5. every line waits for the player (Dialogue.confirm_mode): E / left click = next line, HOLD E = skip the
+##      remaining lines up to (never past) a choice; choices always wait for the player's pick;
+##   6. choices and follow-up lines queued during the talk stay inside it (the camera holds while anything is
+##      queued or the choice panel is open);
+##   7. after the last line the view eases back (~0.4 s) to the player's normal view, the FOV is restored, and
+##      control comes back - also when the talk was skipped, ended in a choice, or was cut by a scripted event
+##      (end_conversation()); a watchdog releases any lock left over (talk_watchdog()).
+## Exceptions keep their own camera: driving, creature encounters, chase scenes and cinematics (converse() only
+## queues the lines there).
 var conversing := false
-var talk_report := {"count": 0, "blocked": 0, "cam_hits": 0, "min_face_dist": 99.0}
+var talk_report := {"count": 0, "blocked": 0, "cam_hits": 0, "min_face_dist": 99.0, "max_fov_drop": 0.0, "zoom_ins": 0,
+	"zoom_outs": 0, "released": 0, "watchdog": 0}
+const TALK_RANGE := 12.0              ## a talk started by an approach (a doorway, a yard) can begin a few metres off
+const TALK_FOV_SCALE := 0.9            ## subtle zoom: 10 % narrower field of view
+const TALK_EASE_IN := 7.0              ## exponential rates: ~0.4 s to settle on a speaker
+const TALK_EASE_SPEAKER := 4.5         ## gentler re-aim when the speaker changes
+const TALK_EASE_OUT := 8.0
 
 
-## Line of sight from the player's eyes to an NPC's head (window glass counts: see _add_glass_colliders).
-func can_talk(npc: Node3D) -> bool:
-	if npc == null or not is_instance_valid(npc):
-		return false
+## Points on an NPC the player can see it by (head, face, chest).
+func _talk_points(npc: Node3D) -> Array:
 	var head = _speaker_head(String(npc.name))
 	var h: Vector3 = head if head != null else npc.global_position + Vector3(0, 1.6, 0)
-	var eye := player.camera.global_position
-	if eye.distance_to(h) > 6.0:
+	var base := npc.global_position
+	return [h, h - Vector3(0, 0.15, 0), Vector3(base.x, lerpf(base.y, h.y, 0.72), base.z)]
+
+
+## Line of sight from the player's eyes to an NPC (window glass counts: see _add_glass_colliders). Any one of the
+## sample points being in plain view is enough.
+func can_talk(npc: Node3D) -> bool:
+	if npc == null or not is_instance_valid(npc) or not npc.is_visible_in_tree():
 		return false
-	var q := PhysicsRayQueryParameters3D.create(eye, h, 1, [player.get_rid()])
-	return get_world_3d().direct_space_state.intersect_ray(q).is_empty()
+	var eye := player.camera.global_position
+	var ex: Array[RID] = [player.get_rid()]
+	if npc is CollisionObject3D:
+		ex.append((npc as CollisionObject3D).get_rid())
+	for p in _talk_points(npc):
+		if eye.distance_to(p) > TALK_RANGE:
+			continue
+		var hit := _talk_ray(eye, p, ex)
+		if hit.is_empty() or (hit["collider"] as Node).is_ancestor_of(npc) or npc.is_ancestor_of(hit["collider"]):
+			return true
+	return false
 
 
-## Returns false only when refused (an NPC is out of sight behind a wall / door / window).
+## A sight line for conversations. Invisible blockers that only keep the player out of a space (group
+## "veil_talk_transparent", e.g. Ruth and Sarah's doorway) do not hide anyone; real walls, doors and glass do.
+func _talk_ray(from: Vector3, to: Vector3, ex: Array[RID]) -> Dictionary:
+	var q := PhysicsRayQueryParameters3D.create(from, to, 1, ex)
+	var space := get_world_3d().direct_space_state
+	var hit := space.intersect_ray(q)
+	for _i in 3:
+		if hit.is_empty() or not (hit["collider"] as Node).is_in_group("veil_talk_transparent"):
+			break
+		q.exclude = q.exclude + [(hit["collider"] as CollisionObject3D).get_rid()]
+		hit = space.intersect_ray(q)
+	return hit
+
+
+## True while a normal conversation may take the camera (no driving, encounter, hidden player or cinematic).
+func _talk_camera_allowed() -> bool:
+	return not in_car and not _encounter_running and player.visible and not (_cine and is_instance_valid(_cine))
+
+
+## Returns false only when refused (the NPC spoken to is out of sight behind a wall / door / window).
 func converse(ids: Array, npcs: Array = []) -> bool:
-	if in_car or _encounter_running or not player.visible or conversing:
+	if conversing:
+		# already talking (a scripted follow-up): the new lines take over inside the same talk camera
 		for i in ids.size():
 			Dialogue.say(ids[i], false, i == 0)
-		return true                              # spoken as plain timed lines (no talk camera available)
+		return true
+	if not _talk_camera_allowed():
+		for i in ids.size():
+			Dialogue.say(ids[i], false, i == 0)
+		return true                              # spoken as plain timed lines (an exception keeps its own camera)
 	if not npcs.is_empty() and not can_talk(npcs[0]):      # the one spoken to must be in plain view
 		talk_report["blocked"] += 1
 		return false
 	conversing = true
 	talk_report["count"] += 1
+	_talk_speaker = String(npcs[0].name) if not npcs.is_empty() else _talk_speaker
 	for n in npcs:
 		var a = animators.get(String(n.name))
 		if a:
@@ -550,7 +606,20 @@ func converse(ids: Array, npcs: Array = []) -> bool:
 
 
 func _choice_open() -> bool:
-	return phase4 != null and is_instance_valid(phase4) and phase4.get("choice") != null and phase4.choice.is_open()
+	if phase4 != null and is_instance_valid(phase4) and phase4.get("choice") != null and phase4.choice.is_open():
+		return true
+	for c in get_tree().get_nodes_in_group("veil_choice_panel"):
+		if c.has_method("is_open") and c.is_open():
+			return true
+	return false
+
+
+## The direction to look for the current speaker: the face and upper body (a little below the head bone).
+func _talk_target():
+	var head = _speaker_head(_talk_speaker)
+	if head == null:
+		return null
+	return (head as Vector3) - Vector3(0, 0.12, 0)
 
 
 func _talk_camera() -> void:
@@ -558,55 +627,104 @@ func _talk_camera() -> void:
 	_end_cine()
 	_talk_id += 1
 	var id := _talk_id
-	var base := player.camera.global_transform
-	var fov0 := player.camera.fov
+	player.controls_enabled = false
+	player.velocity = Vector3.ZERO
+	var src := player.camera
+	var fov0 := src.fov
 	var cam := Camera3D.new()
 	cam.name = "TalkCam"
 	add_child(cam)
-	cam.global_transform = base
+	cam.global_transform = src.global_transform
 	cam.fov = fov0
+	cam.near = src.near
+	cam.far = src.far
+	cam.environment = src.environment
+	cam.attributes = src.attributes
+	cam.cull_mask = src.cull_mask
 	cam.current = true
 	_talk_cam = cam
-	player.controls_enabled = false
+	talk_report["zoom_ins"] += 1
 	var idle := 0.0
-	var space := get_world_3d().direct_space_state
+	var aimed := ""
+	var rate := TALK_EASE_IN
 	while id == _talk_id and is_instance_valid(cam):
 		var dt := get_process_delta_time()
 		var busy := Dialogue.is_busy() or _choice_open()
 		idle = 0.0 if busy else idle + dt
-		var ending := idle > 0.0
 		if idle > 0.45:                         # nothing more queued: hand the view back
 			break
-		var want := base
+		var eye := src.global_position          # the protagonist's own eyes: the camera never travels
+		var want := Transform3D(cam.global_transform.basis, eye)
 		var fov := fov0
-		var head = _speaker_head(_talk_speaker)
-		if head != null and not ending:
-			var to: Vector3 = head - base.origin
-			var pos := base.origin + to.normalized() * clampf(to.length() - 1.25, 0.0, 0.35)
-			var q := PhysicsRayQueryParameters3D.create(base.origin, pos + to.normalized() * 0.2, 1, [player.get_rid()])
-			if not space.intersect_ray(q).is_empty():
-				pos = base.origin
-			want = Transform3D(Basis(), pos).looking_at(head, Vector3.UP)
-			fov = 52.0
-			talk_report["min_face_dist"] = minf(talk_report["min_face_dist"], cam.global_position.distance_to(head))
-			var see := PhysicsRayQueryParameters3D.create(cam.global_position, head, 1, [player.get_rid()])
-			if not space.intersect_ray(see).is_empty():
+		var at = _talk_target()
+		if at != null and idle == 0.0:
+			fov = fov0 * TALK_FOV_SCALE
+			# a speaker hidden from the protagonist's eyes (behind a wall beside a doorway, behind another NPC) is
+			# never framed: the view stays on the last visible speaker instead of turning to a wall
+			var hit := _talk_ray(eye, at, [player.get_rid()])
+			var hidden: bool = not hit.is_empty() and eye.distance_to(hit["position"]) < eye.distance_to(at) - 0.45
+			if hidden:
+				talk_report["hidden_speaker"] = int(talk_report.get("hidden_speaker", 0)) + 1
+			else:
+				if _talk_speaker != aimed:
+					rate = TALK_EASE_IN if aimed == "" else TALK_EASE_SPEAKER
+					aimed = _talk_speaker
+				var to: Vector3 = at - eye
+				if to.length() > 0.3:
+					want = Transform3D(Basis(), eye).looking_at(at, Vector3.UP)
+				talk_report["min_face_dist"] = minf(talk_report["min_face_dist"], eye.distance_to(at))
+		# the camera is aimed at a speaker the player cannot see (should never happen: tests)
+		if aimed != "" and aimed == _talk_speaker and at != null and idle == 0.0:
+			var chk := _talk_ray(eye, at, [player.get_rid()])
+			if not chk.is_empty() and eye.distance_to(chk["position"]) < eye.distance_to(at) - 0.45 and cam.global_transform.basis.z.dot(-(at - eye).normalized()) > 0.99:
 				talk_report["cam_hits"] += 1
-		cam.global_transform = cam.global_transform.interpolate_with(want, minf(dt * 3.0, 1.0))
-		cam.fov = lerpf(cam.fov, fov, minf(dt * 3.0, 1.0))
+		var k := 1.0 - exp(-rate * dt)
+		cam.global_transform = Transform3D(cam.global_transform.basis.slerp(want.basis.orthonormalized(), k).orthonormalized(), eye)
+		cam.fov = lerpf(cam.fov, fov, k)
+		talk_report["max_fov_drop"] = maxf(talk_report["max_fov_drop"], 1.0 - cam.fov / fov0)
 		player.controls_enabled = false           # held for the whole talk (a closing choice panel re-enables them)
 		player.velocity = Vector3.ZERO
 		await get_tree().process_frame
-	# ease back to the first-person view, then hand control back
+	# ease back to the first-person view (the player's own camera, unchanged during the talk), then hand back control
 	var t := 0.0
-	while t < 0.45 and id == _talk_id and is_instance_valid(cam):
+	while t < 0.4 and id == _talk_id and is_instance_valid(cam):
 		var dt2 := get_process_delta_time()
-		cam.global_transform = cam.global_transform.interpolate_with(base, minf(dt2 * 7.0, 1.0))
-		cam.fov = lerpf(cam.fov, fov0, minf(dt2 * 7.0, 1.0))
+		var k2 := 1.0 - exp(-TALK_EASE_OUT * dt2)
+		cam.global_transform = Transform3D(cam.global_transform.basis.slerp(src.global_transform.basis.orthonormalized(), k2).orthonormalized(),
+			src.global_position)
+		cam.fov = lerpf(cam.fov, fov0, k2)
+		player.velocity = Vector3.ZERO
 		await get_tree().process_frame
 		t += dt2
 	if id == _talk_id:
+		talk_report["zoom_outs"] += 1
 		_end_talk()
+
+
+## A scripted event that must take over in the middle of a conversation: the talk ends at once, the queued lines
+## are dropped, the view and the controls are handed back (the event then takes the camera it needs).
+func end_conversation() -> void:
+	if _talk_cam and is_instance_valid(_talk_cam):
+		Dialogue.clear()
+	Dialogue.confirm_mode = false
+	_end_talk()
+	conversing = false
+
+
+## Safety net (every frame): a talk camera or a conversation lock never outlives its conversation.
+func talk_watchdog() -> void:
+	if _talk_cam and is_instance_valid(_talk_cam) and not conversing and not Dialogue.is_busy() and not _choice_open():
+		_talk_stale += get_physics_process_delta_time()
+		if _talk_stale > 1.5:
+			talk_report["watchdog"] += 1
+			_end_talk()
+	else:
+		_talk_stale = 0.0
+	if not conversing and Dialogue.confirm_mode and not Dialogue.is_busy():
+		Dialogue.confirm_mode = false
+
+
+var _talk_stale := 0.0
 
 
 ## Older timed entry point (kept for callers that only need the framing for a fixed time).
@@ -633,6 +751,8 @@ func _end_talk() -> void:
 		_talk_cam = null
 		player.camera.current = true
 		player.controls_enabled = true
+		player.velocity = Vector3.ZERO
+		talk_report["released"] += 1
 
 
 func _on_line(speaker: String, _t: String, dur: float) -> void:
@@ -2885,6 +3005,7 @@ var _exit_requested := false
 
 
 func _physics_process(delta: float) -> void:
+	talk_watchdog()
 	_p3_tick(delta)
 	_arrival_ease()
 	if _exit_requested:
