@@ -34,6 +34,13 @@ var saved_position:= Vector3.ZERO
 const CRAWL_NATIVE:= 0.472                       ## CRT_Skitter.tscn metadata: crawl / scuttle speed at speed_scale 1
 const SCUTTLE_NATIVE:= 2.588
 const ESCAPE_SPEED:= 12.0
+const DROP_S:= 0.45                                 ## off the gable to the yard
+const RUSH_SPEED:= 9.0                              ## the run at the player, m/s
+const LEAP_FROM:= 3.2                               ## it leaps from this far out
+const LEAP_S:= 0.42
+const CHEST_H:= 0.28                                ## the player's chest, lying down
+const LYING_EYE:= 0.32                              ## the eye height, lying on the back
+const PINNED_PITCH:= 0.55                           ## looking up at it
 var grounded:= false
 ## The house's collision is a simplified block whose top stands well above the visible pitched roof (the creature
 ## crawled on it in mid-air). On the roof everything is measured against a collision copy of the VISIBLE roof meshes,
@@ -339,25 +346,74 @@ func _encounter() -> void :
 	if animation: animation.speed_scale = 1.0
 	grounded = false
 	on_roof = false
+	# ---- off the roof, across the yard at a run, and the leap: the player goes down on their back, pinned
+	var cam0:= cam.position
+	var ground_at:= _ground(saved_position)
+	var face_dir:= (saved_position - creature.global_position) * Vector3(1, 0, 1)
+	face_dir = face_dir.normalized()
+	# the drop from the gable edge to the yard below
+	var drop_from:= creature.global_position
+	var drop_to:= _ground(drop_from + face_dir * 2.2)
+	creature.rotation = Vector3(0, atan2(face_dir.x, face_dir.z), 0)
 	_play("Attack_Lunge")
-	var start:= creature.global_position
-	var jump_rotation:= creature.quaternion
-	var top_pitch:= pitch
 	t = 0.0
-	while t < 0.65:
+	while t < DROP_S:
 		t += get_process_delta_time()
-		var k:= clampf(t / 0.65, 0, 1)
-		p.set_yaw_pitch(yaw, lerpf(top_pitch, 0.0, smoothstep(0.0, 1.0, k)))
-		cam.fov = lerpf(43.0, saved_fov, smoothstep(0.0, 1.0, k))
-		var landing:= cam.to_global(Vector3(0, -0.3, -0.85))
-		creature.global_position = start.lerp(landing, k) + Vector3.UP * sin(k * PI) * 2.0
-		creature.quaternion = jump_rotation.slerp(cam.global_basis.get_rotation_quaternion(), k)
-		creature.scale = Vector3.ONE * lerpf(1.0, 0.55, k)
+		var k:= clampf(t / DROP_S, 0, 1)
+		creature.global_position = drop_from.lerp(drop_to, k) + Vector3.UP * sin(k * PI) * 0.6
+		_aim_at_creature(cam, p, 0.3)
+		cam.fov = lerpf(43.0, 58.0, k)
 		await get_tree().process_frame
-	var landed_at:= creature.global_position
-	creature.reparent(cam)
-	report["landing_snap_m"] = creature.global_position.distance_to(landed_at)
+	creature.global_position = drop_to
+	grounded = true
+	_snap()
+	# the run straight at the player
+	_play("Scuttle_Fast")
+	if animation: animation.speed_scale = RUSH_SPEED / SCUTTLE_NATIVE
+	var run_from:= creature.global_position
+	var to_player:= (saved_position - run_from) * Vector3(1, 0, 1)
+	var run_to:= _ground(run_from + to_player.normalized() * maxf(to_player.length() - LEAP_FROM, 0.0))
+	var run_s:= maxf(run_from.distance_to(run_to) / RUSH_SPEED, 0.05)
+	report["rush_m"] = run_from.distance_to(run_to)
+	report["rush_s"] = run_s
+	t = 0.0
+	while t < run_s:
+		t += get_process_delta_time()
+		creature.global_position = _ground(run_from.lerp(run_to, clampf(t / run_s, 0, 1)))
+		creature.rotation = Vector3(0, atan2(to_player.x, to_player.z), 0)
+		_snap()
+		_aim_at_creature(cam, p, 0.35)
+		cam.fov = lerpf(58.0, saved_fov, clampf(t / run_s, 0, 1))
+		await get_tree().process_frame
+	grounded = false
+	# the leap: it lands on the chest as the player falls backwards
+	if animation: animation.speed_scale = 1.4
+	_play("Attack_Lunge")
+	var leap_from:= creature.global_position
+	var fwd:= to_player.normalized()                     # from it to the player: the player falls this way (backwards)
+	var chest:= Vector3(saved_position.x, ground_at.y + CHEST_H, saved_position.z)
+	var eye_drop:= cam.global_position.y - (ground_at.y + feet_y + LYING_EYE)
+	var down_back:= Vector3.DOWN * eye_drop + fwd * 0.55      # the head ends up on the ground, behind where they stood
+	var yaw_hold:= atan2(fwd.x, fwd.z)                 # still facing it, now along the body (the camera looks along -z)
+	var pitch0: float = p.head.rotation.x
+	t = 0.0
+	while t < LEAP_S:
+		t += get_process_delta_time()
+		var k:= clampf(t / LEAP_S, 0, 1)
+		var fall:= smoothstep(0.15, 1.0, k)
+		creature.global_position = leap_from.lerp(chest, k) + Vector3.UP * sin(k * PI) * 1.1
+		creature.rotation = Vector3(-0.5 * sin(k * PI), atan2(fwd.x, fwd.z), 0)
+		p.set_yaw_pitch(yaw_hold, lerpf(pitch0, PINNED_PITCH, fall))
+		cam.position = cam0 + p.head.global_basis.inverse() * (down_back * fall)
+		cam.rotation.z = sin(fall * PI) * 0.25
+		cam.fov = lerpf(saved_fov, 64.0, fall)
+		await get_tree().process_frame
+	Sfx.play("hurt", cam.global_position, 0.0, 0.8)
+	creature.global_position = chest
+	report["pinned"] = true
+	report["landing_snap_m"] = 0.0
 	report["high_leap"] = true
+	report["camera_on_ground_m"] = cam.global_position.y - ground_at.y - feet_y
 	if animation and animation.has_animation("Attack_Lunge"):
 		var bite: Animation = animation.get_animation("Attack_Lunge").duplicate(true)
 		bite.loop_mode = Animation.LOOP_LINEAR
@@ -378,10 +434,15 @@ func _encounter() -> void :
 		prompt.modulate = Color(1, pulse, pulse, 0.75 + 0.25 * sin(t * 15.0) * sin(t * 15.0))
 		click_hint.text = "CLICK FAST  %d / %d   %.1fs" % [clicks, CLICKS, maxf(0, STRUGGLE_S - t)]
 		progress.value = clicks
-		cam.rotation.z = sin(t * 38.0) * 0.025
-		creature.position.x = sin(t * 28.0) * 0.035
-		creature.position.y = -0.3 + sin(t * 34.0) * 0.018
-		creature.position.z = -0.85 + maxf(0.0, sin(t * TAU * 1.8)) * 0.07
+		# on top of the player: it rocks and lunges down at the face; the view thrashes under it
+		var lunge:= maxf(0.0, sin(t * TAU * 1.8))
+		var side:= fwd.cross(Vector3.UP).normalized()
+		creature.global_position = chest + side * sin(t * 28.0) * 0.05 + fwd * lunge * 0.12 + Vector3.UP * sin(t * 34.0) * 0.02
+		creature.rotation.x = 0.1 + lunge * 0.3                # head down at the face
+		var aim:= (creature.global_position + Vector3.UP * 0.25 - cam.global_position).normalized()
+		p.set_yaw_pitch(yaw_hold, lerpf(p.head.rotation.x, clampf(asin(clampf(aim.y, -1, 1)), 0.2, 1.35), 0.2))
+		cam.rotation.z = sin(t * 38.0) * 0.06
+		cam.position = cam0 + p.head.global_basis.inverse() * (down_back + Vector3(sin(t * 31.0) * 0.02, sin(t * 23.0) * 0.015, 0))
 		await get_tree().process_frame
 	struggling = false
 	var won:= clicks >= CLICKS
@@ -395,7 +456,7 @@ func _encounter() -> void :
 	prompt.modulate = Color.WHITE
 	click_hint.text = ""
 
-	creature.reparent(world)
+	creature.rotation.x = 0.0
 	var thrown_from:= creature.global_position
 	var forward:= - cam.global_basis.z * Vector3(1, 0, 1)
 	forward = forward.normalized()
@@ -412,12 +473,13 @@ func _encounter() -> void :
 		t += get_process_delta_time()
 		var k:= clampf(t / 0.55, 0, 1)
 		creature.global_position = thrown_from.lerp(landing, k) + Vector3.UP * sin(k * PI) * 0.7
-		creature.scale = Vector3.ONE * lerpf(0.55, 1.0, k)
 		creature.rotation.z = sin(k * PI) * 0.7
+		cam.position = cam0 + p.head.global_basis.inverse() * (down_back * (1.0 - smoothstep(0.0, 1.0, k)))    # back on their feet
 		_track_ground(cam, p, k)
 		await get_tree().process_frame
 	creature.global_position = landing
 	creature.rotation.z = 0
+	cam.position = cam0
 	grounded = true
 	report["ground_landing"] = absf(creature.global_position.y - _ground(landing).y) < 0.05
 	# Frame the threat from its front, using the actual lens, not the capsule.
@@ -539,6 +601,10 @@ func _clear_run(start: Vector3, end: Vector3) -> bool:
 	var result:= space.cast_motion(query)
 	return result.size() == 2 and result[0] >= 0.99
 
+func _aim_at_creature(cam: Camera3D, p: Node, rate: float) -> void:
+	var aim:= (creature.global_position + Vector3.UP * 0.35 - cam.global_position).normalized()
+	p.set_yaw_pitch(lerp_angle(p.rotation.y, atan2(-aim.x, -aim.z), rate), lerpf(p.head.rotation.x, asin(clampf(aim.y, -1, 1)), rate))
+
 func _track_ground(cam: Camera3D, p: Node, k: float) -> void :
 	var aim:= (creature.global_position + Vector3.UP * 0.25 - cam.global_position).normalized()
 	p.set_yaw_pitch(lerp_angle(p.rotation.y, atan2( - aim.x, - aim.z), 0.12), lerpf(p.head.rotation.x, asin(clampf(aim.y, -1, 1)), 0.12))
@@ -557,6 +623,7 @@ func _cleanup() -> void :
 	if is_instance_valid(world) and is_instance_valid(world.player):
 		var p = world.player
 		p.camera.rotation.z = 0.0
+		p.camera.position = Vector3.ZERO
 		p.camera.fov = saved_fov
 		p.set_yaw_pitch(saved_yaw, saved_pitch)
 		p.global_position = saved_position
