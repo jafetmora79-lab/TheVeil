@@ -489,10 +489,17 @@ func _pose_arms(arms: Node3D, cam: Camera3D, centre: Vector3, mode := "cup") -> 
 		var phase: float = arms.get_meta("wash_phase", 0.0)
 		var rub := sin(phase * 7.0) * 0.004 if mode == "cup" else 0.0
 		var goal: Vector3 = centre + side * float(s[1]) * 0.058 - fingers * 0.055 + fwd * rub * float(s[1])
+		var frame: Dictionary = arms.get_meta("wash_frames")[s[0]]
+		var palm := (Vector3.UP - side * float(s[1]) * 0.18).normalized().lerp((cam.global_position - goal).normalized(), rinse).normalized()
+		_aim_hand(sk, hnd, inv * goal, inv.basis * fingers, inv.basis * palm, frame, arms, s[0])
+		var pose: Transform3D = arms.get_meta("posed_" + s[0])
+		var hand_box := (home.global_transform.affine_inverse() * X * pose) * (frame["bounds"] as AABB).grow(0.008)
+		var penetration := maxf(hand_box.end.x - (WALL_R - 0.035), 0.0)
+		goal -= home.global_basis.x * penetration
 		var to_goal := goal - shoulder
 		# The shipped FP arms are shorter than this camera-to-tap distance. Extend the
 		# sleeve segments, keeping the hand size and camera anchor unchanged.
-		var reach := clampf(to_goal.length() / ((la + lb) * 0.98), 1.0, 2.2)
+		var reach := clampf(to_goal.length() / ((la + lb) * 0.98), 1.0, 1.55)
 		la *= reach
 		lb *= reach
 		var dist := clampf(to_goal.length(), 0.05, (la + lb) * 0.999)
@@ -505,10 +512,11 @@ func _pose_arms(arms: Node3D, cam: Camera3D, centre: Vector3, mode := "cup") -> 
 		var hand := shoulder + dir * dist
 		_aim_bone(sk, u, l, inv * shoulder, inv * elbow)
 		_aim_bone(sk, l, hnd, inv * elbow, inv * hand)
-		# Use the mesh's measured palm frame rather than treating skeleton -Y as its palm.
-		var frame: Dictionary = arms.get_meta("wash_frames")[s[0]]
-		var palm := (Vector3.UP - side * float(s[1]) * 0.18).normalized().lerp((cam.global_position - hand).normalized(), rinse).normalized()
-		_aim_hand(sk, hnd, inv * hand, inv.basis * fingers, inv.basis * palm, frame, arms, s[0])
+		pose.origin = inv * hand
+		arms.set_meta("posed_" + s[0], pose)
+		sk.set_bone_global_pose_override(hnd, pose, 1.0, true)
+		arms.set_meta("reach_" + s[0], reach)
+
 	var phase: float = float(arms.get_meta("wash_phase", 0.0)) + get_process_delta_time()
 	arms.set_meta("wash_phase", phase)
 	for mesh in arms.get_meta("wash_meshes"):
@@ -557,7 +565,9 @@ func _step_to(player: Node3D, cam: Camera3D, target: Vector3, speed: float) -> v
 		player.global_position += d.normalized() * minf(speed * dt, d.length())
 		var want := Transform3D(Basis(), cam.global_position).looking_at(cam.global_position + d.normalized() + Vector3(0, -0.08, 0), Vector3.UP).basis
 		cam.global_basis = Basis(cam.global_basis.get_rotation_quaternion().slerp(want.get_rotation_quaternion(), minf(dt * 6.0, 1.0)))
-		cam.global_position = player.global_position + Vector3(0, EYE - 0.15 + sin(Time.get_ticks_msec() * 0.011) * 0.018, 0)
+		var sink_distance := player.global_position.distance_to(home.to_global(SINK_STAND))
+		var lean := (1.0 - smoothstep(0.04, 0.5, sink_distance)) * 0.26
+		cam.global_position = player.global_position + Vector3(0, EYE - 0.15 + sin(Time.get_ticks_msec() * 0.011) * 0.018, 0) + home.global_basis.x * lean
 		await get_tree().process_frame
 
 

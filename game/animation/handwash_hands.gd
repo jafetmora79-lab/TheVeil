@@ -17,7 +17,7 @@ static func prepare(model: Node3D, sk: Skeleton3D) -> void:
 		var palm := rest.basis * normal
 		palm = (palm - fingers * palm.dot(fingers)).normalized()
 		frames[side] = {"hand": hand, "fingers": fingers, "palm": palm,
-			"across": fingers.cross(palm).normalized()}
+			"across": fingers.cross(palm).normalized(), "bounds": AABB(), "bounds_ready": false}
 	model.set_meta("wash_frames", frames)
 	for node in model.find_children("*", "MeshInstance3D", true, false):
 		var mesh_node := node as MeshInstance3D
@@ -49,6 +49,10 @@ static func prepare(model: Node3D, sk: Skeleton3D) -> void:
 					var rest := sk.get_bone_global_rest(int(frame["hand"]))
 					var offset := vertices[i] - rest.origin
 					var along := offset.dot(frame["fingers"])
+					if surface == 2:
+						var local := rest.affine_inverse() * vertices[i]
+						frame["bounds"] = (frame["bounds"] as AABB).expand(local) if frame["bounds_ready"] else AABB(local, Vector3.ZERO)
+						frame["bounds_ready"] = true
 					# Skin material only. Sleeves/cuffs retain their original weights.
 					if surface == 2 and along > -0.025:
 						var keep := 1.0 - smoothstep(-0.025, 0.005, along)
