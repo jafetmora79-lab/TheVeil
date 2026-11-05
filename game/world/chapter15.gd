@@ -30,7 +30,7 @@ const REFUGE_SPOTS := {"Eddie": Vector3(-2.6, 0.05, 2.2), "Ruth": Vector3(-2.4, 
 const REFUGE_PLAYER := Vector3(0.6, 0.1, 1.6)
 const REFUGE_FINDS := [["water_bottle", Vector3(-3.3, 0.9, 5.2)], ["batteries", Vector3(-2.0, 0.05, 5.4)]]
 # ---- the road west and the fields (world)
-const ROUTE := [Vector3(-80.0, 0.2, -22.5), Vector3(-78.6, 0.2, -16.0), Vector3(-82.0, 0.2, -10.0), Vector3(-88.0, 0.2, 0.0), Vector3(-97.0, 0.2, 2.0), Vector3(-104.0, 0.2, 2.0)]
+const ROUTE := [Vector3(-80.0, 0.2, -22.5), Vector3(-78.6, 0.2, -16.0), Vector3(-82.0, 0.2, -10.0), Vector3(-88.0, 0.2, 0.0), Vector3(-96.5, 0.2, -0.8), Vector3(-103.5, 0.2, -0.8), Vector3(-104.0, 0.2, 2.0)]   # round the pickup from Ch. 15
 const FINDS := [["painkillers", Vector3(-84.6, 0.2, -5.0)], ["batteries", Vector3(-92.0, 0.2, 2.8)], ["water_bottle", Vector3(-100.5, 0.2, 0.6)],
 	["last_note", Vector3(-96.0, 0.2, 3.6)]]
 const COVERS := [Vector3(-104.0, 0.2, 2.0), Vector3(-107.0, 0.2, 6.8), Vector3(-110.5, 0.2, 12.4), Vector3(-114.0, 0.2, 18.0)]
