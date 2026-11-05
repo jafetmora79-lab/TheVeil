@@ -41,12 +41,12 @@ func _physics_process(delta: float) -> void:
 		return
 	_tick = 0.2
 	var l: Vector3 = p4.market.to_local(player.global_position)
-	if l.x > 17.8 and l.x < 20.0 and absf(l.z - 15.9) < 1.7 and player.get("controls_enabled"):
+	if l.x > 17.2 and l.x < 20.0 and absf(l.z - 15.9) < 1.8 and player.get("controls_enabled"):
 		_on_enter()
 
 
 func _on_enter() -> void:
-	if running or Game.has_flag("p4_garage_done") or Game.has_flag("p4_loading_down") or not Game.has_flag("p4_breaker"):
+	if running or Game.has_flag("p4_garage_done") or Game.has_flag("p4_loading_down") or not Game.has_flag("p4_started"):
 		return
 	running = true
 	world.save()                                       # the checkpoint: RETRY comes back to here
