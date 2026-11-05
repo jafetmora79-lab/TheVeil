@@ -10,6 +10,8 @@ var world: Node
 var checked_mesh := false
 var previous_rotations := {}
 var max_wrist_step := 0.0
+var furthest_hand := -INF
+var max_reach := 0.0
 
 func check(label: String, ok: bool) -> void:
 	print("TEST ", label, " ", "PASS" if ok else "FAIL")
@@ -41,12 +43,14 @@ func run() -> void:
 	check("both_hands_sampled", hand_frames > 120)
 	check("hands_separate", min_hand_gap > 0.09)
 	check("wrist_turns_are_smooth", max_wrist_step < 0.25)
+	check("whole_hands_clear_wall", furthest_hand <= world.bathroom.WALL_R - 0.024)
+	check("arm_extension_limited", max_reach <= 1.55)
 	check("water_meets_hands", wet_frames > 15)
 	check("spray_stops_outside_water", dry_frames > 15)
 	check("contact_stays_on_stream", max_contact_error <= 0.0071)
 	await create_timer(1.0).timeout
 	check("tap_and_spray_cleanup", world.bathroom.find_children("TapWater", "", true, false).is_empty())
-	print("METRICS hand_frames=",hand_frames," wet=",wet_frames," dry=",dry_frames," min_wrist_gap=",min_hand_gap," contact_error=",max_contact_error," max_wrist_step_rad=",max_wrist_step)
+	print("METRICS hand_frames=",hand_frames," wet=",wet_frames," dry=",dry_frames," min_wrist_gap=",min_hand_gap," contact_error=",max_contact_error," max_wrist_step_rad=",max_wrist_step," hand_max_x=",furthest_hand," reach=",max_reach)
 	world.free()
 	print("RESULT ",failures," failures")
 	quit(1 if failures else 0)
@@ -56,6 +60,10 @@ func inspect(arms: Node3D, cam: Camera3D) -> void:
 	var sk: Skeleton3D = arms.get_meta("sk")
 	for side in ["Left", "Right"]:
 		var pose: Transform3D = arms.get_meta("posed_" + side)
+		var frame: Dictionary = arms.get_meta("wash_frames")[side]
+		var bounds: AABB = (world.home.global_transform.affine_inverse() * sk.global_transform * pose) * (frame["bounds"] as AABB).grow(0.008)
+		furthest_hand = maxf(furthest_hand, bounds.end.x)
+		max_reach = maxf(max_reach, arms.get_meta("reach_" + side))
 		var rotation := pose.basis.get_rotation_quaternion()
 		if previous_rotations.has(side):
 			max_wrist_step = maxf(max_wrist_step, rotation.angle_to(previous_rotations[side]))
