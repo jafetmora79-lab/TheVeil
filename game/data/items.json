@@ -228,14 +228,31 @@
    "category": "weapon",
    "weight": 0.9,
    "model": "res://THE_VEIL_ASSETS_V2/08_Inventory/Weapons/INV_Handgun.glb",
-   "description": "The store manager's handgun, from the office desk. Left-click (or F) to fire. A hit drives off what roams outside - it will not stop everything."
+   "description": "The store manager's handgun, from the office desk. H draws or holsters it. Drawn: left-click (or F) fires, right-click aims, R reloads from the rounds you carry. A hit makes things flinch and buys time; roaming creatures may back off. It will not kill anything. Bullets are rare."
   },
   "handgun_ammo": {
    "name": "Handgun Ammo",
    "category": "weapon",
    "weight": 0.2,
    "model": "res://THE_VEIL_ASSETS_V2/08_Inventory/Weapons/INV_AmmoBox.glb",
-   "description": "A box of rounds for the handgun (6)."
+   "description": "A box of rounds for the handgun (6).",
+   "rounds": 6
+  },
+  "handgun_rounds": {
+   "name": "Loose Rounds",
+   "category": "weapon",
+   "weight": 0.05,
+   "model": "res://THE_VEIL_ASSETS_V2/08_Inventory/Weapons/INV_AmmoBox.glb",
+   "description": "A few loose rounds for the handgun.",
+   "rounds": 2
+  },
+  "handgun_round": {
+   "name": "A Single Round",
+   "category": "weapon",
+   "weight": 0.02,
+   "model": "res://THE_VEIL_ASSETS_V2/08_Inventory/Weapons/INV_AmmoBox.glb",
+   "description": "One round for the handgun.",
+   "rounds": 1
   }
  },
  "carry_capacity_kg": 15.0,
