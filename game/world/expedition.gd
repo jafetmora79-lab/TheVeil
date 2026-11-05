@@ -48,8 +48,8 @@ func setup(w: Node) -> void:
 	var m: Node3D = world.market
 	its["exit"] = _spot("EXP_PlanTrip", m.global_transform * EXIT_SPOT, Vector3(1.6, 1.6, 0.4), _use_exit, m.global_transform.basis)
 	its["outside"] = _spot("EXP_OpenDoors", m.global_transform * OUTSIDE_SPOT, Vector3(3.0, 2.2, 0.6), _use_outside, m.global_transform.basis)
-	for c in cfg.get("caches", []):
-		_cache(c, "exp/cache_" + String(c["id"]), String(c["item"]), String(c.get("label", "")), "", 1.0)
+	_day = _today()
+	_spawn_caches()
 	for c in cfg.get("vehicle_parts", []):
 		_cache(c, "exp/part_" + String(c["id"]), String(c["item"]), "", String(c["model"]), float(c.get("scale", 1.0)))
 	VeilRestPoint.supply_gate = sleep_gate
@@ -269,11 +269,43 @@ func sleep_gate() -> String:
 		secure()
 	var n := supply_need()
 	if n["food"] < n["need"] or n["water"] < n["need"]:
-		return "Not enough for everyone tonight: food %d / %d, water %d / %d. Deposit supplies or go scavenging." % [n["food"], n["need"], n["water"], n["need"]]
+		var carried := 0
+		for id in Game.inventory:
+			if Game.shelter_resource(id) in ["food", "water"]:
+				carried += 1
+		var m: Node3D = world.market
+		if carried > 0:
+			world._beacon("supplies_hint", m.global_transform * Vector3(7.8, 1.4, 6.05), Color(0.6, 1.0, 0.7))
+			return "Not enough food and water for everyone tonight (food %d / %d, water %d / %d). You are carrying %d - put them in the SHELTER SUPPLIES by the service desk (lit), or go out for more." % [n["food"], n["need"], n["water"], n["need"], carried]
+		world._beacon("supplies_hint", m.global_transform * EXIT_SPOT, Color(0.6, 1.0, 0.7))
+		return "Not enough food and water for everyone tonight (food %d / %d, water %d / %d). Plan a supply run at the front doors (lit): food and water lie around the lot and the houses behind the store." % [n["food"], n["need"], n["water"], n["need"]]
+	world._clear_beacon("supplies_hint")
 	return ""
 
 
 # ------------------------------------------------------------------ one-time caches and car parts
+## Supply finds restock every new day (each one-time per day): the shelter needs food and water every night, and a
+## town picked clean by the second night would leave no way to keep going.
+var _day := -1
+var _cache_nodes: Array = []
+
+
+func _today() -> int:
+	return (Game.world_state.get("shelter_nights", {}) as Dictionary).size()
+
+
+func _spawn_caches() -> void:
+	for n in _cache_nodes:
+		if is_instance_valid(n):
+			n.queue_free()
+	_cache_nodes.clear()
+	for c in cfg.get("caches", []):
+		var key := "exp/cache_" + String(c["id"]) + ("" if _day == 0 else "_d%d" % _day)
+		_cache(c, key, String(c["item"]), String(c.get("label", "")), "", 1.0)
+		if its.has(key) and is_instance_valid(its[key]):
+			_cache_nodes.append((its[key] as Node).get_parent())
+
+
 func _cache(c: Dictionary, key: String, item: String, _label: String, model: String, scale: float) -> void:
 	var path := model if model != "" else String(Game.item_info(item).get("model", ""))
 	var ps := load(path) as PackedScene if path != "" else null
@@ -626,6 +658,9 @@ func _prune() -> void:
 # ------------------------------------------------------------------ per tick
 func _process(delta: float) -> void:
 	_danger(delta)
+	if _today() != _day:
+		_day = _today()
+		_spawn_caches()
 	_tick -= delta
 	if _tick > 0.0:
 		return
