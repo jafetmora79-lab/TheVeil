@@ -20,6 +20,8 @@ var speaker_l: Label         ## the speaker's name above every subtitle
 var caption_l: Label         ## location caption (arrival shot)
 const SPEAKER_NAMES := {"": "PROTAGONIST", "Distant voice": "UNKNOWN VOICE"}
 var _hold := 0.0
+const SKIP_HOLD := 0.8                  ## seconds E / the mouse button is held to skip the rest of a conversation
+var skip_progress := 0.0               ## 0..1 while holding to skip (tests)
 var _hold_spent := false
 var title: Label
 var hint: Label
@@ -218,9 +220,14 @@ func _process(_d: float) -> void:
 		_hold = _hold + _d if held else 0.0
 		if not held:
 			_hold_spent = false
-		elif _hold > 0.8 and not _hold_spent:
+		elif _hold > SKIP_HOLD and not _hold_spent:
 			_hold_spent = true
 			Dialogue.skip()
+		# visible skip progress while the button is held (after a short grace, so a normal press shows nothing)
+		if held and not _hold_spent and _hold > 0.15:
+			var n := clampi(int(round((_hold - 0.15) / (SKIP_HOLD - 0.15) * 10.0)), 0, 10)
+			confirm_l.text = "SKIPPING  [" + "#".repeat(n) + "-".repeat(10 - n) + "]"
+		skip_progress = clampf(_hold / SKIP_HOLD, 0.0, 1.0) if held and not _hold_spent else 0.0
 	else:
 		_hold = 0.0
 	click_hint.visible = Input.mouse_mode != Input.MOUSE_MODE_CAPTURED and not is_paused() and not end_panel.visible \

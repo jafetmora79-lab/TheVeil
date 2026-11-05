@@ -147,6 +147,7 @@ func _setup_ruth_sarah() -> void:
 		_door.collision_layer = 0
 		var block := StaticBody3D.new()
 		block.name = "C6_RuthSarahDoorway"
+		block.add_to_group("veil_talk_transparent")    # keeps the player out, not the conversation
 		var cs := CollisionShape3D.new()
 		var bb := BoxShape3D.new()
 		bb.size = Vector3(1.3, 2.2, 0.5)
@@ -367,6 +368,9 @@ func _ruth_sarah() -> void:
 	sarah.visible = true
 	if _door and not _door.is_open:
 		_door.set_open(true)
+	# they talk once the protagonist can actually see them (the yard trigger fires at the fence, where the house
+	# corner still hides the door): the shared talk camera frames Ruth then; plain lines only if that never happens
+	await c5._wait_for(func(): return world.can_talk(ruth), 12.0)
 	c5._talk_start("c6_ruth_sarah", ruth)
 
 
