@@ -152,6 +152,7 @@ func _opening() -> void:
 	Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
 	player.play_wake_up(4.6)
 	await get_tree().create_timer(1.0).timeout
+	hud.chapter_start(1, 2.8)                     # CHAPTER 1 (upper screen) with the time card below it
 	hud.title_card("FRIDAY  —  6:42 PM", 2.4)
 	await hud.fade_to(0.0, 3.0)
 	Dialogue.say("wake", true)
@@ -955,6 +956,7 @@ func _arrival_shot() -> void:
 	Game.set_flag("arrival_shot")
 	sedan.speed_cap = ARRIVAL_SPEED
 	Dialogue.say("town", true)
+	hud.chapter_start(2, 2.6)                     # upper screen: the zoom's target (the sign) stays clear
 	await focus_shot(market.global_transform * Vector3(0.0, 4.2, -0.3), 30.0, 2.0, 1.6, "GREYHAVEN MARKET")
 	sedan.speed_cap = -1.0
 
@@ -1397,6 +1399,7 @@ func _p3_start_mist() -> void:
 		return
 	Game.set_flag("phase2_done")
 	Game.set_flag("p3_mist")
+	hud.chapter_start(3)
 	hud.set_hint("")
 	_clear_beacon("market")
 	if cashier:
@@ -2582,6 +2585,8 @@ var _p3_followers: Array = []
 
 func _p3_flee_together() -> void:
 	_p3_npcs_moved = true
+	Game.set_flag("p3_fled_together")             # the run to the supermarket begins (chapter 4)
+	hud.chapter_start(4)
 	for pair in [[eddie, 1.6], [marcus, 2.8]]:
 		var n: Node3D = pair[0]
 		if n == null:

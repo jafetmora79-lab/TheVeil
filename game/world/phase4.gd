@@ -91,6 +91,7 @@ func begin(w: Node, restoring: bool) -> void:
 		_attach_flashlight()
 	if not Game.has_flag("p4_started"):
 		Game.set_flag("p4_started")
+		hud.chapter_start(5)
 		_apply()
 		Dialogue.say("p4_start", false, true)
 		world._beacon("p4", market.global_transform * (SERVICE_FLASHLIGHT + Vector3(0, 0.8, 0)), Color(0.8, 0.9, 1.0))

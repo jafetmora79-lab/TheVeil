@@ -88,6 +88,7 @@ func begin(w: Node, chapter5: Node, restoring: bool) -> void:
 	Dialogue.choices_offered.connect(_on_choices)
 	if not Game.has_flag("ch6_started"):
 		Game.set_flag("ch6_started")
+		_title.call_deferred()
 	_apply(restoring)
 	if Game.has_flag("ch6_rested"):
 		_start_chapter7(true)
@@ -103,6 +104,11 @@ func _start_chapter7(restoring: bool) -> void:
 	chapter7.name = "Chapter7"
 	add_child(chapter7)
 	chapter7.begin(world, self, restoring)
+
+
+func _title() -> void:
+	await get_tree().create_timer(2.6).timeout       # after the wake-up fade
+	await hud.chapter_start(7)
 
 
 func st() -> Dictionary:
@@ -713,7 +719,7 @@ func _report() -> void:
 	if p4.rest:
 		p4.rest.get_parent().visible = true
 		p4.rest.interactable.prompt_text = "[E] Sleep"
-	await hud.title_card("CHAPTER 6 COMPLETE  -  VOICES IN THE MIST", 3.2)
+	await hud.chapter_complete(7)
 
 
 func _on_rest(_id: String) -> void:

@@ -94,7 +94,7 @@ func _start_chapter8(restoring: bool) -> void:
 
 func _title() -> void:
 	await get_tree().create_timer(2.6).timeout       # after the wake-up fade
-	await hud.title_card("CHAPTER 7  -  A TRACE OF NOAH", 2.6)
+	await hud.chapter_start(8)
 
 
 func st() -> Dictionary:
@@ -477,7 +477,7 @@ func _report() -> void:
 	if p4.rest:
 		p4.rest.get_parent().visible = true
 		p4.rest.interactable.prompt_text = "[E] Sleep"
-	await hud.title_card("CHAPTER 7 COMPLETE  -  A TRACE OF NOAH", 3.2)
+	await hud.chapter_complete(8)
 
 
 func _on_rest(_id: String) -> void:

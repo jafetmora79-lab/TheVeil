@@ -70,6 +70,8 @@ func _ready() -> void:
 	caption_l.modulate.a = 0.0
 	title = _centered_label("", 34, 0.5, 0.42)
 	title.modulate.a = 0.0
+	chapter_l = _centered_label("", 26, 0.5, 0.17)        # chapter titles: upper screen, clear of signs and subtitles
+	chapter_l.modulate.a = 0.0
 	hint = _centered_label("", 15, 0.5, 0.965)
 	hint.add_theme_color_override("font_color", VeilUI.MUTED)
 	speed_l = VeilUI.label("", 16, VeilUI.MUTED)
@@ -281,6 +283,31 @@ func location_caption(text: String, hold := 2.2) -> void:
 	await tw.finished
 
 
+## Chapter title (start) or completion card, numbered from game/data/chapters.json. A start card shows once per
+## playthrough (flag chapter_card_<n>), never again after a load.
+var chapter_l: Label
+
+
+func chapter_start(n: int, hold := 2.6) -> void:
+	if Game.has_flag("chapter_card_%d" % n):
+		return
+	Game.set_flag("chapter_card_%d" % n)
+	await _chapter_card(Game.chapter_label(n), hold)
+
+
+func chapter_complete(n: int, hold := 3.2) -> void:
+	await _chapter_card(Game.chapter_label(n, true), hold)
+
+
+func _chapter_card(text: String, hold: float) -> void:
+	chapter_l.text = text
+	var tw := create_tween()
+	tw.tween_property(chapter_l, "modulate:a", 1.0, 0.9)
+	tw.tween_interval(hold)
+	tw.tween_property(chapter_l, "modulate:a", 0.0, 1.2)
+	await tw.finished
+
+
 func title_card(text: String, hold := 2.6) -> void:
 	title.text = text
 	var tw := create_tween()
@@ -416,6 +443,8 @@ func _build_pause() -> void:
 	v.add_theme_constant_override("separation", 12)
 	p.add_child(v)
 	v.add_child(VeilUI.label("PAUSED", 26))
+	pause_chapter_l = VeilUI.label("", 15, VeilUI.MUTED)        # the chapter the player is in
+	v.add_child(pause_chapter_l)
 	var b1 := VeilUI.button("Resume")
 	b1.pressed.connect(func(): set_paused(false))
 	var b2 := VeilUI.button("Save Game")
@@ -444,8 +473,13 @@ func _build_pause() -> void:
 	root.add_child(pause_panel)
 
 
+var pause_chapter_l: Label
+
+
 func set_paused(on: bool) -> void:
 	pause_panel.visible = on
+	if on and pause_chapter_l:
+		pause_chapter_l.text = Game.chapter_name(Game.chapter_number())
 	settings.visible = false
 	for c in pause_panel.get_children():
 		if c is PanelContainer and not (c is SettingsPanel):

@@ -22,6 +22,8 @@ var vehicle_state := {}
 var items := {}
 var objectives: Array = []
 var goals := {}
+## game/data/chapters.json: the displayed chapter numbers and titles (one central mapping)
+var chapters: Array = []
 var settings := {"mouse_sensitivity": 0.22, "master_volume": 0.8, "fullscreen": false, "head_bob": true}
 ## set by the menu: the world reads it on start (true = restore the save instead of a new game)
 var load_requested := false
@@ -63,6 +65,7 @@ func _load_data() -> void:
 	var od: Dictionary = _read_json("res://game/data/objectives.json")
 	objectives = od.get("steps", [])
 	goals = od.get("goals", {})
+	chapters = (_read_json("res://game/data/chapters.json") as Dictionary).get("chapters", [])
 
 
 func _read_json(path: String) -> Variant:
@@ -96,6 +99,43 @@ func set_flag(f: String) -> void:
 	print("[Game] flag ", f)
 	flag_set.emit(f)
 	_emit_objective()
+
+
+# ------------------------------------------------------------------ chapters (displayed numbering)
+## The chapter the story is in: the highest one whose start flags include a set flag (flags of a save work too).
+func chapter_number(from_flags: Variant = null) -> int:
+	var f: Dictionary = flags if from_flags == null else from_flags
+	var n := 1
+	for c in chapters:
+		for flag in c.get("start", []):
+			if f.get(flag, false):
+				n = maxi(n, int(c["n"]))
+	return n
+
+
+func chapter_title(n: int) -> String:
+	for c in chapters:
+		if int(c["n"]) == n:
+			return String(c["title"])
+	return ""
+
+
+## "CHAPTER 9  —  SOMETHING AT THE DOORS" / "CHAPTER 9 COMPLETE  —  SOMETHING AT THE DOORS"
+func chapter_label(n: int, complete := false) -> String:
+	return "CHAPTER %d%s  —  %s" % [n, " COMPLETE" if complete else "", chapter_title(n).to_upper()]
+
+
+## "Chapter 9: Something at the Doors" (menus)
+func chapter_name(n: int) -> String:
+	return "Chapter %d: %s" % [n, chapter_title(n)]
+
+
+## The chapter a save on disk is in (main menu); "" without a valid save.
+func saved_chapter_name() -> String:
+	if not has_save():
+		return ""
+	var d: Variant = _read_save()
+	return chapter_name(chapter_number(d.get("flags", {}))) if d is Dictionary else ""
 
 
 func current_step() -> Dictionary:
@@ -190,7 +230,7 @@ func _read_save() -> Variant:
 
 ## The world fills player_state / vehicle_state before calling this.
 func save_game() -> bool:
-	var d := {"version": SAVE_VERSION, "flags": flags, "inventory": inventory, "world_state": world_state,
+	var d := {"version": SAVE_VERSION, "chapter": chapter_number(), "chapter_name": chapter_name(chapter_number()), "flags": flags, "inventory": inventory, "world_state": world_state,
 		"player": player_state, "vehicle": vehicle_state, "play_time": play_time,
 		"saved_at": Time.get_datetime_string_from_system()}
 	var f := FileAccess.open(SAVE_PATH, FileAccess.WRITE)

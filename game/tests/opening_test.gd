@@ -88,6 +88,8 @@ func phase4_tests(game, ps: PackedScene) -> void:
 	var p4 = world.phase4
 	ok("p4_started", p4 != null and game.has_flag("p4_started") and game.current_step().get("id", "") == "p4_flashlight",
 		game.current_step().get("id", ""))
+	ok("chapter5_title_lock_in", game.has_flag("chapter_card_5") and world.hud.chapter_l.text == game.chapter_label(5) and game.chapter_number() == 5,
+		"%d %s" % [game.chapter_number(), world.hud.chapter_l.text])
 	var lit := 0
 	for l in mk.get_node("Lights").get_children():
 		if l is Light3D and l.visible:
@@ -307,6 +309,8 @@ func _run() -> void:
 	ok("player_in_bedroom", player.global_position.distance_to((home.get_node("Markers/Spawn_WakeUp") as Node3D).global_position) < 0.6)
 	ok("controls_after_wake", player.controls_enabled)
 	ok("objective_kitchen", game.current_step().get("id", "") == "check_kitchen")
+	ok("chapter1_title_on_waking", game.has_flag("chapter_card_1") and world.hud.chapter_l.text == game.chapter_label(1) and game.chapter_number() == 1,
+		"%d %s" % [game.chapter_number(), world.hud.chapter_l.text])
 	# ---- collision: a closed bedroom door blocks the player
 	var bd = world.interactables.get("home/INT_Door_Bedroom")
 	ok("bedroom_door", bd != null)
@@ -509,6 +513,8 @@ func _run() -> void:
 				break
 	ok("arrival_shot_while_driving", game.has_flag("arrival_shot") and arrival_min_kmh < 7.0 and arrival_min_kmh > 1.0 and arrival_flag_before_park,
 		"slowest in front of the store %.1f km/h (target 5)" % arrival_min_kmh)
+	ok("chapter2_title_on_arrival", game.has_flag("chapter_card_2") and world.hud.chapter_l.text == game.chapter_label(2) and game.chapter_number() == 2,
+		"%d %s" % [game.chapter_number(), world.hud.chapter_l.text])
 	var pr: Dictionary = world.park_report
 	ok("auto_reverse_park", game.has_flag("auto_parked") and pr.get("ok", false) and pr.get("pos_err", 9.0) < 0.35
 		and pr.get("yaw_err_deg", 99.0) < 6.0 and pr.get("max_dev", 9.0) < 0.6, str(pr))
@@ -734,6 +740,8 @@ func _run() -> void:
 	await frames(20)
 	ok("p3_mist_starts_inside", game.has_flag("p3_mist") and game.has_flag("phase2_done") and world.atmos != null and not world._outdoors())
 	ok("p3_cashier_gone", not world.cashier.visible)
+	ok("chapter3_title_mist", game.has_flag("chapter_card_3") and world.hud.chapter_l.text == game.chapter_label(3) and game.chapter_number() == 3,
+		"%d %s" % [game.chapter_number(), world.hud.chapter_l.text])
 	ok("p3_marcus_before_colossus", world.marcus != null and world.marcus.is_visible_in_tree() and world.marcus.get_parent() == world.game_shop)
 	ok("p3_objective_look", game.current_step().get("id", "") == "p3_look", game.current_step().get("id", ""))
 	ok("survival_hidden_before", not world.hud.surv.visible and not player.survival_active)
@@ -837,6 +845,8 @@ func _run() -> void:
 		player.global_position = s_out + (s_out - s_in).normalized() * float(k)
 		await frames(6)
 	ok("p3_flee_together", world._p3_followers.size() == 2 and world._p3_followers.all(func(f): return f.active))
+	ok("chapter4_title_leaving_shop", game.has_flag("chapter_card_4") and world.hud.chapter_l.text == game.chapter_label(4) and game.chapter_number() == 4,
+		"%d %s" % [game.chapter_number(), world.hud.chapter_l.text])
 	var leg_min := 999.0
 	var leg_max := -999.0
 	for i in 12:

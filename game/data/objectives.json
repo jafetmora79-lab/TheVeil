@@ -9,7 +9,8 @@
   "act2_search": "The First Search",
   "act2_voices": "Voices in the Mist",
   "act2_trace": "A Trace of Noah",
-  "act3_doors": "Something at the Doors"
+  "act3_doors": "Something at the Doors",
+  "act3_fall": "The Fall of the Supermarket"
  },
  "steps": [
   {
@@ -190,7 +191,7 @@
    "id": "c5_complete",
    "flag": "ch6_started",
    "goal": "act2_search",
-   "text": "Chapter 5 complete - The First Search"
+   "text": "Chapter 6 complete - The First Search"
   },
   {
    "id": "c6_marcus",
@@ -256,7 +257,7 @@
    "id": "c6_complete",
    "flag": "ch7_started",
    "goal": "act2_voices",
-   "text": "Chapter 6 complete - Voices in the Mist"
+   "text": "Chapter 7 complete - Voices in the Mist"
   },
   {
    "id": "c7_marcus",
@@ -316,7 +317,7 @@
    "id": "c7_complete",
    "flag": "ch8_started",
    "goal": "act2_trace",
-   "text": "Chapter 7 complete - A Trace of Noah"
+   "text": "Chapter 8 complete - A Trace of Noah"
   },
   {
    "id": "c8_eddie",
@@ -376,7 +377,49 @@
    "id": "c8_complete",
    "flag": "ch9_started",
    "goal": "act3_doors",
-   "text": "Chapter 8 complete - Something at the Doors"
+   "text": "Chapter 9 complete - Something at the Doors"
+  },
+  {
+   "id": "c9_marcus",
+   "flag": "ch9_marcus_talked",
+   "goal": "act3_fall",
+   "text": "Talk to Marcus"
+  },
+  {
+   "id": "c9_gather",
+   "flag": "ch9_prepared",
+   "goal": "act3_fall",
+   "text": "Gather essential supplies"
+  },
+  {
+   "id": "c9_warning",
+   "flag": "ch9_fall_started",
+   "goal": "act3_fall",
+   "text": "Stay with the group"
+  },
+  {
+   "id": "c9_escape",
+   "flag": "ch9_escaped",
+   "goal": "act3_fall",
+   "text": "Escape the supermarket"
+  },
+  {
+   "id": "c9_rendezvous",
+   "flag": "ch9_rendezvous_reached",
+   "goal": "act3_fall",
+   "text": "Reach the temporary rendezvous point"
+  },
+  {
+   "id": "c9_regroup",
+   "flag": "chapter_9_complete",
+   "goal": "act3_fall",
+   "text": "Regroup with the survivors"
+  },
+  {
+   "id": "c9_complete",
+   "flag": "ch10_started",
+   "goal": "act3_fall",
+   "text": "Chapter 10 complete - The Fall of the Supermarket"
   }
  ],
  "_comment": "Steps complete in list order for display, but each errand step only checks its own flag, so the supermarket and the game shop can be done in either order (the bible leaves the stop order open). Phase 3 (mist_*) is a WORKING DRAFT sequence of Act I's opening.",
