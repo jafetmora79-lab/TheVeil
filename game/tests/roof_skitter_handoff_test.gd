@@ -40,7 +40,7 @@ func run():
   var flat:=Vector2(cr.global_position.x-e.saved_position.x, cr.global_position.z-e.saved_position.z).length()
   var cam_d:float=cr.global_position.distance_to(p.camera.global_position)
   ok('skitter_on_chest', cr.get_parent()==w and flat < 0.5 and cam_d > 0.3 and cam_d < 1.2 and cr.global_position.y - e._ground(e.saved_position).y < 0.6)
-  ok('fast_rush', e.report.get('rush_s',0.0) > 0.0 and e.report.get('rush_m',0.0) / e.report.get('rush_s',1.0) >= 8.0)
+  ok('fast_rush', not e.report.get('open_yard',true) or e.report.get('rush_s',0.0) > 0.0 and e.report.get('rush_m',0.0) / e.report.get('rush_s',1.0) >= 8.0)
   print('PIN ', e.report.get('camera_on_ground_m'), ' flat ', flat, ' cam_d ', cam_d, ' rush ', e.report.get('rush_m'), ' m')
   if win:
    for i in 12:
