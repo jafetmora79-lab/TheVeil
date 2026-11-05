@@ -27,6 +27,7 @@ var _event_t := 0.0
 var _hint_t := 0.0
 var _early := {}
 var _busy := false
+var _recovered := false                   # one out-of-sight recovery per trip; a second separation is abandonment
 var report := {"walks": 0, "events": [], "talks": 0, "recoveries": 0}   ## tests
 
 
@@ -35,6 +36,12 @@ func setup(w: Node) -> void:
 	var f := FileAccess.open(CFG, FileAccess.READ)
 	cfg = JSON.parse_string(f.get_as_text()) if f else {}
 	var s := st()
+	# JSON loads numbers as floats: keep trust / morale / nights whole numbers
+	for n in s["trust"]:
+		s["trust"][n] = int(s["trust"][n])
+	s["morale"] = int(s["morale"])
+	s["nights"] = int(s["nights"])
+	s["empty_trips"] = int(s["empty_trips"])
 	# an older save: story flags already set count once (silently); past nights are not replayed
 	for flag in Game.flags:
 		_apply_flag(String(flag), true)
@@ -414,6 +421,7 @@ func begin_trip(n: String) -> void:
 	var s := st()
 	s["companion"] = n
 	_early = {}
+	_recovered = false
 	_hint_t = 3.0
 	if n == "":
 		return
@@ -496,7 +504,8 @@ func _companion_tick(delta: float) -> void:
 		return
 	var cam := world.get_viewport().get_camera_3d()
 	var seen: bool = cam != null and cam.is_position_in_frustum(follow.npc.global_position + Vector3(0, 1, 0))
-	if follow.lag() > 22.0 and not seen and not world.in_car:
+	if follow.lag() > 22.0 and not seen and not world.in_car and not _recovered:
+		_recovered = true
 		follow.recover_behind(3.0)                           # separated (stuck or lost): back on the trail, unseen
 		report["recoveries"] += 1
 	_hint_t -= delta
