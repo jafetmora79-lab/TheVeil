@@ -17,6 +17,7 @@ boot_splash/show_image=false
 Game="*res://game/autoload/game_state.gd"
 Dialogue="*res://game/autoload/dialogue.gd"
 Sfx="*res://game/autoload/sfx.gd"
+TouchControls="*res://game/ui/touch_controls.gd"
 
 [display]
 
