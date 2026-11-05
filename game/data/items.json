@@ -222,6 +222,20 @@
    "weight": 0.01,
    "model": "res://THE_VEIL_ASSETS_V2/08_Inventory/Story_Items/INV_FoldedNote.glb",
    "description": "Folded small, left under a stone by the road:\n'Tried the west road. Tried the river. The fog was always there first. If you find this, don't go back to the town. Go under it.'"
+  },
+  "handgun": {
+   "name": "Handgun",
+   "category": "weapon",
+   "weight": 0.9,
+   "model": "res://THE_VEIL_ASSETS_V2/08_Inventory/Weapons/INV_Handgun.glb",
+   "description": "The store manager's handgun, from the office desk. Left-click (or F) to fire. A hit drives off what roams outside - it will not stop everything."
+  },
+  "handgun_ammo": {
+   "name": "Handgun Ammo",
+   "category": "weapon",
+   "weight": 0.2,
+   "model": "res://THE_VEIL_ASSETS_V2/08_Inventory/Weapons/INV_AmmoBox.glb",
+   "description": "A box of rounds for the handgun (6)."
   }
  },
  "carry_capacity_kg": 15.0,

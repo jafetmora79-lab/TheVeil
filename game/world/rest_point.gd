@@ -16,7 +16,8 @@ var can_rest: Callable = Callable()
 ## Survival rule shared by every rest point (set by the expedition controller): returns "" when the group has
 ## enough to eat and drink tonight, otherwise the reason (shown as a hint; sleeping is refused).
 static var supply_gate: Callable = Callable()
-var supply_refusals := 0                ## tests
+var supply_refusals := 0
+var hungry_nights := 0                ## tests
 var interactable: Interactable
 var choice: VeilChoicePanel
 var hud: Node
@@ -55,12 +56,26 @@ func request() -> void:
 			if hud and hud.has_method("set_hint"):
 				hud.set_hint(why)                  # (not the story's "not tired" refusal: this is about supplies)
 			supply_refusals += 1
+			# never a dead end: sleeping hungry is allowed (the night's shortfall costs morale)
+			_busy = true
+			var k: int = await choice.ask("NOT ENOUGH FOR EVERYONE TONIGHT", ["Not yet - I'll find more", "Sleep anyway - some of us go hungry"], player)
+			_busy = false
+			if k != 1:
+				return
+			hungry_nights += 1
+			_busy = true
+			_sleep_now()
 			return
 	_busy = true
 	var i: int = await choice.ask(confirm_title, ["Sleep", "Not yet"], player)
 	if i != 0:
 		_busy = false
 		return
+	_sleep_now()
+
+
+func _sleep_now() -> void:
+	_busy = true
 	if player:
 		player.set("controls_enabled", false)
 	await hud.fade_to(1.0, 2.0)
