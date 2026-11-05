@@ -3215,7 +3215,13 @@ func deposit_shelter_item(id: String) -> bool:
 
 var _restoring_survivors := false
 
-func save() -> void:
+## A chapter checkpoint (user://checkpoints/<name>.json): the same contents as a save, in its own file, so the
+## player's own save slot is never overwritten by the story.
+func save_checkpoint(checkpoint: String) -> void:
+	save(Game.checkpoint_path(checkpoint))
+
+
+func save(path := "") -> void:
 	var positions := {}
 	for speaker in animators:
 		var body := (animators[speaker] as NpcAnimator).root as VeilSurvivorBody
@@ -3228,7 +3234,7 @@ func save() -> void:
 	var p := player.global_position
 	Game.player_state = {"in_vehicle": in_car, "pos": [p.x, p.y, p.z], "yaw": player.rotation.y, "health": player.health}
 	Game.vehicle_state = sedan.state()
-	Game.save_game()
+	Game.save_game(path if path != "" else Game.SAVE_PATH)
 
 
 func _restore() -> bool:

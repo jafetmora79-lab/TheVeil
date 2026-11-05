@@ -229,11 +229,38 @@ func _read_save() -> Variant:
 
 
 ## The world fills player_state / vehicle_state before calling this.
-func save_game() -> bool:
+## Chapter checkpoints are separate files: they never overwrite the player's own save (SAVE_PATH).
+const CHECKPOINT_DIR := "user://checkpoints/"
+
+
+func checkpoint_path(checkpoint: String) -> String:
+	return CHECKPOINT_DIR + checkpoint + ".json"
+
+
+## Load a chapter checkpoint into memory (the world then restores from it like from the save).
+func load_checkpoint(checkpoint: String) -> bool:
+	var f := FileAccess.open(checkpoint_path(checkpoint), FileAccess.READ)
+	if f == null:
+		return false
+	var d: Variant = JSON.parse_string(f.get_as_text())
+	if not (d is Dictionary) or d.get("version", 0) != SAVE_VERSION:
+		return false
+	flags = d.get("flags", {})
+	inventory = d.get("inventory", [])
+	world_state = d.get("world_state", {})
+	player_state = d.get("player", {})
+	vehicle_state = d.get("vehicle", {})
+	play_time = d.get("play_time", 0.0)
+	return true
+
+
+func save_game(path := SAVE_PATH) -> bool:
 	var d := {"version": SAVE_VERSION, "chapter": chapter_number(), "chapter_name": chapter_name(chapter_number()), "flags": flags, "inventory": inventory, "world_state": world_state,
 		"player": player_state, "vehicle": vehicle_state, "play_time": play_time,
 		"saved_at": Time.get_datetime_string_from_system()}
-	var f := FileAccess.open(SAVE_PATH, FileAccess.WRITE)
+	if path != SAVE_PATH:
+		DirAccess.make_dir_recursive_absolute(path.get_base_dir())
+	var f := FileAccess.open(path, FileAccess.WRITE)
 	if f == null:
 		return false
 	f.store_string(JSON.stringify(d, "\t"))

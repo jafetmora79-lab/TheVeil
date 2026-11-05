@@ -686,3 +686,31 @@ arrives inside the game shop (the owner's case).
   * The next chapter is not started.
   * Dev entry: `game/tools/dev_chapter9.gd`. Test: `game/tests/chapter9_test.gd` (also the numbering, save and menu
     labels).
+
+### 9.17 Chapter 11 "No Safe Road" (branch `claude/chapter10-no-safe-road`; code `chapter10.gd`, flags `ch10_*`)
+* **Numbering:** the owner's prompt called this "Chapter 10". With the corrected mapping it displays as
+  **CHAPTER 11** (`game/data/chapters.json`, start flag `ch10_started`). It starts at the rendezvous right after
+  "CHAPTER 10 COMPLETE"; there is no sleep in between, because the supermarket is gone.
+* **The route** (all existing town geometry):
+  * the street, the open lot and the main road;
+  * the abandoned sedan (`VEH_Sedan_Dusty`) at (-28, 4): the driver's door, then the fuel gauge (empty), the glove
+    compartment (1 battery) and the trunk (1 water), each once;
+  * the roadblock at x -46: a broken-down van, a pickup and barriers between the roadside building (z -7) and the
+    south wall (z 7);
+  * the side route: through the gap at x -28, behind the building, through the gate in a chain-link fence at x -44,
+    back to the road;
+  * the follower: a Hound silhouette crosses the fog and goes behind the building block, first person, no fight;
+  * Sarah's choice (`ch10_choice_help` / `ch10_choice_push`):
+    * help: an hour passes and one water or food item is used, or `ch10_exposure` is set if there is none;
+    * push: `ch10_sarah_exhausted`;
+    * her line follows the Chapter 9 treatment (tired, or her wound);
+  * the outskirts and the mill-worker house (`MILL_HOUSE`, -92, 14): front door, main room, the group gathers, the
+    talk, rest (a few hours, +30 health), the window, a distant unexplained call, then "CHAPTER 11 COMPLETE".
+* **Roster:** Marcus appears only if he was saved in the evacuation; his line becomes the protagonist's line
+  otherwise.
+* **Checkpoints:**
+  * `world.save_checkpoint(name)` writes `user://checkpoints/<name>.json` (`chapter11_start`, `chapter11_end`),
+    never `user://veil_save.json`. `Game.load_checkpoint(name)` reads one.
+  * Note: the game's existing autosave on every story flag (`world._on_flag`, used by the death retry) still writes
+    the main slot during normal play. That behaviour predates this chapter and is unchanged.
+* **Dev entry and test:** `game/tools/dev_chapter10.gd`; `game/tests/chapter10_test.gd`.
