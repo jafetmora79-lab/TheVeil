@@ -10,8 +10,9 @@ var _ambience: AudioStreamPlayer
 
 
 func _ready() -> void:
-	_streams["step"] = _make(0.11, func(t, i): return _noise(i) * exp(-t * 55.0) * 0.55 + sin(TAU * 70.0 * t) * exp(-t * 40.0) * 0.4)
-	_streams["step_soft"] = _make(0.1, func(t, i): return _noise(i) * exp(-t * 70.0) * 0.3)
+	# a shoe on a hard floor: a dull heel thud, then the sole rolling down (a short gritty scuff ~45 ms later)
+	_streams["step"] = _make(0.2, func(t, i): return _step_wave(t, i, 1.0))
+	_streams["step_soft"] = _make(0.18, func(t, i): return _step_wave(t, i, 0.45))
 	_streams["door_open"] = _make(0.55, func(t, i): return sin(TAU * (210.0 + 90.0 * sin(t * 9.0)) * t) * 0.18 * exp(-t * 3.0) * (0.6 + 0.4 * sin(t * 140.0)) + _noise(i) * 0.05 * exp(-t * 6.0))
 	_streams["door_close"] = _make(0.25, func(t, i): return (_noise(i) * 0.5 + sin(TAU * 95.0 * t) * 0.6) * exp(-t * 28.0))
 	_streams["pickup"] = _make(0.18, func(t, i): return (sin(TAU * 1450.0 * t) + sin(TAU * 2210.0 * t) * 0.6) * exp(-t * 22.0) * 0.25)
@@ -43,6 +44,15 @@ func _amb(t: float, i: int) -> float:
 		if dt > 0.0 and dt < 0.12:
 			chirp += sin(TAU * (3200.0 + 1800.0 * dt / 0.12) * dt) * 0.05 * sin(PI * dt / 0.12)
 	return wind + chirp
+
+
+static func _step_wave(t: float, i: int, k: float) -> float:
+	var heel := sin(TAU * (95.0 - 40.0 * t) * t) * exp(-t * 48.0) * 0.55 + _noise(i) * exp(-t * 90.0) * 0.35
+	var t2 := t - 0.045
+	var toe := 0.0
+	if t2 > 0.0:
+		toe = (_noise(i * 7 + 3) * 0.5 + _noise(i) * 0.2) * exp(-t2 * 60.0) * (0.6 + 0.4 * sin(t2 * 900.0)) * 0.5
+	return (heel + toe) * k
 
 
 static func _noise(i: int) -> float:
