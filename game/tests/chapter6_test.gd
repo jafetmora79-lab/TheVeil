@@ -414,7 +414,7 @@ func _run() -> void:
 	c6.its["npc_Marcus"].interact(world.player)
 	ok("c6_complete", await wait_talk(func(): return game.has_flag("chapter_6_complete"), 120.0))
 	ok("c6_report_invite_line", said.has("Two survivors. Ruth and Sarah. We offered them shelter.") and said.has("Thank God."))
-	ok("c6_complete_card", world.hud.title.text.begins_with("CHAPTER 6 COMPLETE"), world.hud.title.text)
+	ok("c6_complete_card", world.hud.chapter_l.text.begins_with("CHAPTER 7 COMPLETE"), world.hud.chapter_l.text)
 	ok("c6_no_chapter7", not game.has_flag("ch7_started") and game.current_step().get("id", "") == "c6_complete")
 	await reload()
 	ok("c6_load_complete", game.has_flag("chapter_6_complete") and c6.hound == null and c6.ruth.visible

@@ -458,7 +458,7 @@ func _run() -> void:
 	ok("c5_marcus_reach_back", await aim(c5.its["npc_Marcus"], [Z, -Z, X, -X], mk, 1.4))
 	c5.its["npc_Marcus"].interact(world.player)
 	ok("c5_reported", await wait_talk(func(): return game.has_flag("c5_reported") and game.has_flag("c5_complete"), 90.0))
-	ok("c5_complete_card", world.hud.title.text.begins_with("CHAPTER 5 COMPLETE"), world.hud.title.text)
+	ok("c5_complete_card", world.hud.chapter_l.text == game.chapter_label(6, true) and world.hud.chapter_l.text.begins_with("CHAPTER 6 COMPLETE"), world.hud.chapter_l.text)
 	await frames(3)
 	ok("c5_marker_cleared", c5.marker_target == null and not world.hud.marker_visible)
 	ok("c5_no_chapter6", not game.has_flag("ch6_started") and game.current_step().get("id", "") == "c5_complete")

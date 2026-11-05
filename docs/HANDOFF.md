@@ -636,3 +636,53 @@ arrives inside the game shop (the owner's case).
   * Ruth and Sarah (if not invited in Chapter 6) and the Chapter 5 survivor (if not helped) arrive at the
     shelter during the night before Chapter 8, so the approved script plays in every branch (`st().ruth_sarah_arrived`).
   * Dev entry: `game/tools/dev_chapter8.gd`. Test: `game/tests/chapter8_test.gd`.
+
+### 9.16 Chapter numbering and Chapter 10 "The Fall of the Supermarket" (branch `claude/chapter9-supermarket-fall`)
+* **Displayed chapter numbers** come from one place, `game/data/chapters.json`, via `Game.chapter_number()`,
+  `chapter_label()` and `chapter_name()`.
+  * The current chapter is the highest one with a set start flag, so existing saves get the right number with no
+    migration.
+  * Internal ids are unchanged: flags, objective ids and `chapterN.gd` file names keep their old numbers.
+
+  | # | Title | Starts at | Code |
+  |---|---|---|---|
+  | 1 | An Ordinary Evening | waking at home | `world.gd` |
+  | 2 | One Last Stop | the town arrival zoom (`arrival_shot`) | `world.gd` |
+  | 3 | The Veil Arrives | `p3_mist` | `world.gd` Phase 3 |
+  | 4 | The Last Open Door | leaving the game shop together (`p3_fled_together`) | `world.gd` Phase 3 |
+  | 5 | Lock-In | `p3_doors_shut` | `phase4.gd` |
+  | 6 | The First Search | `p4_slept` | `chapter5.gd` |
+  | 7 | Voices in the Mist | `ch6_started` | `chapter6.gd` |
+  | 8 | A Trace of Noah | `ch7_started` | `chapter7.gd` |
+  | 9 | Something at the Doors | `ch8_started` | `chapter8.gd` |
+  | 10 | The Fall of the Supermarket | `ch9_started` | `chapter9.gd` |
+* **Where the numbers are shown:**
+  * Start and completion cards use `hud.chapter_start(n)` / `hud.chapter_complete(n)`. They appear in the upper
+    screen, clear of the arrival zoom's sign and the subtitles, and a start card shows once (flag `chapter_card_<n>`).
+  * The pause menu shows the current chapter. The main menu's Continue button shows the saved chapter, and saves
+    store `chapter` / `chapter_name` for display.
+  * Objective completion texts use the corrected numbers.
+* **Chapter 10 (`chapter9.gd`):**
+  * Marcus's decision talk.
+  * Preparation:
+    * the shelter's medical stock becomes real painkiller items;
+    * up to 2 food and 2 water units are packed, never more than exist (an empty stock still progresses, with a
+      warning);
+    * switching the flashlight on checks it;
+    * a word with Eddie, Ruth and Sarah.
+  * The warning: impacts, scraping, flicker, a shape beyond the glass, first person.
+  * The fall: the doorway barricade gives way, a Hound breaks in and stalks the far end of the back aisle, another
+    passes the front doors.
+  * The escape on foot: the group follows through the staff door, the back corridor and the rear exit.
+  * Marcus's moment:
+    * a Hound pins him in the corridor;
+    * trust from `p4_choice_noah` and `marcus_trust_search` gives the player 4 / 8 / 12 s to pull him free;
+    * otherwise he is dragged away in a cut to black. The narrative bible: "Marcus may die during the supermarket
+      evacuation", "his trust depends on actions and dialogue".
+  * A look back, then a roll call that reflects the outcome.
+  * The rendezvous in Ruth and Sarah's front yard, then "CHAPTER 10 COMPLETE".
+  * The store is lost as a shelter: no rest, supplies closed, and the communal stock left behind is recorded as
+    `abandoned_stock`.
+  * The next chapter is not started.
+  * Dev entry: `game/tools/dev_chapter9.gd`. Test: `game/tests/chapter9_test.gd` (also the numbering, save and menu
+    labels).

@@ -293,15 +293,24 @@ Do not turn Noah into a supernatural illusion or false rescue.
 
 ## ACT I — THE ARRIVAL
 
-### Chapter 1 — Ordinary Friday
+Chapter numbering (corrected; the game displays these numbers, from the central mapping in
+`game/data/chapters.json`). The original "Ordinary Friday" chapter is now two chapters: An Ordinary Evening (Chapter 1) and
+One Last Stop (Chapter 2). Every later chapter moved up by one. Internal ids in the code (flags, objective ids, file names
+such as `chapter5.gd`) keep their old numbers.
 
-Apartment exploration, empty refrigerator, car keys, driving, supermarket, and video game store.
+### Chapter 1 — An Ordinary Evening
 
-### Chapter 2 — The Veil Arrives
+Wake up at home at 6:42 PM, explore the house, the empty refrigerator, the car keys, leave home and start the drive into town.
+
+### Chapter 2 — One Last Stop
+
+Arrive in town (the cinematic zoom toward the stores), the supermarket and the video game store.
+
+### Chapter 3 — The Veil Arrives
 
 The mist descends, the Colossus appears, and Greyhaven becomes dangerous.
 
-### Chapter 3 — The Last Open Door
+### Chapter 4 — The Last Open Door
 
 The protagonist, Eddie, and Marcus escape the video game shop area and run together toward the supermarket.
 
@@ -309,27 +318,27 @@ They physically enter the supermarket.
 
 They do not teleport or appear there without explanation.
 
-### Chapter 4 — Lock-In
+### Chapter 5 — Lock-In
 
 Restore emergency lighting, secure entrances, find supplies, experience the first night, and sleep.
 
-Existing implementations of Chapters 1–4 must be preserved and repaired rather than rebuilt.
+Existing implementations of Chapters 1–5 must be preserved and repaired rather than rebuilt.
 
 ## ACT II — THE MISSING
 
-### Chapter 5 — The First Search
+### Chapter 6 — The First Search
 
 First major scavenging expedition.
 
 Learn stealth, supply collection, and returning to shelter.
 
-### Chapter 6 — Voices in the Mist
+### Chapter 7 — Voices in the Mist
 
 Encounter other survivors.
 
 Experience unreliable voices and the first significant pursuit threat.
 
-### Chapter 7 — A Trace of Noah
+### Chapter 8 — A Trace of Noah
 
 Recover Noah's backpack.
 
@@ -337,7 +346,7 @@ Discover evidence that he survived and traveled toward the outskirts.
 
 ## ACT III — NO PLACE IS SAFE
 
-### Chapter 8 — Something at the Doors
+### Chapter 9 — Something at the Doors
 
 Supermarket defenses deteriorate.
 
@@ -345,7 +354,7 @@ A temporary survivor dies in a scripted attack.
 
 Other casualties may be preventable.
 
-### Chapter 9 — The Fall of the Supermarket
+### Chapter 10 — The Fall of the Supermarket
 
 The shelter is compromised.
 
@@ -353,7 +362,7 @@ The group evacuates.
 
 Marcus may survive or die depending on player decisions.
 
-### Chapter 10 — The Other Shelter
+### Chapter 11 — The Other Shelter
 
 The survivors establish a second refuge.
 
@@ -361,7 +370,7 @@ They investigate maps, radio clues, and routes toward the countryside.
 
 ## ACT IV — THE FARMHOUSE
 
-### Chapter 11 — The Road Beyond Town
+### Chapter 12 — The Road Beyond Town
 
 Explore countryside roads.
 
@@ -369,7 +378,7 @@ Avoid creatures.
 
 Discover evidence that Noah reached a farmhouse.
 
-### Chapter 12 — The Farmhouse
+### Chapter 13 — The Farmhouse
 
 Locate Noah.
 
@@ -385,13 +394,13 @@ If Marcus is dead, acknowledge the loss in a separate scene.
 
 ## ACT V — THE LAST CROSSING
 
-### Chapter 13 — The Last Signal
+### Chapter 14 — The Last Signal
 
 Investigate a possible escape route.
 
 Combine radio clues, physical exploration, and survivor knowledge.
 
-### Chapter 14 — The Last Crossing
+### Chapter 15 — The Last Crossing
 
 The survivors make their final decision.
 
@@ -405,7 +414,7 @@ The Veil remains unexplained.
 
 ---
 
-# 10. CHAPTER 3 — APPROVED ESCAPE SEQUENCE CHANGE
+# 10. CHAPTER 4 (formerly 3) — APPROVED ESCAPE SEQUENCE CHANGE
 
 IMPORTANT NEW REQUIREMENT:
 
@@ -430,7 +439,7 @@ Required narrative flow:
 11. The group enters the supermarket through a believable entrance.
 12. Eddie and Marcus move to appropriate interior positions.
 13. The player secures the entrance.
-14. The existing Chapter 4 handoff continues.
+14. The existing Chapter 5 (Lock-In) handoff continues.
 
 Implementation requirements:
 
@@ -450,7 +459,7 @@ Implementation requirements:
 
 This document approves the narrative change only.
 
-The actual implementation must wait for the dedicated Chapter 3 prompt, which will include dialogue, timing, navigation behavior, camera instructions, and acceptance tests.
+The actual implementation must wait for the dedicated Chapter 4 (formerly Chapter 3) prompt, which will include dialogue, timing, navigation behavior, camera instructions, and acceptance tests.
 
 ---
 
