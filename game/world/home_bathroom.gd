@@ -10,12 +10,17 @@ class_name VeilHomeBathroom
 ##    into the mirror (the protagonist's reflection), then control (and the "something to eat" hint) comes back.
 ## All positions are in the home's frame.
 
-const SINK := Vector3(-0.6, 0.6, 9.805)
-const SINK_STAND := Vector3(-0.55, 0.6, 10.45)
-const MIRROR_CAB := Vector3(-0.6, 2.0, 9.632)          # on the door wall (z 9.5), above the sink, facing +z
-const TOWEL_RACK := Vector3(-0.888, 1.8, 10.9)         # side wall (x -1.0), facing +x, above the tub end
+## Room walls (home frame): x -1.0 (left as you come in: the side the door swings to; hinge x -0.19) .. 1.4,
+## z 9.5 (door wall) .. 11.6 (back wall), floor 0.6.
+const WALL_L := -1.0
+const WALL_R := 1.4
+const WALL_BACK := 11.6
+const FLOOR := 0.6
+const SINK_X := 0.5                                   # the back wall, where the tub was
+const SINK_STAND := Vector3(0.5, 0.6, 10.78)          # in front of the sink, facing the mirror (+z)
+const TOWEL_RACK := Vector3(1.288, 1.8, 10.2)         # right wall, facing -x
 const ROUTE := [Vector3(-0.4, 0.6, 7.5), Vector3(-1.6, 0.6, 7.5), Vector3(-1.7, 0.6, 8.95), Vector3(-0.6, 0.6, 8.95),
-	Vector3(0.2, 0.6, 9.1), Vector3(0.2, 0.6, 9.95), SINK_STAND]
+	Vector3(0.25, 0.6, 9.1), Vector3(0.35, 0.6, 10.1), SINK_STAND]
 const EYE := 1.62
 const PROTAG := "res://THE_VEIL_ASSETS_V2/06_Characters/Protagonist/CHR_Protagonist.glb"
 const PROTAG_FACE := "res://THE_VEIL_ASSETS_V2/06_Characters/Facial/Faces/T_Face_Protagonist.png"
@@ -36,17 +41,59 @@ func setup(w: Node, h: Node3D) -> void:
 		return
 	var rack := furn.get_node_or_null("TowelRack_01") as Node3D
 	if rack:
-		rack.transform = Transform3D(Basis(Vector3.UP, PI * 0.5), TOWEL_RACK)
+		rack.transform = Transform3D(Basis(Vector3.UP, -PI * 0.5), TOWEL_RACK)
+	# the tub along the left wall (its back to the wall), from the back wall forwards
+	var tub := furn.get_node_or_null("Bathtub_01") as Node3D
+	if tub:
+		tub.transform = Transform3D(Basis(Vector3.UP, PI * 0.5), Vector3(WALL_L + 0.5, FLOOR, 10.6))
+		_flush(tub, "x-", WALL_L)
+		_flush(tub, "z+", WALL_BACK)
+	# the sink and the mirror cabinet on the back wall, where the tub was, facing into the room
+	var sink := furn.get_node_or_null("BathSink_Pedestal_01") as Node3D
+	if sink:
+		sink.transform = Transform3D(Basis(Vector3.UP, PI), Vector3(SINK_X, FLOOR, WALL_BACK - 0.3))
+		_flush(sink, "z+", WALL_BACK)
+		_center_x(sink, SINK_X)
 	var cab := furn.get_node_or_null("MedicineCabinet_01") as Node3D
 	if cab:
-		cab.transform = Transform3D(Basis(), MIRROR_CAB)
+		cab.transform = Transform3D(Basis(Vector3.UP, PI), Vector3(SINK_X, FLOOR + 1.3, WALL_BACK - 0.13))
+		_flush(cab, "z+", WALL_BACK)
+		_center_x(cab, SINK_X)
+		var lb := _local_box(cab)                       # its glass from 1.3 m above the floor: eye level inside it
+		cab.position.y += (FLOOR + 1.3) - lb.position.y
 		_make_mirror(cab)
-	report["layout_fixed"] = rack != null and cab != null
+	report["sink_on_back_wall"] = sink != null
+	report["tub_on_left_wall"] = tub != null
+	report["layout_fixed"] = rack != null and cab != null and tub != null and sink != null
+
+
+## The piece's bounding box in the home's frame.
+func _local_box(n: Node3D) -> AABB:
+	return home.global_transform.affine_inverse() * Interactable.aabb_of(n)
+
+
+## Slide a piece so the given side of its box touches a wall ("x-": its min x on x; "z+": its max z on z).
+func _flush(n: Node3D, side: String, at: float) -> void:
+	var b := _local_box(n)
+	match side:
+		"x-":
+			n.position.x += (at + 0.005) - b.position.x
+		"x+":
+			n.position.x += (at - 0.005) - b.end.x
+		"z+":
+			n.position.z += (at - 0.005) - b.end.z
+		"z-":
+			n.position.z += (at + 0.005) - b.position.z
+
+
+func _center_x(n: Node3D, x: float) -> void:
+	var b := _local_box(n)
+	n.position.x += x - b.get_center().x
 
 
 func _make_mirror(cab: Node3D) -> void:
-	var box := Interactable.aabb_of(cab)                 # world AABB of the cabinet (axis-aligned: it faces +z)
-	if box.size.length() < 0.01:
+	var lb := _local_box(cab)                            # the cabinet on the back wall, facing -z (into the room)
+	if lb.size.length() < 0.01:
 		return
 	mirror_vp = SubViewport.new()
 	mirror_vp.name = "BathMirror_View"
@@ -61,7 +108,7 @@ func _make_mirror(cab: Node3D) -> void:
 	mirror_quad = MeshInstance3D.new()
 	mirror_quad.name = "BathMirror_Glass"
 	var qm := QuadMesh.new()
-	qm.size = Vector2(box.size.x * 0.78, box.size.y * 0.78)
+	qm.size = Vector2(lb.size.x * 0.78, lb.size.y * 0.78)
 	mirror_quad.mesh = qm
 	var mat := StandardMaterial3D.new()
 	mat.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
@@ -71,9 +118,10 @@ func _make_mirror(cab: Node3D) -> void:
 	mirror_quad.material_override = mat
 	mirror_quad.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 	home.add_child(mirror_quad)
-	var c := box.get_center()
-	var normal := home.global_basis * Vector3(0, 0, 1)
-	mirror_quad.global_transform = Transform3D(Basis.looking_at(-normal, Vector3.UP), Vector3(c.x, c.y, box.end.z) + normal * 0.004)
+	var c := lb.get_center()
+	var normal := (home.global_basis * Vector3(0, 0, -1)).normalized()
+	var front := home.to_global(Vector3(c.x, c.y, lb.position.z))
+	mirror_quad.global_transform = Transform3D(Basis.looking_at(-normal, Vector3.UP), front + normal * 0.004)
 	mirror_cam.global_transform = Transform3D(Basis(), mirror_quad.global_position + normal * 0.03).looking_at(
 		mirror_quad.global_position + normal * 5.0, Vector3.UP)
 	report["mirror"] = true
@@ -117,7 +165,7 @@ func wash_face() -> void:
 	for q in ROUTE:
 		await _step_to(player, cam, home.to_global(q), 1.5)
 	# at the sink: look down at the basin, the tap runs, two splashes
-	var basin := home.to_global(SINK + Vector3(0, 0.85, 0))
+	var basin := home.to_global(Vector3(SINK_X, FLOOR + 0.85, WALL_BACK - 0.35))
 	await _look(cam, basin, 0.6)
 	Sfx.play("water_run", basin, -6.0)
 	var base_pos := cam.global_position
@@ -141,8 +189,13 @@ func wash_face() -> void:
 	report["reflection"] = me != null
 	if mirror_vp:
 		mirror_vp.render_target_update_mode = SubViewport.UPDATE_ALWAYS
+	var face_fx = world.get("faces").get("Protagonist")
+	if face_fx and face_fx.has_method("set_expression"):
+		face_fx.set_expression("neutral")
 	await _look(cam, (mirror_quad.global_position if mirror_quad else basin + Vector3(0, 0.6, 0)), 0.9)
-	await get_tree().create_timer(2.2).timeout
+	await get_tree().create_timer(1.6).timeout          # his own face in the mirror, water still on it
+	Dialogue.say("wash_hungry", true)
+	await get_tree().create_timer(2.4).timeout
 	# back to the player, turned towards the bathroom door
 	if me:
 		world.get("animators").erase("Protagonist")

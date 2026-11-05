@@ -2654,5 +2654,14 @@
     "time": 3.4
    }
   ]
+ },
+ "wash_hungry": {
+  "lines": [
+   {
+    "speaker": "",
+    "text": "I'm hungry. What do we have?",
+    "time": 2.4
+   }
+  ]
  }
 }
