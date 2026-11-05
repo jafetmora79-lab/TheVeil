@@ -29,9 +29,20 @@ func setup(phase4: Node) -> void:
 	p4 = phase4
 	world = p4.world
 	player = p4.player
-	var area: Area3D = world._area("P4_GarageTentacle", p4.ml(Vector3(17.2, 1.0, 15.9)), Vector3(4.2, 2.2, 3.2), 2,
-		func(b): if b == player: _on_enter(), p4.market.global_transform.basis)
-	area.reparent(self)
+
+
+
+## Checked every 0.2 s (not an area's body_entered: the breaker panel stands inside the loading bay, so the player is
+## already in there when the breaker comes on and would never "enter"): towards the door, past the breaker.
+var _tick := 0.0
+func _physics_process(delta: float) -> void:
+	_tick -= delta
+	if _tick > 0.0 or running or player == null:
+		return
+	_tick = 0.2
+	var l: Vector3 = p4.market.to_local(player.global_position)
+	if l.x > 17.8 and l.x < 20.0 and absf(l.z - 15.9) < 1.7 and player.get("controls_enabled"):
+		_on_enter()
 
 
 func _on_enter() -> void:
