@@ -379,6 +379,12 @@ func set_marker(target: Variant, label := "") -> void:
 		d.rotation = PI / 4
 		d.mouse_filter = Control.MOUSE_FILTER_IGNORE
 		_mk.add_child(d)
+		_mk_dot = d
+		_mk_arrow = Polygon2D.new()                    # off screen: a small arrow pointing the way instead
+		_mk_arrow.polygon = PackedVector2Array([Vector2(12, 0), Vector2(-6, -7), Vector2(-2, 0), Vector2(-6, 7)])
+		_mk_arrow.color = Color(0.86, 0.9, 0.86, 0.9)
+		_mk_arrow.visible = false
+		_mk.add_child(_mk_arrow)
 		_mk_label = VeilUI.label("", 13, VeilUI.MUTED)
 		_mk_label.position = Vector2(-60, 8)
 		_mk_label.size = Vector2(120, 20)
@@ -388,16 +394,43 @@ func set_marker(target: Variant, label := "") -> void:
 		_mk.visible = false
 
 
+var _mk_dot: Control
+var _mk_arrow: Polygon2D
+## When no story destination is set: a fallback (the way back to the current shelter), from game/ui/nav_map.gd.
+var marker_fallback: Callable
+
+
+## No marker during cinematics, creature scenes or held control (driving keeps it).
+func _marker_blocked() -> bool:
+	var w := get_tree().get_first_node_in_group("veil_world")
+	if w == null:
+		return false
+	if w.get("_cine") and is_instance_valid(w.get("_cine")):
+		return true
+	if w.get("_encounter_running") == true or w.get("conversing") == true:
+		return true
+	var p = w.get("player")
+	return p != null and not w.get("in_car") and not p.controls_enabled
+
+
 func _update_marker() -> void:
+	if _mk == null and marker_fallback.is_valid():
+		set_marker(null, "")
 	if _mk == null:
 		return
 	var pos: Variant = null
+	var name := _mk_name
 	if _mk_target is Node3D and is_instance_valid(_mk_target):
 		pos = (_mk_target as Node3D).global_position
 	elif _mk_target is Vector3:
 		pos = _mk_target
+	elif marker_fallback.is_valid():
+		var fb: Array = marker_fallback.call()
+		if not fb.is_empty():
+			pos = fb[0]
+			name = fb[1]
 	var cam := get_viewport().get_camera_3d()
-	if pos == null or cam == null or inv_panel.visible or is_paused() or Dialogue.is_active():
+	if pos == null or cam == null or inv_panel.visible or is_paused() or Dialogue.is_active() or _marker_blocked():
 		_mk.visible = false
 		marker_visible = false
 		return
@@ -409,13 +442,25 @@ func _update_marker() -> void:
 		return
 	var vs := get_viewport().get_visible_rect().size
 	var sp := cam.unproject_position(p)
-	if cam.is_position_behind(p):
+	var behind := cam.is_position_behind(p)
+	if behind:
 		sp = vs - sp
 		sp.y = vs.y - 40.0
 	var m := 36.0
+	var raw := sp
 	sp = Vector2(clampf(sp.x, m, vs.x - m), clampf(sp.y, m, vs.y - m - 30.0))
+	var off := behind or raw.distance_to(sp) > 1.0
+	_mk_dot.visible = not off
+	_mk_arrow.visible = off
+	if off:
+		# the way to turn: the target's direction in the camera's own frame, flattened onto the screen
+		var local := cam.global_transform.affine_inverse() * p
+		var d2 := Vector2(local.x, -local.y)
+		if behind:
+			d2 = Vector2(signf(local.x), 0.0) if absf(local.x) > 0.05 else Vector2(0.0, 1.0)   # turn left / right / around
+		_mk_arrow.rotation = d2.angle()
 	_mk.position = sp
-	_mk_label.text = ("%s  %d m" % [_mk_name, roundi(dist)]) if _mk_name != "" else "%d m" % roundi(dist)
+	_mk_label.text = ("%s  %d m" % [name, roundi(dist)]) if name != "" else "%d m" % roundi(dist)
 	_mk.visible = true
 	marker_visible = true
 

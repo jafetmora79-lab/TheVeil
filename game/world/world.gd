@@ -110,6 +110,11 @@ func _ready() -> void:
 	sidearm.name = "Sidearm"
 	add_child(sidearm)
 	sidearm.setup.call_deferred(self)
+	# navigation help: the way back to the shelter, and the town map on M (game/ui/nav_map.gd)
+	nav = load("res://game/ui/nav_map.gd").new()
+	nav.name = "NavMap"
+	add_child(nav)
+	nav.setup.call_deferred(self)
 	_apply_view_ranges()
 	_setup_night()
 	_light_budget_all()
@@ -567,6 +572,7 @@ var expedition: Node
 const SURVIVORS := preload("res://game/world/survivors.gd")
 var survivors: Node
 var sidearm: Node
+var nav: Node
 var conversing := false
 var talk_report := {"count": 0, "blocked": 0, "cam_hits": 0, "min_face_dist": 99.0, "max_fov_drop": 0.0, "zoom_ins": 0,
 	"zoom_outs": 0, "released": 0, "watchdog": 0}
