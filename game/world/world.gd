@@ -95,6 +95,11 @@ func _ready() -> void:
 	survivors.name = "Survivors"
 	add_child(survivors)
 	survivors.setup.call_deferred(self)
+	# a hidden Easter egg in the woods before town (isolated: game/easter_egg/)
+	var egg: Node = load("res://game/easter_egg/golden_peek.gd").new()
+	egg.name = "EasterEggGolden"
+	add_child(egg)
+	egg.setup.call_deferred(self)
 	_apply_view_ranges()
 	_setup_night()
 	_light_budget_all()
