@@ -213,8 +213,15 @@ func phase4_tests(game, ps: PackedScene) -> void:
 	ok("p4_charge_slam_and_gone", cr.get("slam", false) and cr.get("gone", false) and player.controls_enabled, str(cr))
 	await frames(20)
 	ok("p4_charge_hound_freed", market_hounds(mk) == 0)
-	ok("p4_charge_is_skitter", cr.get("creature", "") == "Skitter" and cr.get("dark_surfaces", 0) > 0
-		and cr.get("spawn_distance_m", 0.0) > 35.0, str(cr))
+	ok("p4_charge_is_skitter", cr.get("creature", "") == "Skitter" and cr.get("dark_surfaces", 0) > 0, str(cr))
+	# rooftop ambush: crouched on the real roof of the building left of the game store, seen through the zoom
+	ok("p4_skitter_starts_on_roof", cr.get("start", "") == "roof" and absf(cr.get("roof_feet_gap_m", 9.0)) < 0.06
+		and not cr.has("roof_error"), str(cr.get("roof_feet_gap_m", cr.get("roof_error", "?"))))
+	ok("p4_skitter_roof_zoom_sees_it", cr.get("roof_in_view", false) and cr.get("roof_line_of_sight", false)
+		and cr.get("zoom_fov", 99.0) < 60.0, "fov %.1f dist %.1f m" % [cr.get("zoom_fov", -1.0), cr.get("roof_distance_m", -1.0)])
+	ok("p4_skitter_jump_lands_on_street", cr.get("landed", false) and cr.get("air_max_dip_m", 9.0) < 0.05
+		and absf(cr.get("landing_gap_m", 9.0)) < 0.05, "dip %.3f gap %.3f" % [cr.get("air_max_dip_m", -1.0), cr.get("landing_gap_m", -1.0)])
+	ok("p4_skitter_paths_clear", cr.get("landing_found", false) and cr.get("run_clear", false) and cr.get("exit_clear", false), str(cr))
 	ok("p4_skitter_hits_shut_doors", cr.get("closed_before_hit", false) and cr.get("inside_at_hit", false)
 		and absf(cr.get("hit_gap_m", 9.0)) < 0.25, str(cr))
 	ok("p4_skitter_runs_off", cr.get("left_into_fog", false) and world.find_children("P4_Skitter_Charge", "", true, false).is_empty())
@@ -742,6 +749,7 @@ func _run() -> void:
 	ok("colossus_foot_lands_in_front", r.get("foot_error_m", 99.0) < 0.6 and r.get("leg_distance_m", 0.0) > 12.0 and r.get("leg_distance_m", 0.0) < 18.0,
 		"foot error %.2f m, %.1f m in front" % [r.get("foot_error_m", -1.0), r.get("leg_distance_m", -1.0)])
 	ok("colossus_walks_in_from_out_of_frame", r.get("walk_in_m", 0.0) > 8.0, "%.1f m" % r.get("walk_in_m", -1.0))
+	ok("colossus_single_leg_event", r.get("walkin_extra_seen", 9) == 0, str(r.get("walkin_touchdowns", [])))
 	ok("colossus_leg_descends_from_above", r.get("apex_height_m", 0.0) > 6.0, "%.1f m" % r.get("apex_height_m", -1.0))
 	ok("colossus_other_feet_clear", r.get("other_feet_min_out_m", 0.0) > r.get("leg_distance_m", 99.0), "%.1f m out" % r.get("other_feet_min_out_m", -1.0))
 	ok("colossus_body_hidden_in_mist", r.get("body_height_m", 0.0) > r.get("ceiling_m", 99.0) + 3.0,

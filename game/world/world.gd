@@ -1487,6 +1487,41 @@ func _tips_world(sk: Skeleton3D, foot: int) -> Array:
 	return out
 
 
+## Walk-in check: every touchdown of any of the four feet before the hero contact, and whether the camera saw it.
+const FOOT_BONES := ["Leg_FL_Foot", "Leg_FR_Foot", "Leg_HL_Foot", "Leg_HR_Foot"]
+func _feet_watch_setup(ap: AnimationPlayer, sk: Skeleton3D, anim: Animation) -> Dictionary:
+	var lows := {}
+	var t0 := ap.current_animation_position
+	for b in FOOT_BONES:
+		lows[b] = INF
+	var t := 0.0
+	while t < anim.length:
+		ap.seek(t, true)
+		sk.force_update_all_bone_transforms()
+		for b in FOOT_BONES:
+			lows[b] = minf(lows[b], sk.get_bone_global_pose(sk.find_bone(b)).origin.y)
+		t += anim.length / 90.0
+	ap.seek(t0, true)
+	return {"lows": lows, "down": {}, "events": [], "ground": sk.global_position.y}
+
+
+func _feet_watch_tick(w: Dictionary, sk: Skeleton3D, cam: Camera3D) -> void:
+	var s := sk.global_transform.basis.get_scale().y
+	for b in FOOT_BONES:
+		var local := sk.get_bone_global_pose(sk.find_bone(b)).origin
+		var rel: float = (local.y - float(w["lows"][b])) * s
+		var was_down: bool = w["down"].get(b, true)
+		if not was_down and rel < 0.08 * COLOSSUS_SCALE:
+			var p := sk.global_transform * local
+			p.y = float(w["ground"])                   # where the claws meet the road (the bone is the wrist, high up)
+			w["events"].append({"foot": b, "seen": cam.is_position_in_frustum(p + Vector3(0, 0.5, 0)),
+				"dist": cam.global_position.distance_to(p), "pos": p})
+		if rel < 0.08 * COLOSSUS_SCALE:
+			w["down"][b] = true
+		elif rel > 0.5 * COLOSSUS_SCALE:
+			w["down"][b] = false
+
+
 func _min_tip_y(sk: Skeleton3D, foot: int) -> float:
 	var y := INF
 	for p in _tips_world(sk, foot):
@@ -1647,27 +1682,68 @@ func _colossus_encounter() -> void:
 	t_c = t_touch
 	place.call(t_c)                                               # claw tips on L, on the road, at first touch
 	var contact_pos := c.global_position
-	# it walks in from the side, one full stride out of frame first: the body moves at the stance rate, so every
-	# planted foot stays put (no sliding back) and nothing appears inside the view
+	# ONE leg event: the near front leg comes down once, from the top of its swing in the mist, onto L. (The old
+	# walk-in showed one full stride first: the same leg touched down silently ~21 m away, in view, before the
+	# real step - the "duplicate leg".) The stride's time is kept as a held beat: the call, the look, the silence;
+	# the creature is not shown until its swing begins, and a mist band over it lifts as the foot descends, so the
+	# leg comes down out of the mist (foot first) instead of appearing. The body moves at the stance rate, so the
+	# planted feet (far out over the street, deep in the fog) stay put.
 	const SPEED := 0.5
 	var descent := fposmod(t_c - t_apex, anim.length)
-	var span := descent + anim.length                             # animation seconds shown before contact
+	var span := descent                                           # animation seconds shown before contact
 	var rate := STANCE_RATE * COLOSSUS_SCALE                       # metres per animation second
 	c.global_position = contact_pos - walk_dir * rate * span
 	ap.seek(fposmod(t_c - span, anim.length), true)
-	ap.speed_scale = SPEED
-	var walk_in := c.create_tween()
-	walk_in.tween_property(c, "global_position", contact_pos, span / SPEED)
+	ap.speed_scale = 0.0
+	c.visible = false
+	var veil_mats: Array = []
+	for mi in c.find_children("*", "MeshInstance3D", true, false):
+		var m := mi as MeshInstance3D
+		if m.mesh:
+			for i in m.mesh.get_surface_count():
+				var sm := m.get_surface_override_material(i) as ShaderMaterial
+				if sm:
+					veil_mats.append(sm)
+	var set_far := func(m: float):                               # staging: the far legs stay in the mist for now
+		for sm in veil_mats:
+			sm.set_shader_parameter("far_hide", m)
+	set_far.call(40.0)
+	var set_band := func(k: float):                              # 0: everything above the road is in the mist; 1: normal
+		for sm in veil_mats:
+			sm.set_shader_parameter("dissolve_start", lerpf(-2.0, 10.0, k))
+			sm.set_shader_parameter("dissolve_end", lerpf(0.5, 17.0, k))
+	set_band.call(0.0)
 	# the player instinctively looks at the sound / the darkness ahead
 	var tw0 := create_tween()
 	var b0 := cam.global_basis.get_rotation_quaternion()
 	var b1 := Transform3D(Basis(), cam.global_position).looking_at(L + Vector3(0, 4.0, 0) + side * -1.0, Vector3.UP).basis.get_rotation_quaternion()
 	tw0.tween_method(func(q): cam.global_basis = Basis(b0.slerp(b1, q * q * (3.0 - 2.0 * q))), 0.0, 1.0, 1.5)
+	await get_tree().create_timer(anim.length / SPEED).timeout     # the held beat (the old first stride's time)
+	c.visible = true
+	ap.speed_scale = SPEED
+	var walk_in := c.create_tween()
+	walk_in.tween_property(c, "global_position", contact_pos, span / SPEED)
+	var lift := c.create_tween()
+	lift.tween_method(set_band, 0.0, 1.0, span / SPEED).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN)
+	var feet_watch := _feet_watch_setup(ap, sk, anim)
+	feet_watch["ground"] = L.y
+	ap.seek(fposmod(t_c - span, anim.length), true)
 	var elapsed := 0.0
 	while elapsed < span / SPEED - 1.0 / 60.0:
 		await get_tree().process_frame
 		elapsed += get_process_delta_time()
+		_feet_watch_tick(feet_watch, sk, cam)
 	walk_in.kill()
+	lift.kill()
+	set_band.call(1.0)
+	enc_report["walkin_touchdowns"] = feet_watch["events"]
+	# touchdowns the camera could see before the real step (the hero contact itself, at L, is not one of them)
+	var extra := 0
+	for e in feet_watch["events"]:
+		var ep: Vector3 = e["pos"]
+		if e["seen"] and float(e["dist"]) < 40.0 and Vector2(ep.x - L.x, ep.z - L.z).length() > 10.0:
+			extra += 1
+	enc_report["walkin_extra_seen"] = extra
 	c.global_position = contact_pos
 	ap.seek(t_c, true)                                            # exactly the touch-down frame
 	# --- Stage 2: the footstep (impact) - sound, dust and shake on the contact frame
@@ -1722,6 +1798,9 @@ func _colossus_encounter() -> void:
 	var tg := create_tween()
 	tg.tween_property(gaze, "global_position", L + Vector3(0, 14.0, 0), 2.6).set_trans(Tween.TRANS_SINE)
 	faces["Protagonist"].set_expression("scared")
+	var unhide := c.create_tween()
+	unhide.tween_method(set_far, 40.0, 400.0, 2.6)
+	unhide.tween_callback(set_far.bind(100000.0))
 	await get_tree().create_timer(2.8).timeout
 	# --- Stage 4: from his eyes, up the leg into the mist. He is hidden for this shot (the camera sits where his
 	# eyes are, so nothing of him can cut the frame); the view rotates only (one smooth quaternion slerp, no
