@@ -377,13 +377,20 @@ Still open for later chapters: maps, radio clues and the exact route toward the 
 
 ## ACT IV — THE FARMHOUSE
 
-### Chapter 12 — The Road Beyond Town
+### Chapter 12 — The Farm Road (formerly "The Road Beyond Town")
 
 Explore countryside roads.
 
 Avoid creatures.
 
-Discover evidence that Noah reached a farmhouse.
+Discover evidence that Noah reached a farmhouse:
+
+- a campsite note about a scared kid heading for the old farmhouse;
+- Noah's own message in the abandoned farmhouse.
+
+Escape that farmhouse.
+
+The chapter ends on a light in a farmhouse farther down the road, without revealing who or what is there.
 
 ### Chapter 13 — The Farmhouse
 

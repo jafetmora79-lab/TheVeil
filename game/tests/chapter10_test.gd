@@ -361,7 +361,9 @@ func _run() -> void:
 	ok("c10_end_checkpoint_separate", FileAccess.file_exists(game.checkpoint_path("chapter11_end"))
 		and "chapter_10_complete" in FileAccess.get_file_as_string(game.checkpoint_path("chapter11_end"))
 		and FileAccess.get_file_as_string(game.SAVE_PATH) == slot and FileAccess.file_exists(game.checkpoint_path("probe")))
-	ok("c10_no_next_chapter", not game.has_flag("ch11_started") and game.chapter_number() == 11 and game.current_step().get("id", "") == "c10_complete")
+	# the farm road (displayed Chapter 12) starts in the refuge right after the completion card
+	ok("c10_next_chapter_starts", await wait_until(func(): return game.has_flag("ch11_started"), 60 * 8) and c10.chapter11 != null
+		and game.chapter_number() == 12 and not game.has_flag("ch12_started"))
 	ok("c10_control_at_end", world.player.controls_enabled and root.get_viewport().get_camera_3d() == world.player.camera)
 	await reload()
 	ok("c10_load_complete", game.has_flag("chapter_10_complete") and c10.group().all(func(k): return c10.inside_room(c10._node(k)))

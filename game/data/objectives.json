@@ -11,7 +11,8 @@
   "act2_trace": "A Trace of Noah",
   "act3_doors": "Something at the Doors",
   "act3_fall": "The Fall of the Supermarket",
-  "act3_road": "No Safe Road"
+  "act3_road": "No Safe Road",
+  "act4_farm_road": "The Farm Road"
  },
  "steps": [
   {
@@ -493,6 +494,66 @@
    "flag": "ch11_started",
    "goal": "act3_road",
    "text": "Chapter 11 complete - No Safe Road"
+  },
+  {
+   "id": "c11_talk",
+   "flag": "ch11_talk_done",
+   "goal": "act4_farm_road",
+   "text": "Talk to the survivors"
+  },
+  {
+   "id": "c11_road",
+   "flag": "ch11_campsite_reached",
+   "goal": "act4_farm_road",
+   "text": "Follow the farm road"
+  },
+  {
+   "id": "c11_clue",
+   "flag": "ch11_note_read",
+   "goal": "act4_farm_road",
+   "text": "Inspect the campsite"
+  },
+  {
+   "id": "c11_farmhouse",
+   "flag": "ch11_farmhouse_reached",
+   "goal": "act4_farm_road",
+   "text": "Locate the old farmhouse"
+  },
+  {
+   "id": "c11_search",
+   "flag": "ch11_search_done",
+   "goal": "act4_farm_road",
+   "text": "Search the farmhouse"
+  },
+  {
+   "id": "c11_read",
+   "flag": "ch11_message_read",
+   "goal": "act4_farm_road",
+   "text": "Read the message"
+  },
+  {
+   "id": "c11_regroup",
+   "flag": "ch11_regrouped",
+   "goal": "act4_farm_road",
+   "text": "Regroup with the survivors"
+  },
+  {
+   "id": "c11_escape",
+   "flag": "ch11_escaped",
+   "goal": "act4_farm_road",
+   "text": "Escape the farmhouse"
+  },
+  {
+   "id": "c11_light",
+   "flag": "chapter_11_complete",
+   "goal": "act4_farm_road",
+   "text": "Stay with the group"
+  },
+  {
+   "id": "c11_complete",
+   "flag": "ch12_started",
+   "goal": "act4_farm_road",
+   "text": "Chapter 12 complete - The Farm Road"
   }
  ],
  "_comment": "Steps complete in list order for display, but each errand step only checks its own flag, so the supermarket and the game shop can be done in either order (the bible leaves the stop order open). Phase 3 (mist_*) is a WORKING DRAFT sequence of Act I's opening.",

@@ -131,6 +131,20 @@
    "description": "A claw hammer from the maintenance shelf.",
    "model": "res://THE_VEIL_ASSETS_V2/08_Inventory/Tools/INV_Hammer.glb",
    "weight": 0.6
+  },
+  "campsite_note": {
+   "name": "Campsite Note",
+   "category": "note",
+   "weight": 0.01,
+   "model": "res://THE_VEIL_ASSETS_V2/08_Inventory/Story_Items/INV_FoldedNote.glb",
+   "description": "Kid came through yesterday. Looked scared.\nSaid he was trying to find somewhere safe.\nTold him to stay away from the road after dark.\nHe went toward the old farmhouse."
+  },
+  "noahs_message": {
+   "name": "Noah's Message",
+   "category": "note",
+   "weight": 0.01,
+   "model": "res://THE_VEIL_ASSETS_V2/08_Inventory/Story_Items/INV_Notebook.glb",
+   "description": "Dad, if you find this, I'm okay.\nI couldn't stay here. I heard something outside last night.\nI'm going to the farmhouse farther down the road.\nPlease don't come after dark."
   }
  },
  "carry_capacity_kg": 15.0,

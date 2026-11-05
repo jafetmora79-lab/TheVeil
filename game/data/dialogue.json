@@ -3262,5 +3262,365 @@
     "time": 2.4
    }
   ]
+ },
+ "c11_wake_alive": {
+  "source": "Chapter 12 (The Farm Road) implementation prompt (approved script)",
+  "lines": [
+   {
+    "speaker": "Eddie",
+    "text": "I was really hoping we'd wake up somewhere else.",
+    "time": 3.5
+   },
+   {
+    "speaker": "",
+    "text": "We need to keep moving.",
+    "time": 2.2
+   },
+   {
+    "speaker": "Ruth",
+    "text": "We're low on supplies.",
+    "time": 2.1
+   },
+   {
+    "speaker": "Sarah",
+    "text": "How much farther?",
+    "time": 1.8
+   },
+   {
+    "speaker": "",
+    "text": "Hopefully not far.",
+    "time": 1.9
+   },
+   {
+    "speaker": "Marcus",
+    "text": "Noah's out here somewhere. I know it.",
+    "time": 2.9
+   },
+   {
+    "speaker": "",
+    "text": "Then let's find out where.",
+    "time": 2.3
+   }
+  ]
+ },
+ "c11_wake_lost": {
+  "source": "Chapter 12 (The Farm Road) implementation prompt (approved script)",
+  "lines": [
+   {
+    "speaker": "Eddie",
+    "text": "I was really hoping we'd wake up somewhere else.",
+    "time": 3.5
+   },
+   {
+    "speaker": "",
+    "text": "We need to keep moving.",
+    "time": 2.2
+   },
+   {
+    "speaker": "Ruth",
+    "text": "We're low on supplies.",
+    "time": 2.1
+   },
+   {
+    "speaker": "Sarah",
+    "text": "How much farther?",
+    "time": 1.8
+   },
+   {
+    "speaker": "",
+    "text": "Hopefully not far.",
+    "time": 1.9
+   },
+   {
+    "speaker": "",
+    "text": "Noah's trail goes this way. We follow it - like Marcus would have.",
+    "time": 4.2
+   }
+  ]
+ },
+ "c11_campsite_alive": {
+  "source": "Chapter 12 (The Farm Road) implementation prompt (approved script)",
+  "lines": [
+   {
+    "speaker": "Marcus",
+    "text": "A kid?",
+    "time": 1.6
+   },
+   {
+    "speaker": "",
+    "text": "That's what it says.",
+    "time": 2.0
+   },
+   {
+    "speaker": "Marcus",
+    "text": "It has to be him.",
+    "time": 1.8
+   },
+   {
+    "speaker": "Eddie",
+    "text": "Marcus, we don't know that.",
+    "time": 2.4
+   },
+   {
+    "speaker": "Marcus",
+    "text": "I'm not stopping now.",
+    "time": 2.1
+   }
+  ]
+ },
+ "c11_campsite_lost": {
+  "source": "Chapter 12 (The Farm Road) implementation prompt (approved script)",
+  "lines": [
+   {
+    "speaker": "Ruth",
+    "text": "This could be Noah.",
+    "time": 1.9
+   },
+   {
+    "speaker": "",
+    "text": "Then we're going the right way.",
+    "time": 2.6
+   }
+  ]
+ },
+ "c11_field_alive": {
+  "source": "Chapter 12 (The Farm Road) implementation prompt (approved script)",
+  "lines": [
+   {
+    "speaker": "Sarah",
+    "text": "Did something just move?",
+    "time": 2.2
+   },
+   {
+    "speaker": "Eddie",
+    "text": "Please tell me that was a cow.",
+    "time": 2.5
+   },
+   {
+    "speaker": "",
+    "text": "Stay close.",
+    "time": 1.6
+   },
+   {
+    "speaker": "Ruth",
+    "text": "I don't like this.",
+    "time": 1.9
+   },
+   {
+    "speaker": "Marcus",
+    "text": "Keep going. We're almost there.",
+    "time": 2.6
+   }
+  ]
+ },
+ "c11_field_lost": {
+  "source": "Chapter 12 (The Farm Road) implementation prompt (approved script)",
+  "lines": [
+   {
+    "speaker": "Sarah",
+    "text": "Did something just move?",
+    "time": 2.2
+   },
+   {
+    "speaker": "Eddie",
+    "text": "Please tell me that was a cow.",
+    "time": 2.5
+   },
+   {
+    "speaker": "",
+    "text": "Stay close.",
+    "time": 1.6
+   },
+   {
+    "speaker": "Ruth",
+    "text": "I don't like this.",
+    "time": 1.9
+   }
+  ]
+ },
+ "c11_message_alive": {
+  "source": "Chapter 12 (The Farm Road) implementation prompt (approved script)",
+  "lines": [
+   {
+    "speaker": "Marcus",
+    "text": "That's his handwriting.",
+    "time": 2.2
+   },
+   {
+    "speaker": "",
+    "text": "You're sure?",
+    "time": 1.6
+   },
+   {
+    "speaker": "Marcus",
+    "text": "I'd recognize it anywhere.",
+    "time": 2.3
+   },
+   {
+    "speaker": "Eddie",
+    "text": "Then he's still ahead of us.",
+    "time": 2.4
+   },
+   {
+    "speaker": "Marcus",
+    "text": "We're close.",
+    "time": 1.6
+   }
+  ]
+ },
+ "c11_message_lost": {
+  "source": "Chapter 12 (The Farm Road) implementation prompt (approved script)",
+  "lines": [
+   {
+    "speaker": "",
+    "text": "Noah made it this far.",
+    "time": 2.1
+   },
+   {
+    "speaker": "Ruth",
+    "text": "Then maybe he's still alive.",
+    "time": 2.4
+   }
+  ]
+ },
+ "c11_attack": {
+  "source": "Chapter 12 (The Farm Road) implementation prompt (approved script)",
+  "lines": [
+   {
+    "speaker": "Eddie",
+    "text": "Oh, come on. Not again!",
+    "time": 2.2
+   },
+   {
+    "speaker": "Sarah",
+    "text": "It's outside!",
+    "time": 1.6
+   },
+   {
+    "speaker": "",
+    "text": "Away from the windows!",
+    "time": 2.1
+   },
+   {
+    "speaker": "Ruth",
+    "text": "What do we do?",
+    "time": 1.7
+   },
+   {
+    "speaker": "",
+    "text": "Get to the front door. Now!",
+    "time": 2.4
+   }
+  ]
+ },
+ "c11_light_alive": {
+  "source": "Chapter 12 (The Farm Road) implementation prompt (approved script)",
+  "lines": [
+   {
+    "speaker": "Eddie",
+    "text": "Please tell me we're not going in there tonight.",
+    "time": 3.5
+   },
+   {
+    "speaker": "",
+    "text": "Not yet.",
+    "time": 1.6
+   },
+   {
+    "speaker": "Ruth",
+    "text": "We need to rest.",
+    "time": 1.8
+   },
+   {
+    "speaker": "Marcus",
+    "text": "Noah could be in that house.",
+    "time": 2.4
+   },
+   {
+    "speaker": "",
+    "text": "Then we'll get there.",
+    "time": 2.1
+   },
+   {
+    "speaker": "Marcus",
+    "text": "Tomorrow?",
+    "time": 1.6
+   },
+   {
+    "speaker": "",
+    "text": "At first light.",
+    "time": 1.7
+   }
+  ]
+ },
+ "c11_light_lost": {
+  "source": "Chapter 12 (The Farm Road) implementation prompt (approved script)",
+  "lines": [
+   {
+    "speaker": "Eddie",
+    "text": "Please tell me we're not going in there tonight.",
+    "time": 3.5
+   },
+   {
+    "speaker": "",
+    "text": "Not yet.",
+    "time": 1.6
+   },
+   {
+    "speaker": "Ruth",
+    "text": "We need to rest.",
+    "time": 1.8
+   },
+   {
+    "speaker": "Sarah",
+    "text": "Do you think Noah's there?",
+    "time": 2.3
+   },
+   {
+    "speaker": "",
+    "text": "There's only one way to find out.",
+    "time": 2.7
+   }
+  ]
+ },
+ "c11_campsite_seen": {
+  "source": "Chapter 12 implementation: short connective lines (the approved script leaves these beats open)",
+  "lines": [
+   {
+    "speaker": "",
+    "text": "Someone camped here. Not long ago.",
+    "time": 2.8
+   }
+  ]
+ },
+ "c11_read_note_hint": {
+  "source": "Chapter 12 implementation: short connective lines (the approved script leaves these beats open)",
+  "lines": [
+   {
+    "speaker": "",
+    "text": "A note. Let me read it.",
+    "time": 2.2
+   }
+  ]
+ },
+ "c11_farmhouse": {
+  "source": "Chapter 12 implementation: short connective lines (the approved script leaves these beats open)",
+  "lines": [
+   {
+    "speaker": "",
+    "text": "Wait here. I'll check the rooms first.",
+    "time": 3.0
+   }
+  ]
+ },
+ "c11_bedroom_found": {
+  "source": "Chapter 12 implementation: short connective lines (the approved script leaves these beats open)",
+  "lines": [
+   {
+    "speaker": "",
+    "text": "There's something on the bed.",
+    "time": 2.5
+   }
+  ]
  }
 }

@@ -104,6 +104,8 @@ func begin(w: Node, chapter9: Node, restoring: bool) -> void:
 	if fresh:
 		Game.set_flag("ch10_started")
 	_apply()
+	if Game.has_flag("chapter_10_complete"):
+		_start_chapter11(true)
 	Game.refresh_objective()
 	if fresh:
 		_title.call_deferred()
@@ -655,6 +657,18 @@ func _rest(_b: Node) -> void:
 	_guide()
 	world.save_checkpoint("chapter11_end")             # its own file, never the player's save slot
 	await hud.chapter_complete(CHAPTER)
+	_start_chapter11(false)                          # the farm road starts at the refuge (displayed 12)
+
+
+## The next chapter (displayed CHAPTER 12 "The Farm Road", internally chapter11.gd) starts in the refuge.
+var chapter11: Node
+func _start_chapter11(restoring: bool) -> void:
+	if chapter11 != null:
+		return
+	chapter11 = load("res://game/world/chapter11.gd").new()
+	chapter11.name = "Chapter11"
+	add_child(chapter11)
+	chapter11.begin(world, self, restoring)
 
 
 ## A long, low call somewhere out in the fields: no source is ever shown.
@@ -682,6 +696,8 @@ func _hold(on: bool) -> void:
 
 
 func _process(_delta: float) -> void:
+	if Game.has_flag("ch11_started"):
+		return                                    # the next chapter owns the group and the marker from here on
 	_tick -= _delta
 	if _tick > 0.0 or player == null:
 		return
