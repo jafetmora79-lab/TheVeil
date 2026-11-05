@@ -331,16 +331,37 @@ func _apply() -> void:
 		_set_fog(false)
 	elif Game.has_flag("ch15_set_out"):
 		_set_fog(true, 0.8)
-	if Game.has_flag("ch15_decided") and String(st().get("ending", "")) == "":
+	if Game.has_flag("ch15_decided"):
+		# (only without the decision checkpoint: Game._finale_rollback normally restores it whole)
+		var done := String(st().get("ending", ""))
+		var seen: Array = st().get("endings_seen", [])
+		if done != "" and Game.has_flag("chapter_15_complete") and not (done in seen):
+			seen.append(done)
+		st()["endings_seen"] = seen
+		st()["ending"] = ""
+		Game.flags.erase("chapter_15_complete")
 		# (QA-001) a save made after the choice but before its ending finished: the ending's sequence state is not
 		# saved, so go back to the moment of the decision (roster, trust and earlier choices untouched).
-		for f in ["ch15_decided", "ch15_choice_a", "ch15_choice_b", "ch15_choice_c"]:
+		for f in ["ch15_decided", "ch15_choice_a", "ch15_choice_b", "ch15_choice_c", "ch15_ended"]:
 			Game.flags.erase(f)
 		st()["decision"] = ""
+		st()["epilogue"] = []
+		_set_fog(false)
+		_back_in.call_deferred()
 	if Game.has_flag("ch15_mechanism_done") and not Game.has_flag("ch15_decided"):
 		_decide.call_deferred()
 	_refresh_prompts()
 	_guide()
+
+
+## (QA-001 fallback) Outside after an ending's last scene: back into the chamber, by its entrance (after the world
+## has put the player where the save had them).
+func _back_in() -> void:
+	for f in 3:
+		await get_tree().physics_frame
+	if player.global_position.distance_to(UL(GREAT)) > 40.0:
+		player.global_position = UL(GREAT + Vector3(0.0, 0.1, -12.5))
+		player.velocity = Vector3.ZERO
 
 
 ## A load in the great chamber (the decision checkpoint): the group stands by its entrance. The chamber was only

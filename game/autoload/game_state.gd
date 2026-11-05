@@ -278,7 +278,31 @@ func load_game() -> bool:
 	player_state = d.get("player", {})
 	vehicle_state = d.get("vehicle", {})
 	play_time = d.get("play_time", 0.0)
+	_finale_rollback()
 	return true
+
+
+## (QA-001) A save made anywhere after the finale's last decision (the ending under way, its outside scene, its
+## epilogue, or after it) loads as the complete pre-decision checkpoint: the player, the group and the chamber as
+## they were at the choice, so it can always be made (again). Endings already seen are kept; nothing else of the
+## later save carries over (no consequence is applied twice). Without that checkpoint the finale's own load rule
+## (chapter15.gd _apply) brings the choice back instead.
+func _finale_rollback() -> void:
+	if not has_flag("ch15_decided"):
+		return
+	var s: Dictionary = world_state.get("ch15", {})
+	var seen: Array = (s.get("endings_seen", []) as Array).duplicate()
+	var done := String(s.get("ending", ""))
+	if done != "" and has_flag("chapter_15_complete") and not (done in seen):
+		seen.append(done)
+	if not load_checkpoint("chapter16_decision"):
+		return
+	var cs: Dictionary = world_state.get("ch15", {})
+	for e in cs.get("endings_seen", []):
+		if not (e in seen):
+			seen.append(e)
+	cs["endings_seen"] = seen
+	world_state["ch15"] = cs
 
 
 func delete_save() -> void:
