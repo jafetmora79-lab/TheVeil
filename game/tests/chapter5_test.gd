@@ -346,7 +346,19 @@ func _run() -> void:
 	for b in inv._slots:
 		if not (b as Button).disabled:
 			occupied += 1
-	ok("inv_grid", inv.visible and occupied == game.inventory.size() and not world.player.controls_enabled, "%d slots for %d items" % [occupied, game.inventory.size()])
+	var usable_n: int = game.inventory.filter(func(id): return VeilInventoryPanel.usable(id)).size()
+	ok("inv_grid", inv.visible and occupied == usable_n and usable_n > 0 and not world.player.controls_enabled, "%d slots for %d usable items" % [occupied, usable_n])
+	ok("inv_only_usable", inv._ids.all(func(id): return not inv.actions_for(id).is_empty() or id == "batteries")
+		and not inv._ids.has("groceries") and not inv._ids.has("horror_game"), str(inv._ids))
+	ok("inv_square", absf(inv.get_child(1).get_child(0).size.x - inv.get_child(1).get_child(0).size.y) < 2.0,
+		str(inv.get_child(1).get_child(0).size))
+	inv.select(0)
+	inv.inspect()
+	await frames(30)
+	var yaw0: float = inv._insp_pivot.rotation.y if inv._insp_pivot else 0.0
+	await frames(30)
+	ok("inv_inspect_turns", inv.is_inspecting() and inv._insp_pivot != null and absf(inv._insp_pivot.rotation.y - yaw0) > 0.05)
+	inv.close_inspect()
 	ok("inv_battery_qty", VeilInventoryPanel.quantity("batteries") == p4.flashlight.spares)
 	var wsum := 0.0
 	for id in game.inventory:
