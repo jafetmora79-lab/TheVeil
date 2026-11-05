@@ -958,6 +958,14 @@ func _start_evac(restoring: bool) -> void:
 	report["evac_runs"] += 1
 	if restoring:
 		_open_back()
+		if Game.has_flag("ch14_separation") and not Game.has_flag("ch14_separation_made"):
+			# (QA-003) saved mid-separation: a choice already made keeps its consequences (applied once) and is
+			# completed; otherwise the decision is offered again at the fence.
+			if String(st().get("separation", "")) != "":
+				Game.set_flag("ch14_separation_made")
+			else:
+				Game.flags.erase("ch14_separation")
+				st().erase("separated")
 	for k in present():
 		var f: VeilCompanionFollow = c9.follows[k]
 		c9._start_follow(k)
