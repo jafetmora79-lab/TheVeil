@@ -106,6 +106,14 @@
     "ch12_started"
    ],
    "impl": "chapter12.gd"
+  },
+  {
+   "n": 14,
+   "title": "Into the Veil",
+   "start": [
+    "ch13_started"
+   ],
+   "impl": "chapter13.gd"
   }
  ]
 }

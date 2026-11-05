@@ -13,7 +13,8 @@
   "act3_fall": "The Fall of the Supermarket",
   "act3_road": "No Safe Road",
   "act4_farm_road": "The Farm Road",
-  "act5_truth": "The Truth Beneath Greyhaven"
+  "act5_truth": "The Truth Beneath Greyhaven",
+  "act5_veil": "Into the Veil"
  },
  "steps": [
   {
@@ -645,6 +646,78 @@
    "flag": "ch13_started",
    "goal": "act5_truth",
    "text": "Chapter 13 complete - The Truth Beneath Greyhaven"
+  },
+  {
+   "id": "c13_talk",
+   "flag": "ch13_talk_done",
+   "goal": "act5_veil",
+   "text": "Look at the map with the group"
+  },
+  {
+   "id": "c13_setout",
+   "flag": "ch13_set_out",
+   "goal": "act5_veil",
+   "text": "Prepare and choose who comes along"
+  },
+  {
+   "id": "c13_district",
+   "flag": "ch13_district_reached",
+   "goal": "act5_veil",
+   "text": "Reach the abandoned district"
+  },
+  {
+   "id": "c13_gate",
+   "flag": "ch13_gate_open",
+   "goal": "act5_veil",
+   "text": "Open the checkpoint gate"
+  },
+  {
+   "id": "c13_passage",
+   "flag": "ch13_in_passage",
+   "goal": "act5_veil",
+   "text": "Get to the maintenance passage"
+  },
+  {
+   "id": "c13_chamber",
+   "flag": "ch13_chamber_reached",
+   "goal": "act5_veil",
+   "text": "Follow the passage"
+  },
+  {
+   "id": "c13_entrance",
+   "flag": "ch13_entrance_open",
+   "goal": "act5_veil",
+   "text": "Find a way through the sealed entrance"
+  },
+  {
+   "id": "c13_choice",
+   "flag": "ch13_choice_made",
+   "goal": "act5_veil",
+   "text": "Decide: your companion or the evidence"
+  },
+  {
+   "id": "c13_out",
+   "flag": "ch13_out_of_passage",
+   "goal": "act5_veil",
+   "text": "Get out through the damaged passage"
+  },
+  {
+   "id": "c13_escape",
+   "flag": "ch13_returned",
+   "goal": "act5_veil",
+   "text": "Escape the district"
+  },
+  {
+   "id": "c13_night",
+   "flag": "chapter_13_complete",
+   "goal": "act5_veil",
+   "text": "Rest at the mill house"
+  },
+  {
+   "id": "c13_complete",
+   "flag": "ch14_started",
+   "goal": "act5_veil",
+   "text": "Chapter 14 complete - Into the Veil"
   }
  ],
  "_comment": "Steps complete in list order for display, but each errand step only checks its own flag, so the supermarket and the game shop can be done in either order (the bible leaves the stop order open). Phase 3 (mist_*) is a WORKING DRAFT sequence of Act I's opening.",
