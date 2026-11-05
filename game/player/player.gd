@@ -57,7 +57,7 @@ var _step_smooth := 0.0
 
 func _ready() -> void:
 	collision_layer = 2
-	collision_mask = 1 | 4            # world + vehicles
+	collision_mask = 1 | 4 | VeilSurvivorBody.LAYER            # world, vehicles and survivors
 	floor_max_angle = deg_to_rad(46.0)
 	floor_snap_length = 0.35
 	capsule = CapsuleShape3D.new()
@@ -167,33 +167,10 @@ func _physics_process(delta: float) -> void:
 
 
 ## Stair-step: when the way ahead is blocked by a low vertical face (a curb, a door sill), lift the capsule onto it.
-## Probe: up STEP, forward (at least 8 cm so slow walking still finds the edge), then back down onto a walkable floor.
+## The shared swept step check requires headroom and a walkable landing.
 func _step_up(hv: Vector3, delta: float) -> void:
-	# probe a full capsule radius ahead: the rounded bottom touches a curb edge about RADIUS before the face
-	var fwd := hv.normalized() * maxf(hv.length() * delta, RADIUS + 0.06)
-	var t := global_transform
-	var col := KinematicCollision3D.new()
-	if not test_move(t, fwd, col):
-		return
-	if col.get_normal().y > 0.7:            # a slope we can already walk up
-		return
-	var up := Vector3(0, STEP, 0)
-	if test_move(t, up):                     # no head room
-		return
-	var t_up := t.translated(up)
-	if test_move(t_up, fwd):                 # still blocked up there: it is a wall, not a step
-		return
-	var t_fwd := t_up.translated(fwd)
-	var down := KinematicCollision3D.new()
-	if not test_move(t_fwd, Vector3(0, -STEP - 0.05, 0), down):
-		return
-	if down.get_normal().y < 0.7:
-		return
-	var rise := STEP - down.get_travel().length()
-	if rise < 0.01:
-		return
-	global_position = t_fwd.origin + down.get_travel() + Vector3(0, 0.002, 0)
-	_step_smooth += rise                       # the camera eases up instead of popping
+	var probe := hv.normalized() * maxf(hv.length() * delta, RADIUS + 0.06)
+	_step_smooth += VeilSurvivorBody.step_up(self, probe, STEP)
 
 
 func _update_stamina(sprinting: bool, delta: float) -> void:

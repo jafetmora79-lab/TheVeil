@@ -20,6 +20,7 @@
    "weight": 0.05
   },
   "canned_food": {
+   "shelter_resource": "food",
    "name": "Canned Soup",
    "category": "food",
    "description": "Tomato soup. Dinner, technically.",
@@ -27,6 +28,7 @@
    "weight": 0.4
   },
   "water_bottle": {
+   "shelter_resource": "water",
    "name": "Water Bottle",
    "category": "food",
    "description": "A big bottle of spring water.",
@@ -34,6 +36,7 @@
    "weight": 1.0
   },
   "energy_snack": {
+   "shelter_resource": "food",
    "name": "Snack Bar",
    "category": "food",
    "description": "Chocolate and peanuts. For later.",
@@ -55,6 +58,7 @@
    "icon": "res://game/ui/icons/horror_game.png"
   },
   "cola_bottle": {
+   "shelter_resource": "water",
    "name": "Cola",
    "category": "food",
    "description": "A cold bottle of KOLA from the drinks cooler.",
@@ -62,6 +66,7 @@
    "weight": 0.6
   },
   "chocolate_bar": {
+   "shelter_resource": "food",
    "name": "Chocolate",
    "category": "food",
    "description": "A COCOA bar from the rack by the checkout.",
@@ -76,6 +81,7 @@
    "weight": 0.45
   },
   "batteries": {
+   "shelter_resource": "batteries",
    "name": "Batteries",
    "category": "flashlight",
    "description": "Spare flashlight batteries. The count and charge show bottom right while the flashlight is on.",
@@ -83,6 +89,8 @@
    "weight": 0.1
   },
   "painkillers": {
+   "shelter_resource": "medical",
+   "heal_amount": 25.0,
    "name": "Painkillers",
    "category": "medical",
    "description": "A blister pack of painkillers from a bathroom medicine cabinet.",
@@ -102,6 +110,27 @@
    "weight": 0.01,
    "model": "res://THE_VEIL_ASSETS_V2/08_Inventory/Story_Items/INV_FoldedNote.glb",
    "description": "I couldn't stay there.\nA man said he knew somewhere safer, outside town.\nHe said there's a house near the farms.\nI'm going with him.\n— Noah"
+  },
+  "repair_boards": {
+   "name": "Wooden Boards",
+   "category": "tool",
+   "description": "Three planks from a broken pallet. Long enough to brace the back door.",
+   "model": "res://THE_VEIL_ASSETS_V2/03_Residential/Exterior_Modules/RES_Ext_Window_Boarded_1.0x1.3.glb",
+   "weight": 3.0
+  },
+  "duct_tape": {
+   "name": "Duct Tape",
+   "category": "tool",
+   "description": "Half a roll of grey tape. It holds things together. For a while.",
+   "model": "res://THE_VEIL_ASSETS_V2/08_Inventory/Tools/INV_DuctTape.glb",
+   "weight": 0.2
+  },
+  "hammer": {
+   "name": "Hammer",
+   "category": "tool",
+   "description": "A claw hammer from the maintenance shelf.",
+   "model": "res://THE_VEIL_ASSETS_V2/08_Inventory/Tools/INV_Hammer.glb",
+   "weight": 0.6
   }
  },
  "carry_capacity_kg": 15.0,

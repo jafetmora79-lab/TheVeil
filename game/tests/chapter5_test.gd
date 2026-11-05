@@ -233,7 +233,13 @@ func _run() -> void:
 	ok("c5_cant_leave_yet", c5.its["exit"].prompt_text.begins_with("NOT YET"), c5.its["exit"].prompt_text)
 	ok("c5_eddie_reach", await aim(c5.its["npc_Eddie"], [Z, -Z, X, -X], mk, 1.4))
 	c5.its["npc_Eddie"].interact(world.player)
+	await frames(30)
+	var c5cam := root.get_viewport().get_camera_3d()
+	ok("c5_talk_camera_zoom", c5cam != null and c5cam.name == "TalkCam" and not world.player.controls_enabled
+		and c5cam.global_position.distance_to(world.player.camera.global_position) < 0.03
+		and absf(1.0 - c5cam.fov / world.player.camera.fov - 0.1) < 0.025, c5cam.name if c5cam else "-")
 	ok("c5_eddie_talk", await wait_talk(func(): return game.has_flag("c5_eddie_talked")))
+	ok("c5_talk_camera_released", await wait_until(func(): return root.get_viewport().get_camera_3d() == world.player.camera and world.player.controls_enabled, 60 * 3))
 	ok("c5_marcus_reach", await aim(c5.its["npc_Marcus"], [Z, -Z, X, -X], mk, 1.4))
 	c5.its["npc_Marcus"].interact(world.player)
 	ok("c5_marcus_talk", await wait_talk(func(): return game.has_flag("c5_marcus_talked")))

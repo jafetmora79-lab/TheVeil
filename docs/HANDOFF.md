@@ -597,3 +597,42 @@ arrives inside the game shop (the owner's case).
   * Energies are unchanged (not brighter).
 * **Pre-existing, not fixed:** `--script` runs print "Identifier not found: Game" for `interactable.gd` before the
   autoloads exist. The test still runs; it appears at the merged Phase 4 base (ae21bca).
+
+### 9.15 Global NPC conversation camera and Chapter 8 (branch `claude/chapter8-something-at-the-doors`)
+* **Why the talk zoom stopped working in later chapters:**
+  * `converse()` refused when one sight line, eye to head, was blocked. A door frame or a counter edge was
+    enough. The chapters then fell back to plain timed subtitles: no zoom, no continue prompt and no movement
+    lock. Ruth and Sarah at their doorway and the Chapter 5 survivor hit this every time.
+  * A second `converse()` during a talk cut the first one off.
+* **The shared fix (`world.gd`; there is still only one dialogue system):**
+  * `can_talk` checks the head, face and chest; one clear line is enough. Glass and walls still refuse.
+  * The talk camera stays at the protagonist's eye. It only turns toward the speaker's face and upper body, with a
+    10 % FOV zoom over about 0.4 s and a gentler re-aim when the speaker changes. Because it never moves, it cannot
+    clip.
+  * A speaker hidden from the eye (behind a wall beside a doorway, or behind another NPC) is never framed; the
+    view stays on the last visible speaker.
+  * Invisible "keep out" blockers (group `veil_talk_transparent`) do not block a talk.
+  * Chapter 6: Ruth and Sarah now start talking once Ruth is actually in view, instead of at the yard fence. If the
+    player never comes into view within 12 s, the plain lines play as before.
+  * It eases back to the player's own view (~0.4 s), then restores FOV and control.
+  * `end_conversation()` is for scripted interruptions. `talk_watchdog()` releases any left-over talk camera, and
+    world `_ready` clears queued dialogue, so a load never resumes half-way through a talk.
+  * Hold-E skip shows a progress bar (`SKIPPING [####------]`) and still stops at choices.
+  * `converse()` only queues plain lines during exceptions: driving, encounters, cinematics and a hidden player.
+* **Chapter 8 (`chapter8.gd`, started by sleeping after Chapter 7):**
+  * Scenes in order:
+    * Eddie;
+    * inspect the damaged rear barricade, then Marcus;
+    * boards (back corridor), duct tape (service counter) and a hammer (loading-bay pallets);
+    * first-person repair;
+    * the lights fail;
+    * inspect and reseat at the Chapter 4 breaker panel, which restores partial power;
+    * three impacts on the way back, and the barricade gives way;
+    * the Hound kills the temporary survivor once (a cut to black, no gore) and Sarah is hurt;
+    * push a pallet stack across the back doorway; the Hound withdraws;
+    * help Sarah: painkillers or shelter medical stock, used once, or none (she stays seriously hurt);
+    * the group talk, then "CHAPTER 8 COMPLETE".
+  * Sleeping sets `ch8_rested` only. Chapter 9 is not started.
+  * Ruth and Sarah (if not invited in Chapter 6) and the Chapter 5 survivor (if not helped) arrive at the
+    shelter during the night before Chapter 8, so the approved script plays in every branch (`st().ruth_sarah_arrived`).
+  * Dev entry: `game/tools/dev_chapter8.gd`. Test: `game/tests/chapter8_test.gd`.
