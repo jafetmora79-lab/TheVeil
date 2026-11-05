@@ -275,7 +275,7 @@ func _run() -> void:
 	var Z := Vector3(0, 0, 1)
 	ok("c7_entry_after_c6_rest", c7 != null and game.has_flag("ch7_started") and game.current_step().get("id", "") == "c7_marcus",
 		game.current_step().get("id", ""))
-	ok("c7_title_card", await wait_until(func(): return world.hud.title.text.begins_with("CHAPTER 7"), 60 * 6), world.hud.title.text)
+	ok("c7_title_card", await wait_until(func(): return world.hud.chapter_l.text.begins_with("CHAPTER 8  —  A TRACE OF NOAH"), 60 * 6), world.hud.chapter_l.text)
 	ok("c7_marcus_at_notes", c7.marcus.get_parent() == world.market and c7.marcus.position.distance_to(c7.MARCUS_NOTES) < 0.3)
 	ok("c7_doors_closed_no_prompt", c7.doors != null and c7.doors.prompt_text == "" and not c5._doors_open)
 	# ---- scene 1-2
@@ -374,7 +374,7 @@ func _run() -> void:
 	c7.its["npc_Eddie"].interact(world.player)
 	ok("c7_complete", await wait_talk(func(): return game.has_flag("chapter_7_complete") and game.has_flag("ch7_report_complete"), 120.0)
 		and said.has("One thing at a time."))
-	ok("c7_complete_card", world.hud.title.text.begins_with("CHAPTER 7 COMPLETE"), world.hud.title.text)
+	ok("c7_complete_card", world.hud.chapter_l.text.begins_with("CHAPTER 8 COMPLETE"), world.hud.chapter_l.text)
 	ok("c7_no_chapter8", not game.has_flag("ch8_started") and game.current_step().get("id", "") == "c7_complete")
 	ok("c7_marcus_alive", c7.marcus != null and is_instance_valid(c7.marcus) and c7.marcus.visible)
 	await reload()

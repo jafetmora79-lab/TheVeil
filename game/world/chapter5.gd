@@ -85,6 +85,7 @@ func begin(w: Node, phase4: Node, restoring: bool) -> void:
 	Dialogue.line_started.connect(_on_line)
 	if not Game.has_flag("c5_started"):
 		Game.set_flag("c5_started")
+		hud.chapter_start(6)                        # over the wake-up fade (after "SATURDAY")
 		world._atmo().set_state(3)                  # morning: the daytime Veil (Pack 09 VEIL_ACTIVE preset)
 	else:
 		world._atmo().set_state(3, true)
@@ -712,7 +713,7 @@ func _complete() -> void:
 	if p4.rest:
 		p4.rest.get_parent().visible = true
 		p4.rest.interactable.prompt_text = "[E] Sleep"
-	await hud.title_card("CHAPTER 5 COMPLETE  -  THE FIRST SEARCH", 3.2)
+	await hud.chapter_complete(6)
 
 
 func _on_rest(_id: String) -> void:

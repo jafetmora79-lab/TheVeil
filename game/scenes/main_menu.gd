@@ -40,6 +40,8 @@ func _ready() -> void:
 	b_new.pressed.connect(_new_game)
 	var b_cont := VeilUI.button("Continue")
 	b_cont.disabled = not Game.has_save()
+	if Game.has_save():
+		b_cont.text = "Continue  -  " + Game.saved_chapter_name()
 	b_cont.pressed.connect(_continue)
 	var b_set := VeilUI.button("Settings")
 	b_set.pressed.connect(func():
