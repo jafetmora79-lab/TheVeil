@@ -100,6 +100,11 @@ func _ready() -> void:
 	egg.name = "EasterEggGolden"
 	add_child(egg)
 	egg.setup.call_deferred(self)
+	# an optional rooftop Skitter at a house in town (after the mist; once; isolated: game/encounters/)
+	var roof_egg: Node = load("res://game/encounters/roof_skitter.gd").new()
+	roof_egg.name = "OptionalRoofSkitterEncounter"
+	add_child(roof_egg)
+	roof_egg.setup.call_deferred(self)
 	_apply_view_ranges()
 	_setup_night()
 	_light_budget_all()
