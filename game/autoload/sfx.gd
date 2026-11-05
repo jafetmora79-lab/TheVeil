@@ -23,6 +23,8 @@ func _ready() -> void:
 	_streams["static"] = _make(1.6, func(t, i): return _noise(i) * 0.35 * (0.6 + 0.4 * sin(t * 60.0)) * exp(-maxf(t - 1.2, 0.0) * 8.0))
 	_streams["tentacle_hiss"] = _make(0.7, func(t, i): return (_noise(i) * 0.5 + sin(TAU * 180.0 * t * (1.0 + t)) * 0.25) * exp(-t * 4.5))
 	_streams["colossus_step"] = _make(2.6, func(t, i): return (sin(TAU * 26.0 * t) * 0.9 + sin(TAU * 41.0 * t) * 0.5 + _noise(i) * 0.5 * exp(-t * 9.0)) * exp(-t * 1.6) * minf(t * 60.0, 1.0))
+	_streams["water_run"] = _make(2.2, func(t, i): return _noise(i) * 0.22 * (0.75 + 0.25 * sin(t * 37.0)) * minf(t * 8.0, 1.0) * minf((2.2 - t) * 4.0, 1.0))
+	_streams["splash"] = _make(0.45, func(t, i): return (_noise(i) * 0.5 + sin(TAU * 320.0 * t) * 0.08) * exp(-t * 9.0))
 	_streams["hurt"] = _make(0.35, func(t, i): return (_noise(i) * 0.4 + sin(TAU * (140.0 - 120.0 * t) * t) * 0.5) * exp(-t * 9.0))
 
 

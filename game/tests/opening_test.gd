@@ -302,10 +302,18 @@ func _run() -> void:
 	ok("ground_below_lots", world.ground_dropped)
 	ok("light_budget", unfaded == 0 and worst < cap and ProjectSettings.get_setting("rendering/limits/opengl/max_lights_per_object") >= 16,
 		"%d lights, %d without fade, worst spot %d in range (cap %d)" % [lights.size(), unfaded, worst, cap])
-	# ---- wake up in the bedroom (wait for the sequence)
-	await frames(60 * 9)
-	ok("player_in_bedroom", player.global_position.distance_to((home.get_node("Markers/Spawn_WakeUp") as Node3D).global_position) < 0.6)
+	# ---- wake up, then the first-day wash at the bathroom sink (wait for the sequence)
+	ok("bathroom_layout_fixed", world.bathroom.report.get("layout_fixed", false) and world.bathroom.report.get("mirror", false))
+	ok("washed_face", await wait_until(func(): return game.has_flag("washed_face"), 60 * 40) and world.bathroom.report.get("reflection", false))
+	await frames(60 * 2)
 	ok("controls_after_wake", player.controls_enabled)
+	# the rest of this test starts from the bedroom with its door shut: put the player back there
+	player.global_position = (home.get_node("Markers/Spawn_WakeUp") as Node3D).global_position
+	for k in ["home/INT_Door_Bedroom", "home/INT_Door_Bathroom"]:
+		if world.interactables.has(k):
+			world.interactables[k].set_open(false, true)
+	await frames(10)
+	ok("player_in_bedroom", player.global_position.distance_to((home.get_node("Markers/Spawn_WakeUp") as Node3D).global_position) < 0.6)
 	ok("objective_kitchen", game.current_step().get("id", "") == "check_kitchen")
 	# ---- collision: a closed bedroom door blocks the player
 	var bd = world.interactables.get("home/INT_Door_Bedroom")
