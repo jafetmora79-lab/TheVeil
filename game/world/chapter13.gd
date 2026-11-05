@@ -779,12 +779,7 @@ func _make_skitter(n: String, at: Vector3) -> Node3D:
 	sk.set_physics_process(false)
 	sk.global_position = at
 	VeilCreatureLook.apply_skitter(sk, at.y)
-	var ap := sk.find_children("*", "AnimationPlayer", true, false)
-	if not ap.is_empty():
-		for an in (ap[0] as AnimationPlayer).get_animation_list():
-			if String(an).to_lower().contains("run"):
-				(ap[0] as AnimationPlayer).play(an)
-				break
+	VeilCreatureLook.skitter_anim(sk, "scuttle", 5.0)       # (QA-005) the real clip names
 	return sk
 
 

@@ -576,13 +576,7 @@ func _spawn_skitter() -> bool:
 	if hit:
 		end.y = (hit["position"] as Vector3).y
 	sk.rotation.y = atan2(end.x - at.x, end.z - at.z)
-	var ap := sk.find_children("*", "AnimationPlayer", true, false)
-	if not ap.is_empty():
-		var a := ap[0] as AnimationPlayer
-		for n in a.get_animation_list():
-			if String(n).to_lower().contains("run"):
-				a.play(n)
-				break
+	VeilCreatureLook.skitter_anim(sk, "scuttle", 7.0)
 	var tw := sk.create_tween()
 	tw.tween_property(sk, "global_position", end, at.distance_to(end) / 7.0)
 	creatures.append({"node": sk, "ai": null, "kind": "skitter", "exit": end})
@@ -616,12 +610,7 @@ func skitter_crossing(from: Vector3, to: Vector3, speed := 7.5) -> Node3D:
 	sk.global_position = from
 	VeilCreatureLook.apply_skitter(sk, from.y)
 	sk.rotation.y = atan2(to.x - from.x, to.z - from.z)
-	var aps := sk.find_children("*", "AnimationPlayer", true, false)
-	if not aps.is_empty():
-		for n in (aps[0] as AnimationPlayer).get_animation_list():
-			if String(n).to_lower().contains("run"):
-				(aps[0] as AnimationPlayer).play(n)
-				break
+	VeilCreatureLook.skitter_anim(sk, "scuttle", speed)
 	_play("skitter", from + Vector3(0, 0.5, 0), -2.0)
 	var tw := sk.create_tween()
 	tw.tween_property(sk, "global_position", to, from.distance_to(to) / speed)

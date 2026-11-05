@@ -316,16 +316,37 @@ func _run() -> void:
 	await reload()
 	ok("c7_load_travel", game.current_step().get("id", "") == "c7_vehicle" and c7.marcus_follow.active and said.count("Noah used to ride his bike around here.") == 1)
 	_eddie_prev = c7.marcus.global_position
-	ok("c7_walk_to_car", await walk_world(TO_CAR.slice(2)), str(world.player.global_position))
-	ok("c7_vehicle_reached", await wait_until(func(): return game.has_flag("ch7_vehicle_reached"), 60 * 2)
-		and game.current_step().get("id", "") == "c7_search")
+	# (QA-004) the Skitters are already at the car, moving about it, before the player gets near
+	ok("c7_walk_short_of_car", await walk_world([Vector3(-30.0, 0.2, 0.0)]), str(world.player.global_position))
+	ok("c7_skitters_before_arrival", c7.skitters.size() == 2 and not game.has_flag("ch7_skitters_seen")
+		and c7.skitters.all(func(sk): return sk.global_position.distance_to(c7.CAR_POS) < 4.5))
+	var sk0: Vector3 = c7.skitters[0].global_position
+	await watch_frames(60 * 6)
+	ok("c7_skitters_patrol", c7.skitters[0].global_position.distance_to(sk0) > 0.5 or c7.skitters[1].global_position.distance_to(c7.SKITTER_SPOTS[1]) > 0.5)
+	# (QA-008) the first sight: a look at the car, the talk, then the marker to the alarm (not the backpack)
+	await walk_world([Vector3(-36.0, 0.2, 0.0)])
+	ok("c7_intro_plays", await wait_until(func(): return game.has_flag("ch7_skitters_seen") and not world.player.controls_enabled, 60 * 3))
+	ok("c7_intro_done", await wait_talk(func(): return world.player.controls_enabled and not c7._busy.get("intro", false), 40.0)
+		and c7.qa_report.get("intro_facing", 0.0) > 0.95 and said.has("Something loud. Away from the car.") and world.player.camera.fov > 60.0,
+		str(c7.qa_report))
+	ok("c7_vehicle_reached", game.has_flag("ch7_vehicle_reached") and game.current_step().get("id", "") == "c7_search")
+	ok("c7_marker_alarm", await wait_until(func(): return world.hud._mk_name == "CAR ALARM", 30))
 	ok("c7_backpack_not_auto", not game.has_flag("ch7_backpack_found") and not game.has_item("noahs_backpack"))
-	# Skitters crouch around the car: the backpack is out of reach until a noise draws them off
 	ok("c7_skitters_at_car", c7.skitters.size() == 2 and c7.its["backpack"].prompt_text == "" and c7.its["alarm"].prompt_text != "")
+	# (QA-006) a lunge: turns, Attack_Lunge, the bite lands at the contact moment, not at once
+	var hp0: float = world.player.health
+	c7._lunge(c7.skitters[0])
+	await watch_frames(2)
+	var hp_now: float = world.player.health
+	ok("c7_lunge_anim", c7.qa_report.get("lunge_anim", false) and hp_now == hp0)
+	await watch_frames(90)
+	world.player.health = hp0
 	await walk_world([c7.ALARM_POS + Vector3(0.0, 0.05, -2.6)])          # walked back (no teleport: Marcus follows the trail)
 	ok("c7_alarm_reach", await look(c7.its["alarm"]))
 	c7.its["alarm"].interact(world.player)
-	ok("c7_skitters_drawn_off", await wait_until(func(): return game.has_flag("ch7_skitters_gone"), 60) and c7.its["alarm"].prompt_text == "")
+	ok("c7_alarm_not_instant", not game.has_flag("ch7_skitters_gone") and c7.its["backpack"].prompt_text == "")
+	ok("c7_skitters_drawn_off", await wait_until(func(): return game.has_flag("ch7_skitters_gone"), 60 * 8) and c7.its["alarm"].prompt_text == ""
+		and c7.skitters.any(func(sk): return sk.global_position.distance_to(c7.ALARM_POS) < 8.0))
 	ok("c7_skitters_leave_unseen", await wait_until(func(): return c7.skitters.is_empty(), 60 * 20), str(c7.skitters.size()))
 	ok("c7_backpack_prompt", c7.its["backpack"].prompt_text == "E - EXAMINE BACKPACK")
 	# walk up to the open rear door (the marker points at the backpack)
