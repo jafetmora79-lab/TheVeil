@@ -20,6 +20,10 @@ signal arrived
 var mood := "calm"
 var look_target: Node3D            ## defaults to the active camera
 var walk_speed := 1.25
+## Collision movement (VeilSurvivorBody move_and_slide, physics rate) only while a companion follows the player.
+## Scripted walks (cinematics, regroups, retreats) follow their planned paths every frame without collision: they
+## are routed around the world already, and colliding with each other / the player got them stuck or pushed out.
+var physical := false
 
 var skel: Skeleton3D
 var root: Node3D                   ## the character node that is moved / turned
@@ -171,6 +175,8 @@ func _process(delta: float) -> void:
 	_t += delta
 	_talk_left = maxf(_talk_left - delta, 0.0)
 	_scare = move_toward(_scare, 1.0 if mood == "scared" else 0.0, delta * 0.8)
+	if not physical:
+		_update_walk(delta)
 	_update_turn(delta)
 	_update_gestures(delta)
 	_update_look(delta)
@@ -179,7 +185,7 @@ func _process(delta: float) -> void:
 
 
 func _physics_process(delta: float) -> void:
-	if skel != null and root.is_visible_in_tree():
+	if physical and skel != null and root.is_visible_in_tree():
 		_update_walk(delta)
 
 
@@ -198,7 +204,7 @@ func _update_walk(delta: float) -> void:
 		return
 	_walk = move_toward(_walk, 1.0, delta * 3.0)
 	var step := minf(walk_speed * _walk * delta, d.length())
-	var body := root as VeilSurvivorBody
+	var body := root as VeilSurvivorBody if physical else null
 	var before := root.global_position
 	if body:
 		var frame := body.get_parent_node_3d()
