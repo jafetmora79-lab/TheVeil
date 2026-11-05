@@ -8,6 +8,7 @@ class_name PlayerSedan
 signal entered
 signal exited
 signal speed_changed(kmh: float)
+signal radio_changed(station: String)
 
 const SEDAN_SCENE := preload("res://THE_VEIL_ASSETS_V2/05_Vehicles/Godot_Scenes/Protagonist_Sedan.tscn")
 const TOP_SPEED := 15.3          # m/s (55 km/h) - an older everyday sedan on 25 mph town streets
@@ -131,6 +132,7 @@ func set_driven(on: bool) -> void:
 	driven = on
 	driver_cam.current = on
 	_mirrors_on(on)
+	_radio_apply()                                   # the radio plays only while driving (station remembered)
 	_look_yaw = 0.0
 	driver_cam.rotation = Vector3.ZERO
 	var lights := car.get_node_or_null("Lights")
@@ -182,7 +184,45 @@ func exit_spot(space: PhysicsDirectSpaceState3D, player_rid: RID) -> Variant:
 
 
 # ------------------------------------------------------------------ driving
+# ------------------------------------------------------------------ car radio (Q while driving): off -> 3 stations
+const STATIONS := [["", ""], ["LAST EXIT — ROCK", "res://game/audio/radio/last_exit_rock.wav"],
+	["NEON HEARTS — POP", "res://game/audio/radio/neon_hearts_pop.wav"],
+	["MIDNIGHT DRIVE — LO-FI", "res://game/audio/radio/midnight_drive_lofi.wav"]]
+var radio_station := 0
+var _radio: AudioStreamPlayer
+
+
+func next_station() -> void:
+	radio_station = (radio_station + 1) % STATIONS.size()
+	Sfx.play("static", global_position + Vector3(0, 1, 0), -18.0, 1.6)   # the dial click / static
+	_radio_apply()
+	radio_changed.emit(STATIONS[radio_station][0])
+
+
+func _radio_apply() -> void:
+	if _radio == null:
+		_radio = AudioStreamPlayer.new()
+		_radio.name = "CarRadio"
+		add_child(_radio)
+	var on := driven and radio_station > 0
+	if on:
+		var path: String = STATIONS[radio_station][1]
+		if not (_radio.playing and _radio.has_meta("path") and _radio.get_meta("path") == path):
+			_radio.stream = Sfx._looped(path, true)
+			_radio.set_meta("path", path)
+			_radio.volume_db = -6.0
+			_radio.play()
+	else:
+		_radio.stop()
+		_radio.remove_meta("path")
+	Sfx.duck_music(on)
+
+
 func _unhandled_input(event: InputEvent) -> void:
+	if driven and event.is_action_pressed("car_radio"):
+		next_station()
+		get_viewport().set_input_as_handled()
+		return
 	if driven and event is InputEventMouseMotion and Input.mouse_mode == Input.MOUSE_MODE_CAPTURED:
 		var s: float = Game.settings["mouse_sensitivity"] * 0.01
 		_look_yaw = clampf(_look_yaw - event.relative.x * s, deg_to_rad(-110), deg_to_rad(110))

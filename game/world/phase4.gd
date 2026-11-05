@@ -793,6 +793,7 @@ func _music(id: String, db := 0.0) -> void:
 	_music_player.volume_db = db
 	_music_player.play()
 	Sfx.stop_ambience()
+	Sfx.stop_music(0.4)                               # the soundtrack gives way to the chase
 
 
 func _music_stop(fade: float) -> void:
@@ -800,6 +801,7 @@ func _music_stop(fade: float) -> void:
 		var tw := create_tween()
 		tw.tween_property(_music_player, "volume_db", -40.0, fade)
 		tw.tween_callback(_music_player.stop)
+		tw.tween_callback(func(): Sfx.play_music(Sfx.MUSIC_GAMEPLAY, true, -14.0, 3.0))
 
 
 func _hound_charge() -> void:                   # (name kept: the accept branch's creature is now the Skitter)

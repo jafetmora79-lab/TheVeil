@@ -109,6 +109,74 @@ func start_ambience(volume_db := -16.0) -> void:
 	_ambience.play()
 
 
+# ------------------------------------------------------------------ music (one channel)
+const MUSIC_MENU := "res://game/audio/music/menu_exploration_smooth.wav"
+const MUSIC_GAMEPLAY := "res://game/audio/music/gameplay_ambience_loop.wav"
+const MUSIC_COLOSSUS := "res://game/audio/music/colossus_appearance.wav"
+var _music: AudioStreamPlayer
+var _music_db := -10.0
+var _music_duck := 0.0
+var _music_then := ""                  ## a one-shot hands back to this loop when it ends
+var _music_tw: Tween
+
+
+static func _looped(path: String, loop: bool) -> AudioStream:
+	var st := load(path) as AudioStream
+	if st is AudioStreamWAV:
+		var w := st as AudioStreamWAV
+		w.loop_mode = AudioStreamWAV.LOOP_FORWARD if loop else AudioStreamWAV.LOOP_DISABLED
+		w.loop_begin = 0
+		w.loop_end = int(w.get_length() * w.mix_rate)
+	return st
+
+
+## Play a music track (fades out the current one). loop: repeat; then_loop: after a one-shot, go back to that loop.
+func play_music(path: String, loop := true, db := -10.0, fade := 1.2, then_loop := "") -> void:
+	if _music == null:
+		_music = AudioStreamPlayer.new()
+		_music.name = "Music"
+		add_child(_music)
+		_music.finished.connect(func(): if _music_then != "": play_music(_music_then, true, _music_db, 2.0))
+	if _music.playing and _music.has_meta("path") and _music.get_meta("path") == path:
+		return
+	_music_then = then_loop
+	_music_db = db
+	if _music_tw:
+		_music_tw.kill()
+	_music_tw = create_tween()
+	if _music.playing:
+		_music_tw.tween_property(_music, "volume_db", -50.0, fade * 0.5)
+	_music_tw.tween_callback(func():
+		_music.stream = _looped(path, loop)
+		_music.set_meta("path", path)
+		_music.volume_db = -50.0
+		_music.play())
+	_music_tw.tween_property(_music, "volume_db", db + _music_duck, fade * 0.5)
+
+
+func stop_music(fade := 1.0) -> void:
+	if _music == null or not _music.playing:
+		return
+	_music_then = ""
+	if _music_tw:
+		_music_tw.kill()
+	_music_tw = create_tween()
+	_music_tw.tween_property(_music, "volume_db", -50.0, fade)
+	_music_tw.tween_callback(func():
+		_music.stop()
+		_music.remove_meta("path"))
+
+
+## The car radio is on: the music sinks away (and comes back when it is off).
+func duck_music(on: bool) -> void:
+	_music_duck = -40.0 if on else 0.0
+	if _music and _music.playing:
+		if _music_tw:
+			_music_tw.kill()
+		_music_tw = create_tween()
+		_music_tw.tween_property(_music, "volume_db", _music_db + _music_duck, 0.8)
+
+
 func stop_ambience() -> void:
 	if _ambience:
 		_ambience.stop()

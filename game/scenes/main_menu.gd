@@ -7,6 +7,7 @@ var loading: Label
 
 
 func _ready() -> void:
+	Sfx.play_music(Sfx.MUSIC_MENU, true, -8.0, 1.5)          # main menu theme (loops)
 	Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
 	get_tree().paused = false
 	set_anchors_preset(Control.PRESET_FULL_RECT)
