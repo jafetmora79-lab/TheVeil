@@ -23,8 +23,8 @@ var anim: AnimationPlayer
 var patrol: Array = []              # world points
 var home := Vector3.ZERO
 var leash := 34.0
-var walk_speed := 1.25
-var chase_speed := 3.9              # player sprint is 4.3, walk ~2.6
+var walk_speed := 1.4
+var chase_speed := 4.1              # player sprint is 4.3, walk ~2.6 (still outrunnable)
 var sight_range := 15.0
 var sight_range_crouch := 6.5
 var sight_half_angle := 62.0

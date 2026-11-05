@@ -13,6 +13,10 @@ signal refused(shelter_id: String)
 @export var confirm_title := "Rest until morning?"
 ## Callable returning true when resting is allowed right now (story gate); empty = always.
 var can_rest: Callable = Callable()
+## Survival rule shared by every rest point (set by the expedition controller): returns "" when the group has
+## enough to eat and drink tonight, otherwise the reason (shown as a hint; sleeping is refused).
+static var supply_gate: Callable = Callable()
+var supply_refusals := 0                ## tests
 var interactable: Interactable
 var choice: VeilChoicePanel
 var hud: Node
@@ -45,6 +49,13 @@ func request() -> void:
 	if can_rest.is_valid() and not can_rest.call():
 		refused.emit(shelter_id)
 		return
+	if supply_gate.is_valid():
+		var why: String = supply_gate.call()
+		if why != "":
+			if hud and hud.has_method("set_hint"):
+				hud.set_hint(why)                  # (not the story's "not tired" refusal: this is about supplies)
+			supply_refusals += 1
+			return
 	_busy = true
 	var i: int = await choice.ask(confirm_title, ["Sleep", "Not yet"], player)
 	if i != 0:

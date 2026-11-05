@@ -320,6 +320,12 @@ func _run() -> void:
 	ok("c7_vehicle_reached", await wait_until(func(): return game.has_flag("ch7_vehicle_reached"), 60 * 2)
 		and game.current_step().get("id", "") == "c7_search")
 	ok("c7_backpack_not_auto", not game.has_flag("ch7_backpack_found") and not game.has_item("noahs_backpack"))
+	# Skitters crouch around the car: the backpack is out of reach until a noise draws them off
+	ok("c7_skitters_at_car", c7.skitters.size() == 2 and c7.its["backpack"].prompt_text == "" and c7.its["alarm"].prompt_text != "")
+	ok("c7_alarm_reach", await aim(c7.its["alarm"], [Vector3(0, 0, 1), Vector3(0, 0, -1)], world.market, 1.2))
+	c7.its["alarm"].interact(world.player)
+	ok("c7_skitters_drawn_off", await wait_until(func(): return game.has_flag("ch7_skitters_gone"), 60) and c7.its["alarm"].prompt_text == "")
+	ok("c7_skitters_leave_unseen", await wait_until(func(): return c7.skitters.is_empty(), 60 * 20), str(c7.skitters.size()))
 	ok("c7_backpack_prompt", c7.its["backpack"].prompt_text == "E - EXAMINE BACKPACK")
 	# walk up to the open rear door (the marker points at the backpack)
 	var bp: Vector3 = c7.its["backpack"].global_position

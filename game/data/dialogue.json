@@ -3654,5 +3654,120 @@
     "time": 2.0
    }
   ]
+ },
+ "exp_warn1_Eddie": {
+  "source": "Dynamic Exploration & Survival Expansion prompt (approved lines)",
+  "lines": [
+   {
+    "speaker": "Eddie",
+    "text": "We've been out here a while. Maybe we should head back.",
+    "time": 3.9
+   }
+  ]
+ },
+ "exp_warn1_Ruth": {
+  "source": "Dynamic Exploration & Survival Expansion prompt (approved lines)",
+  "lines": [
+   {
+    "speaker": "Ruth",
+    "text": "I don't like how quiet it's getting.",
+    "time": 2.9
+   }
+  ]
+ },
+ "exp_warn2_Marcus": {
+  "source": "Dynamic Exploration & Survival Expansion prompt (approved lines)",
+  "lines": [
+   {
+    "speaker": "Marcus",
+    "text": "We're pushing our luck. We should get moving.",
+    "time": 3.4
+   }
+  ]
+ },
+ "exp_warn2_Sarah": {
+  "source": "Dynamic Exploration & Survival Expansion prompt (approved lines)",
+  "lines": [
+   {
+    "speaker": "Sarah",
+    "text": "Did you hear that? Something's following us.",
+    "time": 3.3
+   }
+  ]
+ },
+ "exp_warn3_Eddie": {
+  "source": "Dynamic Exploration & Survival Expansion prompt (approved lines)",
+  "lines": [
+   {
+    "speaker": "Eddie",
+    "text": "We need to get back to the shelter. Now!",
+    "time": 3.1
+   },
+   {
+    "speaker": "",
+    "text": "Everyone stay close. We're heading back.",
+    "time": 3.1
+   }
+  ]
+ },
+ "exp_warn3_alone": {
+  "source": "Survival expansion: short connective lines",
+  "lines": [
+   {
+    "speaker": "",
+    "text": "I've been out too long. I need to get back.",
+    "time": 3.3
+   }
+  ]
+ },
+ "exp_warn2_alone": {
+  "source": "Survival expansion: short connective lines",
+  "lines": [
+   {
+    "speaker": "",
+    "text": "Something's out there. Moving.",
+    "time": 2.5
+   }
+  ]
+ },
+ "exp_car_inspect": {
+  "source": "Dynamic Exploration & Survival Expansion prompt (approved lines)",
+  "lines": [
+   {
+    "speaker": "",
+    "text": "This thing might actually run.",
+    "time": 2.5
+   }
+  ]
+ },
+ "exp_car_eddie": {
+  "source": "Dynamic Exploration & Survival Expansion prompt (approved lines)",
+  "lines": [
+   {
+    "speaker": "Eddie",
+    "text": "If we can get it working, supply runs would be a lot easier.",
+    "time": 4.2
+   }
+  ]
+ },
+ "exp_car_running": {
+  "source": "Survival expansion: short connective lines",
+  "lines": [
+   {
+    "speaker": "",
+    "text": "It's running. We've got wheels again.",
+    "time": 2.9
+   }
+  ]
+ },
+ "exp_secured": {
+  "source": "Survival expansion: short connective lines",
+  "lines": [
+   {
+    "speaker": "",
+    "text": "Doors shut. We're safe. For now.",
+    "time": 2.7
+   }
+  ]
  }
 }
