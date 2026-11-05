@@ -334,7 +334,7 @@ func _input(event: InputEvent) -> void:
 
 # ------------------------------------------------------------------ waking up (Friday, 6:42 PM)
 ## Camera starts low and tilted (lying on the bed), then sits up and stands. Controls return at the end.
-func play_wake_up(duration := 4.2) -> void:
+func play_wake_up(duration := 4.2, give_control := true) -> void:
 	controls_enabled = false
 	look_enabled = false
 	var y0 := head.position.y
@@ -350,6 +350,7 @@ func play_wake_up(duration := 4.2) -> void:
 		_pitch = head.rotation.x
 		head.rotation.y = 0.0
 		head.rotation.z = 0.0
-		controls_enabled = true
-		look_enabled = true)
+		if give_control:                          # (the opening keeps control until the first-day wash is over)
+			controls_enabled = true
+			look_enabled = true)
 	await tw.finished

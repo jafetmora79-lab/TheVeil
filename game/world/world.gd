@@ -150,14 +150,16 @@ func _opening() -> void:
 	player.set_yaw_pitch(sp.global_rotation.y, 0.0)
 	hud.allow_pause = false
 	Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
-	player.play_wake_up(4.6)
+	player.play_wake_up(4.6, false)
 	await get_tree().create_timer(1.0).timeout
 	hud.chapter_start(1, 2.8)                     # CHAPTER 1 (upper screen) with the time card below it
 	hud.title_card("FRIDAY  —  6:42 PM", 2.4)
 	await hud.fade_to(0.0, 3.0)
 	Dialogue.say("wake", true)
-	await get_tree().create_timer(3.2).timeout
+	await get_tree().create_timer(0.7).timeout       # the wake-up look-around ends (4.6 s): straight into the wash
 	await bathroom.wash_face()                       # first: the bathroom, a splash of water, the mirror
+	player.controls_enabled = true                   # control only now (also if the wash was already done)
+	player.look_enabled = true
 	hud.allow_pause = true
 	hud.set_objective(Game.current_goal(), Game.current_step().get("text", ""))
 	hud.set_hint("WASD move · Mouse look · Shift sprint · Ctrl crouch · E interact · Tab inventory · Esc pause")
@@ -824,7 +826,7 @@ func place_survivor(npc: Node3D, local_point: Vector3) -> bool:
 		var point := Vector3(saved[0], saved[1], saved[2])
 		var floor_point := VeilSurvivorBody.floor_at(get_world_3d().direct_space_state, point)
 		if floor_point.is_finite() and floor_point.distance_to(point) < 0.15 \
-				and point.distance_to(requested) <= 3.0 and body.is_clear(floor_point):
+				and point.distance_to(requested) <= 30.0 and body.is_clear(floor_point):
 			restored = body.place_at(floor_point)
 	var ok := restored or body.place_at(requested)
 	if ok and body.get_parent() == market:
@@ -2679,7 +2681,39 @@ func npc_walk(speaker: String, to: Vector3, speed := 1.3) -> void:
 	# scripted walks route around the static world only (walls, counters, doors): the player and the other NPCs
 	# are moving and must not make the route "blocked" (an empty route left Eddie standing outside the stock room)
 	var path := npc_route(par, a.root.position, to, body, true)
-	a.walk_to(path if not path.is_empty() else [to], speed)
+	if path.is_empty() and body:
+		var safe := body.nearest_safe(par.to_global(to))
+		if safe.is_finite():
+			path = npc_route(par, a.root.position, par.to_local(safe), body, true)
+	if not path.is_empty():
+		a.walk_to(path, speed)
+		return
+	# no route: never walk through a wall. A clear straight line is walked; otherwise the NPC is put there, and only
+	# while the camera cannot see it (else it stays and is placed at the next unseen moment)
+	var from_w: Vector3 = a.root.global_position
+	var to_w := par.to_global(to)
+	var space := get_world_3d().direct_space_state
+	var clear := true
+	for h in [0.5, 1.3]:
+		var rq := PhysicsRayQueryParameters3D.create(from_w + Vector3(0, h, 0), to_w + Vector3(0, h, 0), 1, [player.get_rid()])
+		if not space.intersect_ray(rq).is_empty():
+			clear = false
+	if clear:
+		a.walk_to([to], speed)
+		return
+	_place_unseen(a.root, to)
+
+
+## Put an NPC at `to` (its parent's frame) once neither its spot nor the target is in view.
+func _place_unseen(n: Node3D, to: Vector3) -> void:
+	var par := n.get_parent_node_3d()
+	for i in 600:
+		var cam := get_viewport().get_camera_3d()
+		if cam == null or not (cam.is_position_in_frustum(n.global_position + Vector3(0, 1, 0)) or cam.is_position_in_frustum(par.to_global(to) + Vector3(0, 1, 0))):
+			break
+		await get_tree().create_timer(0.1).timeout
+	if is_instance_valid(n) and n.has_method("place_at"):
+		place_survivor(n, to)
 
 
 ## Reuse the local XZ grid search for survivor capsules and cinematic camera routes.
@@ -2689,9 +2723,15 @@ func npc_route(frame: Node3D, from: Vector3, to: Vector3, body: VeilSurvivorBody
 	var sph := SphereShape3D.new()
 	sph.radius = 0.28
 	var q := PhysicsShapeQueryParameters3D.new()
+	var ex_rid: Array[RID] = [body.get_rid(), player.get_rid()] if body else [player.get_rid()]
+	if static_only:
+		# scripted walks: the original check (a sphere at knee and chest height, static world only). The full capsule
+		# started 3.5 cm above the floor, so the 15 cm kerb at the supermarket entrance counted as a wall and every
+		# route into the store failed.
+		body = null
 	q.shape = body.capsule if body else sph
 	q.collision_mask = 1 if static_only else (VeilSurvivorBody.SOLIDS if body else 1 | VeilSurvivorBody.LAYER)
-	q.exclude = [body.get_rid()] if body else [player.get_rid()]
+	q.exclude = ex_rid
 	var heights := [VeilSurvivorBody.HEIGHT * 0.5 + VeilSurvivorBody.FOOT_CLEARANCE] if body else [0.5, 1.3]
 	var X := frame.global_transform
 	var y := from.y
@@ -3227,6 +3267,9 @@ func save(path := "") -> void:
 		var body := (animators[speaker] as NpcAnimator).root as VeilSurvivorBody
 		if is_instance_valid(body) and body.get_parent() == market and body.visible and body.has_meta("shelter_home"):
 			var feet: Vector3 = body.get_meta("shelter_feet")
+			var an = animators.get(speaker)
+			if an and not an.is_walking():
+				feet = body.global_position          # where they stand now: they stay there after a load
 			positions[speaker] = {"home": body.get_meta("shelter_home"), "feet": [feet.x, feet.y, feet.z]}
 	Game.world_state["shelter_npc_positions"] = positions
 	if Game.has_flag("p4_started"):
