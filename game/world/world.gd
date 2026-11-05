@@ -2728,7 +2728,9 @@ func npc_route(frame: Node3D, from: Vector3, to: Vector3, body: VeilSurvivorBody
 	var sph := SphereShape3D.new()
 	sph.radius = 0.28
 	var q := PhysicsShapeQueryParameters3D.new()
-	var ex_rid: Array[RID] = [body.get_rid(), player.get_rid()] if body else [player.get_rid()]
+	var ex_rid: Array[RID] = [player.get_rid()]
+	if body:
+		ex_rid.append(body.get_rid())
 	if static_only:
 		# scripted walks: the original check (a sphere at knee and chest height, static world only). The full capsule
 		# started 3.5 cm above the floor, so the 15 cm kerb at the supermarket entrance counted as a wall and every
