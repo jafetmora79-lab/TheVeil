@@ -2364,11 +2364,17 @@ func _fp_walk(cam: Camera3D, to_local: Vector3, speed: float, eye := STAND_EYE) 
 	player.set_physics_process(false)             # scripted steps (the route is already collision-free)
 	for q in pts:
 		var target: Vector3 = X * (q as Vector3)
+		# never loops forever: done within 15 cm, or when its time is up (then he is put on the point)
+		var budget := ((target - player.global_position) * Vector3(1, 0, 1)).length() / maxf(speed, 0.1) + 1.5
+		var spent := 0.0
 		while true:
 			var d := (target - player.global_position) * Vector3(1, 0, 1)
-			if d.length() < 0.06:
+			if d.length() < 0.15 or spent > budget:
+				if spent > budget:
+					player.global_position = Vector3(target.x, player.global_position.y, target.z)
 				break
 			var dt := get_process_delta_time()
+			spent += dt
 			var stepv := d.normalized() * minf(speed * dt, d.length())
 			player.global_position += stepv
 			var want := Transform3D(Basis(), cam.global_position).looking_at(cam.global_position + d.normalized() + Vector3(0, -0.08, 0), Vector3.UP).basis
