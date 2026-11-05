@@ -468,6 +468,13 @@ func _road_tick() -> void:
 	if Game.has_flag("ch10_around_done") and not Game.has_flag("ch10_followed_done") and not _busy.get("creature", false) \
 			and p.x < BLOCK_X - 4.0 and p.z > -6.5:
 		Game.set_flag("ch10_followed_done")           # back on the road, west of the block
+	# purposeful pressure (survival expansion): back on the road, a Skitter darts across it ahead in the fog; the
+	# group picks up the pace for the rest of the way
+	if Game.has_flag("ch10_followed_done") and not Game.has_flag("ch10_skitter_seen") and p.x < BLOCK_X - 7.0:
+		Game.set_flag("ch10_skitter_seen")
+		if world.expedition:
+			world.expedition.skitter_crossing(Vector3(-70.0, 0.2, -18.0), Vector3(-72.0, 0.2, 20.0))
+		_hurry()
 	if Game.has_flag("ch10_followed_done") and not Game.has_flag("ch10_choice_made") and not _busy.get("choice", false) \
 			and p.x < CHOICE_X and not world.conversing and not Dialogue.is_busy():
 		_sarah_stops()
@@ -475,6 +482,14 @@ func _road_tick() -> void:
 			and not _busy.get("choice", false):
 		Game.set_flag("ch10_building_seen")
 		Dialogue.say("c10_outskirts", false, true)
+
+
+## The group walks faster once something has been seen (no survivor dawdles while the player runs).
+func _hurry() -> void:
+	for k in group():
+		var f: VeilCompanionFollow = c9.follows[k]
+		f.walk_speed = maxf(f.walk_speed, 2.6)
+		f.run_speed = maxf(f.run_speed, 4.8)
 
 
 ## A sound behind them: the view turns, a Hound's silhouette crosses the fog and is gone behind the buildings.

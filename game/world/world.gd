@@ -87,6 +87,10 @@ func _ready() -> void:
 	_setup_home()
 	_setup_town()
 	_setup_triggers()
+	expedition = EXPEDITION.new()
+	expedition.name = "Expedition"
+	add_child(expedition)
+	expedition.setup.call_deferred(self)
 	_apply_view_ranges()
 	_setup_night()
 	_light_budget_all()
@@ -537,6 +541,9 @@ func _dlg_time(ids: Array) -> float:
 ##      (end_conversation()); a watchdog releases any lock left over (talk_watchdog()).
 ## Exceptions keep their own camera: driving, creature encounters, chase scenes and cinematics (converse() only
 ## queues the lines there).
+## the survival expansion's shared expedition controller (game/world/expedition.gd)
+const EXPEDITION := preload("res://game/world/expedition.gd")
+var expedition: Node
 var conversing := false
 var talk_report := {"count": 0, "blocked": 0, "cam_hits": 0, "min_face_dist": 99.0, "max_fov_drop": 0.0, "zoom_ins": 0,
 	"zoom_outs": 0, "released": 0, "watchdog": 0}
@@ -3160,7 +3167,9 @@ func enter_car() -> void:
 	if not Game.has_flag("fridge_checked"):
 		Dialogue.say("need_kitchen", false, true)
 		return
-	if Game.has_flag("groceries_done") and Game.has_flag("game_bought"):
+	if Game.has_flag("groceries_done") and Game.has_flag("game_bought") and not Game.has_flag("vehicle_repaired"):
+		if expedition and expedition.dead_car():
+			return                                   # the survival expansion: inspect / repair the dead car
 		_p3_car_dead()
 		return
 	in_car = true

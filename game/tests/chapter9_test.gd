@@ -248,7 +248,7 @@ func _run() -> void:
 		and c9.marcus.visible and c9.eddie.visible and c9.ruth.visible and c9.sarah.visible)
 	ok("c9_npcs_apart_start", npcs_ok() == "", npcs_ok())
 	ok("c9_no_sleep_here", not p4.rest.can_rest.call())
-	ok("c9_trust", c9.st()["marcus_trust"] == 2 and c9.pin_window() == 12.0)
+	ok("c9_trust", c9.st()["marcus_trust"] == 2 and c9.pin_window() == 10.0)
 
 	# ---- scene 1: Marcus (the shared talk camera)
 	ok("c9_marcus_reach", await aim(c9.its["npc_Marcus"], [-Z, Z, X, -X], 1.4))
@@ -377,7 +377,7 @@ func _run() -> void:
 
 	# ---- trust from the earlier choices: a shorter (never zero) window without it
 	await restore(fall_snap, func(): game.world_state["ch9"]["marcus_trust"] = 0)
-	ok("c9_trust_window", c9.pin_window() == 4.0)
+	ok("c9_trust_window", c9.pin_window() == 10.0 and c9.st()["marcus_trust"] == 0)
 
 	# ---- a depleted stock: the preparation still completes, with a warning
 	DEV.prepare(game, 2, {"food": 0, "water": 0, "medical": 0, "batteries": 0})

@@ -68,6 +68,7 @@ func begin(w: Node, chapter6: Node, restoring: bool) -> void:
 	_setup_npcs()
 	_setup_doors()
 	_setup_route()
+	_setup_distraction()
 	_setup_rest()
 	Dialogue.choices_offered.connect(_on_choices)
 	var fresh := not Game.has_flag("ch7_started")
@@ -239,7 +240,12 @@ func _refresh_prompts() -> void:
 		var eddie_talk := (Game.has_flag("ch7_marcus_briefing_complete") and not Game.has_flag("ch7_eddie_warning_complete")) \
 			or (Game.has_flag("ch7_returned_to_supermarket") and not Game.has_flag("ch7_report_complete"))
 		its["npc_Eddie"].prompt_text = "[E] Talk" if eddie_talk else ""
-	its["backpack"].prompt_text = "E - EXAMINE BACKPACK" if Game.has_flag("ch7_vehicle_reached") and not Game.has_flag("ch7_backpack_found") else ""
+	its["backpack"].prompt_text = "E - EXAMINE BACKPACK" if Game.has_flag("ch7_vehicle_reached") and Game.has_flag("ch7_skitters_gone") \
+		and not Game.has_flag("ch7_backpack_found") else ""
+	if its.has("alarm"):
+		var on := Game.has_flag("ch7_vehicle_reached") and not Game.has_flag("ch7_skitters_gone")
+		its["alarm"].prompt_text = "[E] Set Off the Car Alarm" if on else ""
+		its["alarm"].collision_layer = 8 if on else 0
 	if doors:
 		doors.prompt_text = "[E] Open the Doors" if _doors_wanted() and not c5._doors_open else ""
 
@@ -342,7 +348,8 @@ func _use_doors(_b: Node) -> void:
 
 # ------------------------------------------------------------------ scenes 5-6: the vehicle, the backpack, the note
 func _examine_backpack(_b: Node) -> void:
-	if not Game.has_flag("ch7_vehicle_reached") or Game.has_flag("ch7_backpack_found") or _busy.get("bag", false):
+	if not Game.has_flag("ch7_vehicle_reached") or not Game.has_flag("ch7_skitters_gone") or Game.has_flag("ch7_backpack_found") \
+			or _busy.get("bag", false):
 		return
 	_busy["bag"] = true
 	its["backpack"].prompt_text = ""
@@ -429,7 +436,8 @@ func _process(delta: float) -> void:
 	var ml_: Vector3 = market.to_local(marcus.global_position)
 	var following := String(st().get("marcus", "")) == "following"
 	# the front doors close by themselves once nobody of the group is at them (they are opened by hand)
-	if c5._doors_open and not c5._near_doors(pl) and not (following and c5._near_doors(ml_)):
+	var on_trip: bool = world.expedition != null and world.expedition.active()     # a supply run keeps them open
+	if c5._doors_open and not on_trip and not c5._near_doors(pl) and not (following and c5._near_doors(ml_)):
 		c5._set_doors(false)
 	if following and not Game.has_flag("ch7_departure_complete") and c5._away_from_store(pl, 3.0):
 		Game.set_flag("ch7_departure_complete")
@@ -439,7 +447,9 @@ func _process(delta: float) -> void:
 		Dialogue.say("c7_walk", false, true)
 	if Game.has_flag("ch7_departure_complete") and not Game.has_flag("ch7_vehicle_reached") and _car_area.overlaps_body(player):
 		Game.set_flag("ch7_vehicle_reached")
+		_spawn_car_skitters()
 		_refresh_prompts()
+	_skitter_guard()
 	if Game.has_flag("noah_clue_backpack") and not Game.has_flag("ch7_road_reached") and _road_area.overlaps_body(player):
 		_road()
 	# a load between reaching the road and the choice: Marcus's lines and the choice come again
@@ -492,3 +502,141 @@ func _on_rest(_id: String) -> void:
 	player.set("controls_enabled", true)
 	p4.show_night_report(report)
 	p4.rest.interactable.prompt_text = "[E] Sleep"
+
+
+# ------------------------------------------------------------------ Skitters at the car, the noise distraction
+## Two Skitters crouch around the car (survival expansion): the backpack cannot be reached while they are there.
+## A parked car back down the road has an alarm: set it off and they scuttle to the noise and away into the fog.
+## Getting too close first is answered by a lunge (a non-lethal bite and a shove): the encounter stays recoverable.
+const SKITTER_PATH := "res://THE_VEIL_ASSETS_V2/07_Creatures/Godot_Scenes/CRT_Skitter.tscn"
+const ALARM_CAR := preload("res://THE_VEIL_ASSETS_V2/05_Vehicles/Traffic_Variants/VEH_Sedan_Traffic_Beige.glb")
+const ALARM_POS := Vector3(-40.0, 0.15, 4.0)
+const SKITTER_SPOTS := [Vector3(-56.0, 0.15, 2.2), Vector3(-60.0, 0.15, 1.8)]
+const SKITTER_EXIT := [Vector3(-30.0, 0.15, -9.0), Vector3(-26.0, 0.15, -14.0)]
+var skitters: Array = []
+var _lunge_t := 0.0
+var _alarm_stream: AudioStream
+
+
+func _setup_distraction() -> void:
+	var c := ALARM_CAR.instantiate() as Node3D
+	c.name = "C7_AlarmCar"
+	world.add_child(c)
+	c.global_transform = Transform3D(Basis(Vector3.UP, -PI * 0.5), ALARM_POS)
+	var s := Node3D.new()
+	s.name = "C7_Alarm"
+	world.add_child(s)
+	s.global_position = ALARM_POS + Vector3(0.0, 1.0, -1.4)
+	var it := Interactable.attach(s, {"kind": "custom", "label": "Car", "prompt_text": ""})
+	var cs := it.get_child(0) as CollisionShape3D
+	(cs.shape as BoxShape3D).size = Vector3(3.6, 1.6, 0.8)
+	cs.position = Vector3.ZERO
+	it.used.connect(_set_off_alarm)
+	its["alarm"] = it
+	_alarm_stream = Sfx._make(0.5, func(t: float, _i: int) -> float: return sin(TAU * (880.0 if t < 0.25 else 660.0) * t) * 0.35, true)
+	if Game.has_flag("ch7_vehicle_reached") and not Game.has_flag("ch7_skitters_gone"):
+		_spawn_car_skitters.call_deferred()
+
+
+func _spawn_car_skitters() -> void:
+	if not skitters.is_empty() or Game.has_flag("ch7_skitters_gone"):
+		return
+	var ps := load(SKITTER_PATH) as PackedScene
+	if ps == null:
+		Game.set_flag("ch7_skitters_gone")
+		return
+	for i in SKITTER_SPOTS.size():
+		var sk := ps.instantiate() as Node3D
+		sk.name = "C7_CarSkitter_%d" % i
+		world.add_child(sk)
+		if sk is CollisionObject3D:
+			(sk as CollisionObject3D).collision_layer = 0
+			(sk as CollisionObject3D).collision_mask = 0
+		sk.set_physics_process(false)
+		sk.global_position = SKITTER_SPOTS[i]
+		sk.rotation.y = atan2(SKITTER_SPOTS[i].x - CAR_POS.x, SKITTER_SPOTS[i].z - CAR_POS.z)
+		VeilCreatureLook.apply_skitter(sk, SKITTER_SPOTS[i].y)
+		_skitter_anim(sk, ["idle", "alert", "crouch"])
+		skitters.append(sk)
+	if hud.has_method("set_hint"):
+		hud.set_hint("Skitters at the car. Make a noise somewhere else to draw them off.")
+
+
+func _skitter_anim(sk: Node3D, keys: Array) -> void:
+	var aps := sk.find_children("*", "AnimationPlayer", true, false)
+	if aps.is_empty():
+		return
+	var ap := aps[0] as AnimationPlayer
+	for k in keys:
+		for n in ap.get_animation_list():
+			if String(n).to_lower().contains(k):
+				ap.play(n)
+				return
+
+
+## Too close while they are at the car: one of them lunges (never a killing bite) and the player is pushed back.
+func _skitter_guard() -> void:
+	_lunge_t = maxf(_lunge_t - 0.2, 0.0)
+	if skitters.is_empty() or Game.has_flag("ch7_skitters_gone") or _lunge_t > 0.0:
+		return
+	for sk in skitters:
+		if is_instance_valid(sk) and (sk as Node3D).global_position.distance_to(player.global_position) < 4.5:
+			_lunge_t = 3.0
+			Sfx.play("door_close", (sk as Node3D).global_position, -6.0, 1.8)
+			var hp = player.get("health")
+			if player.has_method("damage") and hp != null:
+				player.damage(minf(10.0, maxf(float(hp) - 5.0, 0.0)), (sk as Node3D).global_position)
+			report_lunges += 1
+			break
+
+
+var report_lunges := 0
+
+
+func _set_off_alarm(_b: Node) -> void:
+	if Game.has_flag("ch7_skitters_gone") or not Game.has_flag("ch7_vehicle_reached") or _busy.get("alarm", false):
+		return
+	_busy["alarm"] = true
+	var a := AudioStreamPlayer3D.new()
+	a.stream = _alarm_stream
+	a.unit_size = 30.0
+	a.volume_db = 2.0
+	world.add_child(a)
+	a.global_position = ALARM_POS + Vector3(0, 1.2, 0)
+	a.play()
+	get_tree().create_timer(7.0).timeout.connect(a.queue_free)
+	Game.set_flag("ch7_skitters_gone")               # they are drawn off for good (saved): the car is clear
+	if hud.has_method("set_hint"):
+		hud.set_hint("")
+	_refresh_prompts()
+	# they scuttle toward the noise (past it, away from the player's side of the road), then off into the fog
+	for i in skitters.size():
+		var sk: Node3D = skitters[i]
+		if not is_instance_valid(sk):
+			continue
+		_skitter_anim(sk, ["run", "walk"])
+		var mid := ALARM_POS + Vector3(-2.0 + i * 1.5, 0.0, -5.0)
+		var out: Vector3 = SKITTER_EXIT[i % SKITTER_EXIT.size()]
+		var tw := sk.create_tween()
+		sk.rotation.y = atan2(mid.x - sk.global_position.x, mid.z - sk.global_position.z)
+		tw.tween_property(sk, "global_position", mid, sk.global_position.distance_to(mid) / 7.0)
+		tw.tween_callback(func():
+			if is_instance_valid(sk):
+				sk.rotation.y = atan2(out.x - mid.x, out.z - mid.z))
+		tw.tween_property(sk, "global_position", out, mid.distance_to(out) / 7.0)
+		tw.tween_callback(_leave_unseen.bind(sk))
+	_busy["alarm"] = false
+
+
+## Removed only once nobody is looking at it (no pop-out in front of the player).
+func _leave_unseen(sk: Node3D) -> void:
+	for i in 300:
+		if not is_instance_valid(sk):
+			return
+		var cam := get_viewport().get_camera_3d()
+		if cam == null or not cam.is_position_in_frustum(sk.global_position + Vector3(0, 0.5, 0)):
+			break
+		await get_tree().create_timer(0.2).timeout
+	if is_instance_valid(sk):
+		skitters.erase(sk)
+		sk.queue_free()
