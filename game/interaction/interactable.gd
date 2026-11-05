@@ -43,6 +43,8 @@ func _ready() -> void:
 	monitorable = true
 	if kind == "pickup":
 		add_to_group("veil_pickup")
+	if kind == "hinge":
+		add_to_group("veil_door")                   # companions open these on their way
 	if target:
 		_base = target.transform
 	if state_key != "" and Game.world_state.has(state_key):

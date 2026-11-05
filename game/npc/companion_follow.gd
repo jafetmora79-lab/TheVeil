@@ -11,8 +11,8 @@ class_name VeilCompanionFollow
 const STEP := 0.45                 # metres between breadcrumbs
 
 var gap := 2.4                     # trail distance kept behind the leader
-var walk_speed := 1.9
-var run_speed := 4.6
+var walk_speed := 2.3
+var run_speed := 5.4
 var leader: Node3D                 # usually the player
 var npc: Node3D
 var anim: Node                     # NpcAnimator
@@ -132,6 +132,19 @@ var steps_aside := 0               ## tests
 
 ## A door the leader shut behind them lies across the trail: the companion opens it instead of walking through.
 func _open_doors_ahead(next: Vector3) -> void:
+	# any closed hinged door within 1.6 m, in the direction it is heading (towards the next trail point or the leader)
+	var heading := (next - npc.global_position) * Vector3(1, 0, 1)
+	if heading.length() < 0.05 and leader:
+		heading = (leader.global_position - npc.global_position) * Vector3(1, 0, 1)
+	for d in npc.get_tree().get_nodes_in_group("veil_door"):
+		var door := d as Interactable
+		if door == null or door.is_open or not door.is_inside_tree():
+			continue
+		var to: Vector3 = (door.global_position - npc.global_position) * Vector3(1, 0, 1)
+		if to.length() < 1.6 and (heading.length() < 0.05 or to.normalized().dot(heading.normalized()) > 0.2):
+			door.set_open(true)
+			Sfx.play("door_open", door.global_position, -2.0)
+			doors_opened += 1
 	var a := npc.global_position + Vector3(0, 1.0, 0)
 	var b := next + Vector3(0, 1.0, 0)
 	if a.distance_to(b) < 0.05:

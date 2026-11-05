@@ -690,23 +690,29 @@ func _spawn_roof_skitter(doors_z: float) -> Array:
 	var back := Vector3.INF
 	var roof_y := 0.0
 	for x in ROOF_X:
-		# walk from the street towards the building (market-local -z) to the first roof point, i.e. its front edge
+		# walk from the street towards the building (market-local -z) to the facade, then take the highest point of
+		# its front metre: the top of the parapet (4.68 m; the flat roof behind it is 1.2 m lower and out of sight)
 		var z := doors_z - 30.0
 		var found := false
 		while z > doors_z - 40.0:
-			var wp := ml(Vector3(x, 0, z))
-			var y := _mesh_top(bld, wp)
+			var y := _mesh_top(bld, ml(Vector3(x, 0, z)))
 			if y > market.global_position.y + 3.0:
-				var y2 := _mesh_top(bld, ml(Vector3(x, 0, z - 2.5)))
-				if absf(y2 - y) < 0.3:                    # flat enough to crouch on, both at the edge and set back
-					edge = ml(Vector3(x, 0, z - 0.5))
-					edge.y = _mesh_top(bld, edge)
-					back = ml(Vector3(x, 0, z - 2.5))
-					back.y = y2
-					roof_y = edge.y
-					found = true
+				var best_y := y
+				var best_z := z
+				var zz := z
+				while zz > z - 1.0:
+					var yy := _mesh_top(bld, ml(Vector3(x, 0, zz)))
+					if yy > best_y + 0.01:
+						best_y = yy
+						best_z = zz
+					zz -= 0.05
+				edge = ml(Vector3(x, 0, best_z))
+				edge.y = best_y
+				back = edge                              # it waits crouched ON the parapet, not behind it
+				roof_y = best_y
+				found = true
 				break
-			z -= 0.25
+			z -= 0.1
 		if found:
 			break
 	if not edge.is_finite():
@@ -870,8 +876,8 @@ func _hound_charge() -> void:                   # (name kept: the accept branch'
 		if ap and ap.has_animation("Crawl"):
 			ap.play("Crawl", 0.15)
 			ap.speed_scale = 1.0
-		var tc := sk.create_tween()
-		tc.tween_property(sk, "global_position", edge, 1.1).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT)
+		var tc := sk.create_tween()                       # on the ledge already: it rises a little, alert
+		tc.tween_property(sk, "global_position", edge + Vector3(0, 0.04, 0), 1.1).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT)
 		var tz := 0.0
 		while tz < 1.1:                                 # the eyes follow it to the edge
 			await get_tree().process_frame

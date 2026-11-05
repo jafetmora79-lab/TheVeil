@@ -2705,6 +2705,7 @@ func npc_walk(speaker: String, to: Vector3, speed := 1.3) -> void:
 	var body := a.root as VeilSurvivorBody
 	# scripted walks route around the static world only (walls, counters, doors): the player and the other NPCs
 	# are moving and must not make the route "blocked" (an empty route left Eddie standing outside the stock room)
+	speed *= 1.2                                     # NPCs a little quicker
 	var path := npc_route(par, a.root.position, to, body, true)
 	if path.is_empty() and body:
 		var safe := body.nearest_safe(par.to_global(to))

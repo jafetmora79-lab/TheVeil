@@ -46,6 +46,9 @@ var _glance_timer := 2.0
 var _scare := 0.0
 var _path: Array = []
 var _walk := 0.0                    ## 0..1 blend into the walk cycle
+var _run := 0.0                     ## 0..1 blend from walking into running (by actual speed)
+var _speed := 0.0
+var _step_i := 0
 var _phase := 0.0
 var _turn_goal = null               ## world-space direction the body should turn towards (or null)
 
@@ -226,7 +229,14 @@ func _update_walk(delta: float) -> void:
 	var moved := before.distance_to(root.global_position)
 	if moved < 0.001:
 		_walk = move_toward(_walk, 0.0, delta * 3.0)
-	_phase += moved / 0.62 * PI                      # one stride (two steps) ~1.24 m
+	_speed = lerpf(_speed, moved / maxf(delta, 0.001), minf(delta * 6.0, 1.0))
+	_run = move_toward(_run, clampf((_speed - 2.4) / 1.8, 0.0, 1.0), delta * 2.5)
+	_phase += moved / lerpf(0.62, 0.98, _run) * PI   # one stride ~1.24 m walking, ~1.96 m running
+	var si := int(_phase / PI)
+	if si != _step_i:                                # a footstep on each foot strike (quiet)
+		_step_i = si
+		if moved > 0.0005:
+			Sfx.play("step", root.global_position, lerpf(-16.0, -11.0, _run), randf_range(0.8, 0.95))
 	var parent := root.get_parent_node_3d()
 	_turn_goal = (parent.global_transform.basis * d.normalized()) if parent else d.normalized()
 
@@ -321,8 +331,9 @@ func _pose() -> void:
 	var ph := _phase
 	# --- torso: breathing, weight shift, scared hunch, walk counter-rotation, nods on speech
 	_pose_bone("Hips", _q(F, sway * 1.4) * _q(U, sin(ph) * 4.0 * w))
-	_pose_bone("Spine", _q(R, -br * 0.7 - s * 4.0) * _q(U, -sin(ph) * 2.5 * w))
-	_pose_bone("Chest", _q(R, -br * 1.4 - s * 5.0) * _q(F, -sway * 0.8))
+	var rn := _run
+	_pose_bone("Spine", _q(R, -br * 0.7 - s * 4.0 - 9.0 * rn) * _q(U, -sin(ph) * (2.5 + 3.0 * rn) * w))
+	_pose_bone("Chest", _q(R, -br * 1.4 - s * 5.0 - 4.0 * rn) * _q(F, -sway * 0.8))
 	_pose_bone("UpperChest", _q(R, -br * 0.8 - s * 3.0) * _q(U, -sin(ph) * 3.0 * w))
 	# --- head / neck: look-at + nods + tilt
 	var nod: float = _gest["nod"] * 4.0 + sin(t * 2.3) * 1.5 * minf(_talk_left, 1.0)
@@ -337,22 +348,22 @@ func _pose() -> void:
 		var out := -1.0 if side == "Left" else 1.0
 		var k := "l" if side == "Left" else "r"
 		var opp := -1.0 if side == "Left" else 1.0
-		var swing := sin(ph) * opp * 22.0 * w
+		var swing := sin(ph) * opp * (22.0 + 26.0 * _run) * w
 		var idle := sin(t * 0.9 + out) * 1.5 * (1.0 - w)
 		var g_up: float = _gest[k + "a"] * 28.0
 		var g_fore: float = _gest[k + "f"] * 55.0
 		_pose_bone(side + "UpperArm", _q(R, swing + idle + g_up + s * 14.0) * _q(F, -out * (g_up * 0.25 + s * 4.0)))
-		_pose_bone(side + "LowerArm", _q(R, g_fore + s * 34.0 + maxf(swing, 0.0) * 0.6 + 4.0 * w))
+		_pose_bone(side + "LowerArm", _q(R, g_fore + s * 34.0 + maxf(swing, 0.0) * 0.6 + 4.0 * w + 72.0 * _run * w))
 	# --- legs: walk cycle (thigh swing, knee bend on the back swing)
 	for side in ["Left", "Right"]:
 		var sg := 1.0 if side == "Left" else -1.0
 		var c := sin(ph) * sg
 		var sit_out := (-1.0 if side == "Left" else 1.0) * 6.0 * _sit          # knees slightly apart
-		_pose_bone(side + "UpperLeg", _q(R, c * 24.0 * w + s * 2.0 + SIT_THIGH * _sit) * _q(F, sit_out))
-		_pose_bone(side + "LowerLeg", _q(R, -maxf(-cos(ph) * sg, 0.0) * 38.0 * w - maxf(c, 0.0) * 8.0 * w - s * 3.0 - SIT_KNEE * _sit))
+		_pose_bone(side + "UpperLeg", _q(R, c * (24.0 + 14.0 * _run) * w + maxf(c, 0.0) * 12.0 * _run * w + s * 2.0 + SIT_THIGH * _sit) * _q(F, sit_out))
+		_pose_bone(side + "LowerLeg", _q(R, -maxf(-cos(ph) * sg, 0.0) * (38.0 + 50.0 * _run) * w - maxf(c, 0.0) * 8.0 * w - s * 3.0 - SIT_KNEE * _sit))
 		_pose_bone(side + "Foot", _q(R, -c * 10.0 * w))
 	# a small bounce while walking (on the skeleton node, not the character root); seated: pelvis down to the seat
 	if _hip_h < 0.0:
 		var hi := bone("Hips")
 		_hip_h = (skel.get_bone_global_rest(hi).origin * skel.global_transform.basis.get_scale()).y if hi >= 0 else 0.95
-	skel.position.y = absf(sin(ph)) * 0.025 * w - maxf(_hip_h - seat_y - 0.06, 0.0) * _sit
+	skel.position.y = absf(sin(ph)) * (0.025 + 0.035 * _run) * w - 0.03 * _run * w - maxf(_hip_h - seat_y - 0.06, 0.0) * _sit
