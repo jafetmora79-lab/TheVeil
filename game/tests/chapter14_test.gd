@@ -412,15 +412,17 @@ func _run() -> void:
 	ok("c14_marcus_out_of_sight", not c14._node("Marcus").visible)
 	ok("c14_ending", await wait_talk(func(): return game.has_flag("chapter_14_complete") and not c14._busy.get("ending", false), 90.0)
 		and said.has("That was the last safe place we had.") and said.has("Back to where this started.") and not c14.house.visible)
-	ok("c14_ending_restored", c14.report.get("ending_fov_restored", false) and world.player.controls_enabled and root.get_viewport().get_camera_3d() == world.player.camera)
 	ok("c14_end_checkpoint", FileAccess.file_exists(game.checkpoint_path("chapter15_end")) and FileAccess.file_exists(game.checkpoint_path("chapter15_safe")))
-	ok("c14_no_chapter16", not game.has_flag("ch15_started") and game.chapter_number() == 15 and game.current_step().get("id", "") == "c14_complete", game.current_step().get("id", ""))
+	# after the card, the finale (displayed Chapter 16) begins (chapter15.gd)
+	ok("c14_next_chapter", await wait_until(func(): return game.has_flag("ch15_started") and c14.chapter15 != null, 60 * 10) and game.chapter_number() == 16)
+	await wait_talk(func(): return game.has_flag("ch15_opening_done"), 90.0)
+	ok("c14_ending_restored", c14.report.get("ending_fov_restored", false) and world.player.controls_enabled and root.get_viewport().get_camera_3d() == world.player.camera)
 
 	# ---- loads
 	await reload()
 	ok("c14_load_complete", c14 != null and not c14.house.visible and not c14._node("Marcus").visible and c14.present() == ["Eddie", "Ruth", "Sarah"]
 		and c14.report["ending_runs"] == 0 and c14.hounds.is_empty() and c14.crab == null
-		and c14.present().all(func(k): return c14._node(k).global_position.distance_to(c14.SAFE) < 6.0))
+		and c14.chapter15 != null)
 	# the other choice at the fence: go back for Marcus
 	await boot_checkpoint("chapter15_evacuation")
 	ok("c14_load_evac", c14 != null and await wait_talk(func(): return game.has_flag("ch14_evac_started") and world.player.controls_enabled and not dlg.is_busy(), 30.0)
