@@ -398,7 +398,7 @@ func _run() -> void:
 	# seen in the open while it looks: it reacts, then back to the last cover
 	await wait_until(func(): return c15._col_phase == "look", 60 * 12)
 	Input.action_press("move_forward")
-	await frames(60)
+	await frames(110)
 	Input.action_release("move_forward")
 	ok("c15_detected", await wait_until(func(): return c15.report["detections"] >= 1, 60 * 2))
 	ok("c15_retry", await wait_until(func(): return c15.report["retries"] >= 1 and world.player.controls_enabled, 60 * 8)
@@ -418,7 +418,8 @@ func _run() -> void:
 	await wait_until(func(): return c15.present().all(func(k): return c15._node(k).global_position.distance_to(world.player.global_position) < 9.0), 60 * 8)
 	ok("c15_passage", await use(c13.its["passage"], [Vector3(0, 0, -1), Vector3(0.6, 0, -1), Vector3(-0.6, 0, -1)], 1.5)
 		and await wait_until(func(): return game.has_flag("ch15_in_passage") and world.player.global_position.y < -40.0 and world.player.controls_enabled, 300)
-		and FileAccess.file_exists(game.checkpoint_path("chapter16_passage")) and c15.creatures.is_empty())
+		and FileAccess.file_exists(game.checkpoint_path("chapter16_passage")) and c15.creatures.is_empty(),
+		"%s in %s focus %s" % [str(world.player.global_position - c13.D_ORIGIN), game.has_flag("ch15_in_passage"), world.player._focus])
 	ok("c15_entrance_talk", await wait_talk(func(): return said.has("I hate that we've gotten used to places like this."), 20.0))
 
 	# ---- below: the rubble, the doorway, the ancient passage, the chamber
@@ -447,7 +448,7 @@ func _run() -> void:
 	ok("c15_survived_stones", world.player.health > 0.0, "hits %d, health %.0f" % [c15.report["debris_hits"], world.player.health])
 
 	# ---- ENDING A
-	pick_label("LEAVE GREYHAVEN")
+	p4.choice.pick(0)
 	ok("c15_a_tunnel", await wait_until(func(): return c15._busy.get("outer_open", false), 120) and await walk_world([UL(Vector3(28.6, 0.2, 70.0)), UL(Vector3(42.4, 0.2, 70.0))]))
 	ok("c15_a_out", await use(c15.its["outer"], [Vector3(-1, 0, 0)], 1.0) and await wait_talk(func(): return said.has("We keep going."), 60.0)
 		and world.player.global_position.distance_to(c15.BEYOND) < 3.0)
@@ -464,7 +465,7 @@ func _run() -> void:
 	# ---- ENDING B (from the pre-decision checkpoint)
 	await boot_checkpoint("chapter16_decision")
 	ok("c15_b_choice_again", await wait_talk(func(): return p4.choice.is_open(), 40.0) and c15.present().all(func(k): return c15._node(k).visible))
-	pick_label("SEAL THE CHAMBER")
+	p4.choice.pick(1)
 	await frames(30)
 	ok("c15_b_seal", await seal_steps() and await wait_until(func(): return c15._busy.get("outer_open", false), 60 * 10), str(c15.st().get("seal_steps", -1)))
 	ok("c15_b_tunnel", await walk_world([UL(Vector3(28.6, 0.2, 70.0)), UL(Vector3(42.4, 0.2, 70.0))]) and await use(c15.its["outer"], [Vector3(-1, 0, 0)], 1.0))
@@ -473,7 +474,7 @@ func _run() -> void:
 	# ---- ENDING C
 	await boot_checkpoint("chapter16_decision")
 	await wait_talk(func(): return p4.choice.is_open(), 40.0)
-	pick_label("SEND THE SURVIVORS AHEAD")
+	p4.choice.pick(2)
 	ok("c15_c_stay", await wait_talk(func(): return said.has("That's not what I asked.") and c15._busy.get("seal_mode", false) and world.player.controls_enabled, 40.0))
 	ok("c15_c_seal", await seal_steps())
 	ok("c15_c_end", await wait_talk(func(): return credits_up(), 200.0) and String(c15.st()["ending"]) == "C"

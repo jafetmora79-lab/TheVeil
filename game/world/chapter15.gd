@@ -797,7 +797,7 @@ func _enter_passage(_b: Node) -> void:
 	player.set_yaw_pitch(PI, 0.0)
 	var i := 0
 	for k in present():
-		world.place_survivor(_node(k), UL(c13.U_ENTRY + Vector3(-0.5 + 0.6 * (i % 2), 0.0, -0.7 - 0.6 * (i / 2))))
+		world.place_survivor(_node(k), UL(c13.U_ENTRY + Vector3(-0.55 + 1.1 * (i % 2), 0.0, 1.3 + 0.9 * (i / 2))))   # just ahead in the corridor
 		i += 1
 	c13.collapse_block.visible = true
 	c13.collapse_block.collision_layer = 1
