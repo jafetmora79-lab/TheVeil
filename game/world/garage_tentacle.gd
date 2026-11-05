@@ -109,7 +109,7 @@ func _escape() -> void:
 func _creep(dt: float) -> void:
 	if tentacle == null:
 		return
-	var to := p4.market.to_local(player.global_position) - ROOT
+	var to: Vector3 = p4.market.to_local(player.global_position) - ROOT
 	var yaw := atan2(-to.z, -to.x)                     # in the floor plane, from -X
 	var want := Basis(Vector3.UP, clampf(yaw, -0.9, 0.9)) * Basis(Vector3(0, 0, 1), PI * 0.5)
 	tentacle.transform.basis = tentacle.transform.basis.slerp(want, minf(dt * 1.5, 1.0))
@@ -156,11 +156,11 @@ func _taken() -> void:
 	cam.current = true
 	p4._hold_cam(cam)
 	var feet := player.global_position
-	var out_dir := (p4.ml(ROOT) - feet) * Vector3(1, 0, 1)
+	var out_dir: Vector3 = (p4.ml(ROOT) - feet) * Vector3(1, 0, 1)
 	out_dir = out_dir.normalized()
 	# the tentacle lashes to his leg
 	if tentacle:
-		var to := p4.market.to_local(feet) - ROOT
+		var to: Vector3 = p4.market.to_local(feet) - ROOT
 		tentacle.transform.basis = Basis(Vector3.UP, atan2(-to.z, -to.x)) * Basis(Vector3(0, 0, 1), PI * 0.5)
 		if tentacle.has_method("play"):
 			tentacle.call("play", "Strike", 0.05)
@@ -179,7 +179,7 @@ func _taken() -> void:
 	world._shake(cam, 0.25, 0.06)
 	p4._play("impact", feet, -4.0)
 	# dragged across the floor, out under the door
-	var gap := p4.ml(Vector3(20.6, 0.32, 15.9))
+	var gap: Vector3 = p4.ml(Vector3(20.6, 0.32, 15.9))
 	var start := cam.global_position
 	var t := 0.0
 	var dur := 1.7
