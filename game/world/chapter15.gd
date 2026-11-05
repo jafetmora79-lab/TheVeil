@@ -331,6 +331,12 @@ func _apply() -> void:
 		_set_fog(false)
 	elif Game.has_flag("ch15_set_out"):
 		_set_fog(true, 0.8)
+	if Game.has_flag("ch15_decided") and String(st().get("ending", "")) == "":
+		# (QA-001) a save made after the choice but before its ending finished: the ending's sequence state is not
+		# saved, so go back to the moment of the decision (roster, trust and earlier choices untouched).
+		for f in ["ch15_decided", "ch15_choice_a", "ch15_choice_b", "ch15_choice_c"]:
+			Game.flags.erase(f)
+		st()["decision"] = ""
 	if Game.has_flag("ch15_mechanism_done") and not Game.has_flag("ch15_decided"):
 		_decide.call_deferred()
 	_refresh_prompts()

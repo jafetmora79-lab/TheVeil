@@ -553,6 +553,8 @@ func _set_fog(thick: bool, amount := 1.0) -> void:
 
 # ------------------------------------------------------------------ state from flags (fresh start and loads)
 func _apply() -> void:
+	if Game.has_flag("ch13_crank_found") and not Game.has_flag("ch13_gate_open") and not Game.has_item("gate_crank"):
+		Game.add_item("gate_crank")                # (QA-002) repair: a save with the crank marked found but missing
 	_node("Marcus").visible = alive()
 	if Game.has_flag("ch14_started"):
 		_clear_exposure_fx()
@@ -856,8 +858,8 @@ func _read_note(_b: Node) -> void:
 func _take_crank(_b: Node) -> void:
 	if Game.has_flag("ch13_crank_found"):
 		return
+	Game.add_item("gate_crank")                    # (QA-002) the crank first, so a save on the flag always holds it
 	Game.set_flag("ch13_crank_found")
-	Game.add_item("gate_crank")
 	Sfx.play("pickup", player.global_position, -6.0)
 	Dialogue.say("c13_crank", false, true)
 	_refresh_prompts()
