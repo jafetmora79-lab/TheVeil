@@ -2928,5 +2928,37 @@
     "time": 2.7
    }
   ]
+ },
+ "p4_skitter_seen": {
+  "lines": [
+   {
+    "speaker": "",
+    "text": "What the hell is that?!",
+    "time": 1.6
+   },
+   {
+    "speaker": "Eddie",
+    "text": "WHAT THE HELL IS THAT THING?!",
+    "time": 1.6
+   }
+  ]
+ },
+ "p4_skitter_run": {
+  "lines": [
+   {
+    "speaker": "Marcus",
+    "text": "RUN! GET BACK INSIDE!",
+    "time": 1.8
+   }
+  ]
+ },
+ "p4_garage_safe": {
+  "lines": [
+   {
+    "speaker": "",
+    "text": "Holy shit...",
+    "time": 2.0
+   }
+  ]
  }
 }

@@ -17,6 +17,9 @@ func _ready() -> void:
 	_streams["pickup"] = _make(0.18, func(t, i): return (sin(TAU * 1450.0 * t) + sin(TAU * 2210.0 * t) * 0.6) * exp(-t * 22.0) * 0.25)
 	_streams["fridge_hum"] = _make(1.0, _hum, true)
 	_streams["ambience"] = _make(3.0, _amb, true)
+	# once the Veil is here: the same wind without the high cricket chirps (they read as a shrill tense tone
+	# behind the barricading and door closing)
+	_streams["ambience_veil"] = _make(3.0, func(t, i): return _noise(i) * 0.05 * (0.6 + 0.4 * sin(TAU * t / 3.0)), true)
 	# Phase 3: the Veil (synthesised placeholders)
 	_streams["veil_rumble"] = _make(3.5, func(t, i): return (sin(TAU * 32.0 * t) * 0.5 + sin(TAU * 47.0 * t + sin(t * 3.0)) * 0.35 + _noise(i) * 0.12) * minf(t * 1.5, 1.0) * exp(-maxf(t - 2.2, 0.0) * 2.5))
 	_streams["colossus_call"] = _make(4.0, func(t, i): return (sin(TAU * (58.0 - 14.0 * t) * t) * 0.55 + sin(TAU * (87.0 - 20.0 * t) * t) * 0.3 + _noise(i) * 0.08 * sin(t * 30.0)) * minf(t * 2.0, 1.0) * exp(-maxf(t - 2.8, 0.0) * 3.0))
@@ -100,8 +103,8 @@ func loop_at(parent: Node3D, id: String, volume_db := -10.0) -> AudioStreamPlaye
 func start_ambience(volume_db := -16.0) -> void:
 	if _ambience == null:
 		_ambience = AudioStreamPlayer.new()
-		_ambience.stream = _streams["ambience"]
 		add_child(_ambience)
+	_ambience.stream = _streams["ambience_veil"] if Game.has_flag("p3_mist") else _streams["ambience"]
 	_ambience.volume_db = volume_db
 	_ambience.play()
 
