@@ -236,7 +236,7 @@ func _update_walk(delta: float) -> void:
 	if si != _step_i:                                # a footstep on each foot strike (quiet)
 		_step_i = si
 		if moved > 0.0005:
-			Sfx.play("step", root.global_position, lerpf(-16.0, -11.0, _run), randf_range(0.9, 1.1))
+			Sfx.play("step", root.global_position, lerpf(-16.0, -11.0, _run), randf_range(0.8, 0.95))
 	var parent := root.get_parent_node_3d()
 	_turn_goal = (parent.global_transform.basis * d.normalized()) if parent else d.normalized()
 
