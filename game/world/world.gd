@@ -57,6 +57,7 @@ var interactables := {}
 
 func _ready() -> void:
 	add_to_group("veil_world")
+	Sfx.play_music(Sfx.MUSIC_GAMEPLAY, true, -14.0, 2.5)     # in-game exploration (seamless loop)
 	# a conversation cut off by a load / quit never resumes half-way: no queued lines, no confirm mode, no lock
 	Dialogue.clear()
 	Dialogue.confirm_mode = false
@@ -71,6 +72,9 @@ func _ready() -> void:
 	add_child(player)
 	player.prompt_changed.connect(hud.set_prompt)
 	sedan = SEDAN_SCRIPT.new()
+	sedan.radio_changed.connect(func(station: String):
+		hud.set_hint("RADIO — " + (station if station != "" else "OFF"))
+		get_tree().create_timer(2.5).timeout.connect(func(): if in_car and hud: hud.set_hint("W accelerate · S brake / reverse · A/D steer · Space handbrake · Q radio · E exit")))
 	sedan.name = "Sedan"
 	add_child(sedan)
 	sedan.global_transform = (home.get_node("Markers/Sedan_Driveway") as Node3D).global_transform
@@ -1773,6 +1777,7 @@ func _colossus_encounter() -> void:
 	hud.allow_pause = false
 	hud.set_hint("")
 	_enc_sounds.append(Sfx.play("colossus_call", P + n * 14.0 + Vector3(0, 9, 0), 4.0, 0.8))   # close enough to be heard at once
+	Sfx.play_music(Sfx.MUSIC_COLOSSUS, false, -6.0, 0.6, Sfx.MUSIC_GAMEPLAY)   # the reveal theme, then back to the loop
 	var cam := Camera3D.new()
 	cam.name = "EncounterCam"
 	add_child(cam)
@@ -2359,11 +2364,17 @@ func _fp_walk(cam: Camera3D, to_local: Vector3, speed: float, eye := STAND_EYE) 
 	player.set_physics_process(false)             # scripted steps (the route is already collision-free)
 	for q in pts:
 		var target: Vector3 = X * (q as Vector3)
+		# never loops forever: done within 15 cm, or when its time is up (then he is put on the point)
+		var budget := ((target - player.global_position) * Vector3(1, 0, 1)).length() / maxf(speed, 0.1) + 1.5
+		var spent := 0.0
 		while true:
 			var d := (target - player.global_position) * Vector3(1, 0, 1)
-			if d.length() < 0.06:
+			if d.length() < 0.15 or spent > budget:
+				if spent > budget:
+					player.global_position = Vector3(target.x, player.global_position.y, target.z)
 				break
 			var dt := get_process_delta_time()
+			spent += dt
 			var stepv := d.normalized() * minf(speed * dt, d.length())
 			player.global_position += stepv
 			var want := Transform3D(Basis(), cam.global_position).looking_at(cam.global_position + d.normalized() + Vector3(0, -0.08, 0), Vector3.UP).basis
@@ -2723,7 +2734,7 @@ func npc_route(frame: Node3D, from: Vector3, to: Vector3, body: VeilSurvivorBody
 	var sph := SphereShape3D.new()
 	sph.radius = 0.28
 	var q := PhysicsShapeQueryParameters3D.new()
-	var ex_rid: Array[RID] = [player.get_rid()]          # (a typed array: a conditional expression would be untyped)
+	var ex_rid: Array[RID] = [player.get_rid()]
 	if body:
 		ex_rid.append(body.get_rid())
 	if static_only:
@@ -3160,7 +3171,7 @@ func enter_car() -> void:
 	Game.set_flag("left_house")
 	Game.set_flag("entered_car")
 	Dialogue.say("in_car", true)
-	hud.set_hint("W accelerate · S brake / reverse · A/D steer · Space handbrake · E exit · mouse look")
+	hud.set_hint("W accelerate · S brake / reverse · A/D steer · Space handbrake · Q radio · E exit · mouse look")
 
 
 func exit_car() -> void:
@@ -3295,7 +3306,7 @@ func _restore() -> bool:
 		in_car = true
 		player.activate(false)
 		sedan.set_driven(true)
-		hud.set_hint("W accelerate · S brake / reverse · A/D steer · Space handbrake · E exit")
+		hud.set_hint("W accelerate · S brake / reverse · A/D steer · Space handbrake · Q radio · E exit")
 	player.health = clampf(float(ps.get("health", VeilPlayer.MAX_HEALTH)), 0.0, VeilPlayer.MAX_HEALTH)
 	player.health_changed.emit(player.health, VeilPlayer.MAX_HEALTH)
 	_restore_survivor_story.call_deferred()

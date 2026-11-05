@@ -17,6 +17,9 @@ func _ready() -> void:
 	_streams["pickup"] = _make(0.18, func(t, i): return (sin(TAU * 1450.0 * t) + sin(TAU * 2210.0 * t) * 0.6) * exp(-t * 22.0) * 0.25)
 	_streams["fridge_hum"] = _make(1.0, _hum, true)
 	_streams["ambience"] = _make(3.0, _amb, true)
+	# once the Veil is here: the same wind without the high cricket chirps (they read as a shrill tense tone
+	# behind the barricading and door closing)
+	_streams["ambience_veil"] = _make(3.0, func(t, i): return _noise(i) * 0.05 * (0.6 + 0.4 * sin(TAU * t / 3.0)), true)
 	# Phase 3: the Veil (synthesised placeholders)
 	_streams["veil_rumble"] = _make(3.5, func(t, i): return (sin(TAU * 32.0 * t) * 0.5 + sin(TAU * 47.0 * t + sin(t * 3.0)) * 0.35 + _noise(i) * 0.12) * minf(t * 1.5, 1.0) * exp(-maxf(t - 2.2, 0.0) * 2.5))
 	_streams["colossus_call"] = _make(4.0, func(t, i): return (sin(TAU * (58.0 - 14.0 * t) * t) * 0.55 + sin(TAU * (87.0 - 20.0 * t) * t) * 0.3 + _noise(i) * 0.08 * sin(t * 30.0)) * minf(t * 2.0, 1.0) * exp(-maxf(t - 2.8, 0.0) * 3.0))
@@ -100,10 +103,74 @@ func loop_at(parent: Node3D, id: String, volume_db := -10.0) -> AudioStreamPlaye
 func start_ambience(volume_db := -16.0) -> void:
 	if _ambience == null:
 		_ambience = AudioStreamPlayer.new()
-		_ambience.stream = _streams["ambience"]
 		add_child(_ambience)
+	_ambience.stream = _streams["ambience_veil"] if Game.has_flag("p3_mist") else _streams["ambience"]
 	_ambience.volume_db = volume_db
 	_ambience.play()
+
+
+# ------------------------------------------------------------------ music (one channel)
+const MUSIC_MENU := "res://game/audio/music/menu_exploration_smooth.wav"
+const MUSIC_GAMEPLAY := "res://game/audio/music/gameplay_ambience_loop.wav"
+const MUSIC_COLOSSUS := "res://game/audio/music/colossus_appearance.wav"
+var _music: AudioStreamPlayer
+var _music_db := -10.0
+var _music_duck := 0.0
+var _music_then := ""                  ## a one-shot hands back to this loop when it ends
+var _music_tw: Tween
+
+
+## The tracks' looping is set in their import settings (menu, gameplay and radio loop; the Colossus theme plays once):
+## nothing is changed on the shared audio resources at runtime.
+static func _looped(path: String, _loop: bool) -> AudioStream:
+	return load(path) as AudioStream
+
+
+## Play a music track (fades out the current one). loop: repeat; then_loop: after a one-shot, go back to that loop.
+func play_music(path: String, loop := true, db := -10.0, fade := 1.2, then_loop := "") -> void:
+	if _music == null:
+		_music = AudioStreamPlayer.new()
+		_music.name = "Music"
+		add_child(_music)
+		_music.finished.connect(func(): if _music_then != "": play_music(_music_then, true, _music_db, 2.0))
+	if _music.playing and _music.has_meta("path") and _music.get_meta("path") == path:
+		return
+	_music_then = then_loop
+	_music_db = db
+	if _music_tw:
+		_music_tw.kill()
+	_music_tw = create_tween()
+	if _music.playing:
+		_music_tw.tween_property(_music, "volume_db", -50.0, fade * 0.5)
+	_music_tw.tween_callback(func():
+		_music.stream = _looped(path, loop)
+		_music.set_meta("path", path)
+		_music.volume_db = -50.0
+		_music.play())
+	_music_tw.tween_property(_music, "volume_db", db + _music_duck, fade * 0.5)
+
+
+func stop_music(fade := 1.0) -> void:
+	if _music == null or not _music.playing:
+		return
+	_music_then = ""
+	if _music_tw:
+		_music_tw.kill()
+	_music_tw = create_tween()
+	_music_tw.tween_property(_music, "volume_db", -50.0, fade)
+	_music_tw.tween_callback(func():
+		_music.stop()
+		_music.remove_meta("path"))
+
+
+## The car radio is on: the music sinks away (and comes back when it is off).
+func duck_music(on: bool) -> void:
+	_music_duck = -40.0 if on else 0.0
+	if _music and _music.playing:
+		if _music_tw:
+			_music_tw.kill()
+		_music_tw = create_tween()
+		_music_tw.tween_property(_music, "volume_db", _music_db + _music_duck, 0.8)
 
 
 func stop_ambience() -> void:
