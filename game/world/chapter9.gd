@@ -111,6 +111,8 @@ func begin(w: Node, chapter8: Node, restoring: bool) -> void:
 		Game.set_flag("ch9_started")
 		st()["marcus_trust"] = marcus_trust()
 	_apply()
+	if Game.has_flag("chapter_9_complete"):
+		_start_chapter10(true)
 	Game.refresh_objective()
 	if fresh:
 		_title.call_deferred()
@@ -941,6 +943,18 @@ func _rendezvous() -> void:
 	_busy["rv"] = false
 	_guide()
 	await hud.chapter_complete(CHAPTER)
+	_start_chapter10(false)                          # the road out of town starts at the rendezvous (displayed 11)
+
+
+## The next chapter (displayed CHAPTER 11 "No Safe Road", internally chapter10.gd) starts at the rendezvous.
+var chapter10: Node
+func _start_chapter10(restoring: bool) -> void:
+	if chapter10 != null:
+		return
+	chapter10 = load("res://game/world/chapter10.gd").new()
+	chapter10.name = "Chapter10"
+	add_child(chapter10)
+	chapter10.begin(world, self, restoring)
 
 
 # ------------------------------------------------------------------ helpers, per tick
@@ -950,6 +964,8 @@ func _hold(on: bool) -> void:
 
 
 func _process(delta: float) -> void:
+	if Game.has_flag("ch10_started"):
+		return                                    # the next chapter owns the group and the marker from here on
 	_pin_countdown(delta)
 	_tick -= delta
 	if _tick > 0.0 or player == null:

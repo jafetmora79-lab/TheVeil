@@ -10,7 +10,9 @@
   "act2_voices": "Voices in the Mist",
   "act2_trace": "A Trace of Noah",
   "act3_doors": "Something at the Doors",
-  "act3_fall": "The Fall of the Supermarket"
+  "act3_fall": "The Fall of the Supermarket",
+  "act3_road": "No Safe Road",
+  "act4_farm_road": "The Farm Road"
  },
  "steps": [
   {
@@ -420,6 +422,138 @@
    "flag": "ch10_started",
    "goal": "act3_fall",
    "text": "Chapter 10 complete - The Fall of the Supermarket"
+  },
+  {
+   "id": "c10_eddie",
+   "flag": "ch10_plan_done",
+   "goal": "act3_road",
+   "text": "Talk to Eddie"
+  },
+  {
+   "id": "c10_way_out",
+   "flag": "ch10_car_found",
+   "goal": "act3_road",
+   "text": "Find a way out of Greyhaven"
+  },
+  {
+   "id": "c10_car",
+   "flag": "ch10_car_done",
+   "goal": "act3_road",
+   "text": "Investigate the abandoned vehicle"
+  },
+  {
+   "id": "c10_road",
+   "flag": "ch10_roadblock_seen",
+   "goal": "act3_road",
+   "text": "Continue toward the countryside road"
+  },
+  {
+   "id": "c10_around",
+   "flag": "ch10_around_done",
+   "goal": "act3_road",
+   "text": "Find a way around the blocked road"
+  },
+  {
+   "id": "c10_group",
+   "flag": "ch10_followed_done",
+   "goal": "act3_road",
+   "text": "Stay with the group"
+  },
+  {
+   "id": "c10_choice",
+   "flag": "ch10_choice_made",
+   "goal": "act3_road",
+   "text": "Decide what to do for Sarah"
+  },
+  {
+   "id": "c10_stretch",
+   "flag": "ch10_building_seen",
+   "goal": "act3_road",
+   "text": "Head for the outskirts"
+  },
+  {
+   "id": "c10_building",
+   "flag": "ch10_refuge_checked",
+   "goal": "act3_road",
+   "text": "Investigate the building"
+  },
+  {
+   "id": "c10_gather",
+   "flag": "ch10_refuge_talk_done",
+   "goal": "act3_road",
+   "text": "Gather the group inside"
+  },
+  {
+   "id": "c10_rest",
+   "flag": "chapter_10_complete",
+   "goal": "act3_road",
+   "text": "Rest for a few hours"
+  },
+  {
+   "id": "c10_complete",
+   "flag": "ch11_started",
+   "goal": "act3_road",
+   "text": "Chapter 11 complete - No Safe Road"
+  },
+  {
+   "id": "c11_talk",
+   "flag": "ch11_talk_done",
+   "goal": "act4_farm_road",
+   "text": "Talk to the survivors"
+  },
+  {
+   "id": "c11_road",
+   "flag": "ch11_campsite_reached",
+   "goal": "act4_farm_road",
+   "text": "Follow the farm road"
+  },
+  {
+   "id": "c11_clue",
+   "flag": "ch11_note_read",
+   "goal": "act4_farm_road",
+   "text": "Inspect the campsite"
+  },
+  {
+   "id": "c11_farmhouse",
+   "flag": "ch11_farmhouse_reached",
+   "goal": "act4_farm_road",
+   "text": "Locate the old farmhouse"
+  },
+  {
+   "id": "c11_search",
+   "flag": "ch11_search_done",
+   "goal": "act4_farm_road",
+   "text": "Search the farmhouse"
+  },
+  {
+   "id": "c11_read",
+   "flag": "ch11_message_read",
+   "goal": "act4_farm_road",
+   "text": "Read the message"
+  },
+  {
+   "id": "c11_regroup",
+   "flag": "ch11_regrouped",
+   "goal": "act4_farm_road",
+   "text": "Regroup with the survivors"
+  },
+  {
+   "id": "c11_escape",
+   "flag": "ch11_escaped",
+   "goal": "act4_farm_road",
+   "text": "Escape the farmhouse"
+  },
+  {
+   "id": "c11_light",
+   "flag": "chapter_11_complete",
+   "goal": "act4_farm_road",
+   "text": "Stay with the group"
+  },
+  {
+   "id": "c11_complete",
+   "flag": "ch12_started",
+   "goal": "act4_farm_road",
+   "text": "Chapter 12 complete - The Farm Road"
   }
  ],
  "_comment": "Steps complete in list order for display, but each errand step only checks its own flag, so the supermarket and the game shop can be done in either order (the bible leaves the stop order open). Phase 3 (mist_*) is a WORKING DRAFT sequence of Act I's opening.",

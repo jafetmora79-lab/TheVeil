@@ -184,7 +184,7 @@ func numbering() -> void:
 	var seq := true
 	for i in nums.size():
 		seq = seq and nums[i] == i + 1
-	ok("num_sequential_unique", seq and nums.size() == 10, str(nums))
+	ok("num_sequential_unique", seq and nums.size() == 12, str(nums))
 	ok("num_titles", game.chapter_title(1) == "An Ordinary Evening" and game.chapter_title(2) == "One Last Stop"
 		and game.chapter_title(10) == "The Fall of the Supermarket")
 	var cases := [[{}, 1], [{"arrival_shot": true}, 2], [{"arrival_shot": true, "p3_mist": true}, 3],
@@ -204,7 +204,8 @@ func numbering() -> void:
 			steps.append(o["text"])
 	ok("num_objective_completion_texts", steps == ["Chapter 6 complete - The First Search", "Chapter 7 complete - Voices in the Mist",
 		"Chapter 8 complete - A Trace of Noah", "Chapter 9 complete - Something at the Doors",
-		"Chapter 10 complete - The Fall of the Supermarket"], str(steps))
+		"Chapter 10 complete - The Fall of the Supermarket", "Chapter 11 complete - No Safe Road",
+		"Chapter 12 complete - The Farm Road"], str(steps))
 	# an existing save written before the numbering fix (no "chapter" fields): its label comes from its flags
 	var f := FileAccess.open(game.SAVE_PATH, FileAccess.WRITE)
 	f.store_string(JSON.stringify({"version": game.SAVE_VERSION, "flags": {"ch7_started": true, "c5_started": true}, "inventory": [],
@@ -348,7 +349,9 @@ func _run() -> void:
 	ok("c9_complete_card", await wait_until(func(): return world.hud.chapter_l.text == game.chapter_label(10, true), 60 * 3), world.hud.chapter_l.text)
 	ok("c9_roster", c9.st()["roster"] == ["Eddie", "Ruth", "Sarah", "Marcus"] and c9.st()["marcus_outcome"] == "survived")
 	ok("c9_npcs_apart_rendezvous", npcs_ok() == "", npcs_ok())
-	ok("c9_no_next_chapter", not game.has_flag("ch10_started") and game.current_step().get("id", "") == "c9_complete" and game.chapter_number() == 10)
+	# the road out of town (displayed Chapter 11) starts at the rendezvous right after the completion card
+	ok("c9_next_chapter_starts", await wait_until(func(): return game.has_flag("ch10_started"), 60 * 6) and c9.chapter10 != null
+		and game.chapter_number() == 11 and not game.has_flag("ch11_started"))
 	await reload()
 	ok("c9_load_complete", game.has_flag("chapter_9_complete") and c9.marcus.visible and not c9.follows["Eddie"].active
 		and c9.eddie.global_position.distance_to(rv) < 4.0 and game.inventory.count("painkillers") == int(stock0["medical"]),
