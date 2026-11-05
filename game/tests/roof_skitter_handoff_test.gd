@@ -35,6 +35,13 @@ func run():
    await process_frame
    elapsed+=1
   ok('struggle_started',e.struggling)
+  ok('pinned_on_ground', e.report.get('pinned',false) and e.report.get('camera_on_ground_m',9.0) < 0.6 and e.report.get('camera_on_ground_m',-1.0) > 0.1)
+  var cr:Node3D=e.creature
+  var flat:=Vector2(cr.global_position.x-e.saved_position.x, cr.global_position.z-e.saved_position.z).length()
+  var cam_d:float=cr.global_position.distance_to(p.camera.global_position)
+  ok('skitter_on_chest', cr.get_parent()==w and flat < 0.5 and cam_d > 0.3 and cam_d < 1.2 and cr.global_position.y - e._ground(e.saved_position).y < 0.6)
+  ok('fast_rush', not e.report.get('open_yard',true) or e.report.get('rush_s',0.0) > 0.0 and e.report.get('rush_m',0.0) / e.report.get('rush_s',1.0) >= 8.0)
+  print('PIN ', e.report.get('camera_on_ground_m'), ' flat ', flat, ' cam_d ', cam_d, ' rush ', e.report.get('rush_m'), ' m')
   if win:
    for i in 12:
     var press=InputEventMouseButton.new();press.button_index=MOUSE_BUTTON_LEFT;press.pressed=true
@@ -55,7 +62,7 @@ func run():
   print('ROOF visual bodies %s, roof y %.2f, house y %.2f' % [e.report.get('visual_roof_bodies',0), e.roof.y, e.house.global_position.y])
   print('CONTACT fix up to %.3f m, tip drop %.3f m' % [e.report.get('max_contact_fix',0.0), e.report.get('tip_drop',0.0)])
   ok('health_outcomes',absf(p.health-(80 if win else 40))<0.1)
-  ok('control_restored',p.controls_enabled and p.look_enabled)
+  ok('control_restored',p.controls_enabled and p.look_enabled and p.camera.position.is_zero_approx())
   print('REPORT ',e.report)
   w.free()
  print('RESULT ','PASS' if failed==0 else str(failed)+' failures')
