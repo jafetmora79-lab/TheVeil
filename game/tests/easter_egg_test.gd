@@ -2,7 +2,7 @@ extends SceneTree
 ## THE VEIL - the hidden golden-face Easter egg (game/easter_egg/golden_peek.gd), automated checks (headless):
 ##   godot --headless --path . --fixed-fps 60 --script res://game/tests/easter_egg_test.gd
 ## A new game; the player is put in the woods off the county road (on foot, before town) and turned slowly as if
-## looking around. Checks: nothing before 60 s; nothing on the road; the peek behind a tree 20+ m away; the 10 m
+## looking around. Checks: nothing before 30 s; nothing on the road; the peek behind a tree 20+ m away; the 10 m
 ## trigger; the lunge, the sound (3 s) at impact, the flash timing; control, position, health and items untouched;
 ## the line once the sound is over, with movement free; never again; the flag through save/load.
 
@@ -98,13 +98,13 @@ func _run() -> void:
 	var flags0: Dictionary = game.flags.duplicate()
 	var ch0: int = game.chapter_number()
 
-	# ---- not before 60 s (looking around slowly the whole time)
+	# ---- not before 30 s (looking around slowly the whole time)
 	var yaw := 0.0
-	for i in 60 * 55:
+	for i in 60 * 25:
 		yaw += 0.004
 		world.player.set_yaw_pitch(yaw, 0.0)
 		await process_frame
-	ok("not_before_60s", not egg.report["placed"] and egg.peek == null, "woods %.1f s" % egg.st()["woods_time"])
+	ok("not_before_30s", not egg.report["placed"] and egg.peek == null, "woods %.1f s" % egg.st()["woods_time"])
 
 	# ---- not on the road: the clock stops and nothing is placed there
 	var on_road := Vector3(egg.route[4].x, spot.y, egg.route[4].y)
@@ -116,7 +116,7 @@ func _run() -> void:
 		await process_frame
 	ok("not_on_route", not egg.report["placed"] and absf(float(egg.st()["woods_time"]) - wt) < 0.01 and egg.route_distance(world.player.global_position) < 8.0)
 
-	# ---- back in the woods: past 60 s it peeks out behind a tree 20+ m away (placed while out of view)
+	# ---- back in the woods: past 30 s it peeks out behind a tree 20+ m away (placed while out of view)
 	await put(spot)
 	var placed_frame := -1
 	for i in 60 * 40:
@@ -126,7 +126,7 @@ func _run() -> void:
 		if egg.peek != null:
 			placed_frame = i
 			break
-	ok("peek_placed", egg.peek != null and float(egg.st()["woods_time"]) >= 60.0, "woods %.1f s" % egg.st()["woods_time"])
+	ok("peek_placed", egg.peek != null and float(egg.st()["woods_time"]) >= 30.0, "woods %.1f s" % egg.st()["woods_time"])
 	if egg.peek == null:
 		print("RESULT FAIL (no peek)")
 		quit(1)
@@ -134,7 +134,15 @@ func _run() -> void:
 	var tree: Vector3 = egg.peek.get_meta("tree")
 	var d := Vector2(tree.x - spot.x, tree.z - spot.z).length()
 	ok("peek_far_tree", d >= 20.0 and d <= 45.0, "%.1f m" % d)
-	ok("peek_only_face", egg.peek.texture == egg.PEEK_TEX and egg.peek.global_position.distance_to(tree + Vector3(0, 1.62, 0)) < 1.6)
+	ok("character_hidden_until_rush", not egg.peek.visible)
+	var cue: Node = egg.lure
+	ok("selected_tree_mesh_found", cue != null and not cue.targets.is_empty())
+	await frames(2)
+	var first_pulses: int = cue.pulses
+	await frames(120)
+	ok("tree_pulses_every_two_seconds", cue.pulses == first_pulses + 1)
+	ok("rustle_and_leaves", cue.audio.stream.get_length() > 0.5 and cue.leaves.size() > 0)
+	ok("selected_tree_actually_moves", cue.targets.any(func(target): return not target.applied.is_equal_approx(target.original)))
 	# the trunk hides the back of the head: a ray to the peek's left edge (as seen) meets the tree first
 	var cam: Camera3D = world.player.camera
 	var to_tree := (tree - cam.global_position) * Vector3(1, 0, 1)
@@ -159,11 +167,19 @@ func _run() -> void:
 	ok("trigger_10m", egg.report["triggered"] and trig_d > 8.5 and trig_d <= 10.5, "%.2f m" % trig_d)
 	var pos_at: Vector3 = world.player.global_position
 	ok("control_held", not world.player.controls_enabled)
+	ok("tree_stops_at_jumpscare", not cue.active and cue.restored and not cue.audio.playing)
+	ok("tree_transform_restored", cue.targets.all(func(target): return target.applied.is_equal_approx(target.original)))
 	ok("scare_runs", await wait_until(func(): return egg.report["flash_s"] > 0.0, 60 * 5))
 	ok("lunge_fast", egg.report["lunge_s"] >= 0.14 and egg.report["lunge_s"] <= 0.3, "%.3f s" % egg.report["lunge_s"])
 	ok("audio_at_impact", egg.report["audio_at_impact"])
+	ok("face_meets_lens_center", egg.report.get("face_center_error_px", INF) < 1.0)
+	ok("front_portrait_at_impact", egg.report.get("front_at_impact", false))
+	ok("both_audio_sample_synchronized", egg.report.get("audio_synchronized", false))
+	ok("grenade_source_seconds_1_to_4", absf(egg.IMPACT_MIX.get_length() - 3.0) < 0.05)
+	ok("rush_face_centered_every_frame", egg.report.get("rush_max_face_error_px", INF) < 1.0)
+	ok("front_viewport_sized", egg.report["front_rect_size"].x >= 1000 and egg.report["front_rect_size"].y >= 600)
 	ok("audio_3s", absf(egg.SCARE.get_length() - 3.0) < 0.05, "%.2f s" % egg.SCARE.get_length())
-	ok("flash_timing", egg.report["flash_s"] >= 1.2 and egg.report["flash_s"] <= 1.5, "%.2f s" % egg.report["flash_s"])
+	ok("flash_timing", egg.report["flash_s"] >= 1.5 and egg.report["flash_s"] <= 1.8, "%.2f s" % egg.report["flash_s"])
 	ok("control_back", world.player.controls_enabled and world.player.global_position.distance_to(pos_at) < 0.05)
 	ok("peek_gone", egg.peek == null and world.get_node_or_null("GoldenPeek") == null)
 	# the line: after the sound, movement free while it shows
@@ -190,3 +206,4 @@ func _run() -> void:
 	ok("save_load_flag", game.has_flag("egg_golden_seen") and game.has_flag("egg_golden_reaction") and egg.done())
 	print("RESULT %s" % ("PASS" if fails == 0 else "%d failures" % fails))
 	quit(0 if fails == 0 else 1)
+
