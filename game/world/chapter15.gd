@@ -422,10 +422,19 @@ func _guide() -> void:
 		t = F(c12.EXIT_DOOR)
 		label = "SET OUT"
 	elif not Game.has_flag("ch15_colossus_seen"):
-		var i := 0
-		while i < ROUTE.size() - 1 and Vector2(p.x - ROUTE[i].x, p.z - ROUTE[i].z).length() < 6.0 + 0.0 * i:
-			i += 1
-		t = ROUTE[mini(i + 1, ROUTE.size() - 1)] + Vector3(0, 1.2, 0)
+		# (QA-010) progress along the road only goes forward: the waypoint reached (or the nearest, after a load)
+		if _route_i < 0:
+			var best := INF
+			for j in ROUTE.size():
+				var dj := Vector2(p.x - ROUTE[j].x, p.z - ROUTE[j].z).length()
+				if dj < best:
+					best = dj
+					_route_i = j
+		for j in range(ROUTE.size() - 1, _route_i, -1):
+			if Vector2(p.x - ROUTE[j].x, p.z - ROUTE[j].z).length() < 6.0:
+				_route_i = j
+				break
+		t = ROUTE[mini(_route_i + 1, ROUTE.size() - 1)] + Vector3(0, 1.2, 0)
 		label = "THE OLD DISTRICT"
 	elif not Game.has_flag("ch15_crossed"):
 		t = (COVERS[mini(_last_cover + 1, COVERS.size() - 1)] if _last_cover < COVERS.size() - 1 else CROSS_END) + Vector3(0, 1.0, 0)
@@ -1308,6 +1317,7 @@ func _record_ending(ending: String) -> void:
 
 
 var _ending_saved := false
+var _route_i := -1                                      # (QA-010) the last road waypoint reached
 
 
 func _credits() -> void:

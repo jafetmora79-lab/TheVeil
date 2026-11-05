@@ -87,6 +87,21 @@ func _run() -> void:
 	await load_saved()
 	ok("qa003_made_choice_completed", game.has_flag("ch14_separation_made") and String(chapter(14).st()["separation"]) == "went_back")
 
+	# ---- QA-010: the finale's road marker never points back to a waypoint already reached
+	DEV15.prepare(game)
+	for f in ["ch15_started", "ch15_opening_done", "ch15_plan_done", "ch15_supplies_done", "ch15_set_out"]:
+		game.set_flag(f)
+	await load_saved()
+	var c15r = chapter(15)
+	var R: Array = c15r.ROUTE
+	world.player.global_position = R[3] + Vector3(0.5, 0.2, 0.5)
+	c15r._guide()
+	var ahead: bool = world.hud._mk_target is Vector3 and Vector2(world.hud._mk_target.x - R[4].x, world.hud._mk_target.z - R[4].z).length() < 0.5
+	world.player.global_position = (R[1] + R[2]) * 0.5 + Vector3(0, 0.2, 0)
+	c15r._guide()
+	var still: bool = world.hud._mk_target is Vector3 and Vector2(world.hud._mk_target.x - R[4].x, world.hud._mk_target.z - R[4].z).length() < 0.5
+	ok("qa010_route_forward_only", ahead and still, str(world.hud._mk_target))
+
 	# ---- QA-001: saved after choosing an ending, before it finished
 	DEV15.prepare(game)
 	for f in ["ch15_started", "ch15_set_out", "ch15_colossus_seen", "ch15_crossed", "ch15_in_passage", "ch15_chamber_reached",

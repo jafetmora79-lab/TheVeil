@@ -603,7 +603,7 @@ func _field() -> void:
 		report["field_min_fov"] = minf(float(report["field_min_fov"]), cam.fov)
 		await get_tree().process_frame
 	if is_instance_valid(h):
-		h.queue_free()
+		_leave_unseen(h, 1.7)                     # (QA-007) never removed in plain view (its walk to b ends first)
 	var tb := create_tween()
 	tb.tween_property(cam, "fov", fov0, 0.8).set_trans(Tween.TRANS_SINE)
 	await tb.finished
@@ -783,7 +783,7 @@ func _escape_tick() -> void:
 		if h and is_instance_valid(h):
 			get_tree().create_timer(6.0).timeout.connect(func():
 				if is_instance_valid(h):
-					h.queue_free())
+					_leave_unseen(h))
 		hound = null
 		far_light.light_energy = 1.6
 		world.save_checkpoint("chapter12_after_encounter")    # its own file, never the player's save slot
@@ -882,3 +882,34 @@ func _process(delta: float) -> void:
 	_escape_tick()
 	if not _busy.get("field", false) and not _busy.get("attack", false) and not _busy.get("ending", false):
 		_guide()
+
+
+## (QA-007) A Hound that has done its part goes on into the fog and is removed only once out of view (or far off
+## in it): it keeps on the way it faces, checked every 0.2 s, for up to 12 s.
+var hounds_left_in_view := 0       ## tests
+var hounds_removed := 0            ## tests
+
+
+func _leave_unseen(h: Node3D, wait := 0.0) -> void:
+	if wait > 0.0:
+		await get_tree().create_timer(wait).timeout
+	if not is_instance_valid(h):
+		return
+	var dir := Vector3(sin(h.rotation.y), 0.0, cos(h.rotation.y))
+	for i in 60:
+		if not is_instance_valid(h):
+			return
+		var cam := get_viewport().get_camera_3d()
+		var at := h.global_position + Vector3(0, 0.7, 0)
+		if cam == null or not cam.is_position_in_frustum(at) or cam.global_position.distance_to(at) > 60.0:
+			break
+		if h.get_node_or_null("AI") == null:
+			var tw := h.create_tween()                  # scripted: keep walking on, at its pace, into the fog
+			tw.tween_property(h, "global_position", h.global_position + dir * 0.6, 0.2)
+		await get_tree().create_timer(0.2).timeout
+	if is_instance_valid(h):
+		var cam2 := get_viewport().get_camera_3d()
+		if cam2 and cam2.is_position_in_frustum(h.global_position + Vector3(0, 0.7, 0)) and cam2.global_position.distance_to(h.global_position) <= 60.0:
+			hounds_left_in_view += 1
+		hounds_removed += 1
+		h.queue_free()
