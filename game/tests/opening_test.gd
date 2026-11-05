@@ -874,7 +874,7 @@ func _run() -> void:
 	await frames(60)
 	ok("p3_npcs_to_market", world.eddie.get_parent() == mk and world.marcus.get_parent() == mk and world._p3_followers.is_empty())
 	# the regroup walk from the entrance goes round the vestibule wall / carts, never through them
-	var nroute: Array = world.npc_route(mk, Vector3(0, 0.04, -0.5), Vector3(1.1, 0.04, 4.7))
+	var nroute: Array = world.npc_route(mk, Vector3(0, 0.04, -0.5), Vector3(1.1, 0.04, 4.7), null, true)   # walls / furniture only (Marcus stands at the end)
 	var clear := nroute.size() >= 2
 	var prev := Vector3(0, 0.04, -0.5)
 	var sp := SphereShape3D.new()

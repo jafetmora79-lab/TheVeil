@@ -81,6 +81,10 @@ func begin(w: Node, restoring: bool) -> void:
 	_take_over_npcs(restoring)
 	_setup_lights()
 	_setup_doors()
+	garage = VeilGarageTentacle.new()                # the loading-bay tentacle (game/world/garage_tentacle.gd)
+	garage.name = "GarageTentacle"
+	add_child(garage)
+	garage.setup(self)
 	_setup_pickups()
 	_setup_back_room()
 	_setup_rest()
@@ -387,6 +391,8 @@ func _pull_loading(_b: Node) -> void:
 	if Game.has_flag("p4_loading_down"):
 		return
 	its["loading"].prompt_text = ""
+	if garage:
+		garage.on_close_started()
 	var ld: Node3D = its["loading_door"]
 	var tw := create_tween().set_trans(Tween.TRANS_SINE)
 	tw.tween_property(ld, "transform", _base["loading"], 1.4)
@@ -563,11 +569,17 @@ func _fp_to(cam: Camera3D, pts: Array, speed: float) -> void:
 	player.set_physics_process(false)             # scripted steps: the body's own physics would push back on kerbs
 	for q in pts:
 		var target: Vector3 = ml(q)
+		# never loops forever: done within 15 cm, or when its time is up (then he is put on the point)
+		var budget := ((target - player.global_position) * Vector3(1, 0, 1)).length() / maxf(speed, 0.1) + 1.5
+		var spent := 0.0
 		while true:
 			var d := (target - player.global_position) * Vector3(1, 0, 1)
-			if d.length() < 0.06:
+			if d.length() < 0.15 or spent > budget:
+				if spent > budget:
+					player.global_position = Vector3(target.x, player.global_position.y, target.z)
 				break
 			var dt := get_process_delta_time()
+			spent += dt
 			var np: Vector3 = player.global_position + d.normalized() * minf(speed * dt, d.length())
 			np.y = move_toward(player.global_position.y, _floor_y(np) + 0.0, dt * 2.5)
 			player.global_position = np
@@ -756,11 +768,62 @@ func _spawn_roof_skitter(doors_z: float) -> Array:
 	return [sk, ap]
 
 
+var garage: VeilGarageTentacle
+var _cam_held: Camera3D
+## While a scripted first-person shot owns `cam`: it stays the current camera and the player can neither move nor look.
+func _hold_cam(cam: Camera3D) -> void:
+	_cam_held = cam
+	while is_instance_valid(cam) and _cam_held == cam:
+		if not cam.current:
+			cam.current = true
+		player.set("controls_enabled", false)
+		player.set("look_enabled", false)
+		await get_tree().process_frame
+
+
+var _music_player: AudioStreamPlayer
+## Non-positional cinematic music (sting / chase); the ambience is ducked under it.
+func _music(id: String, db := 0.0) -> void:
+	if id == "sting":
+		var st := AudioStreamPlayer.new()
+		st.stream = _streams["sting"]
+		st.volume_db = db
+		add_child(st)
+		st.finished.connect(st.queue_free)
+		st.play()
+		return
+	if _music_player == null:
+		_music_player = AudioStreamPlayer.new()
+		add_child(_music_player)
+	_music_player.stream = _streams[id]
+	_music_player.volume_db = db
+	_music_player.play()
+	Sfx.stop_ambience()
+	Sfx.stop_music(0.4)                               # the soundtrack gives way to the chase
+
+
+func _music_stop(fade: float) -> void:
+	if _music_player and _music_player.playing:
+		var tw := create_tween()
+		tw.tween_property(_music_player, "volume_db", -40.0, fade)
+		tw.tween_callback(_music_player.stop)
+		tw.tween_callback(func(): Sfx.play_music(Sfx.MUSIC_GAMEPLAY, true, -14.0, 3.0))
+
+
 func _hound_charge() -> void:                   # (name kept: the accept branch's creature is now the Skitter)
 	if Game.has_flag("p4_hound_charged"):
 		return
 	Game.set_flag("p4_hound_charged")
+	# the Noah-choice conversation is still easing out: when it ends it hands the view and mouse-look back to the
+	# player (that is how the mouse could turn away from the Skitter). Let it finish first, then take the camera.
+	if world.has_method("end_conversation"):
+		world.end_conversation()
+	var wt := 0.0
+	while wt < 3.0 and (world.get("conversing") or world.get("_talk_cam") != null):
+		await get_tree().process_frame
+		wt += get_process_delta_time()
 	player.set("controls_enabled", false)
+	player.set("look_enabled", false)
 	player.set("velocity", Vector3.ZERO)
 	var src: Camera3D = player.get("camera")
 	var cam := Camera3D.new()
@@ -769,6 +832,7 @@ func _hound_charge() -> void:                   # (name kept: the accept branch'
 	cam.global_transform = src.global_transform
 	cam.fov = src.fov
 	cam.current = true
+	_hold_cam(cam)                                 # nothing else can take the view or give mouse-look back
 	var doors_z: float = market.to_local((world._auto_doors[0][0] as Node3D).global_position).z if not world._auto_doors.is_empty() else 0.2
 	var set_doors := func(v: bool):
 		world._doors_powered = true
@@ -818,6 +882,7 @@ func _hound_charge() -> void:                   # (name kept: the accept branch'
 		var fov0 := cam.fov
 		var tf := create_tween()
 		tf.tween_property(cam, "fov", fov0 * 0.6, 0.6).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
+		Dialogue.say("p4_skitter_seen", false, true)      # barks (no conversation camera, the action goes on)
 		var hold := 0.0
 		while hold < 1.5:                               # zoom in (0.6 s) + recognise the silhouette (0.9 s)
 			await get_tree().process_frame
@@ -840,8 +905,7 @@ func _hound_charge() -> void:                   # (name kept: the accept branch'
 		if ap and ap.has_animation("Attack_Lunge"):
 			ap.play("Attack_Lunge", 0.05)
 			ap.speed_scale = 1.0 / t_air
-		var tr := create_tween()
-		tr.tween_property(cam, "fov", fov0, 0.5).set_trans(Tween.TRANS_SINE)
+		_music("sting", -2.0)                             # a sharp sting as it leaps (the zoom stays on it)
 		var dir := (land - from) * Vector3(1, 0, 1)
 		sk.rotation.y = atan2(dir.x, dir.z)
 		var tj := 0.0
@@ -861,6 +925,12 @@ func _hound_charge() -> void:                   # (name kept: the accept branch'
 		_play("impact", land, -2.0)                              # sharp, on the contact frame
 		world._shake(cam, 0.18, 0.025)
 		charge_report["landed"] = true
+		# it charges: zoom back out, frantic music, Marcus shouts, run
+		var tr := create_tween()
+		tr.tween_property(cam, "fov", fov0, 0.4).set_trans(Tween.TRANS_SINE)
+		_music("chase", -3.0)
+		Dialogue.say("p4_skitter_run", false, true)
+		charge_report["chase_music"] = true
 		var sc := sk.get_node_or_null("Scuttle") as AudioStreamPlayer3D
 		if sc:
 			sc.play()
@@ -928,14 +998,17 @@ func _hound_charge() -> void:                   # (name kept: the accept branch'
 		charge_report["left_into_fog"] = true
 		if is_instance_valid(sk):
 			sk.queue_free()
+	_music_stop(1.6)
 	charge_report["gone"] = true
 	charge_report["ms"] = Time.get_ticks_msec() - t0
 	# control back, looking at the doors
 	var fwd := -cam.global_transform.basis.z
 	player.call("set_yaw_pitch", atan2(-fwd.x, -fwd.z), 0.0)
+	_cam_held = null
 	cam.queue_free()
 	src.current = true
 	player.set("controls_enabled", true)
+	player.set("look_enabled", true)
 
 
 ## REFUSE: during the night, heavy irregular banging at the back door; nobody goes to see what it was.
@@ -1164,6 +1237,34 @@ func _make_sounds() -> void:
 	_streams["impact"] = Sfx._make(1.2, _impact_wave)
 	_streams["rattle"] = Sfx._make(1.4, _rattle_wave)
 	_streams["scuttle"] = Sfx._make(1.2, _scuttle_wave, true)
+	_streams["sting"] = Sfx._make(1.6, _sting_wave)
+	_streams["chase"] = Sfx._make(3.0, _chase_wave, true)
+	_streams["slither"] = Sfx._make(3.0, _slither_wave)
+
+
+## a sharp dissonant stab: a low hit and a cluster of detuned tones, fast decay
+func _sting_wave(t: float, i: int) -> float:
+	var cl := 0.0
+	for f in [233.0, 247.0, 349.0, 370.0, 523.0]:
+		cl += sin(TAU * f * t)
+	return (cl * 0.09 + sin(TAU * 55.0 * t) * 0.6 + Sfx._noise(i) * 0.25 * exp(-t * 20.0)) * exp(-t * 2.4) * minf(t * 200.0, 1.0)
+
+
+## frantic chase loop (160 bpm): pounding low drum on every beat, noise hits on the off-beats, a dissonant pulse
+func _chase_wave(t: float, i: int) -> float:
+	var beat := 60.0 / 160.0
+	var ph := fposmod(t, beat) / beat
+	var off := fposmod(t + beat * 0.5, beat) / beat
+	var kick := sin(TAU * (48.0 + 60.0 * exp(-ph * 18.0)) * ph * beat) * exp(-ph * 7.0) * 0.8
+	var hit := Sfx._noise(i) * exp(-off * 22.0) * 0.28
+	var pulse := (sin(TAU * 110.0 * t) + sin(TAU * 116.5 * t)) * 0.07 * (0.5 + 0.5 * sin(TAU * t / beat * 0.25))
+	return kick + hit + pulse
+
+
+## wet dragging: noisy, slow swells, low and moist
+func _slither_wave(t: float, i: int) -> float:
+	var env := sin(PI * clampf(t / 3.0, 0.0, 1.0))
+	return Sfx._noise(i) * 0.4 * env * (0.45 + 0.55 * absf(sin(t * 5.3 + sin(t * 1.7) * 2.0))) + sin(TAU * 62.0 * t) * 0.08 * env
 
 
 func _scrape_wave(t: float, i: int) -> float:
