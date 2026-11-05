@@ -2663,5 +2663,270 @@
     "time": 2.4
    }
   ]
+ },
+ "c9_decision": {
+  "source": "Chapter 10 (The Fall of the Supermarket) implementation prompt (approved script)",
+  "lines": [
+   {
+    "speaker": "Marcus",
+    "text": "We need to make a decision.",
+    "time": 2.4
+   },
+   {
+    "speaker": "",
+    "text": "About leaving?",
+    "time": 1.7
+   },
+   {
+    "speaker": "Marcus",
+    "text": "About surviving.",
+    "time": 1.8
+   },
+   {
+    "speaker": "Eddie",
+    "text": "Those doors aren't going to hold another night.",
+    "time": 3.5
+   },
+   {
+    "speaker": "Ruth",
+    "text": "And we're running out of places to hide.",
+    "time": 3.1
+   },
+   {
+    "speaker": "",
+    "text": "Then we need a way out.",
+    "time": 2.2
+   },
+   {
+    "speaker": "Marcus",
+    "text": "The roads toward the farms. That's our best chance.",
+    "time": 3.7
+   },
+   {
+    "speaker": "Eddie",
+    "text": "Assuming there's still a road.",
+    "time": 2.5
+   },
+   {
+    "speaker": "",
+    "text": "We won't know until we try.",
+    "time": 2.4
+   }
+  ]
+ },
+ "c9_warning": {
+  "source": "Chapter 10 (The Fall of the Supermarket) implementation prompt (approved script)",
+  "lines": [
+   {
+    "speaker": "Sarah",
+    "text": "There's something outside.",
+    "time": 2.3
+   },
+   {
+    "speaker": "Eddie",
+    "text": "Where?",
+    "time": 1.6
+   },
+   {
+    "speaker": "Sarah",
+    "text": "Everywhere.",
+    "time": 1.6
+   },
+   {
+    "speaker": "Marcus",
+    "text": "Get away from the windows.",
+    "time": 2.3
+   }
+  ]
+ },
+ "c9_outside_a": {
+  "source": "Chapter 10 (The Fall of the Supermarket) implementation prompt (approved script)",
+  "lines": [
+   {
+    "speaker": "Eddie",
+    "text": "That's it. We can't go back.",
+    "time": 2.4
+   },
+   {
+    "speaker": "",
+    "text": "Is everyone here?",
+    "time": 1.8
+   }
+  ]
+ },
+ "c9_outside_b": {
+  "source": "Chapter 10 (The Fall of the Supermarket) implementation prompt (approved script)",
+  "lines": [
+   {
+    "speaker": "Ruth",
+    "text": "We need to keep moving.",
+    "time": 2.2
+   },
+   {
+    "speaker": "",
+    "text": "Toward the farms.",
+    "time": 1.8
+   },
+   {
+    "speaker": "Eddie",
+    "text": "Through all that?",
+    "time": 1.8
+   },
+   {
+    "speaker": "",
+    "text": "We don't have another choice.",
+    "time": 2.5
+   }
+  ]
+ },
+ "c9_outside_alive": {
+  "source": "Chapter 10 implementation: short connective lines (no approved script for these beats)",
+  "lines": [
+   {
+    "speaker": "Marcus",
+    "text": "All of us. Barely.",
+    "time": 1.9
+   }
+  ]
+ },
+ "c9_outside_lost": {
+  "source": "Chapter 10 implementation: short connective lines (no approved script for these beats)",
+  "lines": [
+   {
+    "speaker": "Ruth",
+    "text": "Not Marcus.",
+    "time": 1.6
+   },
+   {
+    "speaker": "Eddie",
+    "text": "He was right behind us...",
+    "time": 2.3
+   }
+  ]
+ },
+ "c9_prep_eddie": {
+  "source": "Chapter 10 implementation: short connective lines (no approved script for these beats)",
+  "lines": [
+   {
+    "speaker": "Eddie",
+    "text": "I've got what I can carry. It's not much.",
+    "time": 3.2
+   }
+  ]
+ },
+ "c9_prep_ruth_stable": {
+  "source": "Chapter 10 implementation: short connective lines (no approved script for these beats)",
+  "lines": [
+   {
+    "speaker": "Ruth",
+    "text": "Sarah can walk. Slowly, but she can walk.",
+    "time": 3.2
+   }
+  ]
+ },
+ "c9_prep_ruth_serious": {
+  "source": "Chapter 10 implementation: short connective lines (no approved script for these beats)",
+  "lines": [
+   {
+    "speaker": "Ruth",
+    "text": "She can't go far like this. We'll carry her if we have to.",
+    "time": 4.1
+   }
+  ]
+ },
+ "c9_prep_sarah_stable": {
+  "source": "Chapter 10 implementation: short connective lines (no approved script for these beats)",
+  "lines": [
+   {
+    "speaker": "Sarah",
+    "text": "I'll keep up. I promise.",
+    "time": 2.2
+   }
+  ]
+ },
+ "c9_prep_sarah_serious": {
+  "source": "Chapter 10 implementation: short connective lines (no approved script for these beats)",
+  "lines": [
+   {
+    "speaker": "Sarah",
+    "text": "Don't slow down for me.",
+    "time": 2.2
+   },
+   {
+    "speaker": "",
+    "text": "We're not leaving anyone.",
+    "time": 2.3
+   }
+  ]
+ },
+ "c9_marcus_order": {
+  "source": "Chapter 10 implementation: short connective lines (no approved script for these beats)",
+  "lines": [
+   {
+    "speaker": "Marcus",
+    "text": "Out the back! Through the staff door - move!",
+    "time": 3.3
+   }
+  ]
+ },
+ "c9_marcus_saved": {
+  "source": "Chapter 10 implementation: short connective lines (no approved script for these beats)",
+  "lines": [
+   {
+    "speaker": "Marcus",
+    "text": "I'm okay. Go - go!",
+    "time": 1.9
+   }
+  ]
+ },
+ "c9_marcus_lost": {
+  "source": "Chapter 10 implementation: short connective lines (no approved script for these beats)",
+  "lines": [
+   {
+    "speaker": "Eddie",
+    "text": "Marcus!",
+    "time": 1.6
+   }
+  ]
+ },
+ "c9_road_alive": {
+  "source": "Chapter 10 implementation: short connective lines (no approved script for these beats)",
+  "lines": [
+   {
+    "speaker": "Marcus",
+    "text": "Noah's out there. Past the farms. We keep going.",
+    "time": 3.5
+   },
+   {
+    "speaker": "",
+    "text": "Together.",
+    "time": 1.6
+   }
+  ]
+ },
+ "c9_road_lost": {
+  "source": "Chapter 10 implementation: short connective lines (no approved script for these beats)",
+  "lines": [
+   {
+    "speaker": "Eddie",
+    "text": "He'd want us to find Noah.",
+    "time": 2.3
+   },
+   {
+    "speaker": "",
+    "text": "Then we find him. For Marcus.",
+    "time": 2.5
+   }
+  ]
+ },
+ "c9_supplies_low": {
+  "source": "Chapter 10 implementation: short connective lines (no approved script for these beats)",
+  "lines": [
+   {
+    "speaker": "",
+    "text": "Not much left. It'll have to do.",
+    "time": 2.7
+   }
+  ]
  }
 }

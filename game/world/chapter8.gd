@@ -127,6 +127,8 @@ func begin(w: Node, chapter7: Node, restoring: bool) -> void:
 	if fresh:
 		Game.set_flag("ch8_started")
 	_apply()
+	if Game.has_flag("ch8_rested"):
+		_start_chapter9(true)
 	Game.refresh_objective()
 	if fresh:
 		_title.call_deferred()
@@ -135,9 +137,20 @@ func begin(w: Node, chapter7: Node, restoring: bool) -> void:
 		_run_attack.call_deferred()
 
 
+## The next chapter (displayed CHAPTER 10, internally chapter9.gd) follows the night after this one; a child node.
+var chapter9: Node
+func _start_chapter9(restoring: bool) -> void:
+	if chapter9 != null:
+		return
+	chapter9 = load("res://game/world/chapter9.gd").new()
+	chapter9.name = "Chapter9"
+	add_child(chapter9)
+	chapter9.begin(world, self, restoring)
+
+
 func _title() -> void:
 	await get_tree().create_timer(2.6).timeout       # after the wake-up fade
-	await hud.title_card("CHAPTER 8  -  SOMETHING AT THE DOORS", 2.6)
+	await hud.chapter_start(9)
 
 
 func st() -> Dictionary:
@@ -1191,12 +1204,14 @@ func _aftermath() -> void:
 	if p4.rest:
 		p4.rest.get_parent().visible = true
 		p4.rest.interactable.prompt_text = "[E] Sleep"
-	await hud.title_card("CHAPTER 8 COMPLETE  -  SOMETHING AT THE DOORS", 3.2)
+	await hud.chapter_complete(9)
 
 
 func _on_rest(_id: String) -> void:
+	# the next morning is the supermarket's last day (chapter9.gd); started while the screen is still black
 	var r: Dictionary = p4.record_night("ch8_rested")
-	Game.set_flag("ch8_rested")                      # the Chapter 9 checkpoint; nothing starts yet
+	Game.set_flag("ch8_rested")
+	_start_chapter9(false)
 	if p4.flashlight:
 		p4.flashlight.set_on(false)
 	await get_tree().create_timer(1.0).timeout
@@ -1284,6 +1299,8 @@ func _bark(at: Vector3) -> void:
 
 # ------------------------------------------------------------------ per tick
 func _process(delta: float) -> void:
+	if Game.has_flag("ch9_started"):
+		return                                    # the next chapter owns the NPCs and the marker from here on
 	_guard_tick(delta)
 	_tick -= delta
 	if _tick > 0.0 or player == null:
