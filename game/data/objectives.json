@@ -8,7 +8,8 @@
   "act1_night": "Secure the supermarket",
   "act2_search": "The First Search",
   "act2_voices": "Voices in the Mist",
-  "act2_trace": "A Trace of Noah"
+  "act2_trace": "A Trace of Noah",
+  "act3_doors": "Something at the Doors"
  },
  "steps": [
   {
@@ -316,6 +317,66 @@
    "flag": "ch8_started",
    "goal": "act2_trace",
    "text": "Chapter 7 complete - A Trace of Noah"
+  },
+  {
+   "id": "c8_eddie",
+   "flag": "ch8_eddie_talked",
+   "goal": "act3_doors",
+   "text": "Talk to Eddie"
+  },
+  {
+   "id": "c8_inspect",
+   "flag": "ch8_barricade_inspected",
+   "goal": "act3_doors",
+   "text": "Inspect the back entrance"
+  },
+  {
+   "id": "c8_materials",
+   "flag": "ch8_materials_collected",
+   "goal": "act3_doors",
+   "text": "Find materials to reinforce the entrance"
+  },
+  {
+   "id": "c8_repair",
+   "flag": "ch8_barricade_repaired",
+   "goal": "act3_doors",
+   "text": "Repair the back barricade"
+  },
+  {
+   "id": "c8_power",
+   "flag": "ch8_power_restored",
+   "goal": "act3_doors",
+   "text": "Check the backup power"
+  },
+  {
+   "id": "c8_return",
+   "flag": "ch8_attack_started",
+   "goal": "act3_doors",
+   "text": "Return to the others"
+  },
+  {
+   "id": "c8_secure",
+   "flag": "ch8_entrance_secured",
+   "goal": "act3_doors",
+   "text": "Secure the back entrance"
+  },
+  {
+   "id": "c8_help",
+   "flag": "ch8_survivor_helped",
+   "goal": "act3_doors",
+   "text": "Help the injured survivor"
+  },
+  {
+   "id": "c8_gather",
+   "flag": "ch8_aftermath_complete",
+   "goal": "act3_doors",
+   "text": "Join the others"
+  },
+  {
+   "id": "c8_complete",
+   "flag": "ch9_started",
+   "goal": "act3_doors",
+   "text": "Chapter 8 complete - Something at the Doors"
   }
  ],
  "_comment": "Steps complete in list order for display, but each errand step only checks its own flag, so the supermarket and the game shop can be done in either order (the bible leaves the stop order open). Phase 3 (mist_*) is a WORKING DRAFT sequence of Act I's opening.",

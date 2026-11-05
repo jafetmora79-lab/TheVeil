@@ -2359,5 +2359,300 @@
     "time": 2.1
    }
   ]
+ },
+ "c8_eddie": {
+  "source": "Chapter 8 implementation prompt (approved script)",
+  "lines": [
+   {
+    "speaker": "Eddie",
+    "text": "You hear that last night?",
+    "time": 2.3
+   },
+   {
+    "speaker": "",
+    "text": "Hear what?",
+    "time": 1.6
+   },
+   {
+    "speaker": "Eddie",
+    "text": "Something hitting the back door.",
+    "time": 2.7
+   },
+   {
+    "speaker": "",
+    "text": "Again?",
+    "time": 1.6
+   },
+   {
+    "speaker": "Eddie",
+    "text": "Yeah. Except this time, it didn't stop after a few knocks.",
+    "time": 4.1
+   },
+   {
+    "speaker": "",
+    "text": "Did anyone check?",
+    "time": 1.8
+   },
+   {
+    "speaker": "Eddie",
+    "text": "Marcus did. Said the barricade's coming apart.",
+    "time": 3.4
+   },
+   {
+    "speaker": "",
+    "text": "Where is he?",
+    "time": 1.6
+   },
+   {
+    "speaker": "Eddie",
+    "text": "Back there. Trying not to look worried.",
+    "time": 3.0
+   }
+  ]
+ },
+ "c8_marcus_damage": {
+  "source": "Chapter 8 implementation prompt (approved script)",
+  "lines": [
+   {
+    "speaker": "Marcus",
+    "text": "Look at this.",
+    "time": 1.6
+   },
+   {
+    "speaker": "",
+    "text": "Something tried to get in.",
+    "time": 2.3
+   },
+   {
+    "speaker": "Marcus",
+    "text": "More than once.",
+    "time": 1.7
+   },
+   {
+    "speaker": "",
+    "text": "Can we reinforce it?",
+    "time": 2.0
+   },
+   {
+    "speaker": "Marcus",
+    "text": "With enough material. But there's another problem.",
+    "time": 3.6
+   },
+   {
+    "speaker": "",
+    "text": "What?",
+    "time": 1.6
+   },
+   {
+    "speaker": "Marcus",
+    "text": "The backup power's barely holding.",
+    "time": 2.8
+   }
+  ]
+ },
+ "c8_repaired": {
+  "source": "Chapter 8 implementation prompt (approved script)",
+  "lines": [
+   {
+    "speaker": "Marcus",
+    "text": "That should hold.",
+    "time": 1.8
+   },
+   {
+    "speaker": "",
+    "text": "For how long?",
+    "time": 1.6
+   },
+   {
+    "speaker": "Marcus",
+    "text": "I'd rather not find out.",
+    "time": 2.2
+   }
+  ]
+ },
+ "c8_power_fail": {
+  "source": "Chapter 8 implementation prompt (approved script)",
+  "lines": [
+   {
+    "speaker": "Eddie",
+    "text": "Oh, that's not good.",
+    "time": 2.0
+   },
+   {
+    "speaker": "",
+    "text": "What happened?",
+    "time": 1.7
+   },
+   {
+    "speaker": "Eddie",
+    "text": "Backup power. It's giving up.",
+    "time": 2.5
+   },
+   {
+    "speaker": "Ruth",
+    "text": "We can't stay here in complete darkness.",
+    "time": 3.1
+   },
+   {
+    "speaker": "Eddie",
+    "text": "There's a maintenance panel near the storage area.",
+    "time": 3.6
+   }
+  ]
+ },
+ "c8_power_back": {
+  "source": "Chapter 8 implementation prompt (approved script)",
+  "lines": [
+   {
+    "speaker": "Eddie",
+    "text": "Okay. That's something.",
+    "time": 2.2
+   },
+   {
+    "speaker": "",
+    "text": "You sound surprised.",
+    "time": 2.0
+   },
+   {
+    "speaker": "Eddie",
+    "text": "I'm surprised by anything that works anymore.",
+    "time": 3.4
+   }
+  ]
+ },
+ "c8_impact": {
+  "source": "Chapter 8 implementation prompt (approved script)",
+  "lines": [
+   {
+    "speaker": "Sarah",
+    "text": "What was that?",
+    "time": 1.7
+   },
+   {
+    "speaker": "Marcus",
+    "text": "Everybody away from the door.",
+    "time": 2.5
+   },
+   {
+    "speaker": "Eddie",
+    "text": "Please tell me that's the wind.",
+    "time": 2.6
+   },
+   {
+    "speaker": "",
+    "text": "Get back.",
+    "time": 1.6
+   }
+  ]
+ },
+ "c8_treated": {
+  "source": "Chapter 8 implementation prompt (approved script)",
+  "lines": [
+   {
+    "speaker": "Sarah",
+    "text": "I think... I think I'm okay.",
+    "time": 2.4
+   },
+   {
+    "speaker": "",
+    "text": "Try not to move.",
+    "time": 1.8
+   },
+   {
+    "speaker": "Ruth",
+    "text": "You got to her in time.",
+    "time": 2.2
+   }
+  ]
+ },
+ "c8_untreated": {
+  "source": "Chapter 8 implementation prompt (approved script)",
+  "lines": [
+   {
+    "speaker": "Ruth",
+    "text": "We need medicine.",
+    "time": 1.8
+   },
+   {
+    "speaker": "",
+    "text": "We don't have any?",
+    "time": 1.9
+   },
+   {
+    "speaker": "Ruth",
+    "text": "Not enough.",
+    "time": 1.6
+   },
+   {
+    "speaker": "Marcus",
+    "text": "Then we need to find some.",
+    "time": 2.3
+   }
+  ]
+ },
+ "c8_aftermath": {
+  "source": "Chapter 8 implementation prompt (approved script)",
+  "lines": [
+   {
+    "speaker": "Eddie",
+    "text": "We can't keep doing this.",
+    "time": 2.3
+   },
+   {
+    "speaker": "",
+    "text": "Doing what?",
+    "time": 1.6
+   },
+   {
+    "speaker": "Eddie",
+    "text": "Waiting for the next thing to come through the door.",
+    "time": 3.8
+   },
+   {
+    "speaker": "Ruth",
+    "text": "He's right.",
+    "time": 1.6
+   },
+   {
+    "speaker": "Marcus",
+    "text": "We need another place.",
+    "time": 2.1
+   },
+   {
+    "speaker": "",
+    "text": "Somewhere outside town?",
+    "time": 2.2
+   },
+   {
+    "speaker": "Marcus",
+    "text": "Maybe.",
+    "time": 1.6
+   },
+   {
+    "speaker": "Marcus",
+    "text": "Noah's note mentioned the farms.",
+    "time": 2.7
+   },
+   {
+    "speaker": "Eddie",
+    "text": "We don't even know if the roads are open.",
+    "time": 3.2
+   },
+   {
+    "speaker": "",
+    "text": "Then that's what we need to figure out.",
+    "time": 3.0
+   },
+   {
+    "speaker": "Ruth",
+    "text": "And until then?",
+    "time": 1.7
+   },
+   {
+    "speaker": "",
+    "text": "We make sure these doors hold one more night.",
+    "time": 3.4
+   }
+  ]
  }
 }

@@ -238,7 +238,7 @@ func _initialize() -> void:
 
 const OUT_STORE := [Vector3(1.5, 0.2, 4.4), Vector3(1.5, 0.2, 1.8), Vector3(0.3, 0.2, 1.0), Vector3(0.3, 0.2, -3.5)]
 const TO_RS := [Vector3(33.0, 0.2, -23.5), Vector3(57.0, 0.2, -23.5), Vector3(57.0, 0.2, -55.0), Vector3(51.0, 0.2, -55.0), Vector3(51.0, 0.2, -59.5)]
-const LEAVE_YARD := [Vector3(51.0, 0.2, -56.0), Vector3(57.0, 0.2, -55.0)]
+const LEAVE_YARD := [Vector3(51.0, 0.2, -59.5), Vector3(51.0, 0.2, -56.0), Vector3(57.0, 0.2, -55.0)]
 const TO_ALLEY := [Vector3(60.0, 0.2, -56.0), Vector3(60.0, 0.2, -77.0), Vector3(50.0, 0.2, -77.0), Vector3(47.0, 0.2, -77.0)]
 const HOME_EAST := [Vector3(60.0, 0.2, -56.0), Vector3(57.0, 0.2, -40.0), Vector3(57.0, 0.2, -23.5), Vector3(32.7, 0.2, -23.5)]
 const HOME_WEST := [Vector3(51.0, 0.2, -55.0), Vector3(11.5, 0.2, -55.0), Vector3(11.5, 0.2, -23.5), Vector3(32.7, 0.2, -23.5)]
@@ -300,7 +300,15 @@ func _run() -> void:
 	# ---- scene 4: Ruth and Sarah
 	ok("c6_house_found", game.has_flag("ch6_house_found"))
 	var rs_snap := snapshot()
+	var rs_talks0: int = world.talk_report["count"]
+	var rs_blocked0: int = world.talk_report["blocked"]
+	await walk_world([c6.hl(Vector3(2.6, 0.6, -0.2))])            # up the yard toward their door
 	ok("c6_rs_choice_offered", await wait_talk(func(): return p4.choice.is_open(), 60.0))
+	# the global conversation camera holds the doorway talk too (it used to fall back to plain subtitles there)
+	var rs_cam := root.get_viewport().get_camera_3d()
+	ok("c6_rs_talk_camera", world.talk_report["count"] == rs_talks0 + 1 and world.talk_report["blocked"] == rs_blocked0
+		and rs_cam != null and rs_cam.name == "TalkCam" and not world.player.controls_enabled
+		and absf(1.0 - rs_cam.fov / world.player.camera.fov - 0.1) < 0.025 and world.talk_report["cam_hits"] == 0, str(world.talk_report))
 	ok("c6_rs_visible", c6.ruth.visible and c6.sarah.visible and c6.ruth.get_node_or_null("VeilFace") != null)
 	var sp2: PhysicsDirectSpaceState3D = world.get_world_3d().direct_space_state
 	var bh := sp2.intersect_ray(PhysicsRayQueryParameters3D.create(c6.hl(Vector3(2.6, 1.5, 1.0)), c6.hl(Vector3(2.6, 1.5, 6.0)), 1))

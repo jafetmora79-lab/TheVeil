@@ -250,7 +250,7 @@ static func _flashlight() -> VeilFlashlight:
 static func carried_weight() -> float:
 	var w := 0.0
 	for id in Game.inventory:
-		w += float(Game.item_info(id).get("weight", 0.0)) * maxi(1, quantity(id)) / maxi(1, Game.inventory.count(id))
+		w += float(Game.item_info(id).get("weight", 0.0)) * quantity(id) / maxi(1, Game.inventory.count(id))
 	return w
 
 
@@ -346,6 +346,10 @@ func select(i: int) -> void:
 func actions_for(id: String) -> Array:
 	var out: Array = []
 	var cat := String(Game.item_info(id).get("category", ""))
+	var world := get_tree().get_first_node_in_group("veil_world")
+	if world and world.has_method("can_heal_with") and world.can_heal_with(id):
+		out.append(["USE FOR HEALING", func(): world.use_healing_item(id)])   # the shelter's healing rules
+		return out
 	var fl := _flashlight()
 	if id == "flashlight" and fl:
 		out.append(["SWITCH OFF" if fl.on else "SWITCH ON", func(): fl.set_on(not fl.on)])
@@ -353,8 +357,8 @@ func actions_for(id: String) -> Array:
 		out.append(["LOAD INTO FLASHLIGHT", func(): fl.reload()])
 	elif cat == "food" and usable(id):
 		out.append(["DRINK" if id in DRINKS else "EAT", func(): _consume(id, 10.0, true)])
-	elif cat == "medical":
-		out.append(["TAKE", func(): _consume(id, 35.0, false)])
+	elif cat == "medical" and not (world and world.has_method("can_heal_with")):
+		out.append(["TAKE", func(): _consume(id, 35.0, false)])   # (the shelter's rule above wins: no waste at full health)
 	elif cat == "note":
 		out.append(["READ", func(): inspect()])
 	return out

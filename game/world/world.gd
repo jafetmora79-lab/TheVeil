@@ -56,6 +56,10 @@ var interactables := {}
 
 
 func _ready() -> void:
+	add_to_group("veil_world")
+	# a conversation cut off by a load / quit never resumes half-way: no queued lines, no confirm mode, no lock
+	Dialogue.clear()
+	Dialogue.confirm_mode = false
 	data = JSON.parse_string(FileAccess.get_file_as_string("res://game/world/world_data.json"))
 	home = get_node("Residential/Houses/PLAYER_HOME")
 	hud = HUD_SCRIPT.new()
@@ -73,6 +77,9 @@ func _ready() -> void:
 	sedan.global_position.y += 0.05
 	sedan.entry_area.used.connect(func(_b): enter_car())
 	sedan.speed_changed.connect(hud.set_speed)
+	for furniture in find_children("Furnishing", "Node3D", true, false):
+		for collider in furniture.find_children("*", "CollisionObject3D", true, false):
+			collider.add_to_group("veil_furniture")
 	_setup_home()
 	_setup_town()
 	_setup_triggers()
@@ -447,8 +454,8 @@ func _setup_town() -> void:
 			market_merch.set_glow(id, _glow_mat())
 	_setup_coolers()
 	# checkout: lane 4. The cashier is a generic placeholder (no cashier is named in the bible).
-	# the cashier stands on the staff side of lane 4 (lane-local (1.0, 0, -0.75)), facing the customer aisle (+x)
-	cashier = _spawn_npc(CASHIER, CASHIER_FACE, market, Vector3(-4.25, 0.04, 4.0), -PI * 0.5, "Cashier")
+	# Stand just off the lane 4 approach, with a clear interaction line from the aisle.
+	cashier = _spawn_npc(CASHIER, CASHIER_FACE, market, Vector3(-2.35, 0.04, 4.3), -PI * 0.5, "Cashier")
 	var c_it := Interactable.attach(cashier, {"kind": "custom", "label": "Cashier", "prompt_text": "[E] Pay for Groceries"})
 	c_it.used.connect(_checkout)
 	interactables["market/cashier"] = c_it
@@ -495,43 +502,96 @@ func _dlg_time(ids: Array) -> float:
 	return t
 
 
-## STANDARD NPC CONVERSATION (Eddie, Marcus, the cashier, Chapter 4 survivors). converse(ids, npcs):
-##   1. refuses (returns false) when a wall, door or window separates the player from any listed NPC;
-##   2. the NPCs turn to face the protagonist;
-##   3. a talk camera borrows the first-person view and eases (<= 0.35 m, FOV 52) toward whoever is speaking,
-##      never closer than 1.25 m and never through geometry (checked every frame);
-##   4. VeilFace talking + gestures play (_on_line); white pixel subtitles with a black outline;
-##   5. every line waits for the player's confirmation (Dialogue.confirm_mode; [E] / click / Space);
-##   6. choices (choice panel) and follow-up lines queued during the talk stay inside it;
-##   7. after the last line the view returns smoothly to first person and control is restored.
+## STANDARD NPC CONVERSATION - the one shared path for every spoken exchange with an NPC in Chapters 1-8.
+## converse(ids, npcs):
+##   1. refuses (returns false) only when a wall, door or window really separates the player from the NPC spoken
+##      to (several sight lines: head, face, chest; one clear line is enough, so a door frame no longer blocks it);
+##   2. the player stops (velocity 0, movement and interaction locked) and the NPCs turn to face the protagonist;
+##   3. the talk camera stays at the protagonist's own eye position (it never moves toward the NPC, so it cannot
+##      clip into a head, a counter or a wall) and only turns toward the current speaker's face and upper body,
+##      with a subtle zoom (FOV -10 %) over ~0.4 s; a new speaker gets a gentler re-aim;
+##   4. VeilFace talking + gestures play (_on_line); speaker name + subtitle on the HUD;
+##   5. every line waits for the player (Dialogue.confirm_mode): E / left click = next line, HOLD E = skip the
+##      remaining lines up to (never past) a choice; choices always wait for the player's pick;
+##   6. choices and follow-up lines queued during the talk stay inside it (the camera holds while anything is
+##      queued or the choice panel is open);
+##   7. after the last line the view eases back (~0.4 s) to the player's normal view, the FOV is restored, and
+##      control comes back - also when the talk was skipped, ended in a choice, or was cut by a scripted event
+##      (end_conversation()); a watchdog releases any lock left over (talk_watchdog()).
+## Exceptions keep their own camera: driving, creature encounters, chase scenes and cinematics (converse() only
+## queues the lines there).
 var conversing := false
-var talk_report := {"count": 0, "blocked": 0, "cam_hits": 0, "min_face_dist": 99.0}
+var talk_report := {"count": 0, "blocked": 0, "cam_hits": 0, "min_face_dist": 99.0, "max_fov_drop": 0.0, "zoom_ins": 0,
+	"zoom_outs": 0, "released": 0, "watchdog": 0}
+const TALK_RANGE := 12.0              ## a talk started by an approach (a doorway, a yard) can begin a few metres off
+const TALK_FOV_SCALE := 0.9            ## subtle zoom: 10 % narrower field of view
+const TALK_EASE_IN := 7.0              ## exponential rates: ~0.4 s to settle on a speaker
+const TALK_EASE_SPEAKER := 4.5         ## gentler re-aim when the speaker changes
+const TALK_EASE_OUT := 8.0
 
 
-## Line of sight from the player's eyes to an NPC's head (window glass counts: see _add_glass_colliders).
-func can_talk(npc: Node3D) -> bool:
-	if npc == null or not is_instance_valid(npc):
-		return false
+## Points on an NPC the player can see it by (head, face, chest).
+func _talk_points(npc: Node3D) -> Array:
 	var head = _speaker_head(String(npc.name))
 	var h: Vector3 = head if head != null else npc.global_position + Vector3(0, 1.6, 0)
-	var eye := player.camera.global_position
-	if eye.distance_to(h) > 6.0:
+	var base := npc.global_position
+	return [h, h - Vector3(0, 0.15, 0), Vector3(base.x, lerpf(base.y, h.y, 0.72), base.z)]
+
+
+## Line of sight from the player's eyes to an NPC (window glass counts: see _add_glass_colliders). Any one of the
+## sample points being in plain view is enough.
+func can_talk(npc: Node3D) -> bool:
+	if npc == null or not is_instance_valid(npc) or not npc.is_visible_in_tree():
 		return false
-	var q := PhysicsRayQueryParameters3D.create(eye, h, 1, [player.get_rid()])
-	return get_world_3d().direct_space_state.intersect_ray(q).is_empty()
+	var eye := player.camera.global_position
+	var ex: Array[RID] = [player.get_rid()]
+	if npc is CollisionObject3D:
+		ex.append((npc as CollisionObject3D).get_rid())
+	for p in _talk_points(npc):
+		if eye.distance_to(p) > TALK_RANGE:
+			continue
+		var hit := _talk_ray(eye, p, ex)
+		if hit.is_empty() or (hit["collider"] as Node).is_ancestor_of(npc) or npc.is_ancestor_of(hit["collider"]):
+			return true
+	return false
 
 
-## Returns false only when refused (an NPC is out of sight behind a wall / door / window).
+## A sight line for conversations. Invisible blockers that only keep the player out of a space (group
+## "veil_talk_transparent", e.g. Ruth and Sarah's doorway) do not hide anyone; real walls, doors and glass do.
+func _talk_ray(from: Vector3, to: Vector3, ex: Array[RID]) -> Dictionary:
+	var q := PhysicsRayQueryParameters3D.create(from, to, 1, ex)
+	var space := get_world_3d().direct_space_state
+	var hit := space.intersect_ray(q)
+	for _i in 3:
+		if hit.is_empty() or not (hit["collider"] as Node).is_in_group("veil_talk_transparent"):
+			break
+		q.exclude = q.exclude + [(hit["collider"] as CollisionObject3D).get_rid()]
+		hit = space.intersect_ray(q)
+	return hit
+
+
+## True while a normal conversation may take the camera (no driving, encounter, hidden player or cinematic).
+func _talk_camera_allowed() -> bool:
+	return not in_car and not _encounter_running and player.visible and not (_cine and is_instance_valid(_cine))
+
+
+## Returns false only when refused (the NPC spoken to is out of sight behind a wall / door / window).
 func converse(ids: Array, npcs: Array = []) -> bool:
-	if in_car or _encounter_running or not player.visible or conversing:
+	if conversing:
+		# already talking (a scripted follow-up): the new lines take over inside the same talk camera
 		for i in ids.size():
 			Dialogue.say(ids[i], false, i == 0)
-		return true                              # spoken as plain timed lines (no talk camera available)
+		return true
+	if not _talk_camera_allowed():
+		for i in ids.size():
+			Dialogue.say(ids[i], false, i == 0)
+		return true                              # spoken as plain timed lines (an exception keeps its own camera)
 	if not npcs.is_empty() and not can_talk(npcs[0]):      # the one spoken to must be in plain view
 		talk_report["blocked"] += 1
 		return false
 	conversing = true
 	talk_report["count"] += 1
+	_talk_speaker = String(npcs[0].name) if not npcs.is_empty() else _talk_speaker
 	for n in npcs:
 		var a = animators.get(String(n.name))
 		if a:
@@ -546,7 +606,20 @@ func converse(ids: Array, npcs: Array = []) -> bool:
 
 
 func _choice_open() -> bool:
-	return phase4 != null and is_instance_valid(phase4) and phase4.get("choice") != null and phase4.choice.is_open()
+	if phase4 != null and is_instance_valid(phase4) and phase4.get("choice") != null and phase4.choice.is_open():
+		return true
+	for c in get_tree().get_nodes_in_group("veil_choice_panel"):
+		if c.has_method("is_open") and c.is_open():
+			return true
+	return false
+
+
+## The direction to look for the current speaker: the face and upper body (a little below the head bone).
+func _talk_target():
+	var head = _speaker_head(_talk_speaker)
+	if head == null:
+		return null
+	return (head as Vector3) - Vector3(0, 0.12, 0)
 
 
 func _talk_camera() -> void:
@@ -554,55 +627,104 @@ func _talk_camera() -> void:
 	_end_cine()
 	_talk_id += 1
 	var id := _talk_id
-	var base := player.camera.global_transform
-	var fov0 := player.camera.fov
+	player.controls_enabled = false
+	player.velocity = Vector3.ZERO
+	var src := player.camera
+	var fov0 := src.fov
 	var cam := Camera3D.new()
 	cam.name = "TalkCam"
 	add_child(cam)
-	cam.global_transform = base
+	cam.global_transform = src.global_transform
 	cam.fov = fov0
+	cam.near = src.near
+	cam.far = src.far
+	cam.environment = src.environment
+	cam.attributes = src.attributes
+	cam.cull_mask = src.cull_mask
 	cam.current = true
 	_talk_cam = cam
-	player.controls_enabled = false
+	talk_report["zoom_ins"] += 1
 	var idle := 0.0
-	var space := get_world_3d().direct_space_state
+	var aimed := ""
+	var rate := TALK_EASE_IN
 	while id == _talk_id and is_instance_valid(cam):
 		var dt := get_process_delta_time()
 		var busy := Dialogue.is_busy() or _choice_open()
 		idle = 0.0 if busy else idle + dt
-		var ending := idle > 0.0
 		if idle > 0.45:                         # nothing more queued: hand the view back
 			break
-		var want := base
+		var eye := src.global_position          # the protagonist's own eyes: the camera never travels
+		var want := Transform3D(cam.global_transform.basis, eye)
 		var fov := fov0
-		var head = _speaker_head(_talk_speaker)
-		if head != null and not ending:
-			var to: Vector3 = head - base.origin
-			var pos := base.origin + to.normalized() * clampf(to.length() - 1.25, 0.0, 0.35)
-			var q := PhysicsRayQueryParameters3D.create(base.origin, pos + to.normalized() * 0.2, 1, [player.get_rid()])
-			if not space.intersect_ray(q).is_empty():
-				pos = base.origin
-			want = Transform3D(Basis(), pos).looking_at(head, Vector3.UP)
-			fov = 52.0
-			talk_report["min_face_dist"] = minf(talk_report["min_face_dist"], cam.global_position.distance_to(head))
-			var see := PhysicsRayQueryParameters3D.create(cam.global_position, head, 1, [player.get_rid()])
-			if not space.intersect_ray(see).is_empty():
+		var at = _talk_target()
+		if at != null and idle == 0.0:
+			fov = fov0 * TALK_FOV_SCALE
+			# a speaker hidden from the protagonist's eyes (behind a wall beside a doorway, behind another NPC) is
+			# never framed: the view stays on the last visible speaker instead of turning to a wall
+			var hit := _talk_ray(eye, at, [player.get_rid()])
+			var hidden: bool = not hit.is_empty() and eye.distance_to(hit["position"]) < eye.distance_to(at) - 0.45
+			if hidden:
+				talk_report["hidden_speaker"] = int(talk_report.get("hidden_speaker", 0)) + 1
+			else:
+				if _talk_speaker != aimed:
+					rate = TALK_EASE_IN if aimed == "" else TALK_EASE_SPEAKER
+					aimed = _talk_speaker
+				var to: Vector3 = at - eye
+				if to.length() > 0.3:
+					want = Transform3D(Basis(), eye).looking_at(at, Vector3.UP)
+				talk_report["min_face_dist"] = minf(talk_report["min_face_dist"], eye.distance_to(at))
+		# the camera is aimed at a speaker the player cannot see (should never happen: tests)
+		if aimed != "" and aimed == _talk_speaker and at != null and idle == 0.0:
+			var chk := _talk_ray(eye, at, [player.get_rid()])
+			if not chk.is_empty() and eye.distance_to(chk["position"]) < eye.distance_to(at) - 0.45 and cam.global_transform.basis.z.dot(-(at - eye).normalized()) > 0.99:
 				talk_report["cam_hits"] += 1
-		cam.global_transform = cam.global_transform.interpolate_with(want, minf(dt * 3.0, 1.0))
-		cam.fov = lerpf(cam.fov, fov, minf(dt * 3.0, 1.0))
+		var k := 1.0 - exp(-rate * dt)
+		cam.global_transform = Transform3D(cam.global_transform.basis.slerp(want.basis.orthonormalized(), k).orthonormalized(), eye)
+		cam.fov = lerpf(cam.fov, fov, k)
+		talk_report["max_fov_drop"] = maxf(talk_report["max_fov_drop"], 1.0 - cam.fov / fov0)
 		player.controls_enabled = false           # held for the whole talk (a closing choice panel re-enables them)
 		player.velocity = Vector3.ZERO
 		await get_tree().process_frame
-	# ease back to the first-person view, then hand control back
+	# ease back to the first-person view (the player's own camera, unchanged during the talk), then hand back control
 	var t := 0.0
-	while t < 0.45 and id == _talk_id and is_instance_valid(cam):
+	while t < 0.4 and id == _talk_id and is_instance_valid(cam):
 		var dt2 := get_process_delta_time()
-		cam.global_transform = cam.global_transform.interpolate_with(base, minf(dt2 * 7.0, 1.0))
-		cam.fov = lerpf(cam.fov, fov0, minf(dt2 * 7.0, 1.0))
+		var k2 := 1.0 - exp(-TALK_EASE_OUT * dt2)
+		cam.global_transform = Transform3D(cam.global_transform.basis.slerp(src.global_transform.basis.orthonormalized(), k2).orthonormalized(),
+			src.global_position)
+		cam.fov = lerpf(cam.fov, fov0, k2)
+		player.velocity = Vector3.ZERO
 		await get_tree().process_frame
 		t += dt2
 	if id == _talk_id:
+		talk_report["zoom_outs"] += 1
 		_end_talk()
+
+
+## A scripted event that must take over in the middle of a conversation: the talk ends at once, the queued lines
+## are dropped, the view and the controls are handed back (the event then takes the camera it needs).
+func end_conversation() -> void:
+	if _talk_cam and is_instance_valid(_talk_cam):
+		Dialogue.clear()
+	Dialogue.confirm_mode = false
+	_end_talk()
+	conversing = false
+
+
+## Safety net (every frame): a talk camera or a conversation lock never outlives its conversation.
+func talk_watchdog() -> void:
+	if _talk_cam and is_instance_valid(_talk_cam) and not conversing and not Dialogue.is_busy() and not _choice_open():
+		_talk_stale += get_physics_process_delta_time()
+		if _talk_stale > 1.5:
+			talk_report["watchdog"] += 1
+			_end_talk()
+	else:
+		_talk_stale = 0.0
+	if not conversing and Dialogue.confirm_mode and not Dialogue.is_busy():
+		Dialogue.confirm_mode = false
+
+
+var _talk_stale := 0.0
 
 
 ## Older timed entry point (kept for callers that only need the framing for a fixed time).
@@ -629,6 +751,8 @@ func _end_talk() -> void:
 		_talk_cam = null
 		player.camera.current = true
 		player.controls_enabled = true
+		player.velocity = Vector3.ZERO
+		talk_report["released"] += 1
 
 
 func _on_line(speaker: String, _t: String, dur: float) -> void:
@@ -650,10 +774,13 @@ func _on_line(speaker: String, _t: String, dur: float) -> void:
 ## `yaw` is the facing in the parent frame (0 = parent -Z); the animator measures the model's real forward
 ## from its feet, so the facing is right whatever way the GLB was authored.
 func _spawn_npc(scene: PackedScene, face_tex: Texture2D, parent: Node3D, pos: Vector3, yaw: float, speaker: String) -> Node3D:
-	var n := scene.instantiate() as Node3D
+	var n := VeilSurvivorBody.new()
 	n.name = speaker
-	parent.add_child(n)
 	n.position = pos
+	n.add_child(scene.instantiate())
+	parent.add_child(n)
+	if not n.place_at(parent.to_global(pos)):
+		n.hide()
 	var anim: Node = NPC_ANIM.new()
 	anim.name = "Animator"
 	n.add_child(anim)
@@ -667,6 +794,34 @@ func _spawn_npc(scene: PackedScene, face_tex: Texture2D, parent: Node3D, pos: Ve
 	n.add_child(f)
 	faces[speaker] = f
 	return n
+
+
+# Called at authored scene transitions and when reconstructing story state from a save.
+func place_survivor(npc: Node3D, local_point: Vector3) -> bool:
+	var body := npc as VeilSurvivorBody
+	if body == null:
+		return false
+	var animator := body.get_node_or_null("Animator") as NpcAnimator
+	if animator:
+		animator.walk_to([])
+	var requested := body.get_parent_node_3d().to_global(local_point)
+	var key := "%s:%s" % [get_path_to(body.get_parent()), local_point]
+	var record: Dictionary = Game.world_state.get("shelter_npc_positions", {}).get(String(body.name), {})
+	var saved: Array = record.get("feet", [])
+	var restored := false
+	if _restoring_survivors and record.get("home", "") == key and saved.size() == 3:
+		var point := Vector3(saved[0], saved[1], saved[2])
+		var floor_point := VeilSurvivorBody.floor_at(get_world_3d().direct_space_state, point)
+		if floor_point.is_finite() and floor_point.distance_to(point) < 0.15 \
+				and point.distance_to(requested) <= 3.0 and body.is_clear(floor_point):
+			restored = body.place_at(floor_point)
+	var ok := restored or body.place_at(requested)
+	if ok and body.get_parent() == market:
+		body.set_meta("shelter_home", key)
+		body.set_meta("shelter_feet", body.global_position)
+	if not ok and not body.is_clear(body.global_position):
+		body.hide()
+	return ok
 
 
 ## Soft pulsing rim highlight (additive overlay) on everything under `n`.
@@ -1167,8 +1322,8 @@ var mist_ceiling: Node3D
 var shut_it: Interactable
 
 const MARCUS_SHOP_POS := Vector3(-3.6, 0.04, 4.4)        # game-shop local: between the wall shelf and the New Releases rack
-const MARKET_EDDIE_POS := Vector3(-1.6, 0.04, 6.2)       # supermarket local, front of the sales floor, facing the doors
-const MARKET_MARCUS_POS := Vector3(1.4, 0.04, 6.6)
+const MARKET_EDDIE_POS := Vector3(6.2, 0.04, 4.05)       # staff side of customer service
+const MARKET_MARCUS_POS := Vector3(-2.0, 0.04, 6.9)
 const PROTAG_PATH := "res://THE_VEIL_ASSETS_V2/06_Characters/Protagonist/CHR_Protagonist.glb"
 const PROTAG_FACE_PATH := "res://THE_VEIL_ASSETS_V2/06_Characters/Facial/Faces/T_Face_Protagonist.png"
 const TENTACLE_AI := preload("res://game/enemies/tentacle_ai.gd")
@@ -1421,7 +1576,7 @@ func _cam_travel(cam: Camera3D, pts: Array, speed: float, look: Callable) -> voi
 		cam.global_position = b
 
 
-## Walk an NPC (parent-local waypoints) and wait for it; snaps to the last point after `timeout` (never stalls).
+## Wait for authored movement without a visible teleport if the path is blocked.
 func _walk_wait(speaker: String, pts: Array, speed: float, timeout: float) -> void:
 	var a = animators.get(speaker)
 	if a == null:
@@ -1433,8 +1588,6 @@ func _walk_wait(speaker: String, pts: Array, speed: float, timeout: float) -> vo
 		t += get_process_delta_time()
 	if a.is_walking():
 		a.walk_to([])
-		a.root.position = pts[-1]
-		enc_report["walk_snaps"] = enc_report.get("walk_snaps", 0) + 1
 
 
 ## The creature's encounter look: its own textures through colossus_veil.gdshader (see there).
@@ -1961,8 +2114,6 @@ func _shop_regroup(cam: Camera3D, me: Node3D, P: Vector3, n: Vector3, side: Vect
 	for k in names:                                         # never left half-way (timeout only)
 		if animators.has(k) and animators[k].is_walking():
 			animators[k].walk_to([])
-			animators[k].root.position = SHOP_TALK[k]
-			enc_report["walk_snaps"] = enc_report.get("walk_snaps", 0) + 1
 	if sd and sd.is_open:
 		sd.set_open(false)
 	enc_report["door_closed_after_regroup"] = sd == null or not sd.is_open
@@ -2326,7 +2477,7 @@ func _shop_seated_talk() -> void:
 	cam3.queue_free()
 	if animators.has("Marcus"):
 		animators["Marcus"].set_seated(false)
-		animators["Marcus"].root.position = SEAT_DOCS + Vector3(0.75, 0, 0.1)   # stood up clear of the boxes (screen black)
+		place_survivor(animators["Marcus"].root, SEAT_DOCS + Vector3(0.75, 0, 0.1))   # stood up clear of the boxes (screen black)
 	cam.global_position = X * (SEAT_BOX + Vector3(-0.05, STAND_EYE, 0))
 	await hud.fade_to(0.0, 0.8)
 	await _fp_look(cam, X * (STOCK_IN + Vector3(0, 1.4, -0.8)), 0.6)
@@ -2362,7 +2513,8 @@ func _seat(speaker: String, seat: Vector3, height: float, toward: Vector3, edge 
 	var to2: Vector3 = toward - seat
 	to2.y = 0.0
 	a.walk_to([])
-	a.root.position = seat + to2.normalized() * edge          # on the seat's front edge, not inside the box
+	if not place_survivor(a.root, seat + to2.normalized() * edge):
+		return          # on the seat's front edge, not inside the box
 	a.turn_to_face = false
 	a.face_towards(X * toward)
 	a.root.rotate_y(a.world_forward().signed_angle_to((X.basis * to2).normalized(), Vector3.UP))
@@ -2428,12 +2580,19 @@ func _p3_flee_together() -> void:
 		f.run_speed = 4.2
 		n.add_child(f)
 		f.setup(n, player)
-		f.start()
-		# the way out is through the shop door: seed the trail with it so nobody cuts through the shop front
-		var din: Vector3 = (game_shop.get_node("Doorways/Entrance_Inside") as Node3D).global_position
-		var dout: Vector3 = (game_shop.get_node("Doorways/Entrance_Outside") as Node3D).global_position
-		if game_shop.to_local(n.global_position).z > 0.2:
-			f.trail = [n.global_position, din, dout]
+		# Follow the collision-checked route to the door before joining the outdoor trail.
+		var din := game_shop.get_node("Doorways/Entrance_Inside") as Node3D
+		var dout := game_shop.get_node("Doorways/Entrance_Outside") as Node3D
+		var body := n as VeilSurvivorBody
+		var via: Array = []
+		if game_shop.to_local(n.global_position).z > 0.2 and body:
+			var safe := body.nearest_safe(din.global_position)
+			if safe.is_finite():
+				via = npc_route(game_shop, game_shop.to_local(n.global_position), game_shop.to_local(safe), body)
+				via = via.map(func(point): return game_shop.to_global(point))
+				if not via.is_empty():
+					via.append(dout.global_position)
+		f.start(via)
 		_p3_followers.append(f)
 		if animators.has(String(n.name)):
 			animators[String(n.name)].set_mood("scared")
@@ -2456,30 +2615,37 @@ func npc_walk(speaker: String, to: Vector3, speed := 1.3) -> void:
 	if a == null:
 		return
 	var par := a.root.get_parent_node_3d() as Node3D
-	a.walk_to(npc_route(par, a.root.position, to), speed)
+	var body := a.root as VeilSurvivorBody
+	var safe := body.nearest_safe(par.to_global(to))
+	if safe.is_finite():
+		a.walk_to(npc_route(par, body.position, par.to_local(safe), body), speed)
 
 
-## Grid A* (0.3 m cells, a 0.28 m body radius at knee and chest height, layer-1 colliders) in `frame`'s local XZ,
-## then string-pulled with sphere sweeps. Returns frame-local waypoints ending at `to` (straight line if no path).
-func npc_route(frame: Node3D, from: Vector3, to: Vector3) -> Array:
+## Reuse the local XZ grid search for survivor capsules and cinematic camera routes.
+## Survivor searches return an empty path when the requested route is obstructed.
+func npc_route(frame: Node3D, from: Vector3, to: Vector3, body: VeilSurvivorBody = null) -> Array:
 	var space := get_world_3d().direct_space_state
 	var sph := SphereShape3D.new()
 	sph.radius = 0.28
 	var q := PhysicsShapeQueryParameters3D.new()
-	q.shape = sph
-	q.collision_mask = 1
-	q.exclude = [player.get_rid()]
+	q.shape = body.capsule if body else sph
+	q.collision_mask = VeilSurvivorBody.SOLIDS if body else 1 | VeilSurvivorBody.LAYER
+	q.exclude = [body.get_rid()] if body else [player.get_rid()]
+	var heights := [VeilSurvivorBody.HEIGHT * 0.5 + VeilSurvivorBody.FOOT_CLEARANCE] if body else [0.5, 1.3]
 	var X := frame.global_transform
 	var y := from.y
 	var CELL := 0.3
 	var lo := Vector2(minf(from.x, to.x) - 6.0, minf(from.z, to.z) - 6.0)
+	if body:
+		var end := Vector2(to.x, to.z)
+		lo = end + (lo - end).snapped(Vector2.ONE * CELL)
 	var cache := {}
 	var free_at := func(c: Vector2i) -> bool:
 		if cache.has(c):
 			return cache[c]
 		var p := Vector3(lo.x + c.x * CELL, y, lo.y + c.y * CELL)
-		var ok := true
-		for h in [0.5, 1.3]:
+		var ok := not body or VeilSurvivorBody.floor_at(space, X * p).is_finite()
+		for h in heights:
 			q.transform = Transform3D(Basis(), X * (p + Vector3(0, h, 0)))
 			if not space.intersect_shape(q, 1).is_empty():
 				ok = false
@@ -2505,7 +2671,7 @@ func npc_route(frame: Node3D, from: Vector3, to: Vector3) -> Array:
 				best = open[k]
 				cur = k
 		open.erase(cur)
-		if (cur - g).length_squared() <= 1:
+		if cur == g or (not body and (cur - g).length_squared() <= 1):
 			g = cur
 			found = true
 			break
@@ -2521,21 +2687,24 @@ func npc_route(frame: Node3D, from: Vector3, to: Vector3) -> Array:
 				came[nb] = cur
 				open[nb] = nc + Vector2(nb - g).length()
 	if not found:
-		return [to]
+		return [] if body else [to]
 	var cells: Array = [g]
 	while cells[0] != s and came.has(cells[0]):
 		cells.push_front(came[cells[0]])
 	var pts: Array = []
 	for c in cells:
 		pts.append(Vector3(lo.x + c.x * CELL, y, lo.y + c.y * CELL))
+	if pts.size() == 1:
+		return [to]
 	pts[-1] = to
-	# string pulling: keep only the waypoints needed for a clear sphere sweep between them
+	# String pulling: keep only the waypoints needed for clear shape sweeps.
+	pts[0] = from
 	var out: Array = []
 	var i := 0
 	while i < pts.size() - 1:
 		var j := pts.size() - 1
 		while j > i + 1:
-			q.transform = Transform3D(Basis(), X * (pts[i] + Vector3(0, 0.8, 0)))
+			q.transform = Transform3D(Basis(), X * (pts[i] + Vector3(0, heights[0] if body else 0.8, 0)))
 			q.motion = X.basis * (pts[j] - pts[i])
 			var r := space.cast_motion(q)
 			q.motion = Vector3.ZERO
@@ -2553,8 +2722,8 @@ func _p3_move_npcs_to_market() -> void:
 		var n: Node3D = pair[0]
 		if n == null:
 			continue
-		n.reparent(market, false)
-		n.position = pair[1]
+		n.reparent(market, true)
+		place_survivor(n, pair[1])
 		var anim = n.get_node_or_null("Animator")
 		if anim:
 			anim.walk_to([])
@@ -2577,8 +2746,8 @@ func _p3_reach_market() -> void:
 		if l is Light3D and String(l.name).begins_with("Light_"):
 			(l as Light3D).light_energy *= 0.35
 	shut_it.prompt_text = "[E] Pull the Doors Shut"
-	npc_walk("Eddie", Vector3(-1.0, 0.04, 4.3), 1.4)           # around the vestibule wall, carts and baskets
-	npc_walk("Marcus", Vector3(1.1, 0.04, 4.7), 1.4)
+	npc_walk("Eddie", MARKET_EDDIE_POS, 1.4)           # around the vestibule wall, carts and baskets
+	npc_walk("Marcus", MARKET_MARCUS_POS, 1.4)
 	for d in _auto_doors:
 		_glow(d[0], true, Color(0.7, 0.85, 1.0))
 	Dialogue.say("p3_market", false, true)
@@ -2836,6 +3005,7 @@ var _exit_requested := false
 
 
 func _physics_process(delta: float) -> void:
+	talk_watchdog()
 	_p3_tick(delta)
 	_arrival_ease()
 	if _exit_requested:
@@ -2938,9 +3108,64 @@ func _on_flag(f: String) -> void:
 		save()
 
 
+func can_heal_with(id: String) -> bool:
+	return Game.has_item(id) and float(Game.item_info(id).get("heal_amount", 0)) > 0.0 \
+		and player.health > 0.0 and player.health < VeilPlayer.MAX_HEALTH and not in_car
+
+func use_healing_item(id: String) -> bool:
+	if not can_heal_with(id):
+		return false
+	player.heal(float(Game.item_info(id)["heal_amount"]))
+	Game.remove_item(id)
+	save()
+	return true
+
+func shelter_roster() -> Array:
+	var roster := []
+	for speaker in animators:
+		var body := (animators[speaker] as NpcAnimator).root as VeilSurvivorBody
+		if is_instance_valid(body) and body.visible and body.get_parent() == market \
+				and speaker != "Cashier":
+			roster.append(speaker)
+	roster.sort()
+	return roster
+
+func deposit_shelter_item(id: String) -> bool:
+	var resource := Game.shelter_resource(id)
+	if resource.is_empty() or not Game.has_item(id) or not Game.has_flag("p4_started"):
+		return false
+	if id == "batteries":
+		var flashlight := get_tree().get_first_node_in_group("veil_flashlight") as VeilFlashlight
+		if flashlight == null or flashlight.spares <= 0:
+			return false
+		flashlight.add_spares(-1)
+		if flashlight.spares == 0:
+			Game.remove_item(id)
+		else:
+			Game.inventory_changed.emit()
+	else:
+		Game.remove_item(id)
+	var stock := Game.shelter_stock()
+	stock[resource] = int(stock[resource]) + 1
+	Game.world_state["shelter_stock"] = stock
+	save()
+	return true
+
+
+var _restoring_survivors := false
+
 func save() -> void:
+	var positions := {}
+	for speaker in animators:
+		var body := (animators[speaker] as NpcAnimator).root as VeilSurvivorBody
+		if is_instance_valid(body) and body.get_parent() == market and body.visible and body.has_meta("shelter_home"):
+			var feet: Vector3 = body.get_meta("shelter_feet")
+			positions[speaker] = {"home": body.get_meta("shelter_home"), "feet": [feet.x, feet.y, feet.z]}
+	Game.world_state["shelter_npc_positions"] = positions
+	if Game.has_flag("p4_started"):
+		Game.world_state["shelter_roster"] = shelter_roster()
 	var p := player.global_position
-	Game.player_state = {"in_vehicle": in_car, "pos": [p.x, p.y, p.z], "yaw": player.rotation.y}
+	Game.player_state = {"in_vehicle": in_car, "pos": [p.x, p.y, p.z], "yaw": player.rotation.y, "health": player.health}
 	Game.vehicle_state = sedan.state()
 	Game.save_game()
 
@@ -2959,10 +3184,18 @@ func _restore() -> bool:
 		player.activate(false)
 		sedan.set_driven(true)
 		hud.set_hint("W accelerate · S brake / reverse · A/D steer · Space handbrake · E exit")
-	_p3_restore.call_deferred()
-	if Game.has_flag("p3_doors_shut"):
-		_start_phase4.call_deferred(true)
+	player.health = clampf(float(ps.get("health", VeilPlayer.MAX_HEALTH)), 0.0, VeilPlayer.MAX_HEALTH)
+	player.health_changed.emit(player.health, VeilPlayer.MAX_HEALTH)
+	_restore_survivor_story.call_deferred()
 	return true
+
+
+func _restore_survivor_story() -> void:
+	_restoring_survivors = true
+	_p3_restore()
+	if Game.has_flag("p3_doors_shut"):
+		_start_phase4(true)
+	_restoring_survivors = false
 
 
 # ------------------------------------------------------------------ Phase 4 hook (the chapter lives in phase4.gd)

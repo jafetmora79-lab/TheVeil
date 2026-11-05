@@ -9,7 +9,7 @@ class_name VeilChapter7
 ## abandoned sedan where the asphalt ends -> E: examine the backpack (key items: the backpack + Noah's note) ->
 ## read the note in the inventory screen -> the old service road (gravel, barriers, dead-end sign) -> Marcus's
 ## choice (marcus_trust_search / marcus_cautious_search) -> back through the doors -> report to Eddie ->
-## "CHAPTER 7 COMPLETE". No combat, no Hound, no Colossus. Chapter 8 is not started.
+## "CHAPTER 7 COMPLETE". No combat, no Hound, no Colossus. Chapter 8 starts only after the next sleep.
 ## Every travel objective completes only when the PLAYER's own body is inside the destination area.
 
 const FOLLOW := preload("res://game/npc/companion_follow.gd")
@@ -22,9 +22,9 @@ const DEAD_END := preload("res://THE_VEIL_ASSETS_V2/02_Town/Street_Props/SP_Sign
 const STATE := "ch7"
 
 # supermarket-local
-const MARCUS_NOTES := Vector3(5.1, 0.04, 4.9)          # at the service counter, over his notes
-const NOTES_ON_COUNTER := Vector3(5.1, 1.09, 5.75)
-const EDDIE_NEARBY := Vector3(3.0, 0.04, 4.5)
+const MARCUS_NOTES := Vector3(-2.0, 0.04, 6.9)
+const NOTES_ON_COUNTER := Vector3(-2.9, 1.03, 5.4)
+const EDDIE_NEARBY := Vector3(6.2, 0.04, 4.05)
 # world (collision-mapped: open main road along z -2..2 from the store front to x -150; gravel west of x -68)
 const CAR_POS := Vector3(-58.0, 0.15, 4.2)
 const CAR_YAW := 1.71                                   # broadside to the road, rear doors facing the traffic lane
@@ -74,9 +74,22 @@ func begin(w: Node, chapter6: Node, restoring: bool) -> void:
 	if fresh:
 		Game.set_flag("ch7_started")
 	_apply(restoring)
+	if Game.has_flag("ch7_rested"):
+		_start_chapter8(true)
 	Game.refresh_objective()
 	if fresh:
 		_title.call_deferred()
+
+
+## Chapter 8 continues after the night that follows Chapter 7; it is a child of this node.
+var chapter8: Node
+func _start_chapter8(restoring: bool) -> void:
+	if chapter8 != null:
+		return
+	chapter8 = load("res://game/world/chapter8.gd").new()
+	chapter8.name = "Chapter8"
+	add_child(chapter8)
+	chapter8.begin(world, self, restoring)
 
 
 func _title() -> void:
@@ -201,7 +214,7 @@ func _setup_rest() -> void:
 func _apply(_restoring: bool) -> void:
 	# Eddie stays at the supermarket throughout
 	c5._reparent(eddie, market)
-	eddie.position = EDDIE_NEARBY
+	world.place_survivor(eddie, EDDIE_NEARBY)
 	world.animators["Eddie"].face_towards(c5.ml(Vector3(2.0, 1.5, 0.0)))
 	if String(st().get("marcus", "shelter")) == "following":
 		c5._reparent(marcus, world)
@@ -209,7 +222,7 @@ func _apply(_restoring: bool) -> void:
 		marcus_follow.start()
 	else:
 		c5._reparent(marcus, market)
-		marcus.position = MARCUS_NOTES
+		world.place_survivor(marcus, MARCUS_NOTES)
 		world.animators["Marcus"].face_towards(c5.ml(NOTES_ON_COUNTER))
 	var taken := Game.has_flag("ch7_backpack_found")
 	backpack.visible = not taken
@@ -403,6 +416,8 @@ func _on_choices(id: String, choices: Array) -> void:
 
 # ------------------------------------------------------------------ per tick
 func _process(delta: float) -> void:
+	if Game.has_flag("ch8_started"):
+		return                                    # Chapter 8 owns the NPCs, the doors and the marker from here on
 	_note_tick(delta)
 	_tick -= delta
 	if _tick > 0.0 or player == null:
@@ -443,7 +458,7 @@ func _returned() -> void:
 	marcus_follow.stop()
 	c5._reparent(marcus, market)
 	st()["marcus"] = "shelter"
-	world.animators["Marcus"].walk_to([MARCUS_NOTES], 1.2)
+	world.npc_walk("Marcus", MARCUS_NOTES, 1.2)
 	Game.set_flag("ch7_returned_to_supermarket")
 	_refresh_prompts()
 
@@ -466,10 +481,14 @@ func _report() -> void:
 
 
 func _on_rest(_id: String) -> void:
-	Game.set_flag("ch7_rested")                      # the Chapter 8 checkpoint; nothing starts yet
+	# the next morning is Chapter 8 (game/world/chapter8.gd); started while the screen is still black
+	var report: Dictionary = p4.record_night("ch7_rested")
+	Game.set_flag("ch7_rested")
+	_start_chapter8(false)
 	if p4.flashlight:
 		p4.flashlight.set_on(false)
 	await get_tree().create_timer(1.0).timeout
 	await hud.fade_to(0.0, 2.0)
 	player.set("controls_enabled", true)
+	p4.show_night_report(report)
 	p4.rest.interactable.prompt_text = "[E] Sleep"

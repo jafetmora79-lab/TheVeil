@@ -26,6 +26,9 @@ static func assign(i: int, id: String) -> void:
 	a[i] = id
 	Game.world_state["quickslots"] = a
 	Game.inventory_changed.emit()
+	var world := (Engine.get_main_loop() as SceneTree).get_first_node_in_group("veil_world")
+	if world:
+		world.save()
 
 
 func _ready() -> void:

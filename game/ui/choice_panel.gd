@@ -14,6 +14,7 @@ var _player: Node = null
 
 
 func _ready() -> void:
+	add_to_group("veil_choice_panel")             # the world's talk camera holds while any choice is open
 	layer = 12
 	process_mode = Node.PROCESS_MODE_ALWAYS
 	var c := CenterContainer.new()

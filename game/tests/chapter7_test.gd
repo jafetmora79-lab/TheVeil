@@ -384,7 +384,8 @@ func _run() -> void:
 	p4.rest.interactable.interact(world.player)
 	ok("c7_rest_confirm", await wait_until(func(): return p4.choice.is_open(), 60))
 	p4.choice.pick(0)
-	ok("c7_rest_no_ch8", await wait_until(func(): return game.has_flag("ch7_rested"), 60 * 8) and not game.has_flag("ch8_started"))
+	ok("c7_rest_starts_ch8", await wait_until(func(): return game.has_flag("ch7_rested"), 60 * 8) and game.has_flag("ch8_started")
+		and c7.chapter8 != null and not game.has_flag("ch9_started"))
 	# ---- the other choice, and a load between reaching the road and choosing
 	await restore(road_snap)
 	ok("c7_road_reoffered_after_load", await wait_talk(func(): return p4.choice.is_open(), 40.0))
