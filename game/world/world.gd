@@ -1838,9 +1838,9 @@ func _colossus_encounter() -> void:
 	# ONE leg event: the near front leg comes down once, from the top of its swing in the mist, onto L. (The old
 	# walk-in showed one full stride first: the same leg touched down silently ~21 m away, in view, before the
 	# real step - the "duplicate leg".) The stride's time is kept as a held beat: the call, the look, the silence;
-	# the creature is not shown until its swing begins, and a mist band over it lifts as the foot descends, so the
-	# leg comes down out of the mist (foot first) instead of appearing. The body moves at the stance rate, so the
-	# planted feet (far out over the street, deep in the fog) stay put.
+	# the creature is not shown until its swing begins, high above (see DROP below), so the leg comes down out of
+	# the mist from above and stops on the road instead of appearing or fading in. Parts beyond 40 m stay in the
+	# mist (far_hide) until the face close-up.
 	const SPEED := 0.5
 	var descent := fposmod(t_c - t_apex, anim.length)
 	var span := descent                                           # animation seconds shown before contact
@@ -1872,24 +1872,28 @@ func _colossus_encounter() -> void:
 	var b1 := Transform3D(Basis(), cam.global_position).looking_at(L + Vector3(0, 4.0, 0) + side * -1.0, Vector3.UP).basis.get_rotation_quaternion()
 	tw0.tween_method(func(q): cam.global_basis = Basis(b0.slerp(b1, q * q * (3.0 - 2.0 * q))), 0.0, 1.0, 1.5)
 	await get_tree().create_timer(anim.length / SPEED).timeout     # the held beat (the old first stride's time)
+	# the leg comes DOWN FROM ABOVE and stops: no fade. The whole creature starts DROP metres higher (the foot above
+	# the mist ceiling, out of sight) and comes down accelerating (y offset DROP * (1 - k^2)), so the foot drops out of
+	# the mist and stops hard on the road on the contact frame; the horizontal stance-rate walk is unchanged.
+	const DROP := 12.0
+	set_band.call(1.0)
+	var walk_from := c.global_position
+	c.global_position = walk_from + Vector3.UP * DROP
 	c.visible = true
 	ap.speed_scale = SPEED
-	var walk_in := c.create_tween()
-	walk_in.tween_property(c, "global_position", contact_pos, span / SPEED)
-	var lift := c.create_tween()
-	lift.tween_method(set_band, 0.0, 1.0, span / SPEED).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN)
 	var feet_watch := _feet_watch_setup(ap, sk, anim)
 	feet_watch["ground"] = L.y
 	ap.seek(fposmod(t_c - span, anim.length), true)
 	var elapsed := 0.0
-	while elapsed < span / SPEED - 1.0 / 60.0:
+	var dur := span / SPEED
+	while elapsed < dur - 1.0 / 60.0:
 		await get_tree().process_frame
 		elapsed += get_process_delta_time()
+		var k := clampf(elapsed / dur, 0.0, 1.0)
+		c.global_position = walk_from.lerp(contact_pos, k) + Vector3.UP * DROP * (1.0 - k * k)
 		_feet_watch_tick(feet_watch, sk, cam)
-	walk_in.kill()
-	lift.kill()
-	set_band.call(1.0)
 	enc_report["walkin_touchdowns"] = feet_watch["events"]
+	enc_report["leg_drop_m"] = DROP
 	# touchdowns the camera could see before the real step (the hero contact itself, at L, is not one of them)
 	var extra := 0
 	for e in feet_watch["events"]:
