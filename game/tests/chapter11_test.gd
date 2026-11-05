@@ -314,6 +314,8 @@ func _run() -> void:
 	ok("c11_field_starts", await wait_until(func(): return game.has_flag("ch11_field_seen"), 60 * 3))
 	ok("c11_field_zoom", await wait_until(func(): return float(c11.report.get("field_min_fov", 99.0)) < fov0 * 0.85, 60 * 6),
 		"min fov %s" % str(c11.report.get("field_min_fov")))
+	ok("c11_field_hound_unseen", await wait_until(func(): return c11.hounds_removed >= 1, 60 * 16) and c11.hounds_left_in_view == 0,
+		"removed %d, in view %d" % [c11.hounds_removed, c11.hounds_left_in_view])
 	ok("c11_field_done", await wait_until(func(): return world.player.controls_enabled and not c11._busy.get("field", false), 60 * 10)
 		and absf(world.player.camera.fov - fov0) < 0.01 and world.find_children("C11_FieldShape", "", true, false).is_empty())
 	ok("c11_field_lines", await wait_talk(func(): return said.has("Keep going. We're almost there."), 30.0))

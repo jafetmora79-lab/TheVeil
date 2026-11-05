@@ -123,6 +123,40 @@ func _physics_process(delta: float) -> void:
 					break
 	anim.walk_to(pts, speed)
 	trail = trail.slice(maxi(0, start - 8))
+	_stuck_check(flat.length())
+
+
+## (QA-009) A companion that has made no headway for a while (caught on a gate post, a leaf, a fence) while the
+## leader is well ahead: first any closed door or gate near it is opened; if it is still held, it is moved up behind
+## the leader - only while nobody can see either spot, so it never visibly jumps.
+var _stuck_t := 0.0
+var _stuck_at := Vector3.INF
+var recoveries := 0                ## tests
+
+
+func _stuck_check(to_leader: float) -> void:
+	if to_leader < gap + 2.5:
+		_stuck_t = 0.0
+		_stuck_at = npc.global_position
+		return
+	if not _stuck_at.is_finite() or npc.global_position.distance_to(_stuck_at) > 0.6:
+		_stuck_t = 0.0
+		_stuck_at = npc.global_position
+		return
+	_stuck_t += 0.25
+	if absf(_stuck_t - 3.0) < 0.01:
+		_open_doors_ahead(leader.global_position)
+	if _stuck_t < 7.0:
+		return
+	var cam := get_viewport().get_camera_3d()
+	var seen := cam != null and cam.is_position_in_frustum(npc.global_position + Vector3(0, 1.0, 0)) \
+		and cam.global_position.distance_to(npc.global_position) < 40.0
+	if seen:
+		return
+	recover_behind(3.0)                               # behind the leader = behind the camera
+	recoveries += 1
+	_stuck_t = 0.0
+	_stuck_at = npc.global_position
 
 
 const PERSONAL := 0.95             ## closer than this to the leader and the companion steps aside
