@@ -28,3 +28,11 @@ Godot 4.3 stable, isolated runtime copy, headless fixed 60 FPS:
 The existing opening harness also prints its pre-existing initial `Identifier not found: Game` diagnostic from interactable.gd before completing all assertions. Import/exit logs include existing resource UID/cache and resource-leak warnings; this is not a warning-free run. These were outside the requested opening polish scope.
 
 Windows execution and a complete Chapters 1-16 manual playthrough were not performed. No Windows binaries or ZIPs were rebuilt in this change. Existing checked-in builds do not contain these new source changes until exported.
+
+## Game-shop mist menu follow-up
+
+The menu now shows the actual Game Haven storefront rather than Greyhaven Market. New capture: `game/ui/backgrounds/game_haven_mist.png`, 1280x720, existing World.tscn and active mist-stage lighting, game-shop-relative camera `(10, 1.7, -15)` looking at `(-2, 2.0, 1)`, FOV 70. The existing mist node followed this camera during capture. No game geometry, lighting presets or encounter scripts were changed.
+
+`game/ui/backgrounds/menu_mist.gdshader` overlays slow drifting fog using the existing Pack 09 `T_Veil_MistNoise.png`, the existing layer shader's drift/noise combination and stepped opacity. It is a menu-only 2D adaptation over the real screenshot, not a live town simulation. Two noise samples per pixel, no extra viewport, screen/depth reads, particles or per-frame GDScript work. The layer ignores mouse input and sits below the controls. The original market capture is preserved.
+
+Validation: `player_name_test.gd` rerun, all 17 checks pass. Rendered the actual menu under Godot 4.3 Compatibility/llvmpipe, captured an 80-frame 4-second preview and checked frames differ as the mist drifts. Shader compiled without errors. Existing exit resource warnings remain. Windows performance and execution remain untested. No gameplay or handwashing source changed in this follow-up.
