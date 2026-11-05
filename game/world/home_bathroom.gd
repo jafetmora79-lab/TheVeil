@@ -16,11 +16,11 @@ const WALL_L := -1.0
 const WALL_R := 1.4
 const WALL_BACK := 11.6
 const FLOOR := 0.6
-const SINK_X := 0.5                                   # the back wall, where the tub was
-const SINK_STAND := Vector3(0.5, 0.6, 10.78)          # in front of the sink, facing the mirror (+z)
-const TOWEL_RACK := Vector3(1.288, 1.8, 10.2)         # right wall, facing -x
+const SINK_Z := 11.0                                  # the right wall (the back wall has the window)
+const SINK_STAND := Vector3(0.6, 0.6, 11.0)           # in front of the sink, facing the mirror (+x)
+const TOWEL_RACK := Vector3(1.288, 1.8, 10.1)         # right wall above the toilet, facing -x
 const ROUTE := [Vector3(-0.4, 0.6, 7.5), Vector3(-1.6, 0.6, 7.5), Vector3(-1.7, 0.6, 8.95), Vector3(-0.6, 0.6, 8.95),
-	Vector3(0.25, 0.6, 9.1), Vector3(0.35, 0.6, 10.1), SINK_STAND]
+	Vector3(0.25, 0.6, 9.1), Vector3(0.35, 0.6, 10.1), Vector3(0.5, 0.6, 10.7), SINK_STAND]
 const EYE := 1.62
 const PROTAG := "res://THE_VEIL_ASSETS_V2/06_Characters/Protagonist/CHR_Protagonist.glb"
 const PROTAG_FACE := "res://THE_VEIL_ASSETS_V2/06_Characters/Facial/Faces/T_Face_Protagonist.png"
@@ -42,26 +42,36 @@ func setup(w: Node, h: Node3D) -> void:
 	var rack := furn.get_node_or_null("TowelRack_01") as Node3D
 	if rack:
 		rack.transform = Transform3D(Basis(Vector3.UP, -PI * 0.5), TOWEL_RACK)
+		_flush(rack, "x+", WALL_R)                     # flat against the wall, not floating off it
 	# the tub along the left wall (its back to the wall), from the back wall forwards
 	var tub := furn.get_node_or_null("Bathtub_01") as Node3D
 	if tub:
 		tub.transform = Transform3D(Basis(Vector3.UP, PI * 0.5), Vector3(WALL_L + 0.5, FLOOR, 10.6))
 		_flush(tub, "x-", WALL_L)
 		_flush(tub, "z+", WALL_BACK)
-	# the sink and the mirror cabinet on the back wall, where the tub was, facing into the room
+	# the sink and the mirror cabinet on the right wall (no window behind it), facing into the room (-x)
 	var sink := furn.get_node_or_null("BathSink_Pedestal_01") as Node3D
 	if sink:
-		sink.transform = Transform3D(Basis(Vector3.UP, PI), Vector3(SINK_X, FLOOR, WALL_BACK - 0.3))
-		_flush(sink, "z+", WALL_BACK)
-		_center_x(sink, SINK_X)
+		sink.transform = Transform3D(Basis(Vector3.UP, -PI * 0.5), Vector3(WALL_R - 0.3, FLOOR, SINK_Z))
+		_flush(sink, "x+", WALL_R)
+		_center_z(sink, SINK_Z)
 	var cab := furn.get_node_or_null("MedicineCabinet_01") as Node3D
 	if cab:
-		cab.transform = Transform3D(Basis(Vector3.UP, PI), Vector3(SINK_X, FLOOR + 1.3, WALL_BACK - 0.13))
-		_flush(cab, "z+", WALL_BACK)
-		_center_x(cab, SINK_X)
+		cab.transform = Transform3D(Basis(Vector3.UP, -PI * 0.5), Vector3(WALL_R - 0.13, FLOOR + 1.3, SINK_Z))
+		_flush(cab, "x+", WALL_R)
+		_center_z(cab, SINK_Z)
 		var lb := _local_box(cab)                       # its glass from 1.3 m above the floor: eye level inside it
 		cab.position.y += (FLOOR + 1.3) - lb.position.y
 		_make_mirror(cab)
+	var lamp := OmniLight3D.new()                     # the bathroom's ceiling light (warm, no shadows)
+	lamp.name = "BathroomLight"
+	lamp.light_color = Color(1.0, 0.9, 0.75)
+	lamp.light_energy = 1.1
+	lamp.omni_range = 3.6
+	lamp.shadow_enabled = false
+	home.add_child(lamp)
+	lamp.position = Vector3(0.2, FLOOR + 2.3, 10.55)
+	report["light"] = true
 	report["sink_on_back_wall"] = sink != null
 	report["tub_on_left_wall"] = tub != null
 	report["layout_fixed"] = rack != null and cab != null and tub != null and sink != null
@@ -87,6 +97,11 @@ func _flush(n: Node3D, side: String, at: float) -> void:
 			n.position.z += (at + 0.005) - b.position.z
 
 
+func _center_z(n: Node3D, z: float) -> void:
+	var b := _local_box(n)
+	n.position.z += z - b.get_center().z
+
+
 func _center_x(n: Node3D, x: float) -> void:
 	var b := _local_box(n)
 	n.position.x += x - b.get_center().x
@@ -109,7 +124,7 @@ func _make_mirror(cab: Node3D) -> void:
 	mirror_quad = MeshInstance3D.new()
 	mirror_quad.name = "BathMirror_Glass"
 	var qm := QuadMesh.new()
-	qm.size = Vector2(lb.size.x * 0.78, lb.size.y * 0.78)
+	qm.size = Vector2(lb.size.z * 0.78, lb.size.y * 0.78)
 	mirror_quad.mesh = qm
 	var mat := StandardMaterial3D.new()
 	mat.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
@@ -120,8 +135,8 @@ func _make_mirror(cab: Node3D) -> void:
 	mirror_quad.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 	home.add_child(mirror_quad)
 	var c := lb.get_center()
-	var normal := (home.global_basis * Vector3(0, 0, -1)).normalized()
-	var front := home.to_global(Vector3(c.x, c.y, lb.position.z))
+	var normal := (home.global_basis * Vector3(-1, 0, 0)).normalized()
+	var front := home.to_global(Vector3(lb.position.x, c.y, c.z))
 	mirror_quad.global_transform = Transform3D(Basis.looking_at(-normal, Vector3.UP), front + normal * 0.004)
 	mirror_cam.global_transform = Transform3D(Basis(), mirror_quad.global_position + normal * 0.03).looking_at(
 		mirror_quad.global_position + normal * 5.0, Vector3.UP)
@@ -138,6 +153,46 @@ func _process(_delta: float) -> void:
 		if n and is_instance_valid(n) and (n as Node3D).global_position.distance_to(mirror_quad.global_position) < 4.0:
 			near = true
 	mirror_vp.render_target_update_mode = SubViewport.UPDATE_ALWAYS if near else SubViewport.UPDATE_DISABLED
+	_update_reflection(p, cam, near and p != null and p.visible)
+
+
+# ------------------------------------------------------------------ the protagonist's reflection
+## The player has no visible body, so a stand-in of the protagonist stands where the player stands and turns the way
+## the view looks, on visual layer 2: the player's cameras do not draw layer 2, only the mirror's camera does. It
+## looks at the mirror, so the reflection looks back.
+var refl: Node3D
+var refl_anim: Node
+
+
+func _update_reflection(p: Node3D, cam: Camera3D, on: bool) -> void:
+	if on and refl == null:
+		refl = world.call("_spawn_npc", load(PROTAG), load(PROTAG_FACE), home, home.to_local(p.global_position), 0.0, "Reflection")
+		if refl == null:
+			return
+		world.call("_cine_double", refl, p.global_position)
+		for vi in refl.find_children("*", "VisualInstance3D", true, false):
+			(vi as VisualInstance3D).layers = 2
+		refl_anim = world.get("animators").get("Reflection")
+		if refl_anim:
+			refl_anim.turn_to_face = false
+			refl_anim.look_target = mirror_quad
+		var pc: Camera3D = p.get("camera")
+		if pc:
+			pc.cull_mask = pc.cull_mask & ~2
+		report["reflection"] = true
+	if refl == null:
+		return
+	refl.visible = on
+	(refl as CollisionObject3D).collision_layer = 0   # showing a survivor body turns its collision back on: never,
+	(refl as CollisionObject3D).collision_mask = 0    # it stands exactly where the player stands (it launched him)
+	if not on:
+		return
+	refl.global_position = Vector3(p.global_position.x, p.global_position.y, p.global_position.z)
+	if cam and refl_anim:
+		var f := -cam.global_basis.z
+		f.y = 0.0
+		if f.length() > 0.01:
+			refl.rotate_y(refl_anim.world_forward().signed_angle_to(f.normalized(), Vector3.UP))
 
 
 # ------------------------------------------------------------------ first day: wash the face
@@ -146,6 +201,7 @@ func wash_face() -> void:
 	if player == null or Game.has_flag("washed_face"):
 		return
 	player.set("controls_enabled", false)
+	player.set("look_enabled", false)
 	player.set("velocity", Vector3.ZERO)
 	var src: Camera3D = player.get("camera")
 	var cam := Camera3D.new()
@@ -168,8 +224,8 @@ func wash_face() -> void:
 	# at the sink: look down at the basin; the tap runs (a visible stream); his hands cup the water and bring it
 	# up to his face, twice (first-person arms, posed towards hand targets; splash droplets at the face)
 	var sink_box := _local_box(home.get_node("Furniture/BathSink_Pedestal_01"))
-	var tap := home.to_global(Vector3(SINK_X, sink_box.end.y + 0.06, sink_box.end.z - 0.1))
-	var basin := home.to_global(Vector3(SINK_X, sink_box.end.y - 0.05, sink_box.get_center().z))
+	var tap := home.to_global(Vector3(sink_box.end.x - 0.1, sink_box.end.y + 0.06, sink_box.get_center().z))
+	var basin := home.to_global(Vector3(sink_box.get_center().x, sink_box.end.y - 0.05, sink_box.get_center().z))
 	await _look(cam, basin, 0.6)
 	var stream := _water_stream(tap, basin)
 	Sfx.play("water_run", basin, -6.0)
@@ -178,48 +234,43 @@ func wash_face() -> void:
 	var cup := (tap + basin) * 0.5 + Vector3(0, -0.02, 0)
 	for k in 2:
 		# hands down under the tap
-		await _arms_to(arms, cam, func(): return cup, 0.45)
+		await _arms_to(arms, cam, func(): return cup, 0.45, "cup")
 		await get_tree().create_timer(0.35).timeout
 		# up to the face, the head dips to meet them
 		var tw := create_tween()
 		tw.tween_property(cam, "global_position", base_pos + Vector3(0, -0.16, 0) + (basin - base_pos).normalized() * 0.1, 0.4).set_trans(Tween.TRANS_SINE)
-		await _arms_to(arms, cam, func(): return cam.global_position - cam.global_basis.z * 0.13 - cam.global_basis.y * 0.04, 0.4)
+		await _arms_to(arms, cam, func(): return cam.global_position - cam.global_basis.z * 0.24 - cam.global_basis.y * 0.12, 0.4, "face")
 		Sfx.play("splash", cam.global_position, -3.0)
 		_splash(cam.global_position - cam.global_basis.z * 0.12)
 		await get_tree().create_timer(0.25).timeout
 		var tb := create_tween()
 		tb.tween_property(cam, "global_position", base_pos, 0.45).set_trans(Tween.TRANS_SINE)
-	await _arms_to(arms, cam, func(): return cup + Vector3(0, 0.05, 0), 0.4)
+	await _arms_to(arms, cam, func(): return cup + Vector3(0, 0.05, 0), 0.4, "cup")
 	stream.emitting = false                              # the tap is turned off
 	if arms:
 		arms.queue_free()
 	report["hands_and_water"] = arms != null
 	await get_tree().create_timer(0.3).timeout
-	# look up into the mirror: the reflection (a stand-in on visual layer 2, where the protagonist stands)
-	var me: Node3D = world.call("_spawn_npc", load(PROTAG), load(PROTAG_FACE), home, SINK_STAND, 0.0, "Protagonist")
-	if me:
-		world.call("_cine_double", me, home.to_global(SINK_STAND))
-		for mi in me.find_children("*", "VisualInstance3D", true, false):
-			(mi as VisualInstance3D).layers = 2
-		var a = world.get("animators").get("Protagonist")
-		if a:
-			a.turn_to_face = false
-			a.face_towards(mirror_quad.global_position if mirror_quad else basin)
-	report["reflection"] = me != null
+	# look up into the mirror: his reflection (the stand-in that follows the player near the mirror)
 	if mirror_vp:
 		mirror_vp.render_target_update_mode = SubViewport.UPDATE_ALWAYS
-	var face_fx = world.get("faces").get("Protagonist")
+	var face_fx = world.get("faces").get("Reflection")
 	if face_fx and face_fx.has_method("set_expression"):
 		face_fx.set_expression("neutral")
 	await _look(cam, (mirror_quad.global_position if mirror_quad else basin + Vector3(0, 0.6, 0)), 0.9)
-	await get_tree().create_timer(1.6).timeout          # his own face in the mirror, water still on it
+	# a small zoom onto his face in the mirror, a moment, back out; then the line
+	var fov0 := cam.fov
+	var tz := create_tween()
+	tz.tween_property(cam, "fov", fov0 * 0.62, 0.8).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
+	await tz.finished
+	await get_tree().create_timer(1.4).timeout          # his own face, water still on it
+	var tzo := create_tween()
+	tzo.tween_property(cam, "fov", fov0, 0.5).set_trans(Tween.TRANS_SINE)
+	await tzo.finished
+	report["mirror_zoom"] = true
 	Dialogue.say("wash_hungry", true)
 	await get_tree().create_timer(2.4).timeout
 	# back to the player, turned towards the bathroom door
-	if me:
-		world.get("animators").erase("Protagonist")
-		world.get("faces").erase("Protagonist")
-		me.queue_free()
 	player.global_position = home.to_global(SINK_STAND)
 	var to_door := home.to_global(Vector3(0.2, 0.6, 9.5)) - player.global_position
 	player.call("set_yaw_pitch", atan2(-to_door.x, -to_door.z), 0.0)
@@ -230,6 +281,7 @@ func wash_face() -> void:
 	cam.queue_free()
 	src.current = true
 	player.set("controls_enabled", true)
+	player.set("look_enabled", true)
 	Game.set_flag("washed_face")
 	report["washed"] = true
 
@@ -311,7 +363,7 @@ func _fp_arms(cam: Camera3D) -> Node3D:
 	return a
 
 
-func _arms_to(arms: Node3D, cam: Camera3D, target: Callable, seconds: float) -> void:
+func _arms_to(arms: Node3D, cam: Camera3D, target: Callable, seconds: float, mode := "cup") -> void:
 	if arms == null:
 		await get_tree().create_timer(seconds).timeout
 		return
@@ -321,14 +373,14 @@ func _arms_to(arms: Node3D, cam: Camera3D, target: Callable, seconds: float) -> 
 		t += get_process_delta_time()
 		var k := clampf(t / seconds, 0.0, 1.0)
 		var h: Vector3 = from.lerp(target.call(), k * k * (3.0 - 2.0 * k))
-		_pose_arms(arms, cam, h)
+		_pose_arms(arms, cam, h, mode)
 		await get_tree().process_frame
 	arms.set_meta("hands", target.call())
 
 
 ## Two-bone reach: each arm's upper and lower bone are turned (from their rest directions) so the hand lands near
 ## `centre` (the two hands side by side, cupped together).
-func _pose_arms(arms: Node3D, cam: Camera3D, centre: Vector3) -> void:
+func _pose_arms(arms: Node3D, cam: Camera3D, centre: Vector3, mode := "cup") -> void:
 	var sk: Skeleton3D = arms.get_meta("sk")
 	var side := cam.global_basis.x.normalized()
 	for s in [["Left", -1.0], ["Right", 1.0]]:
@@ -354,6 +406,29 @@ func _pose_arms(arms: Node3D, cam: Camera3D, centre: Vector3) -> void:
 		var hand := shoulder + dir * dist
 		_aim_bone(sk, u, l, inv * shoulder, inv * elbow)
 		_aim_bone(sk, l, hnd, inv * elbow, inv * hand)
+		# the hand itself: cupped under the tap = fingers forward, palm up; at the face = fingers up, palm to the face
+		var tip := sk.find_bone("Socket_" + s[0] + "Hand")
+		if tip >= 0:
+			var fwd := -cam.global_basis.z
+			fwd.y = 0.0
+			fwd = fwd.normalized()
+			var fingers := (fwd * 0.9 + Vector3.UP * 0.1 - side * float(s[1]) * 0.25).normalized() if mode == "cup" else (Vector3.UP * 0.9 + fwd * 0.2).normalized()
+			var palm := Vector3.UP if mode == "cup" else (cam.global_position - hand).normalized()
+			_aim_hand(sk, hnd, tip, inv * hand, inv.basis * fingers, inv.basis * palm)
+
+
+## Turn the hand so its fingers point along `fingers` and its palm (rest: facing down, -Y, in the T-pose) faces
+## `palm` (both in skeleton space).
+func _aim_hand(sk: Skeleton3D, b: int, tip: int, at_sk: Vector3, fingers: Vector3, palm: Vector3) -> void:
+	var rest := sk.get_bone_global_rest(b)
+	var rest_dir := (sk.get_bone_global_rest(tip).origin - rest.origin).normalized()
+	var f := fingers.normalized()
+	var q := Quaternion(rest_dir, f) if rest_dir.dot(f) > -0.999 else Quaternion(Vector3.UP, PI)
+	var palm_now := Basis(q) * Vector3.DOWN
+	var want := (palm - f * palm.dot(f)).normalized()
+	var now := (palm_now - f * palm_now.dot(f)).normalized()
+	var twist := now.signed_angle_to(want, f) if want.length() > 0.01 and now.length() > 0.01 else 0.0
+	sk.set_bone_global_pose_override(b, Transform3D(Basis(f, twist) * Basis(q) * rest.basis, at_sk), 1.0, true)
 
 
 func _aim_bone(sk: Skeleton3D, b: int, child: int, from_sk: Vector3, to_sk: Vector3) -> void:
