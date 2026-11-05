@@ -28,6 +28,7 @@ var settings := {"mouse_sensitivity": 0.22, "master_volume": 0.8, "fullscreen": 
 ## set by the menu: the world reads it on start (true = restore the save instead of a new game)
 var load_requested := false
 var play_time := 0.0
+var player_name := "YOU"
 
 
 func _ready() -> void:
@@ -77,7 +78,8 @@ func _read_json(path: String) -> Variant:
 
 
 # ------------------------------------------------------------------ new game
-func new_game() -> void:
+func new_game(chosen_name := "") -> void:
+	player_name = clean_player_name(chosen_name)
 	flags = {}
 	inventory = []
 	world_state = {}
@@ -85,6 +87,15 @@ func new_game() -> void:
 	vehicle_state = {}
 	play_time = 0.0
 	load_requested = false
+
+
+## Display-only identity: never used for story flags, node names or dialogue IDs.
+func clean_player_name(value: String) -> String:
+	var result := ""
+	for character in value.strip_edges():
+		if character.unicode_at(0) >= 32 and character.unicode_at(0) != 127:
+			result += character
+	return result.left(24) if not result.is_empty() else "YOU"
 
 
 # ------------------------------------------------------------------ flags + objectives
@@ -246,6 +257,7 @@ func load_checkpoint(checkpoint: String) -> bool:
 	var d: Variant = JSON.parse_string(f.get_as_text())
 	if not (d is Dictionary) or d.get("version", 0) != SAVE_VERSION:
 		return false
+	player_name = clean_player_name(String(d.get("player_name", player_name)))
 	flags = d.get("flags", {})
 	inventory = d.get("inventory", [])
 	world_state = d.get("world_state", {})
@@ -258,7 +270,7 @@ func load_checkpoint(checkpoint: String) -> bool:
 func save_game(path := SAVE_PATH) -> bool:
 	var d := {"version": SAVE_VERSION, "chapter": chapter_number(), "chapter_name": chapter_name(chapter_number()), "flags": flags, "inventory": inventory, "world_state": world_state,
 		"player": player_state, "vehicle": vehicle_state, "play_time": play_time,
-		"saved_at": Time.get_datetime_string_from_system()}
+		"player_name": player_name, "saved_at": Time.get_datetime_string_from_system()}
 	if path != SAVE_PATH:
 		DirAccess.make_dir_recursive_absolute(path.get_base_dir())
 	var f := FileAccess.open(path, FileAccess.WRITE)
@@ -272,6 +284,7 @@ func load_game() -> bool:
 	var d: Variant = _read_save()
 	if not (d is Dictionary) or d.get("version", 0) != SAVE_VERSION:
 		return false
+	player_name = clean_player_name(String(d.get("player_name", "YOU")))
 	flags = d.get("flags", {})
 	inventory = d.get("inventory", [])
 	world_state = d.get("world_state", {})
