@@ -714,3 +714,34 @@ arrives inside the game shop (the owner's case).
   * Note: the game's existing autosave on every story flag (`world._on_flag`, used by the death retry) still writes
     the main slot during normal play. That behaviour predates this chapter and is unchanged.
 * **Dev entry and test:** `game/tools/dev_chapter10.gd`; `game/tests/chapter10_test.gd`.
+
+### 9.18 Chapter 12 "The Farm Road" (branch `claude/chapter11-farm-road`; code `chapter11.gd`, flags `ch11_*`)
+* **Numbering:** displayed as **CHAPTER 12** (the prompt's "Chapter 11" is No Safe Road under the corrected
+  mapping). It starts in the mill-worker house right after "CHAPTER 11 COMPLETE".
+* **Base:** branched from `claude/chapter10-no-safe-road`, with the integrated build
+  (`claude/chapter7-trace-of-noah` 65ede7b) merged in.
+  * That build's `world.npc_route` assigned an untyped conditional array to an `Array[RID]`, so every NPC route
+    search failed with a script error. Fixed (typed array).
+* **The farm road** (existing pieces in the open fields west of town):
+  * an abandoned pickup, a picket fence with one panel down, a country bus shelter (an optional snack, taken once);
+  * the camp at (-113, -55): bedroll, cold lantern, an empty can, a small jacket, tracks (each can be examined), and
+    the note `campsite_note`, read in the inventory's inspect view like Noah's first note. Flags `ch11_note_read`,
+    `noah_clue_campsite`.
+* **The field:** the view is controlled (turn, then the FOV narrows 20 %) onto a Hound silhouette, which walks off
+  into the fog. FOV and control are restored afterwards. Never replayed.
+* **The farmhouse** is Greyhaven's `HOUSE_20` (Pack 03 `RES_House_Abandoned`, -77.9, -92), with hinge doors added
+  for the front, kitchen and bedroom 1.
+  * The group waits in the living room.
+  * The search covers the living room, the kitchen, the back door (inspect) and bedroom 1 upstairs.
+  * In bedroom 1 is `noahs_message`, read in the inventory. Flags `ch11_message_read`, `noah_clue_farmhouse`.
+  * Regrouping plays the talk. The encounter follows: a shape passes the side window, a blow on the back door, the
+    approved lines.
+  * Then a Hound with the Chapter 7 `VeilHoundAI` (collisions, non-lethal bites, leash 26 m) chases while the group
+    follows the player out of the front door to the field at (-104, -99).
+* **The distant light:** an `OmniLight3D` inside `HOUSE_19` flickers, the view is drawn to it with a slight zoom, a
+  dark shape passes behind it, then "CHAPTER 12 COMPLETE".
+* **Checkpoints:** `chapter12_start` and `chapter12_after_encounter` (`user://checkpoints/`).
+* **Without Marcus:** his lines go to the protagonist, Ruth or Sarah as written in the prompt.
+* **Known:** the farmhouse stairs are narrow (0.95 m). Walking up their middle works; about 25 cm off-centre the
+  player catches on the stringer. Same for the upstairs hall beside the stairwell rail.
+* **Dev entry and test:** `game/tools/dev_chapter11.gd`; `game/tests/chapter11_test.gd`.

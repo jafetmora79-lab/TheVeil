@@ -90,6 +90,14 @@
     "ch10_started"
    ],
    "impl": "chapter10.gd"
+  },
+  {
+   "n": 12,
+   "title": "The Farm Road",
+   "start": [
+    "ch11_started"
+   ],
+   "impl": "chapter11.gd"
   }
  ]
 }
