@@ -240,10 +240,10 @@ func _refresh_prompts() -> void:
 		var eddie_talk := (Game.has_flag("ch7_marcus_briefing_complete") and not Game.has_flag("ch7_eddie_warning_complete")) \
 			or (Game.has_flag("ch7_returned_to_supermarket") and not Game.has_flag("ch7_report_complete"))
 		its["npc_Eddie"].prompt_text = "[E] Talk" if eddie_talk else ""
-	its["backpack"].prompt_text = "E - EXAMINE BACKPACK" if Game.has_flag("ch7_vehicle_reached") and Game.has_flag("ch7_skitters_gone") \
+	its["backpack"].prompt_text = "E - EXAMINE BACKPACK" if Game.has_flag("ch7_vehicle_reached") and _skitters_done() \
 		and not Game.has_flag("ch7_backpack_found") else ""
 	if its.has("alarm"):
-		var on := Game.has_flag("ch7_vehicle_reached") and not Game.has_flag("ch7_skitters_gone")
+		var on := Game.has_flag("ch7_vehicle_reached") and not _skitters_done()
 		its["alarm"].prompt_text = "[E] Set Off the Car Alarm" if on else ""
 		its["alarm"].collision_layer = 8 if on else 0
 	if doors:
@@ -348,7 +348,7 @@ func _use_doors(_b: Node) -> void:
 
 # ------------------------------------------------------------------ scenes 5-6: the vehicle, the backpack, the note
 func _examine_backpack(_b: Node) -> void:
-	if not Game.has_flag("ch7_vehicle_reached") or not Game.has_flag("ch7_skitters_gone") or Game.has_flag("ch7_backpack_found") \
+	if not Game.has_flag("ch7_vehicle_reached") or not _skitters_done() or Game.has_flag("ch7_backpack_found") \
 			or _busy.get("bag", false):
 		return
 	_busy["bag"] = true
@@ -505,6 +505,12 @@ func _on_rest(_id: String) -> void:
 
 
 # ------------------------------------------------------------------ Skitters at the car, the noise distraction
+## Gone once drawn off - or once the backpack was found (saves from before this puzzle existed have no flag for it,
+## and must not get Skitters back at the car in later chapters).
+func _skitters_done() -> bool:
+	return Game.has_flag("ch7_skitters_gone") or Game.has_flag("ch7_backpack_found")
+
+
 ## Two Skitters crouch around the car (survival expansion): the backpack cannot be reached while they are there.
 ## A parked car back down the road has an alarm: set it off and they scuttle to the noise and away into the fog.
 ## Getting too close first is answered by a lunge (a non-lethal bite and a shove): the encounter stays recoverable.
@@ -534,12 +540,12 @@ func _setup_distraction() -> void:
 	it.used.connect(_set_off_alarm)
 	its["alarm"] = it
 	_alarm_stream = Sfx._make(0.5, func(t: float, _i: int) -> float: return sin(TAU * (880.0 if t < 0.25 else 660.0) * t) * 0.35, true)
-	if Game.has_flag("ch7_vehicle_reached") and not Game.has_flag("ch7_skitters_gone"):
+	if Game.has_flag("ch7_vehicle_reached") and not _skitters_done():
 		_spawn_car_skitters.call_deferred()
 
 
 func _spawn_car_skitters() -> void:
-	if not skitters.is_empty() or Game.has_flag("ch7_skitters_gone"):
+	if not skitters.is_empty() or _skitters_done():
 		return
 	var ps := load(SKITTER_PATH) as PackedScene
 	if ps == null:
@@ -577,7 +583,7 @@ func _skitter_anim(sk: Node3D, keys: Array) -> void:
 ## Too close while they are at the car: one of them lunges (never a killing bite) and the player is pushed back.
 func _skitter_guard() -> void:
 	_lunge_t = maxf(_lunge_t - 0.2, 0.0)
-	if skitters.is_empty() or Game.has_flag("ch7_skitters_gone") or _lunge_t > 0.0:
+	if skitters.is_empty() or _skitters_done() or _lunge_t > 0.0:
 		return
 	for sk in skitters:
 		if is_instance_valid(sk) and (sk as Node3D).global_position.distance_to(player.global_position) < 4.5:
@@ -594,7 +600,7 @@ var report_lunges := 0
 
 
 func _set_off_alarm(_b: Node) -> void:
-	if Game.has_flag("ch7_skitters_gone") or not Game.has_flag("ch7_vehicle_reached") or _busy.get("alarm", false):
+	if _skitters_done() or not Game.has_flag("ch7_vehicle_reached") or _busy.get("alarm", false):
 		return
 	_busy["alarm"] = true
 	var a := AudioStreamPlayer3D.new()

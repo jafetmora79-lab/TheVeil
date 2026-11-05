@@ -74,6 +74,7 @@ func _test_pointer() -> void:
 	m.albedo_color = Color(0.1, 1.0, 0.9, 0.55)
 	m.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
 	m.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
+	m.disable_fog = true                          # the mist would swallow it otherwise
 	beam.material_override = m
 	_pointer.add_child(beam)
 	beam.position = Vector3(0, 15.0, 0)
@@ -81,8 +82,9 @@ func _test_pointer() -> void:
 	label.text = "SKITTER TEST\nwalk up to the front of this house"
 	label.billboard = BaseMaterial3D.BILLBOARD_ENABLED
 	label.no_depth_test = true
+	label.fixed_size = true
+	label.pixel_size = 0.0012
 	label.font_size = 48
-	label.pixel_size = 0.01
 	label.modulate = Color(0.1, 1.0, 0.9)
 	_pointer.add_child(label)
 	label.position = Vector3(0, 4.5, 0)
@@ -102,7 +104,7 @@ func near_porch() -> bool:
 
 
 
-	return absf(p.x) < 5.5 and p.z > 12.0 and p.z < 20.0 and p.y < 2.0 and p.y > -1.0
+	return absf(p.x) < 5.5 and p.z > 12.0 and p.z < 26.0 and p.y < 2.0 and p.y > -1.0   # out to the street side of the yard fence (z 13.7)
 
 func _process(_delta: float) -> void :
 	if running:
