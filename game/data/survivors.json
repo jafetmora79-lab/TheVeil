@@ -87,6 +87,25 @@
     "Eddie": 3
    },
    "morale": 5
+  },
+  "ch12_supplies_taken": {
+   "morale": 3,
+   "memory": {
+    "Eddie": "risked_supplies"
+   }
+  },
+  "ch12_left_now": {
+   "trust": {
+    "Eddie": 2
+   }
+  },
+  "ch12_door_secured": {
+   "trust": {
+    "Eddie": 3
+   },
+   "memory": {
+    "Eddie": "tunnels"
+   }
   }
  },
  "awards": {

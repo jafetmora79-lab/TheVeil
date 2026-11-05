@@ -110,6 +110,8 @@ func begin(w: Node, chapter10: Node, restoring: bool) -> void:
 		Game.set_flag("ch11_started")
 	_apply()
 	Game.refresh_objective()
+	if Game.has_flag("chapter_11_complete"):
+		_start_chapter12.call_deferred(true)
 	if fresh:
 		_title.call_deferred()
 		world.save_checkpoint.call_deferred("chapter12_start")    # its own file, never the player's save slot
@@ -339,6 +341,8 @@ func _setup_far_light() -> void:
 # ------------------------------------------------------------------ state from flags (fresh start and loads)
 func _apply() -> void:
 	_node("Marcus").visible = alive()
+	if Game.has_flag("ch12_started"):
+		return                                       # the next chapter places the group from here on
 	if Game.has_flag("chapter_11_complete") or (Game.has_flag("ch11_escaped") and Game.has_flag("ch11_light_seen")):
 		_place_at_safe()
 	elif Game.has_flag("ch11_group_waiting") and not Game.has_flag("ch11_attack_started"):
@@ -423,6 +427,8 @@ var _obj_txt := ""
 
 
 func _guide() -> void:
+	if chapter12 != null:
+		return                                       # the next chapter guides from here on
 	var t: Variant = null
 	var label := ""
 	var p := player.global_position
@@ -812,6 +818,18 @@ func _ending() -> void:
 	_busy["ending"] = false
 	_guide()
 	await hud.chapter_complete(CHAPTER)
+	_start_chapter12(false)                          # displayed Chapter 13 starts back at the mill house
+
+
+## The next chapter (displayed CHAPTER 13 "The Truth Beneath Greyhaven", internally chapter12.gd).
+var chapter12: Node
+func _start_chapter12(restoring: bool) -> void:
+	if chapter12 != null:
+		return
+	chapter12 = load("res://game/world/chapter12.gd").new()
+	chapter12.name = "Chapter12"
+	add_child(chapter12)
+	chapter12.begin(world, self, restoring)
 
 
 # ------------------------------------------------------------------ helpers, per tick

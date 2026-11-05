@@ -98,6 +98,14 @@
     "ch11_started"
    ],
    "impl": "chapter11.gd"
+  },
+  {
+   "n": 13,
+   "title": "The Truth Beneath Greyhaven",
+   "start": [
+    "ch12_started"
+   ],
+   "impl": "chapter12.gd"
   }
  ]
 }
