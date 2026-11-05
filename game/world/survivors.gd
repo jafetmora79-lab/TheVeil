@@ -1,0 +1,640 @@
+extends Node
+## THE VEIL - survivor relationships & consequences (built on the survival expansion, game/world/expedition.gd).
+##   trust 0..100 per survivor, group morale 0..100, survivor health (healthy / injured / seriously injured /
+##   recovering), deterministic shelter activities, a companion for scavenging trips, short overnight events and
+##   remembered consequences. Everything lives in Game.world_state["survivors"] (saved with the game).
+## Rules: every change is keyed and applied once (no farming); nothing here sets a story flag, kills, revives,
+## duplicates or teleports a survivor in view; trust and morale only change dialogue, never block the story.
+## Hooks for story chapters: trust(), morale(), health(), remember(), memory(), award(), set_health(), alive().
+## Tuning: game/data/survivors.json.
+
+const CFG := "res://game/data/survivors.json"
+const NAMES := ["Eddie", "Marcus", "Ruth", "Sarah"]
+const HEALTH_TEXT := {"healthy": "Healthy", "injured": "Injured", "serious": "Seriously injured", "recovering": "Recovering"}
+## deterministic shelter activities (market-local floor spots); the schedule turns with each night and trip
+const SPOTS := {"check_shelves": Vector3(8.6, 0.04, 6.8), "watch_entrance": Vector3(1.2, 0.04, 5.4),
+	"examine_equipment": Vector3(6.2, 0.04, 4.9)}
+const SCHEDULE := {"Eddie": ["examine_equipment", "watch_entrance", "talk", "rest"],
+	"Ruth": ["check_shelves", "rest", "check_shelves", "talk"],
+	"Sarah": ["rest", "talk", "watch_entrance", "rest"],
+	"Marcus": ["watch_entrance", "rest", "examine_equipment", "watch_entrance"]}
+
+var world: Node
+var cfg := {}
+var follow: VeilCompanionFollow           # the scavenging companion's follow (null when none)
+var _act_t := 2.0
+var _event_t := 0.0
+var _hint_t := 0.0
+var _early := {}
+var _busy := false
+var _recovered := false                   # one out-of-sight recovery per trip; a second separation is abandonment
+var report := {"walks": 0, "events": [], "talks": 0, "recoveries": 0}   ## tests
+
+
+func setup(w: Node) -> void:
+	world = w
+	var f := FileAccess.open(CFG, FileAccess.READ)
+	cfg = JSON.parse_string(f.get_as_text()) if f else {}
+	var s := st()
+	# JSON loads numbers as floats: keep trust / morale / nights whole numbers
+	for n in s["trust"]:
+		s["trust"][n] = int(s["trust"][n])
+	s["morale"] = int(s["morale"])
+	s["nights"] = int(s["nights"])
+	s["empty_trips"] = int(s["empty_trips"])
+	# an older save: story flags already set count once (silently); past nights are not replayed
+	for flag in Game.flags:
+		_apply_flag(String(flag), true)
+	Game.flag_set.connect(_on_flag)
+	# a save made mid-trip with a companion: they are behind the player again (the load is faded in)
+	if String(s["companion"]) != "":
+		if world.expedition and world.expedition.active() and _available(String(s["companion"]), true):
+			_start_follow(String(s["companion"]), true)
+		else:
+			s["companion"] = ""
+
+
+func st() -> Dictionary:
+	if not Game.world_state.has("survivors"):
+		var trust := {}
+		var health := {}
+		for n in NAMES:
+			trust[n] = int(cfg.get("start_trust", 50))
+			health[n] = "healthy"
+		Game.world_state["survivors"] = {"trust": trust, "morale": int(cfg.get("start_morale", 50)), "health": health,
+			"treated_since_night": {}, "memory": {}, "applied": {}, "events": [], "pending_event": "", "nights": 0,
+			"companion": "", "activities": {}, "free": false, "empty_trips": 0, "good_trip": false, "requests": {}}
+	return Game.world_state["survivors"]
+
+
+# ------------------------------------------------------------------ public hooks
+func alive(n: String) -> bool:
+	if n == "Marcus" and Game.has_flag("ch9_marcus_lost"):
+		return false
+	return n in NAMES
+
+
+func trust(n: String) -> int:
+	return int(st()["trust"].get(n, 50))
+
+
+func morale() -> int:
+	return int(st()["morale"])
+
+
+func health(n: String) -> String:
+	return String(st()["health"].get(n, "healthy"))
+
+
+func memory(n: String) -> Array:
+	return st()["memory"].get(n, [])
+
+
+func remember(n: String, what: String) -> void:
+	var m: Array = st()["memory"].get(n, [])
+	if what not in m:
+		m.append(what)
+	st()["memory"][n] = m
+
+
+## Applied once per key (a second call with the same key does nothing): the anti-farming rule.
+func award(key: String, who: Dictionary, morale_delta := 0) -> bool:
+	var s := st()
+	if s["applied"].has(key):
+		return false
+	s["applied"][key] = true
+	for n in who:
+		if alive(String(n)):
+			s["trust"][n] = clampi(trust(String(n)) + int(who[n]), 0, 100)
+	s["morale"] = clampi(morale() + morale_delta, 0, 100)
+	return true
+
+
+func set_health(n: String, h: String) -> void:
+	if alive(n) and h in HEALTH_TEXT:
+		st()["health"][n] = h
+
+
+## Present in the shelter right now (alive, visible in the store).
+func _available(n: String, ignore_roster := false) -> bool:
+	if not alive(n):
+		return false
+	return ignore_roster or n in world.shelter_roster()
+
+
+func trust_text(n: String) -> String:
+	var t := trust(n)
+	return "trusts you" if t >= 70 else ("warming to you" if t >= 55 else ("wary of you" if t >= 35 else "doesn't trust you"))
+
+
+func morale_text() -> String:
+	var m := morale()
+	return "Hopeful" if m >= 65 else ("Holding together" if m >= 40 else ("Strained" if m >= 20 else "Close to breaking"))
+
+
+# ------------------------------------------------------------------ story flags -> consequences
+func _on_flag(f: String) -> void:
+	_apply_flag(f, false)
+	if f in cfg.get("night_flags", []):
+		_night(f)
+	elif not (f.begins_with("exp") or f.begins_with("sv_") or f.begins_with("chapter_card")):
+		_end_free_time()                                    # the story moves: everyone goes back to their place
+
+
+func _apply_flag(f: String, silent: bool) -> void:
+	var s := st()
+	if f in cfg.get("night_flags", []):
+		if silent:
+			s["applied"]["night:" + f] = true
+		return
+	match f:
+		"ch8_sarah_injured":
+			if not s["applied"].has("health:" + f):
+				s["applied"]["health:" + f] = true
+				set_health("Sarah", "injured")
+		"ch8_sarah_treated":
+			s["applied"]["health:ch8_sarah_injured"] = true
+			if not s["applied"].has("health:" + f):
+				s["applied"]["health:" + f] = true
+				set_health("Sarah", "recovering")
+				s["treated_since_night"]["Sarah"] = true
+		"ch8_sarah_untreated":
+			if not s["applied"].has("health:" + f):
+				s["applied"]["health:" + f] = true
+				set_health("Sarah", "serious")
+	var eff: Dictionary = cfg.get("flag_effects", {}).get(f, {})
+	if eff.is_empty():
+		return
+	if award("flag:" + f, eff.get("trust", {}), int(eff.get("morale", 0))):
+		var mem: Dictionary = eff.get("memory", {})
+		for n in mem:
+			remember(String(n), String(mem[n]))
+
+
+# ------------------------------------------------------------------ nights
+func _night(f: String) -> void:
+	var s := st()
+	if s["applied"].has("night:" + f):
+		return
+	s["applied"]["night:" + f] = true
+	s["nights"] = int(s["nights"]) + 1
+	var aw: Dictionary = cfg.get("awards", {})
+	# untreated injuries get worse; treated ones heal (nobody dies of it)
+	for n in NAMES:
+		if not alive(n):
+			continue
+		var h := health(n)
+		var treated: bool = s["treated_since_night"].get(n, false)
+		if h == "recovering":
+			set_health(n, "healthy")
+		elif h == "injured" and not treated:
+			set_health(n, "serious")
+			remember(n, "worsened")
+	# a medicine request that went unanswered for a whole night
+	for req in s["requests"].keys():
+		var r: Dictionary = s["requests"][req]
+		if health(String(r["patient"])) in ["injured", "serious"] and int(r["night"]) < int(s["nights"]):
+			award("ignored:" + String(req), {String(r["by"]): int(aw.get("ignored", -5))})
+	s["treated_since_night"] = {}
+	# morale: was there enough to eat, did anyone get hurt, was the last trip any good
+	var rep: Dictionary = Game.world_state.get("shelter_latest_report", {})
+	var short: bool = not rep.is_empty() and (int(rep.get("food_used", 0)) < int(rep.get("food_needed", 0))
+		or int(rep.get("water_used", 0)) < int(rep.get("water_needed", 0)))
+	var md := int(aw.get("short_night_morale", -8)) if short else int(aw.get("safe_night_morale", 3))
+	for n in NAMES:
+		if alive(n) and health(n) == "serious":
+			md -= 3
+	award("night_morale:" + f, {}, md)
+	s["pending_event"] = _pick_event()
+	_event_t = 4.0
+	s["free"] = true
+	_act_t = 1.0
+
+
+## One short overnight event, chosen by the group's situation; each is used once (never repeated).
+func _pick_event() -> String:
+	var s := st()
+	var used: Array = s["events"]
+	var need: Dictionary = world.expedition.supply_need() if world.expedition else {"need": 0, "food": 99, "water": 99}
+	var hurt := ""
+	for n in NAMES:
+		if alive(n) and health(n) in ["injured", "serious"]:
+			hurt = n
+	var c := []
+	if hurt != "":
+		c.append("sv_night_medicine" if _available("Ruth", true) and hurt != "Ruth" else "sv_night_medicine_eddie")
+	if int(need["food"]) < int(need["need"]) or int(need["water"]) < int(need["need"]):
+		c.append("sv_night_food")
+	if morale() < 35:
+		c.append("sv_night_argue")
+	if bool(s["good_trip"]):
+		c.append("sv_night_thanks")
+		c.append("sv_night_thanks_ruth")
+	for id in c:
+		if id not in used and _speakers_ok(id):
+			if id.begins_with("sv_night_medicine"):
+				s["requests"][id] = {"by": "Ruth" if id == "sv_night_medicine" else "Eddie", "patient": hurt, "night": int(s["nights"])}
+			s["good_trip"] = false if id.begins_with("sv_night_thanks") else s["good_trip"]
+			return id
+	return ""
+
+
+func _speakers_ok(id: String) -> bool:
+	var entry: Dictionary = Dialogue.data.get(id, {})
+	for l in entry.get("lines", []):
+		var sp := String(l.get("speaker", ""))
+		if sp != "" and not _available(sp, true):
+			return false
+	if id == "sv_night_medicine_eddie" and not _available("Eddie", true):
+		return false
+	return true
+
+
+## The overnight event plays once the player is up and nothing else is happening (never in an emergency).
+func _deliver_event(delta: float) -> void:
+	var s := st()
+	var id := String(s["pending_event"])
+	if id == "":
+		return
+	if world.expedition == null or world.expedition.shelter() == "":
+		s["pending_event"] = ""                               # the shelter is gone: the moment passed
+		return
+	_event_t -= delta
+	if _event_t > 0.0 or not _quiet():
+		return
+	s["pending_event"] = ""
+	if id in s["events"]:
+		return
+	s["events"].append(id)
+	report["events"].append(id)
+	Dialogue.say(id, false, true)
+
+
+## No cinematic, talk, encounter, emergency, menu or dialogue in progress.
+func _quiet() -> bool:
+	if world.conversing or world.get("_encounter_running") == true or Dialogue.is_busy() or world._choice_open():
+		return false
+	if world._cine and is_instance_valid(world._cine):
+		return false
+	if world.hud.is_paused() or not world.player.visible or not world.player.controls_enabled:
+		return false
+	return world.expedition != null and not world.expedition.emergency()
+
+
+# ------------------------------------------------------------------ treatment
+func can_treat(n: String) -> String:
+	if not alive(n) or not (health(n) in ["injured", "serious"]):
+		return ""
+	var cost := treat_cost(n)
+	if int(Game.shelter_stock().get("medical", 0)) + Game.inventory.count("painkillers") < cost:
+		return ""
+	return "Treat %s (%d medicine)" % [n, cost]
+
+
+func treat_cost(n: String) -> int:
+	return 2 if health(n) == "serious" else 1
+
+
+## Uses the shelter's medicine first, then carried painkillers. serious -> injured, injured -> recovering.
+func treat(n: String) -> bool:
+	if can_treat(n) == "":
+		return false
+	var cost := treat_cost(n)
+	var stock := Game.shelter_stock()
+	for i in cost:
+		if int(stock.get("medical", 0)) > 0:
+			stock["medical"] = int(stock["medical"]) - 1
+		else:
+			Game.remove_item("painkillers")
+	Game.world_state["shelter_stock"] = stock
+	var s := st()
+	set_health(n, "recovering" if health(n) == "injured" else "injured")
+	s["treated_since_night"][n] = true
+	award("treated:%s:%d:%s" % [n, int(s["nights"]), health(n)], {n: int(cfg.get("awards", {}).get("treated", 5))})
+	for req in s["requests"].keys():
+		if String(s["requests"][req]["patient"]) == n and health(n) == "recovering":
+			s["applied"]["ignored:" + String(req)] = true          # answered in time
+	return true
+
+
+# ------------------------------------------------------------------ the shelter status panel
+func status_text() -> String:
+	var t := "THE GROUP  -  morale: %s" % morale_text()
+	for n in NAMES:
+		if not alive(n) or not (n in world.shelter_roster() or String(st()["companion"]) == n):
+			continue
+		var where := "with you" if String(st()["companion"]) == n else "in the shelter"
+		var h := health(n)
+		var warn := ""
+		if h == "injured" and not st()["treated_since_night"].get(n, false):
+			warn = " (getting worse without medicine)"
+		t += "\n%s  -  %s%s  -  %s  -  %s" % [n, HEALTH_TEXT[h], warn, where, trust_text(n)]
+	return t
+
+
+func open_panel(choice: Node) -> void:
+	if _busy:
+		return
+	_busy = true
+	while is_inside_tree():
+		var opts := []
+		var acts := []
+		for n in NAMES:
+			var tr := can_treat(n) if _available(n) else ""
+			if tr != "":
+				opts.append(tr)
+				acts.append(["treat", n])
+		for n in NAMES:
+			if _available(n):
+				opts.append("Talk to " + n)
+				acts.append(["talk", n])
+		opts.append("Back")
+		var i: int = await choice.ask(status_text(), opts, world.player)
+		if i < 0 or i >= acts.size():
+			break
+		if acts[i][0] == "treat":
+			if treat(acts[i][1]):
+				Sfx.play("pickup", world.player.global_position, -8.0, 0.8)
+		else:
+			_busy = false
+			await talk(acts[i][1])
+			return
+	_busy = false
+
+
+## One remark that fits this survivor right now: a remembered consequence first, then health, then trust.
+func remark_for(n: String) -> String:
+	var s := st()
+	var m := memory(n)
+	if n == "Marcus" and "rescued" in m and not s["applied"].has("said:mem_rescued"):
+		return "sv_mem_rescued_Marcus"
+	if n == "Ruth" and int(s["empty_trips"]) >= 2 and not s["applied"].has("said:ruth_empty"):
+		return "sv_ruth_empty_trips"
+	if n == "Ruth" and world.expedition:
+		var need: Dictionary = world.expedition.supply_need()
+		if int(need["food"]) < int(need["need"]) or int(need["water"]) < int(need["need"]):
+			return "sv_Ruth_supplies"
+	if n == "Sarah" and health(n) in ["injured", "serious"]:
+		return "sv_Sarah_hurt"
+	if n == "Sarah" and "saw_death" in m and trust(n) < 60:
+		return "sv_Sarah_low"
+	if n == "Eddie" and world.expedition and world.expedition.level() >= 2:
+		return "sv_Eddie_danger"
+	return "sv_%s_%s" % [n, "high" if trust(n) >= 55 else "low"]
+
+
+func talk(n: String) -> void:
+	var id := remark_for(n)
+	if id == "sv_mem_rescued_Marcus":
+		st()["applied"]["said:mem_rescued"] = true
+	elif id == "sv_ruth_empty_trips":
+		st()["applied"]["said:ruth_empty"] = true
+	report["talks"] += 1
+	var body: Node3D = world.animators[n].root if world.animators.has(n) else null
+	if body == null or not await world.converse([id], [body]):
+		Dialogue.say(id, false, true)
+
+
+# ------------------------------------------------------------------ scavenging companions
+func companion_options() -> Array:
+	var out := []
+	for n in NAMES:
+		if _available(n) and health(n) != "serious":
+			out.append(n)
+	return out
+
+
+## Asked after "Scavenge for Supplies" (on foot). Returns "" for going alone.
+func pick_companion(choice: Node) -> String:
+	var names := companion_options()
+	if names.is_empty():
+		return ""
+	var opts := ["Go alone"]
+	for n in names:
+		opts.append("Take %s (%s)" % [n, {"Eddie": "carries more", "Ruth": "spots supplies", "Sarah": "hears danger early",
+			"Marcus": "looks for signs of Noah"}[n]])
+	var i: int = await choice.ask("WHO COMES ALONG?", opts, world.player)
+	return names[i - 1] if i >= 1 and i <= names.size() else ""
+
+
+func begin_trip(n: String) -> void:
+	var s := st()
+	s["companion"] = n
+	_early = {}
+	_recovered = false
+	_hint_t = 3.0
+	if n == "":
+		return
+	_end_free_time()
+	_start_follow(n, false)
+	Dialogue.say("sv_companion_" + n if trust(n) >= 35 else "sv_companion_reluctant", false, true)
+
+
+func _start_follow(n: String, recover: bool) -> void:
+	var body: Node3D = world.animators[n].root
+	follow = body.get_node_or_null("SV_Follow") as VeilCompanionFollow
+	if follow == null:
+		follow = VeilCompanionFollow.new()
+		follow.name = "SV_Follow"
+		follow.set_meta("sv_companion", true)
+		body.add_child(follow)
+	follow.setup(body, world.player)
+	follow.gap = 2.6
+	follow.start()
+	if recover:
+		follow.recover_behind.call_deferred(3.0)
+
+
+## Trip over (expedition.secure()): rewards, bonuses and, if the companion was left far behind, the cost of that.
+func end_trip(got: Dictionary) -> void:
+	var s := st()
+	var trip := int(world.expedition.st().get("trips", 0))
+	var n := String(s["companion"])
+	var aw: Dictionary = cfg.get("awards", {})
+	var total := 0
+	for k in got:
+		if k in ["canned_food", "water_bottle", "energy_snack", "chocolate_bar", "cola_bottle", "painkillers", "batteries"]:
+			total += int(got[k])
+	if n != "" and follow:
+		var far: bool = follow.lag() > float(cfg.get("abandon_distance", 35))
+		follow.stop()
+		follow = null
+		if far:
+			award("abandoned:%d" % trip, {n: int(aw.get("abandoned", -15))}, -5)
+			remember(n, "abandoned")
+			_send_home(n)                                    # they make their own way back (out of sight)
+		else:
+			if total > 0:
+				award("together:%d" % trip, {n: int(aw.get("trip_together", 2))})
+			if n == "Eddie" and total > 0 and not s["applied"].has("eddie_carry:%d" % trip):
+				s["applied"]["eddie_carry:%d" % trip] = true
+				Game.add_item("canned_food")                 # Eddie's bag: one more can than the player carried
+				Dialogue.say("sv_found_Eddie", false, false)
+			_send_home(n)
+	s["companion"] = ""
+	if total > 0:
+		s["empty_trips"] = 0
+		s["good_trip"] = true
+		award("trip:%d" % trip, cfg.get("awards", {}).get("supplies_brought", {}), int(aw.get("good_trip_morale", 4)))
+	else:
+		s["empty_trips"] = int(s["empty_trips"]) + 1
+		award("trip:%d" % trip, {}, int(aw.get("empty_trip_morale", -4)))
+	s["free"] = true
+	_act_t = 2.0
+
+
+func _send_home(n: String) -> void:
+	var body: Node3D = world.animators[n].root
+	if not body.has_meta("shelter_feet"):
+		return
+	var home := _home(body)
+	var c5: Node = world.expedition._c5()
+	if body.get_parent() == world.market and c5 and c5._in_store(body.position):
+		world.npc_walk(n, home, 1.4)
+	else:
+		world._place_unseen(body, home)
+
+
+## While a companion is out: keep them close (never a visible jump) and apply their modest bonus.
+func _companion_tick(delta: float) -> void:
+	var n := String(st()["companion"])
+	if n == "" or follow == null or not is_instance_valid(follow):
+		return
+	if not world.expedition.active():
+		return
+	var cam := world.get_viewport().get_camera_3d()
+	var seen: bool = cam != null and cam.is_position_in_frustum(follow.npc.global_position + Vector3(0, 1, 0))
+	if follow.lag() > 22.0 and not seen and not world.in_car and not _recovered:
+		_recovered = true
+		follow.recover_behind(3.0)                           # separated (stuck or lost): back on the trail, unseen
+		report["recoveries"] += 1
+	_hint_t -= delta
+	if _hint_t <= 0.0 and not Dialogue.is_busy():
+		_hint_t = 45.0
+		if n == "Ruth":
+			var c := _nearest_cache()
+			if c != Vector3.INF:
+				world.expedition._hint("Ruth: \"Over there - %s, maybe %d metres.\"" % [_dir_word(c), int(world.player.global_position.distance_to(c))])
+		elif n == "Marcus":
+			var clue := _nearest_clue()
+			if clue != Vector3.INF:
+				world.expedition._hint("Marcus: \"Wait - %s. Could be something of Noah's.\"" % _dir_word(clue))
+	# Sarah hears it coming: a warning before each danger step
+	if n == "Sarah":
+		var th: Array = world.expedition.cfg.get("danger_thresholds_s", [300, 600, 900])
+		var el: float = float(world.expedition.st().get("elapsed", 0.0))
+		for i in th.size():
+			if el >= float(th[i]) - 40.0 and el < float(th[i]) and not _early.has(i) and not Dialogue.is_busy():
+				_early[i] = true
+				Dialogue.say("sv_sarah_early", false, false)
+
+
+func _nearest_cache() -> Vector3:
+	var best := Vector3.INF
+	var p: Vector3 = world.player.global_position
+	for k in world.expedition.its:
+		if String(k).begins_with("exp/") and is_instance_valid(world.expedition.its[k]):
+			var it: Node3D = world.expedition.its[k]
+			if it.is_visible_in_tree() and (best == Vector3.INF or p.distance_to(it.global_position) < p.distance_to(best)):
+				best = it.global_position
+	return best
+
+
+func _nearest_clue() -> Vector3:
+	var p: Vector3 = world.player.global_position
+	var best := Vector3.INF
+	for it in world.find_children("*", "Interactable", true, false):
+		var l := String(it.get("label")).to_lower() + " " + String(it.get("prompt_text")).to_lower()
+		if it.is_visible_in_tree() and String(it.get("prompt_text")) != "" and ("noah" in l or "backpack" in l or "note" in l) \
+				and p.distance_to(it.global_position) < 30.0:
+			if best == Vector3.INF or p.distance_to(it.global_position) < p.distance_to(best):
+				best = it.global_position
+	return best
+
+
+func _dir_word(at: Vector3) -> String:
+	var to: Vector3 = at - world.player.global_position
+	var fwd: Vector3 = -world.player.global_transform.basis.z
+	var a := rad_to_deg(Vector2(fwd.x, fwd.z).angle_to(Vector2(to.x, to.z)))
+	return "straight ahead" if absf(a) < 35 else ("behind us" if absf(a) > 135 else ("to the right" if a > 0 else "to the left"))
+
+
+# ------------------------------------------------------------------ shelter activities (free time only)
+func activity(n: String) -> String:
+	var s := st()
+	if not alive(n):
+		return ""
+	if health(n) in ["injured", "serious"]:
+		return "rest"
+	for m in NAMES:
+		if n == "Ruth" and m != n and alive(m) and health(m) in ["injured", "serious"]:
+			return "tend:" + m
+	var sched: Array = SCHEDULE[n]
+	return String(sched[(int(s["nights"]) + int(world.expedition.st().get("trips", 0)) if world.expedition else 0) % sched.size()])
+
+
+func _activity_target(n: String, act: String, body: Node3D) -> Vector3:
+	if act == "rest" or not body.has_meta("shelter_feet"):
+		return _home(body)
+	if act.begins_with("tend:") or act == "talk":
+		var other := act.get_slice(":", 1) if act.begins_with("tend:") else ("Ruth" if n == "Eddie" else "Eddie")
+		if not _available(other):
+			return _home(body)
+		var ob: Node3D = world.animators[other].root
+		var off := Vector3(0.9, 0, 0.3) if n < other else Vector3(-0.9, 0, -0.3)
+		return ob.position + off
+	return SPOTS.get(act, Vector3.INF)
+
+
+func _activities(delta: float) -> void:
+	_act_t -= delta
+	if _act_t > 0.0:
+		return
+	_act_t = 3.0
+	var s := st()
+	if not bool(s["free"]) or world.expedition == null or world.expedition.shelter() == "" or not _quiet():
+		return
+	for n in NAMES:
+		if not _available(n) or String(s["companion"]) == n:
+			continue
+		var an = world.animators.get(n)
+		var body: Node3D = an.root
+		if an.is_walking() or body.get_node_or_null("Follow") and (body.get_node("Follow") as VeilCompanionFollow).active:
+			continue
+		var act := activity(n)
+		var to := _activity_target(n, act, body)
+		s["activities"][n] = act
+		if to.is_finite() and body.position.distance_to(to) > 1.2:
+			world.npc_walk(n, to, 1.2)
+			report["walks"] += 1
+
+
+## The story needs everyone where it left them: walk back (never placed in view).
+func _end_free_time() -> void:
+	var s := st()
+	if not bool(s["free"]):
+		return
+	s["free"] = false
+	s["activities"] = {}
+	for n in NAMES:
+		if not _available(n) or String(s["companion"]) == n:
+			continue
+		var body: Node3D = world.animators[n].root
+		var home := _home(body)
+		if home.is_finite() and body.position.distance_to(home) > 0.6:
+			world.npc_walk(n, home, 1.4)
+
+
+## The story's own spot for this survivor (market-local), where the chapter last placed them.
+func _home(body: Node3D) -> Vector3:
+	if not body.has_meta("shelter_feet") or body.get_parent() != world.market:
+		return Vector3.INF
+	return world.market.to_local(body.get_meta("shelter_feet"))
+
+
+func _process(delta: float) -> void:
+	if world == null or not Game.world_state.has("survivors"):
+		return
+	_deliver_event(delta)
+	_companion_tick(delta)
+	_activities(delta)

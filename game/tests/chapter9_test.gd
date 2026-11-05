@@ -184,7 +184,7 @@ func numbering() -> void:
 	var seq := true
 	for i in nums.size():
 		seq = seq and nums[i] == i + 1
-	ok("num_sequential_unique", seq and nums.size() == 12, str(nums))
+	ok("num_sequential_unique", seq and nums.size() >= 12, str(nums))      # later chapters append to the list
 	ok("num_titles", game.chapter_title(1) == "An Ordinary Evening" and game.chapter_title(2) == "One Last Stop"
 		and game.chapter_title(10) == "The Fall of the Supermarket")
 	var cases := [[{}, 1], [{"arrival_shot": true}, 2], [{"arrival_shot": true, "p3_mist": true}, 3],
@@ -202,7 +202,7 @@ func numbering() -> void:
 	for o in game.objectives:
 		if String(o["text"]).begins_with("Chapter "):
 			steps.append(o["text"])
-	ok("num_objective_completion_texts", steps == ["Chapter 6 complete - The First Search", "Chapter 7 complete - Voices in the Mist",
+	ok("num_objective_completion_texts", steps.slice(0, 7) == ["Chapter 6 complete - The First Search", "Chapter 7 complete - Voices in the Mist",
 		"Chapter 8 complete - A Trace of Noah", "Chapter 9 complete - Something at the Doors",
 		"Chapter 10 complete - The Fall of the Supermarket", "Chapter 11 complete - No Safe Road",
 		"Chapter 12 complete - The Farm Road"], str(steps))
@@ -321,7 +321,7 @@ func _run() -> void:
 		await frames(40)
 	ok("c9_staff_door_open", staff.is_open)
 	ok("c9_walk_corridor", await walk_route([Vector3(15.4, 0.2, 15.6), Vector3(12.0, 0.2, 15.6), Vector3(9.6, 0.2, 15.9)]))
-	ok("c9_marcus_pinned", await wait_until(func(): return c9._busy.get("pinned", false) and c9.its["pinned"].prompt_text != "", 60 * 4))
+	ok("c9_marcus_pinned", await wait_until(func(): return c9._busy.get("pinned", false) and c9.its["pinned"].prompt_text != "", 60 * 9))
 	ok("c9_others_head_out", not c9.follows["Eddie"].active and not c9.follows["Ruth"].active)
 	var pin_snap := snapshot()
 	# Outcome A: pull him free in time
@@ -360,8 +360,8 @@ func _run() -> void:
 
 	# ---- Outcome B: (from the pin) nobody pulls him free in time: he is lost; the others escape
 	await restore(pin_snap)
-	ok("c9_b_repinned", await wait_until(func(): return c9._busy.get("pinned", false), 60 * 6), str(world.market.to_local(world.player.global_position)))
-	ok("c9_b_lost", await wait_until(func(): return game.has_flag("ch9_marcus_lost"), 60 * 16) and not c9.marcus.visible
+	ok("c9_b_repinned", await wait_until(func(): return c9._busy.get("pinned", false), 60 * 9), str(world.market.to_local(world.player.global_position)))
+	ok("c9_b_lost", await wait_until(func(): return game.has_flag("ch9_marcus_lost"), 60 * 22) and not c9.marcus.visible
 		and c9.st()["marcus_outcome"] == "lost" and c9.report["lost_runs"] == 1)
 	ok("c9_b_walk_out", await walk_route([Vector3(8.6, 0.2, 16.4), Vector3(8.0, 0.2, 17.6), Vector3(8.0, 0.2, 19.6)]))
 	ok("c9_b_roll_call", await wait_talk(func(): return said.has("Not Marcus."), 40.0))

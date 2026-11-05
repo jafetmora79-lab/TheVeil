@@ -91,6 +91,15 @@ func _ready() -> void:
 	expedition.name = "Expedition"
 	add_child(expedition)
 	expedition.setup.call_deferred(self)
+	survivors = SURVIVORS.new()
+	survivors.name = "Survivors"
+	add_child(survivors)
+	survivors.setup.call_deferred(self)
+	# a hidden Easter egg in the woods before town (isolated: game/easter_egg/)
+	var egg: Node = load("res://game/easter_egg/golden_peek.gd").new()
+	egg.name = "EasterEggGolden"
+	add_child(egg)
+	egg.setup.call_deferred(self)
 	_apply_view_ranges()
 	_setup_night()
 	_light_budget_all()
@@ -544,6 +553,9 @@ func _dlg_time(ids: Array) -> float:
 ## the survival expansion's shared expedition controller (game/world/expedition.gd)
 const EXPEDITION := preload("res://game/world/expedition.gd")
 var expedition: Node
+## survivor trust / health / morale / companions (game/world/survivors.gd)
+const SURVIVORS := preload("res://game/world/survivors.gd")
+var survivors: Node
 var conversing := false
 var talk_report := {"count": 0, "blocked": 0, "cam_hits": 0, "min_face_dist": 99.0, "max_fov_drop": 0.0, "zoom_ins": 0,
 	"zoom_outs": 0, "released": 0, "watchdog": 0}

@@ -12,7 +12,10 @@
   "act3_doors": "Something at the Doors",
   "act3_fall": "The Fall of the Supermarket",
   "act3_road": "No Safe Road",
-  "act4_farm_road": "The Farm Road"
+  "act4_farm_road": "The Farm Road",
+  "act5_truth": "The Truth Beneath Greyhaven",
+  "act5_veil": "Into the Veil",
+  "act5_shelter": "The Last Shelter"
  },
  "steps": [
   {
@@ -554,6 +557,228 @@
    "flag": "ch12_started",
    "goal": "act4_farm_road",
    "text": "Chapter 12 complete - The Farm Road"
+  },
+  {
+   "id": "c12_talk",
+   "flag": "ch12_talk_done",
+   "goal": "act5_truth",
+   "text": "Talk to Eddie"
+  },
+  {
+   "id": "c12_setout",
+   "flag": "ch12_set_out",
+   "goal": "act5_truth",
+   "text": "Prepare and set out with Eddie"
+  },
+  {
+   "id": "c12_station",
+   "flag": "ch12_station_reached",
+   "goal": "act5_truth",
+   "text": "Investigate the old maintenance station"
+  },
+  {
+   "id": "c12_fuse",
+   "flag": "ch12_fuse_found",
+   "goal": "act5_truth",
+   "text": "Find a way to restore power"
+  },
+  {
+   "id": "c12_power",
+   "flag": "ch12_power_on",
+   "goal": "act5_truth",
+   "text": "Restore power to the lower level"
+  },
+  {
+   "id": "c12_access",
+   "flag": "ch12_access_open",
+   "goal": "act5_truth",
+   "text": "Open the access door"
+  },
+  {
+   "id": "c12_descend",
+   "flag": "ch12_descended",
+   "goal": "act5_truth",
+   "text": "Go down to the service tunnels"
+  },
+  {
+   "id": "c12_chamber",
+   "flag": "ch12_chamber_open",
+   "goal": "act5_truth",
+   "text": "Explore the tunnels"
+  },
+  {
+   "id": "c12_records",
+   "flag": "ch12_records_taken",
+   "goal": "act5_truth",
+   "text": "Recover the underground records"
+  },
+  {
+   "id": "c12_escape",
+   "flag": "ch12_door_secured",
+   "goal": "act5_truth",
+   "text": "Get back up and shut the access door"
+  },
+  {
+   "id": "c12_choice",
+   "flag": "ch12_supply_choice",
+   "goal": "act5_truth",
+   "text": "Take the supplies or leave now"
+  },
+  {
+   "id": "c12_leave",
+   "flag": "ch12_left_station",
+   "goal": "act5_truth",
+   "text": "Leave the station"
+  },
+  {
+   "id": "c12_return",
+   "flag": "ch12_returned",
+   "goal": "act5_truth",
+   "text": "Return to the mill house"
+  },
+  {
+   "id": "c12_map",
+   "flag": "chapter_12_complete",
+   "goal": "act5_truth",
+   "text": "Look at the map with the group"
+  },
+  {
+   "id": "c12_complete",
+   "flag": "ch13_started",
+   "goal": "act5_truth",
+   "text": "Chapter 13 complete - The Truth Beneath Greyhaven"
+  },
+  {
+   "id": "c13_talk",
+   "flag": "ch13_talk_done",
+   "goal": "act5_veil",
+   "text": "Look at the map with the group"
+  },
+  {
+   "id": "c13_setout",
+   "flag": "ch13_set_out",
+   "goal": "act5_veil",
+   "text": "Prepare and choose who comes along"
+  },
+  {
+   "id": "c13_district",
+   "flag": "ch13_district_reached",
+   "goal": "act5_veil",
+   "text": "Reach the abandoned district"
+  },
+  {
+   "id": "c13_gate",
+   "flag": "ch13_gate_open",
+   "goal": "act5_veil",
+   "text": "Open the checkpoint gate"
+  },
+  {
+   "id": "c13_passage",
+   "flag": "ch13_in_passage",
+   "goal": "act5_veil",
+   "text": "Get to the maintenance passage"
+  },
+  {
+   "id": "c13_chamber",
+   "flag": "ch13_chamber_reached",
+   "goal": "act5_veil",
+   "text": "Follow the passage"
+  },
+  {
+   "id": "c13_entrance",
+   "flag": "ch13_entrance_open",
+   "goal": "act5_veil",
+   "text": "Find a way through the sealed entrance"
+  },
+  {
+   "id": "c13_choice",
+   "flag": "ch13_choice_made",
+   "goal": "act5_veil",
+   "text": "Decide: your companion or the evidence"
+  },
+  {
+   "id": "c13_out",
+   "flag": "ch13_out_of_passage",
+   "goal": "act5_veil",
+   "text": "Get out through the damaged passage"
+  },
+  {
+   "id": "c13_escape",
+   "flag": "ch13_returned",
+   "goal": "act5_veil",
+   "text": "Escape the district"
+  },
+  {
+   "id": "c13_night",
+   "flag": "chapter_13_complete",
+   "goal": "act5_veil",
+   "text": "Rest at the mill house"
+  },
+  {
+   "id": "c13_complete",
+   "flag": "ch14_started",
+   "goal": "act5_veil",
+   "text": "Chapter 14 complete - Into the Veil"
+  },
+  {
+   "id": "c14_window",
+   "flag": "ch14_window_seen",
+   "goal": "act5_shelter",
+   "text": "Investigate the disturbance"
+  },
+  {
+   "id": "c14_meeting",
+   "flag": "ch14_meeting_done",
+   "goal": "act5_shelter",
+   "text": "Talk with the group"
+  },
+  {
+   "id": "c14_prepare",
+   "flag": "ch14_prepared",
+   "goal": "act5_shelter",
+   "text": "Check the supplies, reinforce the entrances, prepare an escape route"
+  },
+  {
+   "id": "c14_watch",
+   "flag": "ch14_siege_started",
+   "goal": "act5_shelter",
+   "text": "Keep watch at the window"
+  },
+  {
+   "id": "c14_skitters",
+   "flag": "ch14_skitters_done",
+   "goal": "act5_shelter",
+   "text": "Hold the window"
+  },
+  {
+   "id": "c14_hounds",
+   "flag": "ch14_hounds_done",
+   "goal": "act5_shelter",
+   "text": "Save the survivor"
+  },
+  {
+   "id": "c14_crab",
+   "flag": "ch14_crab_seen",
+   "goal": "act5_shelter",
+   "text": "Hold on"
+  },
+  {
+   "id": "c14_evac",
+   "flag": "ch14_safe",
+   "goal": "act5_shelter",
+   "text": "Get everyone out"
+  },
+  {
+   "id": "c14_end",
+   "flag": "chapter_14_complete",
+   "goal": "act5_shelter",
+   "text": "Look back"
+  },
+  {
+   "id": "c14_complete",
+   "flag": "ch15_started",
+   "goal": "act5_shelter",
+   "text": "Chapter 15 complete - The Last Shelter"
   }
  ],
  "_comment": "Steps complete in list order for display, but each errand step only checks its own flag, so the supermarket and the game shop can be done in either order (the bible leaves the stop order open). Phase 3 (mist_*) is a WORKING DRAFT sequence of Act I's opening.",

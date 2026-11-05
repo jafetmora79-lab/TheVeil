@@ -193,14 +193,15 @@ func shelter_resource(id: String) -> String:
 func shelter_stock() -> Dictionary:
 	return world_state.get("shelter_stock", {"food": 0, "water": 0, "medical": 0, "batteries": 0})
 
-func record_shelter_night(transition: String, roster: Array, rates: Dictionary) -> Dictionary:
+## extra: people who eat but are not in the NPC roster (the protagonist, under the survival rule).
+func record_shelter_night(transition: String, roster: Array, rates: Dictionary, extra := 0) -> Dictionary:
 	var history: Dictionary = world_state.get("shelter_nights", {})
 	if history.has(transition):
 		return {}
 	var stock := shelter_stock()
-	var report := {"roster": roster.duplicate()}
+	var report := {"roster": roster.duplicate(), "extra": extra}
 	for resource in ["food", "water"]:
-		var demand := maxi(0, int(rates.get(resource, 1))) * roster.size()
+		var demand := maxi(0, int(rates.get(resource, 1))) * (roster.size() + extra)
 		var used := mini(demand, int(stock[resource]))
 		stock[resource] = int(stock[resource]) - used
 		report[resource + "_used"] = used

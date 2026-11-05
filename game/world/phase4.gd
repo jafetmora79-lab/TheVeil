@@ -1183,20 +1183,26 @@ func _open_supplies() -> void:
 			if not Game.shelter_resource(id).is_empty() and id not in ids and VeilInventoryPanel.quantity(id) > 0:
 				ids.append(id)
 				options.append("Deposit one %s (%d carried)" % [Game.item_info(id).name, VeilInventoryPanel.quantity(id)])
+		if world.survivors:
+			options.append("Check on the Group")
 		options.append("Close")
 		var selected: int = await choice.ask(text, options, player)
+		if world.survivors and selected == ids.size():
+			_supplies_open = false
+			await world.survivors.open_panel(choice)
+			return
 		if selected < 0 or selected >= ids.size():
 			break
 		world.deposit_shelter_item(ids[selected])
 	_supplies_open = false
 
 func record_night(transition: String) -> Dictionary:
-	var roster: Array = world.shelter_roster()
+	var extra := 0
 	# survival rule (expedition): from the first scavenging day on, the protagonist eats and drinks too
 	if world.expedition and String(world.expedition.cfg.get("sleep_requires_supplies_from_flag", "")) != "" \
 			and Game.has_flag(String(world.expedition.cfg.get("sleep_requires_supplies_from_flag", ""))):
-		roster = roster + ["Protagonist"]
-	return Game.record_shelter_night(transition, roster, cfg.get("shelter_consumption", {}))
+		extra = 1
+	return Game.record_shelter_night(transition, world.shelter_roster(), cfg.get("shelter_consumption", {}), extra)
 
 func _supply_report(report: Dictionary) -> String:
 	var text := "OVERNIGHT SUPPLY REPORT\nFood used: %d  |  Water used: %d\nFood remaining: %d  |  Water remaining: %d" % [
