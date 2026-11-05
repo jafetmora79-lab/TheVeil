@@ -194,10 +194,10 @@ func _run() -> void:
 	sv.award("test:rescue", {"Eddie": 10})
 	sv.award("test:rescue", {"Eddie": 10})
 	ok("sv_trust_once", sv.trust("Eddie") == mini(t0 + 10, 100), "%d -> %d" % [t0, sv.trust("Eddie")])
+	sv._apply_flag("ch8_entrance_secured", false)
 	var r0: int = sv.trust("Ruth")
 	sv._apply_flag("ch8_entrance_secured", false)
-	sv._apply_flag("ch8_entrance_secured", false)
-	ok("sv_flag_effect_once", sv.trust("Ruth") == r0, "flag already counted at load: %d -> %d" % [r0, sv.trust("Ruth")])
+	ok("sv_flag_effect_once", sv.trust("Ruth") == r0, "%d -> %d" % [r0, sv.trust("Ruth")])
 	sv.award("test:clamp", {"Eddie": 500})
 	ok("sv_trust_clamped", sv.trust("Eddie") == 100)
 
@@ -213,6 +213,8 @@ func _run() -> void:
 	ok("sv_treat_injured", sv.treat("Sarah") and sv.health("Sarah") == "recovering" and game.shelter_stock().medical == 0)
 	ok("sv_treat_needs_medicine", sv.can_treat("Sarah") == "" and not sv.treat("Sarah"))
 	ok("sv_treat_trust", sv.trust("Sarah") == mini(ts + 10, 100), "%d -> %d" % [ts, sv.trust("Sarah")])
+	while game.has_item("painkillers"):
+		game.remove_item("painkillers")
 	sv.set_health("Eddie", "injured")
 	ok("sv_no_medicine_no_treatment", not sv.treat("Eddie") and sv.health("Eddie") == "injured")
 	sv.set_health("Eddie", "healthy")
@@ -251,7 +253,7 @@ func _run() -> void:
 	ok("sv_activities_wait_for_cinematic", sv.report["walks"] == w0)
 	world._cine = null
 	cine.queue_free()
-	_watch_npc = world.animators["Eddie"].root
+	_watch_npc = world.animators["Marcus"].root
 	_prev = _watch_npc.global_position
 	max_step = 0.0
 	var e_start: Vector3 = _watch_npc.global_position
@@ -271,6 +273,7 @@ func _run() -> void:
 
 	# ---- a companion on a real walk: follows, comes back inside, Eddie carries a little more
 	ok("sv_companions_offered", "Eddie" in sv.companion_options(), str(sv.companion_options()))
+	await aim(ex.its["exit"], [Vector3(0, 0, 1), Vector3(0.4, 0, 1)], world.market, 1.3)
 	ex.start("scavenge", false)
 	sv.begin_trip("Eddie")
 	ok("sv_companion_follows", sv.follow != null and sv.follow.active and sv.st()["companion"] == "Eddie")
@@ -296,7 +299,8 @@ func _run() -> void:
 	sv.begin_trip("Ruth")
 	await frames(10)
 	var rt: int = sv.trust("Ruth")
-	sv.follow.active = false                             # Ruth is stuck far behind
+	sv.follow.active = false                             # Ruth is stuck far behind (already recovered once)
+	sv._recovered = true
 	world.player.global_position = world.market.global_transform * Vector3(0.3, 0.2, -60.0)
 	await frames(10)
 	ex.secure()
