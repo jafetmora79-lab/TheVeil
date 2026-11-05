@@ -315,6 +315,17 @@ func _apply() -> void:
 		c13.collapse_block.global_position = UL(c13.COLLAPSE + Vector3(-1.6, 0, 0))
 	if not Game.has_flag("ch15_set_out"):
 		_place_refuge()
+	elif Game.has_flag("ch15_chamber_reached"):
+		# a load in the great chamber (the decision checkpoint): the group stands by its entrance
+		var i := 0
+		for k in present():
+			(c9.follows[k] as VeilCompanionFollow).stop()
+			c9.c5._reparent(_node(k), world)
+			world.place_survivor(_node(k), UL(GREAT + Vector3(-2.0 + 1.4 * i, 0.0, -12.5)))
+			i += 1
+		for k in present():
+			c9._start_follow(k)
+		_slow_injured()
 	else:
 		for k in present():
 			c9._start_follow(k)
@@ -793,11 +804,11 @@ func _enter_passage(_b: Node) -> void:
 		if is_instance_valid(c):
 			c.queue_free()                           # left outside the narrow mouth, out of sight now
 	creatures.clear()
-	player.global_position = UL(c13.U_ENTRY)
+	player.global_position = UL(c13.U_ENTRY + Vector3(0, 0, 3.4))
 	player.set_yaw_pitch(PI, 0.0)
 	var i := 0
 	for k in present():
-		world.place_survivor(_node(k), UL(c13.U_ENTRY + Vector3(-0.55 + 1.1 * (i % 2), 0.0, 1.3 + 0.9 * (i / 2))))   # just ahead in the corridor
+		world.place_survivor(_node(k), UL(c13.U_ENTRY + Vector3(-0.55 + 1.1 * (i % 2), 0.0, 1.5 - 0.9 * (i / 2) + 0.9)))   # behind, in the corridor
 		i += 1
 	c13.collapse_block.visible = true
 	c13.collapse_block.collision_layer = 1

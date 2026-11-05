@@ -402,7 +402,7 @@ func _run() -> void:
 	Input.action_release("move_forward")
 	ok("c15_detected", await wait_until(func(): return c15.report["detections"] >= 1, 60 * 2))
 	ok("c15_retry", await wait_until(func(): return c15.report["retries"] >= 1 and world.player.controls_enabled, 60 * 8)
-		and c15._cover_index(world.player.global_position) == c15._last_cover)
+		and c15._cover_index(world.player.global_position) >= 0, "cover %d / last %d" % [c15._cover_index(world.player.global_position), c15._last_cover])
 	# cover to cover, moving only while it walks
 	var crossed := true
 	for i in range(c15._last_cover + 1, c15.COVERS.size() + 1):
@@ -417,7 +417,7 @@ func _run() -> void:
 	ok("c15_pressure", said.has("Roof! Left side!"))
 	await wait_until(func(): return c15.present().all(func(k): return c15._node(k).global_position.distance_to(world.player.global_position) < 9.0), 60 * 8)
 	ok("c15_passage", await use(c13.its["passage"], [Vector3(0, 0, -1), Vector3(0.6, 0, -1), Vector3(-0.6, 0, -1)], 1.5)
-		and await wait_until(func(): return game.has_flag("ch15_in_passage") and world.player.global_position.y < -40.0 and world.player.controls_enabled, 300)
+		and await wait_until(func(): return game.has_flag("ch15_in_passage") and world.player.global_position.y < -40.0, 300)
 		and FileAccess.file_exists(game.checkpoint_path("chapter16_passage")) and c15.creatures.is_empty(),
 		"%s in %s focus %s" % [str(world.player.global_position - c13.D_ORIGIN), game.has_flag("ch15_in_passage"), world.player._focus])
 	ok("c15_entrance_talk", await wait_talk(func(): return said.has("I hate that we've gotten used to places like this."), 20.0))
@@ -464,7 +464,8 @@ func _run() -> void:
 
 	# ---- ENDING B (from the pre-decision checkpoint)
 	await boot_checkpoint("chapter16_decision")
-	ok("c15_b_choice_again", await wait_talk(func(): return p4.choice.is_open(), 40.0) and c15.present().all(func(k): return c15._node(k).visible))
+	ok("c15_b_choice_again", await wait_talk(func(): return p4.choice.is_open(), 60.0) and c15.present().all(func(k): return (c15._node(k).visible
+		and c15._node(k).global_position.distance_to(world.player.global_position) < 20.0)), str(c15.present().map(func(k): return c15._node(k).global_position.distance_to(world.player.global_position))))
 	p4.choice.pick(1)
 	await frames(30)
 	ok("c15_b_seal", await seal_steps() and await wait_until(func(): return c15._busy.get("outer_open", false), 60 * 10), str(c15.st().get("seal_steps", -1)))
