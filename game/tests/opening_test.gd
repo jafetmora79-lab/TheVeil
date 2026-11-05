@@ -825,9 +825,16 @@ func _run() -> void:
 	ok("p3_market_looted", world.market_merch.looted)
 	ok("p3_objective_reach_market", game.current_step().get("text", "") == "Reach the supermarket", game.current_step().get("text", ""))
 	# the protagonist steps outside: Eddie and Marcus come with him (sample Eddie's stride while he follows)
+	var escape_hp: float = player.health
+	var dodge_frames := 0
 	for k in range(1, 13):                       # out of the door in steps (a trail to follow, like walking)
 		player.global_position = s_out + (s_out - s_in).normalized() * float(k)
 		await frames(6)
+		while world._encounter_running and dodge_frames < 360:
+			await frames(1)
+			dodge_frames += 1
+	ok("p3_first_person_tentacle_dodge", world.enc_report.get("tentacle_escape_shot", false)
+		and player.camera.current and player.look_enabled and player.health == escape_hp)
 	ok("p3_flee_together", world._p3_followers.size() == 2 and world._p3_followers.all(func(f): return f.active))
 	var leg_min := 999.0
 	var leg_max := -999.0
