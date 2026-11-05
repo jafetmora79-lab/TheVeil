@@ -569,11 +569,17 @@ func _fp_to(cam: Camera3D, pts: Array, speed: float) -> void:
 	player.set_physics_process(false)             # scripted steps: the body's own physics would push back on kerbs
 	for q in pts:
 		var target: Vector3 = ml(q)
+		# never loops forever: done within 15 cm, or when its time is up (then he is put on the point)
+		var budget := ((target - player.global_position) * Vector3(1, 0, 1)).length() / maxf(speed, 0.1) + 1.5
+		var spent := 0.0
 		while true:
 			var d := (target - player.global_position) * Vector3(1, 0, 1)
-			if d.length() < 0.06:
+			if d.length() < 0.15 or spent > budget:
+				if spent > budget:
+					player.global_position = Vector3(target.x, player.global_position.y, target.z)
 				break
 			var dt := get_process_delta_time()
+			spent += dt
 			var np: Vector3 = player.global_position + d.normalized() * minf(speed * dt, d.length())
 			np.y = move_toward(player.global_position.y, _floor_y(np) + 0.0, dt * 2.5)
 			player.global_position = np
