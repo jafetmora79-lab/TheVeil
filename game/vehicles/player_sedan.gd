@@ -68,6 +68,7 @@ func _ready() -> void:
 	add_child(car)
 	model = car.get_node("Model")
 	driver_cam = car.get_node("DriverCamera")
+	_setup_mirrors()
 	driver_cam.far = 700.0
 	# move the imported convex hulls onto this body, drop their static bodies (they would block the car itself)
 	for sb in model.find_children("*", "StaticBody3D", true, false):
@@ -129,6 +130,7 @@ func get_prompt() -> String:
 func set_driven(on: bool) -> void:
 	driven = on
 	driver_cam.current = on
+	_mirrors_on(on)
 	_look_yaw = 0.0
 	driver_cam.rotation = Vector3.ZERO
 	var lights := car.get_node_or_null("Lights")
@@ -311,3 +313,65 @@ func restore(d: Dictionary) -> void:
 	if d.has("pos"):
 		global_position = Vector3(d["pos"][0], d["pos"][1] + 0.05, d["pos"][2])
 		rotation.y = d.get("yaw", rotation.y)
+
+
+# ------------------------------------------------------------------ mirrors (rear-view + both door mirrors)
+## Each mirror glass is a small quad showing a low-res rear-facing camera (its own SubViewport, same world), drawn
+## flipped like a real mirror. They only render while the car is driven. Positions are the Pack 05 sedan's mirror
+## faces (veh_models.py: door mirror heads at z -0.72, interior mirror at (0, 1.27, -0.12)), in the model frame.
+const MIRRORS := [
+	# [name, glass centre, glass size (w, h), viewport px, camera fov]
+	["Mirror_Rear", Vector3(0.0, 1.27, -0.104), Vector2(0.23, 0.06), Vector2i(256, 68), 40.0],
+	["Mirror_L", Vector3(-0.985, 0.952, -0.679), Vector2(0.09, 0.105), Vector2i(96, 112), 45.0],
+	["Mirror_R", Vector3(0.985, 0.952, -0.679), Vector2(0.09, 0.105), Vector2i(96, 112), 45.0],
+]
+var _mirror_vps: Array = []
+
+
+func _setup_mirrors() -> void:
+	for m in MIRRORS:
+		var vp := SubViewport.new()
+		vp.name = m[0] + "_View"
+		vp.size = m[3]
+		vp.render_target_update_mode = SubViewport.UPDATE_DISABLED
+		add_child(vp)                                   # no own world: it renders the game world
+		var cam := Camera3D.new()
+		cam.fov = m[4]
+		cam.near = 0.15
+		cam.far = 250.0
+		vp.add_child(cam)
+		var q := MeshInstance3D.new()
+		q.name = m[0]
+		var qm := QuadMesh.new()
+		qm.size = m[2]
+		q.mesh = qm
+		var mat := StandardMaterial3D.new()
+		mat.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
+		mat.albedo_texture = vp.get_texture()
+		mat.uv1_scale = Vector3(-1, 1, 1)              # mirrored left-right, like a real mirror
+		mat.uv1_offset = Vector3(1, 0, 0)
+		q.material_override = mat
+		q.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+		model.add_child(q)
+		q.position = m[1] + Vector3(0, 0, 0.004)        # just proud of the mirror face; faces +Z (backwards)
+		q.visible = false
+		_mirror_vps.append([vp, cam, q])
+
+
+func _mirrors_on(on: bool) -> void:
+	for e in _mirror_vps:
+		(e[0] as SubViewport).render_target_update_mode = SubViewport.UPDATE_ALWAYS if on else SubViewport.UPDATE_DISABLED
+		(e[2] as Node3D).visible = on
+
+
+func _process(_delta: float) -> void:
+	if not driven:
+		return
+	for e in _mirror_vps:
+		var q: Node3D = e[2]
+		var cam: Camera3D = e[1]
+		# the camera sits at the mirror and looks back along the car (+Z of the model), level with the road
+		var back := q.global_transform.basis.z
+		back.y = 0.0
+		cam.global_transform = Transform3D(Basis(), q.global_position + back.normalized() * 0.05).looking_at(
+			q.global_position + back.normalized() * 10.0, Vector3.UP)
