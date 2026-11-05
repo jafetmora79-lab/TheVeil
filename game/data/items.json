@@ -110,6 +110,27 @@
    "weight": 0.01,
    "model": "res://THE_VEIL_ASSETS_V2/08_Inventory/Story_Items/INV_FoldedNote.glb",
    "description": "I couldn't stay there.\nA man said he knew somewhere safer, outside town.\nHe said there's a house near the farms.\nI'm going with him.\n— Noah"
+  },
+  "repair_boards": {
+   "name": "Wooden Boards",
+   "category": "tool",
+   "description": "Three planks from a broken pallet. Long enough to brace the back door.",
+   "model": "res://THE_VEIL_ASSETS_V2/03_Residential/Exterior_Modules/RES_Ext_Window_Boarded_1.0x1.3.glb",
+   "weight": 3.0
+  },
+  "duct_tape": {
+   "name": "Duct Tape",
+   "category": "tool",
+   "description": "Half a roll of grey tape. It holds things together. For a while.",
+   "model": "res://THE_VEIL_ASSETS_V2/08_Inventory/Tools/INV_DuctTape.glb",
+   "weight": 0.2
+  },
+  "hammer": {
+   "name": "Hammer",
+   "category": "tool",
+   "description": "A claw hammer from the maintenance shelf.",
+   "model": "res://THE_VEIL_ASSETS_V2/08_Inventory/Tools/INV_Hammer.glb",
+   "weight": 0.6
   }
  },
  "carry_capacity_kg": 15.0,

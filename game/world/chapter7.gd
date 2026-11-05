@@ -9,7 +9,7 @@ class_name VeilChapter7
 ## abandoned sedan where the asphalt ends -> E: examine the backpack (key items: the backpack + Noah's note) ->
 ## read the note in the inventory screen -> the old service road (gravel, barriers, dead-end sign) -> Marcus's
 ## choice (marcus_trust_search / marcus_cautious_search) -> back through the doors -> report to Eddie ->
-## "CHAPTER 7 COMPLETE". No combat, no Hound, no Colossus. Chapter 8 is not started.
+## "CHAPTER 7 COMPLETE". No combat, no Hound, no Colossus. Chapter 8 starts only after the next sleep.
 ## Every travel objective completes only when the PLAYER's own body is inside the destination area.
 
 const FOLLOW := preload("res://game/npc/companion_follow.gd")
@@ -74,9 +74,22 @@ func begin(w: Node, chapter6: Node, restoring: bool) -> void:
 	if fresh:
 		Game.set_flag("ch7_started")
 	_apply(restoring)
+	if Game.has_flag("ch7_rested"):
+		_start_chapter8(true)
 	Game.refresh_objective()
 	if fresh:
 		_title.call_deferred()
+
+
+## Chapter 8 continues after the night that follows Chapter 7; it is a child of this node.
+var chapter8: Node
+func _start_chapter8(restoring: bool) -> void:
+	if chapter8 != null:
+		return
+	chapter8 = load("res://game/world/chapter8.gd").new()
+	chapter8.name = "Chapter8"
+	add_child(chapter8)
+	chapter8.begin(world, self, restoring)
 
 
 func _title() -> void:
@@ -403,6 +416,8 @@ func _on_choices(id: String, choices: Array) -> void:
 
 # ------------------------------------------------------------------ per tick
 func _process(delta: float) -> void:
+	if Game.has_flag("ch8_started"):
+		return                                    # Chapter 8 owns the NPCs, the doors and the marker from here on
 	_note_tick(delta)
 	_tick -= delta
 	if _tick > 0.0 or player == null:
@@ -466,8 +481,10 @@ func _report() -> void:
 
 
 func _on_rest(_id: String) -> void:
+	# the next morning is Chapter 8 (game/world/chapter8.gd); started while the screen is still black
 	var report: Dictionary = p4.record_night("ch7_rested")
-	Game.set_flag("ch7_rested")                      # the Chapter 8 checkpoint; nothing starts yet
+	Game.set_flag("ch7_rested")
+	_start_chapter8(false)
 	if p4.flashlight:
 		p4.flashlight.set_on(false)
 	await get_tree().create_timer(1.0).timeout
