@@ -5314,5 +5314,535 @@
     "time": 2.1
    }
   ]
+ },
+ "c14_wake": {
+  "source": "Chapter 15 (The Last Shelter) implementation prompt (approved script)",
+  "lines": [
+   {
+    "speaker": "Ruth",
+    "text": "You need to see this.",
+    "time": 2.1
+   }
+  ]
+ },
+ "c14_window": {
+  "source": "Chapter 15 (The Last Shelter) implementation prompt (approved script)",
+  "lines": [
+   {
+    "speaker": "Eddie",
+    "text": "It wasn't this close yesterday.",
+    "time": 2.6
+   },
+   {
+    "speaker": "Ruth",
+    "text": "Something's changed.",
+    "time": 2.0
+   },
+   {
+    "speaker": "",
+    "text": "It's coming this way.",
+    "time": 2.1
+   }
+  ]
+ },
+ "c14_meeting": {
+  "source": "Chapter 15 (The Last Shelter) implementation prompt (approved script)",
+  "lines": [
+   {
+    "speaker": "Ruth",
+    "text": "We need to decide what we're doing.",
+    "time": 2.8
+   },
+   {
+    "speaker": "Eddie",
+    "text": "We can't just sit here and wait.",
+    "time": 2.7
+   },
+   {
+    "speaker": "",
+    "text": "Then we prepare.",
+    "time": 1.8
+   },
+   {
+    "speaker": "Sarah",
+    "text": "Prepare for what?",
+    "time": 1.8
+   }
+  ]
+ },
+ "c14_meeting_marcus": {
+  "source": "Chapter 15 (The Last Shelter) implementation prompt (approved script)",
+  "lines": [
+   {
+    "speaker": "Ruth",
+    "text": "We need to decide what we're doing.",
+    "time": 2.8
+   },
+   {
+    "speaker": "Eddie",
+    "text": "We can't just sit here and wait.",
+    "time": 2.7
+   },
+   {
+    "speaker": "",
+    "text": "Then we prepare.",
+    "time": 1.8
+   },
+   {
+    "speaker": "Marcus",
+    "text": "Prepare for what?",
+    "time": 1.8
+   }
+  ]
+ },
+ "c14_meeting_end": {
+  "source": "Chapter 15 (The Last Shelter) implementation prompt (approved script)",
+  "lines": [
+   {
+    "speaker": "",
+    "text": "Whatever comes through that fog.",
+    "time": 2.7
+   },
+   {
+    "speaker": "",
+    "text": "Supplies. The doors. A way out the back.",
+    "time": 3.1
+   }
+  ]
+ },
+ "c14_recall_evidence": {
+  "source": "Chapter 15: supporting lines (implementation)",
+  "lines": [
+   {
+    "speaker": "Eddie",
+    "text": "And this time, we all come back. Together. Right?",
+    "time": 3.6
+   }
+  ]
+ },
+ "c14_recall_help": {
+  "source": "Chapter 15: supporting lines (implementation)",
+  "lines": [
+   {
+    "speaker": "Eddie",
+    "text": "You came back for me down there. I won't forget it.",
+    "time": 3.7
+   }
+  ]
+ },
+ "c14_pack_enough": {
+  "source": "Chapter 15: supporting lines (implementation)",
+  "lines": [
+   {
+    "speaker": "Ruth",
+    "text": "There's enough for all of us. For a day or two, anyway.",
+    "time": 3.9
+   }
+  ]
+ },
+ "c14_pack_short": {
+  "source": "Chapter 15: supporting lines (implementation)",
+  "lines": [
+   {
+    "speaker": "Ruth",
+    "text": "It's not enough for everyone. We'll have to share what we've got.",
+    "time": 4.2
+   }
+  ]
+ },
+ "c14_defend_front": {
+  "source": "Chapter 15: supporting lines (implementation)",
+  "lines": [
+   {
+    "speaker": "",
+    "text": "The cabinet's against the front door. It won't stop them. It'll slow them.",
+    "time": 4.2
+   }
+  ]
+ },
+ "c14_defend_window": {
+  "source": "Chapter 15: supporting lines (implementation)",
+  "lines": [
+   {
+    "speaker": "",
+    "text": "Boards over the window. Nailed twice.",
+    "time": 2.9
+   }
+  ]
+ },
+ "c14_defend_back": {
+  "source": "Chapter 15: supporting lines (implementation)",
+  "lines": [
+   {
+    "speaker": "",
+    "text": "The back door's wedged - from inside, so we can still get out.",
+    "time": 4.2
+   }
+  ]
+ },
+ "c14_escape": {
+  "source": "Chapter 15 (The Last Shelter) implementation prompt (approved script)",
+  "lines": [
+   {
+    "speaker": "Ruth",
+    "text": "What if the doors don't hold?",
+    "time": 2.5
+   },
+   {
+    "speaker": "",
+    "text": "Then we use the back way.",
+    "time": 2.3
+   },
+   {
+    "speaker": "Eddie",
+    "text": "And if that doesn't work?",
+    "time": 2.3
+   },
+   {
+    "speaker": "",
+    "text": "Then we improvise.",
+    "time": 1.9
+   }
+  ]
+ },
+ "c14_no_car": {
+  "source": "Chapter 15: supporting lines (implementation)",
+  "lines": [
+   {
+    "speaker": "Eddie",
+    "text": "And the car's still back at the supermarket. So - walking. Great.",
+    "time": 4.2
+   }
+  ]
+ },
+ "c14_run_warn": {
+  "source": "Chapter 15 (The Last Shelter) implementation prompt (approved script)",
+  "lines": [
+   {
+    "speaker": "Eddie",
+    "text": "We shouldn't stay out here.",
+    "time": 2.4
+   },
+   {
+    "speaker": "",
+    "text": "Just a little longer.",
+    "time": 2.1
+   },
+   {
+    "speaker": "Eddie",
+    "text": "That's what people say right before something terrible happens.",
+    "time": 4.2
+   }
+  ]
+ },
+ "c14_run_warn_alone": {
+  "source": "Chapter 15: supporting lines (implementation)",
+  "lines": [
+   {
+    "speaker": "",
+    "text": "The mist is closing in. I shouldn't stay out here.",
+    "time": 3.6
+   }
+  ]
+ },
+ "c14_calm_Eddie": {
+  "source": "Chapter 15 (The Last Shelter) implementation prompt (approved script)",
+  "lines": [
+   {
+    "speaker": "Eddie",
+    "text": "You know, I really thought buying a video game was going to be the worst decision I made that day.",
+    "time": 4.2
+   },
+   {
+    "speaker": "",
+    "text": "Still might be.",
+    "time": 1.7
+   },
+   {
+    "speaker": "Eddie",
+    "text": "Yeah. Fair point.",
+    "time": 1.8
+   }
+  ]
+ },
+ "c14_calm_Ruth": {
+  "source": "Chapter 15 (The Last Shelter) implementation prompt (approved script)",
+  "lines": [
+   {
+    "speaker": "Ruth",
+    "text": "We've made it farther than I thought we would.",
+    "time": 3.4
+   },
+   {
+    "speaker": "",
+    "text": "We're not done yet.",
+    "time": 1.9
+   },
+   {
+    "speaker": "Ruth",
+    "text": "I know. That's what worries me.",
+    "time": 2.6
+   }
+  ]
+ },
+ "c14_calm_Sarah": {
+  "source": "Chapter 15: supporting lines (implementation)",
+  "lines": [
+   {
+    "speaker": "Sarah",
+    "text": "Whatever happens tonight - thank you. For not leaving any of us.",
+    "time": 4.2
+   },
+   {
+    "speaker": "",
+    "text": "We're not done yet.",
+    "time": 1.9
+   }
+  ]
+ },
+ "c14_calm_Marcus": {
+  "source": "Chapter 15: supporting lines (implementation)",
+  "lines": [
+   {
+    "speaker": "Marcus",
+    "text": "Every time something moves out there, I think of Noah out in it.",
+    "time": 4.2
+   },
+   {
+    "speaker": "",
+    "text": "We'll keep looking.",
+    "time": 1.9
+   },
+   {
+    "speaker": "Marcus",
+    "text": "Don't promise me anything. Just don't stop.",
+    "time": 3.3
+   }
+  ]
+ },
+ "c14_skitter": {
+  "source": "Chapter 15 (The Last Shelter) implementation prompt (approved script)",
+  "lines": [
+   {
+    "speaker": "Ruth",
+    "text": "There's something outside!",
+    "time": 2.3
+   }
+  ]
+ },
+ "c14_hounds": {
+  "source": "Chapter 15 (The Last Shelter) implementation prompt (approved script)",
+  "lines": [
+   {
+    "speaker": "Eddie",
+    "text": "Those things again!",
+    "time": 1.9
+   },
+   {
+    "speaker": "",
+    "text": "Get away from the door!",
+    "time": 2.2
+   },
+   {
+    "speaker": "Ruth",
+    "text": "It's not going to hold!",
+    "time": 2.2
+   }
+  ]
+ },
+ "c14_failing": {
+  "source": "Chapter 15: supporting lines (implementation)",
+  "lines": [
+   {
+    "speaker": "Ruth",
+    "text": "It's coming through!",
+    "time": 2.0
+   }
+  ]
+ },
+ "c14_after_saved": {
+  "source": "Chapter 15: supporting lines (implementation)",
+  "lines": [
+   {
+    "speaker": "Eddie",
+    "text": "That was too close. Everyone okay?",
+    "time": 2.8
+   }
+  ]
+ },
+ "c14_after_hurt": {
+  "source": "Chapter 15: supporting lines (implementation)",
+  "lines": [
+   {
+    "speaker": "Eddie",
+    "text": "Get her - get them away from the door! Keep pressure on it!",
+    "time": 4.1
+   }
+  ]
+ },
+ "c14_impact": {
+  "source": "Chapter 15: supporting lines (implementation)",
+  "lines": [
+   {
+    "speaker": "Ruth",
+    "text": "What was that?!",
+    "time": 1.7
+   }
+  ]
+ },
+ "c14_crab": {
+  "source": "Chapter 15 (The Last Shelter) implementation prompt (approved script)",
+  "lines": [
+   {
+    "speaker": "Eddie",
+    "text": "It's at the front!",
+    "time": 1.9
+   },
+   {
+    "speaker": "",
+    "text": "We can't stay here.",
+    "time": 1.9
+   }
+  ]
+ },
+ "c14_go": {
+  "source": "Chapter 15: supporting lines (implementation)",
+  "lines": [
+   {
+    "speaker": "Eddie",
+    "text": "Out the back! Everyone, stay together!",
+    "time": 3.0
+   }
+  ]
+ },
+ "c14_trapped_Ruth": {
+  "source": "Chapter 15: supporting lines (implementation)",
+  "lines": [
+   {
+    "speaker": "Ruth",
+    "text": "I'm caught - the fence! Go! Don't wait for me!",
+    "time": 3.4
+   }
+  ]
+ },
+ "c14_trapped_Sarah": {
+  "source": "Chapter 15: supporting lines (implementation)",
+  "lines": [
+   {
+    "speaker": "Sarah",
+    "text": "I can't get through! Go - just go!",
+    "time": 2.8
+   }
+  ]
+ },
+ "c14_trapped_Marcus": {
+  "source": "Chapter 15: supporting lines (implementation)",
+  "lines": [
+   {
+    "speaker": "Marcus",
+    "text": "My leg's caught! Go! Find Noah!",
+    "time": 2.6
+   }
+  ]
+ },
+ "c14_went_back": {
+  "source": "Chapter 15: supporting lines (implementation)",
+  "lines": [
+   {
+    "speaker": "",
+    "text": "Got you. Move!",
+    "time": 1.7
+   }
+  ]
+ },
+ "c14_kept_moving": {
+  "source": "Chapter 15: supporting lines (implementation)",
+  "lines": [
+   {
+    "speaker": "Eddie",
+    "text": "We can't stop. We can't. Keep going.",
+    "time": 2.9
+   }
+  ]
+ },
+ "c14_lost_supplies": {
+  "source": "Chapter 15: supporting lines (implementation)",
+  "lines": [
+   {
+    "speaker": "",
+    "text": "The bag tore on the fence. Some of the food is gone.",
+    "time": 3.8
+   }
+  ]
+ },
+ "c14_end_Ruth": {
+  "source": "Chapter 15 (The Last Shelter) implementation prompt (approved script)",
+  "lines": [
+   {
+    "speaker": "Eddie",
+    "text": "That was the last safe place we had.",
+    "time": 2.9
+   },
+   {
+    "speaker": "",
+    "text": "Then we find another way.",
+    "time": 2.3
+   },
+   {
+    "speaker": "Ruth",
+    "text": "Where do we go?",
+    "time": 1.7
+   }
+  ]
+ },
+ "c14_end_Sarah": {
+  "source": "Chapter 15 (The Last Shelter) implementation prompt (approved script)",
+  "lines": [
+   {
+    "speaker": "Eddie",
+    "text": "That was the last safe place we had.",
+    "time": 2.9
+   },
+   {
+    "speaker": "",
+    "text": "Then we find another way.",
+    "time": 2.3
+   },
+   {
+    "speaker": "Sarah",
+    "text": "Where do we go?",
+    "time": 1.7
+   }
+  ]
+ },
+ "c14_end_Marcus": {
+  "source": "Chapter 15 (The Last Shelter) implementation prompt (approved script)",
+  "lines": [
+   {
+    "speaker": "Eddie",
+    "text": "That was the last safe place we had.",
+    "time": 2.9
+   },
+   {
+    "speaker": "",
+    "text": "Then we find another way.",
+    "time": 2.3
+   },
+   {
+    "speaker": "Marcus",
+    "text": "Where do we go?",
+    "time": 1.7
+   }
+  ]
+ },
+ "c14_back": {
+  "source": "Chapter 15 (The Last Shelter) implementation prompt (approved script)",
+  "lines": [
+   {
+    "speaker": "",
+    "text": "Back to where this started.",
+    "time": 2.4
+   }
+  ]
  }
 }

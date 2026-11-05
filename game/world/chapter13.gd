@@ -131,6 +131,8 @@ func begin(w: Node, chapter12: Node, restoring: bool) -> void:
 		_opening.call_deferred()
 	else:
 		_apply()
+		if Game.has_flag("chapter_13_complete"):
+			_start_chapter14.call_deferred(true)
 	Game.refresh_objective()
 
 
@@ -552,6 +554,12 @@ func _set_fog(thick: bool, amount := 1.0) -> void:
 # ------------------------------------------------------------------ state from flags (fresh start and loads)
 func _apply() -> void:
 	_node("Marcus").visible = alive()
+	if Game.has_flag("ch14_started"):
+		_clear_exposure_fx()
+		if Game.has_flag("ch13_gate_open"):
+			_open_gate(true)
+		_refresh_prompts()
+		return                                       # the next chapter places the group from here on
 	if Game.has_flag("ch13_gate_open"):
 		_open_gate(true)
 	if Game.has_flag("ch13_beam_moved"):
@@ -609,6 +617,8 @@ func _refresh_prompts() -> void:
 
 
 func _guide() -> void:
+	if chapter14 != null:
+		return
 	var t: Variant = null
 	var label := ""
 	var p := player.global_position
@@ -1426,6 +1436,18 @@ func _night() -> void:
 	_hold(false)
 	_busy["night"] = false
 	_guide()
+	_start_chapter14(false)                          # displayed Chapter 15 starts in the same house, at dawn
+
+
+## The next chapter (displayed CHAPTER 15 "The Last Shelter", internally chapter14.gd).
+var chapter14: Node
+func _start_chapter14(restoring: bool) -> void:
+	if chapter14 != null:
+		return
+	chapter14 = load("res://game/world/chapter14.gd").new()
+	chapter14.name = "Chapter14"
+	add_child(chapter14)
+	chapter14.begin(world, self, restoring)
 
 
 # ------------------------------------------------------------------ helpers, per tick
@@ -1463,7 +1485,7 @@ func _process(delta: float) -> void:
 	if _tick > 0.0:
 		return
 	_tick = 0.2
-	if its.has("npc_Eddie"):
+	if its.has("npc_Eddie") and chapter14 == null:
 		var talk: bool = Game.has_flag("ch13_started") and not Game.has_flag("ch13_set_out") and not _busy.get("talk", false) \
 			and not _busy.get("prep", false) and not _busy.get("opening", false)
 		_set_prompt("npc_Eddie", "[E] Talk" if talk else "")
