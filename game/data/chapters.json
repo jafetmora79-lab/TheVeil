@@ -114,6 +114,14 @@
     "ch13_started"
    ],
    "impl": "chapter13.gd"
+  },
+  {
+   "n": 15,
+   "title": "The Last Shelter",
+   "start": [
+    "ch14_started"
+   ],
+   "impl": "chapter14.gd"
   }
  ]
 }

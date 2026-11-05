@@ -14,7 +14,8 @@
   "act3_road": "No Safe Road",
   "act4_farm_road": "The Farm Road",
   "act5_truth": "The Truth Beneath Greyhaven",
-  "act5_veil": "Into the Veil"
+  "act5_veil": "Into the Veil",
+  "act5_shelter": "The Last Shelter"
  },
  "steps": [
   {
@@ -718,6 +719,66 @@
    "flag": "ch14_started",
    "goal": "act5_veil",
    "text": "Chapter 14 complete - Into the Veil"
+  },
+  {
+   "id": "c14_window",
+   "flag": "ch14_window_seen",
+   "goal": "act5_shelter",
+   "text": "Investigate the disturbance"
+  },
+  {
+   "id": "c14_meeting",
+   "flag": "ch14_meeting_done",
+   "goal": "act5_shelter",
+   "text": "Talk with the group"
+  },
+  {
+   "id": "c14_prepare",
+   "flag": "ch14_prepared",
+   "goal": "act5_shelter",
+   "text": "Check the supplies, reinforce the entrances, prepare an escape route"
+  },
+  {
+   "id": "c14_watch",
+   "flag": "ch14_siege_started",
+   "goal": "act5_shelter",
+   "text": "Keep watch at the window"
+  },
+  {
+   "id": "c14_skitters",
+   "flag": "ch14_skitters_done",
+   "goal": "act5_shelter",
+   "text": "Hold the window"
+  },
+  {
+   "id": "c14_hounds",
+   "flag": "ch14_hounds_done",
+   "goal": "act5_shelter",
+   "text": "Save the survivor"
+  },
+  {
+   "id": "c14_crab",
+   "flag": "ch14_crab_seen",
+   "goal": "act5_shelter",
+   "text": "Hold on"
+  },
+  {
+   "id": "c14_evac",
+   "flag": "ch14_safe",
+   "goal": "act5_shelter",
+   "text": "Get everyone out"
+  },
+  {
+   "id": "c14_end",
+   "flag": "chapter_14_complete",
+   "goal": "act5_shelter",
+   "text": "Look back"
+  },
+  {
+   "id": "c14_complete",
+   "flag": "ch15_started",
+   "goal": "act5_shelter",
+   "text": "Chapter 15 complete - The Last Shelter"
   }
  ],
  "_comment": "Steps complete in list order for display, but each errand step only checks its own flag, so the supermarket and the game shop can be done in either order (the bible leaves the stop order open). Phase 3 (mist_*) is a WORKING DRAFT sequence of Act I's opening.",

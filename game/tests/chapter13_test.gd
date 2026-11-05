@@ -423,11 +423,12 @@ func _run() -> void:
 	ok("c13_returned", await wait_until(func(): return game.has_flag("ch13_returned"), 120) and FileAccess.file_exists(game.checkpoint_path("chapter14_return")))
 	ok("c13_ending", await wait_talk(func(): return game.has_flag("chapter_13_complete") and not c13._busy.get("night", false), 120.0)
 		and said.has("We get ready.") and said.has("And what did it cost?") and c13.report["ending_runs"] == 1)
+	ok("c13_end_checkpoint", FileAccess.file_exists(game.checkpoint_path("chapter14_end")))
+	# after the card, displayed Chapter 15 begins in the same house (chapter14.gd)
+	ok("c13_next_chapter", await wait_until(func(): return game.has_flag("ch14_started") and c13.chapter14 != null, 60 * 10) and game.chapter_number() == 15)
+	await wait_until(func(): return not c13.chapter14._busy.get("opening", false), 60 * 12)
 	ok("c13_ending_restored", c13.report.get("ending_fov_restored", false) and world.player.controls_enabled and c13._lp_idx < 0
 		and root.get_viewport().get_camera_3d() == world.player.camera)
-	ok("c13_end_checkpoint", FileAccess.file_exists(game.checkpoint_path("chapter14_end")))
-	ok("c13_no_chapter15", not game.has_flag("ch14_started") and game.chapter_number() == 14 and game.current_step().get("id", "") == "c13_complete",
-		game.current_step().get("id", ""))
 
 	# ---- loads: nothing duplicated, nothing replayed, the choice kept
 	await reload()
