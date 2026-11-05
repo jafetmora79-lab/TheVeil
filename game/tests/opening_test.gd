@@ -154,10 +154,20 @@ func phase4_tests(game, ps: PackedScene) -> void:
 	ok("p4_still_dim", mk.get_node("Lights/Light_SALES_00").light_energy < 0.4)
 	# loading bay: pull the door down, then the pallets
 	var lh: Interactable = p4.its["loading"]
+	# the approach starts the loading-bay tentacle (the camera is held for its reveal): aim once control is back
+	await aim_any(player, lh, mk, [-X], 1.0)
+	for i in 60 * 10:
+		if player.controls_enabled:
+			break
+		await process_frame
 	ok("p4_loading_reach", await aim_any(player, lh, mk, [-X], 1.0))
 	lh.interact(player)
 	await frames(120)
 	ok("p4_loading_down", game.has_flag("p4_loading_down"))
+	for i in 60 * 15:                                    # the tentacle forced back out, the line, control back
+		if player.controls_enabled and game.has_flag("p4_garage_done"):
+			break
+		await process_frame
 	var lp: Interactable = p4.its["pallet_loading"]
 	ok("p4_loading_pallet_reach", await aim_any(player, lp, mk, [-X, -Z], 1.4))
 	lp.interact(player)
