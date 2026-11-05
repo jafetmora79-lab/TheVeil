@@ -361,6 +361,9 @@ func actions_for(id: String) -> Array:
 		out.append(["DRINK" if id in DRINKS else "EAT", func(): _consume(id, 10.0, true)])
 	elif cat == "medical" and not (world and world.has_method("can_heal_with")):
 		out.append(["TAKE", func(): _consume(id, 35.0, false)])   # (the shelter's rule above wins: no waste at full health)
+	elif id == "handgun" and world and world.get("sidearm"):
+		var sa = world.sidearm
+		out.append(["HOLSTER" if sa.drawn() else "DRAW", func(): sa.set_drawn(not sa.drawn())])
 	elif cat == "note":
 		out.append(["READ", func(): inspect()])
 	return out

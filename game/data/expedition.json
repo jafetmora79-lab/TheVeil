@@ -177,23 +177,23 @@
   },
   {
    "id": "ammo_west",
-   "item": "handgun_ammo",
+   "item": "handgun_rounds",
    "pos": [
     -48,
     0.2,
     -42
    ],
-   "label": "Ammo"
+   "label": "Rounds"
   },
   {
    "id": "ammo_east",
-   "item": "handgun_ammo",
+   "item": "handgun_round",
    "pos": [
     48,
     0.2,
     -24
    ],
-   "label": "Ammo"
+   "label": "Round"
   },
   {
    "id": "road2_water",
@@ -204,6 +204,16 @@
     -24
    ],
    "label": "Water"
+  },
+  {
+   "id": "ammo_rare",
+   "item": "handgun_ammo",
+   "pos": [
+    21.2,
+    0.2,
+    -75.4
+   ],
+   "label": "Ammo"
   }
  ],
  "vehicle_parts": [
@@ -241,5 +251,5 @@
    "scale": 1.0
   }
  ],
- "_comment_caches": "Supply finds restock every new day (one per day each); a few hold handgun ammunition."
+ "_comment_caches": "Supply finds restock every new day (one per day each). Handgun rounds are one-time finds, never restocked (game/world/expedition.gd)."
 }
