@@ -383,6 +383,7 @@ func _encounter() -> void :
 		creature.rotation = Vector3(0, atan2(to_player.x, to_player.z), 0)
 		_snap()
 		_aim_at_creature(cam, p, 0.35)
+		_hold_still(p)
 		cam.fov = lerpf(58.0, saved_fov, clampf(t / run_s, 0, 1))
 		await get_tree().process_frame
 	grounded = false
@@ -404,6 +405,7 @@ func _encounter() -> void :
 		creature.global_position = leap_from.lerp(chest, k) + Vector3.UP * sin(k * PI) * 1.1
 		creature.rotation = Vector3(-0.5 * sin(k * PI), atan2(fwd.x, fwd.z), 0)
 		p.set_yaw_pitch(yaw_hold, lerpf(pitch0, PINNED_PITCH, fall))
+		_hold_still(p)
 		cam.position = cam0 + p.head.global_basis.inverse() * (down_back * fall)
 		cam.rotation.z = sin(fall * PI) * 0.25
 		cam.fov = lerpf(saved_fov, 64.0, fall)
@@ -442,6 +444,7 @@ func _encounter() -> void :
 		var aim:= (creature.global_position + Vector3.UP * 0.25 - cam.global_position).normalized()
 		p.set_yaw_pitch(yaw_hold, lerpf(p.head.rotation.x, clampf(asin(clampf(aim.y, -1, 1)), 0.2, 1.35), 0.2))
 		cam.rotation.z = sin(t * 38.0) * 0.06
+		_hold_still(p)
 		cam.position = cam0 + p.head.global_basis.inverse() * (down_back + Vector3(sin(t * 31.0) * 0.02, sin(t * 23.0) * 0.015, 0))
 		await get_tree().process_frame
 	struggling = false
@@ -475,6 +478,7 @@ func _encounter() -> void :
 		creature.global_position = thrown_from.lerp(landing, k) + Vector3.UP * sin(k * PI) * 0.7
 		creature.rotation.z = sin(k * PI) * 0.7
 		cam.position = cam0 + p.head.global_basis.inverse() * (down_back * (1.0 - smoothstep(0.0, 1.0, k)))    # back on their feet
+		_hold_still(p)
 		_track_ground(cam, p, k)
 		await get_tree().process_frame
 	creature.global_position = landing
@@ -600,6 +604,11 @@ func _clear_run(start: Vector3, end: Vector3) -> bool:
 	query.motion = motion
 	var result:= space.cast_motion(query)
 	return result.size() == 2 and result[0] >= 0.99
+
+## The player's body stays exactly where they stood while it happens (it is all in the view).
+func _hold_still(p: Node) -> void:
+	p.global_position = saved_position
+	p.velocity = Vector3.ZERO
 
 func _aim_at_creature(cam: Camera3D, p: Node, rate: float) -> void:
 	var aim:= (creature.global_position + Vector3.UP * 0.35 - cam.global_position).normalized()
