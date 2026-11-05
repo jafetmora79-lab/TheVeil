@@ -31,6 +31,8 @@ func setup(p_npc: Node3D, p_leader: Node3D) -> void:
 
 
 func start(via: Array = []) -> void:
+	if anim:
+		anim.physical = true
 	trail.clear()
 	trail.append(_floor(npc.global_position))
 	active = true
@@ -43,6 +45,8 @@ func start(via: Array = []) -> void:
 
 
 func stop() -> void:
+	if anim:
+		anim.physical = false
 	active = false
 	if anim:
 		anim.walk_to([])

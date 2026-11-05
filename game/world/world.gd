@@ -1925,6 +1925,7 @@ func _colossus_encounter() -> void:
 	var d_leg := (L - P) * Vector3(1, 0, 1)
 	d_leg = d_leg.normalized()
 	var me := _spawn_npc(load(PROTAG_PATH), load(PROTAG_FACE_PATH), self, P, atan2(-d_leg.x, -d_leg.z), "Protagonist")
+	_cine_double(me, P)                         # a stand-in: exactly here, no collision (it overlaps the player)
 	me.name = "Protagonist_Cine"
 	var ma = animators["Protagonist"]
 	ma.set_mood("scared")
@@ -2147,6 +2148,18 @@ func _shop_regroup(cam: Camera3D, me: Node3D, P: Vector3, n: Vector3, side: Vect
 	if animators.has("Marcus"):
 		animators["Marcus"].turn_to_face = true
 	animators["Eddie"].turn_to_face = true
+
+
+## A cinematic stand-in for the protagonist: the shot is framed on it, so it stands exactly where asked (the safe
+## placement of survivor bodies would move it away from the player it overlaps, or hide it) and collides with nothing.
+func _cine_double(me: Node3D, at: Vector3) -> void:
+	if me.has_method("place_at"):
+		me.set("_placement_valid", true)
+	me.global_position = at
+	me.show()                                       # (showing a survivor body re-enables its layer: cleared after)
+	if me is CollisionObject3D:
+		(me as CollisionObject3D).collision_layer = 0
+		(me as CollisionObject3D).collision_mask = 0
 
 
 func _shake(cam: Camera3D, seconds: float, amount: float) -> void:
@@ -2451,6 +2464,7 @@ func _shop_seated_talk() -> void:
 	_tip_carts()
 	# 5. a short third-person look at the three of them, from inside the room (validated camera point)
 	var me := _spawn_npc(load(PROTAG_PATH), load(PROTAG_FACE_PATH), game_shop, SEAT_BOX + Vector3(0.05, 0, 0), 0.0, "Protagonist")
+	_cine_double(me, game_shop.to_global(SEAT_BOX + Vector3(0.05, 0, 0)))                         # a stand-in: exactly here, no collision (it overlaps the player)
 	me.name = "Protagonist_Seated"
 	_seat("Protagonist", SEAT_BOX, 0.44, STOCK_CIRCLE)
 	var must := [X * (STOCK_CIRCLE + Vector3(0, 1.0, 0)), X * (SEAT_BOX + Vector3(0, 1.1, 0)), X * (SEAT_DOCS + Vector3(0.3, 1.4, 0)),
