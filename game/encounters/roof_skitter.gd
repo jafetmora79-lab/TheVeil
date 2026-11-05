@@ -34,6 +34,7 @@ var saved_position:= Vector3.ZERO
 const CRAWL_NATIVE:= 0.472                       ## CRT_Skitter.tscn metadata: crawl / scuttle speed at speed_scale 1
 const SCUTTLE_NATIVE:= 2.588
 const ESCAPE_SPEED:= 12.0
+const HISS_S:= 1.4                                  ## the hiss at the player before it scatters
 const DROP_S:= 0.45                                 ## off the gable to the yard
 const RUSH_SPEED:= 9.0                              ## the run at the player, m/s
 const LEAP_FROM:= 3.2                               ## it leaps from this far out
@@ -505,12 +506,14 @@ func _encounter() -> void :
 	sound.play()
 	report["hissed"] = sound.playing
 	t = 0.0
-	while t < 0.6:
+	while t < HISS_S:                                   # it rears up facing the player and hisses, in plain view
 		t += get_process_delta_time()
 		var aim := (cam.global_position-creature.global_position) * Vector3(1,0,1)
 		creature.rotation.y = atan2(aim.x,aim.z)
 		_snap()
-		_track_ground(cam,p,1.0)
+		_aim_at_creature(cam, p, 0.25)
+		cam.rotation.z = 0.0
+		_hold_still(p)
 		await get_tree().process_frame
 	var toward_lens := ((cam.global_position-creature.global_position)*Vector3(1,0,1)).normalized()
 	report["facing_lens_dot"] = creature.global_basis.z.normalized().dot(toward_lens)
