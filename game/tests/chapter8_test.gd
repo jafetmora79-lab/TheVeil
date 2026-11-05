@@ -207,7 +207,7 @@ func _run() -> void:
 	var Z := Vector3(0, 0, 1)
 	ok("c8_entry_after_c7_rest", c8 != null and game.has_flag("ch8_started") and game.current_step().get("id", "") == "c8_eddie",
 		game.current_step().get("id", ""))
-	ok("c8_title_card", await wait_until(func(): return world.hud.title.text.begins_with("CHAPTER 8"), 60 * 6), world.hud.title.text)
+	ok("c8_title_card", await wait_until(func(): return world.hud.chapter_l.text.begins_with("CHAPTER 9  —  SOMETHING AT THE DOORS"), 60 * 6), world.hud.chapter_l.text)
 	ok("c8_objective_text", game.current_step().get("text", "") == "Talk to Eddie" and game.current_goal() == "Something at the Doors")
 	ok("c8_night_once", game.world_state.get("shelter_nights", {}).size() == nights0)
 	ok("c8_cast_present", c8.ruth.visible and c8.sarah.visible and c8.temp.visible and c8.eddie.visible and c8.marcus.visible
@@ -403,7 +403,7 @@ func _run() -> void:
 	ok("c8_aftermath", await wait_talk(func(): return game.has_flag("chapter_8_complete"), 120.0)
 		and said.has("We make sure these doors hold one more night.") and world.talk_report["count"] == talks1 + 1)
 	ok("c8_group_speaker_focus", speakers.has("Ruth") and speakers.has("Marcus"))
-	ok("c8_complete_card", await wait_until(func(): return world.hud.title.text.begins_with("CHAPTER 8 COMPLETE"), 60 * 3), world.hud.title.text)
+	ok("c8_complete_card", await wait_until(func(): return world.hud.chapter_l.text.begins_with("CHAPTER 9 COMPLETE"), 60 * 3), world.hud.chapter_l.text)
 	ok("c8_flags", game.has_flag("ch8_aftermath_complete") and game.has_flag("shelter_evacuation_concern") and game.has_flag("ch8_temp_survivor_died")
 		and game.has_flag("ch8_power_restored") and game.has_flag("ch8_entrance_secured"))
 	ok("c8_no_chapter9", not game.has_flag("ch9_started") and game.current_step().get("id", "") == "c8_complete")
@@ -415,8 +415,8 @@ func _run() -> void:
 	p4.rest.interactable.interact(world.player)
 	ok("c8_rest_confirm", await wait_until(func(): return p4.choice.is_open(), 60))
 	p4.choice.pick(0)
-	ok("c8_rest_no_ch9", await wait_until(func(): return game.has_flag("ch8_rested"), 60 * 8) and not game.has_flag("ch9_started")
-		and game.world_state["shelter_nights"].has("ch8_rested"))
+	ok("c8_rest_starts_next", await wait_until(func(): return game.has_flag("ch8_rested"), 60 * 8) and game.has_flag("ch9_started")
+		and c8.chapter9 != null and game.world_state["shelter_nights"].has("ch8_rested") and game.chapter_number() == 10)
 
 	# ---- scene 7 B: no medical supplies (Sarah stays seriously hurt; the chapter still completes)
 	await restore(help_snap, func():
