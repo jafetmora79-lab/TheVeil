@@ -46,13 +46,24 @@ func _amb(t: float, i: int) -> float:
 	return wind + chirp
 
 
+## A shoe on a hard floor, kept low: a dull heel thud (55-75 Hz) and a soft scuff of smoothed (low-passed) noise
+## ~40 ms later; no bright white noise and no high tones.
 static func _step_wave(t: float, i: int, k: float) -> float:
-	var heel := sin(TAU * (95.0 - 40.0 * t) * t) * exp(-t * 48.0) * 0.55 + _noise(i) * exp(-t * 90.0) * 0.35
-	var t2 := t - 0.045
-	var toe := 0.0
+	var thud := sin(TAU * (75.0 - 25.0 * minf(t * 10.0, 1.0)) * t) * exp(-t * 38.0) * 0.6
+	var tap := _lp_noise(i, 10) * exp(-t * 70.0) * 0.45
+	var t2 := t - 0.04
+	var scuff := 0.0
 	if t2 > 0.0:
-		toe = (_noise(i * 7 + 3) * 0.5 + _noise(i) * 0.2) * exp(-t2 * 60.0) * (0.6 + 0.4 * sin(t2 * 900.0)) * 0.5
-	return (heel + toe) * k
+		scuff = _lp_noise(i * 3 + 11, 16) * exp(-t2 * 45.0) * 0.35
+	return (thud + tap + scuff) * k
+
+
+## Noise averaged over n neighbouring samples: a cheap low-pass (darker, no hiss).
+static func _lp_noise(i: int, n: int) -> float:
+	var a := 0.0
+	for j in n:
+		a += _noise(i - j)
+	return a / sqrt(float(n))
 
 
 static func _noise(i: int) -> float:
