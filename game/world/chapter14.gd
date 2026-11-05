@@ -94,6 +94,8 @@ func begin(w: Node, chapter13: Node, restoring: bool) -> void:
 		_opening.call_deferred()
 	else:
 		_apply()
+		if Game.has_flag("chapter_14_complete"):
+			_start_chapter15.call_deferred(true)
 	Game.refresh_objective()
 
 
@@ -219,6 +221,10 @@ func _apply() -> void:
 	_node("Marcus").visible = alive()
 	for k in st().get("missing", []):
 		_node(k).visible = false
+	if Game.has_flag("ch15_started"):
+		_house_gone(true)
+		_refresh_prompts()
+		return                                       # the finale places the group from here on
 	for k in st().get("defenses", {}):
 		_place_defense(k, true)
 	if Game.has_flag("chapter_14_complete") or Game.has_flag("ch14_evac_started"):
@@ -279,6 +285,8 @@ var _obj := ""
 
 
 func _guide() -> void:
+	if chapter15 != null:
+		return
 	var t: Variant = null
 	var label := ""
 	if not Game.has_flag("ch14_window_seen"):
@@ -1116,6 +1124,18 @@ func _ending() -> void:
 	_hold(false)
 	_busy["ending"] = false
 	_guide()
+	_start_chapter15(false)                          # the finale: displayed Chapter 16
+
+
+## The next (last) chapter: displayed CHAPTER 16 "What Remains", internally chapter15.gd.
+var chapter15: Node
+func _start_chapter15(restoring: bool) -> void:
+	if chapter15 != null:
+		return
+	chapter15 = load("res://game/world/chapter15.gd").new()
+	chapter15.name = "Chapter15"
+	add_child(chapter15)
+	chapter15.begin(world, self, restoring)
 
 
 func _pick_end() -> String:
@@ -1192,6 +1212,6 @@ func _process(delta: float) -> void:
 		_refresh_prompts()
 	if not _busy.get("window", false) and not _busy.get("ending", false):
 		_guide()
-	if its.has("talk_Eddie") and not _busy.get("siege", false):
+	if its.has("talk_Eddie") and not _busy.get("siege", false) and chapter15 == null:
 		var on: bool = _prep_done() and not Game.has_flag("ch14_siege_started") and not st().get("talked", {}).get("Eddie", false)
 		_setp("talk_Eddie", "[E] Talk to Eddie" if on else "")

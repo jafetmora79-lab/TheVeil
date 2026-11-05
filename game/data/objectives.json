@@ -15,7 +15,8 @@
   "act4_farm_road": "The Farm Road",
   "act5_truth": "The Truth Beneath Greyhaven",
   "act5_veil": "Into the Veil",
-  "act5_shelter": "The Last Shelter"
+  "act5_shelter": "The Last Shelter",
+  "act6_remains": "What Remains"
  },
  "steps": [
   {
@@ -779,6 +780,54 @@
    "flag": "ch15_started",
    "goal": "act5_shelter",
    "text": "Chapter 15 complete - The Last Shelter"
+  },
+  {
+   "id": "c15_prepare",
+   "flag": "ch15_plan_done",
+   "goal": "act6_remains",
+   "text": "Prepare for the final journey"
+  },
+  {
+   "id": "c15_setout",
+   "flag": "ch15_set_out",
+   "goal": "act6_remains",
+   "text": "Set out"
+  },
+  {
+   "id": "c15_district",
+   "flag": "ch15_crossed",
+   "goal": "act6_remains",
+   "text": "Reach the old district"
+  },
+  {
+   "id": "c15_passage",
+   "flag": "ch15_in_passage",
+   "goal": "act6_remains",
+   "text": "Get into the passage"
+  },
+  {
+   "id": "c15_lower",
+   "flag": "ch15_chamber_reached",
+   "goal": "act6_remains",
+   "text": "Enter the lower passage"
+  },
+  {
+   "id": "c15_mechanism",
+   "flag": "ch15_mechanism_done",
+   "goal": "act6_remains",
+   "text": "Restore the ancient barrier"
+  },
+  {
+   "id": "c15_decide",
+   "flag": "ch15_decided",
+   "goal": "act6_remains",
+   "text": "Decide"
+  },
+  {
+   "id": "c15_end",
+   "flag": "chapter_15_complete",
+   "goal": "act6_remains",
+   "text": "The end"
   }
  ],
  "_comment": "Steps complete in list order for display, but each errand step only checks its own flag, so the supermarket and the game shop can be done in either order (the bible leaves the stop order open). Phase 3 (mist_*) is a WORKING DRAFT sequence of Act I's opening.",
