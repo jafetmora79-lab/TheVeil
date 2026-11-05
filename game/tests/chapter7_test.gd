@@ -322,7 +322,8 @@ func _run() -> void:
 	ok("c7_backpack_not_auto", not game.has_flag("ch7_backpack_found") and not game.has_item("noahs_backpack"))
 	# Skitters crouch around the car: the backpack is out of reach until a noise draws them off
 	ok("c7_skitters_at_car", c7.skitters.size() == 2 and c7.its["backpack"].prompt_text == "" and c7.its["alarm"].prompt_text != "")
-	ok("c7_alarm_reach", await aim(c7.its["alarm"], [Vector3(0, 0, 1), Vector3(0, 0, -1)], world.market, 1.2))
+	await walk_world([c7.ALARM_POS + Vector3(0.0, 0.05, -2.6)])          # walked back (no teleport: Marcus follows the trail)
+	ok("c7_alarm_reach", await look(c7.its["alarm"]))
 	c7.its["alarm"].interact(world.player)
 	ok("c7_skitters_drawn_off", await wait_until(func(): return game.has_flag("ch7_skitters_gone"), 60) and c7.its["alarm"].prompt_text == "")
 	ok("c7_skitters_leave_unseen", await wait_until(func(): return c7.skitters.is_empty(), 60 * 20), str(c7.skitters.size()))
@@ -387,6 +388,8 @@ func _run() -> void:
 	ok("c7_load_complete", game.has_flag("chapter_7_complete") and game.has_flag("noah_clue_backpack") and game.has_flag("marcus_trust_search")
 		and world.find_children("Marcus", "", true, false).size() == 1 and p4.rest.interactable.prompt_text == "[E] Sleep"
 		and game.inventory.count("noahs_backpack") == 1)
+	# the survival rule: enough food and water for everyone tonight (deposited supplies)
+	game.world_state["shelter_stock"] = {"food": 12, "water": 12, "medical": int(game.shelter_stock().get("medical", 0)), "batteries": 0}
 	p4.rest.interactable.interact(world.player)
 	ok("c7_rest_confirm", await wait_until(func(): return p4.choice.is_open(), 60))
 	p4.choice.pick(0)
