@@ -532,17 +532,17 @@ func _encounter() -> void :
 	report["escape_segments_clear"] = true
 	var last:= landing
 	for destination in route:
-		if not _clear_run(last, destination):
-			report["escape_segments_clear"] = false
-			break
+		var hop:= 0.0 if _open_line(last, destination) else 1.5      # a fence in the way: over it
+		if hop > 0.0: report["escape_hops"] = int(report.get("escape_hops", 0)) + 1
 		var distance:= last.distance_to(destination)
 		creature.rotation.y = atan2(destination.x - last.x, destination.z - last.z)
 		t = 0.0
-		var duration:= maxf(distance / ESCAPE_SPEED, 0.04)
+		var duration:= maxf(distance / ESCAPE_SPEED, 0.35 if hop > 0.0 else 0.04)
 		while t < duration:
 			t += get_process_delta_time()
-			creature.global_position = _ground(last.lerp(destination, clampf(t / duration, 0, 1)))
-			_snap()
+			var kk:= clampf(t / duration, 0, 1)
+			creature.global_position = _ground(last.lerp(destination, kk)) + Vector3.UP * sin(kk * PI) * hop
+			if hop == 0.0: _snap()
 			_track_ground(cam,p,1.0)
 			await get_tree().process_frame
 		last = destination
@@ -565,7 +565,29 @@ func _escape_plan(right: Vector3) -> Array:
 			if not _open_line(saved_position, landing): continue       # never thrown through a fence
 			var route := _zigzag_home(landing)
 			if not route.is_empty(): return [landing,route[-1],route]
-	return [_ground(saved_position-right*3.0), _ground(saved_position-right*3.0), []]
+	# fenced in: a clear landing on the player's side, then the way home, hopping whatever is in the way
+	for offset in [0.0, -0.6, 0.6, 1.2, -1.2]:
+		for lateral in [3.0, 2.2, 4.0, 1.6, 5.0]:
+			for side in [1.0, -1.0]:
+				var landing := _ground(saved_position - right.normalized() * lateral * side + away * offset)
+				if _open_line(saved_position, landing):
+					var route := _direct_home(landing)
+					return [landing, route[-1], route]
+	var fallback := _ground(saved_position - right.normalized() * 1.6)
+	return [fallback, fallback, _direct_home(fallback)]
+
+## Round the house's left side and behind it, in short steps (no clearance demands: blocked steps are hopped).
+func _direct_home(start: Vector3) -> Array:
+	var controls: Array = [start, _ground(house.to_global(Vector3(-8.0, 0, 15.5))), _ground(house.to_global(Vector3(-8.0, 0, -2.0))),
+		_ground(house.to_global(Vector3(-3.0, 0, -2.0)))]
+	var route: Array = []
+	for section in range(1, controls.size()):
+		var a: Vector3 = controls[section - 1]
+		var b: Vector3 = controls[section]
+		var steps := maxi(2, ceili(a.distance_to(b) / 1.8))
+		for i in range(1, steps + 1):
+			route.append(_ground(a.lerp(b, float(i) / steps)))
+	return route
 
 ## Nothing solid (a fence, a wall) between two ground points, at knee and chest height.
 func _open_line(a: Vector3, b: Vector3) -> bool:
