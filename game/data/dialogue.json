@@ -3769,5 +3769,280 @@
     "time": 2.7
    }
   ]
+ },
+ "sv_mem_rescued_Marcus": {
+  "source": "Survivor expansion prompt (approved lines)",
+  "lines": [
+   {
+    "speaker": "Marcus",
+    "text": "I haven't forgotten what you did back there.",
+    "time": 3.3
+   }
+  ]
+ },
+ "sv_ruth_empty_trips": {
+  "source": "Survivor expansion prompt (approved lines)",
+  "lines": [
+   {
+    "speaker": "Ruth",
+    "text": "We can't keep going like this.",
+    "time": 2.5
+   }
+  ]
+ },
+ "sv_Eddie_high": {
+  "source": "Survivor expansion: short personality / consequence lines",
+  "lines": [
+   {
+    "speaker": "Eddie",
+    "text": "Hey. For what it's worth - I'm glad you're the one going out there.",
+    "time": 4.2
+   }
+  ]
+ },
+ "sv_Eddie_low": {
+  "source": "Survivor expansion: short personality / consequence lines",
+  "lines": [
+   {
+    "speaker": "Eddie",
+    "text": "Ha. Great. Everything's great. Totally fine.",
+    "time": 3.3
+   }
+  ]
+ },
+ "sv_Eddie_danger": {
+  "source": "Survivor expansion: short personality / consequence lines",
+  "lines": [
+   {
+    "speaker": "Eddie",
+    "text": "Okay, I'm not panicking. This is my calm face.",
+    "time": 3.4
+   }
+  ]
+ },
+ "sv_Marcus_high": {
+  "source": "Survivor expansion: short personality / consequence lines",
+  "lines": [
+   {
+    "speaker": "Marcus",
+    "text": "You keep looking out for us. Noah would've liked you.",
+    "time": 3.8
+   }
+  ]
+ },
+ "sv_Marcus_low": {
+  "source": "Survivor expansion: short personality / consequence lines",
+  "lines": [
+   {
+    "speaker": "Marcus",
+    "text": "Every hour we sit here is an hour Noah's out there alone.",
+    "time": 4.0
+   }
+  ]
+ },
+ "sv_Ruth_high": {
+  "source": "Survivor expansion: short personality / consequence lines",
+  "lines": [
+   {
+    "speaker": "Ruth",
+    "text": "I've counted everything twice. We'll manage, thanks to you.",
+    "time": 4.1
+   }
+  ]
+ },
+ "sv_Ruth_low": {
+  "source": "Survivor expansion: short personality / consequence lines",
+  "lines": [
+   {
+    "speaker": "Ruth",
+    "text": "Somebody has to keep track of what we've got left.",
+    "time": 3.6
+   }
+  ]
+ },
+ "sv_Ruth_supplies": {
+  "source": "Survivor expansion: short personality / consequence lines",
+  "lines": [
+   {
+    "speaker": "Ruth",
+    "text": "Food and water are nearly gone. We need more before tonight.",
+    "time": 4.2
+   }
+  ]
+ },
+ "sv_Sarah_high": {
+  "source": "Survivor expansion: short personality / consequence lines",
+  "lines": [
+   {
+    "speaker": "Sarah",
+    "text": "I feel safer when you're the one leading.",
+    "time": 3.2
+   }
+  ]
+ },
+ "sv_Sarah_low": {
+  "source": "Survivor expansion: short personality / consequence lines",
+  "lines": [
+   {
+    "speaker": "Sarah",
+    "text": "Please don't take risks we can't come back from.",
+    "time": 3.5
+   }
+  ]
+ },
+ "sv_Sarah_hurt": {
+  "source": "Survivor expansion: short personality / consequence lines",
+  "lines": [
+   {
+    "speaker": "Sarah",
+    "text": "It still hurts. I'm trying not to complain.",
+    "time": 3.3
+   }
+  ]
+ },
+ "sv_night_food": {
+  "source": "Survivor expansion: short personality / consequence lines",
+  "lines": [
+   {
+    "speaker": "Ruth",
+    "text": "I checked the shelves this morning. There's almost nothing left.",
+    "time": 4.2
+   }
+  ]
+ },
+ "sv_night_medicine": {
+  "source": "Survivor expansion: short personality / consequence lines",
+  "lines": [
+   {
+    "speaker": "Ruth",
+    "text": "Sarah's wound looks worse. She needs medicine, soon.",
+    "time": 3.8
+   }
+  ]
+ },
+ "sv_night_medicine_eddie": {
+  "source": "Survivor expansion: short personality / consequence lines",
+  "lines": [
+   {
+    "speaker": "Eddie",
+    "text": "Someone's hurt and getting worse. We need medicine.",
+    "time": 3.7
+   }
+  ]
+ },
+ "sv_night_argue": {
+  "source": "Survivor expansion: short personality / consequence lines",
+  "lines": [
+   {
+    "speaker": "Eddie",
+    "text": "We can't keep sending people out into that.",
+    "time": 3.3
+   },
+   {
+    "speaker": "Ruth",
+    "text": "And we can't sit here and starve either.",
+    "time": 3.1
+   }
+  ]
+ },
+ "sv_night_thanks": {
+  "source": "Survivor expansion: short personality / consequence lines",
+  "lines": [
+   {
+    "speaker": "Eddie",
+    "text": "Hey - thanks for last night's run. We actually ate.",
+    "time": 3.7
+   }
+  ]
+ },
+ "sv_night_thanks_ruth": {
+  "source": "Survivor expansion: short personality / consequence lines",
+  "lines": [
+   {
+    "speaker": "Ruth",
+    "text": "Thank you for bringing those supplies back.",
+    "time": 3.3
+   }
+  ]
+ },
+ "sv_worse": {
+  "source": "Survivor expansion: short personality / consequence lines",
+  "lines": [
+   {
+    "speaker": "",
+    "text": "Her condition is getting worse. I need to find medicine.",
+    "time": 4.0
+   }
+  ]
+ },
+ "sv_companion_Eddie": {
+  "source": "Survivor expansion: short personality / consequence lines",
+  "lines": [
+   {
+    "speaker": "Eddie",
+    "text": "Okay. Partners in crime. Scavenging crime.",
+    "time": 3.2
+   }
+  ]
+ },
+ "sv_companion_Ruth": {
+  "source": "Survivor expansion: short personality / consequence lines",
+  "lines": [
+   {
+    "speaker": "Ruth",
+    "text": "I'll keep an eye out for anything we can use.",
+    "time": 3.4
+   }
+  ]
+ },
+ "sv_companion_Sarah": {
+  "source": "Survivor expansion: short personality / consequence lines",
+  "lines": [
+   {
+    "speaker": "Sarah",
+    "text": "I'll stay close. I'll tell you if I hear anything.",
+    "time": 3.6
+   }
+  ]
+ },
+ "sv_companion_Marcus": {
+  "source": "Survivor expansion: short personality / consequence lines",
+  "lines": [
+   {
+    "speaker": "Marcus",
+    "text": "Fine. Maybe we'll find something about Noah.",
+    "time": 3.3
+   }
+  ]
+ },
+ "sv_companion_reluctant": {
+  "source": "Survivor expansion: short personality / consequence lines",
+  "lines": [
+   {
+    "speaker": "",
+    "text": "They don't look happy about it, but they come.",
+    "time": 3.4
+   }
+  ]
+ },
+ "sv_found_Eddie": {
+  "source": "Survivor expansion: short personality / consequence lines",
+  "lines": [
+   {
+    "speaker": "Eddie",
+    "text": "Found a can wedged under a car. You're welcome.",
+    "time": 3.5
+   }
+  ]
+ },
+ "sv_sarah_early": {
+  "source": "Survivor expansion: short personality / consequence lines",
+  "lines": [
+   {
+    "speaker": "Sarah",
+    "text": "Wait. Something's moving out there. We should start heading back.",
+    "time": 3.6
+   }
+  ]
  }
 }

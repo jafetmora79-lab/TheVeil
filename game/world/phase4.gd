@@ -1177,8 +1177,14 @@ func _open_supplies() -> void:
 			if not Game.shelter_resource(id).is_empty() and id not in ids and VeilInventoryPanel.quantity(id) > 0:
 				ids.append(id)
 				options.append("Deposit one %s (%d carried)" % [Game.item_info(id).name, VeilInventoryPanel.quantity(id)])
+		if world.survivors:
+			options.append("Check on the Group")
 		options.append("Close")
 		var selected: int = await choice.ask(text, options, player)
+		if world.survivors and selected == ids.size():
+			_supplies_open = false
+			await world.survivors.open_panel(choice)
+			return
 		if selected < 0 or selected >= ids.size():
 			break
 		world.deposit_shelter_item(ids[selected])

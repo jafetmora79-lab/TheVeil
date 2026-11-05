@@ -287,6 +287,9 @@ func _run() -> void:
 	ok("exp_menu_options", labels.size() == 3 and String(labels[0]).begins_with("Continue Story") and labels[1] == "Scavenge for Supplies"
 		and labels[2] == "Stay Inside", str(labels))
 	p4.choice.pick(1)
+	await frames(5)
+	if p4.choice.is_open():
+		p4.choice.pick(0)                                # survivors: "WHO COMES ALONG?" -> Go alone
 	ok("exp_started", await wait_until(func(): return ex.active(), 60) and ex.st()["type"] == "scavenge" and c5._doors_open
 		and ex.st()["shelter"] == "supermarket")
 	ex.start("scavenge", false)                          # a second start while one is running: ignored
