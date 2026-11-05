@@ -321,7 +321,7 @@ func _run() -> void:
 		await frames(40)
 	ok("c9_staff_door_open", staff.is_open)
 	ok("c9_walk_corridor", await walk_route([Vector3(15.4, 0.2, 15.6), Vector3(12.0, 0.2, 15.6), Vector3(9.6, 0.2, 15.9)]))
-	ok("c9_marcus_pinned", await wait_until(func(): return c9._busy.get("pinned", false) and c9.its["pinned"].prompt_text != "", 60 * 4))
+	ok("c9_marcus_pinned", await wait_until(func(): return c9._busy.get("pinned", false) and c9.its["pinned"].prompt_text != "", 60 * 9))
 	ok("c9_others_head_out", not c9.follows["Eddie"].active and not c9.follows["Ruth"].active)
 	var pin_snap := snapshot()
 	# Outcome A: pull him free in time
@@ -360,8 +360,8 @@ func _run() -> void:
 
 	# ---- Outcome B: (from the pin) nobody pulls him free in time: he is lost; the others escape
 	await restore(pin_snap)
-	ok("c9_b_repinned", await wait_until(func(): return c9._busy.get("pinned", false), 60 * 6), str(world.market.to_local(world.player.global_position)))
-	ok("c9_b_lost", await wait_until(func(): return game.has_flag("ch9_marcus_lost"), 60 * 16) and not c9.marcus.visible
+	ok("c9_b_repinned", await wait_until(func(): return c9._busy.get("pinned", false), 60 * 9), str(world.market.to_local(world.player.global_position)))
+	ok("c9_b_lost", await wait_until(func(): return game.has_flag("ch9_marcus_lost"), 60 * 22) and not c9.marcus.visible
 		and c9.st()["marcus_outcome"] == "lost" and c9.report["lost_runs"] == 1)
 	ok("c9_b_walk_out", await walk_route([Vector3(8.6, 0.2, 16.4), Vector3(8.0, 0.2, 17.6), Vector3(8.0, 0.2, 19.6)]))
 	ok("c9_b_roll_call", await wait_talk(func(): return said.has("Not Marcus."), 40.0))

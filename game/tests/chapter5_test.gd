@@ -467,6 +467,8 @@ func _run() -> void:
 	ok("c5_load_complete", game.has_flag("c5_complete") and c5.eddie.get_parent() == world.market
 		and c5.survivor.visible and c5.st()["survivor"] == "shelter" and world.phase4.rest.interactable.prompt_text == "[E] Sleep"
 		and game.has_item("painkillers") and world.find_children("Eddie", "", true, false).size() == 1)
+	# the survival rule: enough food and water for everyone tonight (deposited supplies)
+	game.world_state["shelter_stock"] = {"food": 12, "water": 12, "medical": int(game.shelter_stock().get("medical", 0)), "batteries": 0}
 	p4.rest.interactable.interact(world.player)
 	ok("c5_rest_confirm", await wait_until(func(): return p4.choice.is_open(), 60))
 	p4.choice.pick(0)
