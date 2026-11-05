@@ -18,6 +18,7 @@ func run():
   p.controls_enabled=true;p.look_enabled=true;p.visible=true;p.health=80
   w.conversing=false;w.in_car=false
   game.flags['p3_mist']=true;game.flags['p3_stepped_out']=true
+  w.expedition.start('scavenge', false)
   var e=w.get_node_or_null('OptionalRoofSkitterEncounter')
   if e==null:
    e=load('res://game/encounters/roof_skitter.gd').new()
@@ -27,6 +28,7 @@ func run():
   e.set_process(false)
   p.global_position=e.house.to_global(Vector3(0,.3,19))
   p.set_yaw_pitch(0,0)
+  ok('eligible_on_trip', e.eligible())
   e._encounter()
   var elapsed:=0
   while not e.struggling and elapsed<400:

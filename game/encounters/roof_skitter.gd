@@ -1,6 +1,6 @@
 extends Node
 
-const HOUSE_ID:= "EXT_HOUSE_12"
+const HOUSE_ID:= "HOUSE_03"            ## the ranch house in the row behind the supermarket (same model as Codex's first pick)
 const SEEN:= "egg_roof_skitter_seen"
 const MODEL:= preload("res://THE_VEIL_ASSETS_V2/07_Creatures/Godot_Scenes/CRT_Skitter.tscn")
 const SOUND:= preload("res://game/encounters/skitter_rattle.wav")
@@ -99,7 +99,9 @@ func _test_pointer() -> void:
 func eligible() -> bool:
 	if not is_instance_valid(world) or not is_instance_valid(house): return false
 	var p = world.player
-	return (Game.has_flag("p3_mist") and not Game.has_flag(SEEN) and not running
+	# only while out on a scavenging trip from the shelter: an unlucky stop at the wrong house (never a story scene)
+	var trip: bool = world.get("expedition") != null and world.expedition.active() and String(world.expedition.st().get("type", "")) == "scavenge"
+	return (trip and not Game.has_flag(SEEN) and not running
 		and p.visible and p.controls_enabled and p.look_enabled and p.health > 0
 		and not world.in_car and not world.conversing and not world.get_tree().paused
 		and not world.get("_encounter_running")
