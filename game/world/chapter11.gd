@@ -835,6 +835,12 @@ func _process(delta: float) -> void:
 		Game.set_flag("ch11_campsite_reached")
 		Dialogue.say("c11_campsite_seen", false, true)
 		_refresh_prompts()
+	# purposeful pressure (survival expansion): by the bus shelter a Skitter crosses the lane behind the group
+	if Game.has_flag("ch11_talk_done") and not Game.has_flag("ch11_skitter_seen") and p.distance_to(SHELTER_POS) < 14.0:
+		Game.set_flag("ch11_skitter_seen")
+		if world.expedition:
+			world.expedition.skitter_crossing(Vector3(-132.0, 0.2, -30.0), Vector3(-96.0, 0.2, -24.0))
+		c10._hurry()
 	if Game.has_flag("ch11_note_read") and not Game.has_flag("ch11_field_seen") and not Dialogue.is_busy() and not world.conversing \
 			and Vector2(p.x - FIELD_AT.x, p.z - FIELD_AT.z).length() < 8.0:
 		_field()

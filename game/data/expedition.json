@@ -1,0 +1,29 @@
+{
+ "_comment": "THE VEIL - expedition / dynamic danger tuning (game/world/expedition.gd). Times are seconds of ACTIVE time outside (paused, menus, dialogue and cinematics do not count). Levels: 0 low, 1 rising, 2 high, 3 critical.",
+ "danger_thresholds_s": [300, 600, 900],
+ "level_names": ["LOW", "RISING", "HIGH", "CRITICAL"],
+ "max_dynamic_creatures": 2,
+ "encounter_cooldown_s": [9999, 150, 90, 50],
+ "encounter_chance": [0.0, 0.35, 0.6, 0.85],
+ "hound_from_level": 2,
+ "sound_interval_s": [55, 35, 22, 14],
+ "spawn_distance": [34, 46],
+ "warning_cooldown_s": 75,
+ "driving_time_scale": 0.6,
+ "follower_hurry": [1.0, 1.1, 1.25, 1.4],
+ "sleep_requires_supplies_from_flag": "c5_started",
+ "caches": [
+  {"id": "lot_food", "item": "canned_food", "pos": [12.0, 0.2, -50.0], "label": "Canned Food"},
+  {"id": "street_water", "item": "water_bottle", "pos": [30.0, 0.2, -54.0], "label": "Water"},
+  {"id": "lot_snack", "item": "energy_snack", "pos": [0.0, 0.2, -30.0], "label": "Snack Bar"},
+  {"id": "road_water", "item": "water_bottle", "pos": [-20.0, 0.2, 3.5], "label": "Water"},
+  {"id": "behind_food", "item": "canned_food", "pos": [-36.0, 0.2, -14.0], "label": "Canned Food"},
+  {"id": "west_water", "item": "water_bottle", "pos": [-52.0, 0.2, -1.5], "label": "Water"},
+  {"id": "yard_food", "item": "canned_food", "pos": [44.0, 0.2, -52.0], "label": "Canned Food"}
+ ],
+ "vehicle_parts": [
+  {"id": "car_battery", "item": "car_battery", "pos": [-56.0, 0.2, -2.0], "model": "res://THE_VEIL_ASSETS_V2/08_Inventory/Food_And_Supplies/INV_SpareBatteries.glb", "scale": 3.0},
+  {"id": "fuel_can", "item": "fuel_can", "pos": [14.0, 0.2, -47.5], "model": "res://THE_VEIL_ASSETS_V2/08_Inventory/Food_And_Supplies/INV_WaterBottle.glb", "scale": 1.6},
+  {"id": "car_fuse", "item": "car_fuse", "pos": [20.0, 0.2, -76.6], "model": "res://THE_VEIL_ASSETS_V2/08_Inventory/Tools/INV_PortableFuse.glb", "scale": 1.0}
+ ]
+}

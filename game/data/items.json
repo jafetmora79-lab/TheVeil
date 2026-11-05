@@ -145,6 +145,27 @@
    "weight": 0.01,
    "model": "res://THE_VEIL_ASSETS_V2/08_Inventory/Story_Items/INV_Notebook.glb",
    "description": "Dad, if you find this, I'm okay.\nI couldn't stay here. I heard something outside last night.\nI'm going to the farmhouse farther down the road.\nPlease don't come after dark."
+  },
+  "car_battery": {
+   "name": "Car Battery",
+   "category": "tool",
+   "weight": 12.0,
+   "model": "res://THE_VEIL_ASSETS_V2/08_Inventory/Food_And_Supplies/INV_SpareBatteries.glb",
+   "description": "A car battery from a wreck by the west road. It still holds a charge."
+  },
+  "fuel_can": {
+   "name": "Fuel",
+   "category": "tool",
+   "weight": 4.0,
+   "model": "res://THE_VEIL_ASSETS_V2/08_Inventory/Food_And_Supplies/INV_WaterBottle.glb",
+   "description": "A big plastic bottle of petrol, siphoned from a delivery van behind the supermarket."
+  },
+  "car_fuse": {
+   "name": "Fuse",
+   "category": "tool",
+   "weight": 0.1,
+   "model": "res://THE_VEIL_ASSETS_V2/08_Inventory/Tools/INV_PortableFuse.glb",
+   "description": "A replacement fuse. The car's main fuse burned out when the mist came."
   }
  },
  "carry_capacity_kg": 15.0,
