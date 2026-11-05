@@ -300,7 +300,8 @@ func _spawn_caches() -> void:
 			n.queue_free()
 	_cache_nodes.clear()
 	for c in cfg.get("caches", []):
-		var key := "exp/cache_" + String(c["id"]) + ("" if _day == 0 else "_d%d" % _day)
+		var once := Game.item_info(String(c["item"])).has("rounds")    # handgun rounds: one-time finds, never restocked
+		var key := "exp/cache_" + String(c["id"]) + ("" if _day == 0 or once else "_d%d" % _day)
 		_cache(c, key, String(c["item"]), String(c.get("label", "")), "", 1.0)
 		if its.has(key) and is_instance_valid(its[key]):
 			_cache_nodes.append((its[key] as Node).get_parent())
