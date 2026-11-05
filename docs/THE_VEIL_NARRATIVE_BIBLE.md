@@ -362,21 +362,35 @@ The group evacuates.
 
 Marcus may survive or die depending on player decisions.
 
-### Chapter 11 — The Other Shelter
+### Chapter 11 — No Safe Road (formerly "The Other Shelter")
 
-The survivors establish a second refuge.
+The group leaves Greyhaven on foot after losing the supermarket. Along the way:
 
-They investigate maps, radio clues, and routes toward the countryside.
+- an abandoned car;
+- a roadblock and a side route;
+- something following them;
+- a hard choice over an exhausted or hurt survivor.
+
+They reach a temporary refuge, an old mill-worker house on the outskirts. It is not a permanent shelter.
+
+Still open for later chapters: maps, radio clues and the exact route toward the farms.
 
 ## ACT IV — THE FARMHOUSE
 
-### Chapter 12 — The Road Beyond Town
+### Chapter 12 — The Farm Road (formerly "The Road Beyond Town")
 
 Explore countryside roads.
 
 Avoid creatures.
 
-Discover evidence that Noah reached a farmhouse.
+Discover evidence that Noah reached a farmhouse:
+
+- a campsite note about a scared kid heading for the old farmhouse;
+- Noah's own message in the abandoned farmhouse.
+
+Escape that farmhouse.
+
+The chapter ends on a light in a farmhouse farther down the road, without revealing who or what is there.
 
 ### Chapter 13 — The Farmhouse
 
