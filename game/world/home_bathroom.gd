@@ -42,6 +42,7 @@ func setup(w: Node, h: Node3D) -> void:
 	var rack := furn.get_node_or_null("TowelRack_01") as Node3D
 	if rack:
 		rack.transform = Transform3D(Basis(Vector3.UP, -PI * 0.5), TOWEL_RACK)
+		_flush(rack, "x+", WALL_R)                     # flat against the wall, not floating off it
 	# the tub along the left wall (its back to the wall), from the back wall forwards
 	var tub := furn.get_node_or_null("Bathtub_01") as Node3D
 	if tub:
