@@ -116,6 +116,8 @@ func begin(w: Node, chapter11: Node, restoring: bool) -> void:
 		_opening.call_deferred()
 	else:
 		_apply()
+		if Game.has_flag("chapter_12_complete"):
+			_start_chapter13.call_deferred(true)
 	Game.refresh_objective()
 
 
@@ -447,6 +449,13 @@ var _hum_player: AudioStreamPlayer3D
 # ------------------------------------------------------------------ state from flags (fresh start and loads)
 func _apply() -> void:
 	_node("Marcus").visible = alive()
+	if Game.has_flag("ch13_started"):
+		_set_power(Game.has_flag("ch12_power_on"), true)
+		if records_prop and Game.has_flag("ch12_records_taken"):
+			records_prop.visible = false
+		_place_map()
+		_refresh_prompts()
+		return                                       # the next chapter places the group from here on
 	var power := Game.has_flag("ch12_power_on")
 	_set_power(power, true)
 	var open_access := Game.has_flag("ch12_access_open") and not Game.has_flag("ch12_door_secured")
@@ -528,6 +537,8 @@ func _refresh_prompts() -> void:
 
 
 func _guide() -> void:
+	if chapter13 != null:
+		return
 	var t: Variant = null
 	var label := ""
 	var p := player.global_position
@@ -1177,6 +1188,18 @@ func _ending() -> void:
 	_hold(false)
 	_busy["ending"] = false
 	_guide()
+	_start_chapter13(false)                          # displayed Chapter 14 starts at the mill house
+
+
+## The next chapter (displayed CHAPTER 14 "Into the Veil", internally chapter13.gd).
+var chapter13: Node
+func _start_chapter13(restoring: bool) -> void:
+	if chapter13 != null:
+		return
+	chapter13 = load("res://game/world/chapter13.gd").new()
+	chapter13.name = "Chapter13"
+	add_child(chapter13)
+	chapter13.begin(world, self, restoring)
 
 
 # ------------------------------------------------------------------ helpers, per tick
@@ -1212,7 +1235,7 @@ func _process(delta: float) -> void:
 	if _tick > 0.0 or player == null:
 		return
 	_tick = 0.2
-	if its.has("npc_Eddie"):
+	if its.has("npc_Eddie") and chapter13 == null:
 		var talk: bool = Game.has_flag("ch12_started") and not Game.has_flag("ch12_set_out") and not _busy.get("talk", false) \
 			and not _busy.get("prep", false) and not _busy.get("opening", false)
 		_set_prompt("npc_Eddie", "[E] Talk" if talk else "")
