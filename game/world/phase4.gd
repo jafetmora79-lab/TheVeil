@@ -42,8 +42,8 @@ const LOADING_PALLET := [Vector3(17.9, 0.04, 16.8), Vector3(19.52, 0.04, 15.9), 
 const BACK_PALLET := [Vector3(10.4, 0.04, 15.9), Vector3(8.0, 0.04, 16.917), 0.0]
 const BACKDOOR_OUTSIDE_Z := 17.613                                 # rear exit leaf outer face
 const BEDROLL := Vector3(-18.4, 0.04, 15.75)              # office floor, between the drawers and the desk
-const EDDIE_POS := Vector3(-1.0, 0.04, 4.3)
-const MARCUS_POS := Vector3(1.1, 0.04, 4.7)
+const EDDIE_POS := Vector3(6.2, 0.04, 4.05)
+const MARCUS_POS := Vector3(-2.0, 0.04, 6.9)
 const LOADING_GAP := 0.9                                   # metres the roll-up door is left open
 
 var world: Node
@@ -78,12 +78,14 @@ func begin(w: Node, restoring: bool) -> void:
 	# only cuts the power for the not-yet-shut case, so after a load the sensor would open them again.
 	world._doors_powered = false
 	_make_sounds()
-	_take_over_npcs()
+	_take_over_npcs(restoring)
 	_setup_lights()
 	_setup_doors()
 	_setup_pickups()
 	_setup_back_room()
 	_setup_rest()
+	_spot("ShelterSupplies", Vector3(7.8, 0.85, 6.05), Vector3(0.65, 0.7, 0.55),
+		"[E] Shelter Supplies", func(_body): _open_supplies())
 	Dialogue.choices_offered.connect(_on_choices)
 	if Game.has_item("flashlight"):
 		_attach_flashlight()
@@ -106,7 +108,7 @@ func ml(p: Vector3) -> Vector3:
 
 
 # ------------------------------------------------------------------ setup
-func _take_over_npcs() -> void:
+func _take_over_npcs(restoring: bool) -> void:
 	# Phase 3 talk prompts (shop lines) are switched off; Phase 4 has its own
 	for k in ["shop/eddie", "p3/marcus"]:
 		if world.interactables.has(k):
@@ -120,8 +122,11 @@ func _take_over_npcs() -> void:
 		if n == null:
 			continue
 		if n.get_parent() != market:
-			n.reparent(market, false)
-		n.position = pair[2]
+			n.reparent(market, true)
+		if restoring:
+			world.place_survivor(n, pair[2])
+		else:
+			world.npc_walk(pair[1], pair[2])
 		var it := Interactable.attach(n, {"kind": "custom", "label": pair[1], "prompt_text": "[E] Talk"})
 		it.used.connect(_talk)
 		its["npc_" + pair[1]] = it
@@ -1073,10 +1078,58 @@ func _flicker_burst(seconds: float) -> void:
 		(l as Light3D).visible = true
 
 
+var _supplies_open := false
+
+func _open_supplies() -> void:
+	if _supplies_open or choice.is_open():
+		return
+	_supplies_open = true
+	while is_inside_tree():
+		var stock := Game.shelter_stock()
+		var text := "SHELTER SUPPLIES\nFood %d    Water %d    Medical %d    Batteries %d" % [
+			stock.food, stock.water, stock.medical, stock.batteries]
+		var roster: Array = world.shelter_roster()
+		var rates: Dictionary = cfg.get("shelter_consumption", {})
+		if int(stock.food) < roster.size() * int(rates.get("food", 1)):
+			text += "\nLow food"
+		if int(stock.water) < roster.size() * int(rates.get("water", 1)):
+			text += "\nLow water"
+		var last: Dictionary = Game.world_state.get("shelter_latest_report", {})
+		if not last.is_empty():
+			text += "\n\n" + _supply_report(last)
+		var ids: Array = []
+		var options: Array = []
+		for id in Game.inventory:
+			if not Game.shelter_resource(id).is_empty() and id not in ids and VeilInventoryPanel.quantity(id) > 0:
+				ids.append(id)
+				options.append("Deposit one %s (%d carried)" % [Game.item_info(id).name, VeilInventoryPanel.quantity(id)])
+		options.append("Close")
+		var selected: int = await choice.ask(text, options, player)
+		if selected < 0 or selected >= ids.size():
+			break
+		world.deposit_shelter_item(ids[selected])
+	_supplies_open = false
+
+func record_night(transition: String) -> Dictionary:
+	return Game.record_shelter_night(transition, world.shelter_roster(), cfg.get("shelter_consumption", {}))
+
+func _supply_report(report: Dictionary) -> String:
+	var text := "OVERNIGHT SUPPLY REPORT\nFood used: %d  |  Water used: %d\nFood remaining: %d  |  Water remaining: %d" % [
+		report.food_used, report.water_used, report.food_left, report.water_left]
+	if report.food_used < report.food_needed or report.water_used < report.water_needed:
+		text += "\nSupplies ran short overnight"
+	return text
+
+func show_night_report(report: Dictionary) -> void:
+	if not report.is_empty():
+		hud.location_caption(_supply_report(report), 5.0)
+
+
 # ------------------------------------------------------------------ sleep -> Saturday
 func _on_slept(_id: String) -> void:
 	world._clear_beacon("p4_rest")
 	Game.world_state["day"] = "saturday"
+	var report := record_night("p4_slept")
 	Game.set_flag("p4_slept")
 	if flashlight:
 		flashlight.set_on(false)
@@ -1089,6 +1142,7 @@ func _on_slept(_id: String) -> void:
 	_start_chapter5(false)                         # still black: the morning positions are set before the fade
 	await hud.fade_to(0.0, 2.0)
 	player.set("controls_enabled", true)
+	show_night_report(report)
 	Dialogue.say("p4_wake", false, true)
 
 

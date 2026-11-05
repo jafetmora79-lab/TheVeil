@@ -1,0 +1,14 @@
+{
+  "vertices": 3209,
+  "triangles": 5974,
+  "objects": 76,
+  "height_m": 1.699,
+  "glb_bytes": 141156,
+  "rigged": false,
+  "engine_import_test": "NOT RUN: Godot executable unavailable",
+  "structural_checks": "PASS: GLB chunks, buffer bounds, indices, finite data, nonzero triangle areas, unit normals, UV ranges, embedded PNG and nearest sampler",
+  "export_meshes": 1,
+  "materials": 1,
+  "export_vertices": 3209,
+  "export_triangles": 5974
+}

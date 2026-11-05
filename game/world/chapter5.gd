@@ -21,13 +21,13 @@ const SURVIVOR_HOUSE := "HOUSE_05"        # its neighbour
 const STATE := "c5"
 
 # supermarket-local
-# customer side of the service counter (collider x 4.5-7.5, z 4.6-5.4): 4.9 put him INSIDE the counter
+# Staff side of the service counter, outside the front-door walking route.
 const EDDIE_SHELTER := Vector3(6.2, 0.04, 4.05)
-const MARCUS_SPOT := Vector3(1.1, 0.04, 4.7)          # by the checkout counters
+const MARCUS_SPOT := Vector3(-2.0, 0.04, 6.9)
 const STASH := Vector3(6.9, 1.05, 5.0)               # customer-service counter top (was 5.8: behind it, in mid-air)
 const BACKPACK := preload("res://THE_VEIL_ASSETS_V2/08_Inventory/Food_And_Supplies/INV_SmallBackpack.glb")
 const EXIT_SPOT := Vector3(0.0, 1.2, 3.6)             # sales side of the vestibule wall (openings at x = +-1.5)
-const SURVIVOR_SPOT := Vector3(-1.0, 0.04, 4.3)
+const SURVIVOR_SPOT := Vector3(-5.2, 0.04, 7.1)
 const OUTSIDE_Z := -2.0                               # local z below this = outside the front doors
 const INSIDE_Z := 3.3                                 # local z above this = in the sales hall
 # HOUSE_04-local (Pack 03 cottage: furnishing placement from build_residential.furnish_instances)
@@ -316,11 +316,11 @@ func _apply() -> void:
 			eddie_follow.start()
 		_:
 			_reparent(eddie, market)
-			eddie.position = EDDIE_SHELTER
+			world.place_survivor(eddie, EDDIE_SHELTER)
 			world.animators["Eddie"].face_towards(ml(STASH))
 	if marcus:
 		_reparent(marcus, market)
-		marcus.position = MARCUS_SPOT
+		world.place_survivor(marcus, MARCUS_SPOT)
 		world.animators["Marcus"].face_towards(ml(Vector3(-4.1, 1.1, 4.0)))
 	# survivor
 	match String(s.get("survivor", "house")):
@@ -331,7 +331,7 @@ func _apply() -> void:
 			survivor_follow.start()
 		"shelter":
 			_reparent(survivor, market)
-			survivor.position = SURVIVOR_SPOT
+			world.place_survivor(survivor, SURVIVOR_SPOT)
 			survivor.visible = true
 		_:
 			survivor.visible = _survivor_met() and not Game.has_flag("c5_survivor_helped")
@@ -492,7 +492,7 @@ func _head_out(_b: Node) -> void:
 	its["exit"].prompt_text = ""
 	_set_doors(true)                              # pulled open first, so nobody walks into a moving door
 	var a: Node = world.animators["Eddie"]
-	a.walk_to([Vector3(1.5, 0.04, 4.3)], 1.5)       # by the right-hand opening of the vestibule wall
+	world.npc_walk("Eddie", Vector3(1.5, 0.04, 4.3), 1.5)       # by the right-hand opening of the vestibule wall
 	Dialogue.say("c5_eddie_exit", false, true)
 	await _wait_for(func(): return not a.is_walking(), 8.0)
 	while Dialogue.is_busy():
@@ -596,7 +596,14 @@ func _on_choices(id: String, choices: Array) -> void:
 	if c["flag"] == "c5_survivor_helped":
 		st()["survivor"] = "following"
 		_reparent(survivor, world)
-		survivor_follow.start()
+		# The porch railing opens at the west steps. Join through the door and stairs in order.
+		survivor_follow.start([
+			shouse.to_global(Vector3(-0.3, 0.6, 4.0)),
+			shouse.to_global(Vector3(-0.3, 0.58, 2.8)),
+			shouse.to_global(Vector3(-3.0, 0.58, 2.8)),
+			shouse.to_global(Vector3(-3.0, 0.58, 2.1)),
+			shouse.to_global(Vector3(-3.0, 0.0, 0.8)),
+		])
 		Game.set_flag("c5_survivor_following")
 	elif door and door.is_open:
 		await get_tree().create_timer(1.0).timeout
@@ -674,12 +681,12 @@ func _returned() -> void:
 	eddie_follow.stop()
 	_reparent(eddie, market)
 	st()["eddie"] = "shelter"
-	world.animators["Eddie"].walk_to([EDDIE_SHELTER], 1.3)
+	world.npc_walk("Eddie", EDDIE_SHELTER, 1.3)
 	if String(st().get("survivor", "")) == "following":
 		survivor_follow.stop()
 		_reparent(survivor, market)
 		st()["survivor"] = "shelter"
-		world.animators["Survivor"].walk_to([SURVIVOR_SPOT], 1.2)
+		world.npc_walk("Survivor", SURVIVOR_SPOT, 1.2)
 	Game.set_flag("c5_returned")                 # saves with everyone back in the shelter
 	_refresh_prompts()
 
@@ -710,6 +717,7 @@ func _complete() -> void:
 
 func _on_rest(_id: String) -> void:
 	# the next morning is Chapter 6 (game/world/chapter6.gd); started while the screen is still black
+	var report: Dictionary = p4.record_night("c5_rested")
 	Game.set_flag("c5_rested")
 	_start_chapter6(false)
 	if p4.flashlight:
@@ -717,6 +725,7 @@ func _on_rest(_id: String) -> void:
 	await get_tree().create_timer(1.0).timeout
 	await hud.fade_to(0.0, 2.0)
 	player.set("controls_enabled", true)
+	p4.show_night_report(report)
 	p4.rest.interactable.prompt_text = "[E] Sleep"
 
 

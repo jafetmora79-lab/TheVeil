@@ -191,7 +191,7 @@ static func _flashlight() -> VeilFlashlight:
 static func carried_weight() -> float:
 	var w := 0.0
 	for id in Game.inventory:
-		w += float(Game.item_info(id).get("weight", 0.0)) * maxi(1, quantity(id)) / maxi(1, Game.inventory.count(id))
+		w += float(Game.item_info(id).get("weight", 0.0)) * quantity(id) / maxi(1, Game.inventory.count(id))
 	return w
 
 
@@ -271,6 +271,9 @@ func select(i: int) -> void:
 ## [label, callable] pairs for actions the game really supports for this item.
 func actions_for(id: String) -> Array:
 	var out: Array = []
+	var world := get_tree().get_first_node_in_group("veil_world")
+	if world and world.can_heal_with(id):
+		out.append(["USE FOR HEALING", func(): world.use_healing_item(id)])
 	var fl := _flashlight()
 	if fl == null:
 		return out
