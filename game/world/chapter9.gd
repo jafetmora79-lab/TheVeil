@@ -147,8 +147,11 @@ func marcus_trust() -> int:
 
 
 ## Seconds Marcus can hold on when he is pinned: the player always gets a real chance, longer when he trusts them.
+## The breakthrough rescue: a ten-second countdown (survival expansion). Marcus's trust (the established choices)
+## is still recorded in st().marcus_trust for later chapters.
+const PIN_SECONDS := 10.0
 func pin_window() -> float:
-	return 4.0 + 4.0 * float(int(st().get("marcus_trust", marcus_trust())))
+	return PIN_SECONDS
 
 
 # ------------------------------------------------------------------ setup
@@ -757,6 +760,14 @@ func _pin_marcus() -> void:
 		world.npc_walk(k, ml(OUT_WAIT[i]), 2.4)
 	# Marcus, last in the line, goes down in the corridor; the Hound comes back through the doorway at him
 	c5._reparent(marcus, market)
+	# he gets there on his own feet (no pop into place): a short run, then he goes down
+	if marcus.global_position.distance_to(ml(MARCUS_PIN)) > 0.6:
+		world.npc_walk("Marcus", MARCUS_PIN, 3.2)
+		var ma0 = world.animators.get("Marcus")
+		var tw := 0.0
+		while tw < 3.0 and ma0 and ma0.is_walking():
+			await get_tree().process_frame
+			tw += get_process_delta_time()
 	world.place_survivor(marcus, MARCUS_PIN)
 	var ma = world.animators.get("Marcus")
 	if ma:
@@ -782,7 +793,7 @@ func _pin_countdown(delta: float) -> void:
 		return
 	_pin_left -= delta
 	if hud.has_method("set_hint"):
-		hud.set_hint("E - PULL MARCUS FREE")
+		hud.set_hint("E - PULL MARCUS FREE   %d" % ceili(maxf(_pin_left, 0.0)) if _pin_left < INF else "E - PULL MARCUS FREE")
 	if _pin_left <= 0.0:
 		_marcus_lost()
 

@@ -627,8 +627,8 @@ func _process(delta: float) -> void:
 	var near := _near_doors(pl) or _near_doors(el)
 	if survivor.visible:
 		near = near or _near_doors(market.to_local(survivor.global_position))
-	if Game.has_flag("ch6_started"):
-		pass                                      # Chapter 6 runs the doors from here on
+	if Game.has_flag("ch6_started") or (world.expedition != null and world.expedition.active()):
+		pass                                      # Chapter 6 runs the doors from here on (a supply run: the trip does)
 	elif Game.has_flag("c5_returned"):
 		if _doors_open and not near:
 			_set_doors(false)                         # home: pulled shut once everyone is clear of them
