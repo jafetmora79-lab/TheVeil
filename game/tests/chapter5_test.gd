@@ -354,7 +354,8 @@ func _run() -> void:
 			occupied += 1
 	var usable_n: int = game.inventory.filter(func(id): return VeilInventoryPanel.usable(id)).size()
 	ok("inv_grid", inv.visible and occupied == usable_n and usable_n > 0 and not world.player.controls_enabled, "%d slots for %d usable items" % [occupied, usable_n])
-	ok("inv_only_usable", inv._ids.all(func(id): return not inv.actions_for(id).is_empty() or id == "batteries")
+	# (painkillers at full health show no button on purpose: the shelter's no-waste healing rule)
+	ok("inv_only_usable", inv._ids.all(func(id): return not inv.actions_for(id).is_empty() or id == "batteries" or game.item_info(id).get("category", "") == "medical")
 		and not inv._ids.has("groceries") and not inv._ids.has("horror_game"), str(inv._ids))
 	ok("inv_square", absf(inv.get_child(1).get_child(0).size.x - inv.get_child(1).get_child(0).size.y) < 2.0,
 		str(inv.get_child(1).get_child(0).size))
@@ -370,7 +371,7 @@ func _run() -> void:
 	for id in game.inventory:
 		wsum += float(game.item_info(id).get("weight", 0.0)) * (p4.flashlight.spares if id == "batteries" else 1)
 	ok("inv_weight", absf(VeilInventoryPanel.carried_weight() - wsum) < 0.001 and inv._weight.text.contains("/ 15.0 kg"), inv._weight.text)
-	inv.select(game.inventory.find("flashlight"))
+	inv.select(inv._ids.find("flashlight"))           # the panel's own list (usable items only), not the raw inventory
 	ok("inv_details", inv._name.text == "FLASHLIGHT" and inv._actions.get_child_count() >= 1, inv._name.text)
 	world.hud.toggle_inventory()
 	await frames(5)

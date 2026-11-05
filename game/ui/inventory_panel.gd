@@ -73,6 +73,7 @@ func _ready() -> void:
 	panel.add_theme_stylebox_override("panel", VeilUI.panel_style())
 	panel.custom_minimum_size = Vector2(PANEL, PANEL)
 	center.add_child(panel)
+	_main = panel
 	var col := VBoxContainer.new()
 	col.add_theme_constant_override("separation", 12)
 	panel.add_child(col)
@@ -177,6 +178,7 @@ func _ready() -> void:
 	col.add_child(help)
 	_build_inspect()
 	Game.inventory_changed.connect(refresh)
+	get_viewport().size_changed.connect(_fit)
 	refresh()
 
 
@@ -549,9 +551,28 @@ func _process(delta: float) -> void:
 
 
 # ------------------------------------------------------------------ open / close / keyboard
+var _main: PanelContainer
+
+
+## Keep the panel square (as wide as its content is tall) and scaled down to fit the window: its text lines are
+## taller than the 600 px design allowed for, which pushed the bottom off a 720 px screen.
+func _fit() -> void:
+	if _main == null:
+		return
+	var need := _main.get_combined_minimum_size()
+	var side := maxf(PANEL, maxf(need.x, need.y))
+	_main.custom_minimum_size = Vector2(side, side)
+	var vp := get_viewport_rect().size
+	var k := minf(1.0, minf(vp.x * 0.94 / side, vp.y * 0.94 / side))
+	_main.pivot_offset = Vector2(side, side) * 0.5
+	_main.scale = Vector2.ONE * k
+
+
 func open() -> void:
 	refresh()
 	visible = true
+	_fit()
+	_fit.call_deferred()                               # again once the new details have been laid out
 
 
 func close() -> void:
