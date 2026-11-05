@@ -609,6 +609,147 @@ func _skitter_run(sk: Node3D, ap: AnimationPlayer, to_local: Vector3, speed: flo
 		await get_tree().process_frame
 
 
+## Turn the first-person camera towards `at` a little each frame (follows a moving thing smoothly).
+func _fp_track(cam: Camera3D, at: Vector3, rate: float) -> void:
+	var want := Transform3D(Basis(), cam.global_position).looking_at(at, Vector3.UP).basis.get_rotation_quaternion()
+	cam.global_basis = Basis(cam.global_basis.get_rotation_quaternion().slerp(want, minf(get_process_delta_time() * rate, 1.0)))
+
+
+## The building to the left of the game store (Storefront_A), across the street from the supermarket doors.
+const ROOF_BUILDING := "COM_Storefront_A_Exterior"
+const ROOF_X := [3.0, 5.0, 1.5, 7.0]           ## market-local x of the roof spots tried (nearest the doors' axis first)
+const LANDINGS := [Vector3(2.5, 0, -24.0), Vector3(1.0, 0, -22.0), Vector3(4.0, 0, -20.0), Vector3(0.5, 0, -18.0)]
+const EXITS := [Vector3(-30.0, 0.0, -6.0), Vector3(-26.0, 0.0, -10.0), Vector3(-22.0, 0.0, -14.0), Vector3(-30.0, 0.0, -3.0)]
+
+
+## Highest visual surface of `mesh` straight below/above `wp` (the roof has no collision to ray-cast against).
+func _mesh_top(m: MeshInstance3D, wp: Vector3) -> float:
+	var inv := m.global_transform.affine_inverse()
+	var a := inv * (wp + Vector3(0, 60, 0))
+	var b := inv * (wp - Vector3(0, 60, 0))
+	var best := -INF
+	var f: PackedVector3Array = m.get_meta("faces") if m.has_meta("faces") else m.mesh.get_faces()
+	m.set_meta("faces", f)
+	for i in range(0, f.size(), 3):
+		var hit = Geometry3D.segment_intersects_triangle(a, b, f[i], f[i + 1], f[i + 2])
+		if hit != null:
+			best = maxf(best, (m.global_transform * (hit as Vector3)).y)
+	return best
+
+
+## A box the size of the Skitter's body and legs swept from a to b touches nothing in the static world: no car, fence, wall.
+func _run_clear(a: Vector3, b: Vector3) -> bool:
+	var q := PhysicsShapeQueryParameters3D.new()
+	var box := BoxShape3D.new()
+	box.size = Vector3(1.9, 0.45, 1.6)
+	q.shape = box
+	q.collision_mask = 1
+	# the back-room pallet stacks (inside, 15+ m behind the front doors) are left out: their convex collision hull
+	# reports a false overlap at the entrance in this query, though nothing of them is anywhere near the street
+	var ex: Array[RID] = [player.get_rid()]
+	for k in _pallets:
+		for sb in (_pallets[k] as Node).find_children("*", "StaticBody3D", true, false):
+			ex.append((sb as StaticBody3D).get_rid())
+	q.exclude = ex
+	var dir := (b - a) * Vector3(1, 0, 1)
+	# bottom ~0.38 m above its feet: it steps up a kerb (~0.15 m); cars, fences and walls are all taller than that
+	q.transform = Transform3D(Basis(Vector3.UP, atan2(dir.x, dir.z)), a + Vector3(0, 0.6, 0))
+	q.motion = dir
+	var r := player.get_world_3d().direct_space_state.cast_motion(q)
+	return r[0] >= 0.999
+
+
+## Places the Skitter crouched on the real roof surface, ~2.5 m back from its front edge (out of the street's view
+## line until it creeps forward); picks a landing on the road and checks the jump, the run to the doors and the
+## run away against the world's collision. Returns [skitter, animation player] or [].
+func _spawn_roof_skitter(doors_z: float) -> Array:
+	var ps := load(SKITTER_PATH) as PackedScene
+	var bld := world.find_child(ROOF_BUILDING, true, false) as MeshInstance3D
+	if ps == null or bld == null:
+		charge_report["roof_error"] = "missing Skitter or %s" % ROOF_BUILDING
+		return []
+	var edge := Vector3.INF
+	var back := Vector3.INF
+	var roof_y := 0.0
+	for x in ROOF_X:
+		# walk from the street towards the building (market-local -z) to the first roof point, i.e. its front edge
+		var z := doors_z - 30.0
+		var found := false
+		while z > doors_z - 40.0:
+			var wp := ml(Vector3(x, 0, z))
+			var y := _mesh_top(bld, wp)
+			if y > market.global_position.y + 3.0:
+				var y2 := _mesh_top(bld, ml(Vector3(x, 0, z - 2.5)))
+				if absf(y2 - y) < 0.3:                    # flat enough to crouch on, both at the edge and set back
+					edge = ml(Vector3(x, 0, z - 0.5))
+					edge.y = _mesh_top(bld, edge)
+					back = ml(Vector3(x, 0, z - 2.5))
+					back.y = y2
+					roof_y = edge.y
+					found = true
+				break
+			z -= 0.25
+		if found:
+			break
+	if not edge.is_finite():
+		charge_report["roof_error"] = "no flat roof edge found"
+		return []
+	var sk := ps.instantiate() as Node3D
+	sk.name = "P4_Skitter_Charge"
+	world.add_child(sk)
+	if sk is CollisionObject3D:
+		(sk as CollisionObject3D).collision_layer = 0
+		(sk as CollisionObject3D).collision_mask = 0
+	sk.set_physics_process(false)
+	charge_report["dark_surfaces"] = VeilCreatureLook.apply_skitter(sk, market.global_position.y)
+	sk.set_meta("feet_y", Interactable.aabb_of(sk).position.y * sk.scale.y)
+	charge_report["feet_y"] = sk.get_meta("feet_y")
+	sk.global_position = back - Vector3(0, float(sk.get_meta("feet_y")), 0)
+	var face := (ml(Vector3(0, 0, doors_z)) - edge) * Vector3(1, 0, 1)
+	sk.rotation.y = atan2(face.x, face.z)                       # the model faces +Z: towards the supermarket
+	sk.set_meta("roof_edge", edge - Vector3(0, float(sk.get_meta("feet_y")), 0))
+	sk.set_meta("roof_y", roof_y - float(sk.get_meta("feet_y")))
+	var ap := sk.get_node_or_null(String(sk.get_meta("animation_player", "Model/AnimationPlayer"))) as AnimationPlayer
+	if ap and ap.has_animation("Idle_Twitch"):
+		ap.play("Idle_Twitch")
+	# landing + runs: the first candidate whose jump line and both runs are clear of the world's collision
+	var hit_at := ml(Vector3(0.1, 0.0, doors_z - 1.2))
+	var space := player.get_world_3d().direct_space_state
+	var chosen := Vector3.INF
+	for c in LANDINGS:
+		var land := ml(c + Vector3(0, 0, doors_z))
+		land.y = _floor_y(land)
+		var jump := space.intersect_ray(PhysicsRayQueryParameters3D.create(edge + Vector3(0, 0.5, 0), land + Vector3(0, 0.6, 0), 1, [player.get_rid()]))
+		if jump.is_empty() and _run_clear(land, hit_at):
+			chosen = land
+			break
+	charge_report["landing_found"] = chosen.is_finite()
+	if not chosen.is_finite():
+		chosen = ml(LANDINGS[0] + Vector3(0, 0, doors_z))
+		chosen.y = _floor_y(chosen)
+	sk.set_meta("landing", chosen - Vector3(0, float(sk.get_meta("feet_y")), 0))
+	charge_report["run_clear"] = _run_clear(chosen, hit_at)
+	var exit_to: Vector3 = EXITS[0] + Vector3(0, 0, doors_z)
+	for e in EXITS:
+		if _run_clear(hit_at, ml(e + Vector3(0, 0, doors_z))):
+			exit_to = e + Vector3(0, 0, doors_z)
+			charge_report["exit_clear"] = true
+			break
+	sk.set_meta("exit_local", exit_to)
+	var scuttle := AudioStreamPlayer3D.new()
+	scuttle.name = "Scuttle"
+	scuttle.stream = _streams["scuttle"]
+	scuttle.unit_size = 5.0
+	scuttle.max_distance = 60.0
+	scuttle.volume_db = 2.0
+	sk.add_child(scuttle)
+	charge_report["spawned"] = true
+	charge_report["creature"] = "Skitter"
+	charge_report["start"] = "roof"
+	charge_report["roof_building"] = ROOF_BUILDING
+	return [sk, ap]
+
+
 func _hound_charge() -> void:                   # (name kept: the accept branch's creature is now the Skitter)
 	if Game.has_flag("p4_hound_charged"):
 		return
@@ -627,6 +768,14 @@ func _hound_charge() -> void:                   # (name kept: the accept branch'
 		world._doors_powered = true
 		world._set_auto_doors(v)
 		world._doors_powered = false
+	# 0. the Skitter is already out there, crouched back from the roof edge across the street (placed before the
+	# doors open: nothing appears in view)
+	var sk: Node3D = null
+	var ap: AnimationPlayer = null
+	var spawned := _spawn_roof_skitter(doors_z)
+	if not spawned.is_empty():
+		sk = spawned[0]
+		ap = spawned[1]
 	# 1. out of the front doors with Marcus (Eddie waits inside)
 	set_doors.call(true)
 	await get_tree().create_timer(0.8).timeout     # the leaves are fully apart before anyone walks through
@@ -634,51 +783,82 @@ func _hound_charge() -> void:                   # (name kept: the accept branch'
 	await _fp_to(cam, [Vector3(1.5, 0.04, 4.4), Vector3(1.5, 0.04, 1.8), Vector3(0.3, 0.04, 1.0), Vector3(0.3, 0.04, doors_z - 2.4)], 1.7)
 	await _fp_face(cam, ml(Vector3(-1.5, 1.5, doors_z - 14.0)), 0.8)
 	await get_tree().create_timer(1.6).timeout     # the street is quiet
-	# 2. deep in the fog, already running before it can be seen: a Skitter, sprinting straight at them
-	var sk: Node3D = null
-	var ap: AnimationPlayer = null
-	var ps := load(SKITTER_PATH) as PackedScene
-	if ps:
-		sk = ps.instantiate() as Node3D
-		sk.name = "P4_Skitter_Charge"
-		world.add_child(sk)
-		if sk is CollisionObject3D:
-			(sk as CollisionObject3D).collision_layer = 0
-			(sk as CollisionObject3D).collision_mask = 0
-		sk.set_physics_process(false)
-		charge_report["dark_surfaces"] = VeilCreatureLook.apply_skitter(sk, market.global_position.y)
-		# where its feet are relative to its origin (measured on the Scuttle_Fast pose): keeps it on, not in, the road
-		var ap0 := sk.get_node_or_null(String(sk.get_meta("animation_player", "Model/AnimationPlayer"))) as AnimationPlayer
-		if ap0 and ap0.has_animation("Scuttle_Fast"):
-			ap0.play("Scuttle_Fast")
-			ap0.seek(0.1, true)
-		sk.set_meta("feet_y", Interactable.aabb_of(sk).position.y * sk.scale.y)
-		charge_report["feet_y"] = sk.get_meta("feet_y")
-		var start := ml(Vector3(-7.0, 0.0, doors_z - 46.0))
-		start.y = _floor_y(start)
-		sk.global_position = start
-		ap = sk.get_node_or_null(String(sk.get_meta("animation_player", "Model/AnimationPlayer"))) as AnimationPlayer
-		var scuttle := AudioStreamPlayer3D.new()
-		scuttle.name = "Scuttle"
-		scuttle.stream = _streams["scuttle"]
-		scuttle.unit_size = 5.0
-		scuttle.max_distance = 60.0
-		scuttle.volume_db = 2.0
-		sk.add_child(scuttle)
-		scuttle.play()
-		charge_report["spawned"] = true
-		charge_report["creature"] = "Skitter"
-		charge_report["spawn_distance_m"] = start.distance_to(player.global_position)
-	# where it hits: its front (measured from the model) on the outer face of the shut leaves
+	# 2. a sound on the roof across the street (the building to the left of the game store): the protagonist looks
+	# up; the Skitter creeps to the roof edge and crouches; a short focus (first-person zoom) on its silhouette
 	var front := 0.9
 	if sk:
 		var bb := Interactable.aabb_of(sk)
 		front = maxf(bb.end.z, 0.3) * sk.scale.z
 	var hit_at := Vector3(0.1, 0.0, doors_z - 0.02 - front)      # its snout stops on the glass (~2-3 cm), not through it
-	var notice_at := Vector3(-3.0, 0.0, doors_z - 26.0)
 	if sk:
-		await _skitter_run(sk, ap, notice_at, 9.5)
-	# 3. noticed: turn, run back inside with Marcus, turn, the doors slide shut
+		_play("scrape", sk.global_position + Vector3(0, 0.3, 0), 6.0)
+		if ap and ap.has_animation("Alert"):
+			ap.play("Alert", 0.2)
+		var look_at := sk.global_position + Vector3(0, 0.35, 0)
+		await _fp_face(cam, look_at, 0.9)
+		var edge: Vector3 = sk.get_meta("roof_edge")
+		if ap and ap.has_animation("Crawl"):
+			ap.play("Crawl", 0.15)
+			ap.speed_scale = 1.0
+		var tc := sk.create_tween()
+		tc.tween_property(sk, "global_position", edge, 1.1).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT)
+		var tz := 0.0
+		while tz < 1.1:                                 # the eyes follow it to the edge
+			await get_tree().process_frame
+			tz += get_process_delta_time()
+			_fp_track(cam, sk.global_position + Vector3(0, 0.35, 0), 6.0)
+		if ap and ap.has_animation("Idle_Twitch"):
+			ap.play("Idle_Twitch", 0.2)
+		var fov0 := cam.fov
+		var tf := create_tween()
+		tf.tween_property(cam, "fov", fov0 * 0.6, 0.6).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
+		var hold := 0.0
+		while hold < 1.5:                               # zoom in (0.6 s) + recognise the silhouette (0.9 s)
+			await get_tree().process_frame
+			hold += get_process_delta_time()
+			_fp_track(cam, sk.global_position + Vector3(0, 0.3, 0), 8.0)
+		var eye := cam.global_position
+		var at := sk.global_position + Vector3(0, 0.3, 0)
+		var los := player.get_world_3d().direct_space_state.intersect_ray(PhysicsRayQueryParameters3D.create(eye, at, 1, [player.get_rid()]))
+		charge_report["roof_in_view"] = cam.is_position_in_frustum(at)
+		charge_report["roof_line_of_sight"] = los.is_empty()
+		charge_report["roof_distance_m"] = eye.distance_to(at)
+		charge_report["zoom_fov"] = cam.fov
+		charge_report["roof_feet_gap_m"] = sk.global_position.y - float(sk.get_meta("roof_y"))
+		# 3. the leap: a jump arc from the roof edge down to the road, its feet on the street at the landing
+		var land: Vector3 = sk.get_meta("landing")
+		var from := sk.global_position
+		var dist_air := Vector2(land.x - from.x, land.z - from.z).length()
+		var t_air := clampf(dist_air / 9.0, 0.6, 1.1)
+		var peak := 1.2
+		if ap and ap.has_animation("Attack_Lunge"):
+			ap.play("Attack_Lunge", 0.05)
+			ap.speed_scale = 1.0 / t_air
+		var tr := create_tween()
+		tr.tween_property(cam, "fov", fov0, 0.5).set_trans(Tween.TRANS_SINE)
+		var dir := (land - from) * Vector3(1, 0, 1)
+		sk.rotation.y = atan2(dir.x, dir.z)
+		var tj := 0.0
+		var max_dip := 0.0
+		while tj < t_air:
+			await get_tree().process_frame
+			tj += get_process_delta_time()
+			var k := clampf(tj / t_air, 0.0, 1.0)
+			var pos := from.lerp(land, k) + Vector3(0, 4.0 * peak * k * (1.0 - k), 0)
+			sk.global_position = pos
+			max_dip = maxf(max_dip, _floor_y(pos) - pos.y)       # never below the ground under it
+			_fp_track(cam, pos + Vector3(0, 0.3, 0), 7.0)
+		sk.global_position = land
+		charge_report["air_time_s"] = t_air
+		charge_report["air_max_dip_m"] = max_dip
+		charge_report["landing_gap_m"] = land.y - _floor_y(land)
+		_play("impact", land, -2.0)                              # sharp, on the contact frame
+		world._shake(cam, 0.18, 0.025)
+		charge_report["landed"] = true
+		var sc := sk.get_node_or_null("Scuttle") as AudioStreamPlayer3D
+		if sc:
+			sc.play()
+	# 4. it sprints at them: turn, run back inside with Marcus, turn, the doors slide shut
 	var t0 := Time.get_ticks_msec()
 	var closing := func() -> void:
 		world.npc_walk("Marcus", Vector3(1.6, 0.04, 4.6), 4.2)
@@ -738,7 +918,7 @@ func _hound_charge() -> void:                   # (name kept: the accept branch'
 		# 6. turns left and scuttles off into the fog
 		if scut:
 			scut.play()
-		await _skitter_run(sk, ap, Vector3(-30.0, 0.0, doors_z - 6.0), 9.0)
+		await _skitter_run(sk, ap, sk.get_meta("exit_local", Vector3(-30.0, 0.0, doors_z - 6.0)), 9.0)
 		charge_report["left_into_fog"] = true
 		if is_instance_valid(sk):
 			sk.queue_free()

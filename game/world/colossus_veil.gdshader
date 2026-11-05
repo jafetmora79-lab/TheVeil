@@ -23,6 +23,7 @@ uniform float ambient = 0.32;
 uniform float emission_energy = 0.12;           // the plate seams only hint at a glow
 uniform float albedo_mul = 0.55;                // the atlas's bone / plate colours read as dirty, dark bone
 uniform float distance_fade = 0.035;            // extra fade into the mist with distance (on top of the scene fog)
+uniform float far_hide = 100000.0;              // beyond this distance (m) the surface dissolves into the mist (staging)
 
 varying float world_y;
 
@@ -35,6 +36,7 @@ void vertex() {
 void fragment() {
 	float h = world_y - ground_y;
 	float d = clamp((h - dissolve_start) / max(dissolve_end - dissolve_start, 0.001), 0.0, 1.0);
+	d = max(d, clamp((length(VERTEX) - far_hide) / 12.0, 0.0, 1.0));
 	int idx = int(mod(FRAGCOORD.x, 4.0)) + int(mod(FRAGCOORD.y, 4.0)) * 4;
 	if (d > (BAYER[idx] + 0.5) / 16.0) {
 		discard;
