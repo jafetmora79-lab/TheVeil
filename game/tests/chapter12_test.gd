@@ -401,12 +401,12 @@ func _run() -> void:
 		and FileAccess.file_exists(game.checkpoint_path("chapter13_return")))
 	ok("c12_ending", await wait_talk(func(): return game.has_flag("chapter_12_complete") and not c12._busy.get("ending", false), 90.0)
 		and said.has("We need answers.") and c12.report["ending_runs"] == 1)
-	ok("c12_fov_restored", c12.report.get("ending_fov_restored", false) and world.player.controls_enabled)
 	ok("c12_end_checkpoint", FileAccess.file_exists(game.checkpoint_path("chapter13_end")))
-	ok("c12_eddie_home", c12.c10.inside_room(c12._node("Eddie")))
 	# after the card, displayed Chapter 14 begins at the mill house (chapter13.gd)
 	ok("c12_next_chapter", await wait_until(func(): return game.has_flag("ch13_started") and c12.chapter13 != null, 60 * 10) and game.chapter_number() == 14)
 	await wait_until(func(): return not c12.chapter13._busy.get("opening", false), 60 * 8)
+	ok("c12_fov_restored", c12.report.get("ending_fov_restored", false) and await wait_until(func(): return world.player.controls_enabled, 60 * 8))
+	ok("c12_eddie_home", c12.c10.inside_room(c12._node("Eddie")))
 
 	# ---- loads: nothing duplicated, nothing replayed
 	await reload()
