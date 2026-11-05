@@ -2093,6 +2093,41 @@
    }
   ]
  },
+ "c7_skitters_intro": {
+  "source": "QA-008: the first sight of the Skitters at the car",
+  "lines": [
+   {
+    "speaker": "Marcus",
+    "text": "Wait. Look at the car.",
+    "time": 2.2
+   },
+   {
+    "speaker": "",
+    "text": "Those things are all over it.",
+    "time": 2.4
+   },
+   {
+    "speaker": "Marcus",
+    "text": "We're not getting anywhere near that.",
+    "time": 2.6
+   },
+   {
+    "speaker": "",
+    "text": "Maybe we can draw them away.",
+    "time": 2.4
+   },
+   {
+    "speaker": "Marcus",
+    "text": "How?",
+    "time": 1.4
+   },
+   {
+    "speaker": "",
+    "text": "Something loud. Away from the car.",
+    "time": 2.6
+   }
+  ]
+ },
  "c7_walk": {
   "source": "Chapter 7 implementation prompt (approved script)",
   "lines": [

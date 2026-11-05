@@ -243,7 +243,7 @@ func _refresh_prompts() -> void:
 	its["backpack"].prompt_text = "E - EXAMINE BACKPACK" if Game.has_flag("ch7_vehicle_reached") and _skitters_done() \
 		and not Game.has_flag("ch7_backpack_found") else ""
 	if its.has("alarm"):
-		var on := Game.has_flag("ch7_vehicle_reached") and not _skitters_done()
+		var on: bool = _alarm_ready() and not _skitters_done() and not _busy.get("alarm", false)
 		its["alarm"].prompt_text = "[E] Set Off the Car Alarm" if on else ""
 		its["alarm"].collision_layer = 8 if on else 0
 	if doors:
@@ -282,10 +282,13 @@ func _guide() -> void:
 	elif not Game.has_flag("ch7_departure_complete"):
 		t = c5.ml(Vector3(0, 1.4, 0.4))
 		label = "DOORS"
-	elif not Game.has_flag("ch7_vehicle_reached"):
+	elif not Game.has_flag("ch7_vehicle_reached") and not Game.has_flag("ch7_skitters_seen"):
 		t = CAR_POS + Vector3(0, 1.8, 0)
 		label = "VEHICLE"
 		beacon = CAR_POS + Vector3(0, 3.0, 0)
+	elif not _skitters_done():
+		t = ALARM_POS + Vector3(0, 1.6, 0)             # (QA-008) the noise first; the backpack only once they are gone
+		label = "CAR ALARM"
 	elif not Game.has_flag("ch7_backpack_found"):
 		t = its["backpack"].global_position
 		label = "BACKPACK"
@@ -426,6 +429,8 @@ func _process(delta: float) -> void:
 	if Game.has_flag("ch8_started"):
 		return                                    # Chapter 8 owns the NPCs, the doors and the marker from here on
 	_note_tick(delta)
+	if not _busy.get("fleeing", false):
+		_patrol_tick(delta)
 	_tick -= delta
 	if _tick > 0.0 or player == null:
 		return
@@ -445,6 +450,12 @@ func _process(delta: float) -> void:
 			and c5._away_from_store(pl, 12.0) and not Dialogue.is_busy():
 		Game.set_flag("ch7_walk_said")
 		Dialogue.say("c7_walk", false, true)
+	if Game.has_flag("ch7_departure_complete") and skitters.is_empty() and not _skitters_done():
+		_spawn_car_skitters()                      # (QA-004) already at the car, well before the player gets there
+	if not skitters.is_empty() and not Game.has_flag("ch7_skitters_seen") and not Game.has_flag("ch7_vehicle_reached") \
+			and not _busy.get("intro", false) and not Dialogue.is_busy() and not world.conversing and player.controls_enabled \
+			and Vector2(player.global_position.x - CAR_POS.x, player.global_position.z - CAR_POS.z).length() < INTRO_DIST:
+		_skitter_intro()
 	if Game.has_flag("ch7_departure_complete") and not Game.has_flag("ch7_vehicle_reached") and _car_area.overlaps_body(player):
 		Game.set_flag("ch7_vehicle_reached")
 		_spawn_car_skitters()
@@ -540,7 +551,7 @@ func _setup_distraction() -> void:
 	it.used.connect(_set_off_alarm)
 	its["alarm"] = it
 	_alarm_stream = Sfx._make(0.5, func(t: float, _i: int) -> float: return sin(TAU * (880.0 if t < 0.25 else 660.0) * t) * 0.35, true)
-	if Game.has_flag("ch7_vehicle_reached") and not _skitters_done():
+	if (Game.has_flag("ch7_departure_complete") or Game.has_flag("ch7_vehicle_reached")) and not _skitters_done():
 		_spawn_car_skitters.call_deferred()
 
 
@@ -562,45 +573,128 @@ func _spawn_car_skitters() -> void:
 		sk.global_position = SKITTER_SPOTS[i]
 		sk.rotation.y = atan2(SKITTER_SPOTS[i].x - CAR_POS.x, SKITTER_SPOTS[i].z - CAR_POS.z)
 		VeilCreatureLook.apply_skitter(sk, SKITTER_SPOTS[i].y)
-		_skitter_anim(sk, ["idle", "alert", "crouch"])
+		VeilCreatureLook.skitter_anim(sk, "idle")
 		skitters.append(sk)
+		_patrol[sk] = {"a": atan2(SKITTER_SPOTS[i].z - CAR_POS.z, SKITTER_SPOTS[i].x - CAR_POS.x), "dir": 1.0 if i == 0 else -1.0,
+			"pause": randf_range(0.5, 2.0), "busy": 0.0, "walk": 3.0}
+
+
+## (QA-004) Around the car until drawn off: a slow crawl along a ring about the car, stopping now and then to
+## twitch, the odd change of direction. Never far from it.
+const PATROL_R := 3.4
+const PATROL_SPEED := 0.9
+const INTRO_DIST := 24.0
+var _patrol := {}
+
+
+func _patrol_tick(delta: float) -> void:
+	for sk in _patrol.keys():
+		if not is_instance_valid(sk):
+			_patrol.erase(sk)
+			continue
+		var pt: Dictionary = _patrol[sk]
+		var n := sk as Node3D
+		if float(pt["busy"]) > 0.0:                    # mid-lunge
+			pt["busy"] = maxf(float(pt["busy"]) - delta, 0.0)
+			continue
+		if float(pt["pause"]) > 0.0:
+			pt["pause"] = float(pt["pause"]) - delta
+			VeilCreatureLook.skitter_anim(n, "idle")
+			if float(pt["pause"]) <= 0.0:
+				pt["walk"] = randf_range(2.5, 6.0)
+				if randf() < 0.3:
+					pt["dir"] = -float(pt["dir"])
+			continue
+		pt["a"] = float(pt["a"]) + float(pt["dir"]) * PATROL_SPEED / PATROL_R * delta
+		var to := CAR_POS + Vector3(cos(float(pt["a"])) * PATROL_R, 0.0, sin(float(pt["a"])) * PATROL_R)
+		var d: Vector3 = to - n.global_position
+		d.y = 0.0
+		if d.length() > 0.001:
+			n.rotation.y = atan2(d.x, d.z)
+		n.global_position = Vector3(to.x, n.global_position.y, to.z)
+		VeilCreatureLook.skitter_anim(n, "crawl", PATROL_SPEED)
+		pt["walk"] = float(pt["walk"]) - delta
+		if float(pt["walk"]) <= 0.0:
+			pt["pause"] = randf_range(1.0, 2.5)
+
+
+## (QA-008) The first sight of them: a short first-person look (turn to the car, a slight zoom), then the talk.
+func _skitter_intro() -> void:
+	_busy["intro"] = true
+	Game.set_flag("ch7_skitters_seen")
+	player.controls_enabled = false
+	player.velocity = Vector3.ZERO
+	var cam: Camera3D = player.camera
+	var fov0 := cam.fov
+	var v: Vector3 = (CAR_POS + Vector3(0, 0.5, 0)) - cam.global_position
+	var yaw0: float = player.rotation.y
+	var pitch0: float = player.head.rotation.x
+	var yaw1 := atan2(-v.x, -v.z)
+	var pitch1 := asin(clampf(v.normalized().y, -1.0, 1.0))
+	var tw := create_tween().set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
+	tw.tween_method(func(k: float): player.set_yaw_pitch(lerp_angle(yaw0, yaw1, k), lerpf(pitch0, pitch1, k)), 0.0, 1.0, 1.2)
+	tw.parallel().tween_property(cam, "fov", fov0 * 0.75, 1.4)
+	await tw.finished
+	qa_report["intro_facing"] = (-cam.global_transform.basis.z).dot(v.normalized())
+	await get_tree().create_timer(2.0).timeout         # they keep moving around the car, in view
+	var back := create_tween()
+	back.tween_property(cam, "fov", fov0, 0.6)
+	await back.finished
+	cam.fov = fov0
+	await c5._talk("c7_skitters_intro", marcus)
+	player.controls_enabled = true
+	Game.set_flag("ch7_vehicle_reached")             # the car is found; the way to it now goes through the noise
 	if hud.has_method("set_hint"):
 		hud.set_hint("Skitters at the car. Make a noise somewhere else to draw them off.")
+	_busy["intro"] = false
+	_refresh_prompts()
+	_guide()
 
 
-func _skitter_anim(sk: Node3D, keys: Array) -> void:
-	var aps := sk.find_children("*", "AnimationPlayer", true, false)
-	if aps.is_empty():
-		return
-	var ap := aps[0] as AnimationPlayer
-	for k in keys:
-		for n in ap.get_animation_list():
-			if String(n).to_lower().contains(k):
-				ap.play(n)
-				return
+func _alarm_ready() -> bool:
+	return Game.has_flag("ch7_vehicle_reached") or Game.has_flag("ch7_skitters_seen")
 
 
-## Too close while they are at the car: one of them lunges (never a killing bite) and the player is pushed back.
+## Too close while they are at the car: one of them turns, lunges (Attack_Lunge) and bites at the contact moment
+## (never a killing bite); the player is pushed back. (QA-006)
 func _skitter_guard() -> void:
 	_lunge_t = maxf(_lunge_t - 0.2, 0.0)
-	if skitters.is_empty() or _skitters_done() or _lunge_t > 0.0:
+	if skitters.is_empty() or _skitters_done() or _lunge_t > 0.0 or _busy.get("fleeing", false):
 		return
 	for sk in skitters:
 		if is_instance_valid(sk) and (sk as Node3D).global_position.distance_to(player.global_position) < 4.5:
 			_lunge_t = 3.0
-			Sfx.play("door_close", (sk as Node3D).global_position, -6.0, 1.8)
-			var hp = player.get("health")
-			if player.has_method("damage") and hp != null:
-				player.damage(minf(10.0, maxf(float(hp) - 5.0, 0.0)), (sk as Node3D).global_position)
-			report_lunges += 1
+			_lunge(sk)
 			break
 
 
+func _lunge(sk: Node3D) -> void:
+	var d := player.global_position - sk.global_position
+	sk.rotation.y = atan2(d.x, d.z)
+	var ap := VeilCreatureLook.skitter_anim(sk, "attack", 0.0, 0.05)
+	var dur := 0.8
+	if ap and ap.has_animation("Attack_Lunge"):
+		dur = ap.get_animation("Attack_Lunge").length
+	qa_report["lunge_anim"] = ap != null and ap.current_animation == "Attack_Lunge"
+	if _patrol.has(sk):
+		_patrol[sk]["busy"] = dur + 0.2
+	Sfx.play("door_close", sk.global_position, -6.0, 1.8)
+	await get_tree().create_timer(dur * 0.45).timeout   # the contact moment of the lunge
+	if not is_instance_valid(sk) or _skitters_done():
+		return
+	if sk.global_position.distance_to(player.global_position) < 5.5:
+		var hp = player.get("health")
+		if player.has_method("damage") and hp != null:
+			player.damage(minf(10.0, maxf(float(hp) - 5.0, 0.0)), sk.global_position)
+		report_lunges += 1
+
+
 var report_lunges := 0
+var qa_report := {}
 
 
 func _set_off_alarm(_b: Node) -> void:
-	if _skitters_done() or not Game.has_flag("ch7_vehicle_reached") or _busy.get("alarm", false):
+	if _skitters_done() or not _alarm_ready() or _busy.get("alarm", false):
 		return
 	_busy["alarm"] = true
 	var a := AudioStreamPlayer3D.new()
@@ -611,7 +705,7 @@ func _set_off_alarm(_b: Node) -> void:
 	a.global_position = ALARM_POS + Vector3(0, 1.2, 0)
 	a.play()
 	get_tree().create_timer(7.0).timeout.connect(a.queue_free)
-	Game.set_flag("ch7_skitters_gone")               # they are drawn off for good (saved): the car is clear
+	_busy["fleeing"] = true                           # (QA-008) the car is clear only once they have gone to the noise
 	if hud.has_method("set_hint"):
 		hud.set_hint("")
 	_refresh_prompts()
@@ -620,18 +714,34 @@ func _set_off_alarm(_b: Node) -> void:
 		var sk: Node3D = skitters[i]
 		if not is_instance_valid(sk):
 			continue
-		_skitter_anim(sk, ["run", "walk"])
+		_patrol.erase(sk)
+		VeilCreatureLook.skitter_anim(sk, "scuttle", 7.0)
 		var mid := ALARM_POS + Vector3(-2.0 + i * 1.5, 0.0, -5.0)
 		var out: Vector3 = SKITTER_EXIT[i % SKITTER_EXIT.size()]
 		var tw := sk.create_tween()
 		sk.rotation.y = atan2(mid.x - sk.global_position.x, mid.z - sk.global_position.z)
 		tw.tween_property(sk, "global_position", mid, sk.global_position.distance_to(mid) / 7.0)
 		tw.tween_callback(func():
+			_drawn_off()
 			if is_instance_valid(sk):
 				sk.rotation.y = atan2(out.x - mid.x, out.z - mid.z))
 		tw.tween_property(sk, "global_position", out, mid.distance_to(out) / 7.0)
 		tw.tween_callback(_leave_unseen.bind(sk))
+	if skitters.is_empty():
+		_drawn_off()
+
+
+## They reached the noise: drawn off for good (saved) - now the backpack.
+func _drawn_off() -> void:
+	if Game.has_flag("ch7_skitters_gone"):
+		return
+	Game.set_flag("ch7_skitters_gone")
 	_busy["alarm"] = false
+	_busy["fleeing"] = false
+	if hud.has_method("set_hint"):
+		hud.set_hint("")
+	_refresh_prompts()
+	_guide()
 
 
 ## Removed only once nobody is looking at it (no pop-out in front of the player).

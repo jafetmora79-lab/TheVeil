@@ -47,3 +47,29 @@ static func _apply(c: Node3D, ground_y: float, params: Dictionary) -> int:
 			n += 1
 		m.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 	return n
+
+
+## (QA-005) The Skitter's shipped clips: Crawl (slow), Scuttle_Fast (fast), Idle_Twitch (still), Attack_Lunge.
+## Plays the one for `mode` ("idle", "crawl", "scuttle", "attack"; "auto" picks by speed) with its playback speed
+## matched to how fast the body actually moves (m/s). Returns the AnimationPlayer (or null).
+const SKITTER_CLIPS := {"idle": "Idle_Twitch", "crawl": "Crawl", "scuttle": "Scuttle_Fast", "attack": "Attack_Lunge"}
+const SKITTER_NATIVE := {"Crawl": 1.2, "Scuttle_Fast": 5.0}        # m/s each clip's stride covers at speed 1.0
+
+
+static func skitter_anim(c: Node3D, mode: String, speed := 0.0, blend := 0.15) -> AnimationPlayer:
+	var aps := c.find_children("*", "AnimationPlayer", true, false)
+	if aps.is_empty():
+		return null
+	var ap := aps[0] as AnimationPlayer
+	if mode == "auto":
+		mode = "idle" if speed < 0.15 else ("crawl" if speed < 2.4 else "scuttle")
+	var clip: String = SKITTER_CLIPS.get(mode, "Idle_Twitch")
+	if not ap.has_animation(clip):
+		return ap
+	var a := ap.get_animation(clip)
+	if clip != "Attack_Lunge" and a.loop_mode == Animation.LOOP_NONE:
+		a.loop_mode = Animation.LOOP_LINEAR
+	ap.speed_scale = clampf(speed / float(SKITTER_NATIVE[clip]), 0.5, 2.2) if SKITTER_NATIVE.has(clip) else 1.0
+	if ap.current_animation != clip:
+		ap.play(clip, blend)
+	return ap

@@ -885,13 +885,7 @@ func _start_chase(restoring: bool) -> void:
 	VeilCreatureLook.apply_skitter(skitter, start.y)
 	_chase_i = 0 if not restoring else 2
 	_skitter_prev = start
-	var ap := skitter.find_children("*", "AnimationPlayer", true, false)
-	if not ap.is_empty():
-		var a := ap[0] as AnimationPlayer
-		for n in a.get_animation_list():
-			if String(n).to_lower().contains("run"):
-				a.play(n)
-				break
+	VeilCreatureLook.skitter_anim(skitter, "scuttle", 3.7)
 	if not restoring:
 		_emerging = 1.2                              # out through the vent: the grate falls first
 		if is_instance_valid(grate):
