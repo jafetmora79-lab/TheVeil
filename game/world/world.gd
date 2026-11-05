@@ -456,6 +456,7 @@ func _setup_town() -> void:
 	# checkout: lane 4. The cashier is a generic placeholder (no cashier is named in the bible).
 	# Stand just off the lane 4 approach, with a clear interaction line from the aisle.
 	cashier = _spawn_npc(CASHIER, CASHIER_FACE, market, Vector3(-2.35, 0.04, 4.3), -PI * 0.5, "Cashier")
+	_place_exact(cashier, market.to_global(Vector3(-2.35, 0.04, 4.3)))   # behind the till, not "safely" in the aisle
 	var c_it := Interactable.attach(cashier, {"kind": "custom", "label": "Cashier", "prompt_text": "[E] Pay for Groceries"})
 	c_it.used.connect(_checkout)
 	interactables["market/cashier"] = c_it
@@ -476,7 +477,10 @@ func _setup_town() -> void:
 	if not Game.has_item("horror_game") and not Game.has_flag("game_bought"):
 		shop_merch.set_glow("horror_game", _glow_mat(Color(1.0, 0.35, 0.3)))
 	var behind := game_shop.get_node_or_null("NavTargets/BehindCounter") as Node3D
-	eddie = _spawn_npc(EDDIE, EDDIE_FACE, game_shop, Vector3(behind.position.x, 0.04, behind.position.z) if behind else Vector3(2.8, 0.04, 7.5), 0.0, "Eddie")
+	var eddie_at := Vector3(behind.position.x, 0.04, behind.position.z) if behind else Vector3(2.8, 0.04, 7.5)
+	eddie = _spawn_npc(EDDIE, EDDIE_FACE, game_shop, eddie_at, 0.0, "Eddie")
+	if not Game.has_flag("p3_mist"):
+		_place_exact(eddie, game_shop.to_global(eddie_at))              # behind his counter, as before
 	eddie_face = faces["Eddie"]
 	var talk := Interactable.attach(eddie, {"kind": "custom", "label": "Eddie", "prompt_text": "[E] Talk to Eddie"})
 	talk.used.connect(_talk_eddie)
@@ -1871,7 +1875,7 @@ func _colossus_encounter() -> void:
 	var b0 := cam.global_basis.get_rotation_quaternion()
 	var b1 := Transform3D(Basis(), cam.global_position).looking_at(L + Vector3(0, 4.0, 0) + side * -1.0, Vector3.UP).basis.get_rotation_quaternion()
 	tw0.tween_method(func(q): cam.global_basis = Basis(b0.slerp(b1, q * q * (3.0 - 2.0 * q))), 0.0, 1.0, 1.5)
-	await get_tree().create_timer(anim.length / SPEED).timeout     # the held beat (the old first stride's time)
+	await get_tree().create_timer(anim.length / SPEED * 0.55).timeout   # the held beat (a little shorter than a stride)
 	# the leg comes DOWN FROM ABOVE and stops: no fade. The whole creature starts DROP metres higher (the foot above
 	# the mist ceiling, out of sight) and comes down accelerating (y offset DROP * (1 - k^2)), so the foot drops out of
 	# the mist and stops hard on the road on the contact frame; the horizontal stance-rate walk is unchanged.
@@ -2154,6 +2158,16 @@ func _shop_regroup(cam: Camera3D, me: Node3D, P: Vector3, n: Vector3, side: Vect
 	animators["Eddie"].turn_to_face = true
 
 
+## Put an NPC exactly at its authored spot (behind a counter): the survivor-body safe placement would push it out
+## because its capsule touches the counter. It keeps its collision.
+func _place_exact(n: Node3D, at: Vector3) -> void:
+	if n == null:
+		return
+	n.set("_placement_valid", true)
+	n.global_position = at
+	n.show()
+
+
 ## A cinematic stand-in for the protagonist: the shot is framed on it, so it stands exactly where asked (the safe
 ## placement of survivor bodies would move it away from the player it overlaps, or hide it) and collides with nothing.
 func _cine_double(me: Node3D, at: Vector3) -> void:
@@ -2359,6 +2373,11 @@ func _fp_look(cam: Camera3D, at: Vector3, seconds: float) -> void:
 		await get_tree().process_frame
 
 
+func _fp_track(cam: Camera3D, at: Vector3, rate: float) -> void:
+	var want := Transform3D(Basis(), cam.global_position).looking_at(at, Vector3.UP).basis.get_rotation_quaternion()
+	cam.global_basis = Basis(cam.global_basis.get_rotation_quaternion().slerp(want, minf(get_process_delta_time() * rate, 1.0)))
+
+
 func _stock_door(open: bool, seconds := 0.45) -> void:
 	var leaf := game_shop.find_child("INT_Door_StockRoom", true, false) as Node3D
 	if leaf == null:
@@ -2397,16 +2416,26 @@ func _shop_seated_talk() -> void:
 	await _fp_walk(cam, STOCK_DOOR_OUT, 4.2)
 	await _fp_look(cam, X * (STOCK_IN + Vector3(0, 1.4, 0.6)), 0.2)
 	await _stock_door(true, 0.35)                 # shoved open
-	npc_walk("Eddie", EDDIE_STAND, 3.0)           # routed now that the doorway is open
+	# Eddie and Marcus go in first; the protagonist holds the door (a step aside) and goes in last
+	npc_walk("Eddie", EDDIE_STAND, 3.0)
 	npc_walk("Marcus", SEAT_DOCS + Vector3(0.62, 0, 0.0), 3.0)
-	await _fp_walk(cam, STOCK_IN, 3.6)
-	seated_report["fp_retreat"] = true
-	# 2. inside: wait for the others, turn, pull the door shut
+	await _fp_walk(cam, STOCK_DOOR_OUT + Vector3(0.85, 0, -0.35), 2.4)
 	var t := 0.0
-	while t < 4.0 and ["Eddie", "Marcus"].any(func(k): return animators.has(k) and animators[k].is_walking() \
-			and game_shop.to_local(animators[k].root.global_position).z < 8.9):
+	var inside := func(k: String) -> bool:
+		return not animators.has(k) or game_shop.to_local(animators[k].root.global_position).z > 8.9
+	while t < 6.0 and not (inside.call("Eddie") and inside.call("Marcus")):
+		_fp_track(cam, X * (STOCK_IN + Vector3(0, 1.3, 0)), 5.0)
 		await get_tree().process_frame
 		t += get_process_delta_time()
+	for pair in [["Eddie", EDDIE_STAND], ["Marcus", SEAT_DOCS + Vector3(0.62, 0, 0.0)]]:
+		if not inside.call(pair[0]):                       # never left outside: put in (rare; logged)
+			animators[pair[0]].walk_to([])
+			animators[pair[0]].root.position = pair[1]
+			seated_report["snapped_inside"] = seated_report.get("snapped_inside", 0) + 1
+	seated_report["others_in_first"] = inside.call("Eddie") and inside.call("Marcus")
+	await _fp_walk(cam, STOCK_IN, 3.0)
+	seated_report["fp_retreat"] = true
+	# 2. inside last: turn, pull the door shut
 	await _fp_look(cam, X * (STOCK_DOOR_OUT + Vector3(0, 1.3, 0.6)), 0.45)
 	await _stock_door(false, 0.6)
 	_colossus_step_outside(cam, 0.8)
@@ -2611,6 +2640,8 @@ func _p3_flee_together() -> void:
 				if not via.is_empty():
 					via.append(dout.global_position)
 		f.start(via)
+		if f.anim:
+			f.anim.physical = false                      # the trail is the player's own footsteps: no jamming
 		_p3_followers.append(f)
 		if animators.has(String(n.name)):
 			animators[String(n.name)].set_mood("scared")
@@ -2634,20 +2665,21 @@ func npc_walk(speaker: String, to: Vector3, speed := 1.3) -> void:
 		return
 	var par := a.root.get_parent_node_3d() as Node3D
 	var body := a.root as VeilSurvivorBody
-	var safe := body.nearest_safe(par.to_global(to))
-	if safe.is_finite():
-		a.walk_to(npc_route(par, body.position, par.to_local(safe), body), speed)
+	# scripted walks route around the static world only (walls, counters, doors): the player and the other NPCs
+	# are moving and must not make the route "blocked" (an empty route left Eddie standing outside the stock room)
+	var path := npc_route(par, a.root.position, to, body, true)
+	a.walk_to(path if not path.is_empty() else [to], speed)
 
 
 ## Reuse the local XZ grid search for survivor capsules and cinematic camera routes.
 ## Survivor searches return an empty path when the requested route is obstructed.
-func npc_route(frame: Node3D, from: Vector3, to: Vector3, body: VeilSurvivorBody = null) -> Array:
+func npc_route(frame: Node3D, from: Vector3, to: Vector3, body: VeilSurvivorBody = null, static_only := false) -> Array:
 	var space := get_world_3d().direct_space_state
 	var sph := SphereShape3D.new()
 	sph.radius = 0.28
 	var q := PhysicsShapeQueryParameters3D.new()
 	q.shape = body.capsule if body else sph
-	q.collision_mask = VeilSurvivorBody.SOLIDS if body else 1 | VeilSurvivorBody.LAYER
+	q.collision_mask = 1 if static_only else (VeilSurvivorBody.SOLIDS if body else 1 | VeilSurvivorBody.LAYER)
 	q.exclude = [body.get_rid()] if body else [player.get_rid()]
 	var heights := [VeilSurvivorBody.HEIGHT * 0.5 + VeilSurvivorBody.FOOT_CLEARANCE] if body else [0.5, 1.3]
 	var X := frame.global_transform
