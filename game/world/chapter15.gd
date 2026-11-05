@@ -730,8 +730,6 @@ func _retry() -> void:
 	player.damage(8.0, colossus.global_position)
 	player.global_position = COVERS[_last_cover] + Vector3(0, 0.1, 0)
 	player.velocity = Vector3.ZERO
-	for k in present():
-		c12._rejoin(k)
 	_col_phase = "walk"
 	_col_t = 7.0
 	colossus.rotation.y = 0.0
@@ -1077,7 +1075,7 @@ func _ending_b() -> void:
 	for k in present():
 		var f: VeilCompanionFollow = c9.follows[k]
 		f.stop()
-		world.npc_walk(k, UL(OUTER + Vector3(-2.0, 0.0, 0.6 * present().find(k) - 0.9)), 2.6)
+		world.npc_walk(k, UL(Vector3(27.0, 0.0, 64.0 + 1.0 * present().find(k))), 2.6)   # by the tunnel, out of its mouth
 	_hint("Back to the mechanism - close it!")
 	st()["seal_steps"] = 0
 	var c: Dictionary = st().get("controls", {})
