@@ -53,6 +53,40 @@ func setup(w: Node) -> void :
 			light.shadow_enabled = false
 			light.visible = false                # only while the encounter plays (a lit house all game long reads oddly)
 			test_lights.append(light)
+		_test_pointer()
+
+## A test aid, only in a save that carries the flag "dev_roof_skitter_pointer" (never set by the game itself): a
+## tall turquoise beam and a label over the house's front, gone once the encounter starts.
+var _pointer: Node3D
+func _test_pointer() -> void:
+	if not Game.has_flag("dev_roof_skitter_pointer") or Game.has_flag(SEEN): return
+	_pointer = Node3D.new()
+	_pointer.name = "RoofSkitterTestPointer"
+	world.add_child(_pointer)
+	_pointer.global_position = house.to_global(Vector3(0, 0, 14.0))
+	var beam:= MeshInstance3D.new()
+	var cyl:= CylinderMesh.new()
+	cyl.top_radius = 0.18
+	cyl.bottom_radius = 0.18
+	cyl.height = 30.0
+	beam.mesh = cyl
+	var m:= StandardMaterial3D.new()
+	m.albedo_color = Color(0.1, 1.0, 0.9, 0.55)
+	m.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
+	m.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
+	beam.material_override = m
+	_pointer.add_child(beam)
+	beam.position = Vector3(0, 15.0, 0)
+	var label:= Label3D.new()
+	label.text = "SKITTER TEST\nwalk up to the front of this house"
+	label.billboard = BaseMaterial3D.BILLBOARD_ENABLED
+	label.no_depth_test = true
+	label.font_size = 48
+	label.pixel_size = 0.01
+	label.modulate = Color(0.1, 1.0, 0.9)
+	_pointer.add_child(label)
+	label.position = Vector3(0, 4.5, 0)
+
 
 func eligible() -> bool:
 	if not is_instance_valid(world) or not is_instance_valid(house): return false
@@ -221,6 +255,7 @@ func _roof_at(z: float, x:= 0.0) -> Vector3:
 
 func _encounter() -> void :
 	running = true
+	if is_instance_valid(_pointer): _pointer.queue_free()
 	Game.set_flag(SEEN)
 	var p = world.player
 	var cam: Camera3D = p.camera
