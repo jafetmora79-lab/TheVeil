@@ -122,6 +122,14 @@
     "ch14_started"
    ],
    "impl": "chapter14.gd"
+  },
+  {
+   "n": 16,
+   "title": "What Remains",
+   "start": [
+    "ch15_started"
+   ],
+   "impl": "chapter15.gd"
   }
  ]
 }

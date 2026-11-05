@@ -215,6 +215,13 @@
    "weight": 0.2,
    "model": "res://THE_VEIL_ASSETS_V2/08_Inventory/Story_Items/INV_FoldedNote.glb",
    "description": "A survey sheet left by the sealed doorway, with a rubbing of the carving on it: the symbol, and around it marks no one in Greyhaven could read."
+  },
+  "last_note": {
+   "name": "A Last Note",
+   "category": "note",
+   "weight": 0.01,
+   "model": "res://THE_VEIL_ASSETS_V2/08_Inventory/Story_Items/INV_FoldedNote.glb",
+   "description": "Folded small, left under a stone by the road:\n'Tried the west road. Tried the river. The fog was always there first. If you find this, don't go back to the town. Go under it.'"
   }
  },
  "carry_capacity_kg": 15.0,
