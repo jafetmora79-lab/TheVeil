@@ -98,6 +98,30 @@
     "ch11_started"
    ],
    "impl": "chapter11.gd"
+  },
+  {
+   "n": 13,
+   "title": "The Truth Beneath Greyhaven",
+   "start": [
+    "ch12_started"
+   ],
+   "impl": "chapter12.gd"
+  },
+  {
+   "n": 14,
+   "title": "Into the Veil",
+   "start": [
+    "ch13_started"
+   ],
+   "impl": "chapter13.gd"
+  },
+  {
+   "n": 15,
+   "title": "The Last Shelter",
+   "start": [
+    "ch14_started"
+   ],
+   "impl": "chapter14.gd"
   }
  ]
 }

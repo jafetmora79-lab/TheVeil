@@ -420,6 +420,8 @@ func _run() -> void:
 	ok("c6_load_complete", game.has_flag("chapter_6_complete") and c6.hound == null and c6.ruth.visible
 		and c6.st()["ruth_sarah"] == "shelter" and world.find_children("Ruth", "", true, false).size() == 1
 		and p4.rest.interactable.prompt_text == "[E] Sleep")
+	# the survival rule: enough food and water for everyone tonight (deposited supplies)
+	game.world_state["shelter_stock"] = {"food": 12, "water": 12, "medical": int(game.shelter_stock().get("medical", 0)), "batteries": 0}
 	p4.rest.interactable.interact(world.player)
 	ok("c6_rest_confirm", await wait_until(func(): return p4.choice.is_open(), 60))
 	p4.choice.pick(0)

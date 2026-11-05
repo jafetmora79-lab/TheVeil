@@ -412,6 +412,8 @@ func _run() -> void:
 	ok("c8_load_complete", game.has_flag("chapter_8_complete") and not c8.temp.visible and c8.hound == null and c8.deaths == 0
 		and c8.st()["barricade"] == "broken" and c8.st()["power"] == "partial" and p4.rest.interactable.prompt_text == "[E] Sleep"
 		and game.inventory.count("painkillers") == pk0 - 1 and world.find_children("Sarah", "", true, false).size() == 1)
+	# the survival rule: enough food and water for everyone tonight (deposited supplies)
+	game.world_state["shelter_stock"] = {"food": 12, "water": 12, "medical": int(game.shelter_stock().get("medical", 0)), "batteries": 0}
 	p4.rest.interactable.interact(world.player)
 	ok("c8_rest_confirm", await wait_until(func(): return p4.choice.is_open(), 60))
 	p4.choice.pick(0)

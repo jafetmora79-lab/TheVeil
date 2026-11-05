@@ -136,7 +136,7 @@ func check_supplies(world: Node, game: Node) -> void:
 		and game.inventory.count("canned_food") == food_before - 1)
 	var report: Dictionary = world.phase4.record_night("test_night")
 	check("night_counts_current_roster", report.roster == world.shelter_roster() and report.roster.size() >= 4
-		and report.food_needed == report.roster.size())
+		and report.food_needed == report.roster.size() + int(report.get("extra", 0)))
 	check("night_deducts_actual_stock_only", report.food_used == 1 and report.water_used == 1 and report.food_left == 0 and report.water_left == 0)
 	check("night_does_not_consume_medical_or_batteries", game.shelter_stock().medical == 1 and game.shelter_stock().batteries == 1)
 	check("night_cannot_double_charge", world.phase4.record_night("test_night").is_empty())

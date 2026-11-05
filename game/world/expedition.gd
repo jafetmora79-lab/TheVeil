@@ -112,7 +112,8 @@ func emergency() -> bool:
 		return true
 	# a story trip with companions is under way (Chapters 6-8 followers)
 	for f in _followers():
-		return true
+		if not f.has_meta("sv_companion"):              # a scavenging companion is not a story trip
+			return true
 	return false
 
 
@@ -160,7 +161,14 @@ func _use_exit(_b: Node) -> void:
 			# the story's own exit and objective take it from here (nothing is restarted or skipped)
 			_hint("Objective: " + String(Game.current_step().get("text", "")))
 		"scavenge":
+			var who := ""
+			if world.survivors:
+				_busy_menu = true
+				who = await world.survivors.pick_companion(p4.choice)
+				_busy_menu = false
 			start("scavenge", false)
+			if world.survivors and active():
+				world.survivors.begin_trip(who)
 		"scavenge_car":
 			start("scavenge", true)
 
@@ -213,6 +221,8 @@ func secure() -> void:
 			got[k] = d
 	s["collected"] = got
 	s["active"] = false
+	if world.survivors:
+		world.survivors.end_trip(got)
 	s["returned"] = true
 	s["level"] = 0
 	for c in creatures:
