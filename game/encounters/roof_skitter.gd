@@ -556,12 +556,22 @@ func _escape_plan(right: Vector3) -> Array:
 	var away := house.global_basis.z.normalized()
 	# Always the player's LEFT. Never choose an arbitrary side or retreat behind
 	# the player's back; try nearby clear spots in the same sideward sector.
-	for offset in [0.0, -0.6, 0.6, 1.2]:
-		for lateral in [3.0, 4.0, 5.0, 6.0]:
+	for offset in [0.0, -0.6, 0.6, 1.2, -1.2]:
+		for lateral in [3.0, 2.2, 4.0, 5.0, 6.0]:
 			var landing := _ground(saved_position - right.normalized() * lateral + away * offset)
+			if not _open_line(saved_position, landing): continue       # never thrown through a fence
 			var route := _zigzag_home(landing)
 			if not route.is_empty(): return [landing,route[-1],route]
 	return [_ground(saved_position-right*3.0), _ground(saved_position-right*3.0), []]
+
+## Nothing solid (a fence, a wall) between two ground points, at knee and chest height.
+func _open_line(a: Vector3, b: Vector3) -> bool:
+	var space:= house.get_world_3d().direct_space_state
+	var ex: Array = [world.player.get_rid()]
+	for h in [0.4, 1.0]:
+		var q:= PhysicsRayQueryParameters3D.create(Vector3(a.x, _ground(a).y + feet_y + h, a.z), Vector3(b.x, _ground(b).y + feet_y + h, b.z), 1, ex)
+		if not space.intersect_ray(q).is_empty(): return false
+	return true
 
 func _zigzag_home(start: Vector3) -> Array:
 	# Run around the house's left exterior, then behind its far wall. Endpoints
