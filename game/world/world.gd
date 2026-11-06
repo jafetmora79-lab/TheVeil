@@ -1030,7 +1030,7 @@ func _arrival_shot() -> void:
 ## (flag `auto_parked`); a blocked path or a timeout hands control back and the manual parking trigger still works.
 const PARK_LOT := "RD_ParkingLot_10x20m_003"     # the lot module in front of the entrance (local z 0 = Main St)
 const PARK_STALL_X := -3.70                      # stall centre (lot-local x): two stalls east of the entrance
-const PARK_FINAL_Z := 17.1                       # car centre at rest: rear wheels just short of the wheel stop
+const PARK_FINAL_Z := 15.8                       # car centre at rest: well short of the curb and the cart row behind it
 const PARK_STRAIGHT := 1.5                       # straight reverse after the arc
 const PARK_R := 5.0                              # reverse arc radius (car centre), ~28 deg of steering
 var _auto_parking := false
@@ -1208,6 +1208,9 @@ func _auto_park() -> void:
 	Game.set_flag("reached_town")
 	Game.set_flag("parked")
 	Dialogue.say("parked", true, true)
+	await get_tree().create_timer(1.4).timeout
+	if in_car and sedan.driven and absf(sedan.speed) < 0.2:
+		exit_car()                                 # parked: the player gets out by themselves
 	save()
 
 
