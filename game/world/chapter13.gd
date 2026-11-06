@@ -1451,8 +1451,26 @@ func _return_home() -> void:
 	else:
 		await c9._talk_group("c13_return_other", [_node("Eddie"), _comp()])
 	await c9._talk_group("c13_explain_" + String(st().get("choice", "help")), [_node("Ruth")])
+	_settle_group()
 	_busy["return"] = false
 	_night()
+
+
+## Anyone who ended the walk back below their spot's floor (the mill house's basement stair opening lies close to
+## Eddie's spot) is put back on it (the same safe placement the house uses on load).
+var settled := 0                       ## tests
+
+
+func _settle_group() -> void:
+	for k in c10.group():
+		var n := _node(k)
+		var want: Vector3 = c10.hl(c10.SPOTS[k])
+		if n.visible and n.global_position.y < want.y - 0.3:
+			world.place_survivor(n, want)
+			var a = world.animators.get(k)
+			if a:
+				a.face_towards(c10.hl(Vector3(0.0, 1.5, 6.0)))
+			settled += 1
 
 
 # ------------------------------------------------------------------ scene 9: late that night, the window
