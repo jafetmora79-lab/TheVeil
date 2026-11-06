@@ -254,6 +254,7 @@ func _setup_below() -> void:
 	_b(Vector3(37.0, 1.4, 71.4), Vector3(14.0, 2.8, 0.3), "damp")
 	_b(Vector3(44.2, 1.4, 70.0), Vector3(0.3, 2.8, 3.0), "damp")
 	_b(Vector3(37.0, 2.95, 70.0), Vector3(14.0, 0.3, 3.0), "damp")
+	_b(Vector3(37.1, -0.15, 70.0), Vector3(14.6, 0.3, 3.0), "damp")      # its floor (none of the chamber floors reach x 30..44)
 	outer_block = _b(Vector3(31.0, 1.4, 70.0), Vector3(0.6, 2.8, 2.6), "stone")
 	outer_block.visible = false
 	outer_block.collision_layer = 0
