@@ -155,7 +155,8 @@ func _physics_process(delta: float) -> void:
 		_bob_t = lerpf(_bob_t, roundf(_bob_t / PI) * PI, delta * 6.0)
 	if moving and int(_bob_t / PI) != _last_step:
 		_last_step = int(_bob_t / PI)
-		Sfx.play("step_soft" if crouching else "step", global_position, -10.0 if crouching else -6.0, randf_range(0.82, 0.95))
+		pass                                        # (footsteps: the recorded walk / run loops below)
+	_footsteps(moving and visible and controls_enabled, sprinting, crouching)
 	var amp := 0.028 if sprinting else 0.016
 	_step_smooth = move_toward(_step_smooth, 0.0, delta * 1.6)
 	head.position.y = _eye + sin(_bob_t * 2.0) * amp - _step_smooth
@@ -354,3 +355,33 @@ func play_wake_up(duration := 4.2, give_control := true) -> void:
 			controls_enabled = true
 			look_enabled = true)
 	await tw.finished
+
+
+# ------------------------------------------------------------------ footsteps (game/audio, recorded loops)
+const WALK_STEPS := preload("res://game/audio/the_veil_walk_footsteps.wav")
+const RUN_STEPS := preload("res://game/audio/the_veil_run_footsteps.wav")
+var _walk_sfx: AudioStreamPlayer
+var _run_sfx: AudioStreamPlayer
+
+
+## Walking: the quiet walk loop (quieter still crouched); running: the heavier run loop. Never both at once;
+## silent when standing still, in the air, in the car (the player is hidden) or while control is taken.
+func _footsteps(moving: bool, sprinting: bool, crouching: bool) -> void:
+	if _walk_sfx == null:
+		_walk_sfx = AudioStreamPlayer.new()
+		_walk_sfx.stream = WALK_STEPS
+		_run_sfx = AudioStreamPlayer.new()
+		_run_sfx.stream = RUN_STEPS
+		for a in [_walk_sfx, _run_sfx]:
+			add_child(a)
+			a.finished.connect(a.play)                 # loop the recording
+	var want_run := moving and sprinting
+	var want_walk := moving and not sprinting
+	_walk_sfx.volume_db = -28.0 if crouching else -22.0
+	_run_sfx.volume_db = -18.0
+	for pair in [[_walk_sfx, want_walk], [_run_sfx, want_run]]:
+		var a: AudioStreamPlayer = pair[0]
+		if pair[1] and not a.playing:
+			a.play(randf() * 4.0)                       # from a random point: no identical start each time
+		elif not pair[1] and a.playing:
+			a.stop()

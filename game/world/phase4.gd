@@ -793,7 +793,7 @@ func _music(id: String, db := 0.0) -> void:
 	if id == "sting":
 		var st := AudioStreamPlayer.new()
 		st.stream = _streams["sting"]
-		st.volume_db = db
+		st.volume_db = db - 8.0
 		add_child(st)
 		st.finished.connect(st.queue_free)
 		st.play()
@@ -1254,7 +1254,7 @@ func _make_sounds() -> void:
 	_streams["impact"] = Sfx._make(1.2, _impact_wave)
 	_streams["rattle"] = Sfx._make(1.4, _rattle_wave)
 	_streams["scuttle"] = Sfx._make(1.2, _scuttle_wave, true)
-	_streams["sting"] = Sfx._make(1.6, _sting_wave)
+	_streams["sting"] = load("res://game/audio/the_veil_jumpscare_sting.wav")    # the lower horror sting (was a synthesized high one)
 	_streams["chase"] = Sfx._make(3.0, _chase_wave, true)
 	_streams["slither"] = Sfx._make(3.0, _slither_wave)
 
@@ -1308,6 +1308,10 @@ func _play(id: String, at: Vector3, db := 0.0) -> void:
 	var p := AudioStreamPlayer3D.new()
 	p.stream = _streams[id]
 	p.volume_db = db
+	if id == "scrape":
+		p.pitch_scale = 0.55                          # a heavy object dragged, not a squeal
+	elif id == "sting":
+		p.volume_db = db - 8.0                         # the sample is much louder than the old synthesized sting
 	p.unit_size = 8.0
 	add_child(p)
 	p.global_position = at

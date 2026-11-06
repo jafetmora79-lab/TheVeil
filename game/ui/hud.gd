@@ -167,6 +167,17 @@ func damage_flash(strength := 1.0) -> void:
 	create_tween().tween_property(hurt_flash, "color:a", 0.0, 0.5)
 
 
+## A long title steps down in size until it fits its centred band (70% of the screen width); never below 14.
+func _fit(l: Label, base: int) -> void:
+	var font: Font = l.get_theme_font("font")
+	var room: float = get_viewport().get_visible_rect().size.x * 0.7 - 16.0
+	var size := base
+	while size > 14 and font and font.get_string_size(l.text, HORIZONTAL_ALIGNMENT_LEFT, -1, size).x > room:
+		size -= 1
+	l.add_theme_font_size_override("font_size", size)
+	l.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART if size <= 14 else TextServer.AUTOWRAP_OFF
+
+
 func _centered_label(text: String, size: int, ax: float, ay: float) -> Label:
 	var l := VeilUI.label(text, size)
 	l.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
@@ -301,6 +312,7 @@ func chapter_complete(n: int, hold := 3.2) -> void:
 
 func _chapter_card(text: String, hold: float) -> void:
 	chapter_l.text = text
+	_fit(chapter_l, 26)
 	var tw := create_tween()
 	tw.tween_property(chapter_l, "modulate:a", 1.0, 0.9)
 	tw.tween_interval(hold)
@@ -310,6 +322,7 @@ func _chapter_card(text: String, hold: float) -> void:
 
 func title_card(text: String, hold := 2.6) -> void:
 	title.text = text
+	_fit(title, 34)
 	var tw := create_tween()
 	tw.tween_property(title, "modulate:a", 1.0, 0.9)
 	tw.tween_interval(hold)

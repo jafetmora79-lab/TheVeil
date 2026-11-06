@@ -41,6 +41,7 @@ var _gest := {"la": 0.0, "lf": 0.0, "ra": 0.0, "rf": 0.0, "nod": 0.0, "tilt": 0.
 var _gest_to := {"la": 0.0, "lf": 0.0, "ra": 0.0, "rf": 0.0, "nod": 0.0, "tilt": 0.0}
 var _gest_timer := 0.0
 var _look := Vector2.ZERO           ## smoothed (yaw, pitch)
+var _prev_look := Vector2.ZERO
 var _glance := Vector2.ZERO
 var _glance_timer := 2.0
 var _scare := 0.0
@@ -297,7 +298,7 @@ func _update_look(delta: float) -> void:
 			var local := skel.global_transform.basis.inverse() * to
 			var yaw := atan2(-local.dot(R), local.dot(F))
 			var pitch := atan2(local.dot(U), Vector2(local.dot(F), local.dot(R)).length())
-			if absf(yaw) < deg_to_rad(110.0):
+			if absf(yaw) < deg_to_rad(110.0) or look_target != null:   # a held gaze never flips to a glance (no rattle)
 				want = Vector2(clampf(yaw, -1.2, 1.2), clampf(pitch, -0.5, max_pitch))
 	if want == Vector2.ZERO:
 		_glance_timer -= delta
@@ -306,6 +307,9 @@ func _update_look(delta: float) -> void:
 			_glance = Vector2(randf_range(-0.5, 0.5), randf_range(-0.1, 0.12)) * (1.6 if mood == "scared" else 1.0)
 		want = _glance
 	_look = _look.lerp(want, minf(delta * 4.0, 1.0))
+	if look_target != null:                            # a held gaze: steady (a capped turn rate, no frame-to-frame jitter)
+		_look = _prev_look + (_look - _prev_look).limit_length(delta * 2.5)
+	_prev_look = _look
 
 
 func _q(axis: Vector3, deg: float) -> Quaternion:
