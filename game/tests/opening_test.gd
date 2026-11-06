@@ -694,7 +694,8 @@ func _run() -> void:
 	var pay = world.interactables.get("market/cashier")
 	ok("cashier_faces_aisle", world.animators["Cashier"].world_forward().dot(mk.global_transform.basis.x) > 0.9)
 	ok("cashier_present", world.cashier != null and world.cashier.visible and world.faces.has("Cashier") and world.faces["Cashier"]._mat != null)
-	ok("cashier_reach", await aim_at(player, pay, ((mk.get_node("NavTargets/Checkout_4") as Node3D).global_position - pay.global_position) * Vector3(1, 0, 1), 1.6))
+	var lane: Vector3 = ((mk.get_node("NavTargets/Checkout_4") as Node3D).global_position - pay.global_position) * Vector3(1, 0, 1)
+	ok("cashier_reach", await aim_at(player, pay, lane, lane.length()))     # from the lane's checkout spot, across the belt
 	pay.interact(player)
 	await frames(5)
 	ok("checkout_needs_items", not game.has_flag("groceries_done"))
