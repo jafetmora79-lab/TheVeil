@@ -22,7 +22,8 @@ func _process(delta: float) -> void:
 	var near: bool = world.player.visible and not cine and world.game_shop.global_position.distance_to(p) < 30.0
 	for it in world.game_shop.find_children("*", "Interactable", true, false):
 		var i := it as Interactable
-		var want: bool = near and not i.taken and i.collision_layer != 0 and i.get_prompt() != "" \
+		var npc: bool = i.get_parent() is CharacterBody3D or String(i.get("kind")) == "talk"    # people: no marker
+		var want: bool = near and not npc and not i.taken and i.collision_layer != 0 and i.get_prompt() != "" \
 			and i.global_position.distance_to(p) < REACH
 		var m: Label3D = _marks.get(i)
 		if want and m == null:
