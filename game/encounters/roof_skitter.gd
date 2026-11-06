@@ -311,7 +311,7 @@ func _encounter() -> void :
 	await get_tree().physics_frame
 	await get_tree().physics_frame
 	_spawn()
-	sound.play()
+	_sting(-12.0)                                     # it appears: the horror sting (no high rattle)
 	var direction:= (creature.global_position + Vector3.UP * 0.3 - cam.global_position).normalized()
 	var yaw:= atan2( - direction.x, - direction.z)
 	var pitch:= asin(clampf(direction.y, -1, 1))
@@ -438,12 +438,8 @@ func _encounter() -> void :
 		animation.speed_scale = 1.8
 		animation.play("Struggle/Bite", 0.08)
 		report["biting_loop"] = true
-	var sting:= AudioStreamPlayer.new()             # the jumpscare: the low horror sting (not the high rattle)
-	sting.stream = STING
-	sting.volume_db = -14.0
-	add_child(sting)
-	sting.finished.connect(sting.queue_free)
-	sting.play()
+	sound.stream = HISS                               # on top of the player: its own low hiss (the sting was its entrance)
+	sound.play()
 	_ui()
 	struggling = true
 	t = 0.0
@@ -661,6 +657,14 @@ func _clear_run(start: Vector3, end: Vector3) -> bool:
 func _hold_still(p: Node) -> void:
 	p.global_position = saved_position
 	p.velocity = Vector3.ZERO
+
+func _sting(db: float) -> void:
+	var st:= AudioStreamPlayer.new()
+	st.stream = STING
+	st.volume_db = db
+	add_child(st)
+	st.finished.connect(st.queue_free)
+	st.play()
 
 func _aim_at_creature(cam: Camera3D, p: Node, rate: float) -> void:
 	var aim:= (creature.global_position + Vector3.UP * 0.35 - cam.global_position).normalized()
