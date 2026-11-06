@@ -7,6 +7,7 @@ const SOUND:= preload("res://game/encounters/skitter_rattle.wav")
 const CLICKS:= 12
 const STRUGGLE_S:= 3.0
 const HISS:= preload("res://game/encounters/skitter_hiss.wav")
+const STING:= preload("res://game/audio/the_veil_jumpscare_sting.wav")
 var world: Node
 var house: Node3D
 var creature: Node3D
@@ -435,7 +436,12 @@ func _encounter() -> void :
 		animation.speed_scale = 1.8
 		animation.play("Struggle/Bite", 0.08)
 		report["biting_loop"] = true
-	sound.play()
+	var sting:= AudioStreamPlayer.new()             # the jumpscare: the low horror sting (not the high rattle)
+	sting.stream = STING
+	sting.volume_db = -14.0
+	add_child(sting)
+	sting.finished.connect(sting.queue_free)
+	sting.play()
 	_ui()
 	struggling = true
 	t = 0.0

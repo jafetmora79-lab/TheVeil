@@ -115,6 +115,15 @@ func _ready() -> void:
 	nav.name = "NavMap"
 	add_child(nav)
 	nav.setup.call_deferred(self)
+	# floating arrows at the turns of the opening drive (game/world/road_arrows.gd)
+	var ra = load("res://game/world/road_arrows.gd").new()
+	ra.name = "RoadArrows"
+	add_child(ra)
+	ra.setup.call_deferred(self)
+	var sm = load("res://game/world/store_markers.gd").new()       # [E] over the store's real interactions
+	sm.name = "StoreMarkers"
+	add_child(sm)
+	sm.setup.call_deferred(self)
 	_apply_view_ranges()
 	_setup_night()
 	_light_budget_all()
@@ -1366,6 +1375,7 @@ func _talk_eddie(_by: Node) -> void:
 ##   cross to the supermarket -> shut the jammed doors -> end of the build.
 var atmos: Node
 var _tentacles: Array = []
+const STOMP_QUICKEN := 1.13                     ## the Colossus foot's descent, a little faster (the rest unchanged)
 var _doors_powered := true
 var _p3_shop_talked := false
 var _p3_npcs_moved := false
@@ -1936,13 +1946,13 @@ func _colossus_encounter() -> void:
 	var walk_from := c.global_position
 	c.global_position = walk_from + Vector3.UP * DROP
 	c.visible = true
-	ap.speed_scale = SPEED
+	ap.speed_scale = SPEED * STOMP_QUICKEN
 	var feet_watch := _feet_watch_setup(ap, sk, anim)
 	feet_watch["ground"] = L.y
 	ap.seek(fposmod(t_c - span, anim.length), true)
 	var elapsed := 0.0
-	var dur := span / SPEED
-	while elapsed < dur - 1.0 / 60.0:
+	var dur := span / (SPEED * STOMP_QUICKEN)                     # the descent ~12% quicker, the pose still lands on t_c
+	while elapsed < dur:                                          # to the very contact frame: no last-frame snap
 		await get_tree().process_frame
 		elapsed += get_process_delta_time()
 		var k := clampf(elapsed / dur, 0.0, 1.0)
@@ -2530,9 +2540,7 @@ func _shop_seated_talk() -> void:
 	_steps_on = false
 	await hud.fade_to(1.0, 3.0)
 	Sfx.stop_ambience()
-	var lbl := Label.new()
-	lbl.text = "2 HOURS LATER"
-	lbl.add_theme_font_size_override("font_size", 30)
+	var lbl := VeilUI.label("2 HOURS LATER", 30)   # the game's title font (as the chapter cards)
 	lbl.add_theme_color_override("font_color", Color(1, 1, 1))
 	lbl.set_anchors_preset(Control.PRESET_CENTER)
 	lbl.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
