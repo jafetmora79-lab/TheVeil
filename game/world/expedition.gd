@@ -54,12 +54,8 @@ func setup(w: Node) -> void:
 		_cache(c, "exp/part_" + String(c["id"]), String(c["item"]), "", String(c["model"]), float(c.get("scale", 1.0)))
 	VeilRestPoint.supply_gate = sleep_gate
 	# between story nights the shelter can wait out a day (supermarket era): supplies eaten, a new day in town
-	VeilRestPoint.extra_night = func() -> bool:
-		return shelter() == "supermarket" and not active() and not emergency() and Game.has_flag("c5_started")
-	VeilRestPoint.record_extra = func(t: String) -> void:
-		var p4 := _p4()
-		if p4:
-			p4.record_night(t)
+	VeilRestPoint.extra_night = _extra_night_ok
+	VeilRestPoint.record_extra = _record_extra
 	_encounter_t = float(cfg.get("encounter_cooldown_s", [999, 150])[1])   # a load never starts with an encounter
 	_refresh()
 
@@ -292,6 +288,21 @@ func supply_need() -> Dictionary:
 	var stock := Game.shelter_stock()
 	var n: int = world.shelter_roster().size() + 1
 	return {"need": n, "food": int(stock.get("food", 0)), "water": int(stock.get("water", 0))}
+
+
+func _extra_night_ok() -> bool:
+	return shelter() == "supermarket" and not active() and not emergency() and Game.has_flag("c5_started")
+
+
+func _record_extra(t: String) -> void:
+	var p4 := _p4()
+	if p4:
+		p4.record_night(t)
+
+
+func _exit_tree() -> void:
+	VeilRestPoint.extra_night = Callable()             # (never a call into a freed controller)
+	VeilRestPoint.record_extra = Callable()
 
 
 ## VeilRestPoint.supply_gate: "" = sleep allowed; otherwise the reason it is not.
@@ -723,11 +734,6 @@ func _process(delta: float) -> void:
 		return
 	_tick = 0.25
 	_prune()
-	# out of the shelter's doors in the survival era = out in it: the trip (and its danger) starts by itself
-	if not active() and can_scavenge() and Game.has_flag("c5_started") and not in_store() and _player().visible \
-			and _player().controls_enabled and not world.in_car and world.market \
-			and _player().global_position.distance_to(world.market.global_position) < 60.0:
-		start("scavenge", false)
 	if active():
 		if _warn_t <= 0.0 and level() >= 1 and _clock_running():
 			warn(level())

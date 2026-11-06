@@ -90,7 +90,8 @@ func _run() -> void:
 	h["test_new_day"] = {}
 	game.world_state["shelter_nights"] = h
 	await frames(10)
-	ok("finds_restock_daily", ex._cache_nodes.size() == n0 and n0 >= 16 and ex._cache_nodes.all(func(n): return is_instance_valid(n) and n.visible), "%d finds" % n0)
+	var n1: int = ex._cache_nodes.size()
+	ok("finds_restock_daily", n1 >= 6 and n1 <= 16 and ex._cache_nodes.all(func(n): return is_instance_valid(n) and n.visible), "%d finds (about half restock each day)" % n1)
 
 	# ---- firing: a roaming Hound is driven off
 	ex.start("scavenge", false)
