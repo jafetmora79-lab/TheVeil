@@ -1563,7 +1563,7 @@ func _p3_tick(_delta: float) -> void:
 		if not _outdoors():
 			_p3_back_inside()
 	elif _p3_shop_talked and not _p3_npcs_moved and _outdoors():
-		_p3_flee_together()
+		_p3_escape_tentacle()
 
 
 func _atmo() -> Node:
@@ -2865,6 +2865,40 @@ func _tip_carts() -> void:
 var _p3_followers: Array = []
 
 
+const TENTACLE_ESCAPE_SHOT := preload("res://game/world/tentacle_escape_shot.gd")
+
+
+func _p3_escape_tentacle() -> void:
+	_encounter_running = true
+	var was_controls := player.controls_enabled
+	var was_look := player.look_enabled
+	var was_pause := hud.allow_pause
+	player.controls_enabled = false
+	player.look_enabled = false
+	player.velocity = Vector3.ZERO
+	hud.allow_pause = false
+	var suspended: Array[Node] = []
+	for tentacle in _tentacles:
+		var ai := tentacle.get_node_or_null("AI") as Node
+		if ai and ai.is_processing():
+			ai.set_process(false)
+			suspended.append(ai)
+	var shot := TENTACLE_ESCAPE_SHOT.new()
+	shot.name = "TentacleEscapeShot"
+	add_child(shot)
+	enc_report["tentacle_escape_shot"] = await shot.play(self)
+	shot.queue_free()
+	player.camera.make_current()
+	player.controls_enabled = was_controls
+	player.look_enabled = was_look
+	hud.allow_pause = was_pause
+	for ai in suspended:
+		if is_instance_valid(ai):
+			ai.set_process(true)
+	_encounter_running = false
+	_p3_flee_together()
+
+
 func _p3_flee_together() -> void:
 	_p3_npcs_moved = true
 	Game.set_flag("p3_fled_together")             # the run to the supermarket begins (chapter 4)
@@ -3117,7 +3151,7 @@ func _p3_move_npcs_to_market() -> void:
 
 
 func _p3_reach_market() -> void:
-	if not Game.has_flag("p3_in_shop") or Game.has_flag("p3_in_market"):
+	if _encounter_running or not Game.has_flag("p3_in_shop") or Game.has_flag("p3_in_market"):
 		return
 	if not _p3_npcs_moved:
 		_p3_move_npcs_to_market()
