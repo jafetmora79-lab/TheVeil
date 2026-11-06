@@ -115,6 +115,12 @@ func _ready() -> void:
 	nav.name = "NavMap"
 	add_child(nav)
 	nav.setup.call_deferred(self)
+	# the generated walk / driveway paving lay 1 cm above the sidewalks and the intersection near the game shop
+	# (coplanar enough to flicker): it now tucks 3 cm lower, under them, where they overlap
+	var lc := find_child("RES_LotConnections_Game", true, false) as Node3D
+	if lc and not lc.has_meta("tucked"):
+		lc.set_meta("tucked", true)
+		lc.position.y -= 0.03
 	# floating arrows at the turns of the opening drive (game/world/road_arrows.gd)
 	var ra = load("res://game/world/road_arrows.gd").new()
 	ra.name = "RoadArrows"
@@ -384,6 +390,22 @@ var game_shop: Node3D
 var eddie: Node3D
 var eddie_face: Node
 var cashier: Node3D
+const CASHIER_AT := Vector3(-4.85, 0.04, 4.0)     ## market-local: behind lane 4's register (x -4.1), between the lanes
+
+
+## The checkout is only there while it means something: paid (groceries_done) -> no prompt; the cashier gone
+## (the Veil, p3_mist) -> hidden and not interactable at all (also after a load).
+func _cashier_state() -> void:
+	var it: Interactable = interactables.get("market/cashier")
+	if it == null:
+		return
+	if Game.has_flag("groceries_done") or Game.has_flag("p3_mist"):
+		it.prompt_text = ""
+	if Game.has_flag("p3_mist"):
+		if cashier:
+			cashier.visible = false
+		it.collision_layer = 0
+		it.set_deferred("monitorable", false)
 var marcus: Node3D
 var faces := {}               ## speaker name -> VeilFace (talks on that speaker's dialogue lines)
 var animators := {}           ## speaker name -> NpcAnimator (procedural body: idle, look-at, gestures, walk)
@@ -505,11 +527,14 @@ func _setup_town() -> void:
 	_setup_coolers()
 	# checkout: lane 4. The cashier is a generic placeholder (no cashier is named in the bible).
 	# Stand just off the lane 4 approach, with a clear interaction line from the aisle.
-	cashier = _spawn_npc(CASHIER, CASHIER_FACE, market, Vector3(-2.35, 0.04, 4.3), -PI * 0.5, "Cashier")
-	_place_exact(cashier, market.to_global(Vector3(-2.35, 0.04, 4.3)))   # behind the till, not "safely" in the aisle
+	cashier = _spawn_npc(CASHIER, CASHIER_FACE, market, CASHIER_AT, -PI * 0.5, "Cashier")
+	_place_exact(cashier, market.to_global(CASHIER_AT))       # behind lane 4's till (Register_45), facing the lane
 	var c_it := Interactable.attach(cashier, {"kind": "custom", "label": "Cashier", "prompt_text": "[E] Pay for Groceries"})
+	var c_cs := c_it.get_child(0) as CollisionShape3D
+	(c_cs.shape as BoxShape3D).size = (c_cs.shape as BoxShape3D).size.max(Vector3(3.4, 1.8, 3.4))   # reachable across the belt
 	c_it.used.connect(_checkout)
 	interactables["market/cashier"] = c_it
+	_cashier_state()
 	# game shop: hinged entrance door, a game off the New Releases rack, Eddie behind the counter
 	var door := game_shop.get_node("Building").find_child("INT_Door_Entrance", true, false) as Node3D
 	if door:
@@ -1343,6 +1368,7 @@ func _checkout(_by: Node) -> void:
 	Game.add_item("groceries")
 	Sfx.play("pickup", market.global_transform * Vector3(-4.1, 1.1, 4.0))
 	_glow(cashier, false)
+	_cashier_state()
 	if can_talk(cashier):
 		converse(["market_checkout", "groceries_done"], [cashier])
 	else:
@@ -1469,7 +1495,7 @@ func _p3_start_mist() -> void:
 	_clear_beacon("market")
 	if cashier:
 		cashier.visible = false                 # people are going missing
-		interactables["market/cashier"].set_deferred("monitorable", false)
+	_cashier_state()
 	for k in animators:
 		animators[k].set_mood("scared")
 	_atmo().apply_preset(night_preset("approach"))
@@ -2686,6 +2712,7 @@ func _p3_flee_together() -> void:
 	_p3_npcs_moved = true
 	Game.set_flag("p3_fled_together")             # the run to the supermarket begins (chapter 4)
 	hud.chapter_start(4)
+	_chase_start()
 	for pair in [[eddie, 1.6], [marcus, 2.8]]:
 		var n: Node3D = pair[0]
 		if n == null:
@@ -2716,6 +2743,43 @@ func _p3_flee_together() -> void:
 		_p3_followers.append(f)
 		if animators.has(String(n.name)):
 			animators[String(n.name)].set_mood("scared")
+
+
+## The run to the supermarket: RUN TO THE STORE!, the chase track, the three tentacles on the road between the
+## two stores awake and striking (their own wind-up / strike / recovery, game/enemies/tentacle_ai.gd). It ends at
+## the supermarket's doors: the music fades and the tentacles stop striking (they retract when the doors shut).
+const CHASE_MUSIC := preload("res://game/audio/the_veil_tentacle_chase_FAST.wav")
+var _chase_music: AudioStreamPlayer
+
+
+func _chase_start() -> void:
+	if Game.has_flag("p3_in_market"):
+		return
+	_p3_spawn_tentacles()
+	hud.set_hint("RUN TO THE STORE!")
+	get_tree().create_timer(4.0).timeout.connect(func():
+		if hud.hint.text == "RUN TO THE STORE!":
+			hud.set_hint(""))
+	if _chase_music == null:
+		_chase_music = AudioStreamPlayer.new()
+		_chase_music.stream = CHASE_MUSIC
+		_chase_music.volume_db = -10.0
+		add_child(_chase_music)
+		_chase_music.finished.connect(func():
+			if Game.has_flag("p3_fled_together") and not Game.has_flag("p3_in_market"):
+				_chase_music.play())
+		_chase_music.play()
+
+
+func _chase_end() -> void:
+	for t in _tentacles:
+		var ai = t.get_node_or_null("AI") if is_instance_valid(t) else null
+		if ai:
+			ai.set_process(false)                      # safe inside: no more strikes
+	if _chase_music and _chase_music.playing:
+		var tw := create_tween()
+		tw.tween_property(_chase_music, "volume_db", -40.0, 2.0)
+		tw.tween_callback(_chase_music.stop)
 
 
 func _p3_stop_following() -> void:
@@ -2901,6 +2965,7 @@ func _p3_reach_market() -> void:
 	if not _p3_npcs_moved:
 		_p3_move_npcs_to_market()
 	_p3_stop_following()                         # they came in with the player
+	_chase_end()
 	Game.set_flag("p3_in_market")
 	_set_auto_doors(true)                       # the power dies with the doors open
 	_doors_powered = false
