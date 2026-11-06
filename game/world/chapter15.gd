@@ -1405,7 +1405,7 @@ func _set_fog(thick: bool, amount := 1.0) -> void:
 	if env == null:
 		return
 	if _fog0 < 0.0:
-		_fog0 = env.fog_density
+		_fog0 = world.fog_zones.base_density(env) if world.get("fog_zones") else env.fog_density    # (unscaled by the local fog)
 	env.fog_density = maxf(_fog0 * (1.0 + 1.6 * amount), _fog0 * 0.2) if thick else _fog0
 
 

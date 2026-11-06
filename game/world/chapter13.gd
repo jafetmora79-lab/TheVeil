@@ -353,7 +353,10 @@ func _build_under() -> void:
 		[Vector3(6.6, 1.4, 10.8), Vector3(10.8, 2.8, 0.3)], [Vector3(13.2, 1.4, 14.2), Vector3(0.3, 2.8, 6.8)],
 		[Vector3(10.8, 1.4, 18.4), Vector3(0.3, 2.8, 11.2)],
 		[Vector3(13.2, 1.4, 22.5), Vector3(0.3, 2.8, 3.0)], [Vector3(16.6, 1.4, 16.8), Vector3(7.0, 2.8, 0.3)],
-		[Vector3(16.6, 1.4, 19.2), Vector3(7.0, 2.8, 0.3)], [Vector3(20.0, 1.4, 18.0), Vector3(0.3, 2.8, 2.6)]]
+		[Vector3(16.6, 1.4, 19.2), Vector3(7.0, 2.8, 0.3)], [Vector3(20.0, 1.4, 18.0), Vector3(0.3, 2.8, 2.6)],
+		# two gaps that let the player see (and walk) out of the tunnels: the south-east corner of the turn north
+		# (the z 10.8 wall stopped at x 12.0, the east wall starts at x 13.2) and the east wall beside the z 18 dead end
+		[Vector3(12.6, 1.4, 10.8), Vector3(1.5, 2.8, 0.3)], [Vector3(13.2, 1.4, 20.1), Vector3(0.3, 2.8, 2.0)]]
 	for w in walls:
 		_ubox("Wall", w[0], w[1], "concrete")
 	# the chamber (x 4..20, z 24..40, 5 m high): concrete with old stone behind it; the doorway in the far wall
@@ -547,7 +550,7 @@ func _set_fog(thick: bool, amount := 1.0) -> void:
 	if env == null:
 		return
 	if _fog0 < 0.0:
-		_fog0 = env.fog_density
+		_fog0 = world.fog_zones.base_density(env) if world.get("fog_zones") else env.fog_density    # (unscaled by the local fog)
 	env.fog_density = _fog0 * (1.0 + 1.6 * amount) if thick else _fog0
 
 

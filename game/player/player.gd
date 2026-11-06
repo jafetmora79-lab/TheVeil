@@ -146,6 +146,7 @@ func _physics_process(delta: float) -> void:
 	if is_on_floor() and hv.length() > 0.05:
 		_step_up(hv, delta)
 	move_and_slide()
+	_fall_guard(delta)
 	# eye height + head bob
 	_eye = move_toward(_eye, EYE_CROUCH if crouching else EYE, delta * 3.5)
 	var moving := hv.length() > 0.4 and is_on_floor()
@@ -388,3 +389,25 @@ func _footsteps(moving: bool, sprinting: bool, crouching: bool, speed := WALK) -
 			a.play(randf() * 4.0)                       # from a random point: no identical start each time
 		elif not pair[1] and a.playing:
 			a.stop()
+
+
+# ------------------------------------------------------------------ out of the world
+## The last floor the player stood on (sampled while in control). A real fall far below it - out of the built
+## world - puts them back there: nothing else changes (chapter, items, puzzles). Scripted moves are teleports
+## (no falling speed), so they never trigger it.
+var _safe_pos := Vector3.INF
+var _safe_t := 0.0
+var fall_recoveries := 0              ## tests
+var _air_t := 0.0
+
+
+func _fall_guard(delta: float) -> void:
+	_safe_t -= delta
+	if is_on_floor() and controls_enabled and visible and _safe_t <= 0.0:
+		_safe_t = 0.4
+		_safe_pos = global_position
+	_air_t = 0.0 if is_on_floor() else _air_t + delta
+	if _safe_pos.is_finite() and _air_t > 1.0 and global_position.y < _safe_pos.y - 20.0:
+		global_position = _safe_pos + Vector3(0, 0.3, 0)
+		velocity = Vector3.ZERO
+		fall_recoveries += 1

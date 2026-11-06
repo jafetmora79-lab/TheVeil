@@ -1,0 +1,121 @@
+extends SceneTree
+## THE VEIL - opening guidance, the fall safeguard, the maintenance-station sign, the underground fog and the
+## underground tunnels' enclosure (headless).
+const DEV13 := preload("res://game/tools/dev_chapter13.gd")
+var fails := 0
+var game: Node
+var w: Node
+
+
+func ok(name: String, cond: bool, detail := "") -> void:
+	print("TEST %s %s %s" % [name, "PASS" if cond else "FAIL", detail])
+	if not cond:
+		fails += 1
+
+
+func frames(n: int) -> void:
+	for i in n:
+		await process_frame
+
+
+func boot() -> void:
+	w = load("res://game/scenes/World.tscn").instantiate()
+	root.add_child(w)
+	await frames(90)
+
+
+func _initialize() -> void:
+	_run.call_deferred()
+
+
+func _run() -> void:
+	game = root.get_node("Game")
+	root.get_node("Dialogue").auto_confirm = true
+	# ---- the opening
+	game.new_game()
+	await boot()
+	var og = w.get_node("OpeningGuide")
+	var door: Interactable = w.interactables["home/INT_Door_Front"]
+	ok("opening_marker_fridge", og.step()[1] == "FRIDGE")
+	door.interact(w.player)
+	await frames(40)
+	ok("door_shut_before_kitchen", not door.is_open)
+	game.set_flag("fridge_checked")
+	ok("opening_marker_keys", og.step()[1] == "CAR KEYS")
+	door.interact(w.player)
+	await frames(40)
+	ok("door_shut_before_keys", not door.is_open)
+	game.add_item("car_keys")
+	ok("opening_marker_door", og.step()[1] == "FRONT DOOR")
+	door.interact(w.player)
+	await frames(40)
+	ok("door_opens_when_ready", door.is_open)
+	# ---- the fall safeguard
+	var p = w.player
+	p.controls_enabled = true
+	await frames(60)
+	var safe: Vector3 = p._safe_pos
+	p.global_position = safe + Vector3(0, -40, 0)
+	p.velocity = Vector3(0, -25, 0)
+	p._air_t = 1.5                                      # (as after a long fall)
+	await frames(3)
+	ok("fall_recovered", p.fall_recoveries == 1 and p.global_position.distance_to(safe) < 1.0, str(p.global_position))
+	w.free()
+	# ---- the station sign, the underground
+	DEV13.prepare(game)
+	await boot()
+	var c = w.phase4.chapter5
+	for k in ["chapter6", "chapter7", "chapter8", "chapter9", "chapter10", "chapter11", "chapter12", "chapter13"]:
+		c = c.get(k) if c else null
+	var c12 = c.c12
+	var sign: Label3D = null
+	for l in w.find_children("*", "Label3D", true, false):
+		if String((l as Label3D).text).begins_with("GREYHAVEN PUBLIC WORKS\nMAINTENANCE"):
+			sign = l
+	ok("sign_faces_street", sign != null and sign.global_basis.z.dot(Vector3(0, 0, 1)) > 0.99 and sign.global_position.z > c12.STATION_DOOR.z
+		and not sign.double_sided)
+	var fz = w.fog_zones
+	await frames(10)
+	var env: Environment = fz._env()
+	var h_above: float = env.fog_height_density
+	p = w.player
+	p.global_position = c.UL(Vector3(0, 0.2, 3.0))
+	p.velocity = Vector3.ZERO
+	await frames(15)
+	ok("under_fog_local", fz.mode == "under" and env.fog_height_density == 0.0 and env.fog_density <= fz._base_d * 0.5, "%s %.4f" % [fz.mode, env.fog_density])
+	# save / load underground: the same settings come back
+	w.save()
+	w.free()
+	game.load_game()
+	game.load_requested = true
+	await boot()
+	fz = w.fog_zones
+	await frames(15)
+	env = fz._env()
+	ok("under_fog_after_load", fz.mode == "under" and env.fog_height_density == 0.0)
+	w.player.global_position = Vector3(-110.0, 1.0, 10.0)
+	await frames(15)
+	ok("surface_fog_restored", fz.mode == "" and env.fog_height_density == h_above, "%.4f / %.4f" % [env.fog_height_density, h_above])
+	# the tunnels: walls, floor and ceiling all along the route (no view out, no way out)
+	c = w.phase4.chapter5
+	for k in ["chapter6", "chapter7", "chapter8", "chapter9", "chapter10", "chapter11", "chapter12", "chapter13"]:
+		c = c.get(k) if c else null
+	var space = w.get_world_3d().direct_space_state
+	var route := [[Vector3(0, 0, 1.2), Vector3(0, 0, 12)], [Vector3(0, 0, 12), Vector3(12, 0, 12)], [Vector3(12, 0, 12), Vector3(12, 0, 39)],
+		[Vector3(12, 0, 30), Vector3(4, 0, 30)], [Vector3(0, 0, 8), Vector3(-9.5, 0, 8)], [Vector3(12, 0, 18), Vector3(19.5, 0, 18)]]
+	var open := []
+	for seg in route:
+		var n := int(seg[0].distance_to(seg[1]))
+		for k in n + 1:
+			var gp: Vector3 = c.UL(seg[0].lerp(seg[1], float(k) / maxf(n, 1)) + Vector3(0, 1.4, 0))
+			if not space.intersect_ray(PhysicsRayQueryParameters3D.create(gp, gp + Vector3(0, 25, 0), 1)):
+				open.append("up@%s" % gp)
+			if not space.intersect_ray(PhysicsRayQueryParameters3D.create(gp, gp - Vector3(0, 6, 0), 1)):
+				open.append("floor@%s" % gp)
+			for j in 12:
+				var dir := Vector3(sin(TAU * j / 12.0), 0, cos(TAU * j / 12.0))
+				if not space.intersect_ray(PhysicsRayQueryParameters3D.create(gp, gp + dir * 60.0, 1)):
+					open.append("side@%s" % gp)
+	ok("tunnels_enclosed", open.is_empty(), str(open.slice(0, 5)))
+	print("RESULT %s" % ("PASS" if fails == 0 else "%d failures" % fails))
+	quit(0 if fails == 0 else 1)

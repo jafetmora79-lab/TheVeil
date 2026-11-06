@@ -49,6 +49,7 @@ var player: VeilPlayer
 var sedan: PlayerSedan
 var hud: VeilHUD
 var in_car := false
+var fog_zones: Node
 var drive_time := 0.0
 var _park_t := 0.0
 var _ending := false
@@ -126,6 +127,15 @@ func _ready() -> void:
 	ra.name = "RoadArrows"
 	add_child(ra)
 	ra.setup.call_deferred(self)
+	var og = load("res://game/world/opening_guide.gd").new()      # the opening: markers, the front door, reminders
+	og.name = "OpeningGuide"
+	add_child(og)
+	og.setup.call_deferred(self)
+	var fz = load("res://game/world/fog_zones.gd").new()           # lighter fog underground and by the station
+	fz.name = "FogZones"
+	add_child(fz)
+	fz.setup.call_deferred(self)
+	fog_zones = fz
 	var sm = load("res://game/world/store_markers.gd").new()       # [E] over the store's real interactions
 	sm.name = "StoreMarkers"
 	add_child(sm)

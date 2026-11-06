@@ -117,9 +117,18 @@ func focus_point() -> Vector3:
 	return global_position
 
 
+## Optional: returns a dialogue id ("" = allowed) - a door that will not open yet says why instead.
+var lock_check: Callable = Callable()
+
+
 func interact(by: Node) -> void:
 	if taken or _busy:
 		return
+	if lock_check.is_valid() and not is_open:
+		var why: String = lock_check.call()
+		if why != "":
+			Dialogue.say(why, false, true)
+			return
 	match kind:
 		"hinge", "slide":
 			set_open(not is_open)
