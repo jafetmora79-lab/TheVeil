@@ -542,8 +542,9 @@ func _fence_jump() -> void:
 func _on_bit(_dmg: float) -> void:
 	_play("bark", hound.global_position + Vector3(0, 1.0, 0), -2.0)
 	await get_tree().process_frame
-	if player.get("health") != null and float(player.get("health")) <= CHECKPOINT_HEALTH:
-		_checkpoint()
+	if player.get("health") != null and float(player.get("health")) <= CHECKPOINT_HEALTH and float(player.get("health")) > 0.0:
+		# a bad bite is a death: the death cinematic, YOU DIED, RETRY from the autosave (every story step saves)
+		player.damage(float(player.get("health")), hound.global_position)
 
 
 ## A bad bite never ends the game here: fade, the group is back at the edge of the encounter, the Hound back on
