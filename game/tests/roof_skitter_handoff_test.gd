@@ -28,7 +28,11 @@ func run():
   e.set_process(false)
   p.global_position=e.house.to_global(Vector3(0,.3,19))
   p.set_yaw_pitch(0,0)
-  ok('eligible_on_trip', e.eligible())
+  game.flags.erase('p3_mist')
+  ok('not_before_veil', not e.eligible())
+  game.flags['p3_mist']=true
+  w.expedition.finish() if w.expedition.has_method('finish') else null
+  ok('eligible_any_time_after_veil', e.eligible())
   e._encounter()
   var elapsed:=0
   while not e.struggling and elapsed<400:

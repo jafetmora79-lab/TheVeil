@@ -108,9 +108,11 @@ func _test_pointer() -> void:
 func eligible() -> bool:
 	if not is_instance_valid(world) or not is_instance_valid(house): return false
 	var p = world.player
-	# only while out on a scavenging trip from the shelter: an unlucky stop at the wrong house (never a story scene)
-	var trip: bool = world.get("expedition") != null and world.expedition.active() and String(world.expedition.st().get("type", "")) == "scavenge"
-	return (trip and not Game.has_flag(SEEN) and not running
+	# any time after the Veil has rolled in (any chapter), whenever the player walks up to that house on their own:
+	# never in a story scene, a conversation, the car, another encounter or the run from the game shop
+	var veil: bool = Game.has_flag("p3_mist")
+	var story_run: bool = Game.has_flag("p3_fled_together") and not Game.has_flag("p3_in_market")
+	return (veil and not story_run and not Game.has_flag(SEEN) and not running
 		and p.visible and p.controls_enabled and p.look_enabled and p.health > 0
 		and not world.in_car and not world.conversing and not world.get_tree().paused
 		and not world.get("_encounter_running")
