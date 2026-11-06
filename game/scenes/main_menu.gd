@@ -58,6 +58,7 @@ func _ready() -> void:
 	b_cont.disabled = not Game.has_save()
 	if Game.has_save():
 		b_cont.text = "Continue  -  " + Game.saved_chapter_name()
+		_fit_button.call_deferred(b_cont)
 	b_cont.pressed.connect(_continue)
 	var b_set := VeilUI.button("Settings")
 	b_set.pressed.connect(func():
@@ -93,20 +94,23 @@ func _new_game() -> void:
 		var fields := VBoxContainer.new()
 		fields.add_theme_constant_override("separation", 12)
 		name_dialog.add_child(fields)
-		fields.add_child(VeilUI.label("What is your name?", 18))
+		fields.add_child(VeilUI.label("What is your name?", 15))
 		name_dialog.ok_button_text = "Begin"
 		name_input = LineEdit.new()
 		name_input.max_length = 24
 		name_input.placeholder_text = "Your name (optional)"
-		name_input.custom_minimum_size = Vector2(360, 40)
+		name_input.custom_minimum_size = Vector2(280, 34)
+		VeilUI.style_text(name_input, 14)
+		name_input.add_theme_color_override("font_placeholder_color", VeilUI.MUTED * Color(1, 1, 1, 0.55))
 		fields.add_child(name_input)
+		_style_dialog(name_dialog)
 		name_dialog.register_text_enter(name_input)
 		name_dialog.confirmed.connect(func():
 			Game.new_game(name_input.text)
 			_start())
 		add_child(name_dialog)
 	name_input.text = ""
-	name_dialog.popup_centered(Vector2i(420, 160))
+	name_dialog.popup_centered(Vector2i(330, 140))
 	name_input.grab_focus()
 
 
@@ -122,3 +126,49 @@ func _start() -> void:
 	await get_tree().process_frame
 	await get_tree().process_frame
 	get_tree().change_scene_to_file("res://game/scenes/World.tscn")
+
+
+## The name prompt in the menu's own look: pixel font, dark panel with the accent edge, menu-style buttons.
+func _style_dialog(d: ConfirmationDialog) -> void:
+	var th := Theme.new()
+	th.default_font = VeilUI.font()
+	th.default_font_size = VeilUI.px_size(13)
+	var panel := StyleBoxFlat.new()
+	panel.bg_color = VeilUI.BG
+	panel.border_color = VeilUI.ACCENT
+	panel.set_border_width_all(1)
+	panel.set_content_margin_all(14)
+	th.set_stylebox("panel", "AcceptDialog", panel)
+	th.set_stylebox("panel", "ConfirmationDialog", panel)
+	var edit := StyleBoxFlat.new()
+	edit.bg_color = Color(0.11, 0.14, 0.17, 0.95)
+	edit.border_color = VeilUI.ACCENT
+	edit.set_border_width_all(1)
+	edit.set_content_margin_all(6)
+	th.set_stylebox("normal", "LineEdit", edit)
+	th.set_stylebox("focus", "LineEdit", edit)
+	d.theme = th
+	d.add_theme_font_override("title_font", VeilUI.font())
+	d.add_theme_font_size_override("title_font_size", VeilUI.px_size(13))
+	for b in [d.get_ok_button(), d.get_cancel_button()]:
+		var mb := VeilUI.button(b.text)
+		b.custom_minimum_size = Vector2(110, 32)
+		for k in ["normal", "hover", "pressed", "focus"]:
+			if mb.has_theme_stylebox_override(k):
+				b.add_theme_stylebox_override(k, mb.get_theme_stylebox(k))
+		VeilUI.style_text(b, 14)
+		b.add_theme_color_override("font_hover_color", VeilUI.ACCENT)
+		mb.free()
+
+
+## A long Continue label (the chapter name) steps down in size until it fits its button.
+func _fit_button(b: Button) -> void:
+	await get_tree().process_frame
+	var f: Font = VeilUI.font()
+	if f == null:
+		return
+	for size in [19, 17, 15, 13, 11]:
+		var px := VeilUI.px_size(size)
+		b.add_theme_font_size_override("font_size", px)
+		if f.get_string_size(b.text, HORIZONTAL_ALIGNMENT_LEFT, -1, px).x <= b.size.x - 28.0:
+			return
