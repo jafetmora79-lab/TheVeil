@@ -2869,6 +2869,8 @@ const TENTACLE_ESCAPE_SHOT := preload("res://game/world/tentacle_escape_shot.gd"
 
 
 func _p3_escape_tentacle() -> void:
+	if _encounter_running:
+		return                                           # (the tick asks every frame while the shot plays)
 	_encounter_running = true
 	var was_controls := player.controls_enabled
 	var was_look := player.look_enabled

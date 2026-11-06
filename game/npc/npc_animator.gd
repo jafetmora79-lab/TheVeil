@@ -174,6 +174,7 @@ func world_forward() -> Vector3:
 
 # ------------------------------------------------------------------ per frame
 func _process(delta: float) -> void:
+	_npc_steps(delta)
 	if skel == null or not root.is_visible_in_tree():
 		return
 	_t += delta
@@ -234,10 +235,10 @@ func _update_walk(delta: float) -> void:
 	_run = move_toward(_run, clampf((_speed - 2.4) / 1.8, 0.0, 1.0), delta * 2.5)
 	_phase += moved / lerpf(0.62, 0.98, _run) * PI   # one stride ~1.24 m walking, ~1.96 m running
 	var si := int(_phase / PI)
-	if si != _step_i:                                # a footstep on each foot strike (quiet)
+	if si != _step_i:
 		_step_i = si
-		if moved > 0.0005:
-			Sfx.play("step", root.global_position, lerpf(-16.0, -11.0, _run), randf_range(0.8, 0.95))
+	if moved > 0.0005:
+		_steps_t = 0.25                              # walking now: the recorded footsteps play (see _npc_steps)
 	var parent := root.get_parent_node_3d()
 	_turn_goal = (parent.global_transform.basis * d.normalized()) if parent else d.normalized()
 
@@ -371,3 +372,43 @@ func _pose() -> void:
 		var hi := bone("Hips")
 		_hip_h = (skel.get_bone_global_rest(hi).origin * skel.global_transform.basis.get_scale()).y if hi >= 0 else 0.95
 	skel.position.y = absf(sin(ph)) * (0.025 + 0.035 * _run) * w - 0.03 * _run * w - maxf(_hip_h - seat_y - 0.06, 0.0) * _sit
+
+
+# ------------------------------------------------------------------ footsteps (the same recordings as the player's)
+const NPC_WALK_STEPS := preload("res://game/audio/the_veil_walk_footsteps.wav")
+const NPC_RUN_STEPS := preload("res://game/audio/the_veil_run_footsteps.wav")
+var _steps_t := 0.0
+var _walk_sfx: AudioStreamPlayer3D
+var _run_sfx: AudioStreamPlayer3D
+
+
+## Walking: the walk recording, running: the run recording (never both), from where the NPC is, quieter than the
+## player's own, at a pace matched to their speed; silent when they stop or are hidden.
+func _npc_steps(delta: float) -> void:
+	_steps_t -= delta
+	var moving: bool = _steps_t > 0.0 and root != null and root.is_visible_in_tree()
+	if _walk_sfx == null:
+		if not moving or root == null:
+			return
+		_walk_sfx = AudioStreamPlayer3D.new()
+		_walk_sfx.stream = NPC_WALK_STEPS
+		_run_sfx = AudioStreamPlayer3D.new()
+		_run_sfx.stream = NPC_RUN_STEPS
+		for a in [_walk_sfx, _run_sfx]:
+			a.unit_size = 4.0
+			a.max_distance = 30.0
+			root.add_child(a)
+			a.position = Vector3(0, 0.1, 0)
+			a.finished.connect(a.play)                    # loop the recording
+	var running: bool = moving and _run > 0.5
+	var walking: bool = moving and not running
+	_walk_sfx.volume_db = -14.0
+	_run_sfx.volume_db = -11.0
+	_walk_sfx.pitch_scale = clampf(_speed / 2.4, 0.6, 1.3)
+	_run_sfx.pitch_scale = clampf(_speed / 4.3, 0.8, 1.25)
+	for pair in [[_walk_sfx, walking], [_run_sfx, running]]:
+		var a: AudioStreamPlayer3D = pair[0]
+		if pair[1] and not a.playing:
+			a.play(randf() * 4.0)
+		elif not pair[1] and a.playing:
+			a.stop()
