@@ -103,7 +103,14 @@ func trees_near(at: Vector3, radius: float) -> Array:
 
 
 func in_woods(p: Vector3) -> bool:
-	return trees_near(p, 14.0).size() >= 3 and route_distance(p) > 8.0
+	if trees_near(p, 14.0).size() < 3 or route_distance(p) <= 8.0:
+		return false
+	# never at the house: not under a roof (indoors), and well clear of the home (the yard is not the woods)
+	var home: Node3D = world.get("home")
+	if home and Vector2(p.x - home.global_position.x, p.z - home.global_position.z).length() < 22.0:
+		return false
+	var hit: Dictionary = world.get_world_3d().direct_space_state.intersect_ray(PhysicsRayQueryParameters3D.create(p + Vector3(0, 1.0, 0), p + Vector3(0, 14.0, 0), 1))
+	return hit.is_empty() or String((hit["collider"] as Node).name).begins_with("VG_Tree")
 
 
 func _process(delta: float) -> void :

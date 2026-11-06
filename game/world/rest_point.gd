@@ -64,7 +64,7 @@ func request() -> void:
 				return
 			hungry_nights += 1
 			_busy = true
-			_sleep_now()
+			_sleep_now(true)
 			return
 	_busy = true
 	var i: int = await choice.ask(confirm_title, ["Sleep - Continue to Next Day", "Not yet"], player)
@@ -74,11 +74,14 @@ func request() -> void:
 	_sleep_now()
 
 
-func _sleep_now() -> void:
+## A night's sleep heals: fully after a fed night, partly when the group went to bed hungry.
+func _sleep_now(hungry := false) -> void:
 	_busy = true
 	if player:
 		player.set("controls_enabled", false)
 	await hud.fade_to(1.0, 2.0)
+	if player and player.has_method("heal"):
+		player.heal(40.0 if hungry else 100.0)
 	interactable.prompt_text = ""
 	slept.emit(shelter_id)
 	_busy = false

@@ -382,10 +382,8 @@ func _run() -> void:
 	await wait_until(func(): return is_instance_valid(c6.hound) and c6.hound_ai.state == "CHASE", 60 * 15)
 	var hp0: float = world.player.health
 	ok("c6_hound_bites", await wait_until(func(): return world.player.health < hp0, 60 * 12), "hp %.0f" % world.player.health)
-	ok("c6_checkpoint_not_death", await wait_until(func(): return c6._busy.get("checkpoint", false), 60 * 25) and world.player.health > 0.0)
-	await wait_until(func(): return not c6._busy.get("checkpoint", false), 60 * 4)
-	ok("c6_checkpoint_safe", world.player.health > 40.0 and (not is_instance_valid(c6.hound)
-		or world.player.global_position.distance_to(c6.hound.global_position) > 15.0), "hp %.0f" % world.player.health)
+	ok("c6_bad_bite_is_death", await wait_until(func(): return world.death != null, 60 * 25) and world.player.health == 0.0,
+		"hp %.0f" % world.player.health)
 	# back to the main run (escaped by losing it)
 	await restore(main_snap)
 	await frames(10)                               # the load's one-time placement (screen black) is not a "jump"
