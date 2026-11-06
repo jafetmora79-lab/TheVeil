@@ -1240,6 +1240,9 @@ func _auto_park() -> void:
 	park_report.merge({"ok": ok, "time": t, "pos_err": Vector2(fin.x, fin.z).distance_to(Vector2(endp.x, endp.z)),
 		"yaw_err_deg": rad_to_deg(absf(Vector2(f.x, f.z).angle_to(Vector2(paths["final_fwd"].x, paths["final_fwd"].z)))),
 		"max_dev": max_dev}, true)
+	if ok and not car_on_asphalt():
+		ok = false                                 # (never declared parked on the grass or the pavement)
+		park_report["off_asphalt"] = true
 	if not ok:
 		return                                     # control is back with the driver; the manual parking check remains
 	sedan.parking_brake = true
@@ -1252,6 +1255,21 @@ func _auto_park() -> void:
 	if in_car and sedan.driven and absf(sedan.speed) < 0.2:
 		exit_car()                                 # parked: the player gets out by themselves
 	save()
+
+
+## All four corners of the car over road or parking-lot surface (not the grass, the pavement or a kerb).
+func car_on_asphalt() -> bool:
+	var space := get_world_3d().direct_space_state
+	for c in [Vector3(-0.85, 0, -2.1), Vector3(0.85, 0, -2.1), Vector3(-0.85, 0, 2.1), Vector3(0.85, 0, 2.1)]:
+		var at: Vector3 = sedan.global_transform * c
+		var q := PhysicsRayQueryParameters3D.create(at + Vector3(0, 1.5, 0), at - Vector3(0, 2.0, 0), 1, [sedan.get_rid()])
+		var hit := space.intersect_ray(q)
+		if hit.is_empty():
+			return false
+		var n := String((hit["collider"] as Node).name)
+		if not (n.begins_with("RD_") or n.contains("Road") or n.contains("Parking")):
+			return false
+	return true
 
 
 func _end_cine() -> void:
@@ -3274,7 +3292,11 @@ func _physics_process(delta: float) -> void:
 		var pk := get_node_or_null("Trigger_Parking") as Area3D
 		if pk and pk.overlaps_body(sedan) and absf(sedan.speed) < 0.5 and Game.has_flag("entered_car"):
 			_park_t += delta
-			if _park_t > 1.0 and not Game.has_flag("parked"):
+			if _park_t > 1.0 and not Game.has_flag("parked") and not car_on_asphalt():
+				if hud.hint.text == "":
+					hud.set_hint("Park on the tarmac - not on the grass or the pavement.")
+				_park_t = 0.0
+			elif _park_t > 1.0 and not Game.has_flag("parked"):
 				Game.set_flag("reached_town")
 				Game.set_flag("parked")
 				Dialogue.say("parked", true, true)

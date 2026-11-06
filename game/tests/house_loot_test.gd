@@ -56,7 +56,8 @@ func _run() -> void:
 	var nights: Dictionary = game.world_state["shelter_nights"]
 	nights["test_day_1"] = {}
 	await frames(5)
-	ok("refilled", h.loot.size() == 3 and not h.loot["canned_food_0"].taken and h.loot["canned_food_0"].state_key.ends_with("_d1"))
+	ok("refilled_one_container", h.loot.size() == 1 and h.loot.has("water_bottle_1") and not h.loot["water_bottle_1"].taken
+		and h.loot["water_bottle_1"].state_key.ends_with("_d1"), str(h.loot.keys()))
 	ok("ammo_not_refilled", a34.loot["handgun_round_2"].state_key == round_key)
 	# save / load: the day-1 food is new, the day-0 one stays taken
 	w.save()
@@ -65,7 +66,7 @@ func _run() -> void:
 	game.load_requested = true
 	await boot()
 	h = w.expedition.houses.get("HOUSE_15")
-	ok("load_keeps_day", h != null and h.loot["canned_food_0"].state_key.ends_with("_d1") and not h.loot["canned_food_0"].taken
+	ok("load_keeps_day", h != null and h.loot.has("water_bottle_1") and h.loot["water_bottle_1"].state_key.ends_with("_d1")
 		and game.world_state.get("scav/HOUSE_15/loot_canned_food_0", {}).get("taken", false))
 	print("RESULT %s" % ("PASS" if fails == 0 else "%d failures" % fails))
 	quit(0 if fails == 0 else 1)

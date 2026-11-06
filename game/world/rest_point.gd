@@ -13,6 +13,11 @@ signal refused(shelter_id: String)
 @export var confirm_title := "Rest until morning?"
 ## Callable returning true when resting is allowed right now (story gate); empty = always.
 var can_rest: Callable = Callable()
+## Optional: true when the shelter may wait out a day between story nights (survival: another day to scavenge).
+static var extra_night: Callable = Callable()
+## Called with the night's transition id to consume supplies for a survival night (no story change).
+static var record_extra: Callable = Callable()
+var extra_nights := 0                 ## tests
 ## Survival rule shared by every rest point (set by the expedition controller): returns "" when the group has
 ## enough to eat and drink tonight, otherwise the reason (shown as a hint; sleeping is refused).
 static var supply_gate: Callable = Callable()
@@ -48,6 +53,17 @@ func request() -> void:
 	if _busy:
 		return
 	if can_rest.is_valid() and not can_rest.call():
+		# the story is not at a night yet: the shelter can still wait out a day (survival), if it offers that
+		if extra_night.is_valid() and extra_night.call():
+			_busy = true
+			var j: int = await choice.ask("REST UNTIL TOMORROW?", ["Rest Until Tomorrow - the group eats tonight", "Not Now"], player)
+			_busy = false
+			if j == 0:
+				_busy = true
+				var hungry: bool = supply_gate.is_valid() and supply_gate.call() != ""
+				await _extra_night(hungry)
+				return
+			return
 		refused.emit(shelter_id)
 		return
 	if supply_gate.is_valid():
@@ -74,14 +90,53 @@ func request() -> void:
 	_sleep_now()
 
 
-## A night's sleep heals: fully after a fed night, partly when the group went to bed hungry.
+## A night's sleep heals: fully after a fed night, a little when the group went to bed hungry - and hungry nights
+## in a row wear people down (from the second one, someone in the group is weakened: injured).
+func _night_effects(hungry: bool) -> void:
+	if player and player.has_method("heal"):
+		player.heal(20.0 if hungry else 100.0)
+	var streak: int = int(Game.world_state.get("hungry_streak", 0))
+	streak = streak + 1 if hungry else 0
+	Game.world_state["hungry_streak"] = streak
+	if streak >= 2:
+		var w := get_tree().get_first_node_in_group("veil_world")
+		var sv = w.get("survivors") if w else null
+		if sv and w.has_method("shelter_roster"):
+			for k in w.shelter_roster():
+				if sv.health(String(k)) == "healthy":
+					sv.set_health(String(k), "injured")
+					Game.world_state["hunger_note"] = "%s is weak from hunger." % String(k)
+					break
+
+
+## A survival night between story nights: the group eats (or goes hungry), sleeps, and a new day begins (supplies
+## out in town are restocked). Nothing in the story moves.
+func _extra_night(hungry: bool) -> void:
+	if player:
+		player.set("controls_enabled", false)
+	await hud.fade_to(1.0, 2.0)
+	extra_nights += 1
+	if record_extra.is_valid():
+		record_extra.call("extra_night_%d" % (int(Game.world_state.get("extra_nights", 0)) + 1))
+	Game.world_state["extra_nights"] = int(Game.world_state.get("extra_nights", 0)) + 1
+	_night_effects(hungry)
+	await get_tree().create_timer(1.2).timeout
+	await hud.fade_to(0.0, 1.6)
+	if player:
+		player.set("controls_enabled", true)
+	if hud and hud.has_method("set_hint"):
+		var note := String(Game.world_state.get("hunger_note", ""))
+		Game.world_state["hunger_note"] = ""
+		hud.set_hint(("A new day. " + note) if note != "" else "A new day. The town's supplies have shifted overnight.")
+	_busy = false
+
+
 func _sleep_now(hungry := false) -> void:
 	_busy = true
 	if player:
 		player.set("controls_enabled", false)
 	await hud.fade_to(1.0, 2.0)
-	if player and player.has_method("heal"):
-		player.heal(40.0 if hungry else 100.0)
+	_night_effects(hungry)
 	interactable.prompt_text = ""
 	slept.emit(shelter_id)
 	_busy = false
