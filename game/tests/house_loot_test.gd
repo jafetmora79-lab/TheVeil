@@ -36,7 +36,10 @@ func _run() -> void:
 	await boot()
 	var hs: Dictionary = w.expedition.houses
 	var open: Array = hs.keys().filter(func(k): return k != "_done")
-	ok("houses_opened", open.size() == 3, str(open))
+	ok("houses_opened", open.size() == 6, str(open))
+	for k in open:
+		var hh = hs[k]
+		ok("loot_in_" + String(k), hh.loot.size() == 3, str(hh.loot.keys()))
 	var h = hs.get("HOUSE_15")
 	ok("loot_inside", h != null and h.loot.size() == 3 and h.loot.values().all(func(it): return it.collision_layer == 0), str(h.loot.keys() if h else []))
 	# take the food: open its cabinet, take it
