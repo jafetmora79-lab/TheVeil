@@ -54,12 +54,30 @@ func setup(w: Node, h: Node3D, s: Dictionary, all: Dictionary) -> bool:
 		return false
 	_open_house_doors()
 	_furnish()
+	_day = survival_day()
 	_place_loot()
 	ok = true
 	return true
 
 
+## The survival day (nights slept at the shelter): "daily" houses get new supplies in their containers each day.
+var _day := 0
+
+
+static func survival_day() -> int:
+	return (Game.world_state.get("shelter_nights", {}) as Dictionary).size()
+
+
 func _process(_d: float) -> void:
+	if ok and spec.get("daily", false) and survival_day() != _day:
+		_day = survival_day()
+		for id in loot:                                  # yesterday's (taken ones stay taken: their own saved keys)
+			var it: Interactable = loot[id]
+			if is_instance_valid(it):
+				it.get_parent().queue_free()
+		loot.clear()
+		_loot_container.clear()
+		_place_loot()
 	for id in loot:
 		var it: Interactable = loot[id]
 		if it.taken:
@@ -171,8 +189,11 @@ func _place_loot() -> void:
 			item.position = Vector3(closed.get_center().x, closed.position.y + 0.03, closed.position.z - back)
 			if l["piece"] == "RES_MedicineCabinet":
 				item.position.z = maxf(closed.position.z - back, 0.02)
+		var key := "scav/%s/loot_%s" % [house.name, id]
+		if spec.get("daily", false) and not l.get("once", false) and _day > 0:
+			key += "_d%d" % _day                         # a new day: this container holds new supplies (ammo never)
 		var it := Interactable.attach(item, {"kind": "pickup", "label": String(l.get("label", id)), "item_id": String(l["item"]),
-			"story_flag": String(l.get("flag", "")), "state_key": "scav/%s/loot_%s" % [house.name, id]})
+			"story_flag": String(l.get("flag", "")), "state_key": key})
 		if c.kind == "slide":
 			# grow the pickup box up to the drawer's top so the player's ray meets the item before the drawer box
 			var cs := it.get_child(0) as CollisionShape3D

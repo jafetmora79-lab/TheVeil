@@ -287,6 +287,658 @@
      "part": "INT_CabinetDoor_Mirror"
     }
    ]
+  },
+  "HOUSE_15": {
+   "variant": "RES_House_Cottage",
+   "chapter": 5,
+   "daily": true,
+   "pieces": [
+    {
+     "model": "RES_Rug_Oval",
+     "pos": [
+      -1.5,
+      0.6,
+      5.2
+     ],
+     "yaw": 1.570796,
+     "room": "LIV"
+    },
+    {
+     "model": "RES_Sofa_Loveseat_Leather",
+     "pos": [
+      -3.185,
+      0.6,
+      5.2
+     ],
+     "yaw": 1.570796,
+     "room": "LIV"
+    },
+    {
+     "model": "RES_Armchair_Wingback",
+     "pos": [
+      -0.3299,
+      0.6,
+      4.125
+     ],
+     "yaw": -2.268928,
+     "room": "LIV"
+    },
+    {
+     "model": "RES_TV_CRT_Small",
+     "pos": [
+      -0.3,
+      0.6,
+      6.3
+     ],
+     "yaw": -1.919862,
+     "room": "LIV"
+    },
+    {
+     "model": "RES_Lamp_Floor",
+     "pos": [
+      -3.3,
+      0.6,
+      3.9
+     ],
+     "yaw": 0.0,
+     "room": "LIV"
+    },
+    {
+     "model": "RES_Curtains_Gingham",
+     "pos": [
+      -3.0,
+      0.6,
+      3.562
+     ],
+     "yaw": 0.0,
+     "room": "LIV"
+    },
+    {
+     "model": "RES_Fridge_Retro",
+     "pos": [
+      -3.275,
+      0.6,
+      8.0
+     ],
+     "yaw": 1.570796,
+     "room": "KIT"
+    },
+    {
+     "model": "RES_Counter_Sink",
+     "pos": [
+      -1.8,
+      0.6,
+      10.985
+     ],
+     "yaw": 3.141593,
+     "room": "KIT"
+    },
+    {
+     "model": "RES_Stove_Harvest",
+     "pos": [
+      -3.0,
+      0.6,
+      10.96
+     ],
+     "yaw": 3.141593,
+     "room": "KIT"
+    },
+    {
+     "model": "RES_DiningTable_Round",
+     "pos": [
+      -1.5,
+      0.6,
+      8.55
+     ],
+     "yaw": 0.0,
+     "room": "KIT"
+    },
+    {
+     "model": "RES_Bed_Double",
+     "pos": [
+      2.585,
+      0.6,
+      3.9
+     ],
+     "yaw": -1.570796,
+     "room": "BED"
+    },
+    {
+     "model": "RES_Nightstand",
+     "pos": [
+      3.435,
+      0.6,
+      2.9
+     ],
+     "yaw": -1.570796,
+     "room": "BED"
+    },
+    {
+     "model": "RES_Wardrobe",
+     "pos": [
+      1.6,
+      0.6,
+      6.635
+     ],
+     "yaw": 3.141593,
+     "room": "BED"
+    },
+    {
+     "model": "RES_ShowerStall",
+     "pos": [
+      1.3,
+      0.6,
+      7.525
+     ],
+     "yaw": 0.0,
+     "room": "BATH"
+    },
+    {
+     "model": "RES_Toilet",
+     "pos": [
+      1.3,
+      0.6,
+      8.995
+     ],
+     "yaw": 3.141593,
+     "room": "BATH"
+    },
+    {
+     "model": "RES_BathSink_Pedestal",
+     "pos": [
+      0.4,
+      0.6,
+      7.305
+     ],
+     "yaw": 0.0,
+     "room": "BATH"
+    },
+    {
+     "model": "RES_Bed_Single",
+     "pos": [
+      2.775,
+      0.6,
+      8.075
+     ],
+     "yaw": 0.0,
+     "room": "BED2"
+    },
+    {
+     "model": "RES_MedicineCabinet",
+     "pos": [
+      0.4,
+      2.15,
+      7.075
+     ],
+     "yaw": 0.0,
+     "room": "BATH",
+     "note": "added above the pedestal sink (wall mount 1.55 m) as the bathroom cabinet"
+    }
+   ],
+   "loot": [
+    {
+     "id": "canned_food_0",
+     "item": "canned_food",
+     "label": "Canned Soup",
+     "flag": "",
+     "model": "res://THE_VEIL_ASSETS_V2/08_Inventory/Food_And_Supplies/INV_CannedFood.glb",
+     "piece": "RES_Counter_Sink",
+     "part": "INT_CabinetDoor_1"
+    },
+    {
+     "id": "water_bottle_1",
+     "item": "water_bottle",
+     "label": "Water Bottle",
+     "flag": "",
+     "model": "res://THE_VEIL_ASSETS_V2/08_Inventory/Food_And_Supplies/INV_WaterBottle.glb",
+     "piece": "RES_Fridge_Retro",
+     "part": "INT_ApplianceDoor_Fridge"
+    },
+    {
+     "id": "painkillers_2",
+     "item": "painkillers",
+     "label": "Painkillers",
+     "flag": "",
+     "model": "res://THE_VEIL_ASSETS_V2/08_Inventory/Medical/INV_PainkillerPack.glb",
+     "piece": "RES_MedicineCabinet",
+     "part": "INT_CabinetDoor_Mirror"
+    }
+   ]
+  },
+  "EXT_HOUSE_08": {
+   "variant": "RES_House_Cottage",
+   "chapter": 5,
+   "daily": true,
+   "pieces": [
+    {
+     "model": "RES_Rug_Oval",
+     "pos": [
+      -1.5,
+      0.6,
+      5.2
+     ],
+     "yaw": 1.570796,
+     "room": "LIV"
+    },
+    {
+     "model": "RES_Sofa_Loveseat_Leather",
+     "pos": [
+      -3.185,
+      0.6,
+      5.2
+     ],
+     "yaw": 1.570796,
+     "room": "LIV"
+    },
+    {
+     "model": "RES_Armchair_Wingback",
+     "pos": [
+      -0.3299,
+      0.6,
+      4.125
+     ],
+     "yaw": -2.268928,
+     "room": "LIV"
+    },
+    {
+     "model": "RES_TV_CRT_Small",
+     "pos": [
+      -0.3,
+      0.6,
+      6.3
+     ],
+     "yaw": -1.919862,
+     "room": "LIV"
+    },
+    {
+     "model": "RES_Lamp_Floor",
+     "pos": [
+      -3.3,
+      0.6,
+      3.9
+     ],
+     "yaw": 0.0,
+     "room": "LIV"
+    },
+    {
+     "model": "RES_Curtains_Gingham",
+     "pos": [
+      -3.0,
+      0.6,
+      3.562
+     ],
+     "yaw": 0.0,
+     "room": "LIV"
+    },
+    {
+     "model": "RES_Fridge_Retro",
+     "pos": [
+      -3.275,
+      0.6,
+      8.0
+     ],
+     "yaw": 1.570796,
+     "room": "KIT"
+    },
+    {
+     "model": "RES_Counter_Sink",
+     "pos": [
+      -1.8,
+      0.6,
+      10.985
+     ],
+     "yaw": 3.141593,
+     "room": "KIT"
+    },
+    {
+     "model": "RES_Stove_Harvest",
+     "pos": [
+      -3.0,
+      0.6,
+      10.96
+     ],
+     "yaw": 3.141593,
+     "room": "KIT"
+    },
+    {
+     "model": "RES_DiningTable_Round",
+     "pos": [
+      -1.5,
+      0.6,
+      8.55
+     ],
+     "yaw": 0.0,
+     "room": "KIT"
+    },
+    {
+     "model": "RES_Bed_Double",
+     "pos": [
+      2.585,
+      0.6,
+      3.9
+     ],
+     "yaw": -1.570796,
+     "room": "BED"
+    },
+    {
+     "model": "RES_Nightstand",
+     "pos": [
+      3.435,
+      0.6,
+      2.9
+     ],
+     "yaw": -1.570796,
+     "room": "BED"
+    },
+    {
+     "model": "RES_Wardrobe",
+     "pos": [
+      1.6,
+      0.6,
+      6.635
+     ],
+     "yaw": 3.141593,
+     "room": "BED"
+    },
+    {
+     "model": "RES_ShowerStall",
+     "pos": [
+      1.3,
+      0.6,
+      7.525
+     ],
+     "yaw": 0.0,
+     "room": "BATH"
+    },
+    {
+     "model": "RES_Toilet",
+     "pos": [
+      1.3,
+      0.6,
+      8.995
+     ],
+     "yaw": 3.141593,
+     "room": "BATH"
+    },
+    {
+     "model": "RES_BathSink_Pedestal",
+     "pos": [
+      0.4,
+      0.6,
+      7.305
+     ],
+     "yaw": 0.0,
+     "room": "BATH"
+    },
+    {
+     "model": "RES_Bed_Single",
+     "pos": [
+      2.775,
+      0.6,
+      8.075
+     ],
+     "yaw": 0.0,
+     "room": "BED2"
+    },
+    {
+     "model": "RES_MedicineCabinet",
+     "pos": [
+      0.4,
+      2.15,
+      7.075
+     ],
+     "yaw": 0.0,
+     "room": "BATH",
+     "note": "added above the pedestal sink (wall mount 1.55 m) as the bathroom cabinet"
+    }
+   ],
+   "loot": [
+    {
+     "id": "water_bottle_0",
+     "item": "water_bottle",
+     "label": "Water Bottle",
+     "flag": "",
+     "model": "res://THE_VEIL_ASSETS_V2/08_Inventory/Food_And_Supplies/INV_WaterBottle.glb",
+     "piece": "RES_Counter_Sink",
+     "part": "INT_CabinetDoor_1"
+    },
+    {
+     "id": "energy_snack_1",
+     "item": "energy_snack",
+     "label": "Snack Bar",
+     "flag": "",
+     "model": "res://THE_VEIL_ASSETS_V2/08_Inventory/Food_And_Supplies/INV_EnergySnack.glb",
+     "piece": "RES_Fridge_Retro",
+     "part": "INT_ApplianceDoor_Fridge"
+    },
+    {
+     "id": "batteries_2",
+     "item": "batteries",
+     "label": "Batteries",
+     "flag": "",
+     "model": "res://THE_VEIL_ASSETS_V2/08_Inventory/Food_And_Supplies/INV_SpareBatteries.glb",
+     "piece": "RES_Nightstand",
+     "part": "INT_Drawer_1"
+    }
+   ]
+  },
+  "EXT_HOUSE_34": {
+   "variant": "RES_House_Cottage",
+   "chapter": 5,
+   "daily": true,
+   "pieces": [
+    {
+     "model": "RES_Rug_Oval",
+     "pos": [
+      -1.5,
+      0.6,
+      5.2
+     ],
+     "yaw": 1.570796,
+     "room": "LIV"
+    },
+    {
+     "model": "RES_Sofa_Loveseat_Leather",
+     "pos": [
+      -3.185,
+      0.6,
+      5.2
+     ],
+     "yaw": 1.570796,
+     "room": "LIV"
+    },
+    {
+     "model": "RES_Armchair_Wingback",
+     "pos": [
+      -0.3299,
+      0.6,
+      4.125
+     ],
+     "yaw": -2.268928,
+     "room": "LIV"
+    },
+    {
+     "model": "RES_TV_CRT_Small",
+     "pos": [
+      -0.3,
+      0.6,
+      6.3
+     ],
+     "yaw": -1.919862,
+     "room": "LIV"
+    },
+    {
+     "model": "RES_Lamp_Floor",
+     "pos": [
+      -3.3,
+      0.6,
+      3.9
+     ],
+     "yaw": 0.0,
+     "room": "LIV"
+    },
+    {
+     "model": "RES_Curtains_Gingham",
+     "pos": [
+      -3.0,
+      0.6,
+      3.562
+     ],
+     "yaw": 0.0,
+     "room": "LIV"
+    },
+    {
+     "model": "RES_Fridge_Retro",
+     "pos": [
+      -3.275,
+      0.6,
+      8.0
+     ],
+     "yaw": 1.570796,
+     "room": "KIT"
+    },
+    {
+     "model": "RES_Counter_Sink",
+     "pos": [
+      -1.8,
+      0.6,
+      10.985
+     ],
+     "yaw": 3.141593,
+     "room": "KIT"
+    },
+    {
+     "model": "RES_Stove_Harvest",
+     "pos": [
+      -3.0,
+      0.6,
+      10.96
+     ],
+     "yaw": 3.141593,
+     "room": "KIT"
+    },
+    {
+     "model": "RES_DiningTable_Round",
+     "pos": [
+      -1.5,
+      0.6,
+      8.55
+     ],
+     "yaw": 0.0,
+     "room": "KIT"
+    },
+    {
+     "model": "RES_Bed_Double",
+     "pos": [
+      2.585,
+      0.6,
+      3.9
+     ],
+     "yaw": -1.570796,
+     "room": "BED"
+    },
+    {
+     "model": "RES_Nightstand",
+     "pos": [
+      3.435,
+      0.6,
+      2.9
+     ],
+     "yaw": -1.570796,
+     "room": "BED"
+    },
+    {
+     "model": "RES_Wardrobe",
+     "pos": [
+      1.6,
+      0.6,
+      6.635
+     ],
+     "yaw": 3.141593,
+     "room": "BED"
+    },
+    {
+     "model": "RES_ShowerStall",
+     "pos": [
+      1.3,
+      0.6,
+      7.525
+     ],
+     "yaw": 0.0,
+     "room": "BATH"
+    },
+    {
+     "model": "RES_Toilet",
+     "pos": [
+      1.3,
+      0.6,
+      8.995
+     ],
+     "yaw": 3.141593,
+     "room": "BATH"
+    },
+    {
+     "model": "RES_BathSink_Pedestal",
+     "pos": [
+      0.4,
+      0.6,
+      7.305
+     ],
+     "yaw": 0.0,
+     "room": "BATH"
+    },
+    {
+     "model": "RES_Bed_Single",
+     "pos": [
+      2.775,
+      0.6,
+      8.075
+     ],
+     "yaw": 0.0,
+     "room": "BED2"
+    },
+    {
+     "model": "RES_MedicineCabinet",
+     "pos": [
+      0.4,
+      2.15,
+      7.075
+     ],
+     "yaw": 0.0,
+     "room": "BATH",
+     "note": "added above the pedestal sink (wall mount 1.55 m) as the bathroom cabinet"
+    }
+   ],
+   "loot": [
+    {
+     "id": "canned_food_0",
+     "item": "canned_food",
+     "label": "Canned Soup",
+     "flag": "",
+     "model": "res://THE_VEIL_ASSETS_V2/08_Inventory/Food_And_Supplies/INV_CannedFood.glb",
+     "piece": "RES_Counter_Sink",
+     "part": "INT_CabinetDoor_1"
+    },
+    {
+     "id": "water_bottle_1",
+     "item": "water_bottle",
+     "label": "Water Bottle",
+     "flag": "",
+     "model": "res://THE_VEIL_ASSETS_V2/08_Inventory/Food_And_Supplies/INV_WaterBottle.glb",
+     "piece": "RES_Fridge_Retro",
+     "part": "INT_ApplianceDoor_Fridge"
+    },
+    {
+     "id": "handgun_round_2",
+     "item": "handgun_round",
+     "label": "A Single Round",
+     "flag": "",
+     "model": "res://THE_VEIL_ASSETS_V2/08_Inventory/Weapons/INV_AmmoBox.glb",
+     "piece": "RES_Nightstand",
+     "part": "INT_Drawer_1",
+     "once": true
+    }
+   ]
   }
  }
 }

@@ -664,7 +664,36 @@ func _prune() -> void:
 
 
 # ------------------------------------------------------------------ per tick
+## The other explorable houses (game/data/scavenge_houses.json, "daily"): opened once the supply rule starts,
+## real furniture with supplies inside its cabinets / fridge / drawers, refilled each new day (game/world/
+## scavenge_house.gd). The cottage (HOUSE_04) stays Chapter 5's own.
+const SCAV_HOUSE := preload("res://game/world/scavenge_house.gd")
+var houses: Dictionary = {}
+
+
+func _open_houses() -> void:
+	if not houses.is_empty() or not Game.has_flag("c5_started"):
+		return
+	var specs: Dictionary = SCAV_HOUSE.load_specs()
+	for z in specs.get("houses", {}):
+		var sp: Dictionary = specs["houses"][z]
+		if not sp.get("daily", false):
+			continue
+		var h := world.find_child(String(z), true, false) as Node3D
+		if h == null:
+			continue
+		var sh = SCAV_HOUSE.new()
+		add_child(sh)
+		if sh.setup(world, h, sp, specs):
+			houses[z] = sh
+		else:
+			sh.queue_free()
+	houses["_done"] = null
+
+
 func _process(delta: float) -> void:
+	if houses.is_empty():
+		_open_houses()
 	_danger(delta)
 	if _today() != _day:
 		_day = _today()
