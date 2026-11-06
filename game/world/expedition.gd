@@ -53,6 +53,13 @@ func setup(w: Node) -> void:
 	for c in cfg.get("vehicle_parts", []):
 		_cache(c, "exp/part_" + String(c["id"]), String(c["item"]), "", String(c["model"]), float(c.get("scale", 1.0)))
 	VeilRestPoint.supply_gate = sleep_gate
+	# between story nights the shelter can wait out a day (supermarket era): supplies eaten, a new day in town
+	VeilRestPoint.extra_night = func() -> bool:
+		return shelter() == "supermarket" and not active() and not emergency() and Game.has_flag("c5_started")
+	VeilRestPoint.record_extra = func(t: String) -> void:
+		var p4 := _p4()
+		if p4:
+			p4.record_night(t)
 	_encounter_t = float(cfg.get("encounter_cooldown_s", [999, 150])[1])   # a load never starts with an encounter
 	_refresh()
 
@@ -326,8 +333,12 @@ func _spawn_caches() -> void:
 		if is_instance_valid(n):
 			n.queue_free()
 	_cache_nodes.clear()
+	var idx := -1
 	for c in cfg.get("caches", []):
+		idx += 1
 		var once := Game.item_info(String(c["item"])).has("rounds")    # handgun rounds: one-time finds, never restocked
+		if not once and _day > 0 and (idx + _day) % 2 == 1:
+			continue                                     # each new day only about half the spots have something
 		var key := "exp/cache_" + String(c["id"]) + ("" if _day == 0 or once else "_d%d" % _day)
 		_cache(c, key, String(c["item"]), String(c.get("label", "")), "", 1.0)
 		if its.has(key) and is_instance_valid(its[key]):
@@ -712,6 +723,11 @@ func _process(delta: float) -> void:
 		return
 	_tick = 0.25
 	_prune()
+	# out of the shelter's doors in the survival era = out in it: the trip (and its danger) starts by itself
+	if not active() and can_scavenge() and Game.has_flag("c5_started") and not in_store() and _player().visible \
+			and _player().controls_enabled and not world.in_car and world.market \
+			and _player().global_position.distance_to(world.market.global_position) < 60.0:
+		start("scavenge", false)
 	if active():
 		if _warn_t <= 0.0 and level() >= 1 and _clock_running():
 			warn(level())

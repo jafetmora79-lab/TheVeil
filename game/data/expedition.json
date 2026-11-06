@@ -1,9 +1,9 @@
 {
  "_comment": "THE VEIL - expedition / dynamic danger tuning (game/world/expedition.gd). Times are seconds of ACTIVE time outside (paused, menus, dialogue and cinematics do not count). Levels: 0 low, 1 rising, 2 high, 3 critical.",
  "danger_thresholds_s": [
-  300,
-  600,
-  900
+  150,
+  330,
+  540
  ],
  "level_names": [
   "LOW",

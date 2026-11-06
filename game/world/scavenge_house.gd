@@ -191,7 +191,9 @@ func _place_loot() -> void:
 				item.position.z = maxf(closed.position.z - back, 0.02)
 		var key := "scav/%s/loot_%s" % [house.name, id]
 		if spec.get("daily", false) and not l.get("once", false) and _day > 0:
-			key += "_d%d" % _day                         # a new day: this container holds new supplies (ammo never)
+			if (spec.get("loot", []) as Array).find(l) != _day % 3:
+				continue                                 # a new day: one of the house's containers has something again
+			key += "_d%d" % _day                         # (ammo never)
 		var it := Interactable.attach(item, {"kind": "pickup", "label": String(l.get("label", id)), "item_id": String(l["item"]),
 			"story_flag": String(l.get("flag", "")), "state_key": key})
 		if c.kind == "slide":
