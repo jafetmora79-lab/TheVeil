@@ -37,6 +37,7 @@ func _run() -> void:
 	root.get_node("Dialogue").auto_confirm = true
 	DEV.prepare(game)
 	game.world_state["shelter_stock"] = {"food": 0, "water": 0, "medical": 0, "batteries": 0}
+	game.world_state["supply_grace"] = true            # (the two-night starting stores are tested on their own)
 	game.save_game()
 	game.load_game()
 	world = load("res://game/scenes/World.tscn").instantiate()

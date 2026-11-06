@@ -254,7 +254,25 @@ func _inv_counts() -> Dictionary:
 
 
 # ------------------------------------------------------------------ sleep needs (one food + one water per person)
+## The supermarket's own stores: once, when the supply rule starts, the shelter holds enough food and water for two
+## nights of the group as it actually is (survivors + the protagonist); after that it is scavenging. Saved
+## (world_state "supply_grace"): never given twice, never after the first two nights of an older save.
+func _grace_stock() -> void:
+	if Game.world_state.get("supply_grace", false):
+		return
+	Game.world_state["supply_grace"] = true
+	if (Game.world_state.get("shelter_nights", {}) as Dictionary).size() >= 2:
+		return
+	var n: int = world.shelter_roster().size() + 1
+	var stock := Game.shelter_stock()
+	for k in ["food", "water"]:
+		stock[k] = maxi(int(stock.get(k, 0)), 2 * n)
+	Game.world_state["shelter_stock"] = stock
+
+
 func supply_need() -> Dictionary:
+	if shelter() == "supermarket":
+		_grace_stock()
 	var stock := Game.shelter_stock()
 	var n: int = world.shelter_roster().size() + 1
 	return {"need": n, "food": int(stock.get("food", 0)), "water": int(stock.get("water", 0))}

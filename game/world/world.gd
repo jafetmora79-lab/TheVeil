@@ -510,8 +510,10 @@ func _setup_town() -> void:
 		if leaf:
 			_auto_doors.append([leaf, leaf.transform, Vector3(side[1] * 1.12, 0, 0)])
 	var sensor := _area("Trigger_MarketDoors", market.global_transform * Vector3(0, 1.2, 0.2), Vector3(4.4, 2.4, 5.0), 2,
-		func(b): if b == player: _set_auto_doors(true), market.global_transform.basis)
-	sensor.body_exited.connect(func(b): if b == player: _set_auto_doors(false))
+		func(b): if b == player or b is VeilSurvivorBody: _set_auto_doors(true), market.global_transform.basis)
+	sensor.body_exited.connect(func(b):
+		if (b == player or b is VeilSurvivorBody) and not sensor.get_overlapping_bodies().any(func(o): return o != b and (o == player or o is VeilSurvivorBody)):
+			_set_auto_doors(false))                   # shut only once nobody is in the doorway
 	var inside_m := _area("Trigger_MarketInside", market.global_transform * Vector3(0, 2.0, 9.0), Vector3(40, 4.0, 11.0), 2,
 		func(b): if b == player: _on_market_entered(), market.global_transform.basis)
 	inside_m.body_exited.connect(func(b): if b == player:
@@ -1253,6 +1255,22 @@ func _end_cine() -> void:
 		elif player.visible:
 			player.camera.current = true
 			player.controls_enabled = true
+
+
+## A companion following the player reached the supermarket's entrance while the doors are shut: they open (the
+## powered sensor, or pulled open by hand once the power is gone), so nobody walks into the glass. Scripted
+## door-closing scenes are left alone (the doors are shut on purpose there).
+func companion_at_market_doors(at: Vector3) -> void:
+	if market == null or Game.has_flag("p3_doors_shut") and not Game.has_flag("c5_started"):
+		return
+	var o := market.get_node_or_null("Doorways/Entrance_Outside") as Node3D
+	var i := market.get_node_or_null("Doorways/Entrance_Inside") as Node3D
+	if o == null or i == null or minf(at.distance_to(o.global_position), at.distance_to(i.global_position)) > 2.6:
+		return
+	if _doors_powered:
+		_set_auto_doors(true)
+	elif phase4 and phase4.chapter5 and not phase4.chapter5._doors_open:
+		phase4.chapter5._set_doors(true)
 
 
 func _set_auto_doors(open: bool) -> void:
