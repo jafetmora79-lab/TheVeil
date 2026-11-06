@@ -58,7 +58,7 @@ func request() -> void:
 			supply_refusals += 1
 			# never a dead end: sleeping hungry is allowed (the night's shortfall costs morale)
 			_busy = true
-			var k: int = await choice.ask("NOT ENOUGH FOR EVERYONE TONIGHT", ["Not yet - I'll find more", "Sleep anyway - some of us go hungry"], player)
+			var k: int = await choice.ask("NOT ENOUGH FOR EVERYONE TONIGHT", ["Find More Supplies", "Sleep Anyway - Some Survivors Go Hungry"], player)
 			_busy = false
 			if k != 1:
 				return
@@ -67,7 +67,7 @@ func request() -> void:
 			_sleep_now()
 			return
 	_busy = true
-	var i: int = await choice.ask(confirm_title, ["Sleep", "Not yet"], player)
+	var i: int = await choice.ask(confirm_title, ["Sleep - Continue to Next Day", "Not yet"], player)
 	if i != 0:
 		_busy = false
 		return

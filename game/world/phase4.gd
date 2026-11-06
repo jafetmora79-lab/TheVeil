@@ -1174,11 +1174,18 @@ func _open_supplies() -> void:
 			text += "\nLow food"
 		if int(stock.water) < roster.size() * int(rates.get("water", 1)):
 			text += "\nLow water"
+		if world.expedition and world.expedition.shelter() != "":
+			var need: Dictionary = world.expedition.supply_need()
+			text += "\nFOOD: %d / %d REQUIRED    WATER: %d / %d REQUIRED  (for tonight)" % [need["food"], need["need"], need["water"], need["need"]]
 		var last: Dictionary = Game.world_state.get("shelter_latest_report", {})
 		if not last.is_empty():
 			text += "\n\n" + _supply_report(last)
 		var ids: Array = []
 		var options: Array = []
+		var fw := Game.inventory.filter(func(i): return Game.shelter_resource(i) in ["food", "water"])
+		if not fw.is_empty():
+			ids.append("__all")
+			options.append("Deposit All Food and Water (%d)" % fw.size())
 		for id in Game.inventory:
 			if not Game.shelter_resource(id).is_empty() and id not in ids and VeilInventoryPanel.quantity(id) > 0:
 				ids.append(id)
@@ -1193,6 +1200,15 @@ func _open_supplies() -> void:
 			return
 		if selected < 0 or selected >= ids.size():
 			break
+		if ids[selected] == "__all":
+			var got := {"food": 0, "water": 0}
+			for i in Game.inventory.duplicate():
+				var r := Game.shelter_resource(i)
+				if r in ["food", "water"] and world.deposit_shelter_item(i):
+					got[r] += 1
+			hud.set_hint("Deposited %d Food and %d Water." % [got["food"], got["water"]])
+			get_tree().create_timer(3.0).timeout.connect(func(): hud.set_hint(""))
+			continue
 		world.deposit_shelter_item(ids[selected])
 	_supplies_open = false
 
