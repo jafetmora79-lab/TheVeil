@@ -384,13 +384,7 @@ func set_marker(target: Variant, label := "") -> void:
 	if _mk == null:
 		_mk = Control.new()
 		_mk.mouse_filter = Control.MOUSE_FILTER_IGNORE
-		var d := ColorRect.new()
-		d.color = Color(0.86, 0.9, 0.86, 0.85)
-		d.size = Vector2(9, 9)
-		d.pivot_offset = Vector2(4.5, 4.5)
-		d.position = Vector2(-4.5, -4.5)
-		d.rotation = PI / 4
-		d.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		var d := _diamond_node(7.0)                       # the objective diamond: pale yellow, a dark outline
 		_mk.add_child(d)
 		_mk_dot = d
 		_mk_arrow = Polygon2D.new()                    # off screen: a small arrow pointing the way instead
@@ -407,7 +401,33 @@ func set_marker(target: Variant, label := "") -> void:
 		_mk.visible = false
 
 
-var _mk_dot: Control
+var _mk_dot: Node2D
+const DIAMOND_FILL := Color(0.97, 0.93, 0.7, 0.95)
+const DIAMOND_EDGE := Color(0.08, 0.07, 0.06, 0.9)
+
+
+## A small diamond: pale-yellow fill, dark outline (readable in the fog, never a big icon).
+func _diamond_node(r: float) -> Node2D:
+	var n := Node2D.new()
+	var pts := PackedVector2Array([Vector2(0, -r), Vector2(r * 0.8, 0), Vector2(0, r), Vector2(-r * 0.8, 0)])
+	var edge := Polygon2D.new()
+	edge.polygon = PackedVector2Array([Vector2(0, -r - 2), Vector2(r * 0.8 + 2, 0), Vector2(0, r + 2), Vector2(-r * 0.8 - 2, 0)])
+	edge.color = DIAMOND_EDGE
+	n.add_child(edge)
+	var fill := Polygon2D.new()
+	fill.polygon = pts
+	fill.color = DIAMOND_FILL
+	n.add_child(fill)
+	return n
+
+
+## Where a marker sits on its target: above a person's head (not in it), just above an object's interaction point.
+static func marker_point(t: Node3D) -> Vector3:
+	if t is CharacterBody3D or t.has_meta("npc_name") or t is VeilSurvivorBody:
+		return t.global_position + Vector3(0, 2.1, 0)
+	if t is Interactable:
+		return (t as Interactable).focus_point() + Vector3(0, 0.35, 0)
+	return t.global_position
 var _mk_arrow: Polygon2D
 ## When no story destination is set: a fallback (the way back to the current shelter), from game/ui/nav_map.gd.
 var marker_fallback: Callable
@@ -426,7 +446,47 @@ func _marker_blocked() -> bool:
 	return p != null and not w.get("in_car") and not p.controls_enabled
 
 
+## A few extra small diamonds over the things a list objective still needs (the shopping list): key -> Node3D.
+## Hidden behind walls, far off, in cinematics, dialogue and menus.
+var world_diamonds := {}
+var _wd_nodes := {}
+
+
+func world_diamond(key: String, target: Variant) -> void:
+	if target == null:
+		world_diamonds.erase(key)
+		if _wd_nodes.has(key):
+			(_wd_nodes[key] as Node).queue_free()
+			_wd_nodes.erase(key)
+		return
+	world_diamonds[key] = target
+
+
+func _update_world_diamonds() -> void:
+	var cam := get_viewport().get_camera_3d()
+	var hide: bool = cam == null or inv_panel.visible or is_paused() or Dialogue.is_active() or _marker_blocked()
+	for key in world_diamonds.keys():
+		var t = world_diamonds[key]
+		if not (t is Node3D) or not is_instance_valid(t):
+			world_diamond(key, null)
+			continue
+		if not _wd_nodes.has(key):
+			var dn := _diamond_node(5.0)
+			root.add_child(dn)
+			_wd_nodes[key] = dn
+		var n: Node2D = _wd_nodes[key]
+		var p := marker_point(t)
+		var show := not hide and not cam.is_position_behind(p) and cam.global_position.distance_to(p) < 22.0
+		if show:
+			var hit := cam.get_world_3d().direct_space_state.intersect_ray(PhysicsRayQueryParameters3D.create(cam.global_position, p, 1))
+			show = hit.is_empty() or (hit["position"] as Vector3).distance_to(p) < 0.6
+		n.visible = show
+		if show:
+			n.position = cam.unproject_position(p) + Vector2(0, sin(Time.get_ticks_msec() * 0.004 + n.get_instance_id()) * 2.0)
+
+
 func _update_marker() -> void:
+	_update_world_diamonds()
 	if _mk == null and marker_fallback.is_valid():
 		set_marker(null, "")
 	if _mk == null:
@@ -434,7 +494,7 @@ func _update_marker() -> void:
 	var pos: Variant = null
 	var name := _mk_name
 	if _mk_target is Node3D and is_instance_valid(_mk_target):
-		pos = (_mk_target as Node3D).global_position
+		pos = marker_point(_mk_target as Node3D)
 	elif _mk_target is Vector3:
 		pos = _mk_target
 	elif marker_fallback.is_valid():
@@ -472,7 +532,7 @@ func _update_marker() -> void:
 		if behind:
 			d2 = Vector2(signf(local.x), 0.0) if absf(local.x) > 0.05 else Vector2(0.0, 1.0)   # turn left / right / around
 		_mk_arrow.rotation = d2.angle()
-	_mk.position = sp
+	_mk.position = sp + Vector2(0, sin(Time.get_ticks_msec() * 0.004) * 2.5 if not off else 0.0)     # a gentle bob
 	_mk_label.text = ("%s  %d m" % [name, roundi(dist)]) if name != "" else "%d m" % roundi(dist)
 	_mk.visible = true
 	marker_visible = true

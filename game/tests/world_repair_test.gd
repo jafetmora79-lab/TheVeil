@@ -66,6 +66,40 @@ func _run() -> void:
 	var endp: Vector3 = paths["reverse"][-1]
 	ok("park_from_anywhere", game.has_flag("parked") and w.car_on_asphalt() and Vector2(w.sedan.global_position.x - endp.x, w.sedan.global_position.z - endp.z).length() < 0.3,
 		"%s placed %s" % [w.sedan.global_position, w.park_report.get("placed", false)])
+	# ---- the shopping list: a diamond per grocery still needed, then the cashier's
+	for id in w.GROCERIES:
+		game.inventory.erase(id)
+	game.flags.erase("groceries_done")
+	w.player.global_position = w.market.global_transform * Vector3(-3.0, 0.3, 6.0)
+	await frames(10)
+	var groc: Array = w.hud.world_diamonds.keys().filter(func(k): return String(k).begins_with("grocery_"))
+	ok("grocery_diamonds", groc.size() == 3 and not w.hud.world_diamonds.has("cashier"), str(w.hud.world_diamonds.keys()))
+	game.add_item(w.GROCERIES.keys()[0])
+	await frames(5)
+	ok("grocery_diamond_goes", w.hud.world_diamonds.keys().filter(func(k): return String(k).begins_with("grocery_")).size() == 2)
+	for id in w.GROCERIES:
+		if not game.has_item(id):
+			game.add_item(id)
+	await frames(5)
+	ok("cashier_diamond_when_ready", w.hud.world_diamonds.has("cashier") and w.hud.world_diamonds.keys().filter(func(k): return String(k).begins_with("grocery_")).is_empty())
+	# ---- out of the supermarket, groceries done, the game not yet bought: one look across to Game Haven
+	game.set_flag("groceries_done")
+	game.flags.erase("game_bought")
+	await frames(5)
+	ok("diamonds_cleared_after_shop", w.hud.world_diamonds.is_empty())
+	var said: Array = []
+	root.get_node("Dialogue").line_started.connect(func(_s, t, _d): said.append(t))
+	var fov0: float = w.player.camera.fov
+	w.player.controls_enabled = true
+	w.player.global_position = w.market.global_transform * Vector3(0.0, 0.3, -6.0)
+	await frames(20)
+	var og2 = w.get_node("OpeningGuide")
+	ok("gh_look_starts", og2.gh_reminders == 1 and not w.player.controls_enabled)
+	await frames(60 * 6)
+	ok("gh_look_done", said.has("Oh, right. Wasn't I gonna buy a game?") and w.player.controls_enabled and absf(w.player.camera.fov - fov0) < 0.01)
+	w.player.global_position = w.market.global_transform * Vector3(0.0, 0.3, -7.0)
+	await frames(30)
+	ok("gh_look_once", og2.gh_reminders == 1)
 	# ---- the fall safeguard
 	var p = w.player
 	p.controls_enabled = true
