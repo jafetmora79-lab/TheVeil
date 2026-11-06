@@ -310,7 +310,10 @@ func _build_exterior() -> void:
 	sign.pixel_size = 0.004
 	sign.modulate = Color(0.75, 0.73, 0.65)
 	ext.add_child(sign)
-	sign.global_transform = Transform3D(Basis(Vector3.UP, PI), STATION_DOOR + Vector3(0, 1.5, -0.12))
+	# the door is on the building's +z face: the sign faces +z (where the player stands), just proud of the door -
+	# it used to be turned away and set behind the door, so it read backwards through it
+	sign.double_sided = false
+	sign.global_transform = Transform3D(Basis(), STATION_DOOR + Vector3(0, 1.5, 0.06))
 	_decal(STATION_DOOR + Vector3(1.4, 0.1, -0.13), Vector3(0, 0, -1), 0.45, Color(0.12, 0.1, 0.09))
 	_prop("02_Town/Utilities/UT_Transformer_PadMount.glb", "C12_Transformer", s + Vector3(5.5, 0.0, 1.0), PI * 0.5)
 	_prop("02_Town/Utilities/UT_ElectricalCabinet.glb", "C12_Cabinet", s + Vector3(-4.6, 0.0, 2.6), -PI * 0.5)
