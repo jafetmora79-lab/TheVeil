@@ -2128,6 +2128,51 @@
    }
   ]
  },
+ "map_intro": {
+  "source": "Town map (Part 9): Eddie hands it over in the supermarket",
+  "lines": [
+   {
+    "speaker": "Eddie",
+    "text": "Hey, found something you might actually use.",
+    "time": 2.6
+   },
+   {
+    "speaker": "",
+    "text": "What is it?",
+    "time": 1.4
+   },
+   {
+    "speaker": "Eddie",
+    "text": "Map of Greyhaven. Old one, but the streets haven't moved. Probably.",
+    "time": 3.6
+   },
+   {
+    "speaker": "",
+    "text": "What's marked on it?",
+    "time": 1.8
+   },
+   {
+    "speaker": "Eddie",
+    "text": "Houses, shops, places worth checking. You can mark somewhere you want to search.",
+    "time": 4.0
+   },
+   {
+    "speaker": "",
+    "text": "And if there's nothing there?",
+    "time": 2.0
+   },
+   {
+    "speaker": "Eddie",
+    "text": "Cross it off. If you find supplies, mark it too. Might be worth coming back after a few days.",
+    "time": 4.4
+   },
+   {
+    "speaker": "",
+    "text": "Alright. Better than wandering around blind.",
+    "time": 2.6
+   }
+  ]
+ },
  "c7_walk": {
   "source": "Chapter 7 implementation prompt (approved script)",
   "lines": [

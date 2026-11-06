@@ -89,6 +89,7 @@ func _run() -> void:
 	# ---- the map
 	var names: Array = nav.places().map(func(x): return x[0])
 	ok("places_known", names.has("Home") and names.has("Video Game Shop") and names.has("Supermarket") and not names.has("Old District"), str(names))
+	game.set_flag("map_acquired")                       # (Eddie hands it over in the supermarket: map_test.gd)
 	await key(KEY_M)
 	ok("map_opens", nav.open and nav.panel.visible and not p.controls_enabled)
 	Input.action_press("move_forward")
