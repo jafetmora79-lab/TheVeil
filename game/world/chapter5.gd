@@ -232,6 +232,16 @@ func _setup_house() -> void:
 		block.add_child(bcs)
 		shouse.add_child(block)
 		block.position = Vector3(0.645, 0.6 + 0.8, 9.2)
+		# every interior door opens (E), as in the explorable houses: the kitchen, den, dining room and the bedrooms
+		# and bathroom upstairs were behind doors that never opened
+		var dh = SCAV.new()
+		dh.name = "C5_SurvivorDoors"
+		dh.world = world
+		dh.house = shouse
+		add_child(dh)
+		dh._open_house_doors()
+		for n in dh.doors:
+			its["c5/%s/%s" % [SURVIVOR_HOUSE, n]] = dh.doors[n]
 	# the radio: a reusable prop (game/props/veil_radio.gd), interacted with in place on the dining table
 	var vr := VeilRadio.new()
 	vr.name = "C5_Radio"
