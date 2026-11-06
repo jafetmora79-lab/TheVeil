@@ -219,18 +219,19 @@ func _setup_house() -> void:
 		var dit := Interactable.attach(fd, {"kind": "hinge", "label": "Front Door", "open_deg": deg, "hinge_axis": Vector3.UP,
 			"state_key": "c5/%s/INT_Door_Front" % SURVIVOR_HOUSE})
 		its["c5/%s/INT_Door_Front" % SURVIVOR_HOUSE] = dit
-		# a normal front door now (the player can open it and walk into the ground floor). Only the stairwell is
-		# closed off: the flight up and the basement flight beneath it share the foyer strip x 0.17-1.12, z 4.6-9.2
+		# a normal front door (the player can open it and walk in). The flight up works (ground 0.6 -> upper 3.6,
+		# walked both ways); only the basement flight beneath it, which drops from the foyer at z ~9.2 to a dead end,
+		# is closed at its head - low enough to pass under the upper flight there.
 		var block := StaticBody3D.new()
-		block.name = "C5_SurvivorStairs"
+		block.name = "C5_SurvivorBasement"
 		block.collision_layer = 1
 		var bcs := CollisionShape3D.new()
 		var bb := BoxShape3D.new()
-		bb.size = Vector3(1.05, 2.4, 4.8)
+		bb.size = Vector3(1.05, 1.6, 0.6)
 		bcs.shape = bb
 		block.add_child(bcs)
 		shouse.add_child(block)
-		block.position = Vector3(0.645, 0.6 + 1.2, 6.9)
+		block.position = Vector3(0.645, 0.6 + 0.8, 9.2)
 	# the radio: a reusable prop (game/props/veil_radio.gd), interacted with in place on the dining table
 	var vr := VeilRadio.new()
 	vr.name = "C5_Radio"
