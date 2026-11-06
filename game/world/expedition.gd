@@ -151,10 +151,6 @@ func _use_exit(_b: Node) -> void:
 	if Game.has_flag("vehicle_repaired"):
 		opts.append("Use the Car")
 		ids.append("car")
-	var rest: Node3D = p4.get("rest")
-	if rest and is_instance_valid(rest) and (not rest.can_rest.is_valid() or rest.can_rest.call()):
-		opts.append("Rest / Sleep")
-		ids.append("rest")
 	opts.append("Stay Inside")
 	ids.append("stay")
 	var i: int = await p4.choice.ask("WHERE ARE YOU HEADING?", opts, _player())
@@ -164,11 +160,6 @@ func _use_exit(_b: Node) -> void:
 		pick = ["scavenge_car", "story", "stay"][clampi(j, 0, 2)] if j >= 0 else "stay"
 	_busy_menu = false
 	match pick:
-		"rest":
-			# the bedroll in the manager's office: lit and pointed to (the sleep itself is the usual one there)
-			world._beacon("rest_hint", rest.global_position + Vector3(0, 0.6, 0), Color(0.6, 0.75, 1.0))
-			_hint("Sleep at the bedroll in the manager's office (lit). " + (sleep_gate() if sleep_gate() != "" else "There is enough for everyone tonight."))
-			get_tree().create_timer(30.0).timeout.connect(func(): world._clear_beacon("rest_hint"))
 		"story":
 			# the story's own exit and objective take it from here (nothing is restarted or skipped)
 			_hint("Objective: " + String(Game.current_step().get("text", "")))
