@@ -1453,7 +1453,7 @@ func _talk_eddie(_by: Node) -> void:
 ##   cross to the supermarket -> shut the jammed doors -> end of the build.
 var atmos: Node
 var _tentacles: Array = []
-const STOMP_QUICKEN := 1.13                     ## the Colossus foot's descent, a little faster (the rest unchanged)
+const STOMP_QUICKEN := 1.45                     ## the Colossus foot's descent: a heavy, fast fall (the rest unchanged)
 var _doors_powered := true
 var _p3_shop_talked := false
 var _p3_npcs_moved := false
@@ -2061,6 +2061,7 @@ func _colossus_encounter() -> void:
 	ap.speed_scale = 0.0                                          # planted: the weight comes down on it
 	_enc_sounds.append(Sfx.play("colossus_step", L + Vector3(0, 1, 0), 6.0, 0.7))
 	_impact_dust(L)
+	_crush_lamp(L)
 	_shake(cam, 0.35, 0.05)
 	_npc_fright(L)
 	for l in get_tree().get_nodes_in_group("veil_streetlight"):
@@ -2330,6 +2331,72 @@ func _shake(cam: Camera3D, seconds: float, amount: float) -> void:
 		t += get_process_delta_time()
 	if is_instance_valid(cam):
 		cam.global_position = base
+
+
+## The street lamp the foot comes down by (the nearest within 15 m of the footfall): its light dies for good in a
+## burst of sparks, its post (the lamp model standing under the light) crushed and knocked over.
+func _crush_lamp(at: Vector3) -> void:
+	var best: Light3D = null
+	var bd := 15.0
+	for l in get_tree().get_nodes_in_group("veil_streetlight"):
+		if l is Light3D:
+			var d := Vector2(l.global_position.x - at.x, l.global_position.z - at.z).length()
+			if d < bd:
+				bd = d
+				best = l
+	if best == null:
+		return
+	var post: Node3D = null
+	var pd := 2.0
+	for n in find_children("*Lamp*", "Node3D", true, false):
+		if n is Light3D or n is MeshInstance3D or n is CollisionObject3D:
+			continue
+		var dd := Vector2(n.global_position.x - best.global_position.x, n.global_position.z - best.global_position.z).length()
+		if dd < pd:
+			pd = dd
+			post = n
+	enc_report["lamp_crushed"] = String(post.name) if post else String(best.name)
+	var spark_at := best.global_position
+	best.remove_from_group("veil_streetlight")
+	best.visible = false
+	var sp := CPUParticles3D.new()
+	sp.one_shot = true
+	sp.amount = 40
+	sp.lifetime = 0.9
+	sp.explosiveness = 0.95
+	sp.direction = Vector3(0, 1, 0)
+	sp.spread = 80.0
+	sp.initial_velocity_min = 3.0
+	sp.initial_velocity_max = 7.0
+	sp.gravity = Vector3(0, -9.8, 0)
+	var q := QuadMesh.new()
+	q.size = Vector2(0.05, 0.05)
+	var m := StandardMaterial3D.new()
+	m.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
+	m.albedo_color = Color(1.0, 0.75, 0.35)
+	m.billboard_mode = BaseMaterial3D.BILLBOARD_ENABLED
+	q.material = m
+	sp.mesh = q
+	add_child(sp)
+	sp.global_position = spark_at
+	sp.emitting = true
+	get_tree().create_timer(2.0).timeout.connect(sp.queue_free)
+	var flash := OmniLight3D.new()
+	flash.light_color = Color(1.0, 0.8, 0.5)
+	flash.light_energy = 4.0
+	flash.omni_range = 8.0
+	add_child(flash)
+	flash.global_position = spark_at
+	get_tree().create_timer(0.12).timeout.connect(flash.queue_free)
+	Sfx.play("door_close", spark_at, 4.0, 0.5)
+	if post and post != self:
+		var away := (post.global_position - at) * Vector3(1, 0, 1)
+		var axis := Vector3.UP.cross(away.normalized() if away.length() > 0.1 else Vector3.FORWARD).normalized()
+		var tw := create_tween().set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_IN)
+		var b0 := post.global_basis
+		tw.tween_method(func(k: float):
+			if is_instance_valid(post):
+				post.global_basis = Basis(axis, k * 1.35) * b0.scaled(Vector3(1.0, lerpf(1.0, 0.55, k), 1.0)), 0.0, 1.0, 0.45)
 
 
 func _impact_dust(at: Vector3) -> void:
