@@ -939,6 +939,964 @@
      "once": true
     }
    ]
+  },
+  "HOUSE_06": {
+   "variant": "RES_House_Bungalow_Mirror",
+   "chapter": 5,
+   "daily": true,
+   "pieces": [
+    {
+     "model": "RES_Rug_Oval",
+     "pos": [
+      2.0,
+      0.6,
+      5.1
+     ],
+     "yaw": -0.0,
+     "room": "LIV"
+    },
+    {
+     "model": "RES_Sofa_Plaid",
+     "pos": [
+      3.935,
+      0.6,
+      5.0
+     ],
+     "yaw": -1.570796,
+     "room": "LIV"
+    },
+    {
+     "model": "RES_CoffeeTable_Wood",
+     "pos": [
+      3.0,
+      0.6,
+      5.1
+     ],
+     "yaw": -1.570796,
+     "room": "LIV"
+    },
+    {
+     "model": "RES_TVStand",
+     "pos": [
+      -0.3,
+      0.6,
+      6.2
+     ],
+     "yaw": 1.570796,
+     "room": "LIV"
+    },
+    {
+     "model": "RES_TV_CRT_Small",
+     "pos": [
+      -0.35,
+      1.15,
+      6.2
+     ],
+     "yaw": 1.570796,
+     "room": "LIV"
+    },
+    {
+     "model": "RES_Armchair_Recliner",
+     "pos": [
+      0.8799,
+      0.6,
+      4.125
+     ],
+     "yaw": 1.570796,
+     "room": "LIV"
+    },
+    {
+     "model": "RES_Lamp_Floor",
+     "pos": [
+      4.1,
+      0.6,
+      6.6
+     ],
+     "yaw": -0.0,
+     "room": "LIV"
+    },
+    {
+     "model": "RES_Curtains_Gingham",
+     "pos": [
+      0.6,
+      0.6,
+      3.362
+     ],
+     "yaw": -0.0,
+     "room": "LIV"
+    },
+    {
+     "model": "RES_DiningTable_Rect",
+     "pos": [
+      2.95,
+      0.6,
+      9.6
+     ],
+     "yaw": -1.570796,
+     "room": "DIN"
+    },
+    {
+     "model": "RES_DiningChair_Wood",
+     "pos": [
+      3.625,
+      0.6,
+      9.4299
+     ],
+     "yaw": -1.570796,
+     "room": "DIN"
+    },
+    {
+     "model": "RES_DiningChair_Wood",
+     "pos": [
+      2.275,
+      0.6,
+      10.0299
+     ],
+     "yaw": 1.570796,
+     "room": "DIN"
+    },
+    {
+     "model": "RES_Bookshelf_Low",
+     "pos": [
+      4.225,
+      0.6,
+      8.2
+     ],
+     "yaw": -1.570796,
+     "room": "DIN"
+    },
+    {
+     "model": "RES_Fridge_Retro",
+     "pos": [
+      0.965,
+      0.6,
+      7.6
+     ],
+     "yaw": -1.570796,
+     "room": "KIT"
+    },
+    {
+     "model": "RES_Counter_Base_1.2",
+     "pos": [
+      -0.225,
+      0.6,
+      9.2
+     ],
+     "yaw": 1.570796,
+     "room": "KIT"
+    },
+    {
+     "model": "RES_Stove_Electric",
+     "pos": [
+      0.2,
+      0.6,
+      7.4
+     ],
+     "yaw": -0.0,
+     "room": "KIT"
+    },
+    {
+     "model": "RES_Bed_Double",
+     "pos": [
+      -3.335,
+      0.6,
+      4.9
+     ],
+     "yaw": 1.570796,
+     "room": "BED1"
+    },
+    {
+     "model": "RES_Nightstand",
+     "pos": [
+      -4.185,
+      0.6,
+      3.75
+     ],
+     "yaw": 1.570796,
+     "room": "BED1"
+    },
+    {
+     "model": "RES_Dresser",
+     "pos": [
+      -1.4,
+      0.6,
+      3.555
+     ],
+     "yaw": -0.0,
+     "room": "BED1"
+    },
+    {
+     "model": "RES_Bathtub",
+     "pos": [
+      -4.01,
+      0.6,
+      7.7
+     ],
+     "yaw": 1.570796,
+     "room": "BATH"
+    },
+    {
+     "model": "RES_Toilet",
+     "pos": [
+      -3.4,
+      0.6,
+      8.395
+     ],
+     "yaw": -3.141593,
+     "room": "BATH"
+    },
+    {
+     "model": "RES_BathSink_Pedestal",
+     "pos": [
+      -3.3,
+      0.6,
+      6.905
+     ],
+     "yaw": -0.0,
+     "room": "BATH"
+    },
+    {
+     "model": "RES_Bed_Single",
+     "pos": [
+      -3.35,
+      0.6,
+      9.875
+     ],
+     "yaw": -0.0,
+     "room": "BED2"
+    },
+    {
+     "model": "RES_Dresser",
+     "pos": [
+      -4.185,
+      0.6,
+      10.1
+     ],
+     "yaw": 1.570796,
+     "room": "BED2"
+    }
+   ],
+   "loot": [
+    {
+     "id": "water_bottle_0",
+     "item": "water_bottle",
+     "label": "Water Bottle",
+     "flag": "",
+     "model": "res://THE_VEIL_ASSETS_V2/08_Inventory/Food_And_Supplies/INV_WaterBottle.glb",
+     "piece": "RES_Fridge_Retro",
+     "part": "INT_ApplianceDoor_Fridge"
+    },
+    {
+     "id": "canned_food_1",
+     "item": "canned_food",
+     "label": "Canned Soup",
+     "flag": "",
+     "model": "res://THE_VEIL_ASSETS_V2/08_Inventory/Food_And_Supplies/INV_CannedFood.glb",
+     "piece": "RES_Nightstand",
+     "part": "INT_Drawer_1"
+    },
+    {
+     "id": "painkillers_2",
+     "item": "painkillers",
+     "label": "Painkillers",
+     "flag": "",
+     "model": "res://THE_VEIL_ASSETS_V2/08_Inventory/Medical/INV_PainkillerPack.glb",
+     "piece": "RES_Nightstand",
+     "part": "INT_Drawer_2"
+    }
+   ]
+  },
+  "HOUSE_22": {
+   "variant": "RES_House_Ranch_C",
+   "chapter": 5,
+   "daily": true,
+   "pieces": [
+    {
+     "model": "RES_Rug_Oval",
+     "pos": [
+      1.1,
+      0.6,
+      4.3
+     ],
+     "yaw": 1.570796,
+     "room": "LIV"
+    },
+    {
+     "model": "RES_Sofa_Plaid",
+     "pos": [
+      1.9,
+      0.6,
+      2.925
+     ],
+     "yaw": 0.0,
+     "room": "LIV"
+    },
+    {
+     "model": "RES_CoffeeTable_Wood",
+     "pos": [
+      0.75,
+      0.6,
+      4.3
+     ],
+     "yaw": 1.570796,
+     "room": "LIV"
+    },
+    {
+     "model": "RES_TVStand",
+     "pos": [
+      2.9,
+      0.6,
+      3.95
+     ],
+     "yaw": -1.570796,
+     "room": "LIV"
+    },
+    {
+     "model": "RES_TV_CRT_Small",
+     "pos": [
+      2.95,
+      1.15,
+      3.95
+     ],
+     "yaw": -1.570796,
+     "room": "LIV"
+    },
+    {
+     "model": "RES_Lamp_Floor",
+     "pos": [
+      -0.65,
+      0.6,
+      2.8
+     ],
+     "yaw": 0.0,
+     "room": "LIV"
+    },
+    {
+     "model": "RES_Curtains_Gingham",
+     "pos": [
+      2.3,
+      0.6,
+      2.562
+     ],
+     "yaw": 0.0,
+     "room": "LIV"
+    },
+    {
+     "model": "RES_Picture_Family",
+     "pos": [
+      -0.923,
+      2.15,
+      4.3
+     ],
+     "yaw": 1.570796,
+     "room": "LIV"
+    },
+    {
+     "model": "RES_WallClock",
+     "pos": [
+      2.0,
+      2.5,
+      6.113
+     ],
+     "yaw": 3.141593,
+     "room": "LIV"
+    },
+    {
+     "model": "RES_Fridge_TopFreezer",
+     "pos": [
+      -0.52,
+      0.6,
+      11.325
+     ],
+     "yaw": 3.141593,
+     "room": "KIT"
+    },
+    {
+     "model": "RES_Counter_Sink",
+     "pos": [
+      0.5,
+      0.6,
+      11.385
+     ],
+     "yaw": 3.141593,
+     "room": "KIT"
+    },
+    {
+     "model": "RES_Stove_Electric",
+     "pos": [
+      1.6,
+      0.6,
+      11.36
+     ],
+     "yaw": 3.141593,
+     "room": "KIT"
+    },
+    {
+     "model": "RES_WallCabinet_0.8",
+     "pos": [
+      0.5,
+      2.05,
+      11.533
+     ],
+     "yaw": 3.141593,
+     "room": "KIT"
+    },
+    {
+     "model": "RES_DiningTable_Round",
+     "pos": [
+      0.6,
+      0.6,
+      8.3
+     ],
+     "yaw": 0.0,
+     "room": "KIT"
+    },
+    {
+     "model": "RES_DiningChair_Wood",
+     "pos": [
+      0.4701,
+      0.6,
+      7.475
+     ],
+     "yaw": 0.0,
+     "room": "KIT"
+    },
+    {
+     "model": "RES_DiningChair_Wood",
+     "pos": [
+      0.7299,
+      0.6,
+      9.125
+     ],
+     "yaw": 3.141593,
+     "room": "KIT"
+    },
+    {
+     "model": "RES_DishRack",
+     "pos": [
+      0.2,
+      1.52,
+      11.385
+     ],
+     "yaw": 3.141593,
+     "room": "KIT"
+    },
+    {
+     "model": "RES_TrashCan_Pedal",
+     "pos": [
+      1.925,
+      0.6,
+      6.6
+     ],
+     "yaw": -1.570796,
+     "room": "KIT"
+    },
+    {
+     "model": "RES_Bed_Single",
+     "pos": [
+      4.885,
+      0.6,
+      3.7
+     ],
+     "yaw": -1.570796,
+     "room": "BED2"
+    },
+    {
+     "model": "RES_Nightstand",
+     "pos": [
+      5.685,
+      0.6,
+      5.0
+     ],
+     "yaw": -1.570796,
+     "room": "BED2"
+    },
+    {
+     "model": "RES_Dresser",
+     "pos": [
+      4.85,
+      0.6,
+      5.885
+     ],
+     "yaw": 3.141593,
+     "room": "BED2"
+    },
+    {
+     "model": "RES_Poster_Band",
+     "pos": [
+      4.75,
+      2.3,
+      6.133
+     ],
+     "yaw": 3.141593,
+     "room": "BED2"
+    },
+    {
+     "model": "RES_Bathtub",
+     "pos": [
+      5.55,
+      0.6,
+      7.3
+     ],
+     "yaw": -1.570796,
+     "room": "BATH"
+    },
+    {
+     "model": "RES_Toilet",
+     "pos": [
+      4.7,
+      0.6,
+      6.605
+     ],
+     "yaw": 0.0,
+     "room": "BATH"
+    },
+    {
+     "model": "RES_BathSink_Pedestal",
+     "pos": [
+      4.2,
+      0.6,
+      6.505
+     ],
+     "yaw": 0.0,
+     "room": "BATH"
+    },
+    {
+     "model": "RES_Mirror_Bathroom",
+     "pos": [
+      5.2,
+      2.15,
+      6.277
+     ],
+     "yaw": 0.0,
+     "room": "BATH"
+    },
+    {
+     "model": "RES_TowelRack",
+     "pos": [
+      5.848,
+      1.8,
+      7.6
+     ],
+     "yaw": -1.570796,
+     "room": "BATH"
+    },
+    {
+     "model": "RES_Bed_Double",
+     "pos": [
+      4.835,
+      0.6,
+      10.3
+     ],
+     "yaw": -1.570796,
+     "room": "BED1"
+    },
+    {
+     "model": "RES_Nightstand",
+     "pos": [
+      5.685,
+      0.6,
+      8.95
+     ],
+     "yaw": -1.570796,
+     "room": "BED1"
+    },
+    {
+     "model": "RES_Nightstand",
+     "pos": [
+      5.685,
+      0.6,
+      11.35
+     ],
+     "yaw": -1.570796,
+     "room": "BED1"
+    },
+    {
+     "model": "RES_Wardrobe",
+     "pos": [
+      4.7,
+      0.6,
+      11.435
+     ],
+     "yaw": 3.141593,
+     "room": "BED1"
+    },
+    {
+     "model": "RES_Lamp_Table",
+     "pos": [
+      5.685,
+      1.18,
+      8.95
+     ],
+     "yaw": -1.570796,
+     "room": "BED1"
+    },
+    {
+     "model": "RES_Shelving_Metal",
+     "pos": [
+      -4.35,
+      0.02,
+      7.66
+     ],
+     "yaw": 3.141593,
+     "room": "GAR"
+    },
+    {
+     "model": "RES_WashingMachine",
+     "pos": [
+      -4.585,
+      0.02,
+      5.0
+     ],
+     "yaw": 1.570796,
+     "room": "GAR"
+    },
+    {
+     "model": "RES_Dryer",
+     "pos": [
+      -4.585,
+      0.02,
+      5.7
+     ],
+     "yaw": 1.570796,
+     "room": "GAR"
+    },
+    {
+     "model": "RES_Workbench",
+     "pos": [
+      -1.425,
+      0.02,
+      5.5
+     ],
+     "yaw": -1.570796,
+     "room": "GAR"
+    },
+    {
+     "model": "RES_WaterHeater",
+     "pos": [
+      -4.585,
+      0.02,
+      6.4
+     ],
+     "yaw": 1.570796,
+     "room": "GAR"
+    },
+    {
+     "model": "RES_ElectricalPanel",
+     "pos": [
+      -4.848,
+      1.52,
+      3.2
+     ],
+     "yaw": 1.570796,
+     "room": "GAR"
+    },
+    {
+     "model": "RES_Toolbox",
+     "pos": [
+      -1.425,
+      0.92,
+      5.9
+     ],
+     "yaw": -1.570796,
+     "room": "GAR"
+    }
+   ],
+   "loot": [
+    {
+     "id": "canned_food_0",
+     "item": "canned_food",
+     "label": "Canned Soup",
+     "flag": "",
+     "model": "res://THE_VEIL_ASSETS_V2/08_Inventory/Food_And_Supplies/INV_CannedFood.glb",
+     "piece": "RES_Counter_Sink",
+     "part": "INT_CabinetDoor_1"
+    },
+    {
+     "id": "water_bottle_1",
+     "item": "water_bottle",
+     "label": "Water Bottle",
+     "flag": "",
+     "model": "res://THE_VEIL_ASSETS_V2/08_Inventory/Food_And_Supplies/INV_WaterBottle.glb",
+     "piece": "RES_Counter_Sink",
+     "part": "INT_CabinetDoor_2"
+    },
+    {
+     "id": "painkillers_2",
+     "item": "painkillers",
+     "label": "Painkillers",
+     "flag": "",
+     "model": "res://THE_VEIL_ASSETS_V2/08_Inventory/Medical/INV_PainkillerPack.glb",
+     "piece": "RES_Nightstand",
+     "part": "INT_Drawer_1"
+    }
+   ]
+  },
+  "HOUSE_23": {
+   "variant": "RES_House_Bungalow_B",
+   "chapter": 5,
+   "daily": true,
+   "pieces": [
+    {
+     "model": "RES_Rug_Oval",
+     "pos": [
+      -2.0,
+      0.6,
+      5.1
+     ],
+     "yaw": 0.0,
+     "room": "LIV"
+    },
+    {
+     "model": "RES_Sofa_Plaid",
+     "pos": [
+      -3.935,
+      0.6,
+      5.0
+     ],
+     "yaw": 1.570796,
+     "room": "LIV"
+    },
+    {
+     "model": "RES_CoffeeTable_Wood",
+     "pos": [
+      -3.0,
+      0.6,
+      5.1
+     ],
+     "yaw": 1.570796,
+     "room": "LIV"
+    },
+    {
+     "model": "RES_TVStand",
+     "pos": [
+      0.3,
+      0.6,
+      6.2
+     ],
+     "yaw": -1.570796,
+     "room": "LIV"
+    },
+    {
+     "model": "RES_TV_CRT_Small",
+     "pos": [
+      0.35,
+      1.15,
+      6.2
+     ],
+     "yaw": -1.570796,
+     "room": "LIV"
+    },
+    {
+     "model": "RES_Armchair_Recliner",
+     "pos": [
+      -0.8799,
+      0.6,
+      4.125
+     ],
+     "yaw": -1.570796,
+     "room": "LIV"
+    },
+    {
+     "model": "RES_Lamp_Floor",
+     "pos": [
+      -4.1,
+      0.6,
+      6.6
+     ],
+     "yaw": 0.0,
+     "room": "LIV"
+    },
+    {
+     "model": "RES_Curtains_Gingham",
+     "pos": [
+      -0.6,
+      0.6,
+      3.362
+     ],
+     "yaw": 0.0,
+     "room": "LIV"
+    },
+    {
+     "model": "RES_DiningTable_Rect",
+     "pos": [
+      -2.95,
+      0.6,
+      9.6
+     ],
+     "yaw": 1.570796,
+     "room": "DIN"
+    },
+    {
+     "model": "RES_DiningChair_Wood",
+     "pos": [
+      -3.625,
+      0.6,
+      9.4299
+     ],
+     "yaw": 1.570796,
+     "room": "DIN"
+    },
+    {
+     "model": "RES_DiningChair_Wood",
+     "pos": [
+      -2.275,
+      0.6,
+      10.0299
+     ],
+     "yaw": -1.570796,
+     "room": "DIN"
+    },
+    {
+     "model": "RES_Bookshelf_Low",
+     "pos": [
+      -4.225,
+      0.6,
+      8.2
+     ],
+     "yaw": 1.570796,
+     "room": "DIN"
+    },
+    {
+     "model": "RES_Fridge_Retro",
+     "pos": [
+      -0.965,
+      0.6,
+      7.6
+     ],
+     "yaw": 1.570796,
+     "room": "KIT"
+    },
+    {
+     "model": "RES_Counter_Base_1.2",
+     "pos": [
+      0.225,
+      0.6,
+      9.2
+     ],
+     "yaw": -1.570796,
+     "room": "KIT"
+    },
+    {
+     "model": "RES_Stove_Electric",
+     "pos": [
+      -0.2,
+      0.6,
+      7.4
+     ],
+     "yaw": 0.0,
+     "room": "KIT"
+    },
+    {
+     "model": "RES_Bed_Double",
+     "pos": [
+      3.335,
+      0.6,
+      4.9
+     ],
+     "yaw": -1.570796,
+     "room": "BED1"
+    },
+    {
+     "model": "RES_Nightstand",
+     "pos": [
+      4.185,
+      0.6,
+      3.75
+     ],
+     "yaw": -1.570796,
+     "room": "BED1"
+    },
+    {
+     "model": "RES_Dresser",
+     "pos": [
+      1.4,
+      0.6,
+      3.555
+     ],
+     "yaw": 0.0,
+     "room": "BED1"
+    },
+    {
+     "model": "RES_Bathtub",
+     "pos": [
+      4.01,
+      0.6,
+      7.7
+     ],
+     "yaw": -1.570796,
+     "room": "BATH"
+    },
+    {
+     "model": "RES_Toilet",
+     "pos": [
+      3.4,
+      0.6,
+      8.395
+     ],
+     "yaw": 3.141593,
+     "room": "BATH"
+    },
+    {
+     "model": "RES_BathSink_Pedestal",
+     "pos": [
+      3.3,
+      0.6,
+      6.905
+     ],
+     "yaw": 0.0,
+     "room": "BATH"
+    },
+    {
+     "model": "RES_Bed_Single",
+     "pos": [
+      3.35,
+      0.6,
+      9.875
+     ],
+     "yaw": 0.0,
+     "room": "BED2"
+    },
+    {
+     "model": "RES_Dresser",
+     "pos": [
+      4.185,
+      0.6,
+      10.1
+     ],
+     "yaw": -1.570796,
+     "room": "BED2"
+    }
+   ],
+   "loot": [
+    {
+     "id": "water_bottle_0",
+     "item": "water_bottle",
+     "label": "Water Bottle",
+     "flag": "",
+     "model": "res://THE_VEIL_ASSETS_V2/08_Inventory/Food_And_Supplies/INV_WaterBottle.glb",
+     "piece": "RES_Fridge_Retro",
+     "part": "INT_ApplianceDoor_Fridge"
+    },
+    {
+     "id": "energy_snack_1",
+     "item": "energy_snack",
+     "label": "Snack Bar",
+     "flag": "",
+     "model": "res://THE_VEIL_ASSETS_V2/08_Inventory/Food_And_Supplies/INV_EnergySnack.glb",
+     "piece": "RES_Nightstand",
+     "part": "INT_Drawer_1"
+    },
+    {
+     "id": "batteries_2",
+     "item": "batteries",
+     "label": "Batteries",
+     "flag": "",
+     "model": "res://THE_VEIL_ASSETS_V2/08_Inventory/Food_And_Supplies/INV_SpareBatteries.glb",
+     "piece": "RES_Nightstand",
+     "part": "INT_Drawer_2"
+    }
+   ]
   }
  }
 }
