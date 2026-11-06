@@ -562,8 +562,9 @@ var _main: PanelContainer
 func _fit() -> void:
 	if _main == null:
 		return
+	_main.custom_minimum_size = Vector2(PANEL, PANEL)   # measure the content, not the last size (it used to grow every open)
 	var need := _main.get_combined_minimum_size()
-	var side := maxf(PANEL, maxf(need.x, need.y))
+	var side := clampf(maxf(need.x, need.y), PANEL, PANEL * 1.6)
 	_main.custom_minimum_size = Vector2(side, side)
 	var vp := get_viewport_rect().size
 	var k := minf(1.0, minf(vp.x * 0.94 / side, vp.y * 0.94 / side))
