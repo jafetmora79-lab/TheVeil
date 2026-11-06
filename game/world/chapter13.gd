@@ -376,6 +376,7 @@ func _build_under() -> void:
 	beam.rotation = Vector3(0.6, 0.0, 0.0)
 	# the dark beyond the doorway; the vast shape in it (unlit, never detailed)
 	_ubox("VoidFloor", Vector3(12.0, -0.15, 60.0), Vector3(30.0, 0.3, 40.0), "damp", false)
+	_build_veil_passage()
 	var stop: StaticBody3D = _ubox("Threshold", Vector3(12.0, 2.0, 40.9), Vector3(4.0, 4.0, 0.3), "stone")     # not this chapter: an
 	(stop.get_child(0) as MeshInstance3D).visible = false                                         # unseen stop past the sill
 	void_shape = MeshInstance3D.new()
@@ -1121,6 +1122,7 @@ func _mist_reacts() -> void:
 	await c8._turn_to(UL(DOORWAY), 1.6)
 	await tw.finished
 	Game.set_flag("ch13_entrance_open")
+	_veil_tentacles()
 	var flow: CPUParticles3D = _mist_flow(UL(Vector3(12.0, 1.0, 34.0)), Vector3(0, 0, 1))
 	var cam: Camera3D = player.camera
 	var fov0 := cam.fov
@@ -1154,6 +1156,81 @@ func _mist_reacts() -> void:
 	_hold(false)
 	_busy["mist"] = false
 	_collapse()
+
+
+## Beyond the doorway: the passage into the Veil. An enclosed, lightless space (nothing of the world above can show
+## through) behind layers of dark mist that thicken with depth until nothing past the threshold can be seen.
+const VEIL_BLACK := Color(0.012, 0.013, 0.016)
+var veil_fog: Array = []
+
+
+func _build_veil_passage() -> void:
+	var black := StandardMaterial3D.new()
+	black.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
+	black.albedo_color = VEIL_BLACK
+	for b in [[Vector3(4.0, 3.6, 49.0), Vector3(0.3, 7.2, 18.0)], [Vector3(20.0, 3.6, 49.0), Vector3(0.3, 7.2, 18.0)],
+			[Vector3(12.0, 3.6, 58.0), Vector3(16.3, 7.2, 0.3)], [Vector3(12.0, 7.2, 49.0), Vector3(16.3, 0.3, 18.0)],
+			[Vector3(12.0, 0.02, 49.0), Vector3(16.0, 0.05, 18.0)]]:
+		var body := _ubox("VeilShell", b[0], b[1], "stone", false)
+		for m in body.find_children("*", "MeshInstance3D", true, false):
+			(m as MeshInstance3D).material_override = black
+	for i in 7:
+		var q := MeshInstance3D.new()
+		var qm := QuadMesh.new()
+		qm.size = Vector2(16.0, 7.2)
+		q.mesh = qm
+		var fm := StandardMaterial3D.new()
+		fm.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
+		fm.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
+		fm.cull_mode = BaseMaterial3D.CULL_DISABLED
+		fm.albedo_color = Color(0.035, 0.04, 0.045, minf(0.3 + i * 0.12, 0.97))
+		q.material_override = fm
+		q.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+		under.add_child(q)
+		q.global_position = UL(Vector3(12.0, 3.6, 40.8 + i * 1.1))
+		veil_fog.append(q)
+
+
+## The doorway opens: three mist tentacles rise out of the dark beyond it, reach through toward the chamber, writhe,
+## and draw back into the Veil (no collision: never in the way).
+var veil_tentacles := 0                ## tests
+
+
+func _veil_tentacles() -> void:
+	var ps := load(world.TENTACLE_PATH) as PackedScene
+	if ps == null:
+		return
+	var ts: Array = []
+	for k in 3:
+		var t := ps.instantiate() as Node3D
+		t.name = "C13_VeilTentacle_%d" % k
+		under.add_child(t)
+		for co in t.find_children("*", "CollisionObject3D", true, false):
+			(co as CollisionObject3D).collision_layer = 0
+			(co as CollisionObject3D).collision_mask = 0
+		if t is CollisionObject3D:
+			(t as CollisionObject3D).collision_layer = 0
+			(t as CollisionObject3D).collision_mask = 0
+		t.set_physics_process(false)
+		var x: float = [10.7, 12.0, 13.3][k]
+		t.global_position = UL(Vector3(x, -3.0, 42.5 + k * 0.6))
+		t.rotation = Vector3(0, PI, 0)
+		for ap in t.find_children("*", "AnimationPlayer", true, false):
+			var lst := (ap as AnimationPlayer).get_animation_list()
+			if not lst.is_empty():
+				(ap as AnimationPlayer).play(lst[0])
+		ts.append(t)
+		veil_tentacles += 1
+		var tw := t.create_tween()
+		tw.tween_interval(k * 0.35)
+		tw.tween_property(t, "global_position", UL(Vector3(x, 0.0, 42.5 + k * 0.6)), 0.7).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
+		tw.tween_property(t, "global_position", UL(Vector3(x + (k - 1) * 0.4, 0.0, 40.6)), 0.9).set_trans(Tween.TRANS_SINE)
+		tw.parallel().tween_property(t, "rotation:x", -0.35, 0.9)
+		for j in 3:
+			tw.tween_property(t, "rotation:z", 0.25 * (1 if j % 2 == 0 else -1), 0.45).set_trans(Tween.TRANS_SINE)
+		tw.tween_property(t, "global_position", UL(Vector3(x, -4.0, 45.0)), 1.3).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_IN)
+		tw.tween_callback(t.queue_free)
+	_play("deep", UL(Vector3(12.0, 1.0, 43.0)), 6.0)
 
 
 func _mist_flow(at: Vector3, dir: Vector3) -> CPUParticles3D:

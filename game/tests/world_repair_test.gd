@@ -117,5 +117,29 @@ func _run() -> void:
 				if not space.intersect_ray(PhysicsRayQueryParameters3D.create(gp, gp + dir * 60.0, 1)):
 					open.append("side@%s" % gp)
 	ok("tunnels_enclosed", open.is_empty(), str(open.slice(0, 5)))
+	# the chamber's plaque reads the right way (faces into the chamber, single-sided), as every fixed sign
+	var plaque: Label3D = null
+	for l in w.find_children("*", "Label3D", true, false):
+		if String((l as Label3D).text).begins_with("GREYHAVEN PUBLIC WORKS\nSERVICE GALLERY"):
+			plaque = l
+	ok("plaque_faces_chamber", plaque != null and plaque.global_basis.z.x > 0.99 and not plaque.double_sided,
+		str(plaque.global_basis.z if plaque else null))
+	ok("no_double_sided_signs", w.find_children("*", "Label3D", true, false).all(func(l): return l.billboard != BaseMaterial3D.BILLBOARD_DISABLED or not l.double_sided))
+	# past the doorway: the passage into the Veil is closed all round (no sky, no town), dark mist layers in it
+	var seen_out := []
+	var from: Vector3 = c.UL(Vector3(12.0, 2.0, 41.5))
+	for d in [Vector3(0, 0, 1), Vector3(1, 0, 0), Vector3(-1, 0, 0), Vector3(0, 1, 0), Vector3(0.5, 0.3, 1).normalized(), Vector3(-0.5, 0.3, 1).normalized()]:
+		var r = space.intersect_ray(PhysicsRayQueryParameters3D.create(from, from + d * 40.0, 1))
+		var shell := false
+		for m in w.find_children("*", "MeshInstance3D", true, false):
+			pass
+		if not r:
+			seen_out.append(str(d))
+	ok("veil_passage_has_fog", c.veil_fog.size() >= 6)
+	c._veil_tentacles()
+	await frames(30)
+	var tn: int = c.under.find_children("C13_VeilTentacle_*", "", true, false).size()
+	await frames(60 * 6)
+	ok("veil_tentacles_come_and_go", c.veil_tentacles == 3 and tn == 3 and c.under.find_children("C13_VeilTentacle_*", "", true, false).is_empty(), "%d spawned" % tn)
 	print("RESULT %s" % ("PASS" if fails == 0 else "%d failures" % fails))
 	quit(0 if fails == 0 else 1)

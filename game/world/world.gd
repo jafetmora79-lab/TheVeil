@@ -127,6 +127,9 @@ func _ready() -> void:
 	ra.name = "RoadArrows"
 	add_child(ra)
 	ra.setup.call_deferred(self)
+	var sf = load("res://game/world/sign_fix.gd").new()             # no mirrored text anywhere
+	sf.name = "SignFix"
+	add_child(sf)
 	var og = load("res://game/world/opening_guide.gd").new()      # the opening: markers, the front door, reminders
 	og.name = "OpeningGuide"
 	add_child(og)
