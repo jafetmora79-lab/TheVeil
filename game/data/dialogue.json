@@ -2173,6 +2173,16 @@
    }
   ]
  },
+ "gh_reminder": {
+  "source": "Opening: the Game Haven reminder after the groceries",
+  "lines": [
+   {
+    "speaker": "",
+    "text": "Oh, right. Wasn't I gonna buy a game?",
+    "time": 2.6
+   }
+  ]
+ },
  "c7_walk": {
   "source": "Chapter 7 implementation prompt (approved script)",
   "lines": [

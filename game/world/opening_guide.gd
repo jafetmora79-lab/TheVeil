@@ -55,7 +55,82 @@ func _find(f: Callable) -> Interactable:
 	return null
 
 
+## The shopping: a small diamond over each grocery still needed, the cashier's once all three are in hand; a word
+## if the player seems lost in the store. Then, the first time out of the supermarket with the game still to buy,
+## a short look across to Game Haven.
+var _shop_idle := 0.0
+var _ready_said := false
+var gh_reminders := 0                  ## tests
+
+
+func _shopping(delta: float) -> void:
+	var hud = world.hud
+	var on: bool = Game.has_flag("reached_town") and not Game.has_flag("groceries_done") and world.market != null \
+		and world.player.global_position.distance_to(world.market.global_position) < 45.0
+	var need := []
+	for id in world.GROCERIES:
+		if not Game.has_item(id):
+			need.append(id)
+	var merch = world.get("market_merch")
+	for id in world.GROCERIES:
+		var it = merch.groups[id]["it"] if merch and merch.groups.has(id) else null
+		hud.world_diamond("grocery_" + id, it if on and id in need else null)
+	hud.world_diamond("cashier", world.cashier if on and need.is_empty() and world.cashier and world.cashier.visible else null)
+	if not on:
+		return
+	if need.is_empty() and not _ready_said:
+		_ready_said = true
+		hud.set_hint("Alright, that's everything. Time to pay.")
+	_shop_idle += delta
+	if world.expedition == null or not need.is_empty():
+		if _shop_idle > 45.0 and hud.hint.text == "":
+			_shop_idle = 0.0
+			hud.set_hint("Still need to grab a few things.")
+			get_tree().create_timer(4.0).timeout.connect(func():
+				if hud.hint.text == "Still need to grab a few things.":
+					hud.set_hint(""))
+
+
+func _game_haven_look() -> void:
+	if Game.has_flag("gh_reminder") or not Game.has_flag("groceries_done") or Game.has_flag("game_bought") or Game.has_flag("p3_mist"):
+		return
+	var p: Node3D = world.player
+	if world.market == null or world.game_shop == null or not p.visible or not p.controls_enabled or world.conversing or world.in_car:
+		return
+	var lp: Vector3 = world.market.to_local(p.global_position)
+	if lp.z > -2.5 or lp.z < -14.0 or absf(lp.x) > 10.0:
+		return                                         # just outside the supermarket's front doors
+	Game.set_flag("gh_reminder")
+	gh_reminders += 1
+	p.controls_enabled = false
+	p.velocity = Vector3.ZERO
+	var cam: Camera3D = p.camera
+	var fov0 := cam.fov
+	var door := world.game_shop.get_node_or_null("Doorways/Entrance_Outside") as Node3D
+	var look: Vector3 = (door.global_position if door else world.game_shop.global_position) + Vector3(0, 2.2, 0)
+	var v := look - cam.global_position
+	var y0: float = p.rotation.y
+	var x0: float = p.head.rotation.x
+	var y1 := atan2(-v.x, -v.z)
+	var x1 := clampf(asin(clampf(v.normalized().y, -1.0, 1.0)), -0.3, 0.3)
+	await get_tree().create_timer(0.4).timeout
+	var tw := create_tween().set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
+	tw.tween_method(func(k: float): p.set_yaw_pitch(lerp_angle(y0, y1, k), lerpf(x0, x1, k)), 0.0, 1.0, 1.0)
+	tw.parallel().tween_property(cam, "fov", fov0 * 0.82, 1.0)
+	await tw.finished
+	Dialogue.say("gh_reminder", false, true)
+	await get_tree().create_timer(1.6).timeout
+	var back := create_tween().set_trans(Tween.TRANS_SINE)
+	back.tween_property(cam, "fov", fov0, 0.8)
+	await back.finished
+	cam.fov = fov0
+	p.controls_enabled = true
+
+
 func _process(delta: float) -> void:
+	if world != null:
+		_shopping(delta)
+		_game_haven_look()
 	if world == null or not active():
 		if world and _step != "done":
 			_step = "done"

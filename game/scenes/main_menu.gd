@@ -37,22 +37,41 @@ func _ready() -> void:
 	mist.material = mist_material
 	add_child(mist)
 	_alive(backdrop, mist_material)
+	# a soft dark band on the left behind the text (the storefront stays clear on the right)
+	var shade := ColorRect.new()
+	shade.set_anchors_preset(Control.PRESET_FULL_RECT)
+	shade.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	var ss := Shader.new()
+	ss.code = "shader_type canvas_item;\nvoid fragment(){ COLOR = vec4(0.0, 0.0, 0.0, 0.7 * (1.0 - smoothstep(0.05, 0.55, UV.x))); }"
+	var sm := ShaderMaterial.new()
+	sm.shader = ss
+	shade.material = sm
+	add_child(shade)
 	var c := CenterContainer.new()
 	c.set_anchors_preset(Control.PRESET_FULL_RECT)
 	c.anchor_left = 0.5
 	add_child(c)
+	var left := Control.new()                          # title and options: upper left, never over the shop sign
+	left.anchor_left = 0.07
+	left.anchor_top = 0.14
+	left.anchor_right = 0.5
+	left.anchor_bottom = 0.95
+	left.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	add_child(left)
 	menu = VBoxContainer.new()
-	menu.add_theme_constant_override("separation", 14)
-	menu.alignment = BoxContainer.ALIGNMENT_CENTER
-	c.add_child(menu)
+	menu.set_anchors_preset(Control.PRESET_FULL_RECT)
+	menu.add_theme_constant_override("separation", 8)
+	menu.alignment = BoxContainer.ALIGNMENT_BEGIN
+	left.add_child(menu)
 	var t := preload("res://game/ui/pixel_title.gd").new()      # hand-drawn pixel letters (no stray font pixel)
 	t.name = "Title"
+	t.size_flags_horizontal = Control.SIZE_SHRINK_BEGIN
 	menu.add_child(t)
 	var s := VeilUI.label("Greyhaven  ·  Friday", 18, VeilUI.MUTED)
-	s.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	s.horizontal_alignment = HORIZONTAL_ALIGNMENT_LEFT
 	menu.add_child(s)
 	var sp := Control.new()
-	sp.custom_minimum_size = Vector2(0, 26)
+	sp.custom_minimum_size = Vector2(0, 40)
 	menu.add_child(sp)
 	var b_new := VeilUI.button("New Game")
 	b_new.pressed.connect(_new_game)
@@ -70,8 +89,9 @@ func _ready() -> void:
 	b_quit.pressed.connect(func(): get_tree().quit())
 	b_quit.visible = OS.get_name() != "Web"
 	for b in [b_new, b_cont, b_set, b_quit]:
-		b.custom_minimum_size.x = MENU_W                # one width for the column: long labels fit inside it
+		b.custom_minimum_size = Vector2(MENU_W, 34)     # one width for the column: long labels fit inside it
 		b.clip_text = true
+		_flat(b)
 		menu.add_child(b)
 	b_new.grab_focus()
 	settings = SettingsPanel.new()
@@ -245,3 +265,27 @@ func _stutter(r: ColorRect) -> void:
 			await get_tree().create_timer(randf_range(0.04, 0.09)).timeout
 			r.color.a = 0.0
 			await get_tree().create_timer(randf_range(0.05, 0.12)).timeout
+
+
+## A menu option as plain text (no box): pale, and pale yellow with a small arrow when selected (mouse or keys).
+func _flat(b: Button) -> void:
+	var empty := StyleBoxEmpty.new()
+	for k in ["normal", "hover", "pressed", "focus", "disabled", "hover_pressed"]:
+		b.add_theme_stylebox_override(k, empty)
+	b.alignment = HORIZONTAL_ALIGNMENT_LEFT
+	b.add_theme_font_size_override("font_size", VeilUI.px_size(20))
+	b.add_theme_color_override("font_color", Color(0.84, 0.85, 0.83))
+	b.add_theme_color_override("font_hover_color", Color(0.97, 0.93, 0.7))
+	b.add_theme_color_override("font_focus_color", Color(0.97, 0.93, 0.7))
+	b.add_theme_color_override("font_pressed_color", Color(1.0, 0.97, 0.8))
+	b.add_theme_color_override("font_disabled_color", Color(0.42, 0.44, 0.45))
+	b.text = b.text.to_upper()
+	var base := b.text
+	b.set_meta("base", base)
+	var on := func():
+		if not b.disabled:
+			b.text = "›  " + String(b.get_meta("base"))
+	var off := func(): b.text = String(b.get_meta("base"))
+	b.focus_entered.connect(on)
+	b.mouse_entered.connect(func(): b.grab_focus())
+	b.focus_exited.connect(off)
