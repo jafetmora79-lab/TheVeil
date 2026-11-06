@@ -174,6 +174,7 @@ func _run() -> void:
 	root.get_node("Dialogue").line_started.connect(func(_s, t, _d): said.append(t))
 	DEV.prepare(game)
 	game.world_state["shelter_stock"] = {"food": 0, "water": 0, "medical": 3, "batteries": 0}
+	game.world_state["supply_grace"] = true            # (an empty pantry on purpose)
 	game.world_state.erase("survivors")
 	game.save_game()
 	game.load_game()

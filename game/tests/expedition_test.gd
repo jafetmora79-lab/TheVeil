@@ -261,6 +261,7 @@ func _run() -> void:
 		game.inventory.append("car_keys")                # the protagonist's own keys (Chapter 1)
 	game.flags["fridge_checked"] = true
 	game.world_state["shelter_stock"] = {"food": 0, "water": 0, "medical": 0, "batteries": 0}
+	game.world_state["supply_grace"] = true            # (an empty pantry on purpose: the starting stores have their own test)
 	game.save_game()
 	game.load_game()
 	world = ps.instantiate()

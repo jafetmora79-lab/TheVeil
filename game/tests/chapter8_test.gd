@@ -239,7 +239,7 @@ func _run() -> void:
 	ev2.pressed = false
 	Input.parse_input_event(ev2)
 	ok("dlg_e_continues", await wait_until(func(): return said.size() == n0 + 1, 30) and speakers[speakers.size() - 1] == ""
-		and world.hud.speaker_l.text == "PROTAGONIST", "%d -> %d %s" % [n0, said.size(), world.hud.speaker_l.text])
+		and world.hud.speaker_l.text == game.player_name.to_upper(), "%d -> %d %s" % [n0, said.size(), world.hud.speaker_l.text])
 	ok("dlg_no_side_interaction", world.player.controls_enabled == false and not game.has_flag("ch8_eddie_talked"))
 	await frames(30)
 	var ev3 := InputEventMouseButton.new()
