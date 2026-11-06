@@ -406,6 +406,10 @@ func _fall_guard(delta: float) -> void:
 	if is_on_floor() and controls_enabled and visible and _safe_t <= 0.0:
 		_safe_t = 0.4
 		_safe_pos = global_position
+	if not controls_enabled or not visible:
+		_air_t = 0.0                                    # a scene holds the player (or moves them): never a "fall"
+		_safe_pos = Vector3.INF                         # and the next floor stood on is the new reference
+		return
 	_air_t = 0.0 if is_on_floor() else _air_t + delta
 	if _safe_pos.is_finite() and _air_t > 1.0 and global_position.y < _safe_pos.y - 20.0:
 		global_position = _safe_pos + Vector3(0, 0.3, 0)
