@@ -50,6 +50,22 @@ func _run() -> void:
 	door.interact(w.player)
 	await frames(40)
 	ok("door_opens_when_ready", door.is_open)
+	# parking from anywhere: the car on the grass behind the lot, side-on -> it ends in the stall, on the tarmac
+	ok("straight_on_arrows", w.get_node("RoadArrows").arrows.size() >= 6)
+	game.set_flag("left_house")
+	w.player.global_position = w.sedan.global_position + w.sedan.global_basis.x * 1.6
+	await frames(5)
+	w.enter_car()
+	await frames(40)
+	var lot: Transform3D = w._park_lot_xf()
+	w.sedan.global_transform = Transform3D(Basis(Vector3.UP, 1.1), lot * Vector3(-6.0, 0.0, 22.5) + Vector3(0, w.sedan.global_position.y - (lot * Vector3.ZERO).y, 0))
+	await frames(10)
+	var paths: Dictionary = w.park_paths()
+	await w._auto_park()
+	await frames(10)
+	var endp: Vector3 = paths["reverse"][-1]
+	ok("park_from_anywhere", game.has_flag("parked") and w.car_on_asphalt() and Vector2(w.sedan.global_position.x - endp.x, w.sedan.global_position.z - endp.z).length() < 0.3,
+		"%s placed %s" % [w.sedan.global_position, w.park_report.get("placed", false)])
 	# ---- the fall safeguard
 	var p = w.player
 	p.controls_enabled = true

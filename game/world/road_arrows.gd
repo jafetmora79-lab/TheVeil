@@ -5,6 +5,7 @@ extends Node3D
 
 var world: Node
 var arrows: Array = []                 ## [{node, at: Vector3, passed}]
+const STRAIGHT_ON := [[Vector2(118.0, 0.0), Vector2(-1, 0)], [Vector2(80.0, 0.0), Vector2(-1, 0)]]   # past the gas station
 
 
 func setup(w: Node) -> void:
@@ -43,6 +44,26 @@ func setup(w: Node) -> void:
 		n.rotate_object_local(Vector3.RIGHT, -PI * 0.5)        # the cone's tip (+y) along the way on
 		n.visible = false
 		arrows.append({"node": n, "at": at, "dir": Vector3(dir.x, 0, dir.y), "passed": false})
+	# past the gas station (the first lit forecourt on the way in, easy to take for the store): keep straight on
+	for e in STRAIGHT_ON:
+		var here2: Vector2 = e[0]
+		var dir2: Vector2 = e[1]
+		var at2 := Vector3(here2.x, _ground(Vector3(here2.x, 0, here2.y)) + 2.6, here2.y)
+		var n2 := MeshInstance3D.new()
+		var cone2 := CylinderMesh.new()
+		cone2.top_radius = 0.0
+		cone2.bottom_radius = 0.55
+		cone2.height = 1.6
+		cone2.radial_segments = 4
+		n2.mesh = cone2
+		n2.material_override = mat
+		n2.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+		add_child(n2)
+		n2.global_position = at2
+		n2.look_at(at2 + Vector3(dir2.x, 0, dir2.y), Vector3.UP)
+		n2.rotate_object_local(Vector3.RIGHT, -PI * 0.5)
+		n2.visible = false
+		arrows.append({"node": n2, "at": at2, "dir": Vector3(dir2.x, 0, dir2.y), "passed": false})
 
 
 func _index(route: Array, p: Vector2) -> int:
