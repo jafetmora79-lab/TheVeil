@@ -36,6 +36,7 @@ func run() -> void:
 			5: DEV5.prepare(game)
 			6: DEV6.prepare(game)
 			7: DEV7.prepare(game)
+		game.world_state["supply_grace"] = true          # (exact stock arithmetic: no starting stores here)
 		var world := packed.instantiate()
 		root.add_child(world)
 		await frames(8)
