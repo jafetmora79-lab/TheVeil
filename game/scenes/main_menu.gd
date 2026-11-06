@@ -2,6 +2,7 @@ extends Control
 ## THE VEIL - main menu: New Game, Continue (only with a valid save), Settings, Quit.
 
 var menu: VBoxContainer
+const MENU_W := 520.0
 var settings: SettingsPanel
 var loading: Label
 var name_dialog: ConfirmationDialog
@@ -35,6 +36,7 @@ func _ready() -> void:
 	mist_material.set_shader_parameter("noise_tex", preload("res://THE_VEIL_ASSETS_V2/09_Horror_Atmosphere/Textures/T_Veil_MistNoise.png"))
 	mist.material = mist_material
 	add_child(mist)
+	_alive(backdrop, mist_material)
 	var c := CenterContainer.new()
 	c.set_anchors_preset(Control.PRESET_FULL_RECT)
 	c.anchor_left = 0.5
@@ -43,8 +45,8 @@ func _ready() -> void:
 	menu.add_theme_constant_override("separation", 14)
 	menu.alignment = BoxContainer.ALIGNMENT_CENTER
 	c.add_child(menu)
-	var t := VeilUI.label("T H E   V E I L", 58)
-	t.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	var t := preload("res://game/ui/pixel_title.gd").new()      # hand-drawn pixel letters (no stray font pixel)
+	t.name = "Title"
 	menu.add_child(t)
 	var s := VeilUI.label("Greyhaven  ·  Friday", 18, VeilUI.MUTED)
 	s.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
@@ -68,6 +70,8 @@ func _ready() -> void:
 	b_quit.pressed.connect(func(): get_tree().quit())
 	b_quit.visible = OS.get_name() != "Web"
 	for b in [b_new, b_cont, b_set, b_quit]:
+		b.custom_minimum_size.x = MENU_W                # one width for the column: long labels fit inside it
+		b.clip_text = true
 		menu.add_child(b)
 	b_new.grab_focus()
 	settings = SettingsPanel.new()
@@ -170,5 +174,74 @@ func _fit_button(b: Button) -> void:
 	for size in [19, 17, 15, 13, 11]:
 		var px := VeilUI.px_size(size)
 		b.add_theme_font_size_override("font_size", px)
-		if f.get_string_size(b.text, HORIZONTAL_ALIGNMENT_LEFT, -1, px).x <= b.size.x - 28.0:
+		if f.get_string_size(b.text, HORIZONTAL_ALIGNMENT_LEFT, -1, px).x <= MENU_W - 36.0:
 			return
+
+
+## The background breathes: a slow push-in and pan on the shot, a second faster mist layer, the street lights
+## stuttering now and then, a fine drizzle, and darker edges. All 2D over the existing picture: cheap.
+func _alive(backdrop: TextureRect, mist_mat: ShaderMaterial) -> void:
+	backdrop.pivot_offset = get_viewport_rect().size * 0.5
+	var tw := backdrop.create_tween().set_loops().set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
+	tw.tween_property(backdrop, "scale", Vector2.ONE * 1.07, 28.0)
+	tw.parallel().tween_property(backdrop, "position", Vector2(-24, -8), 28.0)
+	tw.tween_property(backdrop, "scale", Vector2.ONE, 28.0)
+	tw.parallel().tween_property(backdrop, "position", Vector2.ZERO, 28.0)
+	var mist2 := ColorRect.new()
+	mist2.set_anchors_preset(Control.PRESET_FULL_RECT)
+	mist2.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	var m2 := mist_mat.duplicate() as ShaderMaterial
+	m2.set_shader_parameter("drift", Vector2(-0.03, 0.004))
+	m2.set_shader_parameter("density", 0.38)
+	mist2.material = m2
+	add_child(mist2)
+	var rain := CPUParticles2D.new()
+	rain.amount = 160
+	rain.lifetime = 1.1
+	rain.emission_shape = CPUParticles2D.EMISSION_SHAPE_RECTANGLE
+	rain.emission_rect_extents = Vector2(get_viewport_rect().size.x * 0.6, 4)
+	rain.position = Vector2(get_viewport_rect().size.x * 0.5, -10)
+	rain.direction = Vector2(-0.15, 1)
+	rain.spread = 2.0
+	rain.gravity = Vector2.ZERO
+	rain.initial_velocity_min = 700.0
+	rain.initial_velocity_max = 900.0
+	rain.scale_amount_min = 1.0
+	rain.scale_amount_max = 1.0
+	rain.color = Color(0.7, 0.75, 0.8, 0.22)
+	var g := Gradient.new()
+	g.set_color(0, Color(1, 1, 1, 1))
+	g.set_color(1, Color(1, 1, 1, 0))
+	rain.color_ramp = g
+	var tex := GradientTexture2D.new()
+	tex.width = 1
+	tex.height = 10
+	rain.texture = tex
+	add_child(rain)
+	var vig := ColorRect.new()
+	vig.set_anchors_preset(Control.PRESET_FULL_RECT)
+	vig.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	var vs := Shader.new()
+	vs.code = "shader_type canvas_item;\nvoid fragment(){ vec2 d = UV - 0.5; COLOR = vec4(0.0, 0.0, 0.0, smoothstep(0.35, 0.85, length(d * vec2(1.2, 1.0))) * 0.75); }"
+	var vm := ShaderMaterial.new()
+	vm.shader = vs
+	vig.material = vm
+	add_child(vig)
+	var flick := ColorRect.new()
+	flick.set_anchors_preset(Control.PRESET_FULL_RECT)
+	flick.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	flick.color = Color(0, 0, 0, 0)
+	add_child(flick)
+	_stutter(flick)
+
+
+func _stutter(r: ColorRect) -> void:
+	while is_inside_tree():
+		await get_tree().create_timer(randf_range(4.0, 10.0)).timeout
+		if not is_instance_valid(r):
+			return
+		for i in randi_range(1, 3):
+			r.color.a = randf_range(0.18, 0.32)
+			await get_tree().create_timer(randf_range(0.04, 0.09)).timeout
+			r.color.a = 0.0
+			await get_tree().create_timer(randf_range(0.05, 0.12)).timeout
