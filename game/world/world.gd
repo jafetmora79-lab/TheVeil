@@ -1158,6 +1158,12 @@ func _auto_park() -> void:
 	_auto_parking = true
 	park_report = {"started": true}
 	var paths := park_paths()
+	# coming in over the pavement or the grass: the car is put straight into the stall behind a short fade (the
+	# reversing manoeuvre is played from the tarmac; if it fails or ends off the tarmac, the same fade places it)
+	if not car_on_asphalt():
+		park_report["placed"] = true
+		await _fade_park(paths)
+		return
 	var S := {"phase": "approach", "st": {"i": 0, "rem": 99.0}}      # shared with the drive lambda (by reference)
 	var t := 0.0
 	var stuck_t := 0.0
@@ -1240,11 +1246,12 @@ func _auto_park() -> void:
 	park_report.merge({"ok": ok, "time": t, "pos_err": Vector2(fin.x, fin.z).distance_to(Vector2(endp.x, endp.z)),
 		"yaw_err_deg": rad_to_deg(absf(Vector2(f.x, f.z).angle_to(Vector2(paths["final_fwd"].x, paths["final_fwd"].z)))),
 		"max_dev": max_dev}, true)
-	if ok and not car_on_asphalt():
-		ok = false                                 # (never declared parked on the grass or the pavement)
-		park_report["off_asphalt"] = true
-	if not ok:
-		return                                     # control is back with the driver; the manual parking check remains
+	if not ok or not car_on_asphalt():
+		# the manoeuvre did not end in the stall (blocked, off the tarmac): put it there behind a fade instead
+		park_report["placed"] = true
+		_auto_parking = true
+		await _fade_park(paths)
+		return
 	sedan.parking_brake = true
 	Sfx.play("door_close", sedan.global_position, -14.0, 0.6)     # handbrake ratchet stand-in
 	Game.set_flag("auto_parked")
@@ -1254,6 +1261,40 @@ func _auto_park() -> void:
 	await get_tree().create_timer(1.4).timeout
 	if in_car and sedan.driven and absf(sedan.speed) < 0.2:
 		exit_car()                                 # parked: the player gets out by themselves
+	save()
+
+
+## Into the stall behind a short fade (nose out, square to the bay, on the tarmac), then the usual parked state.
+func _fade_park(paths: Dictionary) -> void:
+	sedan.drive_script = Callable()
+	hud.set_hint("")
+	await hud.fade_to(1.0, 0.45)
+	var endp: Vector3 = paths["reverse"][-1]
+	var fwd: Vector3 = paths["final_fwd"]
+	sedan.speed = 0.0
+	sedan.steer = 0.0
+	sedan.velocity = Vector3.ZERO
+	var space := get_world_3d().direct_space_state
+	var g0 := space.intersect_ray(PhysicsRayQueryParameters3D.create(sedan.global_position + Vector3.UP, sedan.global_position - Vector3.UP * 4.0, 1, [sedan.get_rid()]))
+	var g1 := space.intersect_ray(PhysicsRayQueryParameters3D.create(endp + Vector3.UP * 3.0, endp - Vector3.UP * 4.0, 1, [sedan.get_rid()]))
+	var lift: float = sedan.global_position.y - ((g0["position"] as Vector3).y if g0 else sedan.global_position.y)
+	var y: float = ((g1["position"] as Vector3).y if g1 else endp.y) + lift
+	sedan.global_transform = Transform3D(Basis.looking_at(fwd * Vector3(1, 0, 1), Vector3.UP), Vector3(endp.x, y, endp.z))
+	for i in 3:
+		await get_tree().physics_frame
+	if in_car:
+		sedan.driver_cam.current = true
+	_auto_parking = false
+	sedan.parking_brake = true
+	Sfx.play("door_close", sedan.global_position, -14.0, 0.6)
+	Game.set_flag("auto_parked")
+	Game.set_flag("reached_town")
+	Game.set_flag("parked")
+	await hud.fade_to(0.0, 0.6)
+	Dialogue.say("parked", true, true)
+	await get_tree().create_timer(1.4).timeout
+	if in_car and sedan.driven and absf(sedan.speed) < 0.2:
+		exit_car()
 	save()
 
 
