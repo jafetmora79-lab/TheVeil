@@ -166,6 +166,10 @@ var steps_aside := 0               ## tests
 
 ## A door the leader shut behind them lies across the trail: the companion opens it instead of walking through.
 func _open_doors_ahead(next: Vector3) -> void:
+	# the supermarket's glass doors: a companion at them when they are shut pulls them open (never pushes the glass)
+	var w := npc.get_tree().get_first_node_in_group("veil_world")
+	if w and w.has_method("companion_at_market_doors"):
+		w.companion_at_market_doors(npc.global_position)
 	# any closed hinged door within 1.6 m, in the direction it is heading (towards the next trail point or the leader)
 	var heading := (next - npc.global_position) * Vector3(1, 0, 1)
 	if heading.length() < 0.05 and leader:

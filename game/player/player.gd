@@ -156,7 +156,7 @@ func _physics_process(delta: float) -> void:
 	if moving and int(_bob_t / PI) != _last_step:
 		_last_step = int(_bob_t / PI)
 		pass                                        # (footsteps: the recorded walk / run loops below)
-	_footsteps(moving and visible and controls_enabled, sprinting, crouching)
+	_footsteps(moving and visible and controls_enabled, sprinting, crouching, hv.length())
 	var amp := 0.028 if sprinting else 0.016
 	_step_smooth = move_toward(_step_smooth, 0.0, delta * 1.6)
 	head.position.y = _eye + sin(_bob_t * 2.0) * amp - _step_smooth
@@ -366,7 +366,7 @@ var _run_sfx: AudioStreamPlayer
 
 ## Walking: the quiet walk loop (quieter still crouched); running: the heavier run loop. Never both at once;
 ## silent when standing still, in the air, in the car (the player is hidden) or while control is taken.
-func _footsteps(moving: bool, sprinting: bool, crouching: bool) -> void:
+func _footsteps(moving: bool, sprinting: bool, crouching: bool, speed := WALK) -> void:
 	if _walk_sfx == null:
 		_walk_sfx = AudioStreamPlayer.new()
 		_walk_sfx.stream = WALK_STEPS
@@ -379,6 +379,9 @@ func _footsteps(moving: bool, sprinting: bool, crouching: bool) -> void:
 	var want_walk := moving and not sprinting
 	_walk_sfx.volume_db = -28.0 if crouching else -22.0
 	_run_sfx.volume_db = -18.0
+	# the recordings' step rate follows the real ground speed (walk recorded at walking pace, run at a sprint)
+	_walk_sfx.pitch_scale = clampf(speed / WALK, 0.6, 1.3)
+	_run_sfx.pitch_scale = clampf(speed / SPRINT, 0.8, 1.25)
 	for pair in [[_walk_sfx, want_walk], [_run_sfx, want_run]]:
 		var a: AudioStreamPlayer = pair[0]
 		if pair[1] and not a.playing:
