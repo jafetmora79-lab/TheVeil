@@ -68,7 +68,8 @@ func setup(w: Node) -> void:
 	# between story nights the shelter can wait out a day (supermarket era): supplies eaten, a new day in town
 	VeilRestPoint.extra_night = _extra_night_ok
 	VeilRestPoint.record_extra = _record_extra
-	_encounter_t = float(cfg.get("encounter_cooldown_s", [999, 150])[1])   # a load never starts with an encounter
+	_encounter_t = float(cfg.get("encounter_cooldown_s", [999, 150])[1])
+	_reset_director.call_deferred(float(st().get("elapsed", 0.0)))   # a load: the schedule resumes from the saved time
 	Game.inventory_changed.connect(_part_markers)       # a part picked up: its diamond goes
 	_refresh()
 
@@ -119,12 +120,12 @@ func in_store() -> bool:
 
 
 ## Story scenes that a supply run must never interrupt or run alongside.
-func emergency() -> bool:
+func emergency(talk := true) -> bool:
 	if Game.has_flag("ch8_attack_started") and not Game.has_flag("ch8_entrance_secured"):
 		return true
 	if Game.has_flag("ch9_warning_started") and not Game.has_flag("ch9_escaped"):
 		return true
-	if world.get("_encounter_running") == true or world.conversing:
+	if world.get("_encounter_running") == true or (talk and world.conversing):
 		return true
 	# a story trip with companions is under way (Chapters 6-8 followers)
 	for f in _followers():
@@ -139,14 +140,18 @@ func can_scavenge() -> bool:
 
 ## Things that make "active time outside" stop counting: not outside, menus, dialogue, cinematics.
 func _clock_running() -> bool:
+	# (the inventory, searching furniture, a word with a companion, waiting in a house, driving: all count)
 	var p := _player()
-	if p == null or world.hud.is_paused() or world.hud.inv_panel.visible:
+	if p == null or world.hud.is_paused() or get_tree().paused:
 		return false
-	if world.conversing or world.get("_encounter_running") == true or Dialogue.confirm_mode:
+	if world.get("_encounter_running") == true or emergency(false):
+		return false
+	var cine = world.get("_cine")
+	if cine and is_instance_valid(cine):
 		return false
 	if world.in_car:
 		return true
-	return p.visible and p.controls_enabled and not in_store()
+	return p.visible and not in_store()
 
 
 # ------------------------------------------------------------------ the shelter exit
@@ -230,7 +235,8 @@ func start(kind: String, vehicle: bool) -> void:
 	s["trips"] = int(s.get("trips", 0)) + 1
 	s["went_out"] = false
 	s["started_at"] = Game.play_time
-	_encounter_t = 60.0                                   # the first glimpse after about a minute out
+	_encounter_t = 60.0
+	_reset_director(0.0)
 	_sound_t = 20.0
 	_warn_t = 0.0
 	var c5 := _c5()
@@ -726,9 +732,9 @@ func _danger(delta: float) -> void:
 	if not active() or not _clock_running():
 		return
 	var s := st()
-	var scale: float = float(cfg.get("driving_time_scale", 0.6)) if world.in_car else 1.0
+	var scale: float = float(cfg.get("driving_time_scale", 1.0)) if world.in_car else 1.0
 	s["elapsed"] = float(s["elapsed"]) + delta * scale
-	var th: Array = cfg.get("danger_thresholds_s", [300, 600, 900])
+	var th: Array = cfg.get("danger_thresholds_s", [45, 90, 150, 240])
 	var lv := 0
 	for t in th:
 		if float(s["elapsed"]) >= float(t):
@@ -736,25 +742,419 @@ func _danger(delta: float) -> void:
 	if lv != int(s["level"]):
 		s["level"] = lv
 		_on_level(lv)
+		_dbg("danger -> %s" % _lv_name(lv))
 	# sounds: more often, and closer, as it gets worse
 	_sound_t -= delta
 	if _sound_t <= 0.0:
-		_sound_t = float(cfg.get("sound_interval_s", [55, 35, 22, 14])[lv]) * randf_range(0.7, 1.3)
-		_distant_sound(lv)
-	# encounters: a cooldown, a chance, a cap
-	_encounter_t -= delta
-	if _encounter_t <= 0.0:
-		_encounter_t = float(cfg.get("encounter_cooldown_s", [90, 75, 55, 40])[lv])
-		# a long quiet spell outside (nothing about for ~2 minutes): the next valid opportunity is taken
-		var chance: float = 1.0 if (_quiet_t > 240.0 and lv >= 1) else float(cfg.get("encounter_chance", [0.0, 0.35, 0.5, 0.6])[lv])
-		if randf() < chance and not world.in_car:
-			if encounter(lv):
-				_quiet_t = 0.0
-			else:
-				_encounter_t = 10.0                      # no hidden spot this time: try again soon, not a whole cooldown later
-	_quiet_t = _quiet_t + delta * scale if creatures.is_empty() else 0.0
-	# warnings
+		var si: Array = cfg.get("sound_interval_s", [28, 20, 14, 10, 7])
+		_sound_t = float(si[mini(lv, si.size() - 1)]) * randf_range(0.7, 1.3)
+		_distant_sound(mini(lv, 3))
+	_dir_t -= delta
+	if _dir_t <= 0.0:
+		_dir_t = 1.0
+		_direct(lv)
 	_warn_t -= delta
+
+
+## The director's schedule from expedition time `el` (a new trip: 0; a load mid-trip: the saved time - the first
+## hunter still comes at about a minute, or 25 s after a load late in a trip, never at once).
+func _reset_director(el: float) -> void:
+	_next_hunt = maxf(60.0, el + 25.0)
+	_next_roam = maxf(20.0, el + 12.0)
+	_next_tent = maxf(160.0, el + 45.0)
+	_dir_t = 1.0
+
+
+func _lv_name(lv: int) -> String:
+	var n: Array = cfg.get("level_names", ["UNEASY", "RISING", "HIGH", "CRITICAL", "EXTREME"])
+	return String(n[clampi(lv, 0, n.size() - 1)])
+
+
+func _lvv(key: String, lv: int, fallback: Array) -> float:
+	var a: Array = cfg.get(key, fallback)
+	return float(a[clampi(lv, 0, a.size() - 1)])
+
+
+# ------------------------------------------------------------------ the threat director
+## Runs once a second of active time outside. Roles:
+##   roamer - patrols open ground near where the player is (fog: often heard or glimpsed first); it hunts only if it
+##            actually sees or hears them. Moves on after a while.
+##   hunter - (at most one) tracks the player: it keeps heading for where they are (their last spot outdoors while
+##            they are in a house: it waits in the yard), until it finds them (the AI's own chase, bites, struggles)
+##            or loses them for good; then it leaves.
+##   leaving - walking away; removed only once far off and out of view.
+## Plus, CRITICAL and up, one dynamic Tentacle at a time bursting through the ground near the player.
+var _dir_t := 1.0
+var _next_hunt := 60.0           ## expedition seconds: the next hunter may come from then on
+var _next_roam := 20.0
+var _next_tent := 160.0
+var _tentacle: Node3D = null
+var _last_out := Vector3.INF     ## the player's last position outdoors (on foot or in the car)
+const DEBUG_ARG := "--veil-threat-log"
+
+
+func _dbg(msg: String) -> void:
+	if OS.is_debug_build() or DEBUG_ARG in OS.get_cmdline_user_args():
+		print("[Threat] t=%.0fs %s | %s" % [float(st().get("elapsed", 0.0)), _lv_name(level()), msg])
+
+
+## Where the threat aims: the car while driving, the player outdoors, else the last spot they were outdoors.
+func threat_target() -> Vector3:
+	if world.in_car:
+		return world.sedan.global_position
+	var p := _player().global_position
+	if _outdoors_at(p):
+		_last_out = p
+		return p
+	return _last_out if _last_out.is_finite() else p
+
+
+## Open sky above (not in a house, the store, a garage).
+func _outdoors_at(p: Vector3, skip: Node = null) -> bool:
+	var space: PhysicsDirectSpaceState3D = world.get_world_3d().direct_space_state
+	var ex: Array[RID] = [_player().get_rid()]
+	if skip is CollisionObject3D:
+		ex.append((skip as CollisionObject3D).get_rid())
+	var c5 := _c5()
+	if c5 and c5._in_store(world.market.to_local(p), -1.0):
+		return false
+	return space.intersect_ray(PhysicsRayQueryParameters3D.create(p + Vector3(0, 1.0, 0), p + Vector3(0, 14, 0), 1, ex)).is_empty()
+
+
+func _role_count(role: String) -> int:
+	var n := 0
+	for c in creatures:
+		if String(c.get("role", "")) == role and is_instance_valid(c["node"]):
+			n += 1
+	return n
+
+
+func _direct(lv: int) -> void:
+	_prune()
+	var el := float(st().get("elapsed", 0.0))
+	var tgt := threat_target()
+	if emergency():
+		return
+	# the hunter keeps coming: refresh where it thinks the player is (never while it is chasing, recovering or
+	# already going home - a handgun shot or a lost trail sends it off for good)
+	var chasing := 0
+	for c in creatures:
+		var ai = c.get("ai")
+		if ai == null or not is_instance_valid(ai):
+			continue
+		var b: Node3D = c["node"]
+		var st_s := String(ai.state)
+		if st_s == "CHASE":
+			chasing += 1
+		match String(c.get("role", "")):
+			"hunter":
+				if st_s in ["PATROL", "SUSPICIOUS", "SEARCH"]:
+					ai.home = b.global_position              # it is hunting: no leash back to where it came in
+					ai.set("_last_seen", tgt)
+					if st_s != "SUSPICIOUS":
+						ai.state = "SUSPICIOUS"
+					ai.set("awareness", maxf(float(ai.get("awareness")), 0.6))
+				elif st_s == "RETURN":
+					_leave(c, "hunter lost the trail or was driven off")
+				elif st_s == "CHASE" and not c.get("engaged", false):
+					c["engaged"] = true
+					report["engaged"] = int(report.get("engaged", 0)) + 1
+					_dbg("ENGAGED %s at %s, %.1f m from the player" % [c["kind"], _v(b.global_position), b.global_position.distance_to(tgt)])
+				if el - float(c.get("born_el", el)) > 150.0 and st_s != "CHASE":
+					_leave(c, "hunter gave up after 150 s")
+			"roamer":
+				if st_s == "CHASE" and _role_count("hunter") == 0:
+					c["role"] = "hunter"                   # it found them by itself: this is the hunt now
+					c["born_el"] = el
+					_dbg("roamer %s took up the hunt" % c["kind"])
+				elif st_s == "CHASE" and chasing > 1:
+					ai.state = "RETURN"                       # only one creature hunts the player at a time
+					ai.set("awareness", 0.0)
+				elif el - float(c.get("born_el", el)) > 120.0 and st_s in ["PATROL", "RETURN"]:
+					_leave(c, "roamer moved on after 120 s")
+	# new arrivals (two out at most, one hunter at most)
+	var live := 0
+	for c in creatures:
+		if c.get("ai") != null:                       # (one walking away still counts until it is gone)
+			live += 1
+	var cap := int(cfg.get("max_dynamic_creatures", 2))
+	if _role_count("hunter") == 0 and lv >= 1 and el >= _next_hunt and live < cap:
+		if not _promote_roamer(tgt):
+			var kind := _pick_kind(lv)
+			if _spawn_creature(kind, "hunter", tgt):
+				_next_hunt = el + _lvv("encounter_cooldown_s", lv, [60, 50, 40, 30, 22])
+			else:
+				_next_hunt = el + 3.0                     # no good spot this second: try again shortly
+	elif live < cap and el >= _next_roam and _role_count("roamer") == 0 and (lv >= 1 or el >= 20.0):
+		if _spawn_creature("hound" if lv <= 1 else _pick_kind(lv), "roamer", tgt):   # (HIGH on: Skitters, then Crabs too)
+			_next_roam = el + _lvv("roam_cooldown_s", lv, [70, 55, 45, 40, 35])
+		else:
+			_next_roam = el + 4.0
+	# CRITICAL and up: the ground itself
+	if lv >= 3 and el >= _next_tent and (_tentacle == null or not is_instance_valid(_tentacle)) and not world.in_car:
+		if _spawn_tentacle():
+			_next_tent = el + _lvv("tentacle_cooldown_s", lv, [999, 999, 999, 55, 40])
+		else:
+			_next_tent = el + 5.0
+
+
+func _pick_kind(lv: int) -> String:
+	var r := randf()
+	match lv:
+		1:
+			return "hound"
+		2:
+			return "skitter" if r < 0.45 else "hound"
+	if r < 0.35:
+		return "crab"
+	return "skitter" if r < 0.7 else "hound"
+
+
+## A roamer already about becomes the hunter (closer, and the player may have glimpsed it already).
+func _promote_roamer(tgt: Vector3) -> bool:
+	for c in creatures:
+		if String(c.get("role", "")) == "roamer" and c.get("ai") and is_instance_valid(c["ai"]) \
+				and (c["node"] as Node3D).global_position.distance_to(tgt) < 70.0:
+			c["role"] = "hunter"
+			c["born_el"] = float(st().get("elapsed", 0.0))
+			_dbg("roamer %s promoted to hunter (%.1f m off)" % [c["kind"], (c["node"] as Node3D).global_position.distance_to(tgt)])
+			return true
+	return false
+
+
+func _v(p: Vector3) -> String:
+	return "(%.1f, %.1f, %.1f)" % [p.x, p.y, p.z]
+
+
+## Kept for older callers / tests: one encounter now (a hunter at this level).
+func encounter(lv: int) -> bool:
+	_prune()
+	if lv <= 0 or creatures.size() >= int(cfg.get("max_dynamic_creatures", 2)) or emergency():
+		return false
+	if _role_count("hunter") > 0:
+		return _spawn_creature("hound", "roamer", threat_target())
+	return _spawn_creature(_pick_kind(lv), "hunter", threat_target())
+
+
+## A believable entry point: outdoors, open ground the creature can stand and move on, out of the camera's view,
+## dmin..dmax from `around` (the threat target), never inside the store or a house, never boxed in. The ground
+## must be street level: compared with the lowest open ground near `around` (the player may be upstairs).
+func find_spawn(dmin: float, dmax: float, around := Vector3.INF) -> Vector3:
+	var p: Vector3 = around if around.is_finite() else threat_target()
+	var cam := get_viewport().get_camera_3d()
+	var space: PhysicsDirectSpaceState3D = world.get_world_3d().direct_space_state
+	var exl: Array[RID] = [_player().get_rid()]
+	if world.sedan:
+		exl.append(world.sedan.get_rid())
+	var ref := p.y
+	for a in [0.0, 1.57, 3.14, 4.71]:
+		var s := p + Vector3(cos(a), 0, sin(a)) * 12.0
+		var h := space.intersect_ray(PhysicsRayQueryParameters3D.create(s + Vector3(0, 20, 0), s - Vector3(0, 10, 0), 1, exl))
+		if h:
+			ref = minf(ref, (h["position"] as Vector3).y)
+	var cap := CapsuleShape3D.new()
+	cap.radius = 0.5
+	cap.height = 1.4
+	var q := PhysicsShapeQueryParameters3D.new()
+	q.shape = cap
+	q.collision_mask = 1
+	var why := {}
+	for i in 32:
+		var a := randf() * TAU
+		var d := randf_range(dmin, dmax)
+		var c := p + Vector3(cos(a), 0.0, sin(a)) * d
+		if cam and cam.is_position_in_frustum(c + Vector3(0, 1.0, 0)) and c.distance_to(cam.global_position) < 60.0:
+			why["in_view"] = int(why.get("in_view", 0)) + 1
+			continue
+		var hit: Dictionary = space.intersect_ray(PhysicsRayQueryParameters3D.create(c + Vector3(0, 20, 0), c - Vector3(0, 10, 0), 1, exl))
+		if hit.is_empty():
+			why["no_ground"] = int(why.get("no_ground", 0)) + 1
+			continue
+		var g: Vector3 = hit["position"]
+		if absf(g.y - ref) > 1.2:
+			why["not_street_level"] = int(why.get("not_street_level", 0)) + 1
+			continue
+		if not space.intersect_ray(PhysicsRayQueryParameters3D.create(g + Vector3(0, 1.0, 0), g + Vector3(0, 14, 0), 1, exl)).is_empty():
+			why["under_roof"] = int(why.get("under_roof", 0)) + 1
+			continue
+		var c5 := _c5()
+		if c5 and c5._in_store(world.market.to_local(g), -1.0):
+			why["in_store"] = int(why.get("in_store", 0)) + 1
+			continue
+		q.transform = Transform3D(Basis(), g + Vector3(0, 1.0, 0))
+		if not space.intersect_shape(q, 1).is_empty():
+			why["no_room"] = int(why.get("no_room", 0)) + 1
+			continue
+		# not boxed in (a yard behind fences, between parked cars): at least three ways out of four are open
+		var open := 0
+		for k in 4:
+			var dir := Vector3(cos(k * PI * 0.5), 0, sin(k * PI * 0.5))
+			if space.intersect_ray(PhysicsRayQueryParameters3D.create(g + Vector3(0, 0.8, 0), g + Vector3(0, 0.8, 0) + dir * 4.0, 1, exl)).is_empty():
+				open += 1
+		if open < 3:
+			why["boxed_in"] = int(why.get("boxed_in", 0)) + 1
+			continue
+		return g
+	_dbg("spawn rejected (32 tries around %s, %.0f-%.0f m): %s" % [_v(p), dmin, dmax, str(why)])
+	return Vector3.INF
+
+
+## One creature of `kind` ("hound", "skitter", "crab") with a role, at a valid spot round `tgt`.
+func _spawn_creature(kind: String, role: String, tgt: Vector3) -> bool:
+	var sd: Array = cfg.get("spawn_distance", [26, 40])
+	var at := find_spawn(float(sd[0]), float(sd[1]), tgt)
+	if not at.is_finite():
+		return false
+	var ai: Node
+	if kind == "hound":
+		var h := (load(HOUND_PATH) as PackedScene).instantiate() as CharacterBody3D
+		h.name = "EXP_Hound"
+		world.add_child(h)
+		h.global_position = at
+		VeilCreatureLook.apply_skitter(h, at.y)
+		ai = HOUND_AI.new()
+		ai.name = "AI"
+		h.add_child(ai)
+		ai.leash = 70.0
+		ai.setup(h, _player(), [at])
+		_hook_struggle(ai, "hound")
+		report["hounds"] += 1
+	else:
+		ai = make_hunter(kind, at, [at], 70.0)
+		if ai == null:
+			return false
+		if kind == "skitter":
+			report["skitters"] += 1
+	var body: Node3D = ai.body
+	var el := float(st().get("elapsed", 0.0))
+	if role == "roamer":
+		# it crosses open ground between the player's area and where it came in (often seen or heard in the fog)
+		var mid := at.lerp(tgt, 0.45)
+		var side := (tgt - at).normalized().cross(Vector3.UP) * 9.0
+		ai.patrol = [at, mid + side, mid - side]
+		ai.home = mid
+		ai.leash = 40.0
+		ai.state = "PATROL"
+		ai.set("_target", mid + side)
+	else:
+		ai.set("_last_seen", tgt)
+		ai.state = "SUSPICIOUS"
+		ai.set("awareness", 0.6)
+	creatures.append({"node": body, "ai": ai, "kind": kind, "role": role, "exit": at, "born_el": el, "born": Game.play_time,
+		"ref": body.global_position, "ref_t": 0.0})
+	report["spawned"] += 1
+	report["max_active"] = maxi(int(report["max_active"]), creatures.size())
+	_play("bark" if kind == "hound" else kind, at + Vector3(0, 0.8, 0), -6.0)
+	_dbg("SPAWN %s as %s at %s, %.1f m from the target %s" % [kind, role, _v(at), at.distance_to(tgt), _v(tgt)])
+	return true
+
+
+## Off it goes: towards a point well away from the player, removed once far off and out of view.
+func _leave(c: Dictionary, why: String) -> void:
+	if String(c.get("role", "")) == "leaving":
+		return
+	c["role"] = "leaving"
+	c["leave_why"] = why
+	var ai = c.get("ai")
+	var b: Node3D = c["node"]
+	if ai and is_instance_valid(ai) and is_instance_valid(b):
+		var away := (b.global_position - threat_target()) * Vector3(1, 0, 1)
+		away = away.normalized() if away.length() > 0.1 else Vector3.FORWARD
+		ai.home = b.global_position + away * 40.0
+		ai.leash = 999.0
+		ai.state = "RETURN"
+		ai.set("awareness", 0.0)
+	if why.begins_with("hunter"):                          # a breather before the next one comes
+		_next_hunt = maxf(_next_hunt, float(st().get("elapsed", 0.0)) + _lvv("encounter_cooldown_s", level(), [60, 50, 40, 30, 22]) * 0.5)
+	_dbg("LEAVING %s: %s" % [c["kind"], why])
+
+
+# ------------------------------------------------------------------ the dynamic Tentacle
+## CRITICAL and up: a rumble, the ground cracks a few metres off (in sight: it is meant to be seen and avoided),
+## the tentacle bursts up, lashes once or twice (the existing Tentacle AI: a readable coil, a locked strike), then
+## sinks back. Never during story scenes, never in the car, never in a house or the store; one at a time.
+func _spawn_tentacle() -> bool:
+	var p := _player().global_position
+	if not _outdoors_at(p) or world.get("_tentacles") is Array and not (world.get("_tentacles") as Array).is_empty():
+		return false
+	var space: PhysicsDirectSpaceState3D = world.get_world_3d().direct_space_state
+	var fwd := -_player().global_transform.basis.z
+	fwd.y = 0.0
+	fwd = fwd.normalized()
+	var at := Vector3.INF
+	for i in 16:
+		var c := p + fwd.rotated(Vector3.UP, randf_range(-1.0, 1.0)) * randf_range(6.5, 9.5)
+		var hit := space.intersect_ray(PhysicsRayQueryParameters3D.create(c + Vector3(0, 6, 0), c - Vector3(0, 6, 0), 1, [_player().get_rid()]))
+		if hit.is_empty() or absf((hit["position"] as Vector3).y - p.y) > 0.6 or (hit["normal"] as Vector3).y < 0.9:
+			continue
+		var g: Vector3 = hit["position"]
+		if not _outdoors_at(g):
+			continue
+		var q := PhysicsShapeQueryParameters3D.new()
+		var cs := CapsuleShape3D.new()
+		cs.radius = 1.0
+		cs.height = 3.0
+		q.shape = cs
+		q.collision_mask = 1
+		q.transform = Transform3D(Basis(), g + Vector3(0, 1.7, 0))
+		if not space.intersect_shape(q, 1).is_empty():
+			continue
+		at = g
+		break
+	if not at.is_finite():
+		_dbg("tentacle: no clear ground ahead of the player")
+		return false
+	_tentacle = Node3D.new()                              # (holds the slot while it rumbles)
+	_tentacle.name = "EXP_TentacleSlot"
+	world.add_child(_tentacle)
+	_tentacle_rise(at)
+	return true
+
+
+func _tentacle_rise(at: Vector3) -> void:
+	var slot := _tentacle
+	Sfx.play("veil_rumble", at + Vector3(0, 0.3, 0), 2.0, 1.2)
+	_dbg("TENTACLE rumble at %s" % _v(at))
+	await get_tree().create_timer(1.4).timeout
+	if not is_instance_valid(slot) or emergency() or not active():
+		if is_instance_valid(slot):
+			slot.queue_free()
+		return
+	if world.has_method("_ground_burst"):
+		world._ground_burst(at)
+	var t := (load(world.TENTACLE_PATH) as PackedScene).instantiate() as Node3D
+	t.name = "EXP_Tentacle"
+	world.add_child(t)
+	t.global_position = at
+	t.rotation.y = atan2(_player().global_position.x - at.x, _player().global_position.z - at.z)
+	var ai: Node = world.TENTACLE_AI.new()
+	ai.name = "AI"
+	t.add_child(ai)
+	ai.target = _player()
+	ai.detect_range = 6.5
+	ai.lose_range = 99.0                                  # (it never goes on its own: it sinks when its time is up)
+	ai.struck.connect(func(tn: Node3D, dmg: float) -> void:
+		var hp := float(_player().get("health"))
+		_player().damage(minf(dmg, maxf(hp - 5.0, 0.0)), tn.global_position)
+		Sfx.play("tentacle_hiss", tn.global_position + Vector3(0, 1, 0), 0.0))
+	if t.has_method("emerge"):
+		t.emerge()
+	slot.queue_free()
+	_tentacle = t
+	report["tentacles"] = int(report.get("tentacles", 0)) + 1
+	_dbg("TENTACLE up at %s, %.1f m from the player" % [_v(at), at.distance_to(_player().global_position)])
+	await get_tree().create_timer(9.0).timeout
+	if not is_instance_valid(t):
+		return
+	ai.state = "hidden"
+	ai.emerge_range = -1.0
+	ai._play("Retract")
+	Sfx.bank_at("te_retreat", at + Vector3(0, 1.0, 0), -4.0, 6.0)
+	_dbg("TENTACLE retreats")
+	await get_tree().create_timer(2.2).timeout
+	if is_instance_valid(t):
+		t.queue_free()
+	_tentacle = null
 
 
 func _on_level(lv: int) -> void:
@@ -813,120 +1213,15 @@ func _distant_sound(lv: int) -> void:
 	_play(String(pool[randi() % pool.size()]), p + Vector3(cos(a), 0.0, sin(a)) * d + Vector3(0, 1.5, 0), -6.0 + 2.0 * lv, 40.0)
 
 
-## One dynamic encounter: a Skitter glimpsed in the fog, or a Hound coming in from open ground (HIGH and up).
-func encounter(lv: int) -> bool:
-	_prune()
-	if lv <= 0 or creatures.size() >= int(cfg.get("max_dynamic_creatures", 2)) or emergency():
-		return false                                 # the first minutes outside are quiet (distant sounds only)
-	var hunting := false
-	for c in creatures:
-		var ai = c.get("ai")
-		if ai and is_instance_valid(ai) and String(ai.get("state")) in ["CHASE", "SUSPICIOUS"]:
-			hunting = true
-	# Hounds are the common threat, Skitters rarer, the Shellcrawler rare; while one is already after the player,
-	# a second only roams (it does not come for them)
-	match lv:
-		1:
-			return _spawn_hound(0)                   # a roamer out in the fog, unaware - often seen before it sees
-		2:
-			if hunting:
-				return _spawn_hound(0)
-			return _spawn_hunter("skitter") if randf() < 0.25 else _spawn_hound(1)
-	if hunting:
-		return _spawn_hound(0)
-	var r := randf()
-	if r < 0.15 and _spawn_hunter("crab"):
-		return true
-	return _spawn_hunter("skitter") if r < 0.45 else _spawn_hound(2)
-
-
-## A believable entry point: outdoors, open ground the creature can stand on and move from, out of the camera's
-## view, a fair distance off, never inside the store.
-func find_spawn(dmin: float, dmax: float) -> Vector3:
-	var p := _player().global_position
-	var cam := get_viewport().get_camera_3d()
-	var space: PhysicsDirectSpaceState3D = world.get_world_3d().direct_space_state
-	var cap := CapsuleShape3D.new()
-	cap.radius = 0.5
-	cap.height = 1.4
-	var q := PhysicsShapeQueryParameters3D.new()
-	q.shape = cap
-	q.collision_mask = 1
-	for i in 24:
-		var a := randf() * TAU
-		var d := randf_range(dmin, dmax)
-		var c := p + Vector3(cos(a), 0.0, sin(a)) * d
-		if cam and cam.is_position_in_frustum(c + Vector3(0, 1.0, 0)):
-			continue
-		var hit: Dictionary = space.intersect_ray(PhysicsRayQueryParameters3D.create(c + Vector3(0, 20, 0), c - Vector3(0, 10, 0), 1))
-		if hit.is_empty():
-			continue
-		var g: Vector3 = hit["position"]
-		if absf(g.y - p.y) > 1.6:
-			continue                                  # a roof or a hole, not ground
-		if not space.intersect_ray(PhysicsRayQueryParameters3D.create(g + Vector3(0, 1.0, 0), g + Vector3(0, 14, 0), 1)).is_empty():
-			continue                                  # under a roof: indoors
-		var c5 := _c5()
-		if c5 and c5._in_store(world.market.to_local(g), -1.0):
-			continue
-		q.transform = Transform3D(Basis(), g + Vector3(0, 1.0, 0))
-		if not space.intersect_shape(q, 1).is_empty():
-			continue                                  # no room to stand
-		return g
-	return Vector3.INF
-
-
-func _spawn_hound(lv: int) -> bool:
-	var at := find_spawn(float(cfg.get("spawn_distance", [34, 46])[0]), float(cfg.get("spawn_distance", [34, 46])[1]))
-	if not at.is_finite():
-		return false
-	var h := (load(HOUND_PATH) as PackedScene).instantiate() as Node3D
-	h.name = "EXP_Hound"
-	world.add_child(h)
-	h.global_position = at
-	VeilCreatureLook.apply_skitter(h, at.y)
-	var ai: Node = HOUND_AI.new()
-	ai.name = "AI"
-	h.add_child(ai)
-	ai.leash = 70.0
-	if lv == 0:
-		# roaming: it crosses the street out in the fog, unaware (the player may see it first)
-		var side := (at - _player().global_position).normalized().cross(Vector3.UP) * 14.0
-		ai.setup(h, _player(), [at, at + side, at - side])
-	else:
-		ai.setup(h, _player(), [at, at + (at - _player().global_position).normalized() * 6.0])
-		# it heard something: it comes to look (and at CRITICAL it is already hunting)
-		ai.set("_last_seen", _player().global_position)
-		ai.state = "SUSPICIOUS"
-		ai.set("awareness", 0.35 if lv == 1 else (0.5 if lv < 3 else 0.95))
-	_hook_struggle(ai, "hound")
-	creatures.append({"node": h, "ai": ai, "kind": "hound", "exit": at})
-	report["spawned"] += 1
-	report["hounds"] += 1
-	report["max_active"] = maxi(int(report["max_active"]), creatures.size())
-	_play("bark", at + Vector3(0, 1.0, 0), -6.0)
-	return true
-
-
 ## A hunting Skitter or Shellcrawler: the Hound's AI with the creature's own clips and pace (the Shellcrawler
 ## crawls sideways, slower, harder hitting). Out of view, on open ground, a fair way off.
 func _spawn_hunter(kind: String) -> bool:
-	var p := _player().global_position
-	var at := find_spawn(26.0, 40.0)
-	if not at.is_finite():
-		return false
-	var ai := make_hunter(kind, at, [at, at + (at - p).normalized() * 6.0], 70.0)
-	if ai == null:
-		return false
-	var c: Node3D = ai.body
-	ai.set("_last_seen", p)
-	ai.state = "SUSPICIOUS"
-	ai.set("awareness", 0.4)
-	creatures.append({"node": c, "ai": ai, "kind": kind + "_hunter", "exit": at})
-	report["spawned"] += 1
-	report["max_active"] = maxi(int(report["max_active"]), creatures.size())
-	_play("skitter" if kind == "skitter" else "crab", at + Vector3(0, 0.5, 0), -4.0)
-	return true
+	return _spawn_creature(kind, "hunter", threat_target())
+
+
+## (older callers / tests) a Hound: level 0 a roamer, otherwise the hunter.
+func _spawn_hound(lv: int) -> bool:
+	return _spawn_creature("hound", "roamer" if lv <= 0 else "hunter", threat_target())
 
 
 ## A Skitter or Shellcrawler with the Hound's AI, its own clips and pace, at `at` with a patrol and a leash (the
@@ -1070,35 +1365,49 @@ func skitter_crossing(from: Vector3, to: Vector3, speed := 7.5) -> Node3D:
 	return sk
 
 
-## Creatures leave the way they came and are removed only out of view (no pop-out in front of the player).
+## Creatures are removed only when they are really gone: leaving (moved on, gave up, driven off, the trip over) AND
+## far from the player AND out of view; or stuck where they cannot reach anyone (no progress for 12 s while trying
+## to move, out of view); or fallen out of the world. Every removal is logged with its reason.
 func _prune() -> void:
 	var cam := get_viewport().get_camera_3d()
+	var tgt := threat_target()
 	var keep := []
 	for c in creatures:
 		var n: Node3D = c["node"]
 		if not is_instance_valid(n):
 			continue
-		var gone_away := false
-		# a roamer that has not taken to hunting within two minutes moves on (the way it came), so the town does not
-		# fill up with idle creatures that also block any new encounter
-		var ai0 = c.get("ai")
-		if not c.has("born"):
-			c["born"] = Game.play_time
-		if ai0 and is_instance_valid(ai0) and String(ai0.get("state")) == "PATROL" and Game.play_time - float(c["born"]) > 120.0:
-			ai0.set("state", "RETURN")
-		if c["kind"] == "skitter":
-			gone_away = n.global_position.distance_to(c["exit"]) < 0.5
-		else:
-			var ai = c["ai"]
-			if not active() or (ai and ai.state in ["RETURN", "PATROL"] and n.global_position.distance_to(_player().global_position) > 25.0):
-				if ai and ai.state != "RETURN":
-					ai.state = "RETURN"
-				gone_away = n.global_position.distance_to(c["exit"]) < 3.0 or n.global_position.distance_to(_player().global_position) > 45.0
+		var ai = c.get("ai")
 		var unseen := cam == null or not cam.is_position_in_frustum(n.global_position + Vector3(0, 0.6, 0))
-		if gone_away and unseen:
+		var d := n.global_position.distance_to(tgt)
+		var why := ""
+		if ai == null:
+			# a scripted sighting (skitter_crossing / glimpse): gone once at its end point and out of view
+			if n.global_position.distance_to(c["exit"]) < 0.5 and unseen:
+				why = "sighting finished"
+		else:
+			if not active() and String(c.get("role", "")) != "leaving":
+				_leave(c, "trip over")
+			if n.global_position.y < -20.0:
+				why = "fell out of the world"
+			elif String(c.get("role", "")) == "leaving" and d > 32.0 and unseen:
+				why = "left: " + String(c.get("leave_why", ""))
+			elif d > 160.0 and unseen:
+				why = "far behind (player drove off)"
+			else:
+				# progress check: trying to move but not getting anywhere = stuck
+				var moving: bool = String(ai.state) in ["SUSPICIOUS", "CHASE", "RETURN", "SEARCH", "INVESTIGATE"] \
+					and Vector2(n.global_position.x - Vector3(ai.get("_last_seen")).x, n.global_position.z - Vector3(ai.get("_last_seen")).z).length() > 3.0
+				c["ref_t"] = float(c.get("ref_t", 0.0)) + 0.25
+				if c["ref_t"] >= 12.0:
+					var progressed: bool = n.global_position.distance_to(c.get("ref", n.global_position)) > 1.0
+					c["ref"] = n.global_position
+					c["ref_t"] = 0.0
+					if moving and not progressed and unseen and d > 10.0:
+						why = "stuck (no progress in 12 s)"
+		if why != "":
 			report["despawned_unseen"] += 1
+			_dbg("REMOVED %s (%s): %s at %s, %.1f m from the player" % [c["kind"], c.get("role", "-"), why, _v(n.global_position), d])
 			n.queue_free()
-			_encounter_t = maxf(_encounter_t, float(cfg.get("encounter_cooldown_s", [60, 150, 120, 95])[mini(int(st().get("level", 0)), 3)]))
 			continue
 		keep.append(c)
 	creatures = keep
