@@ -99,10 +99,6 @@ _subresources={
 "use_external/enabled": true,
 "use_external/path": "res://THE_VEIL_ASSETS_V2/Materials_Godot/Interiors/M_Int_TilesBathroom.tres"
 },
-"M_Com_StorageConcrete": {
-"use_external/enabled": true,
-"use_external/path": "res://THE_VEIL_ASSETS_V2/Materials_Godot/Commercial/M_Com_StorageConcrete.tres"
-},
 "M_Furn_WoodPainted": {
 "use_external/enabled": true,
 "use_external/path": "res://THE_VEIL_ASSETS_V2/Materials_Godot/Furniture/M_Furn_WoodPainted.tres"
@@ -123,17 +119,9 @@ _subresources={
 "use_external/enabled": true,
 "use_external/path": "res://THE_VEIL_ASSETS_V2/Materials_Godot/Interiors/M_Int_Linoleum.tres"
 },
-"M_Int_BasementConcrete": {
-"use_external/enabled": true,
-"use_external/path": "res://THE_VEIL_ASSETS_V2/Materials_Godot/Interiors/M_Int_BasementConcrete.tres"
-},
 "M_Res_BulbGlow": {
 "use_external/enabled": true,
 "use_external/path": "res://THE_VEIL_ASSETS_V2/03_Residential/Materials/M_Res_BulbGlow.tres"
-},
-"M_Town_PaintBlack": {
-"use_external/enabled": true,
-"use_external/path": "res://THE_VEIL_ASSETS_V2/02_Town/Materials/M_Town_PaintBlack.tres"
 },
 "M_Furn_MetalBrushed": {
 "use_external/enabled": true,

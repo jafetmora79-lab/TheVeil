@@ -6,8 +6,8 @@ import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 import { PointerLockControls } from 'three/addons/controls/PointerLockControls.js';
 
 const OWNER = 'jafetmora79-lab', REPO = 'TheVeil', DIR = 'THE_VEIL_ASSETS_V2/03_Residential/House_Variants/';
-const DEFAULT_BRANCH = 'claude/greyhaven-residential-reconstruction';
-const REBUILT = ['Cottage', 'TwoStorey'];
+const DEFAULT_BRANCH = 'claude/greyhaven-residential-reconstruction-v2';
+const REBUILT = ['Cottage', 'TwoStorey', 'Ranch', 'Bungalow', 'Farmhouse', 'SplitLevel', 'Abandoned', 'MillWorker'];
 const HOUSES = ['Cottage', 'Cottage_B', 'Cottage_B_Mirror', 'TwoStorey', 'TwoStorey_B', 'TwoStorey_Mirror',
   'Ranch', 'Ranch_B', 'Ranch_C', 'Ranch_C_Mirror', 'Ranch_Mirror', 'Bungalow', 'Bungalow_B', 'Bungalow_B_Mirror',
   'Bungalow_Mirror', 'Farmhouse', 'SplitLevel', 'SplitLevel_B', 'SplitLevel_Mirror', 'Abandoned', 'MillWorker',

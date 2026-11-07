@@ -527,6 +527,24 @@ class House:
                                                floor_y=self.floor_y(r), ceil_y=self.floor_y(r) + 1.6,
                                                walk=list(r.get("walk", r["rect"]))))
 
+    def _close_void_edges(self, st, y_top):
+        """The opening in the upper floor showed the hollow between the ceiling below and the floor above (and the
+        gap in every wall stack at that height): line all four edges of the opening, both faces, from the lower
+        room's ceiling up to the upper floor, in the lower room's wall finish."""
+        vx0, vz0, vx1, vz1 = st["void"]
+        lower = [q for q in self.p["rooms"] if q["lvl"] == st["from"] and self._overlap(q["rect"], st["void"])]
+        if not lower:
+            return
+        y_lo = min(self.ceil_y(q) for q in lower)
+        if y_top - y_lo < 0.01:
+            return
+        mat = mat_of(lower[0]["wall"])
+        for (ax, az), (bx, bz) in (((vx0, vz0), (vx1, vz0)), ((vx1, vz0), (vx1, vz1)),
+                                   ((vx1, vz1), (vx0, vz1)), ((vx0, vz1), (vx0, vz0))):
+            a, b, c, d = [ax, y_lo, az], [bx, y_lo, bz], [bx, y_top, bz], [ax, y_top, az]
+            self.inner.quad(mat, a, b, c, d)
+            self.inner.quad(mat, d, c, b, a)
+
     def build_stair(self, st):
         x0, z0, x1, z1 = st["rect"]
         lvl_from, lvl_to = st["from"], st["to"]
@@ -555,6 +573,7 @@ class House:
             origin, yaw = (x1, y_a, z0), -math.pi / 2
             void = (x1 - run, z0, x1 - run + min(run, st.get("void_len", run)), z1)
         st["void"] = tuple(round(v, 4) for v in void)
+        self._close_void_edges(st, y_b)
         arch.stair(self.inner, self.col, origin, yaw, width, n, rise, tread, open_sides=st.get("open", ("r",)))
         # guard rails on every void edge except the arrival edge and edges that run along a wall
         vx0, vz0, vx1, vz1 = st["void"]

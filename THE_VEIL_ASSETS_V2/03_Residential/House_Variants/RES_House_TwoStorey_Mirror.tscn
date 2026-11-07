@@ -76,18 +76,6 @@ metadata/veil_house = {
 "level": 1,
 "rect": [-4.5, 7.4, -1.2, 11.4],
 "floor_y": 3.6
-}, {
-"id": "BREC",
-"type": "basement",
-"level": -1,
-"rect": [-1.2, 3.4, 4.5, 11.4],
-"floor_y": -2.1
-}, {
-"id": "BUTIL",
-"type": "laundry",
-"level": -1,
-"rect": [-4.5, 3.4, -1.2, 11.4],
-"floor_y": -2.1
 }],
 "doors": [{
 "name": "INT_Door_Front",
@@ -161,17 +149,11 @@ metadata/veil_house = {
 "rooms": ["BED2", "UHAL"],
 "exterior": false,
 "center": [1.2, 3.6, 10.3]
-}, {
-"name": "INT_Door_Utility",
-"kind": "door",
-"rooms": ["BUTIL", "BREC"],
-"exterior": false,
-"center": [-1.2, -2.1, 9.8]
 }],
-"stairs": 2,
+"stairs": 1,
 "windows": 16,
-"lights": ["FOY", "LIV", "DIN", "DEN", "KIT", "BHAL", "UHAL", "BED1", "BED2", "BED3", "BATH2", "BREC", "BUTIL"],
-"furniture_pieces": 44
+"lights": ["FOY", "LIV", "DIN", "DEN", "KIT", "BHAL", "UHAL", "BED1", "BED2", "BED3", "BATH2"],
+"furniture_pieces": 71
 }
 metadata/veil_interactables = [{
 "node": "INT_Door_Front",
@@ -240,14 +222,6 @@ metadata/veil_interactables = [{
 }, {
 "node": "INT_Door_Bed2",
 "pos": [1.17, 3.61, 10.74],
-"veil_interact": "hinge",
-"axis": "y",
-"open_deg": 95.0,
-"width": 0.88,
-"height": 2.08
-}, {
-"node": "INT_Door_Utility",
-"pos": [-1.23, -2.09, 10.24],
 "veil_interact": "hinge",
 "axis": "y",
 "open_deg": 95.0,
@@ -327,17 +301,6 @@ metadata/veil_interactables = [{
 }, {
 "node": "INT_LightSwitch_UHAL_Toggle",
 "pos": [-1.123, 4.8, 3.68],
-"veil_interact": "toggle",
-"axis": "x",
-"open_deg": 25
-}, {
-"node": "INT_LightSwitch_BREC",
-"pos": [-1.135, -0.9, 9.13],
-"veil_interact": "switch",
-"room": "BREC"
-}, {
-"node": "INT_LightSwitch_BREC_Toggle",
-"pos": [-1.123, -0.9, 9.13],
 "veil_interact": "toggle",
 "axis": "x",
 "open_deg": 25
