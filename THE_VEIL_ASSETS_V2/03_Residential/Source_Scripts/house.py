@@ -557,8 +557,10 @@ class House:
         dirn = st.get("dir", "+z")
         width = (x1 - x0) if dirn in ("+z", "-z") else (z1 - z0)
         if "void_len" not in st or st.get("auto_void", True):
-            # open the ceiling where a 1.75 m player (+0.35 margin) would hit the slab above
-            start = max(0.0, run * (y_b - 2.1 - y_a) / (y_b - y_a) - 0.35)
+            # open the floor above wherever a 1.76 m player (capsule + camera) would come within 2.25 m of the
+            # UNDERSIDE of the slab (0.4 m below the upper floor), plus 0.45 m for the capsule radius. The upper
+            # floor's collision faces up only, so a head that reached it went through it and snagged / clipped.
+            start = max(0.0, run * (y_b - 0.4 - 2.25 - y_a) / (y_b - y_a) - 0.45)
             st["void_len"] = run - start
         if dirn == "+z":
             origin, yaw = (x0, y_a, z0), 0.0
