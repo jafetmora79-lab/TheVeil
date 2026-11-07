@@ -272,6 +272,10 @@ func set_hint(t: String) -> void:
 
 func set_speed(kmh: float) -> void:
 	speed_l.text = "%d km/h" % roundi(kmh) if kmh >= 0.0 else ""
+	var w := get_tree().get_first_node_in_group("veil_world")
+	var car = w.get("sedan") if w else null
+	if kmh >= 0.0 and car and car.survival:              # the gauge, once the car counts fuel
+		speed_l.text += "   FUEL %d%%" % roundi(car.fuel * 100.0)
 
 
 func set_objective(goal: String, step: String) -> void:

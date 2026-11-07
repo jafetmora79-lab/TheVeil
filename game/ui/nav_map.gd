@@ -431,20 +431,15 @@ func _layout() -> void:
 	panel.queue_redraw()
 
 
-## Car-part leads (after the car has been inspected, until it runs): "POSSIBLE BATTERY - GAS STATION", one per part
-## still out there, at the part's real (fixed, reachable) spot. [key "part:<id>", label, world position].
+## Car search leads (game/world/expedition.gd car_leads): [key "part:...", "POSSIBLE CAR BATTERY - GAS STATION",
+## world position, the short name for the diamond], at the find's real, reachable spot.
 func part_leads() -> Array:
 	var out: Array = []
 	var ex = world.expedition
-	if ex == null or not Game.has_flag("vehicle_found") or Game.has_flag("vehicle_repaired"):
+	if ex == null:
 		return out
-	for c in ex.cfg.get("vehicle_parts", []):
-		var it = ex.its.get("exp/part_" + String(c["id"]))
-		if it == null or not is_instance_valid(it) or it.taken or ex.installed(String(c["item"])):
-			continue
-		var at: Vector3 = (it as Node3D).global_position
-		var what: String = {"car_battery": "BATTERY", "fuel_can": "FUEL", "car_fuse": "FUSE"}.get(String(c["item"]), "CAR PART")
-		out.append(["part:" + String(c["id"]), "POSSIBLE %s - %s" % [what, _area_name(at)], at])
+	for l in ex.car_leads():
+		out.append([l[0], "%s - %s" % [l[1], _area_name(l[2])], l[2], l[1]])
 	return out
 
 
@@ -687,7 +682,7 @@ func map_dest_marker() -> Array:
 	var z := String(Game.world_state.get("map_dest", ""))
 	var out: bool = world.expedition != null and world.expedition.active()
 	if z.begins_with("part:"):
-		return [at, String(_lead(z)[1]) if not _lead(z).is_empty() else "CAR PART", out]
+		return [at, String(_lead(z)[3]) if not _lead(z).is_empty() else "CAR PART", out]
 	return [at, _street(z) + " HOUSE", out]
 
 

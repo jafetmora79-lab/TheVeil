@@ -132,6 +132,7 @@ func talk(seconds: float) -> void:
 ## Seated pose (no clip needed): thighs forward, knees bent, hips lowered so the pelvis rests at seat_y (metres
 ## above the character's floor). Blended in / out over ~0.6 s. The caller places the root on the seat.
 var seated := false
+var hold_facing := false               ## riding in the car: the body keeps facing the way it was placed
 var seat_y := 0.48
 var _sit := 0.0
 var _hip_h := -1.0
@@ -257,6 +258,9 @@ func _update_walk(delta: float) -> void:
 
 
 func _update_turn(delta: float) -> void:
+	if hold_facing:
+		_turn_goal = null
+		return
 	var cam = _target_pos()
 	if _turn_goal == null and turn_to_face and cam != null and _path.is_empty():
 		var to := (cam as Vector3) - root.global_position
