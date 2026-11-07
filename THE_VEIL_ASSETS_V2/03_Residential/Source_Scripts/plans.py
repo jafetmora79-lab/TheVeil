@@ -87,7 +87,7 @@ BASE = "Int_BasementConcrete"
 # ----------------------------------------------------------------------------
 TWO_STOREY = dict(
     name="RES_House_TwoStorey", title="Two-storey suburban family house", width=9.0,
-    levels={0: (FLOOR_Y, CEIL_H), 1: (F1, 2.5), -1: (-2.1, 2.4)}, garage_x=None,
+    levels={0: (FLOOR_Y, CEIL_H), 1: (F1, 2.5)}, garage_x=None,
     rooms=[
         R("FOY", 0, (-1.2, 3.4, 1.2, 9.4), "hall", "Int_FloorboardsOld", "Int_WallpaperFaded"),
         R("LIV", 0, (-4.5, 3.4, -1.2, 8.4), "living", "Int_CarpetWorn", "Int_WallpaperPatterned"),
@@ -100,12 +100,10 @@ TWO_STOREY = dict(
         R("BED2", 1, (-4.5, 7.6, -1.2, 11.4), "bedroom", "Int_FloorboardsOld", "Int_WallpaperPatterned"),
         R("BED3", 1, (1.2, 3.4, 4.5, 7.4), "bedroom", "Int_CarpetWorn", "Int_DrywallLight"),
         R("BATH2", 1, (1.2, 7.4, 4.5, 11.4), "bathroom", "Int_Linoleum", "Int_TilesBathroom"),
-        R("BREC", -1, (-4.5, 3.4, 1.2, 11.4), "basement", BASE, "Res_WoodPanel"),
-        R("BUTIL", -1, (1.2, 3.4, 4.5, 11.4), "laundry", BASE, "Com_StorageConcrete"),
     ],
     stairs=[
-        dict(rect=(0.17, 4.6, 1.12, 9.2), **{"from": 0, "to": 1}, dir="+z", void_len=3.6, open=("l",)),
-        dict(rect=(0.17, 4.9, 1.12, 8.96), **{"from": -1, "to": 0}, dir="+z", void_len=3.3, open=("l",)),
+        # one flight, widened to 1.12 m; the basement flight that dropped from the foyer to a dead end is gone
+        dict(rect=(0.0, 4.6, 1.12, 9.2), **{"from": 0, "to": 1}, dir="+z", void_len=3.6, open=("l",)),
     ],
     doors=[
         DX("FOY", "F", -0.3, name="Front"), DX("BHAL", "B", 0.0, w=0.9, h=2.1, style="back", name="Back"),
@@ -114,7 +112,6 @@ TWO_STOREY = dict(
         D("BHAL", "KIT", 10.4, into="KIT", name="Kitchen"), D("DEN", "KIT", 2.85, into="DEN", name="Den"),
         D("UHAL", "BED1", 4.3, into="BED1", name="Bed1"), D("UHAL", "BED2", 10.3, into="BED2", name="Bed2"),
         D("UHAL", "BED3", 4.3, w=0.8, into="BED3", name="Bed3"), D("UHAL", "BATH2", 10.3, w=0.8, into="BATH2", name="Bath"),
-        D("BREC", "BUTIL", 9.8, into="BUTIL", name="Utility"),
     ],
     windows=[
         Wn("LIV", "F", -2.85, w=1.2), Wn("DEN", "F", 2.85, w=1.2), Wn("BED1", "F", -2.85), Wn("BED3", "F", 2.85),

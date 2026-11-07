@@ -130,7 +130,7 @@
      "model": "RES_Curtains_Gingham",
      "pos": [
       -3.0,
-      0.6,
+      0.93,
       3.562
      ],
      "yaw": 0.0,
@@ -169,9 +169,9 @@
     {
      "model": "RES_DiningTable_Round",
      "pos": [
-      -1.5,
+      -1.575,
       0.6,
-      8.55
+      8.6799
      ],
      "yaw": 0.0,
      "room": "KIT"
@@ -181,7 +181,7 @@
      "pos": [
       2.585,
       0.6,
-      3.9
+      3.55
      ],
      "yaw": -1.570796,
      "room": "BED"
@@ -191,7 +191,7 @@
      "pos": [
       3.435,
       0.6,
-      2.9
+      4.75
      ],
      "yaw": -1.570796,
      "room": "BED"
@@ -245,17 +245,6 @@
      ],
      "yaw": 0.0,
      "room": "BED2"
-    },
-    {
-     "model": "RES_MedicineCabinet",
-     "pos": [
-      0.4,
-      2.15,
-      7.075
-     ],
-     "yaw": 0.0,
-     "room": "BATH",
-     "note": "added above the pedestal sink (wall mount 1.55 m) as the bathroom cabinet"
     },
     {
      "model": "RES_CoffeeTable_Wood",
@@ -328,19 +317,9 @@
      "room": "KIT"
     },
     {
-     "model": "RES_DiningChair_Wood",
-     "pos": [
-      -2.3799,
-      0.6,
-      8.625
-     ],
-     "yaw": 1.570796,
-     "room": "KIT"
-    },
-    {
      "model": "RES_WallCabinet_0.8",
      "pos": [
-      -1.8,
+      -0.55,
       2.05,
       11.133
      ],
@@ -388,6 +367,16 @@
      "room": "KIT"
     },
     {
+     "model": "RES_MedicineCabinet",
+     "pos": [
+      0.4,
+      2.15,
+      7.132
+     ],
+     "yaw": 0.0,
+     "room": "BATH"
+    },
+    {
      "model": "RES_TowelRack",
      "pos": [
       1.688,
@@ -402,39 +391,19 @@
      "pos": [
       3.435,
       1.18,
-      2.9
+      4.75
      ],
      "yaw": -1.570796,
      "room": "BED"
     },
     {
-     "model": "RES_Dresser",
-     "pos": [
-      1.155,
-      0.6,
-      3.3
-     ],
-     "yaw": 1.570796,
-     "room": "BED"
-    },
-    {
      "model": "RES_Picture_Family",
      "pos": [
-      1.205,
-      1.48,
-      3.3
+      0.917,
+      2.2,
+      3.2
      ],
      "yaw": 1.570796,
-     "room": "BED"
-    },
-    {
-     "model": "RES_Curtains_Gingham",
-     "pos": [
-      2.27,
-      0.6,
-      2.562
-     ],
-     "yaw": 0.0,
      "room": "BED"
     },
     {
@@ -455,16 +424,6 @@
       9.75
      ],
      "yaw": -1.832596,
-     "room": "BED2"
-    },
-    {
-     "model": "RES_CardboardBox_Stack",
-     "pos": [
-      2.25,
-      0.6,
-      9.65
-     ],
-     "yaw": 0.139626,
      "room": "BED2"
     },
     {
@@ -587,7 +546,7 @@
      "model": "RES_Curtains_Gingham",
      "pos": [
       -3.0,
-      0.6,
+      0.93,
       3.562
      ],
      "yaw": 0.0,
@@ -626,9 +585,9 @@
     {
      "model": "RES_DiningTable_Round",
      "pos": [
-      -1.5,
+      -1.575,
       0.6,
-      8.55
+      8.6799
      ],
      "yaw": 0.0,
      "room": "KIT"
@@ -638,7 +597,7 @@
      "pos": [
       2.585,
       0.6,
-      3.9
+      3.55
      ],
      "yaw": -1.570796,
      "room": "BED"
@@ -648,7 +607,7 @@
      "pos": [
       3.435,
       0.6,
-      2.9
+      4.75
      ],
      "yaw": -1.570796,
      "room": "BED"
@@ -702,17 +661,6 @@
      ],
      "yaw": 0.0,
      "room": "BED2"
-    },
-    {
-     "model": "RES_MedicineCabinet",
-     "pos": [
-      0.4,
-      2.15,
-      7.075
-     ],
-     "yaw": 0.0,
-     "room": "BATH",
-     "note": "added above the pedestal sink (wall mount 1.55 m) as the bathroom cabinet"
     },
     {
      "model": "RES_CoffeeTable_Wood",
@@ -785,19 +733,9 @@
      "room": "KIT"
     },
     {
-     "model": "RES_DiningChair_Wood",
-     "pos": [
-      -2.3799,
-      0.6,
-      8.625
-     ],
-     "yaw": 1.570796,
-     "room": "KIT"
-    },
-    {
      "model": "RES_WallCabinet_0.8",
      "pos": [
-      -1.8,
+      -0.55,
       2.05,
       11.133
      ],
@@ -845,6 +783,16 @@
      "room": "KIT"
     },
     {
+     "model": "RES_MedicineCabinet",
+     "pos": [
+      0.4,
+      2.15,
+      7.132
+     ],
+     "yaw": 0.0,
+     "room": "BATH"
+    },
+    {
      "model": "RES_TowelRack",
      "pos": [
       1.688,
@@ -859,39 +807,19 @@
      "pos": [
       3.435,
       1.18,
-      2.9
+      4.75
      ],
      "yaw": -1.570796,
      "room": "BED"
     },
     {
-     "model": "RES_Dresser",
-     "pos": [
-      1.155,
-      0.6,
-      3.3
-     ],
-     "yaw": 1.570796,
-     "room": "BED"
-    },
-    {
      "model": "RES_Picture_Family",
      "pos": [
-      1.205,
-      1.48,
-      3.3
+      0.917,
+      2.2,
+      3.2
      ],
      "yaw": 1.570796,
-     "room": "BED"
-    },
-    {
-     "model": "RES_Curtains_Gingham",
-     "pos": [
-      2.27,
-      0.6,
-      2.562
-     ],
-     "yaw": 0.0,
      "room": "BED"
     },
     {
@@ -912,16 +840,6 @@
       9.75
      ],
      "yaw": -1.832596,
-     "room": "BED2"
-    },
-    {
-     "model": "RES_CardboardBox_Stack",
-     "pos": [
-      2.25,
-      0.6,
-      9.65
-     ],
-     "yaw": 0.139626,
      "room": "BED2"
     },
     {
@@ -1044,7 +962,7 @@
      "model": "RES_Curtains_Gingham",
      "pos": [
       -3.0,
-      0.6,
+      0.93,
       3.562
      ],
      "yaw": 0.0,
@@ -1083,9 +1001,9 @@
     {
      "model": "RES_DiningTable_Round",
      "pos": [
-      -1.5,
+      -1.575,
       0.6,
-      8.55
+      8.6799
      ],
      "yaw": 0.0,
      "room": "KIT"
@@ -1095,7 +1013,7 @@
      "pos": [
       2.585,
       0.6,
-      3.9
+      3.55
      ],
      "yaw": -1.570796,
      "room": "BED"
@@ -1105,7 +1023,7 @@
      "pos": [
       3.435,
       0.6,
-      2.9
+      4.75
      ],
      "yaw": -1.570796,
      "room": "BED"
@@ -1159,17 +1077,6 @@
      ],
      "yaw": 0.0,
      "room": "BED2"
-    },
-    {
-     "model": "RES_MedicineCabinet",
-     "pos": [
-      0.4,
-      2.15,
-      7.075
-     ],
-     "yaw": 0.0,
-     "room": "BATH",
-     "note": "added above the pedestal sink (wall mount 1.55 m) as the bathroom cabinet"
     },
     {
      "model": "RES_CoffeeTable_Wood",
@@ -1242,19 +1149,9 @@
      "room": "KIT"
     },
     {
-     "model": "RES_DiningChair_Wood",
-     "pos": [
-      -2.3799,
-      0.6,
-      8.625
-     ],
-     "yaw": 1.570796,
-     "room": "KIT"
-    },
-    {
      "model": "RES_WallCabinet_0.8",
      "pos": [
-      -1.8,
+      -0.55,
       2.05,
       11.133
      ],
@@ -1302,6 +1199,16 @@
      "room": "KIT"
     },
     {
+     "model": "RES_MedicineCabinet",
+     "pos": [
+      0.4,
+      2.15,
+      7.132
+     ],
+     "yaw": 0.0,
+     "room": "BATH"
+    },
+    {
      "model": "RES_TowelRack",
      "pos": [
       1.688,
@@ -1316,39 +1223,19 @@
      "pos": [
       3.435,
       1.18,
-      2.9
+      4.75
      ],
      "yaw": -1.570796,
      "room": "BED"
     },
     {
-     "model": "RES_Dresser",
-     "pos": [
-      1.155,
-      0.6,
-      3.3
-     ],
-     "yaw": 1.570796,
-     "room": "BED"
-    },
-    {
      "model": "RES_Picture_Family",
      "pos": [
-      1.205,
-      1.48,
-      3.3
+      0.917,
+      2.2,
+      3.2
      ],
      "yaw": 1.570796,
-     "room": "BED"
-    },
-    {
-     "model": "RES_Curtains_Gingham",
-     "pos": [
-      2.27,
-      0.6,
-      2.562
-     ],
-     "yaw": 0.0,
      "room": "BED"
     },
     {
@@ -1369,16 +1256,6 @@
       9.75
      ],
      "yaw": -1.832596,
-     "room": "BED2"
-    },
-    {
-     "model": "RES_CardboardBox_Stack",
-     "pos": [
-      2.25,
-      0.6,
-      9.65
-     ],
-     "yaw": 0.139626,
      "room": "BED2"
     },
     {
@@ -1501,7 +1378,7 @@
      "model": "RES_Curtains_Gingham",
      "pos": [
       -3.0,
-      0.6,
+      0.93,
       3.562
      ],
      "yaw": 0.0,
@@ -1540,9 +1417,9 @@
     {
      "model": "RES_DiningTable_Round",
      "pos": [
-      -1.5,
+      -1.575,
       0.6,
-      8.55
+      8.6799
      ],
      "yaw": 0.0,
      "room": "KIT"
@@ -1552,7 +1429,7 @@
      "pos": [
       2.585,
       0.6,
-      3.9
+      3.55
      ],
      "yaw": -1.570796,
      "room": "BED"
@@ -1562,7 +1439,7 @@
      "pos": [
       3.435,
       0.6,
-      2.9
+      4.75
      ],
      "yaw": -1.570796,
      "room": "BED"
@@ -1616,17 +1493,6 @@
      ],
      "yaw": 0.0,
      "room": "BED2"
-    },
-    {
-     "model": "RES_MedicineCabinet",
-     "pos": [
-      0.4,
-      2.15,
-      7.075
-     ],
-     "yaw": 0.0,
-     "room": "BATH",
-     "note": "added above the pedestal sink (wall mount 1.55 m) as the bathroom cabinet"
     },
     {
      "model": "RES_CoffeeTable_Wood",
@@ -1699,19 +1565,9 @@
      "room": "KIT"
     },
     {
-     "model": "RES_DiningChair_Wood",
-     "pos": [
-      -2.3799,
-      0.6,
-      8.625
-     ],
-     "yaw": 1.570796,
-     "room": "KIT"
-    },
-    {
      "model": "RES_WallCabinet_0.8",
      "pos": [
-      -1.8,
+      -0.55,
       2.05,
       11.133
      ],
@@ -1759,6 +1615,16 @@
      "room": "KIT"
     },
     {
+     "model": "RES_MedicineCabinet",
+     "pos": [
+      0.4,
+      2.15,
+      7.132
+     ],
+     "yaw": 0.0,
+     "room": "BATH"
+    },
+    {
      "model": "RES_TowelRack",
      "pos": [
       1.688,
@@ -1773,39 +1639,19 @@
      "pos": [
       3.435,
       1.18,
-      2.9
+      4.75
      ],
      "yaw": -1.570796,
      "room": "BED"
     },
     {
-     "model": "RES_Dresser",
-     "pos": [
-      1.155,
-      0.6,
-      3.3
-     ],
-     "yaw": 1.570796,
-     "room": "BED"
-    },
-    {
      "model": "RES_Picture_Family",
      "pos": [
-      1.205,
-      1.48,
-      3.3
+      0.917,
+      2.2,
+      3.2
      ],
      "yaw": 1.570796,
-     "room": "BED"
-    },
-    {
-     "model": "RES_Curtains_Gingham",
-     "pos": [
-      2.27,
-      0.6,
-      2.562
-     ],
-     "yaw": 0.0,
      "room": "BED"
     },
     {
@@ -1826,16 +1672,6 @@
       9.75
      ],
      "yaw": -1.832596,
-     "room": "BED2"
-    },
-    {
-     "model": "RES_CardboardBox_Stack",
-     "pos": [
-      2.25,
-      0.6,
-      9.65
-     ],
-     "yaw": 0.139626,
      "room": "BED2"
     },
     {
@@ -1979,7 +1815,7 @@
      "model": "RES_Curtains_Gingham",
      "pos": [
       0.6,
-      0.6,
+      0.88,
       3.362
      ],
      "yaw": -0.0,
@@ -2026,21 +1862,21 @@
      "room": "DIN"
     },
     {
-     "model": "RES_Fridge_Retro",
+     "model": "RES_Counter_Sink",
      "pos": [
-      0.965,
+      0.65,
       0.6,
-      7.6
+      7.375
      ],
-     "yaw": -1.570796,
+     "yaw": -0.0,
      "room": "KIT"
     },
     {
-     "model": "RES_Counter_Base_1.2",
+     "model": "RES_Fridge_Retro",
      "pos": [
-      -0.225,
+      -0.165,
       0.6,
-      9.2
+      8.05
      ],
      "yaw": 1.570796,
      "room": "KIT"
@@ -2048,11 +1884,21 @@
     {
      "model": "RES_Stove_Electric",
      "pos": [
-      0.2,
+      -0.2,
       0.6,
-      7.4
+      8.85
      ],
-     "yaw": -0.0,
+     "yaw": 1.570796,
+     "room": "KIT"
+    },
+    {
+     "model": "RES_Counter_Base_0.6",
+     "pos": [
+      -0.225,
+      0.6,
+      9.55
+     ],
+     "yaw": 1.570796,
      "room": "KIT"
     },
     {
@@ -2235,7 +2081,7 @@
      "model": "RES_Curtains_Gingham",
      "pos": [
       2.3,
-      0.6,
+      0.88,
       2.562
      ],
      "yaw": 0.0,
@@ -2294,7 +2140,7 @@
     {
      "model": "RES_WallCabinet_0.8",
      "pos": [
-      0.5,
+      1.65,
       2.05,
       11.533
      ],
@@ -2436,7 +2282,7 @@
      "pos": [
       5.848,
       1.8,
-      7.6
+      6.55
      ],
      "yaw": -1.570796,
      "room": "BATH"
@@ -2671,7 +2517,7 @@
      "model": "RES_Curtains_Gingham",
      "pos": [
       -0.6,
-      0.6,
+      0.88,
       3.362
      ],
      "yaw": 0.0,
@@ -2718,21 +2564,21 @@
      "room": "DIN"
     },
     {
-     "model": "RES_Fridge_Retro",
+     "model": "RES_Counter_Sink",
      "pos": [
-      -0.965,
+      -0.65,
       0.6,
-      7.6
+      7.375
      ],
-     "yaw": 1.570796,
+     "yaw": 0.0,
      "room": "KIT"
     },
     {
-     "model": "RES_Counter_Base_1.2",
+     "model": "RES_Fridge_Retro",
      "pos": [
-      0.225,
+      0.165,
       0.6,
-      9.2
+      8.05
      ],
      "yaw": -1.570796,
      "room": "KIT"
@@ -2740,11 +2586,21 @@
     {
      "model": "RES_Stove_Electric",
      "pos": [
-      -0.2,
+      0.2,
       0.6,
-      7.4
+      8.85
      ],
-     "yaw": 0.0,
+     "yaw": -1.570796,
+     "room": "KIT"
+    },
+    {
+     "model": "RES_Counter_Base_0.6",
+     "pos": [
+      0.225,
+      0.6,
+      9.55
+     ],
+     "yaw": -1.570796,
      "room": "KIT"
     },
     {
@@ -2927,7 +2783,7 @@
      "model": "RES_Curtains_Gingham",
      "pos": [
       -2.3,
-      0.6,
+      0.88,
       2.562
      ],
      "yaw": -0.0,
@@ -2986,7 +2842,7 @@
     {
      "model": "RES_WallCabinet_0.8",
      "pos": [
-      -0.5,
+      -1.65,
       2.05,
       11.533
      ],
@@ -3128,7 +2984,7 @@
      "pos": [
       -5.848,
       1.8,
-      7.6
+      6.55
      ],
      "yaw": 1.570796,
      "room": "BATH"
@@ -3363,7 +3219,7 @@
      "model": "RES_Curtains_Gingham",
      "pos": [
       0.6,
-      0.6,
+      0.88,
       3.362
      ],
      "yaw": -0.0,
@@ -3410,21 +3266,21 @@
      "room": "DIN"
     },
     {
-     "model": "RES_Fridge_Retro",
+     "model": "RES_Counter_Sink",
      "pos": [
-      0.965,
+      0.65,
       0.6,
-      7.6
+      7.375
      ],
-     "yaw": -1.570796,
+     "yaw": -0.0,
      "room": "KIT"
     },
     {
-     "model": "RES_Counter_Base_1.2",
+     "model": "RES_Fridge_Retro",
      "pos": [
-      -0.225,
+      -0.165,
       0.6,
-      9.2
+      8.05
      ],
      "yaw": 1.570796,
      "room": "KIT"
@@ -3432,11 +3288,21 @@
     {
      "model": "RES_Stove_Electric",
      "pos": [
-      0.2,
+      -0.2,
       0.6,
-      7.4
+      8.85
      ],
-     "yaw": -0.0,
+     "yaw": 1.570796,
+     "room": "KIT"
+    },
+    {
+     "model": "RES_Counter_Base_0.6",
+     "pos": [
+      -0.225,
+      0.6,
+      9.55
+     ],
+     "yaw": 1.570796,
      "room": "KIT"
     },
     {
@@ -3609,7 +3475,7 @@
      "model": "RES_Curtains_Gingham",
      "pos": [
       -3.0,
-      0.6,
+      0.93,
       3.562
      ],
      "yaw": 0.0,
@@ -3648,9 +3514,9 @@
     {
      "model": "RES_DiningTable_Round",
      "pos": [
-      -1.5,
+      -1.575,
       0.6,
-      8.55
+      8.6799
      ],
      "yaw": 0.0,
      "room": "KIT"
@@ -3660,7 +3526,7 @@
      "pos": [
       2.585,
       0.6,
-      3.9
+      3.55
      ],
      "yaw": -1.570796,
      "room": "BED"
@@ -3670,7 +3536,7 @@
      "pos": [
       3.435,
       0.6,
-      2.9
+      4.75
      ],
      "yaw": -1.570796,
      "room": "BED"
@@ -3724,17 +3590,6 @@
      ],
      "yaw": 0.0,
      "room": "BED2"
-    },
-    {
-     "model": "RES_MedicineCabinet",
-     "pos": [
-      0.4,
-      2.15,
-      7.075
-     ],
-     "yaw": 0.0,
-     "room": "BATH",
-     "note": "added above the pedestal sink (wall mount 1.55 m) as the bathroom cabinet"
     },
     {
      "model": "RES_CoffeeTable_Wood",
@@ -3807,19 +3662,9 @@
      "room": "KIT"
     },
     {
-     "model": "RES_DiningChair_Wood",
-     "pos": [
-      -2.3799,
-      0.6,
-      8.625
-     ],
-     "yaw": 1.570796,
-     "room": "KIT"
-    },
-    {
      "model": "RES_WallCabinet_0.8",
      "pos": [
-      -1.8,
+      -0.55,
       2.05,
       11.133
      ],
@@ -3867,6 +3712,16 @@
      "room": "KIT"
     },
     {
+     "model": "RES_MedicineCabinet",
+     "pos": [
+      0.4,
+      2.15,
+      7.132
+     ],
+     "yaw": 0.0,
+     "room": "BATH"
+    },
+    {
      "model": "RES_TowelRack",
      "pos": [
       1.688,
@@ -3881,39 +3736,19 @@
      "pos": [
       3.435,
       1.18,
-      2.9
+      4.75
      ],
      "yaw": -1.570796,
      "room": "BED"
     },
     {
-     "model": "RES_Dresser",
-     "pos": [
-      1.155,
-      0.6,
-      3.3
-     ],
-     "yaw": 1.570796,
-     "room": "BED"
-    },
-    {
      "model": "RES_Picture_Family",
      "pos": [
-      1.205,
-      1.48,
-      3.3
+      0.917,
+      2.2,
+      3.2
      ],
      "yaw": 1.570796,
-     "room": "BED"
-    },
-    {
-     "model": "RES_Curtains_Gingham",
-     "pos": [
-      2.27,
-      0.6,
-      2.562
-     ],
-     "yaw": 0.0,
      "room": "BED"
     },
     {
@@ -3934,16 +3769,6 @@
       9.75
      ],
      "yaw": -1.832596,
-     "room": "BED2"
-    },
-    {
-     "model": "RES_CardboardBox_Stack",
-     "pos": [
-      2.25,
-      0.6,
-      9.65
-     ],
-     "yaw": 0.139626,
      "room": "BED2"
     },
     {
@@ -4076,7 +3901,7 @@
      "model": "RES_Curtains_Gingham",
      "pos": [
       2.3,
-      0.6,
+      0.88,
       2.562
      ],
      "yaw": 0.0,
@@ -4135,7 +3960,7 @@
     {
      "model": "RES_WallCabinet_0.8",
      "pos": [
-      0.5,
+      1.65,
       2.05,
       11.533
      ],
@@ -4277,7 +4102,7 @@
      "pos": [
       5.848,
       1.8,
-      7.6
+      6.55
      ],
      "yaw": -1.570796,
      "room": "BATH"
@@ -4512,7 +4337,7 @@
      "model": "RES_Curtains_Gingham",
      "pos": [
       -0.6,
-      0.6,
+      0.88,
       3.362
      ],
      "yaw": 0.0,
@@ -4559,21 +4384,21 @@
      "room": "DIN"
     },
     {
-     "model": "RES_Fridge_Retro",
+     "model": "RES_Counter_Sink",
      "pos": [
-      -0.965,
+      -0.65,
       0.6,
-      7.6
+      7.375
      ],
-     "yaw": 1.570796,
+     "yaw": 0.0,
      "room": "KIT"
     },
     {
-     "model": "RES_Counter_Base_1.2",
+     "model": "RES_Fridge_Retro",
      "pos": [
-      0.225,
+      0.165,
       0.6,
-      9.2
+      8.05
      ],
      "yaw": -1.570796,
      "room": "KIT"
@@ -4581,11 +4406,21 @@
     {
      "model": "RES_Stove_Electric",
      "pos": [
-      -0.2,
+      0.2,
       0.6,
-      7.4
+      8.85
      ],
-     "yaw": 0.0,
+     "yaw": -1.570796,
+     "room": "KIT"
+    },
+    {
+     "model": "RES_Counter_Base_0.6",
+     "pos": [
+      0.225,
+      0.6,
+      9.55
+     ],
+     "yaw": -1.570796,
      "room": "KIT"
     },
     {
@@ -4768,7 +4603,7 @@
      "model": "RES_Curtains_Gingham",
      "pos": [
       2.3,
-      0.6,
+      0.88,
       2.562
      ],
      "yaw": 0.0,
@@ -4827,7 +4662,7 @@
     {
      "model": "RES_WallCabinet_0.8",
      "pos": [
-      0.5,
+      1.65,
       2.05,
       11.533
      ],
@@ -4969,7 +4804,7 @@
      "pos": [
       5.848,
       1.8,
-      7.6
+      6.55
      ],
      "yaw": -1.570796,
      "room": "BATH"
@@ -5204,7 +5039,7 @@
      "model": "RES_Curtains_Gingham",
      "pos": [
       0.6,
-      0.6,
+      0.88,
       3.362
      ],
      "yaw": -0.0,
@@ -5251,21 +5086,21 @@
      "room": "DIN"
     },
     {
-     "model": "RES_Fridge_Retro",
+     "model": "RES_Counter_Sink",
      "pos": [
-      0.965,
+      0.65,
       0.6,
-      7.6
+      7.375
      ],
-     "yaw": -1.570796,
+     "yaw": -0.0,
      "room": "KIT"
     },
     {
-     "model": "RES_Counter_Base_1.2",
+     "model": "RES_Fridge_Retro",
      "pos": [
-      -0.225,
+      -0.165,
       0.6,
-      9.2
+      8.05
      ],
      "yaw": 1.570796,
      "room": "KIT"
@@ -5273,11 +5108,21 @@
     {
      "model": "RES_Stove_Electric",
      "pos": [
-      0.2,
+      -0.2,
       0.6,
-      7.4
+      8.85
      ],
-     "yaw": -0.0,
+     "yaw": 1.570796,
+     "room": "KIT"
+    },
+    {
+     "model": "RES_Counter_Base_0.6",
+     "pos": [
+      -0.225,
+      0.6,
+      9.55
+     ],
+     "yaw": 1.570796,
      "room": "KIT"
     },
     {
@@ -5450,7 +5295,7 @@
      "model": "RES_Curtains_Gingham",
      "pos": [
       3.0,
-      0.6,
+      0.93,
       3.562
      ],
      "yaw": -0.0,
@@ -5489,9 +5334,9 @@
     {
      "model": "RES_DiningTable_Round",
      "pos": [
-      1.5,
+      1.575,
       0.6,
-      8.55
+      8.6799
      ],
      "yaw": -0.0,
      "room": "KIT"
@@ -5501,7 +5346,7 @@
      "pos": [
       -2.585,
       0.6,
-      3.9
+      3.55
      ],
      "yaw": 1.570796,
      "room": "BED"
@@ -5511,7 +5356,7 @@
      "pos": [
       -3.435,
       0.6,
-      2.9
+      4.75
      ],
      "yaw": 1.570796,
      "room": "BED"
@@ -5565,17 +5410,6 @@
      ],
      "yaw": -0.0,
      "room": "BED2"
-    },
-    {
-     "model": "RES_MedicineCabinet",
-     "pos": [
-      -0.4,
-      2.15,
-      7.075
-     ],
-     "yaw": -0.0,
-     "room": "BATH",
-     "note": "added above the pedestal sink (wall mount 1.55 m) as the bathroom cabinet"
     },
     {
      "model": "RES_CoffeeTable_Wood",
@@ -5648,19 +5482,9 @@
      "room": "KIT"
     },
     {
-     "model": "RES_DiningChair_Wood",
-     "pos": [
-      2.3799,
-      0.6,
-      8.625
-     ],
-     "yaw": -1.570796,
-     "room": "KIT"
-    },
-    {
      "model": "RES_WallCabinet_0.8",
      "pos": [
-      1.8,
+      0.55,
       2.05,
       11.133
      ],
@@ -5708,6 +5532,16 @@
      "room": "KIT"
     },
     {
+     "model": "RES_MedicineCabinet",
+     "pos": [
+      -0.4,
+      2.15,
+      7.132
+     ],
+     "yaw": -0.0,
+     "room": "BATH"
+    },
+    {
      "model": "RES_TowelRack",
      "pos": [
       -1.688,
@@ -5722,39 +5556,19 @@
      "pos": [
       -3.435,
       1.18,
-      2.9
+      4.75
      ],
      "yaw": 1.570796,
      "room": "BED"
     },
     {
-     "model": "RES_Dresser",
-     "pos": [
-      -1.155,
-      0.6,
-      3.3
-     ],
-     "yaw": -1.570796,
-     "room": "BED"
-    },
-    {
      "model": "RES_Picture_Family",
      "pos": [
-      -1.205,
-      1.48,
-      3.3
+      -0.917,
+      2.2,
+      3.2
      ],
      "yaw": -1.570796,
-     "room": "BED"
-    },
-    {
-     "model": "RES_Curtains_Gingham",
-     "pos": [
-      -2.27,
-      0.6,
-      2.562
-     ],
-     "yaw": -0.0,
      "room": "BED"
     },
     {
@@ -5775,16 +5589,6 @@
       9.75
      ],
      "yaw": 1.832596,
-     "room": "BED2"
-    },
-    {
-     "model": "RES_CardboardBox_Stack",
-     "pos": [
-      -2.25,
-      0.6,
-      9.65
-     ],
-     "yaw": -0.139626,
      "room": "BED2"
     },
     {

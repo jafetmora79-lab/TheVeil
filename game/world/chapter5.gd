@@ -31,7 +31,7 @@ const SURVIVOR_SPOT := Vector3(-5.2, 0.04, 7.1)
 const OUTSIDE_Z := -2.0                               # local z below this = outside the front doors
 const INSIDE_Z := 3.3                                 # local z above this = in the sales hall
 # HOUSE_04-local (Pack 03 cottage: furnishing placement from build_residential.furnish_instances)
-const RADIO_POS := Vector3(-1.5, 1.35, 8.55)                                # round dining table (moved clear of the chimney stack at x -1.2, z 9.4)
+const RADIO_POS := Vector3(-1.575, 1.35, 8.68)                              # on the round kitchen table (clear of the chimney stack at x -1.2, z 9.4)
 const HOUSE_RECT := [Vector2(-3.75, 2.4), Vector2(3.75, 11.4)]
 # HOUSE_05-local
 const SURVIVOR_POS := Vector3(-0.3, 0.6, 4.7)                                # foyer, behind the front door
@@ -208,8 +208,7 @@ func _setup_house() -> void:
 	for id in scav.loot:
 		its["item_" + id] = scav.loot[id]
 		scav.loot[id].used.connect(_on_pickup.bind(id))
-	# the survivor's house is NOT explorable: its front door only opens for the conversation, and the doorway is
-	# blocked (two-storey variant with a basement stair that would trap the player)
+	# the survivor's house: its front door and interior doors open (two-storey variant, no basement)
 	var fd := shouse.find_child("INT_Door_Front", true, false) as Node3D
 	if fd:
 		var deg := 95.0
@@ -219,19 +218,8 @@ func _setup_house() -> void:
 		var dit := Interactable.attach(fd, {"kind": "hinge", "label": "Front Door", "open_deg": deg, "hinge_axis": Vector3.UP,
 			"state_key": "c5/%s/INT_Door_Front" % SURVIVOR_HOUSE})
 		its["c5/%s/INT_Door_Front" % SURVIVOR_HOUSE] = dit
-		# a normal front door (the player can open it and walk in). The flight up works (ground 0.6 -> upper 3.6,
-		# walked both ways); only the basement flight beneath it, which drops from the foyer at z ~9.2 to a dead end,
-		# is closed at its head - low enough to pass under the upper flight there.
-		var block := StaticBody3D.new()
-		block.name = "C5_SurvivorBasement"
-		block.collision_layer = 1
-		var bcs := CollisionShape3D.new()
-		var bb := BoxShape3D.new()
-		bb.size = Vector3(1.05, 1.6, 0.6)
-		bcs.shape = bb
-		block.add_child(bcs)
-		shouse.add_child(block)
-		block.position = Vector3(0.645, 0.6 + 0.8, 9.2)
+		# a normal front door (the player can open it and walk in); the foyer floor is solid (the two-storey design no
+		# longer has the basement flight that needed blocking here)
 		# every interior door opens (E), as in the explorable houses: the kitchen, den, dining room and the bedrooms
 		# and bathroom upstairs were behind doors that never opened
 		var dh = SCAV.new()

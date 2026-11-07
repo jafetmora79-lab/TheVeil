@@ -434,9 +434,11 @@ func _run() -> void:
 		c5.shouse.global_transform * Vector3(-0.3, 1.5, 6.0), 1))
 	ok("c5_survivor_house_enterable", bh.is_empty() and c5.its["c5/HOUSE_05/INT_Door_Front"].collision_layer == 8,
 		str((bh["collider"] as Node).name) if bh else "clear")
-	var sh := sp2.intersect_ray(PhysicsRayQueryParameters3D.create(c5.shouse.global_transform * Vector3(-0.6, 1.2, 9.2),
-		c5.shouse.global_transform * Vector3(1.4, 1.2, 9.2), 1))
-	ok("c5_survivor_basement_blocked", sh and (sh["collider"] as Node).name == "C5_SurvivorBasement", str((sh["collider"] as Node).name) if sh else "nothing")
+	# no basement any more: the foyer floor under the flight is solid
+	var sh := sp2.intersect_ray(PhysicsRayQueryParameters3D.create(c5.shouse.global_transform * Vector3(0.56, 1.2, 8.8),
+		c5.shouse.global_transform * Vector3(0.56, -0.5, 8.8), 1))
+	ok("c5_survivor_foyer_floor_solid", not sh.is_empty() and (sh["position"] as Vector3).y > (c5.shouse.global_transform * Vector3(0, 0.4, 0)).y,
+		str(sh.get("position", "nothing")))
 	p4.choice.pick(0)
 	ok("c5_survivor_helped", await wait_talk(func(): return game.has_flag("c5_survivor_helped") and c5.survivor_follow.active, 30.0))
 	# ---- scene 7: back to the supermarket (out through the neighbour's front path gap at x 29-32)

@@ -212,14 +212,14 @@ L["Ranch"] = [
     ("RES_Lamp_Floor", "LIV", "c", (-0.65, 2.8), 0), ("RES_Curtains_Gingham", "LIV", "mount", "F", 2.3, 0.0),
     ("RES_Picture_Family", "LIV", "mount", "L", 4.3), ("RES_WallClock", "LIV", "mount", "B", 2.0),
     ("RES_Fridge_TopFreezer", "KIT", "wall", "B", -0.52), ("RES_Counter_Sink", "KIT", "wall", "B", 0.5),
-    ("RES_Stove_Electric", "KIT", "wall", "B", 1.6), ("RES_WallCabinet_0.8", "KIT", "mount", "B", 0.5),
+    ("RES_Stove_Electric", "KIT", "wall", "B", 1.6), ("RES_WallCabinet_0.8", "KIT", "mount", "B", 1.65),
     ("RES_DiningTable_Round", "KIT", "c", (0.6, 8.3), 0), ("RES_DiningChair_Wood", "KIT", "c", (0.6, 7.55), 0),
     ("RES_DiningChair_Wood", "KIT", "c", (0.6, 9.05), 180), ("RES_DishRack", "KIT", "on", 11, (0.3, 0.0), 0),
     ("RES_TrashCan_Pedal", "KIT", "wall", "R", 6.6),
     ("RES_Bed_Single", "BED2", "wall", "R", 3.7), ("RES_Nightstand", "BED2", "wall", "R", 5.0),
     ("RES_Dresser", "BED2", "wall", "B", 4.75), ("RES_Poster_Band", "BED2", "mount", "B", 4.75, 1.7),
     ("RES_Bathtub", "BATH", "wall", "B", 4.7), ("RES_Toilet", "BATH", "wall", "R", 6.85), ("RES_BathSink_Pedestal", "BATH", "wall", "F", 5.2),
-    ("RES_Mirror_Bathroom", "BATH", "mount", "F", 5.2), ("RES_TowelRack", "BATH", "mount", "R", 7.6),
+    ("RES_Mirror_Bathroom", "BATH", "mount", "F", 5.2), ("RES_TowelRack", "BATH", "mount", "R", 6.55),
     ("RES_Bed_Double", "BED1", "wall", "R", 10.1), ("RES_Nightstand", "BED1", "wall", "R", 8.95),
     ("RES_Nightstand", "BED1", "wall", "R", 11.25), ("RES_Wardrobe", "BED1", "wall", "L", 10.9), ("RES_Lamp_Table", "BED1", "on", 29, (0, 0), 0),
     ("RES_LaundryBasket", "LAU", "wall", "L", 10.0), ("RES_Shelving_Metal", "GAR", "wall", "B", -4.35),
@@ -228,28 +228,24 @@ L["Ranch"] = [
 ]
 
 L["TwoStorey"] = [
-    ("RES_Rug_Rect", "LIV", "c", (-2.85, 5.8), 0), ("RES_Sofa_Plaid", "LIV", "wall", "L", 5.8),
-    ("RES_CoffeeTable_Wood", "LIV", "c", (-3.0, 5.8), 90), ("RES_TV_CRT_Console", "LIV", "c", (-1.9, 5.8), -90),
-    ("RES_Armchair_Wingback", "LIV", "c", (-2.7, 7.6), 170), ("RES_Bookshelf_Tall", "LIV", "wall", "F", -3.9),
-    ("RES_Lamp_Floor", "LIV", "c", (-4.1, 7.9), 0), ("RES_Painting_Barn", "LIV", "mount", "L", 5.8, 1.7),
+    ("RES_Rug_Rect", "LIV", "c", (-3.0, 7.0), 0), ("RES_Sofa_Plaid", "LIV", "wall", "L", 7.0),
+    ("RES_CoffeeTable_Wood", "LIV", "c", (-3.2, 7.0), 90), ("RES_TV_CRT_Console", "LIV", "wall", "R", 7.3),
+    ("RES_Bookshelf_Tall", "LIV", "wall", "F", -3.9),
+    ("RES_Lamp_Floor", "LIV", "c", (-1.6, 3.8), 0), ("RES_Painting_Barn", "LIV", "mount", "L", 4.2, 1.7),
     ("RES_DiningTable_Round", "DIN", "c", (-3.3, 9.7), 0), ("RES_DiningChair_Wood", "DIN", "c", (-3.3, 8.95), 0),
     ("RES_DiningChair_Wood", "DIN", "c", (-4.05, 9.8), 90), ("RES_Curtains_Plaid", "DIN", "mount", "B", -2.85, 0.0),
     ("RES_Desk", "DEN", "wall", "R", 5.1), ("RES_DeskChair_Office", "DEN", "c", (3.5, 5.1), 90),
     ("RES_Bookshelf_Low", "DEN", "wall", "F", 2.85, dict(off=0.0)), ("RES_Armchair_Recliner", "DEN", "c", (2.0, 4.8), 120),
     ("RES_Fridge_Retro", "KIT", "wall", "R", 7.5), ("RES_Counter_Base_1.2", "KIT", "wall", "R", 8.6),
     ("RES_Stove_Harvest", "KIT", "wall", "B", 3.95), ("RES_Counter_Sink", "KIT", "wall", "B", 2.85),
-    ("RES_Microwave", "KIT", "on", 17, (0.0, 0.0), 0),
-    ("RES_WallCabinet_0.8", "KIT", "mount", "B", 2.85), ("RES_TrashCan_Pedal", "KIT", "wall", "B", 1.6),
+    ("RES_Microwave", "KIT", "on", 16, (0.0, 0.0), 0),
+    ("RES_WallCabinet_0.8", "KIT", "mount", "B", 1.75), ("RES_TrashCan_Pedal", "KIT", "wall", "B", 1.6),
     ("RES_CoatRack_Wall", "FOY", "mount", "L", 3.9), ("RES_ShoeRack", "BHAL", "wall", "L", 10.4),
     ("RES_Bed_Double", "BED1", "wall", "L", 5.5), ("RES_Nightstand", "BED1", "wall", "L", 4.3), ("RES_Dresser_Mirror", "BED1", "wall", "R", 6.2),
     ("RES_Bed_Single", "BED2", "wall", "L", 9.4), ("RES_Desk", "BED2", "wall", "B", -2.6), ("RES_StorageChest", "BED2", "c", (-3.5, 8.3), 0),
     ("RES_Bed_Single", "BED3", "wall", "R", 5.4), ("RES_Wardrobe", "BED3", "wall", "F", 1.95),
     ("RES_Bathtub", "BATH2", "wall", "B", 3.6), ("RES_Toilet", "BATH2", "wall", "R", 8.2), ("RES_BathSink_Vanity", "BATH2", "wall", "F", 3.3),
     ("RES_MedicineCabinet", "BATH2", "mount", "F", 3.3),
-    ("RES_Sofa_Loveseat_Leather", "BREC", "wall", "L", 7.0), ("RES_TV_CRT_Off", "BREC", "c", (-1.6, 7.0), -90),
-    ("RES_Shelving_Metal", "BREC", "wall", "B", -3.3), ("RES_CardboardBox_Stack", "BREC", "c", (-4.0, 4.0), 20),
-    ("RES_WashingMachine", "BUTIL", "wall", "R", 6.0), ("RES_Dryer", "BUTIL", "wall", "R", 6.8), ("RES_WaterHeater", "BUTIL", "wall", "B", 3.8),
-    ("RES_ElectricalPanel", "BUTIL", "mount", "F", 3.5), ("RES_Workbench", "BUTIL", "wall", "R", 9.3),
 ]
 
 L["Farmhouse"] = [
@@ -277,7 +273,8 @@ L["Bungalow"] = [
     ("RES_Lamp_Floor", "LIV", "c", (-4.1, 6.6), 0), ("RES_Curtains_Gingham", "LIV", "mount", "F", -0.6, 0.0),
     ("RES_DiningTable_Rect", "DIN", "c", (-2.95, 9.6), 90), ("RES_DiningChair_Wood", "DIN", "c", (-3.55, 9.3), 90),
     ("RES_DiningChair_Wood", "DIN", "c", (-2.35, 9.9), -90), ("RES_Bookshelf_Low", "DIN", "wall", "L", 8.2),
-    ("RES_Fridge_Retro", "KIT", "wall", "L", 7.6), ("RES_Counter_Base_1.2", "KIT", "wall", "L", 8.75), ("RES_Stove_Electric", "KIT", "wall", "B", -1.0, dict(yaw=0)),
+    ("RES_Counter_Sink", "KIT", "wall", "F", -0.75), ("RES_Fridge_Retro", "KIT", "wall", "R", 7.45),
+    ("RES_Stove_Electric", "KIT", "wall", "R", 8.35), ("RES_Counter_Base_0.6", "KIT", "wall", "R", 9.15),
     ("RES_Bed_Double", "BED1", "wall", "R", 4.9), ("RES_Nightstand", "BED1", "wall", "R", 3.75), ("RES_Dresser", "BED1", "wall", "F", 1.4, dict(off=0.0)),
     ("RES_Bathtub", "BATH", "wall", "R", 7.7, dict(yaw=0)), ("RES_Toilet", "BATH", "wall", "B", 4.0), ("RES_BathSink_Pedestal", "BATH", "wall", "F", 4.0),
     ("RES_Bed_Single", "BED2", "wall", "R", 10.1), ("RES_Wardrobe", "BED2", "wall", "B", 2.7),
@@ -317,7 +314,7 @@ L["Cottage"] = [
     ("RES_Lamp_Floor", "LIV", "c", (-3.3, 3.9), 0), ("RES_Curtains_Gingham", "LIV", "mount", "F", -3.0, 0.0),
     ("RES_Fridge_Retro", "KIT", "wall", "L", 8.0), ("RES_Counter_Sink", "KIT", "wall", "B", -1.8), ("RES_Stove_Harvest", "KIT", "wall", "B", -3.0),
     ("RES_DiningTable_Round", "KIT", "c", (-1.5, 8.55), 0),     # clear of the chimney stack (x -1.2, z 9.4)
-    ("RES_Bed_Double", "BED", "wall", "R", 4.9), ("RES_Nightstand", "BED", "wall", "R", 3.4), ("RES_Wardrobe", "BED", "wall", "B", 1.6, dict(off=0.0)),
+    ("RES_Bed_Double", "BED", "wall", "R", 3.55), ("RES_Nightstand", "BED", "wall", "R", 4.75), ("RES_Wardrobe", "BED", "wall", "B", 1.6, dict(off=0.0)),
     ("RES_ShowerStall", "BATH", "wall", "F", 1.3),
     ("RES_Toilet", "BATH", "wall", "B", 1.3), ("RES_BathSink_Pedestal", "BATH", "wall", "F", 0.4),
     ("RES_Bed_Single", "BED2", "wall", "R", 8.4),
@@ -340,15 +337,14 @@ _extend("Cottage", [
     ("RES_CoffeeTable_Wood", "LIV", "c", (-2.45, 5.2), 90), ("RES_Newspaper", "LIV", "on", "RES_CoffeeTable_Wood", (0.1, 0.0), 20),
     ("RES_SideTable_Drawer", "LIV", "c", (-3.4, 6.55), 0), ("RES_Lamp_Table", "LIV", "on", "RES_SideTable_Drawer", (0.0, 0.0), 0),
     ("RES_Picture_Landscape", "LIV", "mount", "L", 4.1, 1.65), ("RES_WallClock", "LIV", "mount", "B", 0.25),
-    ("RES_DiningChair_Wood", "KIT", "c", (-1.5, 7.8), 0), ("RES_DiningChair_Wood", "KIT", "c", (-2.25, 8.55), 90),
-    ("RES_WallCabinet_0.8", "KIT", "mount", "B", -1.8),
+    ("RES_DiningChair_Wood", "KIT", "c", (-1.5, 7.8), 0),
+    ("RES_WallCabinet_0.8", "KIT", "mount", "B", -0.55),
     ("RES_DishRack", "KIT", "on", "RES_Counter_Sink", (0.3, 0.0), 0), ("RES_Kettle", "KIT", "on", "RES_Stove_Harvest", (-0.15, 0.1), 30),
     ("RES_TrashCan_Pedal", "KIT", "wall", "L", 10.85), ("RES_WallCalendar", "KIT", "mount", "L", 7.4),
     ("RES_MedicineCabinet", "BATH", "mount", "F", 0.4, 1.55), ("RES_TowelRack", "BATH", "mount", "R", 8.3),
-    ("RES_Lamp_Table", "BED", "on", "RES_Nightstand", (0.0, 0.0), 0), ("RES_Dresser", "BED", "wall", "L", 3.3),
-    ("RES_Picture_Family", "BED", "on", "RES_Dresser", (0.0, 0.05), 0), ("RES_Curtains_Gingham", "BED", "mount", "F", 2.27, 0.0),
+    ("RES_Lamp_Table", "BED", "on", "RES_Nightstand", (0.0, 0.0), 0), ("RES_Picture_Family", "BED", "mount", "L", 3.2, 1.6),
     ("RES_Nightstand", "BED2", "wall", "R", 9.75), ("RES_AlarmClock", "BED2", "on", "RES_Nightstand", (0.0, 0.0), -15),
-    ("RES_CardboardBox_Stack", "BED2", "c", (2.25, 7.45), 8), ("RES_Poster_Band", "BED2", "mount", "L", 8.3, 1.7),
+    ("RES_Poster_Band", "BED2", "mount", "L", 8.3, 1.7),
     ("RES_CoatRack_Wall", "HALL", "mount", "F", 0.9), ("RES_ShoeRack", "HALL", "wall", "F", 0.9, dict(off=0.0)),
 ])
 
@@ -362,15 +358,12 @@ _extend("TwoStorey", [
     ("RES_Dishes_Set", "DIN", "on", "RES_DiningTable_Round", (0.0, 0.0), 0), ("RES_Picture_Landscape", "DIN", "mount", "R", 9.2, 1.6),
     ("RES_Bookshelf_Tall", "DEN", "wall", "L", 5.6), ("RES_Lamp_Floor", "DEN", "c", (1.6, 3.85), 0),
     ("RES_Radio", "DEN", "on", "RES_Desk", (0.35, 0.0), 0), ("RES_WallCalendar", "DEN", "mount", "L", 4.1),
-    ("RES_DiningTable_Round", "KIT", "c", (2.45, 8.7), 0), ("RES_DiningChair_Vinyl", "KIT", "c", (2.45, 7.95), 0),
-    ("RES_WallCabinet_0.8", "KIT", "mount", "R", 8.6),
+    ("RES_WallCabinet_0.4", "KIT", "mount", "B", 4.05),
     ("RES_Kettle", "KIT", "on", "RES_Stove_Harvest", (-0.15, 0.1), 20), ("RES_DishRack", "KIT", "on", "RES_Counter_Sink", (0.3, 0.0), 0),
-    ("RES_SideTable_Drawer", "FOY", "wall", "L", 6.9), ("RES_Lamp_Table", "FOY", "on", "RES_SideTable_Drawer", (0.0, 0.0), 0),
     ("RES_Picture_Landscape", "FOY", "mount", "L", 8.3, 1.6),
     ("RES_Picture_Family", "UHAL", "mount", "L", 7.4, 1.6), ("RES_Bookshelf_Low", "UHAL", "wall", "B", -0.5),
     ("RES_Nightstand", "BED1", "wall", "L", 6.75), ("RES_Lamp_Table", "BED1", "on", "RES_Nightstand", (0.0, 0.0), 0),
     ("RES_Wardrobe", "BED1", "wall", "B", -3.7), ("RES_Curtains_Gingham", "BED1", "mount", "F", -2.85, 0.0),
-    ("RES_Painting_Barn", "BED1", "mount", "L", 5.5, 1.75),
     ("RES_Nightstand", "BED2", "wall", "L", 10.75), ("RES_Lamp_Table", "BED2", "on", "RES_Desk", (0.3, 0.0), 0),
     ("RES_Poster_Band", "BED2", "mount", "R", 8.4, 1.7), ("RES_Bookshelf_Low", "BED2", "wall", "F", -2.2),
     ("RES_GameConsole", "BED2", "on", "RES_Desk", (-0.25, 0.0), 0),
@@ -378,8 +371,6 @@ _extend("TwoStorey", [
     ("RES_Dresser", "BED3", "wall", "B", 3.4), ("RES_Picture_Landscape", "BED3", "mount", "L", 6.4, 1.6),
     ("RES_StorageBin", "BED3", "c", (2.0, 6.7), 0),
     ("RES_TowelRack", "BATH2", "mount", "L", 8.5), ("RES_LaundryBasket", "BATH2", "wall", "F", 1.9),
-    ("RES_Rug_Rect", "BREC", "c", (-2.2, 7.0), 90), ("RES_Lamp_Floor", "BREC", "c", (-4.1, 8.6), 0),
-    ("RES_StorageBin", "BUTIL", "c", (2.0, 4.2), 0), ("RES_CardboardBox_Closed", "BUTIL", "c", (2.0, 10.8), 10),
 ])
 
 
@@ -503,3 +494,21 @@ def check(house, inst, fmeta):
             if any(a < p[0] < c and b < p[1] < d for p in pts):
                 issues.append(f"{i['model']} in {i['room']} blocks {dr['name']}")
     return issues
+
+
+# Curtains are 1.9 m drops hung from the floor line by default, so on most windows the rod sat below the window head
+# and the cloth pooled on the floor. Hang each one 8 cm above the head of the window it dresses.
+def _hang_curtains():
+    import plans
+    for key, lay in L.items():
+        wins = plans.PLANS[key].get("windows", [])
+        for i, e in enumerate(lay):
+            if e[2] != "mount" or not e[0].startswith("RES_Curtains"):
+                continue
+            w = next((w for w in wins if w["room"] == e[1] and w["side"] == e[3] and abs(w["at"] - e[4]) < 0.3), None)
+            if w is not None:
+                lay[i] = e[:5] + (round(max(0.0, w["sill"] + w["h"] + 0.08 - 1.9), 3),)
+
+
+_hang_curtains()
+

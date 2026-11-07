@@ -123,26 +123,6 @@ _subresources={
 "use_external/enabled": true,
 "use_external/path": "res://THE_VEIL_ASSETS_V2/03_Residential/Materials/M_Res_Mirror.tres"
 },
-"M_Furn_LeatherWorn": {
-"use_external/enabled": true,
-"use_external/path": "res://THE_VEIL_ASSETS_V2/Materials_Godot/Furniture/M_Furn_LeatherWorn.tres"
-},
-"M_Com_MetalShelving": {
-"use_external/enabled": true,
-"use_external/path": "res://THE_VEIL_ASSETS_V2/Materials_Godot/Commercial/M_Com_MetalShelving.tres"
-},
-"M_Town_PaintYellow": {
-"use_external/enabled": true,
-"use_external/path": "res://THE_VEIL_ASSETS_V2/02_Town/Materials/M_Town_PaintYellow.tres"
-},
-"M_Com_SignageBacking": {
-"use_external/enabled": true,
-"use_external/path": "res://THE_VEIL_ASSETS_V2/Materials_Godot/Commercial/M_Com_SignageBacking.tres"
-},
-"M_Res_Pegboard": {
-"use_external/enabled": true,
-"use_external/path": "res://THE_VEIL_ASSETS_V2/03_Residential/Materials/M_Res_Pegboard.tres"
-},
 "M_Town_PaintNavy": {
 "use_external/enabled": true,
 "use_external/path": "res://THE_VEIL_ASSETS_V2/02_Town/Materials/M_Town_PaintNavy.tres"
@@ -150,6 +130,10 @@ _subresources={
 "M_Town_PaintRed": {
 "use_external/enabled": true,
 "use_external/path": "res://THE_VEIL_ASSETS_V2/02_Town/Materials/M_Town_PaintRed.tres"
+},
+"M_Com_SignageBacking": {
+"use_external/enabled": true,
+"use_external/path": "res://THE_VEIL_ASSETS_V2/Materials_Godot/Commercial/M_Com_SignageBacking.tres"
 }
 }
 }
