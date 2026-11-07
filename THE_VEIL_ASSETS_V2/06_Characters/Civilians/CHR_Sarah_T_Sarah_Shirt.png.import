@@ -1,0 +1,39 @@
+[remap]
+
+importer="texture"
+type="CompressedTexture2D"
+uid="uid://c5r83frs3siv6"
+path.s3tc="res://.godot/imported/CHR_Sarah_T_Sarah_Shirt.png-89c080720b19d342223a4cc87856a069.s3tc.ctex"
+path.etc2="res://.godot/imported/CHR_Sarah_T_Sarah_Shirt.png-89c080720b19d342223a4cc87856a069.etc2.ctex"
+metadata={
+"imported_formats": ["s3tc_bptc", "etc2_astc"],
+"vram_texture": true
+}
+generator_parameters={
+"md5": "04c75bf2a6bfe573bb439f42e6b14365"
+}
+
+[deps]
+
+source_file="res://THE_VEIL_ASSETS_V2/06_Characters/Civilians/CHR_Sarah_T_Sarah_Shirt.png"
+dest_files=["res://.godot/imported/CHR_Sarah_T_Sarah_Shirt.png-89c080720b19d342223a4cc87856a069.s3tc.ctex", "res://.godot/imported/CHR_Sarah_T_Sarah_Shirt.png-89c080720b19d342223a4cc87856a069.etc2.ctex"]
+
+[params]
+
+compress/mode=2
+compress/high_quality=false
+compress/lossy_quality=0.7
+compress/hdr_compression=1
+compress/normal_map=0
+compress/channel_pack=0
+mipmaps/generate=true
+mipmaps/limit=-1
+roughness/mode=0
+roughness/src_normal=""
+process/fix_alpha_border=true
+process/premult_alpha=false
+process/normal_map_invert_y=false
+process/hdr_as_srgb=false
+process/hdr_clamp_exposure=false
+process/size_limit=0
+detect_3d/compress_to=0

@@ -1,0 +1,17 @@
+[remap]
+
+importer="csv_translation"
+type="Translation"
+uid="uid://c4k8mn8wcxvry"
+
+[deps]
+
+files=["res://THE_VEIL_ASSETS_V2/Documentation/TEXTURE_MANIFEST.category.translation", "res://THE_VEIL_ASSETS_V2/Documentation/TEXTURE_MANIFEST.file.translation", "res://THE_VEIL_ASSETS_V2/Documentation/TEXTURE_MANIFEST.resolution.translation", "res://THE_VEIL_ASSETS_V2/Documentation/TEXTURE_MANIFEST.tiles.translation", "res://THE_VEIL_ASSETS_V2/Documentation/TEXTURE_MANIFEST.transparency.translation", "res://THE_VEIL_ASSETS_V2/Documentation/TEXTURE_MANIFEST.channels.translation", "res://THE_VEIL_ASSETS_V2/Documentation/TEXTURE_MANIFEST.intended.translation", "res://THE_VEIL_ASSETS_V2/Documentation/TEXTURE_MANIFEST.preset.translation", "res://THE_VEIL_ASSETS_V2/Documentation/TEXTURE_MANIFEST.recommended.translation", "res://THE_VEIL_ASSETS_V2/Documentation/TEXTURE_MANIFEST.texture.translation", "res://THE_VEIL_ASSETS_V2/Documentation/TEXTURE_MANIFEST.description.translation"]
+
+source_file="res://THE_VEIL_ASSETS_V2/Documentation/TEXTURE_MANIFEST.csv"
+dest_files=["res://THE_VEIL_ASSETS_V2/Documentation/TEXTURE_MANIFEST.category.translation", "res://THE_VEIL_ASSETS_V2/Documentation/TEXTURE_MANIFEST.file.translation", "res://THE_VEIL_ASSETS_V2/Documentation/TEXTURE_MANIFEST.resolution.translation", "res://THE_VEIL_ASSETS_V2/Documentation/TEXTURE_MANIFEST.tiles.translation", "res://THE_VEIL_ASSETS_V2/Documentation/TEXTURE_MANIFEST.transparency.translation", "res://THE_VEIL_ASSETS_V2/Documentation/TEXTURE_MANIFEST.channels.translation", "res://THE_VEIL_ASSETS_V2/Documentation/TEXTURE_MANIFEST.intended.translation", "res://THE_VEIL_ASSETS_V2/Documentation/TEXTURE_MANIFEST.preset.translation", "res://THE_VEIL_ASSETS_V2/Documentation/TEXTURE_MANIFEST.recommended.translation", "res://THE_VEIL_ASSETS_V2/Documentation/TEXTURE_MANIFEST.texture.translation", "res://THE_VEIL_ASSETS_V2/Documentation/TEXTURE_MANIFEST.description.translation"]
+
+[params]
+
+compress=true
+delimiter=0

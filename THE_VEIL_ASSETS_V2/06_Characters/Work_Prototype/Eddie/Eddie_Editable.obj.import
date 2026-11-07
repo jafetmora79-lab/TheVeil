@@ -1,0 +1,22 @@
+[remap]
+
+importer="wavefront_obj"
+importer_version=1
+type="Mesh"
+uid="uid://btpoffka61mkl"
+path="res://.godot/imported/Eddie_Editable.obj-00e627a357c498915d916cb8cafc5536.mesh"
+
+[deps]
+
+files=["res://.godot/imported/Eddie_Editable.obj-00e627a357c498915d916cb8cafc5536.mesh"]
+
+source_file="res://THE_VEIL_ASSETS_V2/06_Characters/Work_Prototype/Eddie/Eddie_Editable.obj"
+dest_files=["res://.godot/imported/Eddie_Editable.obj-00e627a357c498915d916cb8cafc5536.mesh", "res://.godot/imported/Eddie_Editable.obj-00e627a357c498915d916cb8cafc5536.mesh"]
+
+[params]
+
+generate_tangents=true
+scale_mesh=Vector3(1, 1, 1)
+offset_mesh=Vector3(0, 0, 0)
+optimize_mesh=true
+force_disable_mesh_compression=false

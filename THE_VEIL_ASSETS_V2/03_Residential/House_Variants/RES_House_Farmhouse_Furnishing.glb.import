@@ -3,6 +3,7 @@
 importer="scene"
 importer_version=1
 type="PackedScene"
+uid="uid://v13ctnloiga2"
 path="res://.godot/imported/RES_House_Farmhouse_Furnishing.glb-b9c2d5ac17c35395bb217b6314b04671.scn"
 
 [deps]
@@ -16,6 +17,7 @@ nodes/root_type=""
 nodes/root_name=""
 nodes/apply_root_scale=true
 nodes/root_scale=1.0
+nodes/import_as_skeleton_bones=false
 meshes/ensure_tangents=false
 meshes/generate_lods=false
 meshes/create_shadow_meshes=true
@@ -24,32 +26,60 @@ meshes/lightmap_texel_size=0.2
 meshes/force_disable_compression=false
 skins/use_named_skins=true
 animation/import=false
+animation/fps=30
+animation/trimming=false
+animation/remove_immutable_tracks=true
+animation/import_rest_as_RESET=false
 import_script/path=""
 _subresources={
 "materials": {
-"M_Res_RugBraided": {
+"M_Arch_WindowGlassDirty": {
 "use_external/enabled": true,
-"use_external/path": "res://THE_VEIL_ASSETS_V2/03_Residential/Materials/M_Res_RugBraided.tres"
+"use_external/path": "res://THE_VEIL_ASSETS_V2/Materials_Godot/Architecture/M_Arch_WindowGlassDirty.tres"
 },
-"M_Furn_WoodDark": {
+"M_Furn_Cardboard": {
 "use_external/enabled": true,
-"use_external/path": "res://THE_VEIL_ASSETS_V2/Materials_Godot/Furniture/M_Furn_WoodDark.tres"
+"use_external/path": "res://THE_VEIL_ASSETS_V2/Materials_Godot/Furniture/M_Furn_Cardboard.tres"
 },
-"M_Furn_LeatherWorn": {
+"M_Furn_Denim": {
 "use_external/enabled": true,
-"use_external/path": "res://THE_VEIL_ASSETS_V2/Materials_Godot/Furniture/M_Furn_LeatherWorn.tres"
+"use_external/path": "res://THE_VEIL_ASSETS_V2/Materials_Godot/Furniture/M_Furn_Denim.tres"
 },
 "M_Furn_FabricUpholstery": {
 "use_external/enabled": true,
 "use_external/path": "res://THE_VEIL_ASSETS_V2/Materials_Godot/Furniture/M_Furn_FabricUpholstery.tres"
 },
-"M_Res_FabricPlaid": {
+"M_Furn_LeatherWorn": {
 "use_external/enabled": true,
-"use_external/path": "res://THE_VEIL_ASSETS_V2/03_Residential/Materials/M_Res_FabricPlaid.tres"
+"use_external/path": "res://THE_VEIL_ASSETS_V2/Materials_Godot/Furniture/M_Furn_LeatherWorn.tres"
+},
+"M_Furn_MetalBrushed": {
+"use_external/enabled": true,
+"use_external/path": "res://THE_VEIL_ASSETS_V2/Materials_Godot/Furniture/M_Furn_MetalBrushed.tres"
+},
+"M_Furn_PlasticDirty": {
+"use_external/enabled": true,
+"use_external/path": "res://THE_VEIL_ASSETS_V2/Materials_Godot/Furniture/M_Furn_PlasticDirty.tres"
+},
+"M_Furn_Rubber": {
+"use_external/enabled": true,
+"use_external/path": "res://THE_VEIL_ASSETS_V2/Materials_Godot/Furniture/M_Furn_Rubber.tres"
+},
+"M_Furn_WoodDark": {
+"use_external/enabled": true,
+"use_external/path": "res://THE_VEIL_ASSETS_V2/Materials_Godot/Furniture/M_Furn_WoodDark.tres"
 },
 "M_Furn_WoodLight": {
 "use_external/enabled": true,
 "use_external/path": "res://THE_VEIL_ASSETS_V2/Materials_Godot/Furniture/M_Furn_WoodLight.tres"
+},
+"M_Furn_WoodPainted": {
+"use_external/enabled": true,
+"use_external/path": "res://THE_VEIL_ASSETS_V2/Materials_Godot/Furniture/M_Furn_WoodPainted.tres"
+},
+"M_Int_DrywallLight": {
+"use_external/enabled": true,
+"use_external/path": "res://THE_VEIL_ASSETS_V2/Materials_Godot/Interiors/M_Int_DrywallLight.tres"
 },
 "M_Res_DetailAtlas": {
 "use_external/enabled": true,
@@ -59,65 +89,41 @@ _subresources={
 "use_external/enabled": true,
 "use_external/path": "res://THE_VEIL_ASSETS_V2/03_Residential/Materials/M_Res_DetailAtlasGlow.tres"
 },
-"M_Res_Gingham": {
-"use_external/enabled": true,
-"use_external/path": "res://THE_VEIL_ASSETS_V2/03_Residential/Materials/M_Res_Gingham.tres"
-},
-"M_Furn_MetalBrushed": {
-"use_external/enabled": true,
-"use_external/path": "res://THE_VEIL_ASSETS_V2/Materials_Godot/Furniture/M_Furn_MetalBrushed.tres"
-},
-"M_Town_PaintRed": {
-"use_external/enabled": true,
-"use_external/path": "res://THE_VEIL_ASSETS_V2/02_Town/Materials/M_Town_PaintRed.tres"
-},
-"M_Furn_Cardboard": {
-"use_external/enabled": true,
-"use_external/path": "res://THE_VEIL_ASSETS_V2/Materials_Godot/Furniture/M_Furn_Cardboard.tres"
-},
-"M_Furn_Rubber": {
-"use_external/enabled": true,
-"use_external/path": "res://THE_VEIL_ASSETS_V2/Materials_Godot/Furniture/M_Furn_Rubber.tres"
-},
-"M_Town_PaintWhite": {
-"use_external/enabled": true,
-"use_external/path": "res://THE_VEIL_ASSETS_V2/02_Town/Materials/M_Town_PaintWhite.tres"
-},
-"M_Res_Porcelain": {
-"use_external/enabled": true,
-"use_external/path": "res://THE_VEIL_ASSETS_V2/03_Residential/Materials/M_Res_Porcelain.tres"
-},
-"M_Furn_PlasticDirty": {
-"use_external/enabled": true,
-"use_external/path": "res://THE_VEIL_ASSETS_V2/Materials_Godot/Furniture/M_Furn_PlasticDirty.tres"
-},
 "M_Res_EnamelHarvest": {
 "use_external/enabled": true,
 "use_external/path": "res://THE_VEIL_ASSETS_V2/03_Residential/Materials/M_Res_EnamelHarvest.tres"
 },
-"M_Furn_WoodPainted": {
+"M_Res_FabricPlaid": {
 "use_external/enabled": true,
-"use_external/path": "res://THE_VEIL_ASSETS_V2/Materials_Godot/Furniture/M_Furn_WoodPainted.tres"
+"use_external/path": "res://THE_VEIL_ASSETS_V2/03_Residential/Materials/M_Res_FabricPlaid.tres"
 },
 "M_Res_Formica": {
 "use_external/enabled": true,
 "use_external/path": "res://THE_VEIL_ASSETS_V2/03_Residential/Materials/M_Res_Formica.tres"
 },
-"M_Arch_WindowGlassDirty": {
+"M_Res_Gingham": {
 "use_external/enabled": true,
-"use_external/path": "res://THE_VEIL_ASSETS_V2/Materials_Godot/Architecture/M_Arch_WindowGlassDirty.tres"
+"use_external/path": "res://THE_VEIL_ASSETS_V2/03_Residential/Materials/M_Res_Gingham.tres"
 },
-"M_Furn_Denim": {
+"M_Res_Porcelain": {
 "use_external/enabled": true,
-"use_external/path": "res://THE_VEIL_ASSETS_V2/Materials_Godot/Furniture/M_Furn_Denim.tres"
-},
-"M_Int_DrywallLight": {
-"use_external/enabled": true,
-"use_external/path": "res://THE_VEIL_ASSETS_V2/Materials_Godot/Interiors/M_Int_DrywallLight.tres"
+"use_external/path": "res://THE_VEIL_ASSETS_V2/03_Residential/Materials/M_Res_Porcelain.tres"
 },
 "M_Res_Quilt": {
 "use_external/enabled": true,
 "use_external/path": "res://THE_VEIL_ASSETS_V2/03_Residential/Materials/M_Res_Quilt.tres"
+},
+"M_Res_RugBraided": {
+"use_external/enabled": true,
+"use_external/path": "res://THE_VEIL_ASSETS_V2/03_Residential/Materials/M_Res_RugBraided.tres"
+},
+"M_Town_PaintRed": {
+"use_external/enabled": true,
+"use_external/path": "res://THE_VEIL_ASSETS_V2/02_Town/Materials/M_Town_PaintRed.tres"
+},
+"M_Town_PaintWhite": {
+"use_external/enabled": true,
+"use_external/path": "res://THE_VEIL_ASSETS_V2/02_Town/Materials/M_Town_PaintWhite.tres"
 }
 }
 }

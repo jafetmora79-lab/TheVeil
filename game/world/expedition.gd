@@ -22,7 +22,7 @@ const CFG := "res://game/data/expedition.json"
 const HOUND_PATH := "res://THE_VEIL_ASSETS_V2/07_Creatures/Godot_Scenes/CRT_Hound.tscn"
 const SKITTER_PATH := "res://THE_VEIL_ASSETS_V2/07_Creatures/Godot_Scenes/CRT_Skitter.tscn"
 const HOUND_AI := preload("res://game/enemies/hound_ai.gd")
-const EXIT_SPOT := Vector3(0.0, 1.3, 3.75)             # market-local: the vestibule wall's sales side, between the openings
+const EXIT_SPOT := Vector3(0.0, 1.4, 0.2)              # market-local: the actual front doors entrance (INT_Arch_Entrance)
 const OUTSIDE_SPOT := Vector3(0.0, 1.3, -0.9)          # market-local: just outside the front doors
 const SUPPLY_ITEMS := ["canned_food", "water_bottle", "energy_snack", "chocolate_bar", "cola_bottle", "painkillers", "batteries"]
 
@@ -48,6 +48,7 @@ func setup(w: Node) -> void:
 	var m: Node3D = world.market
 	its["exit"] = _spot("EXP_PlanTrip", m.global_transform * EXIT_SPOT, Vector3(1.6, 1.6, 0.4), _use_exit, m.global_transform.basis)
 	its["outside"] = _spot("EXP_OpenDoors", m.global_transform * OUTSIDE_SPOT, Vector3(3.0, 2.2, 0.6), _use_outside, m.global_transform.basis)
+	_setup_supply_chest(m)
 	_day = _today()
 	_spawn_caches()
 	for c in cfg.get("vehicle_parts", []):
@@ -381,6 +382,41 @@ func _settle(n: Node3D) -> void:
 		var it := n.get_node_or_null("Interact") as Interactable
 		if it:
 			it._base = n.transform
+
+
+func _setup_supply_chest(market: Node3D) -> void:
+	## Create a visible supply chest at the supermarket service desk
+	var ps := load("res://THE_VEIL_ASSETS_V2/03_Residential/Interactive_Props/RES_IP_StorageChest.glb") as PackedScene
+	if ps == null:
+		return
+	var chest := ps.instantiate() as Node3D
+	chest.name = "EXP_SupplyChest"
+	market.add_child(chest)
+	# Position at the service desk (local coordinates): near the customer service counter
+	chest.global_position = market.global_transform * Vector3(7.8, 0.04, 6.05)
+	its["supply_chest"] = Interactable.attach(chest, {
+		"kind": "custom",
+		"label": "Shelter Supplies",
+		"prompt_text": "[E] Shelter Supplies"
+	})
+	var cb = its["supply_chest"] as Interactable
+	if cb:
+		cb.used.connect(_use_supply_chest)
+
+
+func _use_supply_chest(_b: Node) -> void:
+	## Open the shelter supply management interface
+	if world and world.hud:
+		# Show a hint that supplies should be managed here
+		if not Game.has_flag("map_supply_tutorial"):
+			Game.set_flag("map_supply_tutorial")
+			_hint("Store supplies here. We'll need food and water to survive another night.")
+		# In the future, this would open a supply management UI
+		# For now, we just provide feedback that the interaction works
+		_hint("Stored supplies support the group. Current food: %d, water: %d." % [
+			Game.shelter_stock().get("food", 0),
+			Game.shelter_stock().get("water", 0)
+		])
 
 
 # ------------------------------------------------------------------ the car (the protagonist's own sedan)
@@ -749,7 +785,7 @@ func _refresh() -> void:
 		if active() and in_store():
 			t = "[E] Secure the Doors"
 		elif can_scavenge():
-			t = "[E] Plan a Trip"
+			t = "[E] Leave Shelter"
 		e.prompt_text = t
 		e.collision_layer = 8 if t != "" else 0
 	var o: Interactable = its.get("outside")
