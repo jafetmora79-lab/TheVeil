@@ -60,6 +60,7 @@ func _ready() -> void:
 	collision_mask = 1 | 4 | VeilSurvivorBody.LAYER            # world, vehicles and survivors
 	floor_max_angle = deg_to_rad(46.0)
 	floor_snap_length = 0.35
+	floor_constant_speed = true                                 # stairs at walking pace, up and down alike
 	capsule = CapsuleShape3D.new()
 	capsule.radius = RADIUS
 	capsule.height = HEIGHT
@@ -143,8 +144,8 @@ func _physics_process(delta: float) -> void:
 		velocity.y = -0.5
 	else:
 		velocity.y -= GRAVITY * delta
-	if is_on_floor() and hv.length() > 0.05:
-		_step_up(hv, delta)
+	if is_on_floor() and hv.length() > 0.05 and get_floor_normal().y > 0.93:
+		_step_up(hv, delta)                      # (flat ground only: stairs are ramps, a lift there only jolts)
 	move_and_slide()
 	_fall_guard(delta)
 	# eye height + head bob

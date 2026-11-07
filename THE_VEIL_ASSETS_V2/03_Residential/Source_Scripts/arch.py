@@ -267,7 +267,7 @@ def stair(mb, col, origin, yaw, width, n, rise=RISE, tread=TREAD, mat_tread=WOOD
     lc.quad(COL_KEY, [0, 0, -0.05], [width, 0, -0.05], [width, H, L], [0, H, L], n=(0, 1, 0))
     for side in open_sides:   # keep the player on the stair when the side is open; set 6 cm in from the edge so the
         xr = width - 0.06 if side == "r" else 0.06    # capsule never reaches the landing rail's collider above
-        lc.quad(COL_KEY, [xr, 0, 0], [xr, H, L], [xr, H + 1.0, L], [xr, 1.0, 0], n=(1 if side == "r" else -1, 0, 0))
+        lc.quad(COL_KEY, [xr, 0, 0], [xr, H, L], [xr, H + 1.0, L], [xr, 1.0, 0], n=(-1 if side == "r" else 1, 0, 0))   # faces INTO the stair
     M = T(*origin) @ Ry(yaw)
     mb.merge(loc, M)
     if col is not None:

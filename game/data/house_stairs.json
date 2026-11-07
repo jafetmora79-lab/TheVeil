@@ -1,0 +1,191 @@
+{
+ "_comment": "Generated from THE_VEIL_ASSETS_V2/03_Residential/Source_Scripts/plans.py (house.py build_stair): each flight of each house design, in the house's own frame. Used by game/world/stair_assist.gd.",
+ "TwoStorey": [
+  {
+   "origin": [
+    0.0,
+    0.6,
+    4.6
+   ],
+   "yaw": 0.0,
+   "width": 1.12,
+   "run": 4.59,
+   "height": 3.0,
+   "open": [
+    "l"
+   ]
+  }
+ ],
+ "TwoStorey_Mirror": [
+  {
+   "origin": [
+    -1.12,
+    0.6,
+    4.6
+   ],
+   "yaw": 0.0,
+   "width": 1.12,
+   "run": 4.59,
+   "height": 3.0,
+   "open": [
+    "r"
+   ]
+  }
+ ],
+ "Farmhouse": [
+  {
+   "origin": [
+    0.0,
+    0.6,
+    4.3
+   ],
+   "yaw": 0.0,
+   "width": 1.12,
+   "run": 4.59,
+   "height": 3.0,
+   "open": [
+    "l"
+   ]
+  },
+  {
+   "origin": [
+    2.6,
+    3.6,
+    8.0
+   ],
+   "yaw": 3.141593,
+   "width": 1.2,
+   "run": 2.88,
+   "height": 2.55,
+   "open": [
+    "r"
+   ]
+  }
+ ],
+ "Farmhouse_Mirror": [
+  {
+   "origin": [
+    -1.12,
+    0.6,
+    4.3
+   ],
+   "yaw": 0.0,
+   "width": 1.12,
+   "run": 4.59,
+   "height": 3.0,
+   "open": [
+    "r"
+   ]
+  },
+  {
+   "origin": [
+    -1.4,
+    3.6,
+    8.0
+   ],
+   "yaw": 3.141593,
+   "width": 1.2,
+   "run": 2.88,
+   "height": 2.55,
+   "open": [
+    "l"
+   ]
+  }
+ ],
+ "Abandoned": [
+  {
+   "origin": [
+    -3.45,
+    0.6,
+    4.45
+   ],
+   "yaw": 0.0,
+   "width": 1.15,
+   "run": 4.08,
+   "height": 3.0,
+   "open": [
+    "r"
+   ]
+  }
+ ],
+ "Abandoned_Mirror": [
+  {
+   "origin": [
+    2.3,
+    0.6,
+    4.45
+   ],
+   "yaw": 0.0,
+   "width": 1.15,
+   "run": 4.08,
+   "height": 3.0,
+   "open": [
+    "l"
+   ]
+  }
+ ],
+ "SplitLevel": [
+  {
+   "origin": [
+    2.0,
+    0.02,
+    4.0
+   ],
+   "yaw": 0.0,
+   "width": 0.95,
+   "run": 4.05,
+   "height": 2.7,
+   "open": [
+    "l"
+   ]
+  }
+ ],
+ "SplitLevel_Mirror": [
+  {
+   "origin": [
+    -2.95,
+    0.02,
+    4.0
+   ],
+   "yaw": 0.0,
+   "width": 0.95,
+   "run": 4.05,
+   "height": 2.7,
+   "open": [
+    "r"
+   ]
+  }
+ ],
+ "MillWorker": [
+  {
+   "origin": [
+    -2.95,
+    0.6,
+    4.3
+   ],
+   "yaw": 0.0,
+   "width": 0.95,
+   "run": 4.08,
+   "height": 3.0,
+   "open": [
+    "r"
+   ]
+  }
+ ],
+ "MillWorker_Mirror": [
+  {
+   "origin": [
+    2.0,
+    0.6,
+    4.3
+   ],
+   "yaw": 0.0,
+   "width": 0.95,
+   "run": 4.08,
+   "height": 3.0,
+   "open": [
+    "l"
+   ]
+  }
+ ]
+}
