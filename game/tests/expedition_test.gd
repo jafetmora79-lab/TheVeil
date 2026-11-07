@@ -275,7 +275,7 @@ func _run() -> void:
 	var story0 := story_flags()
 	var step0: String = game.current_step().get("id", "")
 	ok("exp_controller", ex != null and ex.shelter() == "supermarket" and not ex.active() and ex.can_scavenge())
-	ok("exp_exit_prompt", ex.its["exit"].prompt_text == "[E] Plan a Trip")
+	ok("exp_exit_prompt", ex.its["exit"].prompt_text == "[E] Leave Shelter")
 
 	# ---- the exit menu: Story / Scavenge (no car yet) / Stay
 	ok("exp_exit_reach", await aim(ex.its["exit"], [Vector3(0, 0, 1), Vector3(0.4, 0, 1)], world.market, 1.3))
@@ -285,7 +285,7 @@ func _run() -> void:
 	for b in p4.choice._box.get_children():
 		if b is Button:
 			labels.append(String((b as Button).text).get_slice(".  ", 1) if String((b as Button).text).contains(".  ") else (b as Button).text)
-	ok("exp_menu_options", labels.size() == 3 and String(labels[0]).begins_with("Continue Story") and labels[1] == "Scavenge for Supplies"
+	ok("exp_menu_options", labels.size() == 3 and String(labels[0]).begins_with("Continue Story") and labels[1] == "Go Scavenging"
 		and labels[2] == "Stay Inside", str(labels))
 	p4.choice.pick(1)
 	await frames(5)

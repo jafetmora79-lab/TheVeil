@@ -22,7 +22,7 @@ const CFG := "res://game/data/expedition.json"
 const HOUND_PATH := "res://THE_VEIL_ASSETS_V2/07_Creatures/Godot_Scenes/CRT_Hound.tscn"
 const SKITTER_PATH := "res://THE_VEIL_ASSETS_V2/07_Creatures/Godot_Scenes/CRT_Skitter.tscn"
 const HOUND_AI := preload("res://game/enemies/hound_ai.gd")
-const EXIT_SPOT := Vector3(0.0, 1.3, 3.75)             # market-local: the vestibule wall's sales side, between the openings
+const EXIT_SPOT := Vector3(0.0, 1.4, 0.2)              # market-local: at the front doors themselves (from Cline)
 const OUTSIDE_SPOT := Vector3(0.0, 1.3, -0.9)          # market-local: just outside the front doors
 const SUPPLY_ITEMS := ["canned_food", "water_bottle", "energy_snack", "chocolate_bar", "cola_bottle", "painkillers", "batteries"]
 
@@ -46,8 +46,12 @@ func setup(w: Node) -> void:
 	_streams["bark"] = Sfx._make(0.7, _bark_wave)
 	_streams["skitter"] = Sfx._make(1.2, _scuttle_wave)
 	var m: Node3D = world.market
-	its["exit"] = _spot("EXP_PlanTrip", m.global_transform * EXIT_SPOT, Vector3(1.6, 1.6, 0.4), _use_exit, m.global_transform.basis)
+	# the exit point on the store's own entrance marker (just inside the front doors), not a guessed spot
+	var din := m.get_node_or_null("Doorways/Entrance_Inside") as Node3D
+	var exit_at: Vector3 = (din.global_position + Vector3(0, 1.2, 0)) if din else m.global_transform * EXIT_SPOT
+	its["exit"] = _spot("EXP_PlanTrip", exit_at, Vector3(2.4, 2.0, 0.8), _use_exit, m.global_transform.basis)
 	its["outside"] = _spot("EXP_OpenDoors", m.global_transform * OUTSIDE_SPOT, Vector3(3.0, 2.2, 0.6), _use_outside, m.global_transform.basis)
+	_place_supply_chest(m)
 	_day = _today()
 	_spawn_caches()
 	for c in cfg.get("vehicle_parts", []):
@@ -146,29 +150,20 @@ func _use_exit(_b: Node) -> void:
 		return
 	_busy_menu = true
 	var p4 := _p4()
-	var opts := ["Continue Story - " + String(Game.current_step().get("text", "")), "Scavenge for Supplies"]
+	var opts := ["Continue Story - " + String(Game.current_step().get("text", "")), "Go Scavenging"]
 	var ids := ["story", "scavenge"]
 	if Game.has_flag("vehicle_repaired"):
 		opts.append("Use the Car")
 		ids.append("car")
-	var rest: Node3D = p4.get("rest")
-	if rest and is_instance_valid(rest) and (not rest.can_rest.is_valid() or rest.can_rest.call()):
-		opts.append("Rest / Sleep")
-		ids.append("rest")
 	opts.append("Stay Inside")
 	ids.append("stay")
-	var i: int = await p4.choice.ask("WHERE ARE YOU HEADING?", opts, _player())
+	var i: int = await p4.choice.ask("LEAVE THE SHELTER", opts, _player())
 	var pick: String = ids[clampi(i, 0, ids.size() - 1)] if i >= 0 else "stay"
 	if pick == "car":
 		var j: int = await p4.choice.ask("What is the trip for?", ["Supplies", "The Story", "Cancel"], _player())
 		pick = ["scavenge_car", "story", "stay"][clampi(j, 0, 2)] if j >= 0 else "stay"
 	_busy_menu = false
 	match pick:
-		"rest":
-			# the bedroll in the manager's office: lit and pointed to (the sleep itself is the usual one there)
-			world._beacon("rest_hint", rest.global_position + Vector3(0, 0.6, 0), Color(0.6, 0.75, 1.0))
-			_hint("Sleep at the bedroll in the manager's office (lit). " + (sleep_gate() if sleep_gate() != "" else "There is enough for everyone tonight."))
-			get_tree().create_timer(30.0).timeout.connect(func(): world._clear_beacon("rest_hint"))
 		"story":
 			# the story's own exit and objective take it from here (nothing is restarted or skipped)
 			_hint("Objective: " + String(Game.current_step().get("text", "")))
@@ -204,7 +199,7 @@ func start(kind: String, vehicle: bool) -> void:
 	s["trips"] = int(s.get("trips", 0)) + 1
 	s["went_out"] = false
 	s["started_at"] = Game.play_time
-	_encounter_t = float(cfg.get("encounter_cooldown_s", [999, 150])[1])
+	_encounter_t = 60.0                                   # the first glimpse after about a minute out
 	_sound_t = 20.0
 	_warn_t = 0.0
 	var c5 := _c5()
@@ -392,6 +387,60 @@ func _settle(n: Node3D) -> void:
 			it._base = n.transform
 
 
+## The shelter supplies chest: the storage chest by the service desk IS the supplies point - "[E] Shelter
+## Supplies" on the chest itself opens the existing supplies screen (deposit, stock, tonight's need, shortages; the
+## same shelter stock and roster). A small diamond over it while the player carries food or water. The old
+## invisible point there is switched off, so the chest is the only one. First use: a word on what it is for.
+var supply_chest: Interactable
+
+
+func _place_supply_chest(market: Node3D) -> void:
+	var ps := load("res://THE_VEIL_ASSETS_V2/03_Residential/Interactive_Props/RES_IP_StorageChest.glb") as PackedScene
+	if ps == null:
+		return
+	var chest := ps.instantiate() as Node3D
+	chest.name = "EXP_SupplyChest"
+	market.add_child(chest)
+	chest.global_position = market.global_transform * Vector3(7.8, 0.04, 6.05)
+	for co in chest.find_children("*", "CollisionObject3D", true, false):
+		(co as CollisionObject3D).collision_layer = 0           # (never blocks a path: the interaction box covers it)
+		(co as CollisionObject3D).collision_mask = 0
+	supply_chest = Interactable.attach(chest, {"kind": "custom", "label": "Shelter Supplies", "prompt_text": "[E] Shelter Supplies"})
+	var cs := supply_chest.get_child(0) as CollisionShape3D
+	(cs.shape as BoxShape3D).size = (cs.shape as BoxShape3D).size.max(Vector3(1.0, 1.0, 0.9))
+	supply_chest.used.connect(_use_supply_chest)
+	_retire_old_supplies_spot.call_deferred()
+
+
+func _retire_old_supplies_spot() -> void:
+	var p4 := _p4()
+	if p4 == null:
+		return
+	for n in p4.find_children("*", "Interactable", true, false):
+		if n != supply_chest and String((n as Interactable).prompt_text) == "[E] Shelter Supplies":
+			(n as Interactable).collision_layer = 0
+			(n as Interactable).prompt_text = ""
+
+
+func _use_supply_chest(_b: Node) -> void:
+	var p4 := _p4()
+	if p4 == null or shelter() != "supermarket":
+		return
+	if not Game.has_flag("supply_chest_tutorial"):
+		Game.set_flag("supply_chest_tutorial")
+		_hint("Store supplies here. We'll need food and water to survive another night.")
+	p4._open_supplies()
+
+
+func _supply_chest_marker() -> void:
+	if supply_chest == null:
+		return
+	var carrying := Game.inventory.any(func(i): return Game.shelter_resource(String(i)) in ["food", "water"])
+	var on: bool = shelter() == "supermarket" and carrying and in_store()
+	world.hud.world_diamond("supply_chest", supply_chest if on else null)
+	supply_chest.collision_layer = 8 if shelter() == "supermarket" else 0
+
+
 # ------------------------------------------------------------------ the car (the protagonist's own sedan)
 ## Called by world.enter_car() while the car is dead. Returns true when this handled the press.
 func dead_car() -> bool:
@@ -471,10 +520,11 @@ func _danger(delta: float) -> void:
 		_distant_sound(lv)
 	# encounters: a cooldown, a chance, a cap
 	_encounter_t -= delta
-	if _encounter_t <= 0.0 and lv >= 1:
-		_encounter_t = float(cfg.get("encounter_cooldown_s", [999, 150, 90, 50])[lv])
-		if randf() < float(cfg.get("encounter_chance", [0, 0.35, 0.6, 0.85])[lv]) and not world.in_car:
-			encounter(lv)
+	if _encounter_t <= 0.0:
+		_encounter_t = float(cfg.get("encounter_cooldown_s", [90, 75, 55, 40])[lv])
+		if randf() < float(cfg.get("encounter_chance", [0.3, 0.55, 0.75, 0.9])[lv]) and not world.in_car:
+			if not encounter(lv):
+				_encounter_t = 10.0                      # no hidden spot this time: try again soon, not a whole cooldown later
 	# warnings
 	_warn_t -= delta
 
@@ -533,8 +583,10 @@ func _distant_sound(lv: int) -> void:
 ## One dynamic encounter: a Skitter glimpsed in the fog, or a Hound coming in from open ground (HIGH and up).
 func encounter(lv: int) -> bool:
 	_prune()
-	if creatures.size() >= int(cfg.get("max_dynamic_creatures", 2)) or emergency():
+	if creatures.size() >= int(cfg.get("max_dynamic_creatures", 2)) + (1 if lv >= 3 else 0) or emergency():
 		return false
+	if lv == 0:
+		return _spawn_skitter()                      # uneasy: only a shape crossing the fog, never an attack
 	var hound := lv >= int(cfg.get("hound_from_level", 2)) and randf() < (0.5 if lv == 2 else 0.75)
 	return _spawn_hound(lv) if hound else _spawn_skitter()
 
@@ -602,7 +654,7 @@ func _spawn_hound(lv: int) -> bool:
 
 
 func _spawn_skitter() -> bool:
-	var at := find_spawn(26.0, 36.0)
+	var at := find_spawn(22.0, 34.0)
 	if not at.is_finite():
 		return false
 	var ps := load(SKITTER_PATH) as PackedScene
@@ -734,6 +786,7 @@ func _process(delta: float) -> void:
 		return
 	_tick = 0.25
 	_prune()
+	_supply_chest_marker()
 	if active():
 		if _warn_t <= 0.0 and level() >= 1 and _clock_running():
 			warn(level())
@@ -758,7 +811,7 @@ func _refresh() -> void:
 		if active() and in_store():
 			t = "[E] Secure the Doors"
 		elif can_scavenge():
-			t = "[E] Plan a Trip"
+			t = "[E] Leave Shelter"
 		e.prompt_text = t
 		e.collision_layer = 8 if t != "" else 0
 	var o: Interactable = its.get("outside")
