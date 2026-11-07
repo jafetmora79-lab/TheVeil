@@ -16,6 +16,7 @@ signal lost           # CHASE / SEARCH ended without reaching the player
 signal bit(damage: float)
 
 const GRAVITY := 18.0
+const VOICE := preload("res://game/enemies/creature_voice.gd")
 
 var body: CharacterBody3D
 var player: CharacterBody3D
@@ -57,6 +58,16 @@ var _burst_t := 0.0
 ## A struggle may take an attack over (game/encounters/struggle.gd): return true from it to replace the bite.
 var on_attack: Callable = Callable()
 var _world: Node = null
+var sound_kind := "hound"           ## "hound", "skitter", "crab": its sounds and its chase music
+var voice: Node
+const CLOSE := 4.5                  ## metres: a sideways crawler faces the player from here in
+var body_half_width := 0.4
+var clip_cap := 2.2                 ## fastest a stride clip may run (a heavy creature's short stride needs more)
+var steer_around := false           ## look ahead and turn before reaching a wall (the wide Shellcrawler)
+var _detour_t := 0.0
+var _detour_dir := Vector3.ZERO
+var _steer_t := 0.0
+var _steer_dir := Vector3.ZERO
 var hold := false                   ## a struggle holds the creature in place (its pose is driven from outside)
 var _recover_t := 0.0
 var _recover_len := 0.0
@@ -73,7 +84,7 @@ func setup(p_body: CharacterBody3D, p_player: CharacterBody3D, points: Array) ->
 	body.collision_mask = 1
 	# the scene's long body box + forward head box swing into fences when the Hound turns and wedge it there;
 	# an upright capsule (rotation-invariant) keeps the same footprint for walls without ever turning into them
-	for n in ["BodyShape", "HeadShape"]:
+	for n in ["BodyShape", "HeadShape", "ShellShape", "LegSpan", "ArmsShape"]:
 		var cs := body.get_node_or_null(n) as CollisionShape3D
 		if cs:
 			cs.disabled = true
@@ -89,6 +100,11 @@ func setup(p_body: CharacterBody3D, p_player: CharacterBody3D, points: Array) ->
 	_last_pos = body.global_position
 	_target = patrol[0] if patrol.size() > 0 else home
 	_play("Walk")
+	voice = VOICE.new()
+	voice.name = "Voice"
+	add_child(voice)
+	voice.setup(self, sound_kind)
+	add_to_group("veil_hunter")
 
 
 func reset_to_patrol(far_from: Vector3) -> void:
@@ -118,6 +134,7 @@ func _physics_process(delta: float) -> void:
 	if hold:
 		body.velocity = Vector3.ZERO
 		return
+	voice.tick(delta, state, Vector2(body.velocity.x, body.velocity.z).length() > 0.2)
 	_bite_t = maxf(_bite_t - delta, 0.0)
 	var to_p := _tp() - body.global_position
 	var dist := Vector2(to_p.x, to_p.z).length()
@@ -195,6 +212,7 @@ func _physics_process(delta: float) -> void:
 						return
 					if on_attack.is_valid() and bool(on_attack.call(self)):
 						return                        # a struggle took this attack over
+					voice.bite()
 					bit.emit(bite_damage)
 					if player.has_method("damage"):
 						# never a killing bite: the chapter's checkpoint takes over at low health
@@ -207,7 +225,10 @@ func _physics_process(delta: float) -> void:
 			else:
 				var sp := chase_speed
 				if burst:
+					var lap := _burst_t
 					_burst_t = fmod(_burst_t + delta, 2.2)
+					if _burst_t < lap:
+						voice.burst()                    # the next lunge
 					sp *= 1.35 if _burst_t < 0.9 else 0.55
 				_move_to(_last_seen if not sees else _tp(), sp, delta, "Run")
 		"RECOVER":
@@ -222,12 +243,20 @@ func _physics_process(delta: float) -> void:
 					state = "RETURN"
 					awareness = 0.0
 			else:
-				if _recover_t > _recover_len * 0.45:
-					_move_to(body.global_position + away * 2.0, walk_speed * 0.8, delta, "Walk")
+				# shakes it off where it stands, backs away still facing the player, gathers itself, comes again
+				var t := 1.0 - _recover_t / maxf(_recover_len, 0.01)
+				if t < 0.3:
+					_idle(delta, "Alert")
+					_face(-away)
+					if sound_kind == "hound":
+						body.rotation.y += sin(Time.get_ticks_msec() * 0.03) * 0.09      # the head shake
+				elif t < 0.72:
+					_back_off(away, walk_speed * 0.8)
 				else:
 					_idle(delta, "Alert")
 					_face(-away)
 				if _recover_t <= 0.0:
+					voice.resume()
 					state = "SUSPICIOUS"
 					_last_seen = _tp()
 					awareness = 0.99
@@ -249,6 +278,7 @@ func _physics_process(delta: float) -> void:
 ## After a struggle: give the player a moment (mode "back": recover then chase; "flee": run off and leave).
 func recoil(seconds: float, mode: String) -> void:
 	hold = false
+	_anim_cur = ""
 	state = "RECOVER"
 	_recover_t = seconds
 	_recover_len = seconds
@@ -321,21 +351,67 @@ func _move_to(goal: Vector3, speed: float, delta: float, clip: String) -> void:
 	var d := (goal - body.global_position) * Vector3(1, 0, 1)
 	var v := Vector3.ZERO
 	if d.length() > 0.05:
-		v = d.normalized() * speed
-		_face(d)
+		var dir := d.normalized()
+		if _detour_t > 0.0:
+			_detour_t -= delta
+			dir = _detour_dir
+		elif steer_around:
+			dir = _steer(dir, delta)
+		v = dir * speed
+		_face(dir)
 	body.velocity = Vector3(v.x, 0.0, v.z)
 	body.move_and_slide()
 	_snap_floor()
-	_play(clip, speed)
-	# wedged on a corner: sidestep along the wall instead of grinding into it
+	_play("Forward" if clip_map.has("Forward") and _flat(body.global_position, _tp()) < CLOSE else clip, speed)
+	# wedged on a corner: commit to a way round for a moment instead of grinding into it
 	var moved := _flat(body.global_position, _last_pos)
 	_last_pos = body.global_position
 	_stuck_t = _stuck_t + delta if moved < speed * delta * 0.25 and speed > 0.1 else 0.0
-	if _stuck_t > 0.6:
-		var side := d.normalized().cross(Vector3.UP) * (1.0 if randf() < 0.5 else -1.0)
-		body.velocity = side * speed
-		body.move_and_slide()
+	if _stuck_t > 0.5 and d.length() > 0.05:
+		_detour_dir = _free_dir(d.normalized(), 2.2, [60.0, -60.0, 100.0, -100.0, 145.0, -145.0])
+		_detour_t = 1.2
 		_stuck_t = 0.0
+
+
+## After a struggle: steps backwards, still facing the player, the walk clip run in reverse.
+func _back_off(away: Vector3, speed: float) -> void:
+	body.velocity = away * speed
+	body.move_and_slide()
+	_snap_floor()
+	_face(-away)
+	_play("Forward" if clip_map.has("Forward") else "Walk", speed)
+	if anim:
+		anim.speed_scale = -absf(anim.speed_scale)
+
+
+## A wall ahead (centre and both flanks of the body)?
+func _blocked(dir: Vector3, length: float) -> bool:
+	var space := body.get_world_3d().direct_space_state
+	var side := dir.cross(Vector3.UP) * body_half_width
+	var ex: Array[RID] = [body.get_rid(), player.get_rid()]
+	for off in [Vector3.ZERO, side, -side]:
+		var from: Vector3 = body.global_position + Vector3(0, 0.6, 0) + off
+		if not space.intersect_ray(PhysicsRayQueryParameters3D.create(from, from + dir * length, 1, ex)).is_empty():
+			return true
+	return false
+
+
+## The first clear heading from dir among the given turns (degrees); straight back if there is none.
+func _free_dir(dir: Vector3, length: float, turns: Array) -> Vector3:
+	for a in turns:
+		var t := dir.rotated(Vector3.UP, deg_to_rad(float(a)))
+		if not _blocked(t, length):
+			return t
+	return -dir
+
+
+## Looks a body length ahead a few times a second and bends the course round what is there.
+func _steer(dir: Vector3, delta: float) -> Vector3:
+	_steer_t -= delta
+	if _steer_t <= 0.0:
+		_steer_t = 0.15
+		_steer_dir = dir if not _blocked(dir, 1.9) else _free_dir(dir, 1.9, [35.0, -35.0, 70.0, -70.0, 105.0, -105.0])
+	return _steer_dir if _steer_dir != Vector3.ZERO else dir
 
 
 func _idle(delta: float, clip: String) -> void:
@@ -358,7 +434,9 @@ func _snap_floor() -> void:
 func _face(d: Vector3) -> void:
 	d.y = 0.0
 	if d.length() > 0.01:
-		body.rotation.y = lerp_angle(body.rotation.y, atan2(d.x, d.z) + face_offset, turn_rate)
+		# (a sideways crawler turns its claws to the player for the last few metres, and to attack)
+		var off := 0.0 if _flat(body.global_position, _tp()) < CLOSE else face_offset
+		body.rotation.y = lerp_angle(body.rotation.y, atan2(d.x, d.z) + off, turn_rate)
 
 
 func _play(clip: String, speed := 0.0) -> void:
@@ -369,7 +447,7 @@ func _play(clip: String, speed := 0.0) -> void:
 		anim.play(real, 0.2)
 		_anim_cur = real
 	if native.has(real):
-		anim.speed_scale = clampf(speed / float(native[real]), 0.5, 2.2) if speed > 0.05 else 1.0
+		anim.speed_scale = clampf(speed / float(native[real]), 0.5, clip_cap) if speed > 0.05 else 1.0
 	elif clip == "Walk":
 		anim.speed_scale = speed / maxf(float(body.get_meta("walk_speed_mps", 0.9)) * body.scale.x, 0.1)
 	elif clip == "Run":

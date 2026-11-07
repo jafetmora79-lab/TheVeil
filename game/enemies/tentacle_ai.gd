@@ -105,6 +105,7 @@ func _process(delta: float) -> void:
 				if _far_t > retract_after:
 					state = "hidden"
 					_play("Retract")
+					Sfx.bank_at("te_retreat", tentacle.global_position + Vector3(0, 1.0, 0), -6.0, 5.0)
 			else:
 				_far_t = 0.0
 		"acquire":
@@ -112,10 +113,12 @@ func _process(delta: float) -> void:
 			if not active or dist > detect_range * 1.4:
 				state = "search"
 				_play("Search")
+				Sfx.bank_at("te_search", tentacle.global_position + Vector3(0, 1.0, 0), -8.0, 5.0)
 			elif absf(wrapf(_yaw_to(target.global_position) - tentacle.rotation.y, -PI, PI)) < 0.25:
 				state = "windup"
 				_t = 0.0
 				_play("Coil", 0.2)
+				Sfx.bank_at("te_wet", tentacle.global_position + Vector3(0, 1.0, 0), -6.0, 5.0)
 		"windup":
 			_turn_toward(target.global_position, 1.4, delta)          # still tracking, slower: readable tell
 			if _t >= windup_time:
@@ -124,10 +127,12 @@ func _process(delta: float) -> void:
 				_hit_done = false
 				_locked_yaw = tentacle.rotation.y
 				_play("Strike", 0.1)
+				Sfx.bank_at("te_strike", tentacle.global_position + Vector3(0, 1.0, 0), 0.0, 5.0)
 		"strike":
 			tentacle.rotation.y = _locked_yaw
 			if not _hit_done and _t >= contact_time:
 				_hit_done = true
+				Sfx.bank_at("te_ground", tentacle.global_position + Vector3(0, 0.5, 0), -3.0, 5.0)
 				if _target_in_strike():
 					struck.emit(tentacle, damage)
 			if _t >= strike_len:

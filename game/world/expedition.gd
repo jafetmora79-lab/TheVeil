@@ -45,10 +45,11 @@ func setup(w: Node) -> void:
 	world = w
 	var f := FileAccess.open(CFG, FileAccess.READ)
 	cfg = JSON.parse_string(f.get_as_text()) if f else {}
-	_streams["bark"] = Sfx._make(0.7, _bark_wave)
-	_streams["skitter"] = Sfx._make(1.2, _scuttle_wave)
-	_streams["crab"] = load("res://game/audio/encounters/crab_heavy_step.wav")
-	_streams["growl"] = load("res://game/audio/encounters/hound_warning_growl.wav")
+	_streams["bark"] = Sfx.bank("hound_distant")
+	_streams["skitter"] = Sfx.bank("sk_stalk")
+	_streams["crab"] = Sfx.bank("cr_threat")
+	for k in ["ev_roof", "ev_metal", "ev_window", "ev_unknown", "co_distant"]:
+		_streams[k] = Sfx.bank(k)
 	var m: Node3D = world.market
 	# the exit point on the store's own entrance marker (just inside the front doors), not a guessed spot
 	var din := m.get_node_or_null("Doorways/Entrance_Inside") as Node3D
@@ -758,7 +759,12 @@ func _distant_sound(lv: int) -> void:
 	var p := _player().global_position
 	var d := lerpf(60.0, 22.0, float(lv) / 3.0)
 	var a := randf() * TAU
-	_play("bark" if randf() < 0.5 else "skitter", p + Vector3(cos(a), 0.0, sin(a)) * d + Vector3(0, 1.5, 0), -16.0 + 3.0 * lv)
+	var pool := ["bark", "bark", "ev_metal", "ev_window", "ev_roof"]
+	if lv >= 1:
+		pool += ["skitter", "ev_unknown"]
+	if lv >= 2:
+		pool += ["co_distant", "ev_unknown"]
+	_play(String(pool[randi() % pool.size()]), p + Vector3(cos(a), 0.0, sin(a)) * d + Vector3(0, 1.5, 0), -6.0 + 2.0 * lv, 40.0)
 
 
 ## One dynamic encounter: a Skitter glimpsed in the fog, or a Hound coming in from open ground (HIGH and up).
@@ -871,6 +877,7 @@ func _spawn_hunter(kind: String) -> bool:
 	var ai: Node = HOUND_AI.new()
 	ai.name = "AI"
 	c.add_child(ai)
+	ai.sound_kind = kind
 	if kind == "skitter":
 		ai.clip_map = {"Walk": "Crawl", "Run": "Scuttle_Fast", "Alert": "Alert", "Attack_Bite": "Attack_Lunge"}
 		ai.native = {"Crawl": 1.2, "Scuttle_Fast": 5.0}
@@ -881,10 +888,14 @@ func _spawn_hunter(kind: String) -> bool:
 		ai.jaw_offset = 0.45
 		ai.bite_range = 1.5
 	else:
-		ai.clip_map = {"Walk": "Crawl_Sideways", "Run": "Crawl_Sideways", "Alert": "Defend", "Attack_Bite": "Attack_Grasp"}
-		ai.native = {"Crawl_Sideways": 1.4}
-		ai.walk_speed = 1.1
-		ai.chase_speed = 3.0
+		ai.clip_map = {"Walk": "Crawl_Sideways", "Run": "Crawl_Sideways", "Forward": "Crawl_Forward", "Alert": "Defend", "Attack_Bite": "Attack_Grasp"}
+		# the clips' real stride speeds (CRT_Shellcrawler metadata): the legs keep up with the ground
+		ai.native = {"Crawl_Sideways": 0.536, "Crawl_Forward": 0.363}
+		ai.clip_cap = 7.0
+		ai.walk_speed = 1.0
+		ai.chase_speed = 2.4
+		ai.steer_around = true
+		ai.body_half_width = 0.9
 		ai.bite_damage = 26.0
 		ai.bite_cooldown = 2.6
 		ai.sight_range = 12.0
@@ -898,11 +909,12 @@ func _spawn_hunter(kind: String) -> bool:
 	if kind == "crab":
 		var shape := c.get_node_or_null("AIShape") as CollisionShape3D
 		if shape and shape.shape is CapsuleShape3D:
-			(shape.shape as CapsuleShape3D).radius = 0.7       # its real width: it no longer slips through corners
-			shape.position = Vector3(0, 0.8, 0)
+			(shape.shape as CapsuleShape3D).radius = 0.95      # its real width: the legs stay out of the walls
+			(shape.shape as CapsuleShape3D).height = 1.9
+			shape.position = Vector3(0, 1.05, 0)
 	if ai.anim:
 		for clip in ai.clip_map.values():
-			if ai.anim.has_animation(clip) and clip != "Attack_Lunge" and clip != "Attack_Grasp":
+			if ai.anim.has_animation(clip) and clip != "Attack_Lunge" and clip != "Attack_Grasp" and clip != "Defend":
 				ai.anim.get_animation(clip).loop_mode = Animation.LOOP_LINEAR
 	ai.set("_last_seen", p)
 	ai.state = "SUSPICIOUS"
@@ -1059,6 +1071,9 @@ func _process(delta: float) -> void:
 	if houses.is_empty():
 		_open_houses()
 	_danger(delta)
+	var indoors: bool = shelter() == "supermarket" and in_store()
+	Sfx.set_ambience_area(indoors)
+	Sfx.danger_level = level() if active() and not indoors else 0
 	if _today() != _day:
 		_day = _today()
 		_spawn_caches()
@@ -1134,22 +1149,14 @@ func _spot(n: String, at: Vector3, size: Vector3, cb: Callable, basis := Basis()
 	return it
 
 
-func _play(id: String, at: Vector3, db := 0.0) -> void:
+func _play(id: String, at: Vector3, db := 0.0, unit := 14.0) -> void:
+	if _streams.get(id) == null:
+		return
 	var p := AudioStreamPlayer3D.new()
 	p.stream = _streams[id]
 	p.volume_db = db
-	p.unit_size = 14.0
+	p.unit_size = unit
 	add_child(p)
 	p.global_position = at
 	p.finished.connect(p.queue_free)
 	p.play()
-
-
-func _bark_wave(t: float, i: int) -> float:
-	var env := exp(-t * 7.0) * clampf(t * 60.0, 0.0, 1.0)
-	return (sin(TAU * (220.0 - t * 160.0) * t) * 0.6 + Sfx._noise(i) * 0.35) * env
-
-
-func _scuttle_wave(t: float, i: int) -> float:
-	var ph := fposmod(t * 23.0 + sin(t * 7.0) * 0.6, 1.0)
-	return Sfx._noise(i) * exp(-ph * 40.0) * 0.6 * (1.0 - t / 1.2)
