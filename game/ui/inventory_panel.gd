@@ -6,14 +6,13 @@ class_name VeilInventoryPanel
 ## (placeholder values; carry_capacity_kg in items.json).
 ## Layout (a square panel): item grid with 3D-model icons on top; below it the selected item's picture, name,
 ## how to use it and its action buttons; weight bar + one line of controls at the bottom.
-## Only items that can be USED are listed (USABLE below); key / story items without a use stay carried
-## (Game.inventory is unchanged) but are not shown. Click a slot to select it, click its button to use it, click its
+## Every carried item is listed once with its count (groceries not yet paid for excepted). Click a slot to select it, click its button to use it, click its
 ## picture to inspect it (the model turns slowly in a large view). Keyboard / touch still work.
 
 signal closed
 
 const COLS := 6
-const ROWS := 2
+const ROWS := 3
 const SLOT := 84
 const PANEL := 600                ## the panel is square: PANEL x PANEL
 ## Items with a real use, and the one sentence that explains it (the button does exactly this).
@@ -262,16 +261,19 @@ static func carried_weight() -> float:
 ## Shown in the inventory: only items the player can actually use (key / story items without a use are carried
 ## but not listed; groceries still to be paid for are not the player's yet).
 static func usable(id: String) -> bool:
+	# every carried item is listed (tools, keys, car parts, the handgun included): items that were carried but never
+	# shown read as "lost" after a load. Groceries still to be paid for are the only exception.
 	match String(Game.item_info(id).get("category", "")):
-		"flashlight", "medical", "note":
-			return true
 		"food":
 			return id != "groceries" and Game.has_flag("groceries_done")
-	return false
+	return true
 
 
 func refresh() -> void:
-	_ids = Game.inventory.filter(func(id): return usable(id))
+	_ids = []
+	for id in Game.inventory:                      # one slot per item, its count on the slot (not one slot per copy)
+		if usable(id) and not (id in _ids):
+			_ids.append(id)
 	for i in _slots.size():
 		var b: Button = _slots[i]
 		var icon := b.get_node("Icon") as TextureRect

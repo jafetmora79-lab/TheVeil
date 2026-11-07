@@ -1166,51 +1166,95 @@ func _open_supplies() -> void:
 	_supplies_open = true
 	while is_inside_tree():
 		var stock := Game.shelter_stock()
-		var text := "SHELTER SUPPLIES\nFood %d    Water %d    Medical %d    Batteries %d" % [
-			stock.food, stock.water, stock.medical, stock.batteries]
-		var roster: Array = world.shelter_roster()
-		var rates: Dictionary = cfg.get("shelter_consumption", {})
-		if int(stock.food) < roster.size() * int(rates.get("food", 1)):
-			text += "\nLow food"
-		if int(stock.water) < roster.size() * int(rates.get("water", 1)):
-			text += "\nLow water"
+		# communal stores only: food, water, medicine (batteries stay the player's own - the flashlight's spares)
+		var text := "SHELTER SUPPLIES"
 		if world.expedition and world.expedition.shelter() != "":
 			var need: Dictionary = world.expedition.supply_need()
-			text += "\nFOOD: %d / %d REQUIRED    WATER: %d / %d REQUIRED  (for tonight)" % [need["food"], need["need"], need["water"], need["need"]]
+			text += "\nFood: %d / %d    Water: %d / %d   (tonight)\nMedical: %d" % [need["food"], need["need"], need["water"], need["need"], int(stock.medical)]
+			if int(need["food"]) < int(need["need"]):
+				text += "\nShort of food for tonight"
+			if int(need["water"]) < int(need["need"]):
+				text += "\nShort of water for tonight"
+		else:
+			text += "\nFood: %d    Water: %d    Medical: %d" % [int(stock.food), int(stock.water), int(stock.medical)]
+			var roster: Array = world.shelter_roster()
+			var rates: Dictionary = cfg.get("shelter_consumption", {})
+			if int(stock.food) < roster.size() * int(rates.get("food", 1)):
+				text += "\nLow food"
+			if int(stock.water) < roster.size() * int(rates.get("water", 1)):
+				text += "\nLow water"
 		var last: Dictionary = Game.world_state.get("shelter_latest_report", {})
 		if not last.is_empty():
 			text += "\n\n" + _supply_report(last)
-		var ids: Array = []
+		var acts: Array = []
 		var options: Array = []
 		var fw := Game.inventory.filter(func(i): return Game.shelter_resource(i) in ["food", "water"])
 		if not fw.is_empty():
-			ids.append("__all")
+			acts.append(["all", ""])
 			options.append("Deposit All Food and Water (%d)" % fw.size())
+		var seen: Array = []
 		for id in Game.inventory:
-			if not Game.shelter_resource(id).is_empty() and id not in ids and VeilInventoryPanel.quantity(id) > 0:
-				ids.append(id)
-				options.append("Deposit one %s (%d carried)" % [Game.item_info(id).name, VeilInventoryPanel.quantity(id)])
+			if Game.shelter_resource(id) in ["food", "water", "medical"] and not (id in seen):
+				seen.append(id)
+				acts.append(["put", id])
+				options.append("Deposit one %s (%d carried)" % [Game.item_info(id).name, Game.inventory.count(id)])
+		for r in ["food", "water", "medical"]:
+			if int(stock.get(r, 0)) > 0:
+				acts.append(["take", r])
+				options.append("Take one %s from the stores (%d stored)" % [Game.item_info(SUPPLY_ITEM[r]).name, int(stock[r])])
+		if int(stock.get("batteries", 0)) > 0:          # stored by older saves: handed back, never lost
+			acts.append(["take", "batteries"])
+			options.append("Take back the stored batteries (%d)" % int(stock.batteries))
 		if world.survivors:
+			acts.append(["group", ""])
 			options.append("Check on the Group")
+		acts.append(["close", ""])
 		options.append("Close")
 		var selected: int = await choice.ask(text, options, player)
-		if world.survivors and selected == ids.size():
-			_supplies_open = false
-			await world.survivors.open_panel(choice)
-			return
-		if selected < 0 or selected >= ids.size():
-			break
-		if ids[selected] == "__all":
-			var got := {"food": 0, "water": 0}
-			for i in Game.inventory.duplicate():
-				var r := Game.shelter_resource(i)
-				if r in ["food", "water"] and world.deposit_shelter_item(i):
-					got[r] += 1
-			hud.set_hint("Deposited %d Food and %d Water." % [got["food"], got["water"]])
-			get_tree().create_timer(3.0).timeout.connect(func(): hud.set_hint(""))
-			continue
-		world.deposit_shelter_item(ids[selected])
+		var act: Array = acts[clampi(selected, 0, acts.size() - 1)] if selected >= 0 else ["close", ""]
+		match String(act[0]):
+			"group":
+				_supplies_open = false
+				await world.survivors.open_panel(choice)
+				return
+			"close":
+				break
+			"all":
+				var got := {"food": 0, "water": 0}
+				for i in Game.inventory.duplicate():
+					var r := Game.shelter_resource(i)
+					if r in ["food", "water"] and world.deposit_shelter_item(i):
+						got[r] += 1
+				hud.set_hint("Deposited %d Food and %d Water." % [got["food"], got["water"]])
+				get_tree().create_timer(3.0).timeout.connect(func(): hud.set_hint(""))
+			"put":
+				world.deposit_shelter_item(String(act[1]))
+			"take":
+				_withdraw(String(act[1]))
 	_supplies_open = false
+
+## One unit of a communal resource back into the player's inventory (food -> canned food, water -> a bottle,
+## medical -> painkillers; legacy batteries -> one flashlight spare). Counts move, nothing is created.
+const SUPPLY_ITEM := {"food": "canned_food", "water": "water_bottle", "medical": "painkillers", "batteries": "batteries"}
+
+
+func _withdraw(r: String) -> void:
+	var stock := Game.shelter_stock()
+	if int(stock.get(r, 0)) <= 0:
+		return
+	if r == "batteries":
+		var fl := get_tree().get_first_node_in_group("veil_flashlight") as VeilFlashlight
+		if fl == null:
+			return
+		fl.add_spares(1)
+		Game.add_item("batteries")
+		Game.inventory_changed.emit()
+	else:
+		Game.add_item(String(SUPPLY_ITEM[r]))
+	stock[r] = int(stock[r]) - 1
+	Game.world_state["shelter_stock"] = stock
+	world.save()
+
 
 func record_night(transition: String) -> Dictionary:
 	var extra := 0

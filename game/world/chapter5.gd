@@ -631,8 +631,9 @@ func _process(delta: float) -> void:
 	elif Game.has_flag("c5_returned"):
 		if _doors_open and not near:
 			_set_doors(false)                         # home: pulled shut once everyone is clear of them
-	elif near != _doors_open and (_near_doors(pl) or not near):
-		_set_doors(near)
+	elif near != _doors_open and (_near_doors(pl) or not near) \
+			and not (near and world.expedition != null and world.expedition.doors_held()):
+		_set_doors(near)                          # (shelter time: only "[E] Leave Shelter" opens them)
 	if following and not Game.has_flag("c5_left_store") and _away_from_store(pl, 2.0):
 		Game.set_flag("c5_left_store")
 	_update_marker()
