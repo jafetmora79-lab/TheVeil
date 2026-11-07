@@ -214,6 +214,36 @@
     -75.4
    ],
    "label": "Ammo"
+  },
+  {
+   "id": "gas_fuel",
+   "item": "fuel_can",
+   "label": "Fuel",
+   "pos": [
+    140.0,
+    0.2,
+    -10.5
+   ]
+  },
+  {
+   "id": "gas_tape",
+   "item": "duct_tape",
+   "label": "Duct Tape",
+   "pos": [
+    156.0,
+    0.2,
+    -10.5
+   ]
+  },
+  {
+   "id": "van_fuel",
+   "item": "fuel_can",
+   "label": "Fuel",
+   "pos": [
+    14.6,
+    0.2,
+    -48.6
+   ]
   }
  ],
  "vehicle_parts": [

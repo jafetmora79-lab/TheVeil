@@ -27,6 +27,13 @@ var model: Node3D
 var driver_cam: Camera3D
 var driven := false
 var speed := 0.0
+## Survival era (after the car is repaired): fuel used by distance driven, condition worn by hard knocks. Before that
+## (the opening drives) neither applies. Saved with the car's state.
+var survival := false
+var fuel := 1.0                    ## 0..1 of a tank
+var condition := 1.0               ## 0..1
+const FUEL_RANGE_M := 3000.0       ## a full tank, in metres driven
+var _warned := ""
 var steer := 0.0
 var autopilot: Callable = Callable()     # tests: func(delta) -> Vector3(throttle, brake, steer)
 ## cinematic assist (arrival shot): while > 0, the car eases down to this forward speed (m/s); steering stays with
@@ -252,6 +259,11 @@ func _physics_process(delta: float) -> void:
 	elif speed_cap > 0.0 and speed > speed_cap * 0.85:
 		throttle = minf(throttle, 0.15)
 	var scripted := drive_script.is_valid()
+	if survival and driven and not scripted:
+		if fuel <= 0.0 or condition <= 0.0:
+			throttle = 0.0                          # out of fuel / wrecked: it rolls to a stop (E still gets out)
+		elif condition < 0.35:
+			throttle = minf(throttle, 0.55)         # badly knocked about: it labours
 	if scripted:
 		var cmd: Vector2 = drive_script.call(delta)
 		speed = move_toward(speed, cmd.x, SCRIPT_ACCEL * delta)
@@ -299,9 +311,14 @@ func _physics_process(delta: float) -> void:
 		for i in get_slide_collision_count():
 			var n := get_slide_collision(i).get_normal()
 			if absf(n.y) < 0.6 and n.dot(fwd * signf(speed)) < -0.5:
+				if survival and driven and absf(speed) > 4.0:
+					condition = maxf(condition - (absf(speed) - 4.0) * 0.025, 0.0)   # a hard knock (~15 km/h and up)
 				speed *= 0.4
 	var moved := (global_position - before).dot(fwd)
 	_spin += moved / WHEEL_R
+	if survival and driven and not scripted:
+		fuel = maxf(fuel - absf(moved) / FUEL_RANGE_M, 0.0)   # by distance driven (idling uses none)
+		_status_warn()
 	_animate(delta)
 	if driven:
 		driver_cam.rotation.y = lerp_angle(driver_cam.rotation.y, _look_yaw, delta * 10.0)
@@ -346,10 +363,40 @@ func _audio() -> void:
 
 func state() -> Dictionary:
 	var p := global_position
-	return {"pos": [p.x, p.y, p.z], "yaw": rotation.y}
+	return {"pos": [p.x, p.y, p.z], "yaw": rotation.y, "fuel": fuel, "condition": condition}
+
+
+func drivable() -> bool:
+	return not survival or (fuel > 0.0 and condition > 0.0)
+
+
+func status_text() -> String:
+	return "FUEL %d%%  ·  CONDITION %d%%" % [roundi(fuel * 100.0), roundi(condition * 100.0)]
+
+
+## One warning per threshold crossed (not every frame): low fuel, empty, struggling, wrecked.
+func _status_warn() -> void:
+	var w := ""
+	if condition <= 0.0:
+		w = "The engine dies with a grinding knock. It won't go any further until it's patched up (duct tape, at the car). E gets out."
+	elif fuel <= 0.0:
+		w = "Out of fuel - the car rolls to a stop. E gets out; bring a fuel can back to it."
+	elif condition < 0.35:
+		w = "The car is badly knocked about and labouring. " + status_text()
+	elif fuel < 0.2:
+		w = "Fuel low. " + status_text()
+	if w != "" and w.left(12) != _warned.left(12):
+		_warned = w
+		var world := get_tree().get_first_node_in_group("veil_world")
+		if world and world.hud and world.hud.has_method("set_hint"):
+			world.hud.set_hint(w)
+	elif w == "":
+		_warned = ""
 
 
 func restore(d: Dictionary) -> void:
+	fuel = clampf(float(d.get("fuel", 1.0)), 0.0, 1.0)
+	condition = clampf(float(d.get("condition", 1.0)), 0.0, 1.0)
 	if d.has("pos"):
 		global_position = Vector3(d["pos"][0], d["pos"][1] + 0.05, d["pos"][2])
 		rotation.y = d.get("yaw", rotation.y)

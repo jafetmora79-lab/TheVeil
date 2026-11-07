@@ -135,7 +135,7 @@ func _collect() -> void:
 		var a: AABB = gas.global_transform * Interactable.aabb_of(gas)
 		_blocks.append([Rect2(a.position.x, a.position.z, a.size.x, a.size.z), "Gas Station"])
 	var dz := String(Game.world_state.get("map_dest", ""))
-	if dz != "" and (not houses.has(dz) or _state(dz).get("x", false)):
+	if dz != "" and not dz.begins_with("part:") and (not houses.has(dz) or _state(dz).get("x", false)):
 		Game.world_state.erase("map_dest")          # never restore a destination that no longer makes sense
 
 
@@ -431,7 +431,50 @@ func _layout() -> void:
 	panel.queue_redraw()
 
 
+## Car-part leads (after the car has been inspected, until it runs): "POSSIBLE BATTERY - GAS STATION", one per part
+## still out there, at the part's real (fixed, reachable) spot. [key "part:<id>", label, world position].
+func part_leads() -> Array:
+	var out: Array = []
+	var ex = world.expedition
+	if ex == null or not Game.has_flag("vehicle_found") or Game.has_flag("vehicle_repaired"):
+		return out
+	for c in ex.cfg.get("vehicle_parts", []):
+		var it = ex.its.get("exp/part_" + String(c["id"]))
+		if it == null or not is_instance_valid(it) or it.taken or ex.installed(String(c["item"])):
+			continue
+		var at: Vector3 = (it as Node3D).global_position
+		var what: String = {"car_battery": "BATTERY", "fuel_can": "FUEL", "car_fuse": "FUSE"}.get(String(c["item"]), "CAR PART")
+		out.append(["part:" + String(c["id"]), "POSSIBLE %s - %s" % [what, _area_name(at)], at])
+	return out
+
+
+func _lead(key: String) -> Array:
+	for l in part_leads():
+		if l[0] == key:
+			return l
+	return []
+
+
+## Where a point is, in the map's own words: a building block it lies by, else the nearest street label.
+func _area_name(at: Vector3) -> String:
+	var p := Vector2(at.x, at.z)
+	for b in _blocks:
+		if String(b[1]) != "" and (b[0] as Rect2).grow(14.0).has_point(p):
+			return String(b[1]).to_upper()
+	var best := "TOWN"
+	var bd := INF
+	for st in STREETS:
+		var d := p.distance_to(st[1])
+		if d < bd:
+			bd = d
+			best = String(st[0])
+	return best
+
+
 func _house_at(r: Rect2, at: Vector2) -> String:
+	for l in part_leads():
+		if _to_map(r, Vector2(l[2].x, l[2].z)).distance_to(at) < 12.0:
+			return String(l[0])
 	var best := ""
 	var bd := 14.0
 	for z in houses:
@@ -558,6 +601,14 @@ func _draw_map() -> void:
 	for st in STREETS:
 		if String(st[2]) == view and v.has_point(st[1]):
 			_label(font, labels, String(st[0]), _to_map(r, st[1]) + Vector2(0, -4), ROAD.darkened(0.55), 11)
+	# car-part leads (amber, "?")
+	for l in part_leads():
+		var lp: Vector3 = l[2]
+		if v.has_point(Vector2(lp.x, lp.z)):
+			var lm := _to_map(r, Vector2(lp.x, lp.z))
+			panel.draw_circle(lm, 7.0, AMBER if String(l[0]) == selected or String(Game.world_state.get("map_dest", "")) == String(l[0]) else AMBER.darkened(0.35))
+			panel.draw_string(font, lm + Vector2(-4, 5), "?", HORIZONTAL_ALIGNMENT_LEFT, -1, 13, INK)
+			_label(font, labels, String(l[1]), lm + Vector2(0, -10), AMBER.darkened(0.5), 11)
 	# landmarks found so far
 	for pl in places():
 		var at: Vector2 = pl[1]
@@ -591,7 +642,10 @@ func _draw_map() -> void:
 	panel.draw_string(font, r.position + Vector2(12, 22), "GREYHAVEN" + ("  -  MAPLE AVE" if view == "north" else ""), HORIZONTAL_ALIGNMENT_LEFT, -1, 18, INK)
 	# the selected house and the key, under the sheet
 	var info := ""
-	if selected != "":
+	if selected.begins_with("part:"):
+		var sl := _lead(selected)
+		info = String(sl[1]) if not sl.is_empty() else ""
+	elif selected != "":
 		info = "HOUSE  -  %s     %s" % [_street(selected), status_text(selected)]
 	panel.draw_string(font, Vector2(r.position.x + 170, r.end.y + 32), info, HORIZONTAL_ALIGNMENT_LEFT, r.size.x - 440, 14, Color(0.9, 0.9, 0.86))
 	panel.draw_string(font, Vector2(r.position.x, r.end.y + 64), "Check: found supplies   X: no way in   -: empty   Amber: search   Red: story   M: close",
@@ -615,6 +669,12 @@ func _diamond(c: Vector2, rad: float, col: Color) -> void:
 # ------------------------------------------------------------------ the search destination, on screen
 func dest_point() -> Variant:
 	var z := String(Game.world_state.get("map_dest", ""))
+	if z.begins_with("part:"):
+		var l := _lead(z)
+		if l.is_empty():
+			Game.world_state.erase("map_dest")         # found (or the car runs): the lead is done
+			return null
+		return (l[2] as Vector3) + Vector3(0, 1.0, 0)
 	return (houses[z]["door"] as Vector3) + Vector3(0, 1.6, 0) if z != "" and houses.has(z) else null
 
 
@@ -626,6 +686,8 @@ func map_dest_marker() -> Array:
 		return []
 	var z := String(Game.world_state.get("map_dest", ""))
 	var out: bool = world.expedition != null and world.expedition.active()
+	if z.begins_with("part:"):
+		return [at, String(_lead(z)[1]) if not _lead(z).is_empty() else "CAR PART", out]
 	return [at, _street(z) + " HOUSE", out]
 
 

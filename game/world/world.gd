@@ -3504,6 +3504,8 @@ func enter_car() -> void:
 			return                                   # the survival expansion: inspect / repair the dead car
 		_p3_car_dead()
 		return
+	if expedition and expedition.has_method("car_menu") and await expedition.car_menu():
+		return                                       # refuelled / patched / looked at it, not getting in now
 	in_car = true
 	player.activate(false)
 	await sedan.swing_door(true, 0.3)
@@ -3514,7 +3516,8 @@ func enter_car() -> void:
 	Game.set_flag("left_house")
 	Game.set_flag("entered_car")
 	Dialogue.say("in_car", true)
-	hud.set_hint("W accelerate · S brake / reverse · A/D steer · Space handbrake · Q radio · E exit · mouse look")
+	hud.set_hint("W accelerate · S brake / reverse · A/D steer · Space handbrake · Q radio · E exit · mouse look"
+		+ ("\n" + sedan.status_text() if sedan.survival else ""))
 
 
 func exit_car() -> void:

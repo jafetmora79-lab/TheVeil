@@ -573,7 +573,8 @@ func board_car(instant := false) -> void:
 	body.collision_layer = 0
 	body.collision_mask = 0
 	body.reparent(seat, false)
-	body.transform = Transform3D(Basis(), Vector3(0, -0.45, 0))
+	# on the seat, facing the way the car drives: the car runs along its -Z, an NPC's model faces its +Z
+	body.global_transform = Transform3D(Basis(Vector3.UP, car.global_rotation.y + PI), seat.global_position - Vector3(0, 0.45, 0))
 	var an = world.animators.get(n)
 	if an:
 		an.walk_to([])

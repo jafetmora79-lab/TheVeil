@@ -542,6 +542,58 @@ func _fit(id: String) -> void:
 	_refresh()
 
 
+## The repaired car, before getting in: its fuel and condition; a carried fuel can fills it, duct tape patches it
+## (each item used up - nothing is fixed without the part). Returns true when the player is NOT getting in now.
+func car_menu() -> bool:
+	var car = world.sedan
+	if not Game.has_flag("vehicle_repaired") or not car.get("survival"):
+		return false
+	var can_fuel: bool = Game.has_item("fuel_can") and car.fuel < 0.95
+	var can_patch: bool = Game.has_item("duct_tape") and car.condition < 0.95
+	if car.drivable() and not can_fuel and not can_patch:
+		return false                                  # nothing to do here: straight in
+	var p4 := _p4()
+	if p4 == null or p4.choice.is_open():
+		return true
+	while true:
+		var text := "VEHICLE CONDITION\n" + String(car.status_text())
+		if car.fuel <= 0.0:
+			text += "\nThe tank is empty - a fuel can fills it (gas station, abandoned vehicles)."
+		if car.condition <= 0.0:
+			text += "\nIt won't run like this - patch it up with duct tape."
+		var opts: Array = []
+		var acts: Array = []
+		if Game.has_item("fuel_can") and car.fuel < 0.95:
+			opts.append("Pour in the fuel can")
+			acts.append("fuel")
+		if Game.has_item("duct_tape") and car.condition < 0.95:
+			opts.append("Patch it up (duct tape)")
+			acts.append("patch")
+		if car.drivable():
+			opts.append("Get in")
+			acts.append("in")
+		opts.append("Close")
+		acts.append("close")
+		var i: int = await p4.choice.ask(text, opts, _player())
+		var a: String = acts[clampi(i, 0, acts.size() - 1)] if i >= 0 else "close"
+		match a:
+			"fuel":
+				Game.remove_item("fuel_can")
+				car.fuel = 1.0
+				Sfx.play("pickup", car.global_position + Vector3(0, 0.8, 0), -6.0, 0.6)
+				world.save()
+			"patch":
+				Game.remove_item("duct_tape")
+				car.condition = minf(car.condition + 0.6, 1.0)
+				Sfx.play("door_close", car.global_position + Vector3(0, 0.8, 0), -8.0, 0.7)
+				world.save()
+			"in":
+				return false
+			_:
+				return true
+	return true
+
+
 ## Yellow diamonds on the parts still out there, once the car has been looked at (until it runs).
 func _part_markers() -> void:
 	for c in cfg.get("vehicle_parts", []):
@@ -938,6 +990,8 @@ func _open_houses() -> void:
 
 
 func _process(delta: float) -> void:
+	if world.sedan:
+		world.sedan.survival = Game.has_flag("vehicle_repaired")   # fuel and wear only once it runs again
 	if story_departure:
 		if not in_store():
 			_story_out = true
