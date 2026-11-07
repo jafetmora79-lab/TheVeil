@@ -1,47 +1,53 @@
 {
- "_comment": "THE VEIL - expedition / dynamic danger tuning (game/world/expedition.gd). Times are seconds of ACTIVE time outside (paused, menus, dialogue and cinematics do not count). Levels: 0 low, 1 rising, 2 high, 3 critical.",
+ "_comment": "THE VEIL - expedition / dynamic danger tuning (game/world/expedition.gd). Times are seconds of ACTIVE time outside the shelter (houses, inventory, searching, companions and driving all count; pause menus and story scenes do not). Levels: 0 uneasy, 1 rising, 2 high, 3 critical, 4 extreme.",
  "danger_thresholds_s": [
-  300,
-  600,
-  900
+  45,
+  90,
+  150,
+  240
  ],
  "level_names": [
-  "LOW",
+  "UNEASY",
   "RISING",
   "HIGH",
-  "CRITICAL"
+  "CRITICAL",
+  "EXTREME"
  ],
  "max_dynamic_creatures": 2,
  "encounter_cooldown_s": [
   60,
-  150,
-  120,
-  95
+  45,
+  35,
+  28,
+  20
  ],
  "encounter_chance": [
   0.0,
-  0.35,
-  0.5,
-  0.6
+  1.0,
+  1.0,
+  1.0,
+  1.0
  ],
  "hound_from_level": 2,
  "sound_interval_s": [
-  55,
-  35,
-  22,
-  14
+  28,
+  20,
+  14,
+  10,
+  7
  ],
  "spawn_distance": [
-  24,
+  26,
   40
  ],
  "warning_cooldown_s": 75,
- "driving_time_scale": 0.6,
+ "driving_time_scale": 1.0,
  "follower_hurry": [
   1.0,
   1.1,
   1.25,
-  1.4
+  1.4,
+  1.5
  ],
  "sleep_requires_supplies_from_flag": "c5_started",
  "caches": [
@@ -353,5 +359,19 @@
   }
  ],
  "_comment_caches": "Supply finds restock every new day (one per day each). Handgun rounds are one-time finds, never restocked (game/world/expedition.gd).",
- "_comment_threat": "Threat (expedition.gd encounter()): 0-5 min quiet (distant sounds only); 5-10 rare roaming Hound; 10-15 Hounds, occasional Skitter; 15+ Shellcrawler possible (rare). At most 2 creatures out, only one hunting the player at a time; a fresh cooldown after any creature leaves."
+ "_comment_threat": "Threat director (expedition.gd _direct): 0:00-0:45 uneasy (sounds, a distant roaming Hound from 0:20); 0:45-1:30 rising (the first Hound hunts the player from 1:00); 1:30-2:30 high (Skitters, Hounds); 2:30-4:00 critical (Shellcrawlers, dynamic Tentacles); 4:00+ extreme. At most 2 creatures out, 1 hunting, 1 Tentacle.",
+ "roam_cooldown_s": [
+  60,
+  50,
+  40,
+  35,
+  30
+ ],
+ "tentacle_cooldown_s": [
+  999,
+  999,
+  999,
+  55,
+  40
+ ]
 }
