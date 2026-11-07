@@ -22,6 +22,8 @@ const CFG := "res://game/data/expedition.json"
 const HOUND_PATH := "res://THE_VEIL_ASSETS_V2/07_Creatures/Godot_Scenes/CRT_Hound.tscn"
 const SKITTER_PATH := "res://THE_VEIL_ASSETS_V2/07_Creatures/Godot_Scenes/CRT_Skitter.tscn"
 const HOUND_AI := preload("res://game/enemies/hound_ai.gd")
+const CRAB_PATH := "res://THE_VEIL_ASSETS_V2/07_Creatures/Godot_Scenes/CRT_Shellcrawler.tscn"
+const STRUGGLE := preload("res://game/encounters/struggle.gd")
 const EXIT_SPOT := Vector3(0.0, 1.4, 0.2)              # market-local: at the front doors themselves (from Cline)
 const OUTSIDE_SPOT := Vector3(0.0, 1.3, -0.9)          # market-local: just outside the front doors
 const SUPPLY_ITEMS := ["canned_food", "water_bottle", "energy_snack", "chocolate_bar", "cola_bottle", "painkillers", "batteries"]
@@ -45,6 +47,8 @@ func setup(w: Node) -> void:
 	cfg = JSON.parse_string(f.get_as_text()) if f else {}
 	_streams["bark"] = Sfx._make(0.7, _bark_wave)
 	_streams["skitter"] = Sfx._make(1.2, _scuttle_wave)
+	_streams["crab"] = load("res://game/audio/encounters/crab_heavy_step.wav")
+	_streams["growl"] = load("res://game/audio/encounters/hound_warning_growl.wav")
 	var m: Node3D = world.market
 	# the exit point on the store's own entrance marker (just inside the front doors), not a guessed spot
 	var din := m.get_node_or_null("Doorways/Entrance_Inside") as Node3D
@@ -186,6 +190,7 @@ func _use_exit(_b: Node) -> void:
 
 
 var _busy_menu := false
+var _quiet_t := 0.0                         ## active time outside with nothing about
 var story_departure := false            ## "Continue Story" was chosen: the doors may open until the player is back in
 var _story_out := false
 
@@ -536,9 +541,14 @@ func _danger(delta: float) -> void:
 	_encounter_t -= delta
 	if _encounter_t <= 0.0:
 		_encounter_t = float(cfg.get("encounter_cooldown_s", [90, 75, 55, 40])[lv])
-		if randf() < float(cfg.get("encounter_chance", [0.3, 0.55, 0.75, 0.9])[lv]) and not world.in_car:
-			if not encounter(lv):
+		# a long quiet spell outside (nothing about for ~2 minutes): the next valid opportunity is taken
+		var chance: float = 1.0 if _quiet_t > 110.0 else float(cfg.get("encounter_chance", [0.3, 0.55, 0.75, 0.9])[lv])
+		if randf() < chance and not world.in_car:
+			if encounter(lv):
+				_quiet_t = 0.0
+			else:
 				_encounter_t = 10.0                      # no hidden spot this time: try again soon, not a whole cooldown later
+	_quiet_t = _quiet_t + delta * scale if creatures.is_empty() else 0.0
 	# warnings
 	_warn_t -= delta
 
@@ -599,10 +609,18 @@ func encounter(lv: int) -> bool:
 	_prune()
 	if creatures.size() >= int(cfg.get("max_dynamic_creatures", 2)) + (1 if lv >= 3 else 0) or emergency():
 		return false
-	if lv == 0:
-		return _spawn_skitter()                      # uneasy: only a shape crossing the fog, never an attack
-	var hound := lv >= int(cfg.get("hound_from_level", 2)) and randf() < (0.5 if lv == 2 else 0.75)
-	return _spawn_hound(lv) if hound else _spawn_skitter()
+	# the threat escalates with time outside: Hounds first, then Skitters, the Shellcrawler last
+	match lv:
+		0:
+			return _spawn_hound(0)                   # uneasy: one roaming at the edge of the fog, not hunting yet
+		1:
+			return _spawn_hound(1) if randf() < 0.8 else _spawn_skitter()
+		2:
+			return _spawn_hunter("skitter") if randf() < 0.55 else _spawn_hound(2)
+	var r := randf()
+	if r < 0.4 and _spawn_hunter("crab"):
+		return true
+	return _spawn_hunter("skitter") if r < 0.7 else _spawn_hound(3)
 
 
 ## A believable entry point: outdoors, open ground the creature can stand on and move from, out of the camera's
@@ -654,17 +672,95 @@ func _spawn_hound(lv: int) -> bool:
 	ai.name = "AI"
 	h.add_child(ai)
 	ai.leash = 70.0
-	ai.setup(h, _player(), [at, at + (at - _player().global_position).normalized() * 6.0])
-	# it heard something: it comes to look (and at CRITICAL it is already hunting)
-	ai.set("_last_seen", _player().global_position)
-	ai.state = "SUSPICIOUS"
-	ai.set("awareness", 0.5 if lv < 3 else 0.95)
+	if lv == 0:
+		# roaming: it crosses the street out in the fog, unaware (the player may see it first)
+		var side := (at - _player().global_position).normalized().cross(Vector3.UP) * 14.0
+		ai.setup(h, _player(), [at, at + side, at - side])
+	else:
+		ai.setup(h, _player(), [at, at + (at - _player().global_position).normalized() * 6.0])
+		# it heard something: it comes to look (and at CRITICAL it is already hunting)
+		ai.set("_last_seen", _player().global_position)
+		ai.state = "SUSPICIOUS"
+		ai.set("awareness", 0.35 if lv == 1 else (0.5 if lv < 3 else 0.95))
+	_hook_struggle(ai, "hound")
 	creatures.append({"node": h, "ai": ai, "kind": "hound", "exit": at})
 	report["spawned"] += 1
 	report["hounds"] += 1
 	report["max_active"] = maxi(int(report["max_active"]), creatures.size())
 	_play("bark", at + Vector3(0, 1.0, 0), -6.0)
 	return true
+
+
+## A hunting Skitter or Shellcrawler: the Hound's AI with the creature's own clips and pace (the Shellcrawler
+## crawls sideways, slower, harder hitting). Out of view, on open ground, a fair way off.
+func _spawn_hunter(kind: String) -> bool:
+	var p := _player().global_position
+	var at := find_spawn(26.0, 40.0)
+	if not at.is_finite():
+		return false
+	var ps := load(SKITTER_PATH if kind == "skitter" else CRAB_PATH) as PackedScene
+	if ps == null:
+		return false
+	var c := ps.instantiate() as CharacterBody3D
+	if c == null:
+		return false
+	c.name = "EXP_" + kind.capitalize()
+	world.add_child(c)
+	c.global_position = at
+	if kind == "skitter":
+		VeilCreatureLook.apply_skitter(c, at.y)
+	else:
+		VeilCreatureLook.apply_ground(c, at.y)
+	var ai: Node = HOUND_AI.new()
+	ai.name = "AI"
+	c.add_child(ai)
+	if kind == "skitter":
+		ai.clip_map = {"Walk": "Crawl", "Run": "Scuttle_Fast", "Alert": "Alert", "Attack_Bite": "Attack_Lunge"}
+		ai.native = {"Crawl": 1.2, "Scuttle_Fast": 5.0}
+		ai.walk_speed = 1.8
+		ai.chase_speed = 4.0
+		ai.bite_damage = 12.0
+		ai.sight_range = 13.0
+		ai.jaw_offset = 0.45
+		ai.bite_range = 1.5
+	else:
+		ai.clip_map = {"Walk": "Crawl_Sideways", "Run": "Crawl_Sideways", "Alert": "Defend", "Attack_Bite": "Attack_Grasp"}
+		ai.native = {"Crawl_Sideways": 1.4}
+		ai.walk_speed = 1.1
+		ai.chase_speed = 3.0
+		ai.bite_damage = 26.0
+		ai.bite_cooldown = 2.6
+		ai.sight_range = 12.0
+		ai.jaw_offset = 0.0
+		ai.bite_range = 2.1
+		ai.face_offset = PI * 0.5
+	ai.leash = 70.0
+	ai.setup(c, _player(), [at, at + (at - p).normalized() * 6.0])
+	if ai.anim:
+		for clip in ai.clip_map.values():
+			if ai.anim.has_animation(clip) and clip != "Attack_Lunge" and clip != "Attack_Grasp":
+				ai.anim.get_animation(clip).loop_mode = Animation.LOOP_LINEAR
+	ai.set("_last_seen", p)
+	ai.state = "SUSPICIOUS"
+	ai.set("awareness", 0.4)
+	_hook_struggle(ai, kind)
+	creatures.append({"node": c, "ai": ai, "kind": kind + "_hunter", "exit": at})
+	report["spawned"] += 1
+	report["max_active"] = maxi(int(report["max_active"]), creatures.size())
+	_play("skitter" if kind == "skitter" else "crab", at + Vector3(0, 0.5, 0), -4.0)
+	return true
+
+
+## One shared struggle controller (game/encounters/struggle.gd): a creature's attack may become a struggle.
+func _hook_struggle(ai: Node, kind: String) -> void:
+	var s := world.get_node_or_null("Struggle")
+	if s == null:
+		s = STRUGGLE.new()
+		s.name = "Struggle"
+		world.add_child(s)
+		s.setup(world)
+	ai.set_meta("struggle_kind", kind)
+	ai.on_attack = Callable(s, "try_start")
 
 
 func _spawn_skitter() -> bool:

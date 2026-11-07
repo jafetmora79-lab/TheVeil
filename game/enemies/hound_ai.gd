@@ -44,6 +44,19 @@ var _last_pos := Vector3.ZERO
 var _anim_cur := ""
 var _patrol_stuck := 0.0
 var _patrol_ref := Vector3.ZERO
+## Reuse for the other ground creatures (Skitter, Shellcrawler): their clip names, each clip's native stride speed,
+## where the "jaws" sit, and a body turned sideways to its travel (the Shellcrawler crawls sideways).
+var clip_map := {}
+var native := {}
+var jaw_offset := 1.15
+var bite_range := 1.9
+var face_offset := 0.0
+## A struggle may take an attack over (game/encounters/struggle.gd): return true from it to replace the bite.
+var on_attack: Callable = Callable()
+var hold := false                   ## a struggle holds the creature in place (its pose is driven from outside)
+var _recover_t := 0.0
+var _recover_len := 0.0
+var _recover_mode := ""
 
 
 func setup(p_body: CharacterBody3D, p_player: CharacterBody3D, points: Array) -> void:
@@ -97,6 +110,9 @@ func reset_to_patrol(far_from: Vector3) -> void:
 
 func _physics_process(delta: float) -> void:
 	if body == null or player == null or not body.is_inside_tree():
+		return
+	if hold:
+		body.velocity = Vector3.ZERO
 		return
 	_bite_t = maxf(_bite_t - delta, 0.0)
 	var to_p := player.global_position - body.global_position
@@ -161,13 +177,15 @@ func _physics_process(delta: float) -> void:
 			else:
 				_unseen += delta
 			# reach is measured from the jaws: the body origin sits ~1.2 m behind the head (CRT_Hound HeadShape)
-			var jaws := body.global_position + body.global_transform.basis.z.normalized() * 1.15
+			var jaws := body.global_position + body.global_transform.basis.z.normalized() * jaw_offset
 			var jaw_d := Vector2(player.global_position.x - jaws.x, player.global_position.z - jaws.z).length()
-			if (jaw_d < 0.95 or dist < 1.9) and sees:
+			if (jaw_d < 0.95 or dist < bite_range) and sees:
 				_idle(delta, "Attack_Bite")
 				_face(to_p)
 				if _bite_t <= 0.0:
 					_bite_t = bite_cooldown
+					if on_attack.is_valid() and bool(on_attack.call(self)):
+						return                        # a struggle took this attack over
 					bit.emit(bite_damage)
 					if player.has_method("damage"):
 						# never a killing bite: the chapter's checkpoint takes over at low health
@@ -179,6 +197,28 @@ func _physics_process(delta: float) -> void:
 				_search_t = 4.5
 			else:
 				_move_to(_last_seen if not sees else player.global_position, chase_speed, delta, "Run")
+		"RECOVER":
+			# after a struggle: "back" = stagger, shake it off, then hunt again; "flee" = a fast zigzag away, then gone
+			_recover_t -= delta
+			var away := (body.global_position - player.global_position) * Vector3(1, 0, 1)
+			away = away.normalized() if away.length() > 0.01 else -body.global_transform.basis.z
+			if _recover_mode == "flee":
+				var zig := away.cross(Vector3.UP) * sin(_recover_t * 7.0) * 0.9
+				_move_to(body.global_position + (away + zig) * 3.0, chase_speed * 1.15, delta, "Run")
+				if _recover_t <= 0.0:
+					state = "RETURN"
+					awareness = 0.0
+			else:
+				if _recover_t > _recover_len * 0.45:
+					_move_to(body.global_position + away * 2.0, walk_speed * 0.8, delta, "Walk")
+				else:
+					_idle(delta, "Alert")
+					_face(-away)
+				if _recover_t <= 0.0:
+					state = "SUSPICIOUS"
+					_last_seen = player.global_position
+					awareness = 0.99
+					_start_chase()
 		"SEARCH":
 			_search_t -= delta
 			if sees and dist < sight_range * 0.8 and not far_home:
@@ -191,6 +231,16 @@ func _physics_process(delta: float) -> void:
 				_move_to(_last_seen, walk_speed * 1.6, delta, "Walk")
 			else:
 				_idle(delta, "Alert")
+
+
+## After a struggle: give the player a moment (mode "back": recover then chase; "flee": run off and leave).
+func recoil(seconds: float, mode: String) -> void:
+	hold = false
+	state = "RECOVER"
+	_recover_t = seconds
+	_recover_len = seconds
+	_recover_mode = mode
+	_bite_t = maxf(_bite_t, seconds + bite_cooldown)
 
 
 func _suspect(at: Vector3) -> void:
@@ -277,16 +327,19 @@ func _snap_floor() -> void:
 func _face(d: Vector3) -> void:
 	d.y = 0.0
 	if d.length() > 0.01:
-		body.rotation.y = lerp_angle(body.rotation.y, atan2(d.x, d.z), 0.18)
+		body.rotation.y = lerp_angle(body.rotation.y, atan2(d.x, d.z) + face_offset, 0.18)
 
 
 func _play(clip: String, speed := 0.0) -> void:
-	if anim == null or not anim.has_animation(clip):
+	var real := String(clip_map.get(clip, clip))
+	if anim == null or not anim.has_animation(real):
 		return
-	if _anim_cur != clip:
-		anim.play(clip, 0.2)
-		_anim_cur = clip
-	if clip == "Walk":
+	if _anim_cur != real:
+		anim.play(real, 0.2)
+		_anim_cur = real
+	if native.has(real):
+		anim.speed_scale = clampf(speed / float(native[real]), 0.5, 2.2) if speed > 0.05 else 1.0
+	elif clip == "Walk":
 		anim.speed_scale = speed / maxf(float(body.get_meta("walk_speed_mps", 0.9)) * body.scale.x, 0.1)
 	elif clip == "Run":
 		anim.speed_scale = speed / maxf(float(body.get_meta("run_speed_mps", 5.0)) * body.scale.x, 0.1)
