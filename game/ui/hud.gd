@@ -258,7 +258,11 @@ func show_subtitle(t: String) -> void:
 
 
 func set_hint(t: String) -> void:
-	hint.text = t
+	# the opening's controls line belongs to Chapter 1 only (from Cline 6a6af35)
+	if Game.chapter_number() > 1 and t == "WASD move · Mouse look · Shift sprint · Ctrl crouch · E interact · Tab inventory · Esc pause":
+		hint.text = ""
+	else:
+		hint.text = t
 
 
 func set_speed(kmh: float) -> void:
@@ -336,6 +340,7 @@ func _build_inventory() -> void:
 	# their old meaning for callers (Chapter 5 opens it to check the supplies)
 	inv_panel = VeilInventoryPanel.new()
 	inv_panel.name = "Inventory"
+	inv_panel._hud = self
 	root.add_child(inv_panel)
 	inv_panel.closed.connect(func(): _inventory_input(false))
 	quick = VeilQuickSlots.new()

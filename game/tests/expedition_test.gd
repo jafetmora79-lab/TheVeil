@@ -275,7 +275,7 @@ func _run() -> void:
 	var story0 := story_flags()
 	var step0: String = game.current_step().get("id", "")
 	ok("exp_controller", ex != null and ex.shelter() == "supermarket" and not ex.active() and ex.can_scavenge())
-	ok("exp_exit_prompt", ex.its["exit"].prompt_text == "[E] Plan a Trip")
+	ok("exp_exit_prompt", ex.its["exit"].prompt_text == "[E] Leave Shelter")
 
 	# ---- the exit menu: Story / Scavenge (no car yet) / Stay
 	ok("exp_exit_reach", await aim(ex.its["exit"], [Vector3(0, 0, 1), Vector3(0.4, 0, 1)], world.market, 1.3))

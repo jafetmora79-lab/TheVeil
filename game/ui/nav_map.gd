@@ -455,6 +455,9 @@ func _toggle_dest() -> void:
 		Game.world_state.erase("map_dest")
 	else:
 		Game.world_state["map_dest"] = selected      # one search destination at a time
+		_layout()
+		close()                                      # marked: back to the game, the amber marker leads there (from Cline)
+		return
 	_layout()
 
 
