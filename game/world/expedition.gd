@@ -326,6 +326,7 @@ func _record_extra(t: String) -> void:
 func _exit_tree() -> void:
 	VeilRestPoint.extra_night = Callable()             # (never a call into a freed controller)
 	VeilRestPoint.record_extra = Callable()
+	VeilRestPoint.supply_gate = Callable()
 
 
 ## VeilRestPoint.supply_gate: "" = sleep allowed; otherwise the reason it is not.

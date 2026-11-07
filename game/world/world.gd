@@ -3269,9 +3269,7 @@ func _p3_reach_market() -> void:
 	Game.set_flag("p3_in_market")
 	_set_auto_doors(true)                       # the power dies with the doors open
 	_doors_powered = false
-	for l in market.get_node("Lights").get_children():
-		if l is Light3D and String(l.name).begins_with("Light_"):
-			(l as Light3D).light_energy *= 0.35
+	_market_blackout()
 	shut_it.prompt_text = "[E] Pull the Doors Shut"
 	npc_walk("Eddie", MARKET_EDDIE_POS, 1.4)           # around the vestibule wall, carts and baskets
 	npc_walk("Marcus", MARKET_MARCUS_POS, 1.4)
@@ -3279,6 +3277,15 @@ func _p3_reach_market() -> void:
 		_glow(d[0], true, Color(0.7, 0.85, 1.0))
 	Dialogue.say("p3_market", false, true)
 	talk_shot(_dlg_time(["p3_market"]))
+
+
+## The main power is already gone when the group gets in: every store light is off (the street lamps outside stay
+## on). The windows, the night outside and, soon, the flashlight are what there is to see by; the back-room
+## breaker (Phase 4) brings the emergency lights back, as before.
+func _market_blackout() -> void:
+	for l in market.get_node("Lights").get_children():
+		if l is Light3D:
+			(l as Light3D).visible = false
 
 
 func _p3_shut_doors(_by: Node) -> void:
@@ -3331,6 +3338,7 @@ func _p3_restore() -> void:
 		_doors_powered = true
 		_set_auto_doors(true)
 		_doors_powered = false
+		_market_blackout()
 		shut_it.prompt_text = "[E] Pull the Doors Shut"
 
 
