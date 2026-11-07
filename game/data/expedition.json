@@ -220,7 +220,7 @@
    "item": "fuel_can",
    "label": "Fuel",
    "pos": [
-    140.0,
+    142.0,
     0.2,
     -10.5
    ]
@@ -240,9 +240,9 @@
    "item": "fuel_can",
    "label": "Fuel",
    "pos": [
-    14.6,
+    17.5,
     0.2,
-    -48.6
+    -48.0
    ]
   }
  ],
@@ -253,10 +253,19 @@
    "pos": [
     -56.0,
     0.2,
-    -2.0
+    -2.6
    ],
    "model": "res://THE_VEIL_ASSETS_V2/08_Inventory/Food_And_Supplies/INV_SpareBatteries.glb",
-   "scale": 3.0
+   "scale": 3.0,
+   "prop": {
+    "scene": "res://THE_VEIL_ASSETS_V2/05_Vehicles/Abandoned_Variants/VEH_Sedan_Damaged.glb",
+    "pos": [
+     -56.0,
+     0.2,
+     -4.6
+    ],
+    "yaw": 1.5708
+   }
   },
   {
    "id": "fuel_can",
@@ -264,21 +273,30 @@
    "pos": [
     14.0,
     0.2,
-    -47.5
+    -48.0
    ],
    "model": "res://THE_VEIL_ASSETS_V2/08_Inventory/Food_And_Supplies/INV_WaterBottle.glb",
-   "scale": 1.6
+   "scale": 1.6,
+   "prop": {
+    "scene": "res://THE_VEIL_ASSETS_V2/05_Vehicles/Abandoned_Variants/VEH_DeliveryVan_BrokenDown.glb",
+    "pos": [
+     14.0,
+     0.2,
+     -50.6
+    ],
+    "yaw": 1.5708
+   }
   },
   {
    "id": "car_fuse",
    "item": "car_fuse",
    "pos": [
-    20.0,
+    148.0,
     0.2,
-    -76.6
+    -10.5
    ],
    "model": "res://THE_VEIL_ASSETS_V2/08_Inventory/Tools/INV_PortableFuse.glb",
-   "scale": 1.0
+   "scale": 2.5
   }
  ],
  "_comment_caches": "Supply finds restock every new day (one per day each). Handgun rounds are one-time finds, never restocked (game/world/expedition.gd)."

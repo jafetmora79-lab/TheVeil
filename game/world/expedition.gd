@@ -483,6 +483,53 @@ func dead_car() -> bool:
 	return true
 
 
+## The abandoned vehicle a part comes from (expedition.json "prop"): only once the town is lost, never in the normal
+## opening; its own convex collision, standing on the ground.
+func _part_prop(c: Dictionary) -> void:
+	var pr: Dictionary = c.get("prop", {})
+	if pr.is_empty():
+		return
+	var ps := load(String(pr["scene"])) as PackedScene
+	if ps == null:
+		return
+	var o := ps.instantiate() as Node3D
+	o.name = "EXP_Wreck_" + String(c["id"])
+	world.add_child(o)
+	var p: Array = pr["pos"]
+	o.global_transform = Transform3D(Basis(Vector3.UP, float(pr.get("yaw", 0.0))), Vector3(p[0], p[1], p[2]))
+	_settle.call_deferred(o)
+
+
+## Search leads for the town map: [key, short label, world position]. Before the repair: each part still out there,
+## once the car has been inspected. After it: a fuel can when the tank runs low, duct tape when the car is knocked
+## about (real finds, today's).
+const LEAD_NAMES := {"car_battery": "POSSIBLE CAR BATTERY", "fuel_can": "POSSIBLE FUEL", "car_fuse": "POSSIBLE CAR FUSE", "duct_tape": "POSSIBLE DUCT TAPE"}
+
+
+func car_leads() -> Array:
+	var out: Array = []
+	if not Game.has_flag("vehicle_found") or shelter() == "":
+		return out
+	if not Game.has_flag("vehicle_repaired"):
+		for c in cfg.get("vehicle_parts", []):
+			var item := String(c["item"])
+			var pt = its.get("exp/part_" + String(c["id"]))
+			if pt != null and is_instance_valid(pt) and not pt.taken and not installed(item) and not Game.has_item(item):
+				out.append(["part:" + String(c["id"]), String(LEAD_NAMES.get(item, "POSSIBLE CAR PART")), (pt as Node3D).global_position])
+		return out
+	var want: Array = []
+	if world.sedan.fuel < 0.3 and not Game.has_item("fuel_can"):
+		want.append("fuel_can")
+	if world.sedan.condition < 0.4 and not Game.has_item("duct_tape"):
+		want.append("duct_tape")
+	for key in its:
+		var it = its[key]
+		if not String(key).begins_with("exp/cache_") or not is_instance_valid(it) or it.taken or String(it.item_id) not in want:
+			continue
+		out.append(["part:" + String(key), String(LEAD_NAMES[String(it.item_id)]), (it as Node3D).global_position])
+	return out
+
+
 ## The car's three faults, what fixes each and where that part lies (it never moves: a fixed find, not random loot).
 const CAR_PARTS := [["car_battery", "Battery", "dead - needs a car battery"], ["fuel_can", "Fuel", "tank empty - needs a fuel can"],
 	["car_fuse", "Ignition fuse", "blown - needs a fuse"]]
@@ -503,13 +550,15 @@ func _inspect_car() -> void:
 		var ids: Array = []
 		for c in CAR_PARTS:
 			var state := "OK - fitted" if installed(c[0]) else ("part carried - ready to fit" if Game.has_item(c[0]) else String(c[2]))
+			if c[0] == "fuel_can":
+				state = "%d%% - %s" % [roundi(world.sedan.fuel * 100.0) if installed(c[0]) else 0, state]
 			text += "\n%s - %s" % [c[1], state]
 			if not installed(c[0]) and Game.has_item(c[0]):
 				opts.append("Fit the %s" % String(Game.item_info(c[0]).get("name", c[0])).to_lower())
 				ids.append(c[0])
 		text += "\nTires - OK"
 		if ids.is_empty():
-			text += "\n\nThe missing parts are marked out in town (yellow diamonds)."
+			text += "\n\nNothing here to fit yet. " + ("Search leads are on the town map (M): pick one and mark it." if Game.has_flag("map_acquired") else "The parts must be out in town: the gas station, abandoned vehicles.")
 		opts.append("Close")
 		var i: int = await p4.choice.ask(text, opts, _player())
 		if i < 0 or i >= ids.size():
@@ -528,6 +577,8 @@ func _fit(id: String) -> void:
 		Sfx.play("door_close", at, -8.0, 0.6 + 0.15 * k)
 		await get_tree().create_timer(0.6).timeout
 	Game.remove_item(id)
+	if id == "fuel_can":
+		world.sedan.fuel = PlayerSedan.FUEL_PER_CAN        # one can in an empty tank
 	var parts: Dictionary = st().get("car_parts", {})
 	parts[id] = true
 	st()["car_parts"] = parts
@@ -558,9 +609,9 @@ func car_menu() -> bool:
 	while true:
 		var text := "VEHICLE CONDITION\n" + String(car.status_text())
 		if car.fuel <= 0.0:
-			text += "\nThe tank is empty - a fuel can fills it (gas station, abandoned vehicles)."
+			text += "\nThe tank is empty - it needs a fuel can (gas station, abandoned vehicles; see the town map)."
 		if car.condition <= 0.0:
-			text += "\nIt won't run like this - patch it up with duct tape."
+			text += "\nIt won't run like this - it needs patching up with duct tape (see the town map)."
 		var opts: Array = []
 		var acts: Array = []
 		if Game.has_item("fuel_can") and car.fuel < 0.95:
@@ -579,7 +630,7 @@ func car_menu() -> bool:
 		match a:
 			"fuel":
 				Game.remove_item("fuel_can")
-				car.fuel = 1.0
+				car.fuel = minf(car.fuel + PlayerSedan.FUEL_PER_CAN, 1.0)
 				Sfx.play("pickup", car.global_position + Vector3(0, 0.8, 0), -6.0, 0.6)
 				world.save()
 			"patch":
@@ -599,7 +650,7 @@ func _part_markers() -> void:
 	for c in cfg.get("vehicle_parts", []):
 		var key := "exp/part_" + String(c["id"])
 		var it: Interactable = its.get(key)
-		var on: bool = Game.has_flag("vehicle_found") and not Game.has_flag("vehicle_repaired") and it != null \
+		var on: bool = shelter() != "" and Game.has_flag("vehicle_found") and not Game.has_flag("vehicle_repaired") and it != null \
 			and is_instance_valid(it) and not it.taken and not installed(String(c["item"]))
 		world.hud.world_diamond("car_part_" + String(c["id"]), it if on else null)
 
@@ -611,6 +662,7 @@ func _repair() -> void:
 
 
 var _repairing := false
+var _props_placed := false
 
 
 # ------------------------------------------------------------------ danger, encounters, warnings
@@ -1014,6 +1066,11 @@ func _process(delta: float) -> void:
 	if _tick > 0.0:
 		return
 	_tick = 0.25
+	if not _props_placed and Game.has_flag("c5_started"):
+		_props_placed = true                             # (the wrecks: not in the ordinary town of the opening)
+		if not Game.has_flag("ch9_supermarket_lost"):
+			for c in cfg.get("vehicle_parts", []):
+				_part_prop(c)
 	_prune()
 	_supply_chest_marker()
 	if active():
@@ -1037,7 +1094,8 @@ func _refresh() -> void:
 	if world.sedan and world.sedan.get("entry_area"):
 		var dead: bool = Game.has_flag("c5_started") and shelter() != "" and Game.has_flag("groceries_done") \
 			and Game.has_flag("game_bought") and not Game.has_flag("vehicle_repaired")
-		world.sedan.entry_area.prompt_text = "[E] Inspect Vehicle" if dead else "[E] Enter Vehicle"
+		var stopped: bool = Game.has_flag("vehicle_repaired") and world.sedan.survival and not world.sedan.drivable()
+		world.sedan.entry_area.prompt_text = "[E] Inspect Vehicle" if dead or stopped else "[E] Enter Vehicle"
 	var c5 := _c5()
 	var e: Interactable = its.get("exit")
 	if e:

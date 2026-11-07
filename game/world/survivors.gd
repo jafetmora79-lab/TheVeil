@@ -544,65 +544,107 @@ func _companion_tick(delta: float) -> void:
 
 
 # ------------------------------------------------------------------ riding in the repaired car
-var passenger := ""                         ## the trip companion sitting in the car
-var _rider_parent: Node3D = null
+var passenger := ""                         ## the first rider ("" = nobody in the car)
+var _riders: Array = []                     ## {"name", "body", "parent", "follow", "door"} one per occupied seat
+const SEATS := [["Marker_Seat_Passenger", Vector3(1.6, 0.0, -0.3)], ["Marker_Seat_Rear_R", Vector3(1.6, 0.0, 1.0)],
+	["Marker_Seat_Rear_L", Vector3(-1.6, 0.0, 1.0)]]
+const SEAT_DROP := 0.51                     ## body root below the seat's hip point (the animator's pelvis sits 0.51 above it)
 
 
-## The player got in: the trip companion (alive, with them, not far off) walks to the passenger door and takes the
-## seat; the car is not driven off until they are in (at most a few seconds). instant: a load inside the car.
-func board_car(instant := false) -> void:
+## The living companions who are with the player right now: the trip companion first, then anyone following on a
+## story trip. They take the free seats in order; nobody else boards.
+func _boarders(instant: bool) -> Array:
+	var out: Array = []
 	var n := String(st()["companion"])
-	if n == "" or passenger != "" or follow == null or not is_instance_valid(follow) or not alive(n):
+	if n != "" and follow != null and is_instance_valid(follow) and alive(n):
+		out.append([n, follow])
+	if instant:
+		return out                                       # a load inside the car: only the saved trip companion
+	for f in world.expedition._followers():
+		var nm := String((f as VeilCompanionFollow).npc.name)
+		if f != follow and world.animators.has(nm) and alive(nm):
+			out.append([nm, f])
+	return out
+
+
+## The player got in: everyone with them (alive, not far off) walks to a door and takes a seat; the car is not driven
+## off until they are in (at most a few seconds). instant: a load inside the car.
+func board_car(instant := false) -> void:
+	if not _riders.is_empty():
 		return
-	var body := world.animators[n].root as Node3D
 	var car: Node3D = world.sedan
-	var seat := car.find_child("Marker_Seat_Passenger", true, false) as Node3D
-	if seat == null or body.global_position.distance_to(car.global_position) > 25.0:
-		return
-	follow.stop()
-	if not instant:
-		var door: Vector3 = car.global_transform * Vector3(1.6, 0.0, -0.3)
+	var walking: Array = []
+	for who in _boarders(instant):
+		if walking.size() >= SEATS.size():
+			break                                        # the car is full: the others stay on foot behind it
+		var n: String = who[0]
+		var body := world.animators[n].root as Node3D
+		var seat_def: Array = SEATS[walking.size()]
+		if car.find_child(String(seat_def[0]), true, false) == null or body.global_position.distance_to(car.global_position) > 25.0:
+			continue
+		(who[1] as VeilCompanionFollow).stop()
+		var door: Vector3 = car.global_transform * (seat_def[1] as Vector3)
 		door.y = body.global_position.y
-		world.npc_walk(n, body.get_parent_node_3d().to_local(door), 2.2)
-		var t := 0.0
-		while t < 8.0 and Vector2(body.global_position.x - door.x, body.global_position.z - door.z).length() > 0.7:
-			await get_tree().process_frame
-			t += get_process_delta_time()
-	passenger = n
-	_rider_parent = body.get_parent_node_3d()
+		walking.append([n, body, seat_def, who[1], door])
+		if not instant:
+			world.npc_walk(n, body.get_parent_node_3d().to_local(door), 2.2)
+	var t := 0.0
+	while not instant and t < 8.0 and walking.any(func(w): return Vector2((w[1] as Node3D).global_position.x - (w[4] as Vector3).x, (w[1] as Node3D).global_position.z - (w[4] as Vector3).z).length() > 0.7):
+		await get_tree().process_frame
+		t += get_process_delta_time()
+	for w in walking:
+		_seat(w[0], w[1], w[2], w[3])
+
+
+func _seat(n: String, body: Node3D, seat_def: Array, fol: Node) -> void:
+	var car: Node3D = world.sedan
+	var seat := car.find_child(String(seat_def[0]), true, false) as Node3D
+	if passenger == "":
+		passenger = n
+	_riders.append({"name": n, "body": body, "parent": body.get_parent_node_3d(), "follow": fol, "door": seat_def[1]})
 	body.collision_layer = 0
 	body.collision_mask = 0
 	body.reparent(seat, false)
 	# on the seat, facing the way the car drives: the car runs along its -Z, an NPC's model faces its +Z
-	body.global_transform = Transform3D(Basis(Vector3.UP, car.global_rotation.y + PI), seat.global_position - Vector3(0, 0.45, 0))
+	body.global_transform = Transform3D(car.global_basis * Basis(Vector3.UP, PI), seat.global_position - Vector3(0, SEAT_DROP, 0))
 	var an = world.animators.get(n)
 	if an:
 		an.walk_to([])
+		an.hold_facing = true                            # no turning round in the seat to look at the player
 		an.set_seated(true, 0.45)
 
 
-## The player got out: the passenger gets out on their side, onto clear ground, and follows again.
+## The player got out: each rider gets out on their own side, onto clear ground, and follows again.
 func leave_car() -> void:
-	if passenger == "":
+	if _riders.is_empty():
 		return
-	var n := passenger
-	passenger = ""
-	var body := world.animators[n].root as Node3D
 	var car: Node3D = world.sedan
-	var parent := _rider_parent if _rider_parent and is_instance_valid(_rider_parent) else world as Node3D
-	body.reparent(parent, true)
-	var out: Vector3 = car.global_transform * Vector3(1.6, 0.0, -0.3)
-	var vb := body as VeilSurvivorBody
-	if vb:
-		var safe := vb.nearest_safe(out, 2.0)
-		body.global_transform = Transform3D(Basis(Vector3.UP, car.global_rotation.y), safe if safe.is_finite() else out)
-		body.collision_layer = VeilSurvivorBody.LAYER
-		body.collision_mask = VeilSurvivorBody.SOLIDS
-	var an = world.animators.get(n)
-	if an:
-		an.set_seated(false)
-	if follow and is_instance_valid(follow):
-		follow.start()
+	var riders := _riders
+	_riders = []
+	passenger = ""
+	for r in riders:
+		var n := String(r["name"])
+		var body: Node3D = r["body"]
+		if not is_instance_valid(body):
+			continue
+		var parent: Node3D = r["parent"] if r["parent"] and is_instance_valid(r["parent"]) else world as Node3D
+		body.reparent(parent, true)
+		var out: Vector3 = car.global_transform * (r["door"] as Vector3)
+		var vb := body as VeilSurvivorBody
+		if vb:
+			body.global_transform = Transform3D(Basis(Vector3.UP, car.global_rotation.y), out)
+			var safe := vb.nearest_safe(out, 4.0)
+			if safe.is_finite():
+				body.global_position = safe
+			body.collision_layer = VeilSurvivorBody.LAYER
+			body.collision_mask = VeilSurvivorBody.SOLIDS
+		var an = world.animators.get(n)
+		if an:
+			an.hold_facing = false
+			an.set_seated(false)
+		var fol = r["follow"]
+		if fol and is_instance_valid(fol):
+			fol.start()
 
 
 # ------------------------------------------------------------------ companion help on a trip

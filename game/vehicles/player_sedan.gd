@@ -33,6 +33,7 @@ var survival := false
 var fuel := 1.0                    ## 0..1 of a tank
 var condition := 1.0               ## 0..1
 const FUEL_RANGE_M := 3000.0       ## a full tank, in metres driven
+const FUEL_PER_CAN := 0.5          ## one fuel can: half a tank
 var _warned := ""
 var steer := 0.0
 var autopilot: Callable = Callable()     # tests: func(delta) -> Vector3(throttle, brake, steer)
@@ -177,8 +178,11 @@ func exit_spot(space: PhysicsDirectSpaceState3D, player_rid: RID) -> Variant:
 	clearance.shape = capsule
 	clearance.collision_mask = 1 | 4
 	clearance.exclude = [player_rid]
-	for side in [-1.0, 1.0]:
-		var p := global_transform * Vector3(1.6 * side, 0.0, -0.3)
+	# both doors first, then along the sides, then behind and in front: a car that stopped against a wall or between
+	# two others (out of fuel, it cannot be moved) must never hold the player inside
+	for off in [Vector3(-1.6, 0, -0.3), Vector3(1.6, 0, -0.3), Vector3(-1.6, 0, 1.1), Vector3(1.6, 0, 1.1),
+			Vector3(-2.2, 0, -0.3), Vector3(2.2, 0, -0.3), Vector3(0, 0, 3.1), Vector3(0, 0, -3.1)]:
+		var p: Vector3 = global_transform * off
 		var ray := PhysicsRayQueryParameters3D.create(p + Vector3.UP * 0.6, p - Vector3.UP * 0.55, 1, [player_rid])
 		var ground := space.intersect_ray(ray)
 		if ground.is_empty() or ground.normal.y < cos(deg_to_rad(46.0)):
@@ -259,9 +263,11 @@ func _physics_process(delta: float) -> void:
 	elif speed_cap > 0.0 and speed > speed_cap * 0.85:
 		throttle = minf(throttle, 0.15)
 	var scripted := drive_script.is_valid()
+	var dead := false
 	if survival and driven and not scripted:
 		if fuel <= 0.0 or condition <= 0.0:
-			throttle = 0.0                          # out of fuel / wrecked: it rolls to a stop (E still gets out)
+			dead = true                             # out of fuel / wrecked: it rolls to a stop (E still gets out)
+			throttle = 0.0
 		elif condition < 0.35:
 			throttle = minf(throttle, 0.55)         # badly knocked about: it labours
 	if scripted:
@@ -284,7 +290,9 @@ func _physics_process(delta: float) -> void:
 	elif throttle > 0.0:
 		speed += (ACCEL * throttle * (1.0 - clampf(speed / TOP_SPEED, 0.0, 1.0) * 0.55) if speed >= 0.0 else BRAKE * throttle) * delta
 	if brake > 0.0:
-		if speed > 0.2:
+		if dead:
+			speed = move_toward(speed, 0.0, BRAKE * brake * delta)   # the brakes work; reverse needs the engine
+		elif speed > 0.2:
 			speed -= BRAKE * brake * delta
 		else:
 			speed -= ACCEL * 0.8 * brake * delta
@@ -388,10 +396,21 @@ func _status_warn() -> void:
 	if w != "" and w.left(12) != _warned.left(12):
 		_warned = w
 		var world := get_tree().get_first_node_in_group("veil_world")
-		if world and world.hud and world.hud.has_method("set_hint"):
+		if world and world.expedition:
+			world.expedition._hint(w)                    # (clears itself after a few seconds)
+		elif world and world.hud and world.hud.has_method("set_hint"):
 			world.hud.set_hint(w)
 	elif w == "":
 		_warned = ""
+
+
+## A creature got at the car: the condition drops, the body takes the blow. Never below 0; the player stays inside.
+func monster_hit(amount: float) -> void:
+	if not survival:
+		return
+	condition = maxf(condition - amount, 0.0)
+	Sfx.play("door_close", global_position + Vector3(0, 0.9, 0), -3.0, 0.55)
+	_status_warn()
 
 
 func restore(d: Dictionary) -> void:

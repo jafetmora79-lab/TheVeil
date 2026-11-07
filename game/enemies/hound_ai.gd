@@ -56,6 +56,7 @@ var burst := false                  ## chase in lunges (short fast bursts, then 
 var _burst_t := 0.0
 ## A struggle may take an attack over (game/encounters/struggle.gd): return true from it to replace the bite.
 var on_attack: Callable = Callable()
+var _world: Node = null
 var hold := false                   ## a struggle holds the creature in place (its pose is driven from outside)
 var _recover_t := 0.0
 var _recover_len := 0.0
@@ -118,7 +119,7 @@ func _physics_process(delta: float) -> void:
 		body.velocity = Vector3.ZERO
 		return
 	_bite_t = maxf(_bite_t - delta, 0.0)
-	var to_p := player.global_position - body.global_position
+	var to_p := _tp() - body.global_position
 	var dist := Vector2(to_p.x, to_p.z).length()
 	var sees := _can_see(dist)
 	var hears := _can_hear(dist)
@@ -130,9 +131,9 @@ func _physics_process(delta: float) -> void:
 				hears = false
 			if sees:
 				awareness = minf(awareness + delta * lerpf(1.6, 0.45, clampf(dist / sight_range, 0.0, 1.0)), 1.0)
-				_suspect(player.global_position)
+				_suspect(_tp())
 			elif hears:
-				_suspect(player.global_position)
+				_suspect(_tp())
 			else:
 				awareness = maxf(awareness - delta * 0.25, 0.0)
 				if state == "RETURN" and _flat(body.global_position, home) < 1.5:
@@ -159,9 +160,9 @@ func _physics_process(delta: float) -> void:
 				return
 			if sees:
 				awareness = minf(awareness + delta * lerpf(2.2, 0.7, clampf(dist / sight_range, 0.0, 1.0)), 1.0)
-				_last_seen = player.global_position
+				_last_seen = _tp()
 			elif hears:
-				_last_seen = player.global_position
+				_last_seen = _tp()
 				awareness = minf(awareness + delta * 0.35, 1.0)
 			else:
 				awareness = maxf(awareness - delta * 0.18, 0.0)
@@ -175,18 +176,23 @@ func _physics_process(delta: float) -> void:
 				_idle(delta, "Alert")
 		"CHASE":
 			if sees:
-				_last_seen = player.global_position
+				_last_seen = _tp()
 				_unseen = 0.0
 			else:
 				_unseen += delta
 			# reach is measured from the jaws: the body origin sits ~1.2 m behind the head (CRT_Hound HeadShape)
 			var jaws := body.global_position + body.global_transform.basis.z.normalized() * jaw_offset
-			var jaw_d := Vector2(player.global_position.x - jaws.x, player.global_position.z - jaws.z).length()
+			var jaw_d := Vector2(_tp().x - jaws.x, _tp().z - jaws.z).length()
 			if (jaw_d < 0.95 or dist < bite_range) and sees:
 				_idle(delta, "Attack_Bite")
 				_face(to_p)
 				if _bite_t <= 0.0:
 					_bite_t = bite_cooldown
+					var car := _car()
+					if car:
+						if absf(car.speed) < 7.0:
+							car.monster_hit(bite_damage * 0.0025)     # at the car, not the driver
+						return
 					if on_attack.is_valid() and bool(on_attack.call(self)):
 						return                        # a struggle took this attack over
 					bit.emit(bite_damage)
@@ -203,11 +209,11 @@ func _physics_process(delta: float) -> void:
 				if burst:
 					_burst_t = fmod(_burst_t + delta, 2.2)
 					sp *= 1.35 if _burst_t < 0.9 else 0.55
-				_move_to(_last_seen if not sees else player.global_position, sp, delta, "Run")
+				_move_to(_last_seen if not sees else _tp(), sp, delta, "Run")
 		"RECOVER":
 			# after a struggle: "back" = stagger, shake it off, then hunt again; "flee" = a fast zigzag away, then gone
 			_recover_t -= delta
-			var away := (body.global_position - player.global_position) * Vector3(1, 0, 1)
+			var away := (body.global_position - _tp()) * Vector3(1, 0, 1)
 			away = away.normalized() if away.length() > 0.01 else -body.global_transform.basis.z
 			if _recover_mode == "flee":
 				var zig := away.cross(Vector3.UP) * sin(_recover_t * 7.0) * 0.9
@@ -223,7 +229,7 @@ func _physics_process(delta: float) -> void:
 					_face(-away)
 				if _recover_t <= 0.0:
 					state = "SUSPICIOUS"
-					_last_seen = player.global_position
+					_last_seen = _tp()
 					awareness = 0.99
 					_start_chase()
 		"SEARCH":
@@ -269,22 +275,40 @@ func _start_chase() -> void:
 		noticed.emit()
 
 
+## The sedan while the player is driving it (the hidden player stays where they got in), else null.
+func _car() -> Node3D:
+	if _world == null or not is_instance_valid(_world):
+		_world = get_tree().get_first_node_in_group("veil_world")
+	return _world.sedan if _world and _world.in_car else null
+
+
+## Where the player really is.
+func _tp() -> Vector3:
+	var car := _car()
+	return car.global_position if car else player.global_position
+
+
 func _can_see(dist: float) -> bool:
 	var crouch: bool = player.get("crouching") == true
 	var rng := sight_range_crouch if crouch else sight_range
 	if dist > rng:
 		return false
 	var fwd := body.global_transform.basis.z         # the model faces +Z
-	var to := (player.global_position - body.global_position) * Vector3(1, 0, 1)
+	var to := (_tp() - body.global_position) * Vector3(1, 0, 1)
 	if dist > 2.5 and rad_to_deg(Vector3(fwd.x, 0, fwd.z).normalized().angle_to(to.normalized())) > sight_half_angle:
 		return false
 	var space := body.get_world_3d().direct_space_state
-	var q := PhysicsRayQueryParameters3D.create(body.global_position + Vector3(0, 0.9, 0), player.global_position + Vector3(0, 0.6, 0), 1)
+	var q := PhysicsRayQueryParameters3D.create(body.global_position + Vector3(0, 0.9, 0), _tp() + Vector3(0, 0.6, 0), 1)
 	q.exclude = [body.get_rid(), player.get_rid()]
+	var car := _car()
+	if car:
+		q.exclude = [body.get_rid(), player.get_rid(), car.get_rid()]
 	return space.intersect_ray(q).is_empty()
 
 
 func _can_hear(dist: float) -> bool:
+	if _car():
+		return dist < 14.0                              # an engine carries
 	var v := Vector2(player.velocity.x, player.velocity.z).length()
 	if v < 0.3:
 		return false
