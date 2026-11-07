@@ -496,6 +496,28 @@ func _add_glass_colliders() -> void:
 
 
 var glass_panes := 0
+var _light_glass: Dictionary = {}
+
+
+## Story-critical windows (the game shop front, the mill house): the dirty glass keeps its texture and PSX look but
+## its grime is thinned, so what is behind it reads. Material swap only (shared, cached) - no new transparency cost.
+func clear_story_glass(root: Node) -> void:
+	if root == null:
+		return
+	for n in root.find_children("*", "MeshInstance3D", true, false):
+		var mi := n as MeshInstance3D
+		if mi.mesh == null:
+			continue
+		for i in mi.mesh.get_surface_count():
+			var m := mi.mesh.surface_get_material(i) as StandardMaterial3D
+			if m == null or not m.resource_name.contains("WindowGlassDirty"):
+				continue
+			var light: StandardMaterial3D = _light_glass.get(m)
+			if light == null:
+				light = m.duplicate() as StandardMaterial3D
+				light.albedo_color = Color(m.albedo_color.r, m.albedo_color.g, m.albedo_color.b, m.albedo_color.a * 0.4)
+				_light_glass[m] = light
+			mi.set_surface_override_material(i, light)
 
 
 ## The parking-lot edge piece right in front of the supermarket entrance carries a strip of dry grass that reads as
@@ -515,6 +537,7 @@ func _pave_forecourt() -> void:
 func _setup_town() -> void:
 	market = get_node("Commercial/SUPERMARKET")
 	game_shop = get_node("Commercial/GAME_SHOP")
+	clear_story_glass(game_shop)
 	_pave_forecourt.call_deferred()
 	_add_glass_colliders()
 	# supermarket: bi-parting automatic doors open while the player stands in front of / inside the vestibule

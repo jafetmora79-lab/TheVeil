@@ -363,6 +363,18 @@ func _window_scene() -> void:
 	_hold(true)
 	Game.set_flag("ch14_window_seen")
 	_set_fog(true, 0.5)
+	# the window is small (0.8 m): the player is eased square behind it and the shape is put straight out through it,
+	# so the whole pass reads through the glass instead of past the frame
+	var view := hl(c10.WINDOW + Vector3(0.0, 0.0, 1.15))
+	view.y = player.global_position.y
+	if Vector2(view.x - player.global_position.x, view.z - player.global_position.z).length() > 0.2:
+		player.set_physics_process(false)
+		var te := create_tween()
+		te.tween_property(player, "global_position", view, 0.8).set_trans(Tween.TRANS_SINE)
+		await te.finished
+		player.set_physics_process(true)
+	shape.global_position = hl(c10.WINDOW + Vector3(4.0, 7.0, -58.0))
+	var across := -house_basis_x() * 9.0
 	await c8._turn_to(shape.global_position, 1.4)
 	var cam: Camera3D = player.camera
 	var fov0 := cam.fov
@@ -371,7 +383,7 @@ func _window_scene() -> void:
 	var m := shape.material_override as StandardMaterial3D
 	var ts := create_tween()
 	ts.tween_property(m, "albedo_color:a", 0.55, 1.4)
-	ts.tween_property(shape, "global_position", shape.global_position + Vector3(-22.0, 0, 6.0), 3.0)
+	ts.tween_property(shape, "global_position", shape.global_position + across, 3.0)
 	ts.parallel().tween_property(m, "albedo_color:a", 0.0, 3.0)
 	_play("deep", shape.global_position, 8.0)
 	await ts.finished
@@ -383,6 +395,12 @@ func _window_scene() -> void:
 	await c9._talk_group(_pick("c14_window"), [_node("Eddie"), _node("Ruth")])
 	_busy["window"] = false
 	_meeting()
+
+
+func house_basis_x() -> Vector3:
+	var x := hl(Vector3.RIGHT) - hl(Vector3.ZERO)
+	x.y = 0.0
+	return x.normalized() if x.length() > 0.01 else Vector3.RIGHT
 
 
 func _meeting() -> void:

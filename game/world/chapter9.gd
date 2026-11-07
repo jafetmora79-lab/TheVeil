@@ -503,11 +503,18 @@ func _talk_marcus(_b: Node) -> void:
 
 func _talk_group(id: String, npcs: Array) -> void:
 	var ok: bool = await world.converse([id], npcs)
+	# the speaker could not be framed (a doorway): the same lines as subtitles, movement still held until they end
+	var held := false
 	if not ok:
+		held = world.player.controls_enabled
+		world.player.controls_enabled = false
+		world.player.velocity = Vector3.ZERO
 		Dialogue.say(id, false, true)
 	await get_tree().process_frame
 	while Dialogue.is_busy() or world.conversing:
 		await get_tree().process_frame
+	if held:
+		world.player.controls_enabled = true
 
 
 # ------------------------------------------------------------------ scene 2: prepare to evacuate

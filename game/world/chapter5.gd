@@ -767,11 +767,17 @@ func _talk(id: String, npc: Node3D) -> void:
 	var ok := false
 	if npc and world.has_method("converse"):
 		ok = await world.converse([id], [npc])
+	var held := false
 	if not ok:
+		held = world.player.controls_enabled
+		world.player.controls_enabled = false
+		world.player.velocity = Vector3.ZERO
 		Dialogue.say(id, false, true)
 	await get_tree().process_frame
 	while Dialogue.is_busy() or (world.get("conversing") == true):
 		await get_tree().process_frame
+	if held:
+		world.player.controls_enabled = true
 
 
 ## Start a conversation that may lead into a choice (not awaited): talk camera when the NPC can be framed,

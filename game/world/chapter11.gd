@@ -59,8 +59,10 @@ const MESSAGE_AT := Vector3(1.6, 5.4, 5.8)              # dropped onto whatever 
 ## clear of the ways through the room (front door -> kitchen arch at x 1.5..2, z 8.6; front door -> the stairs at x -3)
 const WAIT_SPOTS := {"Eddie": Vector3(-1.6, 0.61, 7.6), "Ruth": Vector3(2.9, 0.61, 6.6), "Sarah": Vector3(2.9, 0.61, 5.0),
 	"Marcus": Vector3(-1.0, 0.61, 6.6)}
-const SIDE_WINDOW := Vector3(-3.5, 1.5, 6.0)
-const WINDOW_PASS := [Vector3(-6.5, 0.0, 9.5), Vector3(-6.5, 0.0, 2.5), Vector3(-2.0, 0.0, -3.0)]
+## the living room's front window (the left-wall window lies behind the stairs, so the view went into them)
+const SIDE_WINDOW := Vector3(0.0, 1.5, 3.4)
+const WINDOW_VIEW := Vector3(0.3, 0.0, 6.9)            # where the player is eased to before the turn (clear sightline)
+const WINDOW_PASS := [Vector3(-6.5, 0.0, 2.0), Vector3(-3.0, 0.0, 0.3), Vector3(6.5, 0.0, 0.3)]
 const BACK_DOOR := Vector3(0.56, 1.0, 11.3)
 const CHASE_SPAWN := Vector3(5.2, 0.0, 6.0)             # outside, east of the house
 const FAR_LIGHT := Vector3(1.5, 1.75, 4.4)              # inside HOUSE_19, behind its front wall
@@ -687,6 +689,7 @@ func _attack() -> void:
 	h.global_position = Vector3(a.x, _floor(a), a.z)
 	VeilCreatureLook.apply_skitter(h, h.global_position.y)
 	p4._play("scrape", fl(Vector3(-4.5, 1.0, 9.0)), 0.0)
+	await _ease_to_view()
 	await c8._turn_to(fl(SIDE_WINDOW), 0.8)
 	c8._hplay(h, "Walk", 0.0)
 	for i in range(1, WINDOW_PASS.size()):
@@ -852,6 +855,21 @@ func _start_chapter12(restoring: bool) -> void:
 # ------------------------------------------------------------------ helpers, per tick
 func _hint(t: String) -> void:
 	c10._hint(t)
+
+
+## Eases the player (ground floor only) to a spot with a clear line to the front window, so the scripted look
+## never ends inside the stairs or a wall. The player's own physics resume afterwards.
+func _ease_to_view() -> void:
+	var to := fl(WINDOW_VIEW)
+	var from: Vector3 = player.global_position
+	if absf(from.y - fl(Vector3(0, 0.61, 0)).y) > 1.2 or Vector2(from.x - to.x, from.z - to.z).length() < 0.3:
+		return
+	to.y = from.y
+	player.set_physics_process(false)
+	var tw := create_tween()
+	tw.tween_property(player, "global_position", to, clampf(from.distance_to(to) / 2.5, 0.3, 1.4)).set_trans(Tween.TRANS_SINE)
+	await tw.finished
+	player.set_physics_process(true)
 
 
 func _hold(on: bool) -> void:

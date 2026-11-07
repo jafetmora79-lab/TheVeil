@@ -25,6 +25,7 @@ var _join_for := 0.0
 
 
 func setup(p_npc: Node3D, p_leader: Node3D) -> void:
+	add_to_group("veil_companion_follow")
 	npc = p_npc
 	leader = p_leader
 	anim = npc.get_node_or_null("Animator")
@@ -87,6 +88,8 @@ func _physics_process(delta: float) -> void:
 		return
 	if flat.length() < PERSONAL:
 		_step_aside(flat)
+		return
+	if _queue_behind_other():
 		return
 	if end <= start or flat.length() < gap * 0.85:
 		if anim.is_walking():
@@ -157,6 +160,28 @@ func _stuck_check(to_leader: float) -> void:
 	recoveries += 1
 	_stuck_t = 0.0
 	_stuck_at = npc.global_position
+
+
+## Several companions walk the same trail: one that comes within SPACING of another companion who is nearer the
+## leader waits (or steps aside when they are already touching) instead of walking into them.
+const SPACING := 0.9
+
+
+func _queue_behind_other() -> bool:
+	var mine := npc.global_position.distance_to(leader.global_position)
+	for f in get_tree().get_nodes_in_group("veil_companion_follow"):
+		var other := f as VeilCompanionFollow
+		if other == null or other == self or not other.active or other.npc == null or not other.npc.is_visible_in_tree():
+			continue
+		var d := (other.npc.global_position - npc.global_position) * Vector3(1, 0, 1)
+		if d.length() >= SPACING or other.npc.global_position.distance_to(leader.global_position) > mine:
+			continue
+		if d.length() < 0.5:
+			_step_aside(-d)
+		elif anim.is_walking():
+			anim.walk_to([])
+		return true
+	return false
 
 
 const PERSONAL := 0.95             ## closer than this to the leader and the companion steps aside
