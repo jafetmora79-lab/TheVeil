@@ -165,7 +165,12 @@ func _use_exit(_b: Node) -> void:
 	_busy_menu = false
 	match pick:
 		"story":
-			# the story's own exit and objective take it from here (nothing is restarted or skipped)
+			# the story's own exit and objective take it from here (nothing is restarted or skipped); the doors open
+			story_departure = true
+			_story_out = false
+			var c5d := _c5()
+			if c5d:
+				c5d._set_doors(true)
 			_hint("Objective: " + String(Game.current_step().get("text", "")))
 		"scavenge":
 			var who := ""
@@ -181,6 +186,15 @@ func _use_exit(_b: Node) -> void:
 
 
 var _busy_menu := false
+var story_departure := false            ## "Continue Story" was chosen: the doors may open until the player is back in
+var _story_out := false
+
+
+## Normal shelter time with the player inside: the front doors only open through "[E] Leave Shelter" (a choice in
+## the menu), never because the player or a companion walks up to them. Whenever this holds, that prompt is offered
+## (same condition), so nobody is shut in; coming back from outside always opens them.
+func doors_held() -> bool:
+	return can_scavenge() and not story_departure and not _busy_menu and in_store()
 
 
 func start(kind: String, vehicle: bool) -> void:
@@ -775,6 +789,11 @@ func _open_houses() -> void:
 
 
 func _process(delta: float) -> void:
+	if story_departure:
+		if not in_store():
+			_story_out = true
+		elif _story_out:
+			story_departure = false              # back inside after the story trip: the doors are held again
 	if houses.is_empty():
 		_open_houses()
 	_danger(delta)

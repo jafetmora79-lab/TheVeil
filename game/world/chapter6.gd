@@ -646,7 +646,8 @@ func _process(delta: float) -> void:
 	var near: bool = c5._near_doors(pl) or c5._near_doors(el)
 	if rs_following:
 		near = near or c5._near_doors(market.to_local(ruth.global_position)) or c5._near_doors(market.to_local(sarah.global_position))
-	if near != c5._doors_open and (c5._near_doors(pl) or not near) and not (world.expedition != null and world.expedition.active()):
+	if near != c5._doors_open and (c5._near_doors(pl) or not near) and not (world.expedition != null and world.expedition.active()) \
+			and not (near and world.expedition != null and world.expedition.doors_held()):
 		c5._set_doors(near)                       # (a supply run keeps them as the trip left them)
 	if not Game.has_flag("ch6_left_supermarket") and c5._away_from_store(pl, 3.0) and c5.eddie_follow.active:
 		Game.set_flag("ch6_left_supermarket")

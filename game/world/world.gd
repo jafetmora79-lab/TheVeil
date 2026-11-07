@@ -166,6 +166,10 @@ func _ready() -> void:
 		Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
 	else:
 		_opening()
+	# items picked up are saved straight away (only flags used to save: anything found after the last story step
+	# was lost on Continue). Not before the restore above, which must read the saved player state first.
+	_world_live = true
+	Game.inventory_changed.connect(_save_soon)
 
 
 # ------------------------------------------------------------------ performance: distance culling
@@ -1358,6 +1362,8 @@ func _end_cine() -> void:
 func companion_at_market_doors(at: Vector3) -> void:
 	if market == null or Game.has_flag("p3_doors_shut") and not Game.has_flag("c5_started"):
 		return
+	if expedition != null and expedition.doors_held():
+		return                                   # shelter time: a companion never opens the exit on its own
 	var o := market.get_node_or_null("Doorways/Entrance_Outside") as Node3D
 	var i := market.get_node_or_null("Doorways/Entrance_Inside") as Node3D
 	if o == null or i == null or minf(at.distance_to(o.global_position), at.distance_to(i.global_position)) > 2.6:
@@ -3697,7 +3703,33 @@ func _web_autotest() -> void:
 		Game.has_flag("left_house"), in_car, sedan.global_position.distance_to(p0), Game.current_step().get("id", ""), Game.has_save()])
 
 
+var _world_live := false
+var _save_pending := false
+
+
+## One save a moment after the inventory changes (several pickups in a row make one save).
+func _save_soon() -> void:
+	if _save_pending or not _world_live:
+		return
+	_save_pending = true
+	await get_tree().create_timer(0.5, true).timeout
+	_save_pending = false
+	save_if_alive()
+
+
+## Leaving (main menu, quit, closing the window) keeps what was found; never while dead (the death screen reloads).
+func save_if_alive() -> void:
+	if _world_live and is_instance_valid(player) and player.health > 0.0:
+		save()
+
+
+func _notification(what: int) -> void:
+	if what == NOTIFICATION_WM_CLOSE_REQUEST:
+		save_if_alive()
+
+
 func _to_menu() -> void:
+	save_if_alive()
 	get_tree().paused = false
 	Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
 	Sfx.stop_ambience()

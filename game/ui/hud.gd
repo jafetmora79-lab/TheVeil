@@ -211,10 +211,15 @@ func _unhandled_input(e: InputEvent) -> void:
 		Dialogue.advance_any()
 		get_viewport().set_input_as_handled()
 		return
-	if e.is_action_pressed("pause") and allow_pause and not end_panel.visible:
+	if e.is_action_pressed("pause") and modal_open():
+		# one interface at a time: Esc backs out of the inventory; a decision panel stays until something is chosen
+		if inv_panel.visible:
+			toggle_inventory()
+		get_viewport().set_input_as_handled()
+	elif e.is_action_pressed("pause") and allow_pause and not end_panel.visible:
 		set_paused(not is_paused())
 		get_viewport().set_input_as_handled()
-	elif e.is_action_pressed("inventory") and not is_paused():
+	elif e.is_action_pressed("inventory") and not is_paused() and not _choice_open():
 		toggle_inventory()
 	elif e is InputEventMouseButton and e.pressed and not is_paused() and not end_panel.visible and not inv_panel.visible \
 			and Input.mouse_mode != Input.MOUSE_MODE_CAPTURED:
@@ -591,7 +596,11 @@ func _build_pause() -> void:
 	var b4 := VeilUI.button("Main Menu")
 	b4.pressed.connect(func(): quit_to_menu.emit())
 	var b5 := VeilUI.button("Quit Game")
-	b5.pressed.connect(func(): get_tree().quit())
+	b5.pressed.connect(func():
+		var w := get_tree().get_first_node_in_group("veil_world")
+		if w and w.has_method("save_if_alive"):
+			w.save_if_alive()
+		get_tree().quit())
 	b5.visible = OS.get_name() != "Web"
 	for b in [b1, b2, b3, b4, b5]:
 		v.add_child(b)
@@ -623,6 +632,19 @@ func set_paused(on: bool) -> void:
 
 func is_paused() -> bool:
 	return pause_panel.visible
+
+
+## Another full-screen interface is up (inventory, a decision / companion / supplies panel): the pause menu does
+## not open on top of it.
+func modal_open() -> bool:
+	return inv_panel.visible or _choice_open()
+
+
+func _choice_open() -> bool:
+	for c in get_tree().get_nodes_in_group("veil_choice_panel"):
+		if c.has_method("is_open") and c.is_open():
+			return true
+	return false
 
 
 # ------------------------------------------------------------------ end of the opening
