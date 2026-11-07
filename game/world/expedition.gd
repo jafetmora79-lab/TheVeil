@@ -187,7 +187,14 @@ func _use_exit(_b: Node) -> void:
 			if world.survivors and active():
 				world.survivors.begin_trip(who)
 		"scavenge_car":
+			var rider := ""
+			if world.survivors:
+				_busy_menu = true
+				rider = await world.survivors.pick_companion(p4.choice)
+				_busy_menu = false
 			start("scavenge", true)
+			if world.survivors and active():
+				world.survivors.begin_trip(rider)          # they come along and ride in the passenger seat
 
 
 var _busy_menu := false

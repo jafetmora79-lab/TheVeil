@@ -50,6 +50,8 @@ func setup(w: Node) -> void:
 	if String(s["companion"]) != "":
 		if world.expedition and world.expedition.active() and _available(String(s["companion"]), true):
 			_start_follow(String(s["companion"]), true)
+			if world.in_car:
+				board_car.call_deferred(true)            # saved while driving: back in the passenger seat
 		else:
 			s["companion"] = ""
 
@@ -457,6 +459,7 @@ func end_trip(got: Dictionary) -> void:
 		if k in ["canned_food", "water_bottle", "energy_snack", "chocolate_bar", "cola_bottle", "painkillers", "batteries"]:
 			total += int(got[k])
 	_remove_helper()
+	leave_car()
 	if n != "" and follow:
 		var far: bool = follow.lag() > float(cfg.get("abandon_distance", 35))
 		follow.stop()
@@ -504,7 +507,7 @@ func _companion_tick(delta: float) -> void:
 		return
 	var cam := world.get_viewport().get_camera_3d()
 	var seen: bool = cam != null and cam.is_position_in_frustum(follow.npc.global_position + Vector3(0, 1, 0))
-	if follow.lag() > 22.0 and not seen and not world.in_car and not _recovered:
+	if follow.lag() > 22.0 and not seen and not world.in_car and passenger == "" and not _recovered:
 		_recovered = true
 		follow.recover_behind(3.0)                           # separated (stuck or lost): back on the trail, unseen
 		report["recoveries"] += 1
@@ -538,6 +541,67 @@ func _companion_tick(delta: float) -> void:
 				if not Dialogue.is_busy():
 					Dialogue.say("sv_sarah_early", false, false)
 				break
+
+
+# ------------------------------------------------------------------ riding in the repaired car
+var passenger := ""                         ## the trip companion sitting in the car
+var _rider_parent: Node3D = null
+
+
+## The player got in: the trip companion (alive, with them, not far off) walks to the passenger door and takes the
+## seat; the car is not driven off until they are in (at most a few seconds). instant: a load inside the car.
+func board_car(instant := false) -> void:
+	var n := String(st()["companion"])
+	if n == "" or passenger != "" or follow == null or not is_instance_valid(follow) or not alive(n):
+		return
+	var body := world.animators[n].root as Node3D
+	var car: Node3D = world.sedan
+	var seat := car.find_child("Marker_Seat_Passenger", true, false) as Node3D
+	if seat == null or body.global_position.distance_to(car.global_position) > 25.0:
+		return
+	follow.stop()
+	if not instant:
+		var door: Vector3 = car.global_transform * Vector3(1.6, 0.0, -0.3)
+		door.y = body.global_position.y
+		world.npc_walk(n, body.get_parent_node_3d().to_local(door), 2.2)
+		var t := 0.0
+		while t < 8.0 and Vector2(body.global_position.x - door.x, body.global_position.z - door.z).length() > 0.7:
+			await get_tree().process_frame
+			t += get_process_delta_time()
+	passenger = n
+	_rider_parent = body.get_parent_node_3d()
+	body.collision_layer = 0
+	body.collision_mask = 0
+	body.reparent(seat, false)
+	body.transform = Transform3D(Basis(), Vector3(0, -0.45, 0))
+	var an = world.animators.get(n)
+	if an:
+		an.walk_to([])
+		an.set_seated(true, 0.45)
+
+
+## The player got out: the passenger gets out on their side, onto clear ground, and follows again.
+func leave_car() -> void:
+	if passenger == "":
+		return
+	var n := passenger
+	passenger = ""
+	var body := world.animators[n].root as Node3D
+	var car: Node3D = world.sedan
+	var parent := _rider_parent if _rider_parent and is_instance_valid(_rider_parent) else world as Node3D
+	body.reparent(parent, true)
+	var out: Vector3 = car.global_transform * Vector3(1.6, 0.0, -0.3)
+	var vb := body as VeilSurvivorBody
+	if vb:
+		var safe := vb.nearest_safe(out, 2.0)
+		body.global_transform = Transform3D(Basis(Vector3.UP, car.global_rotation.y), safe if safe.is_finite() else out)
+		body.collision_layer = VeilSurvivorBody.LAYER
+		body.collision_mask = VeilSurvivorBody.SOLIDS
+	var an = world.animators.get(n)
+	if an:
+		an.set_seated(false)
+	if follow and is_instance_valid(follow):
+		follow.start()
 
 
 # ------------------------------------------------------------------ companion help on a trip
