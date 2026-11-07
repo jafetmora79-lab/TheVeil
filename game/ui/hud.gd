@@ -436,6 +436,8 @@ static func marker_point(t: Node3D) -> Vector3:
 var _mk_arrow: Polygon2D
 ## When no story destination is set: a fallback (the way back to the current shelter), from game/ui/nav_map.gd.
 var marker_fallback: Callable
+## The town map's search destination (game/ui/nav_map.gd): [point, name, priority] or [].
+var marker_override: Callable
 
 
 ## No marker during cinematics, creature scenes or held control (driving keeps it).
@@ -498,7 +500,14 @@ func _update_marker() -> void:
 		return
 	var pos: Variant = null
 	var name := _mk_name
-	if _mk_target is Node3D and is_instance_valid(_mk_target):
+	# the map's search destination: [world point, name, takes priority (out scavenging)] - one diamond only: it shows
+	# when there is no story destination or while out on a supply run; otherwise it waits and comes back after
+	var ov: Array = marker_override.call() if marker_override.is_valid() else []
+	var story: bool = (_mk_target is Node3D and is_instance_valid(_mk_target)) or _mk_target is Vector3
+	if not ov.is_empty() and (bool(ov[2]) or not story):
+		pos = ov[0]
+		name = ov[1]
+	elif _mk_target is Node3D and is_instance_valid(_mk_target):
 		pos = marker_point(_mk_target as Node3D)
 	elif _mk_target is Vector3:
 		pos = _mk_target
@@ -538,7 +547,7 @@ func _update_marker() -> void:
 			d2 = Vector2(signf(local.x), 0.0) if absf(local.x) > 0.05 else Vector2(0.0, 1.0)   # turn left / right / around
 		_mk_arrow.rotation = d2.angle()
 	_mk.position = sp + Vector2(0, sin(Time.get_ticks_msec() * 0.004) * 2.5 if not off else 0.0)     # a gentle bob
-	_mk_label.text = ("%s  %d m" % [name, roundi(dist)]) if name != "" else "%d m" % roundi(dist)
+	_mk_label.text = ("%s — %d m" % [name, roundi(dist)]) if name != "" else "%d m" % roundi(dist)
 	_mk.visible = true
 	marker_visible = true
 

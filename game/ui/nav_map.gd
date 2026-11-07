@@ -39,6 +39,10 @@ var view := "town"
 var _held := {}
 var _route: Array = []
 var _roads: Array = []                 ## Rect2 (world x/z) of every road piece
+var _junctions: Array = []             ## intersection centres (world x/z)
+## street names where the town's own signs put them (the Oak / Main sign at the crossroads; Maple Ave up north)
+const STREETS := [["MAIN ST", Vector2(78.0, 0.0), "town"], ["OAK ST", Vector2(0.0, -48.0), "town"], ["MAIN ST", Vector2(-60.0, 0.0), "town"],
+	["MAPLE AVE", Vector2(110.0, 509.0), "north"]]
 var _blocks: Array = []                ## [Rect2, label] shops and other buildings
 var houses := {}                       ## zone -> {rect: Rect2, door: Vector3, node}
 var _hover := ""
@@ -85,6 +89,8 @@ func setup(w: Node) -> void:
 	dest_mark.draw.connect(_draw_dest)
 	add_child(dest_mark)
 	world.hud.marker_fallback = shelter_marker
+	world.hud.marker_override = map_dest_marker          # the search destination on the same yellow diamond
+	dest_mark.visible = false                             # (no second, separate marker)
 	Game.inventory_changed.connect(_on_inventory)
 	_collect.call_deferred()
 
@@ -102,6 +108,8 @@ func _collect() -> void:
 		var a: AABB = (n as Node3D).global_transform * Interactable.aabb_of(n as Node3D)
 		if a.size.x > 0.5 and a.size.z > 0.5:
 			_roads.append(Rect2(a.position.x, a.position.z, a.size.x, a.size.z))
+			if String(n.name).contains("Intersection"):
+				_junctions.append(Vector2(a.get_center().x, a.get_center().z))
 	var hn := world.get_node_or_null("Residential/Houses")
 	if hn:
 		for h in hn.get_children():
@@ -500,6 +508,9 @@ func _draw_map() -> void:
 			var a := _to_map(r, (rr as Rect2).position)
 			var b := _to_map(r, (rr as Rect2).end)
 			panel.draw_rect(Rect2(a, b - a).intersection(r), ROAD)
+	for j in _junctions:
+		if v.has_point(j):
+			panel.draw_circle(_to_map(r, j), 3.0, ROAD.darkened(0.45))
 	if Game.has_flag("ch10_started") and view == "town":
 		for road in WEST_ROADS:
 			var pts := []
@@ -514,8 +525,9 @@ func _draw_map() -> void:
 		var a := _to_map(r, rr.position)
 		var b := _to_map(r, rr.end)
 		var box := Rect2(a, b - a).intersection(r)
-		panel.draw_rect(box, PAPER.darkened(0.3))
-		panel.draw_rect(box, INK, false, 1.5)
+		box = box.grow_individual(-box.size.x * 0.12, -box.size.y * 0.12, -box.size.x * 0.12, -box.size.y * 0.12)
+		panel.draw_rect(box, PAPER.darkened(0.22))
+		panel.draw_rect(box, INK, false, 1.2)
 		if String(bl[1]) != "":
 			_label(font, labels, String(bl[1]), box.get_center() + Vector2(0, -box.size.y * 0.5 - 6), INK, 13)
 	# houses and their state
@@ -523,10 +535,9 @@ func _draw_map() -> void:
 		var rr: Rect2 = houses[z]["rect"]
 		if not clip.call(rr):
 			continue
-		var a := _to_map(r, rr.position)
-		var b := _to_map(r, rr.end)
-		var box := Rect2(a, b - a)
-		var c := box.get_center()
+		var c := _to_map(r, rr.get_center())
+		var hs := clampf(minf(r.size.x / 70.0, 11.0), 6.0, 11.0)     # one small, consistent house footprint
+		var box := Rect2(c - Vector2(hs, hs) * 0.5, Vector2(hs, hs))
 		var col := INK if accessible(z) else INK.lerp(PAPER, 0.45)
 		panel.draw_rect(box, PAPER.darkened(0.12))
 		panel.draw_rect(box, col, false, 1.0)
@@ -544,6 +555,9 @@ func _draw_map() -> void:
 			panel.draw_rect(box.grow(3), AMBER if z == selected else INK, false, 2.0)
 		if String(Game.world_state.get("map_dest", "")) == z:
 			_diamond(c + Vector2(0, -12), 6.0, AMBER)
+	for st in STREETS:
+		if String(st[2]) == view and v.has_point(st[1]):
+			_label(font, labels, String(st[0]), _to_map(r, st[1]) + Vector2(0, -4), ROAD.darkened(0.55), 11)
 	# landmarks found so far
 	for pl in places():
 		var at: Vector2 = pl[1]
@@ -580,8 +594,8 @@ func _draw_map() -> void:
 	if selected != "":
 		info = "HOUSE  -  %s     %s" % [_street(selected), status_text(selected)]
 	panel.draw_string(font, Vector2(r.position.x + 170, r.end.y + 32), info, HORIZONTAL_ALIGNMENT_LEFT, r.size.x - 440, 14, Color(0.9, 0.9, 0.86))
-	panel.draw_string(font, Vector2(r.position.x, r.end.y + 64), "Check: supplies found     X: no way in     -: nothing found     Amber: your search     Red: the story     M / Esc: close",
-		HORIZONTAL_ALIGNMENT_LEFT, r.size.x, 12, Color(0.75, 0.75, 0.7))
+	panel.draw_string(font, Vector2(r.position.x, r.end.y + 64), "Check: found supplies   X: no way in   -: empty   Amber: search   Red: story   M: close",
+		HORIZONTAL_ALIGNMENT_LEFT, r.size.x, 11, Color(0.75, 0.75, 0.7))
 
 
 func _label(font: Font, used: Array, txt: String, at: Vector2, col: Color, sz: int) -> void:
@@ -602,6 +616,17 @@ func _diamond(c: Vector2, rad: float, col: Color) -> void:
 func dest_point() -> Variant:
 	var z := String(Game.world_state.get("map_dest", ""))
 	return (houses[z]["door"] as Vector3) + Vector3(0, 1.6, 0) if z != "" and houses.has(z) else null
+
+
+## The marked house for the HUD's diamond: its front entrance, "<STREET> HOUSE", and whether it leads now
+## (out on a supply run) or only when no story destination is showing.
+func map_dest_marker() -> Array:
+	var at: Variant = dest_point()
+	if at == null:
+		return []
+	var z := String(Game.world_state.get("map_dest", ""))
+	var out: bool = world.expedition != null and world.expedition.active()
+	return [at, _street(z) + " HOUSE", out]
 
 
 func _draw_dest() -> void:
