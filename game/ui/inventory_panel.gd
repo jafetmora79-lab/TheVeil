@@ -55,6 +55,7 @@ var _insp_pivot: Node3D
 var _insp_tex: TextureRect
 var _insp_name: Label
 var _insp_desc: Label
+var _hud: VeilHUD
 
 
 func _ready() -> void:
@@ -576,6 +577,8 @@ func open() -> void:
 	refresh()
 	visible = true
 	get_tree().paused = true
+	if _hud:
+		_hud.set_survival_visible(false)
 	_fit()
 	_fit.call_deferred()                               # again once the new details have been laid out
 
@@ -585,6 +588,8 @@ func close() -> void:
 		close_inspect()
 		visible = false
 		get_tree().paused = false
+		if _hud:
+			_hud.set_survival_visible(true)
 		closed.emit()
 
 

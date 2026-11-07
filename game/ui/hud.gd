@@ -336,6 +336,7 @@ func _build_inventory() -> void:
 	# their old meaning for callers (Chapter 5 opens it to check the supplies)
 	inv_panel = VeilInventoryPanel.new()
 	inv_panel.name = "Inventory"
+	inv_panel._hud = self
 	root.add_child(inv_panel)
 	inv_panel.closed.connect(func(): _inventory_input(false))
 	quick = VeilQuickSlots.new()
