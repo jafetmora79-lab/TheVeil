@@ -88,7 +88,7 @@ func try_start(ai: Node) -> bool:
 	ai.body.velocity = Vector3.ZERO
 	player.set("controls_enabled", false)
 	player.set("look_enabled", false)
-	player.velocity = Vector3.ZERO
+	player.set("velocity", Vector3.ZERO)
 	_title.text = String(STYLE[kind]["title"])
 	_hint.text = String(STYLE[kind]["hint"])
 	_ui.visible = true
