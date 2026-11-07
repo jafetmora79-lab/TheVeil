@@ -441,6 +441,7 @@ func _start_follow(n: String, recover: bool) -> void:
 	follow.setup(body, world.player)
 	follow.gap = 2.6
 	follow.start()
+	_add_helper(n)
 	if recover:
 		follow.recover_behind.call_deferred(3.0)
 
@@ -455,6 +456,7 @@ func end_trip(got: Dictionary) -> void:
 	for k in got:
 		if k in ["canned_food", "water_bottle", "energy_snack", "chocolate_bar", "cola_bottle", "painkillers", "batteries"]:
 			total += int(got[k])
+	_remove_helper()
 	if n != "" and follow:
 		var far: bool = follow.lag() > float(cfg.get("abandon_distance", 35))
 		follow.stop()
@@ -466,10 +468,8 @@ func end_trip(got: Dictionary) -> void:
 		else:
 			if total > 0:
 				award("together:%d" % trip, {n: int(aw.get("trip_together", 2))})
-			if n == "Eddie" and total > 0 and not s["applied"].has("eddie_carry:%d" % trip):
-				s["applied"]["eddie_carry:%d" % trip] = true
-				Game.add_item("canned_food")                 # Eddie's bag: one more can than the player carried
-				Dialogue.say("sv_found_Eddie", false, false)
+			if n == "Eddie":
+				_unload_pack()                               # back inside together: what he carried goes to the player
 			_send_home(n)
 	s["companion"] = ""
 	if total > 0:
@@ -513,20 +513,239 @@ func _companion_tick(delta: float) -> void:
 		_hint_t = 45.0
 		if n == "Ruth":
 			var c := _nearest_cache()
+			var loot := _search_target(world.player.global_position, 25.0, false)
+			if loot != null and (c == Vector3.INF or world.player.global_position.distance_to(loot.global_position) < world.player.global_position.distance_to(c)):
+				c = loot.global_position
 			if c != Vector3.INF:
 				world.expedition._hint("Ruth: \"Over there - %s, maybe %d metres.\"" % [_dir_word(c), int(world.player.global_position.distance_to(c))])
+				_mark("sv_ruth", c, 20.0)
 		elif n == "Marcus":
 			var clue := _nearest_clue()
 			if clue != Vector3.INF:
 				world.expedition._hint("Marcus: \"Wait - %s. Could be something of Noah's.\"" % _dir_word(clue))
-	# Sarah hears it coming: a warning before each danger step
+				_mark("sv_marcus", clue, 20.0)
+	# Sarah hears it coming: a creature that is really out there (this trip's), close but not yet in view
 	if n == "Sarah":
-		var th: Array = world.expedition.cfg.get("danger_thresholds_s", [300, 600, 900])
-		var el: float = float(world.expedition.st().get("elapsed", 0.0))
-		for i in th.size():
-			if el >= float(th[i]) - 40.0 and el < float(th[i]) and not _early.has(i) and not Dialogue.is_busy():
-				_early[i] = true
-				Dialogue.say("sv_sarah_early", false, false)
+		for c in world.expedition.creatures:
+			var node: Node3D = c.get("node") as Node3D
+			if node == null or not is_instance_valid(node) or not node.is_inside_tree() or _warned.has(node.get_instance_id()):
+				continue
+			var d: float = world.player.global_position.distance_to(node.global_position)
+			var in_view: bool = cam != null and d < 22.0 and cam.is_position_in_frustum(node.global_position + Vector3(0, 0.8, 0))
+			if d < 38.0 and not in_view:
+				_warned[node.get_instance_id()] = true
+				world.expedition._hint("Sarah: \"Shh - something's moving, %s.\"" % _dir_word(node.global_position))
+				if not Dialogue.is_busy():
+					Dialogue.say("sv_sarah_early", false, false)
+				break
+
+
+# ------------------------------------------------------------------ companion help on a trip
+## Eddie's pack: real items moved out of the player's inventory (food, water, medicine), up to PACK_CAP_KG by the
+## items' own weights; saved in Game.world_state, so it survives a load whether or not Eddie is out.
+const PACK_KEY := "eddie_pack"
+const PACK_CAP_KG := 6.0
+const SEARCH_RANGE := 9.0
+var _helper: Interactable = null
+var _searching := false
+var _warned := {}
+
+
+func pack() -> Array:
+	return Game.world_state.get(PACK_KEY, [])
+
+
+func pack_weight() -> float:
+	var w := 0.0
+	for id in pack():
+		w += float(Game.item_info(String(id)).get("weight", 0.0))
+	return w
+
+
+func _pack_fits(id: String) -> bool:
+	return pack_weight() + float(Game.item_info(id).get("weight", 0.0)) <= PACK_CAP_KG + 0.001
+
+
+static func _packable(id: String) -> bool:
+	return Game.shelter_resource(id) in ["food", "water", "medical"]
+
+
+func _give_eddie(id: String) -> bool:
+	if not Game.has_item(id) or not _packable(id) or not _pack_fits(id):
+		return false
+	Game.remove_item(id)
+	var a := pack().duplicate()
+	a.append(id)
+	Game.world_state[PACK_KEY] = a
+	Game.inventory_changed.emit()
+	return true
+
+
+func _take_back(id: String) -> bool:
+	var a := pack().duplicate()
+	if not (id in a):
+		return false
+	a.erase(id)
+	Game.world_state[PACK_KEY] = a
+	Game.add_item(id)
+	return true
+
+
+func _pack_text() -> String:
+	var counts := {}
+	for id in pack():
+		counts[id] = int(counts.get(id, 0)) + 1
+	var parts: Array = []
+	for id in counts:
+		parts.append("%s x%d" % [Game.item_info(String(id)).get("name", id), counts[id]])
+	return "PACK  %.1f / %.1f kg    %s" % [pack_weight(), PACK_CAP_KG, ", ".join(parts) if not parts.is_empty() else "empty"]
+
+
+## Back inside with Eddie: everything he carried is handed to the player (to store or keep).
+func _unload_pack() -> void:
+	var a := pack().duplicate()
+	if a.is_empty():
+		return
+	Game.world_state[PACK_KEY] = []
+	for id in a:
+		Game.add_item(String(id))
+	world.expedition._hint("Eddie hands over what he carried (%d items)." % a.size())
+
+
+func _add_helper(n: String) -> void:
+	_remove_helper()
+	var body: Node3D = world.animators[n].root
+	_helper = Interactable.attach(body, {"kind": "custom", "label": n,
+		"prompt_text": Interactable.key_hint() + ("Eddie: Supplies / Search Nearby" if n == "Eddie" else "%s: Search Nearby" % n)})
+	_helper.name = "SV_Help"
+	_helper.used.connect(func(_b): _help_menu(n))
+
+
+func _remove_helper() -> void:
+	if _helper and is_instance_valid(_helper):
+		_helper.queue_free()
+	_helper = null
+
+
+## The nearest unlooted food / water / medicine pickup (inside an unlocked container or loose) on the same floor.
+func _search_target(from: Vector3, rng: float, same_floor := true) -> Interactable:
+	var best: Interactable = null
+	for n in get_tree().get_nodes_in_group("veil_pickup"):
+		var it := n as Interactable
+		if it == null or it.taken or not it.is_visible_in_tree() or not _packable(it.item_id):
+			continue
+		if same_floor and absf(it.global_position.y - from.y) > 1.6:
+			continue
+		var c := it.container
+		if c and c.lock_check.is_valid() and String(c.lock_check.call()) != "":
+			continue
+		var d := from.distance_to(it.global_position)
+		if d <= rng and (best == null or d < from.distance_to(best.global_position)):
+			best = it
+	return best
+
+
+func _help_menu(n: String) -> void:
+	var choice: Node = world.phase4.choice if world.phase4 else null
+	if choice == null or choice.is_open() or _searching or String(st()["companion"]) != n:
+		return
+	var body: Node3D = world.animators[n].root
+	while true:
+		var title := n.to_upper()
+		var opts: Array = []
+		var acts: Array = []
+		var target := _search_target(body.global_position, SEARCH_RANGE)
+		if target:
+			opts.append("Search that %s" % (String(target.container.label).to_lower() if target.container else "spot"))
+			acts.append(["search", target])
+		if n == "Eddie":
+			title += "\n" + _pack_text()
+			var seen: Array = []
+			for id in Game.inventory:
+				if _packable(String(id)) and not (id in seen):
+					seen.append(id)
+					var nm: String = Game.item_info(String(id)).get("name", id)
+					if _pack_fits(String(id)):
+						opts.append("Give Eddie: %s (%d carried)" % [nm, Game.inventory.count(id)])
+						acts.append(["give", id])
+			seen.clear()
+			for id in pack():
+				if not (id in seen):
+					seen.append(id)
+					opts.append("Take back: %s (x%d)" % [Game.item_info(String(id)).get("name", id), pack().count(id)])
+					acts.append(["take", id])
+		if acts.is_empty():
+			opts.append("Nothing to search here")
+			acts.append(["close", null])
+		opts.append("Close")
+		acts.append(["close", null])
+		var i: int = await choice.ask(title, opts, world.player)
+		var act: Array = acts[clampi(i, 0, acts.size() - 1)] if i >= 0 else ["close", null]
+		match String(act[0]):
+			"give":
+				_give_eddie(String(act[1]))
+			"take":
+				_take_back(String(act[1]))
+			"search":
+				_search(n, act[1] as Interactable)
+				return
+			_:
+				return
+
+
+## The companion walks to the container, opens it and takes what is there (Eddie into his pack when it fits,
+## otherwise to the player). Nothing is found that the container does not hold; an unreachable one is left.
+func _search(n: String, it: Interactable) -> void:
+	_searching = true
+	var body := world.animators[n].root as Node3D
+	var f := follow
+	if f:
+		f.stop()
+	var spot := Vector3(it.global_position.x, body.global_position.y, it.global_position.z)
+	var vb := body as VeilSurvivorBody
+	if vb:
+		var safe := vb.nearest_safe(spot, 1.6)
+		if safe.is_finite():
+			spot = safe
+	world.npc_walk(n, body.get_parent_node_3d().to_local(spot), 1.4)
+	var t := 0.0
+	while t < 9.0 and is_instance_valid(it) and not it.taken and Vector2(body.global_position.x - it.global_position.x,
+			body.global_position.z - it.global_position.z).length() > 1.25:
+		await get_tree().process_frame
+		t += get_process_delta_time()
+	if is_instance_valid(it) and not it.taken and t < 9.0:
+		if it.container and not it.container.is_open:
+			it.container.set_open(true)
+			Sfx.play("door_open", it.container.global_position, -6.0, 1.3)
+		await get_tree().create_timer(0.6).timeout
+		if is_instance_valid(it) and not it.taken:
+			var id := it.item_id
+			var nm: String = Game.item_info(id).get("name", id)
+			it.interact(body)                                  # the container's own pickup: taken, saved, added
+			if n == "Eddie" and _give_eddie(id):
+				world.expedition._hint("Eddie: \"%s. It's in my pack.\"" % nm)
+			else:
+				world.expedition._hint("%s: \"Found %s - here.\"" % [n, nm])
+	else:
+		world.expedition._hint("%s: \"Can't get to it.\"" % n)
+	_searching = false
+	if f and is_instance_valid(f) and f == follow:
+		f.start()
+
+
+## A small diamond over what the companion pointed at, for a while (the HUD's own world markers).
+func _mark(key: String, at: Vector3, seconds: float) -> void:
+	var old := world.get_node_or_null(key) as Node3D
+	if old:
+		old.queue_free()
+	var m := Node3D.new()
+	m.name = key
+	world.add_child(m)
+	m.global_position = at
+	world.hud.world_diamond(key, m)
+	get_tree().create_timer(seconds).timeout.connect(func():
+		if is_instance_valid(m):
+			m.queue_free())
 
 
 func _nearest_cache() -> Vector3:

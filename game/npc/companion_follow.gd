@@ -201,7 +201,7 @@ func _open_doors_ahead(next: Vector3) -> void:
 		heading = (leader.global_position - npc.global_position) * Vector3(1, 0, 1)
 	for d in npc.get_tree().get_nodes_in_group("veil_door"):
 		var door := d as Interactable
-		if door == null or door.is_open or not door.is_inside_tree():
+		if door == null or door.is_open or not door.is_inside_tree() or not _may_open(door):
 			continue
 		var to: Vector3 = (door.global_position - npc.global_position) * Vector3(1, 0, 1)
 		if to.length() < 1.6 and (heading.length() < 0.05 or to.normalized().dot(heading.normalized()) > 0.2):
@@ -221,12 +221,22 @@ func _open_doors_ahead(next: Vector3) -> void:
 			return
 		var it := n.get_node_or_null("Interact") as Interactable
 		if it and it.kind == "hinge":
-			if not it.is_open:
+			if not it.is_open and _may_open(it):
 				it.set_open(true)
 				Sfx.play("door_open", it.global_position, -2.0)
 				doors_opened += 1
 			return
 		n = n.get_parent()
+
+
+## A companion only opens a door the player could open: not a locked one (its lock check gives a reason) and not
+## one the story has made non-interactive (no interaction layer).
+func _may_open(door: Interactable) -> bool:
+	if door.collision_layer == 0:
+		return false
+	if door.lock_check.is_valid() and String(door.lock_check.call()) != "":
+		return false
+	return true
 
 
 ## Sidestep about a metre, perpendicular to the leader, onto walkable floor that no wall separates from him.
