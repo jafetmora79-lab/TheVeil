@@ -285,11 +285,6 @@ transform = Transform3D(0, 0, 1, 0, 1, 0, -1, 0, 0, 212, 0.15, 392.4)
 metadata/zone_id = "EXT_HOUSE_26"
 metadata/variant = "RES_House_MillWorker"
 
-[node name="EXT_HOUSE_27" parent="Houses" instance=ExtResource("13_RES_House_Ranch")]
-transform = Transform3D(0, 0, -1, 0, 1, 0, 1, 0, 0, 188, 0.15, 420)
-metadata/zone_id = "EXT_HOUSE_27"
-metadata/variant = "RES_House_Ranch"
-
 [node name="EXT_HOUSE_28" parent="Houses" instance=ExtResource("2_RES_House_TwoStorey")]
 transform = Transform3D(0, 0, -1, 0, 1, 0, 1, 0, 0, 188, 0.15, 394.5)
 metadata/zone_id = "EXT_HOUSE_28"

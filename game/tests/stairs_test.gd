@@ -95,7 +95,10 @@ func _run() -> void:
 	p.look_enabled = true
 	var data: Dictionary = JSON.parse_string(FileAccess.get_file_as_string(DATA))
 	var houses := 0
+	var only := OS.get_cmdline_user_args()            # optional: -- HOUSE_ID ... tests just those houses
 	for h in w.get_node("Residential/Houses").get_children():
+		if not only.is_empty() and not (String(h.name) in only):
+			continue
 		var info: Dictionary = h.get_meta("veil_house", {})
 		var key := String(info.get("design", "")) + ("_Mirror" if info.get("mirrored", false) else "")
 		if not data.has(key):
