@@ -2612,7 +2612,52 @@ func _p3_spawn_tentacles() -> void:
 			Dialogue.say("p3_hit", false, true))
 		if t.has_method("emerge"):
 			t.emerge()
+		_ground_burst(t.global_position)
 		_tentacles.append(t)
+
+
+## Where a tentacle comes up through the road: the asphalt breaks - a dark broken patch with a ragged edge at its
+## base (so it never stands on clean, unbroken tarmac), chunks thrown up that fall back, a heavy crack, a jolt.
+func _ground_burst(at: Vector3) -> void:
+	var patch := MeshInstance3D.new()
+	patch.name = "TentacleCrack"
+	var pm := CylinderMesh.new()
+	pm.top_radius = 0.95
+	pm.bottom_radius = 0.95
+	pm.height = 0.02
+	pm.radial_segments = 9                            # a ragged nine-sided hole, not a clean disc
+	pm.rings = 1
+	patch.mesh = pm
+	var dark := StandardMaterial3D.new()
+	dark.albedo_color = Color(0.05, 0.045, 0.04)
+	dark.roughness = 1.0
+	patch.material_override = dark
+	add_child(patch)
+	patch.global_position = Vector3(at.x, at.y + 0.012, at.z)
+	patch.rotation.y = randf() * TAU
+	var chunk_mat := StandardMaterial3D.new()
+	chunk_mat.albedo_color = Color(0.16, 0.16, 0.17)
+	for i in 6:
+		var c := MeshInstance3D.new()
+		var bm := BoxMesh.new()
+		bm.size = Vector3(randf_range(0.12, 0.3), randf_range(0.04, 0.08), randf_range(0.12, 0.28))
+		c.mesh = bm
+		c.material_override = chunk_mat
+		add_child(c)
+		var a := TAU * i / 6.0 + randf() * 0.5
+		var out := Vector3(cos(a), 0, sin(a))
+		c.global_position = at + out * 0.4 + Vector3(0, 0.05, 0)
+		var land := at + out * randf_range(1.1, 1.9)
+		land.y = at.y + 0.04
+		var tw := c.create_tween()
+		tw.tween_property(c, "global_position", c.global_position.lerp(land, 0.5) + Vector3(0, randf_range(0.6, 1.1), 0), 0.22) \
+			.set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
+		tw.parallel().tween_property(c, "rotation", Vector3(randf() * 3.0, randf() * 3.0, randf() * 3.0), 0.5)
+		tw.tween_property(c, "global_position", land, 0.28).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_IN)
+	Sfx.play("door_close", at + Vector3(0, 0.3, 0), 4.0, 0.45)     # a heavy crack (the asphalt breaking)
+	var cam := get_viewport().get_camera_3d()
+	if cam and cam.global_position.distance_to(at) < 30.0:
+		_shake(cam, 0.25, 0.03)
 
 
 ## Health reached zero: the death cinematic (game/world/death_sequence.gd) plays once, then YOU DIED with RETRY

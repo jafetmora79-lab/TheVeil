@@ -16,12 +16,17 @@ func _initialize() -> void:
 	_run.call_deferred()
 
 
+var crouch := false
+
+
 func _walk(to: Vector3, secs: float, sprint := false, stop_after := -1.0, stop_for := 0.0) -> float:
 	var t := 0.0
 	var stopped := false
 	Input.action_press("move_forward")
 	if sprint:
 		Input.action_press("sprint")
+	if crouch:
+		Input.action_press("crouch")
 	while t < secs:
 		var d := to - p.global_position
 		d.y = 0.0
@@ -41,7 +46,8 @@ func _walk(to: Vector3, secs: float, sprint := false, stop_after := -1.0, stop_f
 		t += 1.0 / 60.0
 	Input.action_release("move_forward")
 	Input.action_release("sprint")
-	for i in 3:
+	Input.action_release("crouch")
+	for i in 20:
 		await physics_frame
 	var r := to - p.global_position
 	return Vector2(r.x, r.z).length() + maxf(absf(r.y) - 0.3, 0.0)
@@ -124,6 +130,10 @@ func _run() -> void:
 			await _case(tag + " sprint down", top, foot, true)
 			await _case(tag + " stop half way", foot, top, false, 1.3)
 			await _case(tag + " turn back half way", foot, top, false, -1.0, foot)
+			crouch = true
+			await _case(tag + " crouched up", foot, top)
+			await _case(tag + " crouched down", top, foot)
+			crouch = false
 		print("HOUSE %s %s: %s" % [h.name, key, "ok" if fails == before else "%d failing case(s)" % (fails - before)])
 	print("STAIRS houses=%d cases=%d fails=%d" % [houses, runs, fails])
 	quit(1 if fails > 0 else 0)

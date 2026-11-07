@@ -100,7 +100,6 @@ func begin(w: Node, restoring: bool) -> void:
 		hud.chapter_start(5)
 		_apply()
 		Dialogue.say("p4_start", false, true)
-		world._beacon("p4", market.global_transform * (SERVICE_FLASHLIGHT + Vector3(0, 0.8, 0)), Color(0.8, 0.9, 1.0))
 	else:
 		_apply()
 		if Game.has_flag("p4_talk_done") and not Game.has_flag("p4_threat_done"):
@@ -217,8 +216,6 @@ func _setup_pickups() -> void:
 		"state_key": "p4/batteries"})
 	bp_it.used.connect(func(_b): _got_batteries(int(cfg.get("flashlight", {}).get("spares_in_pack", 2))))
 	its["batteries"] = bp_it
-	if not fl_it.taken:
-		world._glow(fl, true)
 	_settle_items.call_deferred()
 
 
@@ -321,8 +318,11 @@ func _apply() -> void:
 	if rest:
 		rest.get_parent().visible = Game.has_flag("p4_threat_done")
 		rest.interactable.prompt_text = "" if Game.has_flag("p4_slept") else "[E] Sleep"
-	if Game.has_flag("p4_flashlight"):
-		world._clear_beacon("p4")
+	# the flashlight on the service desk: the game's ordinary pickup diamond until it is taken (no white glow / light)
+	if its.has("flashlight"):
+		var fl_on: bool = not Game.has_flag("p4_flashlight") and not (its["flashlight"] as Interactable).taken
+		hud.world_diamond("p4_flashlight", its["flashlight"] if fl_on else null)
+	world._clear_beacon("p4")
 
 
 func _set_power(on: bool) -> void:
@@ -357,7 +357,7 @@ func _atmo_preset(instant: bool) -> void:
 # ------------------------------------------------------------------ story steps
 func _got_flashlight() -> void:
 	Game.set_flag("p4_flashlight")
-	world._glow(its["flashlight"].target, false)
+	hud.world_diamond("p4_flashlight", null)
 	world._clear_beacon("p4")
 	_attach_flashlight()
 	flashlight.set_on(true)

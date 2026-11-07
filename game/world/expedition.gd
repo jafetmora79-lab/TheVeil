@@ -1024,6 +1024,13 @@ func _prune() -> void:
 		if not is_instance_valid(n):
 			continue
 		var gone_away := false
+		# a roamer that has not taken to hunting within two minutes moves on (the way it came), so the town does not
+		# fill up with idle creatures that also block any new encounter
+		var ai0 = c.get("ai")
+		if not c.has("born"):
+			c["born"] = Game.play_time
+		if ai0 and is_instance_valid(ai0) and String(ai0.get("state")) == "PATROL" and Game.play_time - float(c["born"]) > 120.0:
+			ai0.set("state", "RETURN")
 		if c["kind"] == "skitter":
 			gone_away = n.global_position.distance_to(c["exit"]) < 0.5
 		else:
@@ -1036,7 +1043,7 @@ func _prune() -> void:
 		if gone_away and unseen:
 			report["despawned_unseen"] += 1
 			n.queue_free()
-			_encounter_t = maxf(_encounter_t, float(cfg.get("encounter_cooldown_s", [999, 150, 120, 95])[mini(int(st().get("level", 0)), 3)]))
+			_encounter_t = maxf(_encounter_t, float(cfg.get("encounter_cooldown_s", [60, 150, 120, 95])[mini(int(st().get("level", 0)), 3)]))
 			continue
 		keep.append(c)
 	creatures = keep

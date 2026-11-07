@@ -1078,19 +1078,19 @@ transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 41, 0, -6)
 metadata/tag = "SUPERMARKET_LOT"
 
 [node name="SW_ParkingLotEdge_10m_001" parent="Static/Lots" instance=ExtResource("72_SW_ParkingLotEdge_10m")]
-transform = Transform3D(0, 0, -1, 0, 1, 0, 1, 0, 0, 16, 0, -26)
+transform = Transform3D(0, 0, -1, 0, 1, 0, 1, 0, 0, 16, -0.02, -26)
 metadata/tag = "SUPERMARKET_LOT"
 
 [node name="SW_ParkingLotEdge_10m_002" parent="Static/Lots" instance=ExtResource("72_SW_ParkingLotEdge_10m")]
-transform = Transform3D(0, 0, -1, 0, 1, 0, 1, 0, 0, 26, 0, -26)
+transform = Transform3D(0, 0, -1, 0, 1, 0, 1, 0, 0, 26, -0.02, -26)
 metadata/tag = "SUPERMARKET_LOT"
 
 [node name="SW_ParkingLotEdge_10m_003" parent="Static/Lots" instance=ExtResource("72_SW_ParkingLotEdge_10m")]
-transform = Transform3D(0, 0, -1, 0, 1, 0, 1, 0, 0, 36, 0, -26)
+transform = Transform3D(0, 0, -1, 0, 1, 0, 1, 0, 0, 36, -0.02, -26)
 metadata/tag = "SUPERMARKET_LOT"
 
 [node name="SW_ParkingLotEdge_10m_004" parent="Static/Lots" instance=ExtResource("72_SW_ParkingLotEdge_10m")]
-transform = Transform3D(0, 0, -1, 0, 1, 0, 1, 0, 0, 46, 0, -26)
+transform = Transform3D(0, 0, -1, 0, 1, 0, 1, 0, 0, 46, -0.02, -26)
 metadata/tag = "SUPERMARKET_LOT"
 
 [node name="RD_Alley_4x10m_001" parent="Static/Lots" instance=ExtResource("13_RD_Alley_4x10m")]

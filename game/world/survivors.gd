@@ -818,7 +818,9 @@ func _help_menu(n: String) -> void:
 		var acts: Array = []
 		var target := _search_target(body.global_position, SEARCH_RANGE)
 		if target:
-			opts.append("Search Nearby (that %s)" % (String(target.container.label).to_lower() if target.container else "spot"))
+			opts.append("Search Nearby (up to 3 containers)")
+			acts.append(["search_all", null])
+			opts.append("Search that %s" % (String(target.container.label).to_lower() if target.container else "spot"))
 			acts.append(["search", target])
 		var seen: Array = []
 		for id in Game.inventory:
@@ -851,6 +853,9 @@ func _help_menu(n: String) -> void:
 				follow.start()
 			"search":
 				_search(n, act[1] as Interactable)
+				return
+			"search_all":
+				_search_many(n, 3)
 				return
 			_:
 				return
@@ -896,6 +901,26 @@ func _search(n: String, it: Interactable) -> void:
 	_searching = false
 	if f and is_instance_valid(f) and f == follow and was_following:
 		f.start()
+
+
+## Search Nearby: the companion works through up to `count` reachable containers with supplies, one after the
+## other, and stops when their pack is full or nothing is left close by.
+func _search_many(n: String, count: int) -> void:
+	var body: Node3D = world.animators[n].root
+	var done := 0
+	while done < count:
+		if pack_weight(n) >= capacity(n) - 0.2:
+			world.expedition._hint("%s: \"My pack's full.\"" % n)
+			break
+		var t := _search_target(body.global_position, SEARCH_RANGE)
+		if t == null:
+			if done == 0:
+				world.expedition._hint("%s: \"Nothing else here.\"" % n)
+			break
+		await _search(n, t)
+		done += 1
+		if not t.taken:
+			break                                         # could not reach that one: stop rather than loop on it
 
 
 ## A small diamond over what the companion pointed at, for a while (the HUD's own world markers).
