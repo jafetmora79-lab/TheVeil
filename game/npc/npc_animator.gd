@@ -237,7 +237,7 @@ func _update_walk(delta: float) -> void:
 			var fall := -0.5 if body.is_on_floor() else maxf(body.velocity.y - 18.0 * delta, -8.0)
 			body.velocity = motion / delta + Vector3.UP * fall
 			body.move_and_slide()
-			if body.is_on_wall():
+			if body.is_on_wall() and body.get_floor_normal().y > 0.93:
 				var probe := motion.normalized() * minf(d.length(), VeilSurvivorBody.RADIUS + 0.06)
 				body.step_target = VeilSurvivorBody.step_landing(body, probe, 0.35)
 	else:

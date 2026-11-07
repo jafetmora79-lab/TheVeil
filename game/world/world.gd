@@ -156,6 +156,7 @@ func _ready() -> void:
 	get_tree().node_added.connect(_on_node_added)
 	Game.flag_set.connect(_on_flag)
 	Sfx.start_ambience()
+	VeilStairAssist.apply(get_node("Residential/Houses"))     # solid stair collision over the two-storey houses
 	print("[World] ready: houses=%d interactables=%d" % [get_node("Residential/Houses").get_child_count(), interactables.size()])
 	if OS.has_feature("web") and str(JavaScriptBridge.eval("window.location.search")).contains("autotest"):
 		_web_autotest.call_deferred()

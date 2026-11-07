@@ -16,6 +16,7 @@ func _init() -> void:
 	collision_mask = SOLIDS
 	floor_snap_length = 0.35
 	floor_max_angle = deg_to_rad(46.0)
+	floor_constant_speed = true
 	capsule.radius = RADIUS
 	capsule.height = HEIGHT
 	var collider := CollisionShape3D.new()
