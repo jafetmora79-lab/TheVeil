@@ -154,8 +154,8 @@ FARMHOUSE = dict(
         R("ATTIC", 2, (-5.0, 3.0, 5.0, 10.0), "attic", "Res_Insulation", "Arch_WoodPlanksAged", walk=(-4.6, 4.75, 4.6, 8.25)),
     ],
     stairs=[
-        dict(rect=(0.22, 4.3, 1.12, 8.9), **{"from": 0, "to": 1}, dir="+z", void_len=3.4, open=("l",)),
-        dict(rect=(1.5, 5.1, 2.45, 8.0), **{"from": 1, "to": 2}, dir="-z", tread=0.24, risers=12, void_len=2.9, open=("r",), arrive=0.1),
+        dict(rect=(0.0, 4.3, 1.12, 8.9), **{"from": 0, "to": 1}, dir="+z", void_len=3.4, open=("l",)),       # widened 0.9 -> 1.12 m
+        dict(rect=(1.4, 5.1, 2.6, 8.0), **{"from": 1, "to": 2}, dir="-z", tread=0.24, risers=12, void_len=2.9, open=("r",), arrive=0.1),  # 0.95 -> 1.2 m
     ],
     doors=[
         DX("HAL", "F", -0.4, name="Front"), DX("MUD", "B", 2.2, w=0.9, h=2.1, style="back", name="Back"),
@@ -243,7 +243,7 @@ ABANDONED = dict(
         R("BED2", 1, (-1.3, 7.6, 3.5, 9.8), "bedroom", "Hor_WoodDarkened", "Int_PlasterDamaged"),
         R("BATH", 1, (-1.3, 9.8, 3.5, 11.4), "bathroom", "Int_Linoleum", "Hor_DampWall"),
     ],
-    stairs=[dict(rect=(-3.45, 4.45, -2.5, 8.55), **{"from": 0, "to": 1}, dir="+z", tread=0.24, open=("r",))],
+    stairs=[dict(rect=(-3.45, 4.45, -2.3, 8.55), **{"from": 0, "to": 1}, dir="+z", tread=0.24, open=("r",))],   # widened 0.95 -> 1.15 m
     doors=[
         DX("LIV", "F", -1.8, name="Front", paint="Hor_WoodDarkened"), DX("KIT", "B", 1.0, w=0.9, h=2.1, style="back", name="Back"),
         D("LIV", "ROOM", 6.0, w=1.4, h=2.2, kind="arch", name="LivRoom"), D("LIV", "KIT", -1.0, into="KIT", name="Kitchen"),

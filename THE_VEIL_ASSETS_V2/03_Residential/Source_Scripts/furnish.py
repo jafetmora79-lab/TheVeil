@@ -399,7 +399,7 @@ L["PlayerHome"] = [
     ("RES_Armchair_Recliner", "LIV", "c", (-2.6, 5.5), -125),              # 7
     ("RES_Lamp_Floor", "LIV", "c", (-6.05, 2.7), 0),                       # 8
     ("RES_Curtains_Gingham", "LIV", "mount", "F", -5.0, 0.0),              # 9
-    ("RES_Picture_Family", "LIV", "mount", "L", 4.4, 1.6),                 # 10
+    ("RES_Picture_Family", "LIV", "mount", "L", 2.9, 1.6),                 # 10 (off the side window)
     ("RES_CoatRack_Wall", "LIV", "mount", "F", -1.45, 1.65),  # 11 car keys
     ("RES_ShoeRack", "LIV", "wall", "R", 2.75),  # 12
     ("RES_WallClock", "LIV", "mount", "B", -5.4),                          # 13
@@ -408,7 +408,7 @@ L["PlayerHome"] = [
     ("RES_Counter_Base_1.2", "KIT", "wall", "B", -6.0 + 0.6),             # 15
     ("RES_Counter_Sink", "KIT", "wall", "B", -4.2),                         # 16
     ("RES_Stove_Electric", "KIT", "wall", "B", -3.2),                       # 17
-    ("RES_WallCabinet_0.8", "KIT", "mount", "B", -5.4),                    # 18
+    ("RES_WallCabinet_0.8", "KIT", "mount", "B", -5.95),                   # 18 (off the kitchen window)
     ("RES_DishRack", "KIT", "on", 16, (0.32, 0.0), 0),                     # 19
     ("RES_Kettle", "KIT", "on", 17, (-0.15, 0.1), 30),                     # 20
     ("RES_CerealBox", "KIT", "on", 15, (-0.3, 0.05), 10),                  # 21
