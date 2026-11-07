@@ -471,8 +471,9 @@ func end_trip(got: Dictionary) -> void:
 		else:
 			if total > 0:
 				award("together:%d" % trip, {n: int(aw.get("trip_together", 2))})
-			if n == "Eddie":
-				_unload_pack()                               # back inside together: what he carried goes to the player
+			var added := deposit_pack(n)                     # back inside together: what they carried goes to the stores
+			if not added.is_empty():
+				_return_summary.call_deferred(n, added)
 			_send_home(n)
 	s["companion"] = ""
 	if total > 0:
@@ -484,6 +485,23 @@ func end_trip(got: Dictionary) -> void:
 		award("trip:%d" % trip, {}, int(aw.get("empty_trip_morale", -4)))
 	s["free"] = true
 	_act_t = 2.0
+
+
+## SCAVENGING COMPLETE: what the companion brought back and what went into the shelter stores (the real counts).
+func _return_summary(n: String, added: Dictionary) -> void:
+	var lines: Array = []
+	for r in ["food", "water", "medical"]:
+		if int(added.get(r, 0)) > 0:
+			lines.append("%s +%d" % [{"food": "Food", "water": "Water", "medical": "Medicine"}[r], int(added[r])])
+	var text := "SCAVENGING COMPLETE\n%s returned and stored what they carried:\n%s" % [n, "    ".join(lines)]
+	var stock := Game.shelter_stock()
+	text += "\nShelter stores now: Food %d  Water %d  Medicine %d" % [int(stock.food), int(stock.water), int(stock.medical)]
+	var choice: Node = world.phase4.choice if world.phase4 else null
+	if choice and not choice.is_open():
+		await choice.ask(text, ["Continue"], world.player)
+	else:
+		world.expedition._hint(text.replace("\n", "  "))
+	world.save()
 
 
 func _send_home(n: String) -> void:
@@ -648,82 +666,118 @@ func leave_car() -> void:
 
 
 # ------------------------------------------------------------------ companion help on a trip
-## Eddie's pack: real items moved out of the player's inventory (food, water, medicine), up to PACK_CAP_KG by the
-## items' own weights; saved in Game.world_state, so it survives a load whether or not Eddie is out.
-const PACK_KEY := "eddie_pack"
-const PACK_CAP_KG := 6.0
+## Companion packs: real items (food, water, medicine) carried by each survivor, by the items' own weights, saved in
+## Game.world_state["companion_packs"] (so they survive a load whether or not that companion is out). Eddie carries
+## more. Nothing goes into a pack by itself: the player hands it over, or asks the companion to search.
+const PACKS_KEY := "companion_packs"
+const OLD_PACK_KEY := "eddie_pack"          ## older saves: Eddie's pack alone (moved into the new store once)
+const CAPACITY := {"Eddie": 10.0}           ## kg; everyone else DEFAULT_CAP
+const DEFAULT_CAP := 4.0
 const SEARCH_RANGE := 9.0
 var _helper: Interactable = null
 var _searching := false
 var _warned := {}
 
 
-func pack() -> Array:
-	return Game.world_state.get(PACK_KEY, [])
+func packs() -> Dictionary:
+	if not Game.world_state.has(PACKS_KEY):
+		var d := {}
+		var old: Array = Game.world_state.get(OLD_PACK_KEY, [])
+		if not old.is_empty():
+			d["Eddie"] = old.duplicate()
+		Game.world_state[PACKS_KEY] = d
+		Game.world_state.erase(OLD_PACK_KEY)
+	return Game.world_state[PACKS_KEY]
 
 
-func pack_weight() -> float:
+func pack(n := "Eddie") -> Array:
+	return (packs().get(n, []) as Array)
+
+
+func capacity(n: String) -> float:
+	return float(CAPACITY.get(n, DEFAULT_CAP))
+
+
+func pack_weight(n := "Eddie") -> float:
 	var w := 0.0
-	for id in pack():
+	for id in pack(n):
 		w += float(Game.item_info(String(id)).get("weight", 0.0))
 	return w
 
 
-func _pack_fits(id: String) -> bool:
-	return pack_weight() + float(Game.item_info(id).get("weight", 0.0)) <= PACK_CAP_KG + 0.001
+func _pack_fits(n: String, id: String) -> bool:
+	return pack_weight(n) + float(Game.item_info(id).get("weight", 0.0)) <= capacity(n) + 0.001
 
 
 static func _packable(id: String) -> bool:
 	return Game.shelter_resource(id) in ["food", "water", "medical"]
 
 
-func _give_eddie(id: String) -> bool:
-	if not Game.has_item(id) or not _packable(id) or not _pack_fits(id):
+func _pack_put(n: String, id: String) -> void:
+	var d := packs()
+	var a: Array = (d.get(n, []) as Array).duplicate()
+	a.append(id)
+	d[n] = a
+
+
+func _give(n: String, id: String) -> bool:
+	if not Game.has_item(id) or not _packable(id) or not _pack_fits(n, id):
 		return false
 	Game.remove_item(id)
-	var a := pack().duplicate()
-	a.append(id)
-	Game.world_state[PACK_KEY] = a
+	_pack_put(n, id)
 	Game.inventory_changed.emit()
 	return true
 
 
-func _take_back(id: String) -> bool:
-	var a := pack().duplicate()
+func _take_back(n: String, id: String) -> bool:
+	var d := packs()
+	var a: Array = (d.get(n, []) as Array).duplicate()
 	if not (id in a):
 		return false
 	a.erase(id)
-	Game.world_state[PACK_KEY] = a
+	d[n] = a
 	Game.add_item(id)
 	return true
 
 
-func _pack_text() -> String:
+func _pack_text(n: String) -> String:
 	var counts := {}
-	for id in pack():
+	for id in pack(n):
 		counts[id] = int(counts.get(id, 0)) + 1
 	var parts: Array = []
 	for id in counts:
 		parts.append("%s x%d" % [Game.item_info(String(id)).get("name", id), counts[id]])
-	return "PACK  %.1f / %.1f kg    %s" % [pack_weight(), PACK_CAP_KG, ", ".join(parts) if not parts.is_empty() else "empty"]
+	return "CARRYING  %.1f / %.1f kg (%.1f free)\n%s" % [pack_weight(n), capacity(n), maxf(capacity(n) - pack_weight(n), 0.0),
+		", ".join(parts) if not parts.is_empty() else "nothing yet"]
 
 
-## Back inside with Eddie: everything he carried is handed to the player (to store or keep).
-func _unload_pack() -> void:
-	var a := pack().duplicate()
+## Back at the shelter together: what the companion carried goes into the shelter stores (food / water / medicine),
+## counted exactly once (the pack is emptied as it is stored). Returns {resource: units} added.
+func deposit_pack(n: String) -> Dictionary:
+	var d := packs()
+	var a: Array = (d.get(n, []) as Array).duplicate()
+	var added := {}
 	if a.is_empty():
-		return
-	Game.world_state[PACK_KEY] = []
+		return added
+	var stock := Game.shelter_stock()
+	var keep: Array = []
 	for id in a:
-		Game.add_item(String(id))
-	world.expedition._hint("Eddie hands over what he carried (%d items)." % a.size())
+		var r := Game.shelter_resource(String(id))
+		if r in ["food", "water", "medical"]:
+			stock[r] = int(stock.get(r, 0)) + 1
+			added[r] = int(added.get(r, 0)) + 1
+		else:
+			keep.append(id)                          # (nothing else is ever packed; kept, never destroyed)
+	Game.world_state["shelter_stock"] = stock
+	d[n] = keep
+	return added
 
 
 func _add_helper(n: String) -> void:
 	_remove_helper()
 	var body: Node3D = world.animators[n].root
 	_helper = Interactable.attach(body, {"kind": "custom", "label": n,
-		"prompt_text": Interactable.key_hint() + ("Eddie: Supplies / Search Nearby" if n == "Eddie" else "%s: Search Nearby" % n)})
+		"prompt_text": Interactable.key_hint() + "%s: Pack / Search Nearby" % n})
 	_helper.name = "SV_Help"
 	_helper.used.connect(func(_b): _help_menu(n))
 
@@ -737,8 +791,8 @@ func _remove_helper() -> void:
 ## The nearest unlooted food / water / medicine pickup (inside an unlocked container or loose) on the same floor.
 func _search_target(from: Vector3, rng: float, same_floor := true) -> Interactable:
 	var best: Interactable = null
-	for n in get_tree().get_nodes_in_group("veil_pickup"):
-		var it := n as Interactable
+	for nd in get_tree().get_nodes_in_group("veil_pickup"):
+		var it := nd as Interactable
 		if it == null or it.taken or not it.is_visible_in_tree() or not _packable(it.item_id):
 			continue
 		if same_floor and absf(it.global_position.y - from.y) > 1.6:
@@ -752,47 +806,49 @@ func _search_target(from: Vector3, rng: float, same_floor := true) -> Interactab
 	return best
 
 
+## [E] on the trip companion: their pack (what, weight, room left), give / take back, search nearby, wait / follow.
 func _help_menu(n: String) -> void:
 	var choice: Node = world.phase4.choice if world.phase4 else null
 	if choice == null or choice.is_open() or _searching or String(st()["companion"]) != n:
 		return
 	var body: Node3D = world.animators[n].root
 	while true:
-		var title := n.to_upper()
+		var title := n.to_upper() + "\n" + _pack_text(n)
 		var opts: Array = []
 		var acts: Array = []
 		var target := _search_target(body.global_position, SEARCH_RANGE)
 		if target:
-			opts.append("Search that %s" % (String(target.container.label).to_lower() if target.container else "spot"))
+			opts.append("Search Nearby (that %s)" % (String(target.container.label).to_lower() if target.container else "spot"))
 			acts.append(["search", target])
-		if n == "Eddie":
-			title += "\n" + _pack_text()
-			var seen: Array = []
-			for id in Game.inventory:
-				if _packable(String(id)) and not (id in seen):
-					seen.append(id)
-					var nm: String = Game.item_info(String(id)).get("name", id)
-					if _pack_fits(String(id)):
-						opts.append("Give Eddie: %s (%d carried)" % [nm, Game.inventory.count(id)])
-						acts.append(["give", id])
-			seen.clear()
-			for id in pack():
-				if not (id in seen):
-					seen.append(id)
-					opts.append("Take back: %s (x%d)" % [Game.item_info(String(id)).get("name", id), pack().count(id)])
-					acts.append(["take", id])
-		if acts.is_empty():
-			opts.append("Nothing to search here")
-			acts.append(["close", null])
+		var seen: Array = []
+		for id in Game.inventory:
+			if _packable(String(id)) and not (id in seen):
+				seen.append(id)
+				if _pack_fits(n, String(id)):
+					opts.append("Give %s: %s (%d carried)" % [n, Game.item_info(String(id)).get("name", id), Game.inventory.count(id)])
+					acts.append(["give", id])
+		seen.clear()
+		for id in pack(n):
+			if not (id in seen):
+				seen.append(id)
+				opts.append("Take back: %s (x%d)" % [Game.item_info(String(id)).get("name", id), pack(n).count(id)])
+				acts.append(["take", id])
+		if follow and is_instance_valid(follow):
+			opts.append("Wait Here" if follow.active else "Follow Me")
+			acts.append(["wait" if follow.active else "follow", null])
 		opts.append("Close")
 		acts.append(["close", null])
 		var i: int = await choice.ask(title, opts, world.player)
 		var act: Array = acts[clampi(i, 0, acts.size() - 1)] if i >= 0 else ["close", null]
 		match String(act[0]):
 			"give":
-				_give_eddie(String(act[1]))
+				_give(n, String(act[1]))
 			"take":
-				_take_back(String(act[1]))
+				_take_back(n, String(act[1]))
+			"wait":
+				follow.stop()
+			"follow":
+				follow.start()
 			"search":
 				_search(n, act[1] as Interactable)
 				return
@@ -800,12 +856,14 @@ func _help_menu(n: String) -> void:
 				return
 
 
-## The companion walks to the container, opens it and takes what is there (Eddie into his pack when it fits,
-## otherwise to the player). Nothing is found that the container does not hold; an unreachable one is left.
+## The companion walks to the container, opens it and takes what is there - into their own pack when it fits,
+## otherwise handed to the player - and says so. Nothing is found that the container does not hold; an unreachable
+## one is left. Companions never search on their own.
 func _search(n: String, it: Interactable) -> void:
 	_searching = true
 	var body := world.animators[n].root as Node3D
 	var f := follow
+	var was_following: bool = f != null and f.active
 	if f:
 		f.stop()
 	var spot := Vector3(it.global_position.x, body.global_position.y, it.global_position.z)
@@ -829,14 +887,14 @@ func _search(n: String, it: Interactable) -> void:
 			var id := it.item_id
 			var nm: String = Game.item_info(id).get("name", id)
 			it.interact(body)                                  # the container's own pickup: taken, saved, added
-			if n == "Eddie" and _give_eddie(id):
-				world.expedition._hint("Eddie: \"%s. It's in my pack.\"" % nm)
+			if _give(n, id):
+				world.expedition._hint("%s collected %s." % [n, nm])
 			else:
-				world.expedition._hint("%s: \"Found %s - here.\"" % [n, nm])
+				world.expedition._hint("%s found %s - no room to carry it, handed to you." % [n, nm])
 	else:
 		world.expedition._hint("%s: \"Can't get to it.\"" % n)
 	_searching = false
-	if f and is_instance_valid(f) and f == follow:
+	if f and is_instance_valid(f) and f == follow and was_following:
 		f.start()
 
 

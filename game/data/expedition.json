@@ -1,9 +1,9 @@
 {
  "_comment": "THE VEIL - expedition / dynamic danger tuning (game/world/expedition.gd). Times are seconds of ACTIVE time outside (paused, menus, dialogue and cinematics do not count). Levels: 0 low, 1 rising, 2 high, 3 critical.",
  "danger_thresholds_s": [
-  180,
-  360,
-  600
+  300,
+  600,
+  900
  ],
  "level_names": [
   "LOW",
@@ -13,16 +13,16 @@
  ],
  "max_dynamic_creatures": 2,
  "encounter_cooldown_s": [
-  90,
-  75,
-  55,
-  40
+  999,
+  150,
+  120,
+  95
  ],
  "encounter_chance": [
-  0.3,
-  0.55,
-  0.75,
-  0.9
+  0.0,
+  0.35,
+  0.5,
+  0.6
  ],
  "hound_from_level": 2,
  "sound_interval_s": [
@@ -299,5 +299,6 @@
    "scale": 2.5
   }
  ],
- "_comment_caches": "Supply finds restock every new day (one per day each). Handgun rounds are one-time finds, never restocked (game/world/expedition.gd)."
+ "_comment_caches": "Supply finds restock every new day (one per day each). Handgun rounds are one-time finds, never restocked (game/world/expedition.gd).",
+ "_comment_threat": "Threat (expedition.gd encounter()): 0-5 min quiet (distant sounds only); 5-10 rare roaming Hound; 10-15 Hounds, occasional Skitter; 15+ Shellcrawler possible (rare). At most 2 creatures out, only one hunting the player at a time; a fresh cooldown after any creature leaves."
 }

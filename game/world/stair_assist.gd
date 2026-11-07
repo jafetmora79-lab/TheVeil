@@ -62,8 +62,12 @@ static func _add(house: Node3D, flights: Array) -> void:
 			var y0 := z0 / l * h - 0.02
 			var y1 := z1 / l * h - 0.02
 			var up := Vector3.UP * GUARD_H
-			var p0 := Vector3(x_in, y0, z0)
-			var p1 := Vector3(x_in, y1, z1)
+			# both ends cut back at 45 degrees on the stair side: a capsule walking close to the rail meets a slope
+			# that turns it onto the stair, not a square end it stops dead against (that end caught anyone hugging
+			# the rail at the first step, and near the landing)
+			var cut := GUARD_T * 3.0
+			var p0 := Vector3(x_in, y0 + cut / l * h, z0 + cut)
+			var p1 := Vector3(x_in, y1 - cut / l * h, z1 - cut)
 			var p2 := Vector3(x_out, y1, z1)
 			var p3 := Vector3(x_out, y0, z0)
 			_prism(body, xf, PackedVector3Array([p0, p1, p2, p3, p0 + up, p1 + up, p2 + up, p3 + up]))
