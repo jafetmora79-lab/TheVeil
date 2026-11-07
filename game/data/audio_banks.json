@@ -1,0 +1,345 @@
+{
+ "_comment": "Sound banks: id -> the selected files in game/audio/library (THE_VEIL_Audio_Library; see game/autoload/sfx.gd bank()).",
+ "hound_distant": [
+  "res://game/audio/library/hound_bark_distant_fog_01.wav",
+  "res://game/audio/library/hound_bark_distant_fog_02.wav",
+  "res://game/audio/library/hound_bark_distant_fog_03.wav",
+  "res://game/audio/library/hound_bark_distant_fog_04.wav"
+ ],
+ "hound_growl": [
+  "res://game/audio/library/hound_growl_territorial_short_01.wav",
+  "res://game/audio/library/hound_growl_territorial_short_02.wav",
+  "res://game/audio/library/hound_growl_territorial_medium_03.wav",
+  "res://game/audio/library/hound_growl_territorial_medium_04.wav"
+ ],
+ "hound_snarl": [
+  "res://game/audio/library/hound_snarl_01.wav",
+  "res://game/audio/library/hound_snarl_02.wav",
+  "res://game/audio/library/hound_snarl_03.wav",
+  "res://game/audio/library/hound_snarl_04.wav"
+ ],
+ "hound_sniff": [
+  "res://game/audio/library/hound_sniff_01.wav",
+  "res://game/audio/library/hound_sniff_02.wav",
+  "res://game/audio/library/hound_sniff_03.wav"
+ ],
+ "hound_search": [
+  "res://game/audio/library/hound_stalk_search_01.wav",
+  "res://game/audio/library/hound_stalk_search_02.wav"
+ ],
+ "hound_bark": [
+  "res://game/audio/library/hound_attack_bark_01.wav",
+  "res://game/audio/library/hound_attack_bark_02.wav",
+  "res://game/audio/library/hound_attack_bark_03.wav",
+  "res://game/audio/library/hound_attack_bark_04.wav"
+ ],
+ "hound_bite": [
+  "res://game/audio/library/hound_bite_01.wav",
+  "res://game/audio/library/hound_bite_02.wav",
+  "res://game/audio/library/hound_bite_03.wav",
+  "res://game/audio/library/hound_bite_04.wav",
+  "res://game/audio/library/hound_bite_05.wav"
+ ],
+ "hound_yelp": [
+  "res://game/audio/library/hound_pain_yelp_01.wav",
+  "res://game/audio/library/hound_pain_yelp_02.wav",
+  "res://game/audio/library/hound_pain_yelp_03.wav",
+  "res://game/audio/library/hound_pain_yelp_04.wav"
+ ],
+ "hound_whimper": [
+  "res://game/audio/library/hound_injured_whimper_01.wav",
+  "res://game/audio/library/hound_injured_whimper_02.wav"
+ ],
+ "hound_steps": [
+  "res://game/audio/library/hound_stalk_steps_01.wav",
+  "res://game/audio/library/hound_stalk_steps_02.wav",
+  "res://game/audio/library/hound_stalk_steps_03.wav"
+ ],
+ "hound_run_loop": [
+  "res://game/audio/library/hound_run_asphalt_loop.wav"
+ ],
+ "hs_lunge": [
+  "res://game/audio/library/hound_struggle_01_bark_lunge_v1.wav",
+  "res://game/audio/library/hound_struggle_01_bark_lunge_v2.wav",
+  "res://game/audio/library/hound_struggle_01_bark_lunge_v3.wav"
+ ],
+ "hs_impact": [
+  "res://game/audio/library/hound_struggle_02_impact_snarl_v1.wav",
+  "res://game/audio/library/hound_struggle_02_impact_snarl_v2.wav",
+  "res://game/audio/library/hound_struggle_02_impact_snarl_v3.wav"
+ ],
+ "hs_grip": [
+  "res://game/audio/library/hound_struggle_03_teeth_grip_cloth_v1.wav",
+  "res://game/audio/library/hound_struggle_03_teeth_grip_cloth_v2.wav",
+  "res://game/audio/library/hound_struggle_03_teeth_grip_cloth_v3.wav"
+ ],
+ "hs_hold": [
+  "res://game/audio/library/hound_struggle_04_hold_growl_LOOP.wav"
+ ],
+ "hs_pushed": [
+  "res://game/audio/library/hound_struggle_05_pushed_away_v1.wav",
+  "res://game/audio/library/hound_struggle_05_pushed_away_v2.wav",
+  "res://game/audio/library/hound_struggle_05_pushed_away_v3.wav"
+ ],
+ "hs_yelp": [
+  "res://game/audio/library/hound_struggle_06_pain_yelp_v1.wav",
+  "res://game/audio/library/hound_struggle_06_pain_yelp_v2.wav",
+  "res://game/audio/library/hound_struggle_06_pain_yelp_v3.wav"
+ ],
+ "hs_shake": [
+  "res://game/audio/library/hound_struggle_07_shake_snarl_back_off_v1.wav",
+  "res://game/audio/library/hound_struggle_07_shake_snarl_back_off_v2.wav",
+  "res://game/audio/library/hound_struggle_07_shake_snarl_back_off_v3.wav"
+ ],
+ "hs_resume": [
+  "res://game/audio/library/hound_struggle_08_resume_chase_v1.wav",
+  "res://game/audio/library/hound_struggle_08_resume_chase_v2.wav",
+  "res://game/audio/library/hound_struggle_08_resume_chase_v3.wav"
+ ],
+ "sk_chitter": [
+  "res://game/audio/library/skitter_chitter_01.wav",
+  "res://game/audio/library/skitter_chitter_02.wav"
+ ],
+ "sk_fury": [
+  "res://game/audio/library/skitter_hiss_furious_defensive_01.wav",
+  "res://game/audio/library/skitter_hiss_furious_defensive_02.wav",
+  "res://game/audio/library/skitter_hiss_furious_defensive_03.wav"
+ ],
+ "sk_injured": [
+  "res://game/audio/library/skitter_injured_01.wav",
+  "res://game/audio/library/skitter_injured_02.wav"
+ ],
+ "sk_stalk": [
+  "res://game/audio/library/skitter_stalk_quiet_01.wav",
+  "res://game/audio/library/skitter_stalk_quiet_02.wav"
+ ],
+ "sk_prepare": [
+  "res://game/audio/library/skitter_jump_prepare_01.wav",
+  "res://game/audio/library/skitter_jump_prepare_02.wav"
+ ],
+ "sk_move_loop": [
+  "res://game/audio/library/skitter_move_concrete_loop.wav"
+ ],
+ "sk_roof_loop": [
+  "res://game/audio/library/skitter_move_rooftop_loop.wav"
+ ],
+ "ss_rush": [
+  "res://game/audio/library/skitter_struggle_01_leap_rush_v1.wav",
+  "res://game/audio/library/skitter_struggle_01_leap_rush_v2.wav",
+  "res://game/audio/library/skitter_struggle_01_leap_rush_v3.wav"
+ ],
+ "ss_impact": [
+  "res://game/audio/library/skitter_struggle_02_body_impact_v1.wav",
+  "res://game/audio/library/skitter_struggle_02_body_impact_v2.wav",
+  "res://game/audio/library/skitter_struggle_02_body_impact_v3.wav"
+ ],
+ "ss_hold": [
+  "res://game/audio/library/skitter_struggle_03_scratch_frantic_LOOP.wav"
+ ],
+ "ss_hiss": [
+  "res://game/audio/library/skitter_struggle_04_close_hiss_v1.wav",
+  "res://game/audio/library/skitter_struggle_04_close_hiss_v2.wav",
+  "res://game/audio/library/skitter_struggle_04_close_hiss_v3.wav"
+ ],
+ "ss_thrown": [
+  "res://game/audio/library/skitter_struggle_05_thrown_away_v1.wav",
+  "res://game/audio/library/skitter_struggle_05_thrown_away_v2.wav",
+  "res://game/audio/library/skitter_struggle_05_thrown_away_v3.wav"
+ ],
+ "ss_ground": [
+  "res://game/audio/library/skitter_struggle_06_hits_ground_v1.wav",
+  "res://game/audio/library/skitter_struggle_06_hits_ground_v2.wav",
+  "res://game/audio/library/skitter_struggle_06_hits_ground_v3.wav"
+ ],
+ "ss_threat": [
+  "res://game/audio/library/skitter_struggle_07_threat_hiss_v1.wav",
+  "res://game/audio/library/skitter_struggle_07_threat_hiss_v2.wav",
+  "res://game/audio/library/skitter_struggle_07_threat_hiss_v3.wav"
+ ],
+ "ss_retreat": [
+  "res://game/audio/library/skitter_struggle_08_fast_retreat_v1.wav",
+  "res://game/audio/library/skitter_struggle_08_fast_retreat_v2.wav",
+  "res://game/audio/library/skitter_struggle_08_fast_retreat_v3.wav"
+ ],
+ "cr_walk_loop": [
+  "res://game/audio/library/crab_walk_heavy_loop.wav"
+ ],
+ "cr_creak": [
+  "res://game/audio/library/crab_exoskeleton_creak_deep_01.wav",
+  "res://game/audio/library/crab_exoskeleton_creak_deep_02.wav"
+ ],
+ "cr_burst": [
+  "res://game/audio/library/crab_burst_movement_01.wav",
+  "res://game/audio/library/crab_burst_movement_02.wav",
+  "res://game/audio/library/crab_burst_movement_03.wav"
+ ],
+ "cr_threat": [
+  "res://game/audio/library/crab_threat_vocal_01.wav",
+  "res://game/audio/library/crab_threat_vocal_02.wav",
+  "res://game/audio/library/crab_threat_vocal_03.wav"
+ ],
+ "cr_snap": [
+  "res://game/audio/library/crab_claw_snap_shut_01.wav",
+  "res://game/audio/library/crab_claw_snap_shut_02.wav",
+  "res://game/audio/library/crab_claw_snap_shut_03.wav",
+  "res://game/audio/library/crab_claw_snap_shut_04.wav"
+ ],
+ "cr_angry": [
+  "res://game/audio/library/crab_angry_recovery_01.wav",
+  "res://game/audio/library/crab_angry_recovery_02.wav"
+ ],
+ "cr_injured": [
+  "res://game/audio/library/crab_injured_shell_crack_01.wav",
+  "res://game/audio/library/crab_injured_shell_crack_02.wav"
+ ],
+ "cs_snap": [
+  "res://game/audio/library/crab_struggle_02_claw_snap_v1.wav",
+  "res://game/audio/library/crab_struggle_02_claw_snap_v2.wav",
+  "res://game/audio/library/crab_struggle_02_claw_snap_v3.wav"
+ ],
+ "cs_grab": [
+  "res://game/audio/library/crab_struggle_03_grab_impact_v1.wav",
+  "res://game/audio/library/crab_struggle_03_grab_impact_v2.wav",
+  "res://game/audio/library/crab_struggle_03_grab_impact_v3.wav"
+ ],
+ "cs_hold": [
+  "res://game/audio/library/crab_struggle_04-05_crush_pressure_LOOP.wav"
+ ],
+ "cs_forced": [
+  "res://game/audio/library/crab_struggle_06_claw_forced_open_v1.wav",
+  "res://game/audio/library/crab_struggle_06_claw_forced_open_v2.wav",
+  "res://game/audio/library/crab_struggle_06_claw_forced_open_v3.wav"
+ ],
+ "cs_release": [
+  "res://game/audio/library/crab_struggle_07_release_v1.wav",
+  "res://game/audio/library/crab_struggle_07_release_v2.wav",
+  "res://game/audio/library/crab_struggle_07_release_v3.wav"
+ ],
+ "cs_back": [
+  "res://game/audio/library/crab_struggle_08_backward_steps_v1.wav",
+  "res://game/audio/library/crab_struggle_08_backward_steps_v2.wav",
+  "res://game/audio/library/crab_struggle_08_backward_steps_v3.wav"
+ ],
+ "cs_resume": [
+  "res://game/audio/library/crab_struggle_09_recover_pursue_v1.wav",
+  "res://game/audio/library/crab_struggle_09_recover_pursue_v2.wav",
+  "res://game/audio/library/crab_struggle_09_recover_pursue_v3.wav"
+ ],
+ "co_step": [
+  "res://game/audio/library/colossus_footstep_01.wav",
+  "res://game/audio/library/colossus_footstep_02.wav",
+  "res://game/audio/library/colossus_footstep_03.wav",
+  "res://game/audio/library/colossus_footstep_04.wav"
+ ],
+ "co_call": [
+  "res://game/audio/library/colossus_groan_01.wav",
+  "res://game/audio/library/colossus_groan_02.wav",
+  "res://game/audio/library/colossus_roar_massive_01.wav",
+  "res://game/audio/library/colossus_roar_massive_02.wav"
+ ],
+ "co_distant": [
+  "res://game/audio/library/colossus_call_distant_01.wav",
+  "res://game/audio/library/colossus_call_distant_02.wav"
+ ],
+ "te_strike": [
+  "res://game/audio/library/tentacle_sudden_attack_01.wav",
+  "res://game/audio/library/tentacle_sudden_attack_02.wav",
+  "res://game/audio/library/tentacle_sudden_attack_03.wav"
+ ],
+ "te_ground": [
+  "res://game/audio/library/tentacle_strike_ground_01.wav",
+  "res://game/audio/library/tentacle_strike_ground_02.wav",
+  "res://game/audio/library/tentacle_strike_ground_03.wav"
+ ],
+ "te_search": [
+  "res://game/audio/library/tentacle_searching_01.wav",
+  "res://game/audio/library/tentacle_searching_02.wav"
+ ],
+ "te_retreat": [
+  "res://game/audio/library/tentacle_retreat_into_fog_01.wav",
+  "res://game/audio/library/tentacle_retreat_into_fog_02.wav"
+ ],
+ "te_wet": [
+  "res://game/audio/library/tentacle_wet_movement_01.wav",
+  "res://game/audio/library/tentacle_wet_movement_02.wav",
+  "res://game/audio/library/tentacle_wet_movement_03.wav"
+ ],
+ "pl_effort": [
+  "res://game/audio/library/player_effort_strain_01.wav",
+  "res://game/audio/library/player_effort_strain_02.wav",
+  "res://game/audio/library/player_effort_strain_03.wav",
+  "res://game/audio/library/player_effort_strain_04.wav"
+ ],
+ "pl_grunt": [
+  "res://game/audio/library/player_pain_grunt_01.wav",
+  "res://game/audio/library/player_pain_grunt_02.wav",
+  "res://game/audio/library/player_pain_grunt_03.wav"
+ ],
+ "pl_grip": [
+  "res://game/audio/library/player_struggle_against_grip_LOOP.wav"
+ ],
+ "pl_push": [
+  "res://game/audio/library/player_push_creature_away_01.wav",
+  "res://game/audio/library/player_push_creature_away_02.wav",
+  "res://game/audio/library/player_push_creature_away_03.wav"
+ ],
+ "pl_escape": [
+  "res://game/audio/library/player_escape_grapple_01.wav",
+  "res://game/audio/library/player_escape_grapple_02.wav"
+ ],
+ "ev_roof": [
+  "res://game/audio/library/rooftop_unexplained_movement_01.wav",
+  "res://game/audio/library/rooftop_unexplained_movement_02.wav",
+  "res://game/audio/library/rooftop_unexplained_movement_03.wav"
+ ],
+ "ev_metal": [
+  "res://game/audio/library/distant_metal_impact_01.wav",
+  "res://game/audio/library/distant_metal_impact_02.wav",
+  "res://game/audio/library/distant_metal_impact_03.wav"
+ ],
+ "ev_window": [
+  "res://game/audio/library/window_rattle_01.wav",
+  "res://game/audio/library/window_rattle_02.wav"
+ ],
+ "ev_unknown": [
+  "res://game/audio/library/distant_unidentified_creature_01.wav",
+  "res://game/audio/library/distant_unidentified_creature_02.wav",
+  "res://game/audio/library/distant_unidentified_creature_03.wav"
+ ],
+ "amb_street": [
+  "res://game/audio/library/amb_fog_street_LOOP.wav"
+ ],
+ "amb_shelter": [
+  "res://game/audio/library/amb_interior_shelter_LOOP.wav"
+ ],
+ "mu_explore": [
+  "res://game/audio/library/music_exploration_tension_LOOP.wav"
+ ],
+ "mu_nearby": [
+  "res://game/audio/library/music_creature_nearby_LOOP.wav"
+ ],
+ "mu_search": [
+  "res://game/audio/library/music_creature_searching_LOOP.wav"
+ ],
+ "mu_hound": [
+  "res://game/audio/library/music_hound_chase_LOOP.wav"
+ ],
+ "mu_skitter": [
+  "res://game/audio/library/music_skitter_chase_LOOP.wav"
+ ],
+ "mu_crab": [
+  "res://game/audio/library/music_crab_chase_LOOP.wav"
+ ],
+ "mu_grabbed": [
+  "res://game/audio/library/music_player_grabbed_struggle_LOOP.wav"
+ ],
+ "mu_grab_sting": [
+  "res://game/audio/library/music_player_grabbed_sting.wav"
+ ],
+ "mu_escape": [
+  "res://game/audio/library/music_player_escapes.wav"
+ ],
+ "mu_end": [
+  "res://game/audio/library/music_danger_ends_outro.wav"
+ ]
+}
