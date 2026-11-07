@@ -14,6 +14,9 @@ const TENTACLE := "res://THE_VEIL_ASSETS_V2/07_Creatures/Godot_Scenes/CRT_MistTe
 const ROOT := Vector3(20.3, 0.35, 15.9)              # market frame: just outside the roll-up door's plane (x 20.05)
 const GAP_LOOK := Vector3(19.6, 0.45, 15.9)
 const ESCAPE_S := 10.0
+## Not lying flat along the floor (it read as a tube slid in on its side): it rises from the gap at about 20 degrees,
+## at the player, its base out of sight outside the door (0.25 m in, it is 9 cm higher: still under the 0.9 m gap).
+const LIFT := PI * 0.5 - 0.35
 
 var p4: Node
 var world: Node
@@ -153,7 +156,7 @@ func _escape() -> void:
 ## On its side, pointing into the bay (+Y -> -X), swung towards the player (kept within the door opening's arc).
 func _aim_basis() -> Basis:
 	var to: Vector3 = p4.market.to_local(player.global_position) - ROOT
-	return Basis(Vector3.UP, clampf(atan2(-to.z, -to.x), -0.9, 0.9)) * Basis(Vector3(0, 0, 1), PI * 0.5)
+	return Basis(Vector3.UP, clampf(atan2(-to.z, -to.x), -0.9, 0.9)) * Basis(Vector3(0, 0, 1), LIFT)
 
 
 ## While the player runs: the tentacle keeps searching and turns after him; past half time it reaches.
@@ -162,7 +165,7 @@ func _creep(dt: float) -> void:
 		return
 	var to: Vector3 = p4.market.to_local(player.global_position) - ROOT
 	var yaw := atan2(-to.z, -to.x)                     # in the floor plane, from -X
-	var want := Basis(Vector3.UP, clampf(yaw, -0.9, 0.9)) * Basis(Vector3(0, 0, 1), PI * 0.5)
+	var want := Basis(Vector3.UP, clampf(yaw, -0.9, 0.9)) * Basis(Vector3(0, 0, 1), LIFT)
 	tentacle.transform.basis = tentacle.transform.basis.slerp(want, minf(dt * 1.5, 1.0))
 	if time_left < ESCAPE_S * 0.5 and not tentacle.has_meta("reaching") and tentacle.has_method("play"):
 		tentacle.set_meta("reaching", true)
@@ -212,7 +215,7 @@ func _taken() -> void:
 	# the tentacle lashes to his leg
 	if tentacle:
 		var to: Vector3 = p4.market.to_local(feet) - ROOT
-		tentacle.transform.basis = Basis(Vector3.UP, atan2(-to.z, -to.x)) * Basis(Vector3(0, 0, 1), PI * 0.5)
+		tentacle.transform.basis = Basis(Vector3.UP, atan2(-to.z, -to.x)) * Basis(Vector3(0, 0, 1), LIFT)
 		if tentacle.has_method("play"):
 			tentacle.call("play", "Strike", 0.05)
 		var reach := minf(to.length() - 3.6, 3.0)       # its tip at his ankle

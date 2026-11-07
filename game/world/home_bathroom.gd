@@ -138,9 +138,20 @@ func _make_mirror(cab: Node3D) -> void:
 	var normal := (home.global_basis * Vector3(-1, 0, 0)).normalized()
 	var front := home.to_global(Vector3(lb.position.x, c.y, c.z))
 	mirror_quad.global_transform = Transform3D(Basis.looking_at(-normal, Vector3.UP), front + normal * 0.004)
-	mirror_cam.global_transform = Transform3D(Basis(), mirror_quad.global_position + normal * 0.03).looking_at(
-		mirror_quad.global_position + normal * 5.0, Vector3.UP)
+	# the glass is ON the cabinet door: it swings open with it (it used to stay on the wall, a mirror left hanging
+	# in the air in front of an open, dark door)
+	var door := cab.find_child("INT_CabinetDoor_Mirror", true, false) as Node3D
+	if door:
+		mirror_quad.reparent(door, true)
+	_aim_mirror_cam()
 	report["mirror"] = true
+
+
+## The mirror's camera looks out of the glass wherever the door has it (closed: into the room; open: sideways).
+func _aim_mirror_cam() -> void:
+	var n := mirror_quad.global_basis.z.normalized()
+	mirror_cam.global_transform = Transform3D(Basis(), mirror_quad.global_position + n * 0.03).looking_at(
+		mirror_quad.global_position + n * 5.0, Vector3.UP)
 
 
 func _process(_delta: float) -> void:
@@ -153,6 +164,8 @@ func _process(_delta: float) -> void:
 		if n and is_instance_valid(n) and (n as Node3D).global_position.distance_to(mirror_quad.global_position) < 4.0:
 			near = true
 	mirror_vp.render_target_update_mode = SubViewport.UPDATE_ALWAYS if near else SubViewport.UPDATE_DISABLED
+	if near:
+		_aim_mirror_cam()
 	_update_reflection(p, cam, near and p != null and p.visible)
 
 
