@@ -749,6 +749,7 @@ func _danger(delta: float) -> void:
 		var si: Array = cfg.get("sound_interval_s", [28, 20, 14, 10, 7])
 		_sound_t = float(si[mini(lv, si.size() - 1)]) * randf_range(0.7, 1.3)
 		_distant_sound(mini(lv, 3))
+	_one_hunter()
 	_dir_t -= delta
 	if _dir_t <= 0.0:
 		_dir_t = 1.0
@@ -818,7 +819,30 @@ func _outdoors_at(p: Vector3, skip: Node = null) -> bool:
 	var c5 := _c5()
 	if c5 and c5._in_store(world.market.to_local(p), -1.0):
 		return false
+	if in_house(p):
+		return false                                     # (house roofs have no collision: the rooms say it)
 	return space.intersect_ray(PhysicsRayQueryParameters3D.create(p + Vector3(0, 1.0, 0), p + Vector3(0, 14, 0), 1, ex)).is_empty()
+
+
+var _house_nodes: Array = []
+
+
+## Inside one of the town's houses (its rooms' floor plans, any storey), with a small margin for the walls.
+func in_house(p: Vector3, margin := 0.4) -> bool:
+	if _house_nodes.is_empty():
+		var hs := world.get_node_or_null("Residential/Houses")
+		if hs:
+			_house_nodes = hs.get_children().filter(func(h): return h is Node3D and (h.get_meta("veil_house", {}) as Dictionary).has("rooms"))
+	for h in _house_nodes:
+		var hn := h as Node3D
+		if not is_instance_valid(hn) or hn.global_position.distance_to(p) > 30.0:
+			continue
+		var lp := hn.to_local(p)
+		for r in (hn.get_meta("veil_house") as Dictionary)["rooms"]:
+			var rc: Array = r["rect"]
+			if lp.x > float(rc[0]) - margin and lp.x < float(rc[2]) + margin and lp.z > float(rc[1]) - margin and lp.z < float(rc[3]) + margin:
+				return true
+	return false
 
 
 func _role_count(role: String) -> int:
@@ -867,9 +891,6 @@ func _direct(lv: int) -> void:
 					c["role"] = "hunter"                   # it found them by itself: this is the hunt now
 					c["born_el"] = el
 					_dbg("roamer %s took up the hunt" % c["kind"])
-				elif st_s == "CHASE" and chasing > 1:
-					ai.state = "RETURN"                       # only one creature hunts the player at a time
-					ai.set("awareness", 0.0)
 				elif el - float(c.get("born_el", el)) > 120.0 and st_s in ["PATROL", "RETURN"]:
 					_leave(c, "roamer moved on after 120 s")
 	# new arrivals (two out at most, one hunter at most)
@@ -896,6 +917,21 @@ func _direct(lv: int) -> void:
 			_next_tent = el + _lvv("tentacle_cooldown_s", lv, [999, 999, 999, 55, 40])
 		else:
 			_next_tent = el + 5.0
+
+
+## Only one creature hunts the player at a time (checked every frame): a roamer that spots them while another is
+## already after them turns away (it leaves - beyond its new home's leash it ignores the player).
+func _one_hunter() -> void:
+	var chasing: Array = []
+	for c in creatures:
+		var ai = c.get("ai")
+		if ai and is_instance_valid(ai) and String(ai.state) == "CHASE":
+			chasing.append(c)
+	if chasing.size() < 2:
+		return
+	chasing.sort_custom(func(a, b): return String(a.get("role", "")) == "hunter" and String(b.get("role", "")) != "hunter")
+	for i in range(1, chasing.size()):
+		_leave(chasing[i], "a second creature found the player: only one hunts at a time")
 
 
 func _pick_kind(lv: int) -> String:

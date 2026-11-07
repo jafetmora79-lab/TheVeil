@@ -63,7 +63,7 @@ func _step(walk := false, turn := 0.0) -> void:
 			continue
 		if String(ai.state) == "CHASE":
 			hunting += 1
-		if not ex._outdoors_at(n.global_position, n):
+		if String(ai.state) != "CHASE" and ex.in_house(n.global_position, -0.3):    # (a chase may follow through a door)
 			inside_house_hits += 1
 		if engaged_at < 0.0 and String(ai.state) == "CHASE":
 			var tgt: Vector3 = ex.threat_target()
@@ -117,6 +117,12 @@ func _run() -> void:
 		return
 	await _boot(DEV7)
 	ok("trip_possible", ex.can_scavenge(), "shelter %s" % ex.shelter())
+	var args := OS.get_cmdline_user_args()
+	if args.has("CE"):
+		await _go_out(Vector3(92, 0.3, -42))
+		await _play_for(150.0, true, 0.25)               # into CRITICAL on foot first
+		await _part_c_e()
+		return
 	# ---- A + G: three minutes walking circles on the open ground east of the store
 	await _go_out(Vector3(92, 0.3, -42))
 	var spawned0: int = ex.report["spawned"]
@@ -143,7 +149,17 @@ func _run() -> void:
 		var o: Array = f["origin"]
 		var xf: Transform3D = house.global_transform * Transform3D(Basis(Vector3.UP, float(f["yaw"])), Vector3(o[0], o[1], o[2]))
 		var upstairs: Vector3 = xf * Vector3(float(f["width"]) * 0.5, float(f["height"]) + 0.1, float(f["run"]) + 0.9)
-		var yard: Vector3 = ex.threat_target()
+		# walk up to it from the street: its yard (open ground just outside), then in and upstairs
+		var yard := Vector3.INF
+		for k in 16:
+			var c: Vector3 = house.global_position + Vector3(cos(k * TAU / 16.0), 0, sin(k * TAU / 16.0)) * 11.0
+			var hit: Dictionary = w.get_world_3d().direct_space_state.intersect_ray(PhysicsRayQueryParameters3D.create(c + Vector3(0, 10, 0), c - Vector3(0, 5, 0), 1))
+			if hit and ex._outdoors_at(hit["position"]) and absf((hit["position"] as Vector3).y - house.global_position.y) < 1.0:
+				yard = (hit["position"] as Vector3) + Vector3(0, 0.2, 0)
+				break
+		ok("B_yard_found", yard.is_finite())
+		p.global_position = yard
+		await _play_for(3.0)
 		p.global_position = upstairs
 		await _play_for(1.0)
 		ok("B_indoors_detected", not ex._outdoors_at(p.global_position), str(p.global_position))
@@ -163,6 +179,10 @@ func _run() -> void:
 		await _play_for(40.0, true, 0.2)
 		ok("B_engaged_after_exit", engaged_at >= 0.0, engaged_info)
 	# ---- D: the Tentacle at CRITICAL
+	for i in 60 * 15:                                    # (any earlier Tentacle sinks first)
+		if w.get_node_or_null("EXP_Tentacle") == null and (ex._tentacle == null or not is_instance_valid(ex._tentacle)):
+			break
+		await _step()
 	var t0 := int(ex.report.get("tentacles", 0))
 	p.global_position = Vector3(92, 0.3, -42)
 	p.set_yaw_pitch(0.0, 0.0)
@@ -171,7 +191,7 @@ func _run() -> void:
 	for i in 60 * 8:
 		await _step()
 		var t = w.get_node_or_null("EXP_Tentacle")
-		if t:
+		if t and int(ex.report.get("tentacles", 0)) > t0:
 			tent = t
 			break
 	ok("D_tentacle_emerged", tent != null and int(ex.report.get("tentacles", 0)) > t0)
@@ -180,6 +200,11 @@ func _run() -> void:
 		ok("D_near_and_outdoors", d > 5.0 and d < 11.0 and ex._outdoors_at(tent.global_position), "%.1f m" % d)
 		await _play_for(14.0)
 		ok("D_retreated", not is_instance_valid(tent))
+	print("THREAT fails=%d" % fails)
+	quit(1 if fails > 0 else 0)
+
+
+func _part_c_e() -> void:
 	# ---- C: four minutes driving
 	game.flags["vehicle_repaired"] = true
 	w.sedan.global_position = Vector3(92, 0.5, -30)
