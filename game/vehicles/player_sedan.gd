@@ -8,6 +8,7 @@ class_name PlayerSedan
 signal entered
 signal exited
 signal speed_changed(kmh: float)
+signal radio_changed(station: String)
 
 const SEDAN_SCENE := preload("res://THE_VEIL_ASSETS_V2/05_Vehicles/Godot_Scenes/Protagonist_Sedan.tscn")
 const TOP_SPEED := 15.3          # m/s (55 km/h) - an older everyday sedan on 25 mph town streets
@@ -26,6 +27,14 @@ var model: Node3D
 var driver_cam: Camera3D
 var driven := false
 var speed := 0.0
+## Survival era (after the car is repaired): fuel used by distance driven, condition worn by hard knocks. Before that
+## (the opening drives) neither applies. Saved with the car's state.
+var survival := false
+var fuel := 1.0                    ## 0..1 of a tank
+var condition := 1.0               ## 0..1
+const FUEL_RANGE_M := 3000.0       ## a full tank, in metres driven
+const FUEL_PER_CAN := 0.5          ## one fuel can: half a tank
+var _warned := ""
 var steer := 0.0
 var autopilot: Callable = Callable()     # tests: func(delta) -> Vector3(throttle, brake, steer)
 ## cinematic assist (arrival shot): while > 0, the car eases down to this forward speed (m/s); steering stays with
@@ -68,6 +77,7 @@ func _ready() -> void:
 	add_child(car)
 	model = car.get_node("Model")
 	driver_cam = car.get_node("DriverCamera")
+	_setup_mirrors()
 	driver_cam.far = 700.0
 	# move the imported convex hulls onto this body, drop their static bodies (they would block the car itself)
 	for sb in model.find_children("*", "StaticBody3D", true, false):
@@ -123,12 +133,14 @@ func _rel(sb: Node3D, cs: Node3D) -> Transform3D:
 
 # ------------------------------------------------------------------ entry / exit
 func get_prompt() -> String:
-	return "[E] Enter Vehicle"
+	return entry_area.prompt_text if entry_area else "[E] Enter Vehicle"
 
 
 func set_driven(on: bool) -> void:
 	driven = on
 	driver_cam.current = on
+	_mirrors_on(on)
+	_radio_apply()                                   # the radio plays only while driving (station remembered)
 	_look_yaw = 0.0
 	driver_cam.rotation = Vector3.ZERO
 	var lights := car.get_node_or_null("Lights")
@@ -166,8 +178,11 @@ func exit_spot(space: PhysicsDirectSpaceState3D, player_rid: RID) -> Variant:
 	clearance.shape = capsule
 	clearance.collision_mask = 1 | 4
 	clearance.exclude = [player_rid]
-	for side in [-1.0, 1.0]:
-		var p := global_transform * Vector3(1.6 * side, 0.0, -0.3)
+	# both doors first, then along the sides, then behind and in front: a car that stopped against a wall or between
+	# two others (out of fuel, it cannot be moved) must never hold the player inside
+	for off in [Vector3(-1.6, 0, -0.3), Vector3(1.6, 0, -0.3), Vector3(-1.6, 0, 1.1), Vector3(1.6, 0, 1.1),
+			Vector3(-2.2, 0, -0.3), Vector3(2.2, 0, -0.3), Vector3(0, 0, 3.1), Vector3(0, 0, -3.1)]:
+		var p: Vector3 = global_transform * off
 		var ray := PhysicsRayQueryParameters3D.create(p + Vector3.UP * 0.6, p - Vector3.UP * 0.55, 1, [player_rid])
 		var ground := space.intersect_ray(ray)
 		if ground.is_empty() or ground.normal.y < cos(deg_to_rad(46.0)):
@@ -180,7 +195,45 @@ func exit_spot(space: PhysicsDirectSpaceState3D, player_rid: RID) -> Variant:
 
 
 # ------------------------------------------------------------------ driving
+# ------------------------------------------------------------------ car radio (Q while driving): off -> 3 stations
+const STATIONS := [["", ""], ["LAST EXIT — ROCK", "res://game/audio/radio/last_exit_rock.wav"],
+	["NEON HEARTS — POP", "res://game/audio/radio/neon_hearts_pop.wav"],
+	["MIDNIGHT DRIVE — LO-FI", "res://game/audio/radio/midnight_drive_lofi.wav"]]
+var radio_station := 0
+var _radio: AudioStreamPlayer
+
+
+func next_station() -> void:
+	radio_station = (radio_station + 1) % STATIONS.size()
+	Sfx.play("static", global_position + Vector3(0, 1, 0), -18.0, 1.6)   # the dial click / static
+	_radio_apply()
+	radio_changed.emit(STATIONS[radio_station][0])
+
+
+func _radio_apply() -> void:
+	if _radio == null:
+		_radio = AudioStreamPlayer.new()
+		_radio.name = "CarRadio"
+		add_child(_radio)
+	var on := driven and radio_station > 0
+	if on:
+		var path: String = STATIONS[radio_station][1]
+		if not (_radio.playing and _radio.has_meta("path") and _radio.get_meta("path") == path):
+			_radio.stream = Sfx._looped(path, true)
+			_radio.set_meta("path", path)
+			_radio.volume_db = -6.0
+			_radio.play()
+	else:
+		_radio.stop()
+		_radio.remove_meta("path")
+	Sfx.duck_music(on)
+
+
 func _unhandled_input(event: InputEvent) -> void:
+	if driven and event.is_action_pressed("car_radio"):
+		next_station()
+		get_viewport().set_input_as_handled()
+		return
 	if driven and event is InputEventMouseMotion and Input.mouse_mode == Input.MOUSE_MODE_CAPTURED:
 		var s: float = Game.settings["mouse_sensitivity"] * 0.01
 		_look_yaw = clampf(_look_yaw - event.relative.x * s, deg_to_rad(-110), deg_to_rad(110))
@@ -210,6 +263,13 @@ func _physics_process(delta: float) -> void:
 	elif speed_cap > 0.0 and speed > speed_cap * 0.85:
 		throttle = minf(throttle, 0.15)
 	var scripted := drive_script.is_valid()
+	var dead := false
+	if survival and driven and not scripted:
+		if fuel <= 0.0 or condition <= 0.0:
+			dead = true                             # out of fuel / wrecked: it rolls to a stop (E still gets out)
+			throttle = 0.0
+		elif condition < 0.35:
+			throttle = minf(throttle, 0.55)         # badly knocked about: it labours
 	if scripted:
 		var cmd: Vector2 = drive_script.call(delta)
 		speed = move_toward(speed, cmd.x, SCRIPT_ACCEL * delta)
@@ -230,7 +290,9 @@ func _physics_process(delta: float) -> void:
 	elif throttle > 0.0:
 		speed += (ACCEL * throttle * (1.0 - clampf(speed / TOP_SPEED, 0.0, 1.0) * 0.55) if speed >= 0.0 else BRAKE * throttle) * delta
 	if brake > 0.0:
-		if speed > 0.2:
+		if dead:
+			speed = move_toward(speed, 0.0, BRAKE * brake * delta)   # the brakes work; reverse needs the engine
+		elif speed > 0.2:
 			speed -= BRAKE * brake * delta
 		else:
 			speed -= ACCEL * 0.8 * brake * delta
@@ -257,9 +319,14 @@ func _physics_process(delta: float) -> void:
 		for i in get_slide_collision_count():
 			var n := get_slide_collision(i).get_normal()
 			if absf(n.y) < 0.6 and n.dot(fwd * signf(speed)) < -0.5:
+				if survival and driven and absf(speed) > 4.0:
+					condition = maxf(condition - (absf(speed) - 4.0) * 0.025, 0.0)   # a hard knock (~15 km/h and up)
 				speed *= 0.4
 	var moved := (global_position - before).dot(fwd)
 	_spin += moved / WHEEL_R
+	if survival and driven and not scripted:
+		fuel = maxf(fuel - absf(moved) / FUEL_RANGE_M, 0.0)   # by distance driven (idling uses none)
+		_status_warn()
 	_animate(delta)
 	if driven:
 		driver_cam.rotation.y = lerp_angle(driver_cam.rotation.y, _look_yaw, delta * 10.0)
@@ -304,10 +371,113 @@ func _audio() -> void:
 
 func state() -> Dictionary:
 	var p := global_position
-	return {"pos": [p.x, p.y, p.z], "yaw": rotation.y}
+	return {"pos": [p.x, p.y, p.z], "yaw": rotation.y, "fuel": fuel, "condition": condition}
+
+
+func drivable() -> bool:
+	return not survival or (fuel > 0.0 and condition > 0.0)
+
+
+func status_text() -> String:
+	return "FUEL %d%%  ·  CONDITION %d%%" % [roundi(fuel * 100.0), roundi(condition * 100.0)]
+
+
+## One warning per threshold crossed (not every frame): low fuel, empty, struggling, wrecked.
+func _status_warn() -> void:
+	var w := ""
+	if condition <= 0.0:
+		w = "The engine dies with a grinding knock. It won't go any further until it's patched up (duct tape, at the car). E gets out."
+	elif fuel <= 0.0:
+		w = "Out of fuel - the car rolls to a stop. E gets out; bring a fuel can back to it."
+	elif condition < 0.35:
+		w = "The car is badly knocked about and labouring. " + status_text()
+	elif fuel < 0.2:
+		w = "Fuel low. " + status_text()
+	if w != "" and w.left(12) != _warned.left(12):
+		_warned = w
+		var world := get_tree().get_first_node_in_group("veil_world")
+		if world and world.expedition:
+			world.expedition._hint(w)                    # (clears itself after a few seconds)
+		elif world and world.hud and world.hud.has_method("set_hint"):
+			world.hud.set_hint(w)
+	elif w == "":
+		_warned = ""
+
+
+## A creature got at the car: the condition drops, the body takes the blow. Never below 0; the player stays inside.
+func monster_hit(amount: float) -> void:
+	if not survival:
+		return
+	condition = maxf(condition - amount, 0.0)
+	Sfx.play("door_close", global_position + Vector3(0, 0.9, 0), -3.0, 0.55)
+	_status_warn()
 
 
 func restore(d: Dictionary) -> void:
+	fuel = clampf(float(d.get("fuel", 1.0)), 0.0, 1.0)
+	condition = clampf(float(d.get("condition", 1.0)), 0.0, 1.0)
 	if d.has("pos"):
 		global_position = Vector3(d["pos"][0], d["pos"][1] + 0.05, d["pos"][2])
 		rotation.y = d.get("yaw", rotation.y)
+
+
+# ------------------------------------------------------------------ mirrors (rear-view + both door mirrors)
+## Each mirror glass is a small quad showing a low-res rear-facing camera (its own SubViewport, same world), drawn
+## flipped like a real mirror. They only render while the car is driven. Positions are the Pack 05 sedan's mirror
+## faces (veh_models.py: door mirror heads at z -0.72, interior mirror at (0, 1.27, -0.12)), in the model frame.
+const MIRRORS := [
+	# [name, glass centre, glass size (w, h), viewport px, camera fov]
+	["Mirror_Rear", Vector3(0.0, 1.27, -0.104), Vector2(0.23, 0.06), Vector2i(256, 68), 40.0],
+	["Mirror_L", Vector3(-0.985, 0.952, -0.679), Vector2(0.09, 0.105), Vector2i(96, 112), 45.0],
+	["Mirror_R", Vector3(0.985, 0.952, -0.679), Vector2(0.09, 0.105), Vector2i(96, 112), 45.0],
+]
+var _mirror_vps: Array = []
+
+
+func _setup_mirrors() -> void:
+	for m in MIRRORS:
+		var vp := SubViewport.new()
+		vp.name = m[0] + "_View"
+		vp.size = m[3]
+		vp.render_target_update_mode = SubViewport.UPDATE_DISABLED
+		add_child(vp)                                   # no own world: it renders the game world
+		var cam := Camera3D.new()
+		cam.fov = m[4]
+		cam.near = 0.15
+		cam.far = 250.0
+		vp.add_child(cam)
+		var q := MeshInstance3D.new()
+		q.name = m[0]
+		var qm := QuadMesh.new()
+		qm.size = m[2]
+		q.mesh = qm
+		var mat := StandardMaterial3D.new()
+		mat.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
+		mat.albedo_texture = vp.get_texture()
+		mat.uv1_scale = Vector3(-1, 1, 1)              # mirrored left-right, like a real mirror
+		mat.uv1_offset = Vector3(1, 0, 0)
+		q.material_override = mat
+		q.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+		model.add_child(q)
+		q.position = m[1] + Vector3(0, 0, 0.004)        # just proud of the mirror face; faces +Z (backwards)
+		q.visible = false
+		_mirror_vps.append([vp, cam, q])
+
+
+func _mirrors_on(on: bool) -> void:
+	for e in _mirror_vps:
+		(e[0] as SubViewport).render_target_update_mode = SubViewport.UPDATE_ALWAYS if on else SubViewport.UPDATE_DISABLED
+		(e[2] as Node3D).visible = on
+
+
+func _process(_delta: float) -> void:
+	if not driven:
+		return
+	for e in _mirror_vps:
+		var q: Node3D = e[2]
+		var cam: Camera3D = e[1]
+		# the camera sits at the mirror and looks back along the car (+Z of the model), level with the road
+		var back := q.global_transform.basis.z
+		back.y = 0.0
+		cam.global_transform = Transform3D(Basis(), q.global_position + back.normalized() * 0.05).looking_at(
+			q.global_position + back.normalized() * 10.0, Vector3.UP)

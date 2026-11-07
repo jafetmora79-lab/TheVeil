@@ -15,57 +15,246 @@
   "car_keys": {
    "name": "Car Keys",
    "category": "key",
-   "description": "Keys to the old sedan. A worn rubber tag and a house key on the same ring."
+   "description": "Keys to the old sedan. A worn rubber tag and a house key on the same ring.",
+   "model": "res://THE_VEIL_ASSETS_V2/08_Inventory/Story_Items/INV_CarKey.glb",
+   "weight": 0.05
   },
   "canned_food": {
+   "shelter_resource": "food",
    "name": "Canned Soup",
    "category": "food",
-   "description": "Tomato soup. Dinner, technically."
+   "description": "Tomato soup. Dinner, technically.",
+   "model": "res://THE_VEIL_ASSETS_V2/08_Inventory/Food_And_Supplies/INV_CannedFood.glb",
+   "weight": 0.4
   },
   "water_bottle": {
+   "shelter_resource": "water",
    "name": "Water Bottle",
    "category": "food",
-   "description": "A big bottle of spring water."
+   "description": "A big bottle of spring water.",
+   "model": "res://THE_VEIL_ASSETS_V2/08_Inventory/Food_And_Supplies/INV_WaterBottle.glb",
+   "weight": 1.0
   },
   "energy_snack": {
+   "shelter_resource": "food",
    "name": "Snack Bar",
    "category": "food",
-   "description": "Chocolate and peanuts. For later."
+   "description": "Chocolate and peanuts. For later.",
+   "model": "res://THE_VEIL_ASSETS_V2/08_Inventory/Food_And_Supplies/INV_EnergySnack.glb",
+   "weight": 0.1
   },
   "groceries": {
    "name": "Groceries",
    "category": "food",
-   "description": "A paper bag: soup, water, snacks. Enough for the weekend."
+   "description": "A paper bag: soup, water, snacks. Enough for the weekend.",
+   "model": "res://THE_VEIL_ASSETS_V2/08_Inventory/Food_And_Supplies/INV_SmallBackpack.glb",
+   "weight": 2.5
   },
   "horror_game": {
    "name": "Horror Game",
    "category": "misc",
-   "description": "HOLLOW HILL - a new horror game for tonight. (Title from the store art; not confirmed in the story bible.)"
+   "description": "HOLLOW HILL - a new horror game for tonight. (Title from the store art; not confirmed in the story bible.)",
+   "weight": 0.1,
+   "icon": "res://game/ui/icons/horror_game.png"
   },
   "cola_bottle": {
+   "shelter_resource": "water",
    "name": "Cola",
    "category": "food",
-   "description": "A cold bottle of KOLA from the drinks cooler."
+   "description": "A cold bottle of KOLA from the drinks cooler.",
+   "model": "res://THE_VEIL_ASSETS_V2/08_Inventory/Food_And_Supplies/INV_WaterBottle.glb",
+   "weight": 0.6
   },
   "chocolate_bar": {
+   "shelter_resource": "food",
    "name": "Chocolate",
    "category": "food",
-   "description": "A COCOA bar from the rack by the checkout."
+   "description": "A COCOA bar from the rack by the checkout.",
+   "model": "res://THE_VEIL_ASSETS_V2/08_Inventory/Food_And_Supplies/INV_EnergySnack.glb",
+   "weight": 0.1
   },
   "flashlight": {
    "name": "Flashlight",
    "category": "flashlight",
-   "description": "A heavy store flashlight from the customer service desk. F to switch on, R to change batteries."
+   "description": "A heavy store flashlight from the customer service desk. F to switch on, R to change batteries.",
+   "model": "res://THE_VEIL_ASSETS_V2/08_Inventory/Story_Items/INV_Flashlight.glb",
+   "weight": 0.45
   },
   "batteries": {
+   "shelter_resource": "batteries",
    "name": "Batteries",
    "category": "flashlight",
-   "description": "Spare flashlight batteries. The count and charge show bottom right while the flashlight is on."
+   "description": "Spare flashlight batteries. The count and charge show bottom right while the flashlight is on.",
+   "model": "res://THE_VEIL_ASSETS_V2/08_Inventory/Food_And_Supplies/INV_SpareBatteries.glb",
+   "weight": 0.1
   },
   "painkillers": {
+   "shelter_resource": "medical",
+   "heal_amount": 25.0,
    "name": "Painkillers",
    "category": "medical",
-   "description": "A blister pack of painkillers from a bathroom medicine cabinet."
+   "description": "A blister pack of painkillers from a bathroom medicine cabinet.",
+   "model": "res://THE_VEIL_ASSETS_V2/08_Inventory/Medical/INV_PainkillerPack.glb",
+   "weight": 0.05
+  },
+  "noahs_backpack": {
+   "name": "Noah's Backpack",
+   "category": "key",
+   "weight": 0.6,
+   "model": "res://THE_VEIL_ASSETS_V2/08_Inventory/Food_And_Supplies/INV_SmallBackpack.glb",
+   "description": "Noah's backpack, found in an abandoned car near the old service road. Marcus bought it for him. Inside: a small keepsake Marcus recognised at once, and a folded handwritten note."
+  },
+  "noahs_note": {
+   "name": "Noah's Note",
+   "category": "note",
+   "weight": 0.01,
+   "model": "res://THE_VEIL_ASSETS_V2/08_Inventory/Story_Items/INV_FoldedNote.glb",
+   "description": "I couldn't stay there.\nA man said he knew somewhere safer, outside town.\nHe said there's a house near the farms.\nI'm going with him.\n— Noah"
+  },
+  "repair_boards": {
+   "name": "Wooden Boards",
+   "category": "tool",
+   "description": "Three planks from a broken pallet. Long enough to brace the back door.",
+   "model": "res://THE_VEIL_ASSETS_V2/03_Residential/Exterior_Modules/RES_Ext_Window_Boarded_1.0x1.3.glb",
+   "weight": 3.0
+  },
+  "duct_tape": {
+   "name": "Duct Tape",
+   "category": "tool",
+   "description": "Half a roll of grey tape. It holds things together. For a while.",
+   "model": "res://THE_VEIL_ASSETS_V2/08_Inventory/Tools/INV_DuctTape.glb",
+   "weight": 0.2
+  },
+  "hammer": {
+   "name": "Hammer",
+   "category": "tool",
+   "description": "A claw hammer from the maintenance shelf.",
+   "model": "res://THE_VEIL_ASSETS_V2/08_Inventory/Tools/INV_Hammer.glb",
+   "weight": 0.6
+  },
+  "campsite_note": {
+   "name": "Campsite Note",
+   "category": "note",
+   "weight": 0.01,
+   "model": "res://THE_VEIL_ASSETS_V2/08_Inventory/Story_Items/INV_FoldedNote.glb",
+   "description": "Kid came through yesterday. Looked scared.\nSaid he was trying to find somewhere safe.\nTold him to stay away from the road after dark.\nHe went toward the old farmhouse."
+  },
+  "noahs_message": {
+   "name": "Noah's Message",
+   "category": "note",
+   "weight": 0.01,
+   "model": "res://THE_VEIL_ASSETS_V2/08_Inventory/Story_Items/INV_Notebook.glb",
+   "description": "Dad, if you find this, I'm okay.\nI couldn't stay here. I heard something outside last night.\nI'm going to the farmhouse farther down the road.\nPlease don't come after dark."
+  },
+  "car_battery": {
+   "name": "Car Battery",
+   "category": "tool",
+   "weight": 12.0,
+   "model": "res://THE_VEIL_ASSETS_V2/08_Inventory/Food_And_Supplies/INV_SpareBatteries.glb",
+   "description": "A car battery out of the wreck on the west road. It still holds a charge."
+  },
+  "fuel_can": {
+   "name": "Fuel",
+   "category": "tool",
+   "weight": 4.0,
+   "model": "res://THE_VEIL_ASSETS_V2/08_Inventory/Food_And_Supplies/INV_WaterBottle.glb",
+   "description": "A big plastic bottle of petrol, siphoned from a delivery van behind the supermarket."
+  },
+  "car_fuse": {
+   "name": "Fuse",
+   "category": "tool",
+   "weight": 0.1,
+   "model": "res://THE_VEIL_ASSETS_V2/08_Inventory/Tools/INV_PortableFuse.glb",
+   "description": "A replacement fuse from the gas station. The car's main fuse burned out when the mist came."
+  },
+  "utility_map": {
+   "name": "Utility Map",
+   "category": "note",
+   "weight": 0.05,
+   "model": "res://THE_VEIL_ASSETS_V2/08_Inventory/Story_Items/INV_TownMap.glb",
+   "description": "An old municipal utility map from the town records. Maintenance Station 3 is circled. Beside it, the same symbol as on Noah's message."
+  },
+  "station_fuse": {
+   "name": "Main Fuse",
+   "category": "key",
+   "weight": 0.2,
+   "model": "res://THE_VEIL_ASSETS_V2/08_Inventory/Tools/INV_PortableFuse.glb",
+   "description": "A heavy cartridge fuse from the station's storage locker."
+  },
+  "maintenance_log": {
+   "name": "Maintenance Log",
+   "category": "note",
+   "weight": 0.1,
+   "model": "res://THE_VEIL_ASSETS_V2/08_Inventory/Story_Items/INV_Notebook.glb",
+   "description": "Station 3 maintenance log. Entries go back decades.\n'Lower level sealed after the third disappearance. Do not reopen.'\n'Vibration again tonight. Logged, not reported.'"
+  },
+  "underground_records": {
+   "name": "Underground Records",
+   "category": "note",
+   "weight": 0.3,
+   "model": "res://THE_VEIL_ASSETS_V2/08_Inventory/Story_Items/INV_FoldedNote.glb",
+   "description": "Survey sheets from the sealed chamber. Several service tunnels converge on one place deeper beneath Greyhaven - an old district that is not on any modern map. Workers were ordered to seal the area decades ago."
+  },
+  "checkpoint_note": {
+   "name": "Checkpoint Note",
+   "category": "note",
+   "weight": 0.01,
+   "model": "res://THE_VEIL_ASSETS_V2/08_Inventory/Story_Items/INV_FoldedNote.glb",
+   "description": "Handwritten, from the checkpoint office:\n'The lower passage is not to be opened. Whatever comes through the mist does not always come from outside.'"
+  },
+  "gate_crank": {
+   "name": "Gate Crank",
+   "category": "key",
+   "weight": 0.8,
+   "model": "res://THE_VEIL_ASSETS_V2/08_Inventory/Tools/INV_PortableFuse.glb",
+   "description": "A crank handle for the checkpoint gate's manual release."
+  },
+  "ancient_rubbing": {
+   "name": "Doorway Evidence",
+   "category": "note",
+   "weight": 0.2,
+   "model": "res://THE_VEIL_ASSETS_V2/08_Inventory/Story_Items/INV_FoldedNote.glb",
+   "description": "A survey sheet left by the sealed doorway, with a rubbing of the carving on it: the symbol, and around it marks no one in Greyhaven could read."
+  },
+  "last_note": {
+   "name": "A Last Note",
+   "category": "note",
+   "weight": 0.01,
+   "model": "res://THE_VEIL_ASSETS_V2/08_Inventory/Story_Items/INV_FoldedNote.glb",
+   "description": "Folded small, left under a stone by the road:\n'Tried the west road. Tried the river. The fog was always there first. If you find this, don't go back to the town. Go under it.'"
+  },
+  "handgun": {
+   "name": "Handgun",
+   "category": "weapon",
+   "weight": 0.9,
+   "model": "res://THE_VEIL_ASSETS_V2/08_Inventory/Weapons/INV_Handgun.glb",
+   "description": "The store manager's handgun, from the office desk. H draws or holsters it. Drawn: left-click (or F) fires, right-click aims, R reloads from the rounds you carry. A hit makes things flinch and buys time; roaming creatures may back off. It will not kill anything. Bullets are rare."
+  },
+  "handgun_ammo": {
+   "name": "Handgun Ammo",
+   "category": "weapon",
+   "weight": 0.2,
+   "model": "res://THE_VEIL_ASSETS_V2/08_Inventory/Weapons/INV_AmmoBox.glb",
+   "description": "A box of rounds for the handgun (6).",
+   "rounds": 6
+  },
+  "handgun_rounds": {
+   "name": "Loose Rounds",
+   "category": "weapon",
+   "weight": 0.05,
+   "model": "res://THE_VEIL_ASSETS_V2/08_Inventory/Weapons/INV_AmmoBox.glb",
+   "description": "A few loose rounds for the handgun.",
+   "rounds": 2
+  },
+  "handgun_round": {
+   "name": "A Single Round",
+   "category": "weapon",
+   "weight": 0.02,
+   "model": "res://THE_VEIL_ASSETS_V2/08_Inventory/Weapons/INV_AmmoBox.glb",
+   "description": "One round for the handgun.",
+   "rounds": 1
   }
- }
+ },
+ "carry_capacity_kg": 15.0,
+ "weight_note": "Placeholder weights (display only, not enforced). The bible's early design mentions about 15 kg; final values are TBD."
 }

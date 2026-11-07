@@ -24,7 +24,7 @@
    "folder": "Protagonist_Sedan",
    "glb": "05_Vehicles/Protagonist_Sedan/VEH_ProtagonistSedan.glb",
    "category": "hero vehicle",
-   "triangles": 2772,
+   "triangles": 2760,
    "materials": [
     "M_Veh_Atlas",
     "M_Veh_Glass",
@@ -242,7 +242,7 @@
    "folder": "Police_Cruiser",
    "glb": "05_Vehicles/Police_Cruiser/VEH_PoliceCruiser.glb",
    "category": "vehicle",
-   "triangles": 2788,
+   "triangles": 2776,
    "materials": [
     "M_Veh_Atlas",
     "M_Veh_Glass",
@@ -460,7 +460,7 @@
    "folder": "Pickup",
    "glb": "05_Vehicles/Pickup/VEH_PickupTruck.glb",
    "category": "vehicle",
-   "triangles": 2155,
+   "triangles": 2143,
    "materials": [
     "M_Veh_Atlas",
     "M_Veh_Glass",
@@ -846,7 +846,7 @@
    "folder": "Traffic_Variants",
    "glb": "05_Vehicles/Traffic_Variants/VEH_Sedan_Traffic_Green.glb",
    "category": "traffic variant",
-   "triangles": 2666,
+   "triangles": 2654,
    "materials": [
     "M_Veh_Atlas",
     "M_Veh_Glass",
@@ -1064,7 +1064,7 @@
    "folder": "Traffic_Variants",
    "glb": "05_Vehicles/Traffic_Variants/VEH_Sedan_Traffic_Beige.glb",
    "category": "traffic variant",
-   "triangles": 2666,
+   "triangles": 2654,
    "materials": [
     "M_Veh_Atlas",
     "M_Veh_Glass",
@@ -1282,7 +1282,7 @@
    "folder": "Abandoned_Variants",
    "glb": "05_Vehicles/Abandoned_Variants/VEH_Sedan_Dusty.glb",
    "category": "abandoned variant",
-   "triangles": 2666,
+   "triangles": 2654,
    "materials": [
     "M_Veh_Atlas_Weathered",
     "M_Veh_Glass_Dirty",
@@ -1500,7 +1500,7 @@
    "folder": "Abandoned_Variants",
    "glb": "05_Vehicles/Abandoned_Variants/VEH_Sedan_Damaged.glb",
    "category": "abandoned variant",
-   "triangles": 2664,
+   "triangles": 2650,
    "materials": [
     "M_Veh_Atlas_Weathered",
     "M_Veh_Glass_Dirty",
@@ -1718,7 +1718,7 @@
    "folder": "Abandoned_Variants",
    "glb": "05_Vehicles/Abandoned_Variants/VEH_PoliceCruiser_Abandoned.glb",
    "category": "abandoned variant",
-   "triangles": 2788,
+   "triangles": 2776,
    "materials": [
     "M_Veh_Atlas_Weathered",
     "M_Veh_Glass_Dirty",
@@ -1936,7 +1936,7 @@
    "folder": "Abandoned_Variants",
    "glb": "05_Vehicles/Abandoned_Variants/VEH_Pickup_Abandoned.glb",
    "category": "abandoned variant",
-   "triangles": 2155,
+   "triangles": 2143,
    "materials": [
     "M_Veh_Atlas_Weathered",
     "M_Veh_Glass_Dirty",

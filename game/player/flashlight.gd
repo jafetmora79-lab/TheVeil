@@ -26,6 +26,7 @@ var _rng := RandomNumberGenerator.new()
 
 func setup(p: Node3D, c: Dictionary) -> void:
 	player = p
+	add_to_group("veil_flashlight")                  # the inventory screen finds it for its item actions
 	for k in c:
 		cfg[k] = c[k]
 	for a in [["flashlight", KEY_F], ["reload", KEY_R]]:
@@ -83,6 +84,9 @@ func _store() -> void:
 func _unhandled_input(e: InputEvent) -> void:
 	if player == null or not player.visible or not player.get("controls_enabled"):
 		return
+	var sa := get_tree().get_first_node_in_group("veil_sidearm")
+	if sa and sa.drawn():
+		return                                          # the handgun is drawn: F fires and R reloads it instead
 	if e.is_action_pressed("flashlight"):
 		set_on(not on)
 		Sfx.play("pickup", player.global_position, -14.0, 2.2)

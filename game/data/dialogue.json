@@ -430,7 +430,7 @@
   "lines": [
    {
     "speaker": "Eddie",
-    "text": "Go! We'll cut through the back and meet you there. Stay away from those... things.",
+    "text": "Go! Stay away from those... things.",
     "time": 4.2
    }
   ]
@@ -456,22 +456,31 @@
   ]
  },
  "p3_market": {
-  "draft": true,
   "lines": [
    {
-    "speaker": "",
-    "text": "Where is everyone? The cashier was right here.",
+    "speaker": "Eddie",
+    "text": "Looks like we weren't the first ones here.",
     "time": 3.2
    },
    {
-    "speaker": "Eddie",
-    "text": "You made it. The power's out - the doors are stuck open!",
-    "time": 3.4
+    "speaker": "",
+    "text": "People cleared out the essentials.",
+    "time": 2.8
    },
    {
     "speaker": "Marcus",
-    "text": "Shut them. Now!",
-    "time": 2.0
+    "text": "Water, medicine, canned food... most of it's gone.",
+    "time": 3.6
+   },
+   {
+    "speaker": "Eddie",
+    "text": "There's still some food left.",
+    "time": 2.5
+   },
+   {
+    "speaker": "Marcus",
+    "text": "Enough for now. Not enough to stay here forever.",
+    "time": 3.5
    }
   ]
  },
@@ -1325,6 +1334,5389 @@
     "speaker": "Marcus",
     "text": "Then we'll make room.",
     "time": 2.2
+   }
+  ]
+ },
+ "c6_marcus": {
+  "source": "Chapter 6 implementation prompt 02 (approved script)",
+  "lines": [
+   {
+    "speaker": "Marcus",
+    "text": "I heard someone outside earlier.",
+    "time": 2.9
+   },
+   {
+    "speaker": "",
+    "text": "Someone?",
+    "time": 1.8
+   },
+   {
+    "speaker": "Marcus",
+    "text": "A voice. Calling for help.",
+    "time": 2.5
+   },
+   {
+    "speaker": "",
+    "text": "Where?",
+    "time": 1.8
+   },
+   {
+    "speaker": "Marcus",
+    "text": "Toward the houses.",
+    "time": 2.0
+   },
+   {
+    "speaker": "Marcus",
+    "text": "I couldn't see anything through the fog.",
+    "time": 3.4
+   },
+   {
+    "speaker": "",
+    "text": "Could've been someone looking for shelter.",
+    "time": 3.5
+   },
+   {
+    "speaker": "Marcus",
+    "text": "That's what I thought.",
+    "time": 2.3
+   },
+   {
+    "speaker": "Marcus",
+    "text": "But the voice stopped.",
+    "time": 2.3
+   },
+   {
+    "speaker": "",
+    "text": "We'll take a look.",
+    "time": 2.0
+   },
+   {
+    "speaker": "Marcus",
+    "text": "Be careful.",
+    "time": 1.8
+   }
+  ]
+ },
+ "c6_eddie": {
+  "source": "Chapter 6 implementation prompt 02 (approved script)",
+  "lines": [
+   {
+    "speaker": "Eddie",
+    "text": "Please tell me we're not going back outside.",
+    "time": 3.6
+   },
+   {
+    "speaker": "",
+    "text": "We're going back outside.",
+    "time": 2.5
+   },
+   {
+    "speaker": "Eddie",
+    "text": "Fantastic.",
+    "time": 1.8
+   },
+   {
+    "speaker": "",
+    "text": "Marcus heard someone calling for help.",
+    "time": 3.3
+   },
+   {
+    "speaker": "Eddie",
+    "text": "People usually call for help when something's wrong.",
+    "time": 4.1
+   },
+   {
+    "speaker": "",
+    "text": "That's why we're checking.",
+    "time": 2.5
+   },
+   {
+    "speaker": "Eddie",
+    "text": "I knew you were going to say that.",
+    "time": 3.0
+   },
+   {
+    "speaker": "Eddie",
+    "text": "Give me a minute.",
+    "time": 2.0
+   }
+  ]
+ },
+ "c6_walk": {
+  "source": "Chapter 6 implementation prompt 02 (approved script)",
+  "lines": [
+   {
+    "speaker": "Eddie",
+    "text": "You know what's bothering me?",
+    "time": 2.7
+   },
+   {
+    "speaker": "",
+    "text": "Only one thing?",
+    "time": 1.8
+   },
+   {
+    "speaker": "Eddie",
+    "text": "Funny.",
+    "time": 1.8
+   },
+   {
+    "speaker": "Eddie",
+    "text": "It's how quiet everything gets.",
+    "time": 2.8
+   },
+   {
+    "speaker": "",
+    "text": "Stay close.",
+    "time": 1.8
+   },
+   {
+    "speaker": "Eddie",
+    "text": "Wasn't planning on doing anything else.",
+    "time": 3.3
+   }
+  ]
+ },
+ "c6_ruth_sarah": {
+  "source": "Chapter 6 implementation prompt 02 (approved script)",
+  "lines": [
+   {
+    "speaker": "Ruth",
+    "text": "Who's there?",
+    "time": 1.8
+   },
+   {
+    "speaker": "",
+    "text": "We're not looking for trouble.",
+    "time": 2.8
+   },
+   {
+    "speaker": "Ruth",
+    "text": "Then keep your hands where I can see them.",
+    "time": 3.5
+   },
+   {
+    "speaker": "Eddie",
+    "text": "Mine are very visible.",
+    "time": 2.3
+   },
+   {
+    "speaker": "Sarah",
+    "text": "Ruth, they're just people.",
+    "time": 2.5
+   },
+   {
+    "speaker": "Ruth",
+    "text": "That's what worries me.",
+    "time": 2.3
+   },
+   {
+    "speaker": "",
+    "text": "We have shelter. A supermarket a few streets over.",
+    "time": 4.0
+   },
+   {
+    "speaker": "Sarah",
+    "text": "There are others?",
+    "time": 2.0
+   },
+   {
+    "speaker": "",
+    "text": "A few.",
+    "time": 1.8
+   },
+   {
+    "speaker": "Ruth",
+    "text": "How safe is it?",
+    "time": 1.8
+   },
+   {
+    "speaker": "",
+    "text": "Safer than being out here.",
+    "time": 2.5
+   }
+  ],
+  "choices": [
+   {
+    "text": "\"Come with us. There's room.\"",
+    "next": "c6_rs_invite",
+    "flag": "ch6_ruth_sarah_choice_invite"
+   },
+   {
+    "text": "\"There's a supermarket a few streets back. You can reach it from the main road.\"",
+    "next": "c6_rs_directions",
+    "flag": "ch6_ruth_sarah_choice_directions"
+   },
+   {
+    "text": "\"We can't take responsibility for anyone else right now.\"",
+    "next": "c6_rs_leave",
+    "flag": "ch6_ruth_sarah_choice_leave"
+   }
+  ]
+ },
+ "c6_rs_invite": {
+  "source": "Chapter 6 implementation prompt 02 (approved script)",
+  "lines": [
+   {
+    "speaker": "",
+    "text": "Come with us. There's room.",
+    "time": 2.6
+   },
+   {
+    "speaker": "Sarah",
+    "text": "Thank you.",
+    "time": 1.8
+   },
+   {
+    "speaker": "Ruth",
+    "text": "We'll gather our things.",
+    "time": 2.4
+   }
+  ]
+ },
+ "c6_rs_directions": {
+  "source": "Chapter 6 implementation prompt 02 (approved script)",
+  "lines": [
+   {
+    "speaker": "",
+    "text": "There's a supermarket a few streets back. You can reach it from the main road.",
+    "time": 5.7
+   },
+   {
+    "speaker": "Sarah",
+    "text": "We'll try.",
+    "time": 1.8
+   },
+   {
+    "speaker": "Ruth",
+    "text": "We'll decide when we're ready.",
+    "time": 2.8
+   }
+  ]
+ },
+ "c6_rs_leave": {
+  "source": "Chapter 6 implementation prompt 02 (approved script)",
+  "lines": [
+   {
+    "speaker": "",
+    "text": "We can't take responsibility for anyone else right now.",
+    "time": 4.3
+   },
+   {
+    "speaker": "Sarah",
+    "text": "I understand.",
+    "time": 1.8
+   },
+   {
+    "speaker": "Ruth",
+    "text": "Then you'd better get moving.",
+    "time": 2.7
+   }
+  ]
+ },
+ "c6_voice": {
+  "source": "Chapter 6 implementation prompt 02 (approved script)",
+  "lines": [
+   {
+    "speaker": "Distant voice",
+    "text": "Hello?",
+    "time": 1.8
+   },
+   {
+    "speaker": "Distant voice",
+    "text": "Can somebody help me?",
+    "time": 2.2
+   },
+   {
+    "speaker": "Distant voice",
+    "text": "Please...",
+    "time": 1.8
+   }
+  ]
+ },
+ "c6_voice_eddie": {
+  "source": "Chapter 6 implementation prompt 02 (approved script)",
+  "lines": [
+   {
+    "speaker": "Eddie",
+    "text": "Tell me you heard that.",
+    "time": 2.3
+   },
+   {
+    "speaker": "",
+    "text": "I heard it.",
+    "time": 1.8
+   },
+   {
+    "speaker": "Eddie",
+    "text": "That's the same direction Marcus mentioned.",
+    "time": 3.6
+   },
+   {
+    "speaker": "",
+    "text": "Could be someone else.",
+    "time": 2.3
+   },
+   {
+    "speaker": "Eddie",
+    "text": "Or something we don't want to meet.",
+    "time": 3.1
+   }
+  ],
+  "choices": [
+   {
+    "text": "\"We should check.\"",
+    "next": "c6_voice_investigate",
+    "flag": "ch6_voice_choice_investigate"
+   },
+   {
+    "text": "\"We're going back.\"",
+    "next": "c6_voice_retreat",
+    "flag": "ch6_voice_choice_retreat"
+   }
+  ]
+ },
+ "c6_voice_investigate": {
+  "source": "Chapter 6 implementation prompt 02 (approved script)",
+  "lines": [
+   {
+    "speaker": "",
+    "text": "We should check.",
+    "time": 1.9
+   },
+   {
+    "speaker": "Eddie",
+    "text": "I really hate that answer.",
+    "time": 2.5
+   }
+  ]
+ },
+ "c6_voice_retreat": {
+  "source": "Chapter 6 implementation prompt 02 (approved script)",
+  "lines": [
+   {
+    "speaker": "",
+    "text": "We're going back.",
+    "time": 2.0
+   },
+   {
+    "speaker": "Eddie",
+    "text": "Best thing you've said all day.",
+    "time": 2.8
+   }
+  ]
+ },
+ "c6_hound_seen": {
+  "source": "Chapter 6 implementation prompt 02 (approved script)",
+  "lines": [
+   {
+    "speaker": "Eddie",
+    "text": "What the hell is that?",
+    "time": 2.3
+   },
+   {
+    "speaker": "",
+    "text": "Don't move.",
+    "time": 1.8
+   },
+   {
+    "speaker": "Eddie",
+    "text": "That is a very difficult instruction right now.",
+    "time": 3.8
+   }
+  ]
+ },
+ "c6_hound_noticed": {
+  "source": "Chapter 6 implementation prompt 02 (approved script)",
+  "lines": [
+   {
+    "speaker": "",
+    "text": "RUN!",
+    "time": 1.8
+   },
+   {
+    "speaker": "Eddie",
+    "text": "ALREADY DOING THAT!",
+    "time": 2.1
+   }
+  ]
+ },
+ "c6_return": {
+  "source": "Chapter 6 implementation prompt 02 (approved script)",
+  "lines": [
+   {
+    "speaker": "Eddie",
+    "text": "I'm never complaining about a boring day again.",
+    "time": 3.8
+   },
+   {
+    "speaker": "",
+    "text": "You said that yesterday.",
+    "time": 2.4
+   },
+   {
+    "speaker": "Eddie",
+    "text": "And I meant it yesterday too.",
+    "time": 2.7
+   }
+  ]
+ },
+ "c6_report_a": {
+  "source": "Chapter 6 implementation prompt 02 (approved script)",
+  "lines": [
+   {
+    "speaker": "Marcus",
+    "text": "You're back.",
+    "time": 1.8
+   },
+   {
+    "speaker": "Eddie",
+    "text": "Against all reasonable expectations.",
+    "time": 3.1
+   },
+   {
+    "speaker": "Marcus",
+    "text": "Did you find anyone?",
+    "time": 2.1
+   }
+  ]
+ },
+ "c6_report_invite": {
+  "source": "Chapter 6 implementation prompt 02 (approved script)",
+  "lines": [
+   {
+    "speaker": "",
+    "text": "Two survivors. Ruth and Sarah. We offered them shelter.",
+    "time": 4.3
+   },
+   {
+    "speaker": "Marcus",
+    "text": "Good. We need to look after each other.",
+    "time": 3.3
+   }
+  ]
+ },
+ "c6_report_directions": {
+  "source": "Chapter 6 implementation prompt 02 (approved script)",
+  "lines": [
+   {
+    "speaker": "",
+    "text": "Two survivors. We told them where to find us.",
+    "time": 3.7
+   },
+   {
+    "speaker": "Marcus",
+    "text": "Hopefully they'll make it.",
+    "time": 2.5
+   }
+  ]
+ },
+ "c6_report_leave": {
+  "source": "Chapter 6 implementation prompt 02 (approved script)",
+  "lines": [
+   {
+    "speaker": "",
+    "text": "Two survivors. They're staying where they are.",
+    "time": 3.8
+   },
+   {
+    "speaker": "Marcus",
+    "text": "I hope they're safe.",
+    "time": 2.1
+   }
+  ]
+ },
+ "c6_report_b": {
+  "source": "Chapter 6 implementation prompt 02 (approved script)",
+  "lines": [
+   {
+    "speaker": "Marcus",
+    "text": "And the voice?",
+    "time": 1.8
+   },
+   {
+    "speaker": "",
+    "text": "We heard it.",
+    "time": 1.8
+   },
+   {
+    "speaker": "Eddie",
+    "text": "We also found something with teeth.",
+    "time": 3.1
+   },
+   {
+    "speaker": "Marcus",
+    "text": "What kind of something?",
+    "time": 2.3
+   },
+   {
+    "speaker": "Eddie",
+    "text": "The kind I'm not going outside to identify.",
+    "time": 3.6
+   },
+   {
+    "speaker": "",
+    "text": "We got away.",
+    "time": 1.8
+   },
+   {
+    "speaker": "Marcus",
+    "text": "Thank God.",
+    "time": 1.8
+   }
+  ]
+ },
+ "p3_seated_a": {
+  "lines": [
+   {
+    "speaker": "Eddie",
+    "text": "Please tell me that thing is leaving.",
+    "time": 2.9
+   },
+   {
+    "speaker": "",
+    "text": "I think so.",
+    "time": 2.0
+   },
+   {
+    "speaker": "Marcus",
+    "text": "Don't move yet.",
+    "time": 2.0
+   }
+  ]
+ },
+ "p3_seated_b": {
+  "lines": [
+   {
+    "speaker": "Eddie",
+    "text": "Wasn't planning on it.",
+    "time": 2.1
+   },
+   {
+    "speaker": "",
+    "text": "How did you end up here?",
+    "time": 2.2
+   },
+   {
+    "speaker": "Marcus",
+    "text": "I was looking for my son. Noah.",
+    "time": 2.6
+   },
+   {
+    "speaker": "",
+    "text": "How old is he?",
+    "time": 2.0
+   },
+   {
+    "speaker": "Marcus",
+    "text": "Thirteen. He was supposed to be home hours ago.",
+    "time": 3.5
+   },
+   {
+    "speaker": "Eddie",
+    "text": "And you came into a video game store?",
+    "time": 2.9
+   },
+   {
+    "speaker": "Marcus",
+    "text": "I saw the lights on. Thought maybe he'd come inside.",
+    "time": 3.8
+   },
+   {
+    "speaker": "Marcus",
+    "text": "Then that thing appeared.",
+    "time": 2.3
+   },
+   {
+    "speaker": "",
+    "text": "We'll help you look when it's safe.",
+    "time": 2.8
+   },
+   {
+    "speaker": "Marcus",
+    "text": "Thank you.",
+    "time": 2.0
+   },
+   {
+    "speaker": "Eddie",
+    "text": "So... anybody else suddenly miss having normal problems?",
+    "time": 4.0
+   }
+  ]
+ },
+ "p3_lights": {
+  "lines": [
+   {
+    "speaker": "Eddie",
+    "text": "Look. Across the street.",
+    "time": 2.2
+   },
+   {
+    "speaker": "",
+    "text": "The supermarket?",
+    "time": 2.0
+   },
+   {
+    "speaker": "Eddie",
+    "text": "Lights are still on.",
+    "time": 2.0
+   },
+   {
+    "speaker": "Marcus",
+    "text": "There might be food. Water, too.",
+    "time": 2.7
+   },
+   {
+    "speaker": "",
+    "text": "And maybe other survivors.",
+    "time": 2.3
+   },
+   {
+    "speaker": "Marcus",
+    "text": "Someone there might've seen Noah.",
+    "time": 2.7
+   },
+   {
+    "speaker": "Eddie",
+    "text": "So we're actually going back outside?",
+    "time": 2.9
+   },
+   {
+    "speaker": "",
+    "text": "We can't stay here forever.",
+    "time": 2.4
+   },
+   {
+    "speaker": "Eddie",
+    "text": "I was really hoping we could.",
+    "time": 2.5
+   }
+  ]
+ },
+ "c7_marcus": {
+  "source": "Chapter 7 implementation prompt (approved script)",
+  "lines": [
+   {
+    "speaker": "Marcus",
+    "text": "Someone told me about a car near the old service road.",
+    "time": 4.2
+   },
+   {
+    "speaker": "",
+    "text": "What about it?",
+    "time": 1.8
+   },
+   {
+    "speaker": "Marcus",
+    "text": "They saw a backpack inside. Said it looked like a kid's.",
+    "time": 4.4
+   },
+   {
+    "speaker": "",
+    "text": "That doesn't mean it's Noah's.",
+    "time": 2.8
+   },
+   {
+    "speaker": "Marcus",
+    "text": "I know.",
+    "time": 1.8
+   },
+   {
+    "speaker": "Marcus",
+    "text": "But it's something.",
+    "time": 2.1
+   },
+   {
+    "speaker": "",
+    "text": "Where is it?",
+    "time": 1.8
+   },
+   {
+    "speaker": "Marcus",
+    "text": "Not far. Past the residential blocks.",
+    "time": 3.2
+   },
+   {
+    "speaker": "",
+    "text": "Then we'll take a look.",
+    "time": 2.3
+   },
+   {
+    "speaker": "Marcus",
+    "text": "Thank you.",
+    "time": 1.8
+   }
+  ]
+ },
+ "c7_eddie": {
+  "source": "Chapter 7 implementation prompt (approved script)",
+  "lines": [
+   {
+    "speaker": "Eddie",
+    "text": "Marcus told me about the car.",
+    "time": 2.7
+   },
+   {
+    "speaker": "",
+    "text": "He's convinced it's Noah's.",
+    "time": 2.6
+   },
+   {
+    "speaker": "Eddie",
+    "text": "He's convinced because he needs it to be.",
+    "time": 3.4
+   },
+   {
+    "speaker": "",
+    "text": "You think we shouldn't go?",
+    "time": 2.5
+   },
+   {
+    "speaker": "Eddie",
+    "text": "No. I think we should.",
+    "time": 2.3
+   },
+   {
+    "speaker": "Eddie",
+    "text": "Just don't let him do anything stupid.",
+    "time": 3.3
+   },
+   {
+    "speaker": "",
+    "text": "I'll try.",
+    "time": 1.8
+   },
+   {
+    "speaker": "Eddie",
+    "text": "That's about as reassuring as anything gets around here.",
+    "time": 4.4
+   }
+  ]
+ },
+ "c7_skitters_intro": {
+  "source": "QA-008: the first sight of the Skitters at the car",
+  "lines": [
+   {
+    "speaker": "Marcus",
+    "text": "Wait. Look at the car.",
+    "time": 2.2
+   },
+   {
+    "speaker": "",
+    "text": "Those things are all over it.",
+    "time": 2.4
+   },
+   {
+    "speaker": "Marcus",
+    "text": "We're not getting anywhere near that.",
+    "time": 2.6
+   },
+   {
+    "speaker": "",
+    "text": "Maybe we can draw them away.",
+    "time": 2.4
+   },
+   {
+    "speaker": "Marcus",
+    "text": "How?",
+    "time": 1.4
+   },
+   {
+    "speaker": "",
+    "text": "Something loud. Away from the car.",
+    "time": 2.6
+   }
+  ]
+ },
+ "map_intro": {
+  "source": "Town map (Part 9): Eddie hands it over in the supermarket",
+  "lines": [
+   {
+    "speaker": "Eddie",
+    "text": "Hey, found something you might actually use.",
+    "time": 2.6
+   },
+   {
+    "speaker": "",
+    "text": "What is it?",
+    "time": 1.4
+   },
+   {
+    "speaker": "Eddie",
+    "text": "Map of Greyhaven. Old one, but the streets haven't moved. Probably.",
+    "time": 3.6
+   },
+   {
+    "speaker": "",
+    "text": "What's marked on it?",
+    "time": 1.8
+   },
+   {
+    "speaker": "Eddie",
+    "text": "Houses, shops, places worth checking. You can mark somewhere you want to search.",
+    "time": 4.0
+   },
+   {
+    "speaker": "",
+    "text": "And if there's nothing there?",
+    "time": 2.0
+   },
+   {
+    "speaker": "Eddie",
+    "text": "Cross it off. If you find supplies, mark it too. Might be worth coming back after a few days.",
+    "time": 4.4
+   },
+   {
+    "speaker": "",
+    "text": "Alright. Better than wandering around blind.",
+    "time": 2.6
+   }
+  ]
+ },
+ "gh_reminder": {
+  "source": "Opening: the Game Haven reminder after the groceries",
+  "lines": [
+   {
+    "speaker": "",
+    "text": "Oh, right. Wasn't I gonna buy a game?",
+    "time": 2.6
+   }
+  ]
+ },
+ "c7_walk": {
+  "source": "Chapter 7 implementation prompt (approved script)",
+  "lines": [
+   {
+    "speaker": "Marcus",
+    "text": "Noah used to ride his bike around here.",
+    "time": 3.3
+   },
+   {
+    "speaker": "",
+    "text": "Did he know the neighborhood well?",
+    "time": 3.0
+   },
+   {
+    "speaker": "Marcus",
+    "text": "Better than I did.",
+    "time": 2.0
+   },
+   {
+    "speaker": "Marcus",
+    "text": "He was always finding shortcuts.",
+    "time": 2.9
+   }
+  ]
+ },
+ "c7_backpack": {
+  "source": "Chapter 7 implementation prompt (approved script)",
+  "lines": [
+   {
+    "speaker": "Marcus",
+    "text": "Wait.",
+    "time": 1.8
+   },
+   {
+    "speaker": "",
+    "text": "What?",
+    "time": 1.8
+   },
+   {
+    "speaker": "Marcus",
+    "text": "That bag.",
+    "time": 1.8
+   },
+   {
+    "speaker": "Marcus",
+    "text": "That's Noah's.",
+    "time": 1.8
+   },
+   {
+    "speaker": "",
+    "text": "You're sure?",
+    "time": 1.8
+   },
+   {
+    "speaker": "Marcus",
+    "text": "I bought it for him.",
+    "time": 2.1
+   },
+   {
+    "speaker": "Marcus",
+    "text": "He complained about the color for a week.",
+    "time": 3.4
+   }
+  ]
+ },
+ "c7_note": {
+  "source": "Chapter 7 implementation prompt (approved script)",
+  "lines": [
+   {
+    "speaker": "Marcus",
+    "text": "He wrote this.",
+    "time": 1.8
+   },
+   {
+    "speaker": "",
+    "text": "Looks like he got out of town.",
+    "time": 2.8
+   },
+   {
+    "speaker": "Marcus",
+    "text": "Someone helped him.",
+    "time": 2.1
+   },
+   {
+    "speaker": "",
+    "text": "We don't know where they went.",
+    "time": 2.8
+   },
+   {
+    "speaker": "Marcus",
+    "text": "But he was alive.",
+    "time": 2.0
+   },
+   {
+    "speaker": "Marcus",
+    "text": "After all of this started, he was alive.",
+    "time": 3.4
+   }
+  ]
+ },
+ "c7_road": {
+  "source": "Chapter 7 implementation prompt (approved script)",
+  "lines": [
+   {
+    "speaker": "Marcus",
+    "text": "He could've gone this way.",
+    "time": 2.5
+   },
+   {
+    "speaker": "",
+    "text": "Maybe.",
+    "time": 1.8
+   },
+   {
+    "speaker": "Marcus",
+    "text": "We should keep going.",
+    "time": 2.2
+   },
+   {
+    "speaker": "",
+    "text": "We don't know what's out there.",
+    "time": 2.8
+   },
+   {
+    "speaker": "Marcus",
+    "text": "We know Noah might be.",
+    "time": 2.3
+   }
+  ],
+  "choices": [
+   {
+    "text": "\"We'll find him. But we need to prepare first.\"",
+    "next": "c7_road_promise",
+    "flag": "marcus_trust_search"
+   },
+   {
+    "text": "\"We can't keep going without supplies and a plan.\"",
+    "next": "c7_road_safety",
+    "flag": "marcus_cautious_search"
+   }
+  ]
+ },
+ "c7_road_promise": {
+  "source": "Chapter 7 implementation prompt (approved script)",
+  "lines": [
+   {
+    "speaker": "",
+    "text": "We'll find him. But we need to prepare first.",
+    "time": 3.7
+   },
+   {
+    "speaker": "Marcus",
+    "text": "You mean that?",
+    "time": 1.8
+   },
+   {
+    "speaker": "",
+    "text": "Yes.",
+    "time": 1.8
+   },
+   {
+    "speaker": "Marcus",
+    "text": "Okay.",
+    "time": 1.8
+   },
+   {
+    "speaker": "Marcus",
+    "text": "Then I'll wait.",
+    "time": 1.8
+   }
+  ]
+ },
+ "c7_road_safety": {
+  "source": "Chapter 7 implementation prompt (approved script)",
+  "lines": [
+   {
+    "speaker": "",
+    "text": "We can't keep going without supplies and a plan.",
+    "time": 3.9
+   },
+   {
+    "speaker": "Marcus",
+    "text": "Every hour we wait, he could be in danger.",
+    "time": 3.5
+   },
+   {
+    "speaker": "",
+    "text": "And if we die out here, nobody finds him.",
+    "time": 3.4
+   },
+   {
+    "speaker": "Marcus",
+    "text": "...Fine.",
+    "time": 1.8
+   }
+  ]
+ },
+ "c7_report": {
+  "source": "Chapter 7 implementation prompt (approved script)",
+  "lines": [
+   {
+    "speaker": "Eddie",
+    "text": "You found something?",
+    "time": 2.1
+   },
+   {
+    "speaker": "Marcus",
+    "text": "His backpack.",
+    "time": 1.8
+   },
+   {
+    "speaker": "Eddie",
+    "text": "You're sure it's his?",
+    "time": 2.2
+   },
+   {
+    "speaker": "Marcus",
+    "text": "Yes.",
+    "time": 1.8
+   },
+   {
+    "speaker": "Marcus",
+    "text": "And there was a note.",
+    "time": 2.2
+   },
+   {
+    "speaker": "",
+    "text": "Someone helped him get toward the farms.",
+    "time": 3.4
+   },
+   {
+    "speaker": "Eddie",
+    "text": "That's good, right?",
+    "time": 2.1
+   },
+   {
+    "speaker": "Marcus",
+    "text": "It means he made it out of town.",
+    "time": 2.9
+   },
+   {
+    "speaker": "Eddie",
+    "text": "Then we've got somewhere to start.",
+    "time": 3.0
+   },
+   {
+    "speaker": "Marcus",
+    "text": "We need to find those farms.",
+    "time": 2.6
+   },
+   {
+    "speaker": "",
+    "text": "We will. But not tonight.",
+    "time": 2.5
+   },
+   {
+    "speaker": "Marcus",
+    "text": "I know.",
+    "time": 1.8
+   },
+   {
+    "speaker": "Eddie",
+    "text": "One thing at a time.",
+    "time": 2.1
+   }
+  ]
+ },
+ "c8_eddie": {
+  "source": "Chapter 8 implementation prompt (approved script)",
+  "lines": [
+   {
+    "speaker": "Eddie",
+    "text": "You hear that last night?",
+    "time": 2.3
+   },
+   {
+    "speaker": "",
+    "text": "Hear what?",
+    "time": 1.6
+   },
+   {
+    "speaker": "Eddie",
+    "text": "Something hitting the back door.",
+    "time": 2.7
+   },
+   {
+    "speaker": "",
+    "text": "Again?",
+    "time": 1.6
+   },
+   {
+    "speaker": "Eddie",
+    "text": "Yeah. Except this time, it didn't stop after a few knocks.",
+    "time": 4.1
+   },
+   {
+    "speaker": "",
+    "text": "Did anyone check?",
+    "time": 1.8
+   },
+   {
+    "speaker": "Eddie",
+    "text": "Marcus did. Said the barricade's coming apart.",
+    "time": 3.4
+   },
+   {
+    "speaker": "",
+    "text": "Where is he?",
+    "time": 1.6
+   },
+   {
+    "speaker": "Eddie",
+    "text": "Back there. Trying not to look worried.",
+    "time": 3.0
+   }
+  ]
+ },
+ "c8_marcus_damage": {
+  "source": "Chapter 8 implementation prompt (approved script)",
+  "lines": [
+   {
+    "speaker": "Marcus",
+    "text": "Look at this.",
+    "time": 1.6
+   },
+   {
+    "speaker": "",
+    "text": "Something tried to get in.",
+    "time": 2.3
+   },
+   {
+    "speaker": "Marcus",
+    "text": "More than once.",
+    "time": 1.7
+   },
+   {
+    "speaker": "",
+    "text": "Can we reinforce it?",
+    "time": 2.0
+   },
+   {
+    "speaker": "Marcus",
+    "text": "With enough material. But there's another problem.",
+    "time": 3.6
+   },
+   {
+    "speaker": "",
+    "text": "What?",
+    "time": 1.6
+   },
+   {
+    "speaker": "Marcus",
+    "text": "The backup power's barely holding.",
+    "time": 2.8
+   }
+  ]
+ },
+ "c8_repaired": {
+  "source": "Chapter 8 implementation prompt (approved script)",
+  "lines": [
+   {
+    "speaker": "Marcus",
+    "text": "That should hold.",
+    "time": 1.8
+   },
+   {
+    "speaker": "",
+    "text": "For how long?",
+    "time": 1.6
+   },
+   {
+    "speaker": "Marcus",
+    "text": "I'd rather not find out.",
+    "time": 2.2
+   }
+  ]
+ },
+ "c8_power_fail": {
+  "source": "Chapter 8 implementation prompt (approved script)",
+  "lines": [
+   {
+    "speaker": "Eddie",
+    "text": "Oh, that's not good.",
+    "time": 2.0
+   },
+   {
+    "speaker": "",
+    "text": "What happened?",
+    "time": 1.7
+   },
+   {
+    "speaker": "Eddie",
+    "text": "Backup power. It's giving up.",
+    "time": 2.5
+   },
+   {
+    "speaker": "Ruth",
+    "text": "We can't stay here in complete darkness.",
+    "time": 3.1
+   },
+   {
+    "speaker": "Eddie",
+    "text": "There's a maintenance panel near the storage area.",
+    "time": 3.6
+   }
+  ]
+ },
+ "c8_power_back": {
+  "source": "Chapter 8 implementation prompt (approved script)",
+  "lines": [
+   {
+    "speaker": "Eddie",
+    "text": "Okay. That's something.",
+    "time": 2.2
+   },
+   {
+    "speaker": "",
+    "text": "You sound surprised.",
+    "time": 2.0
+   },
+   {
+    "speaker": "Eddie",
+    "text": "I'm surprised by anything that works anymore.",
+    "time": 3.4
+   }
+  ]
+ },
+ "c8_impact": {
+  "source": "Chapter 8 implementation prompt (approved script)",
+  "lines": [
+   {
+    "speaker": "Sarah",
+    "text": "What was that?",
+    "time": 1.7
+   },
+   {
+    "speaker": "Marcus",
+    "text": "Everybody away from the door.",
+    "time": 2.5
+   },
+   {
+    "speaker": "Eddie",
+    "text": "Please tell me that's the wind.",
+    "time": 2.6
+   },
+   {
+    "speaker": "",
+    "text": "Get back.",
+    "time": 1.6
+   }
+  ]
+ },
+ "c8_treated": {
+  "source": "Chapter 8 implementation prompt (approved script)",
+  "lines": [
+   {
+    "speaker": "Sarah",
+    "text": "I think... I think I'm okay.",
+    "time": 2.4
+   },
+   {
+    "speaker": "",
+    "text": "Try not to move.",
+    "time": 1.8
+   },
+   {
+    "speaker": "Ruth",
+    "text": "You got to her in time.",
+    "time": 2.2
+   }
+  ]
+ },
+ "c8_untreated": {
+  "source": "Chapter 8 implementation prompt (approved script)",
+  "lines": [
+   {
+    "speaker": "Ruth",
+    "text": "We need medicine.",
+    "time": 1.8
+   },
+   {
+    "speaker": "",
+    "text": "We don't have any?",
+    "time": 1.9
+   },
+   {
+    "speaker": "Ruth",
+    "text": "Not enough.",
+    "time": 1.6
+   },
+   {
+    "speaker": "Marcus",
+    "text": "Then we need to find some.",
+    "time": 2.3
+   }
+  ]
+ },
+ "c8_aftermath": {
+  "source": "Chapter 8 implementation prompt (approved script)",
+  "lines": [
+   {
+    "speaker": "Eddie",
+    "text": "We can't keep doing this.",
+    "time": 2.3
+   },
+   {
+    "speaker": "",
+    "text": "Doing what?",
+    "time": 1.6
+   },
+   {
+    "speaker": "Eddie",
+    "text": "Waiting for the next thing to come through the door.",
+    "time": 3.8
+   },
+   {
+    "speaker": "Ruth",
+    "text": "He's right.",
+    "time": 1.6
+   },
+   {
+    "speaker": "Marcus",
+    "text": "We need another place.",
+    "time": 2.1
+   },
+   {
+    "speaker": "",
+    "text": "Somewhere outside town?",
+    "time": 2.2
+   },
+   {
+    "speaker": "Marcus",
+    "text": "Maybe.",
+    "time": 1.6
+   },
+   {
+    "speaker": "Marcus",
+    "text": "Noah's note mentioned the farms.",
+    "time": 2.7
+   },
+   {
+    "speaker": "Eddie",
+    "text": "We don't even know if the roads are open.",
+    "time": 3.2
+   },
+   {
+    "speaker": "",
+    "text": "Then that's what we need to figure out.",
+    "time": 3.0
+   },
+   {
+    "speaker": "Ruth",
+    "text": "And until then?",
+    "time": 1.7
+   },
+   {
+    "speaker": "",
+    "text": "We make sure these doors hold one more night.",
+    "time": 3.4
+   }
+  ]
+ },
+ "wash_hungry": {
+  "lines": [
+   {
+    "speaker": "",
+    "text": "I'm hungry. What do we have?",
+    "time": 2.4
+   }
+  ]
+ },
+ "c9_decision": {
+  "source": "Chapter 10 (The Fall of the Supermarket) implementation prompt (approved script)",
+  "lines": [
+   {
+    "speaker": "Marcus",
+    "text": "We need to make a decision.",
+    "time": 2.4
+   },
+   {
+    "speaker": "",
+    "text": "About leaving?",
+    "time": 1.7
+   },
+   {
+    "speaker": "Marcus",
+    "text": "About surviving.",
+    "time": 1.8
+   },
+   {
+    "speaker": "Eddie",
+    "text": "Those doors aren't going to hold another night.",
+    "time": 3.5
+   },
+   {
+    "speaker": "Ruth",
+    "text": "And we're running out of places to hide.",
+    "time": 3.1
+   },
+   {
+    "speaker": "",
+    "text": "Then we need a way out.",
+    "time": 2.2
+   },
+   {
+    "speaker": "Marcus",
+    "text": "The roads toward the farms. That's our best chance.",
+    "time": 3.7
+   },
+   {
+    "speaker": "Eddie",
+    "text": "Assuming there's still a road.",
+    "time": 2.5
+   },
+   {
+    "speaker": "",
+    "text": "We won't know until we try.",
+    "time": 2.4
+   }
+  ]
+ },
+ "c9_warning": {
+  "source": "Chapter 10 (The Fall of the Supermarket) implementation prompt (approved script)",
+  "lines": [
+   {
+    "speaker": "Sarah",
+    "text": "There's something outside.",
+    "time": 2.3
+   },
+   {
+    "speaker": "Eddie",
+    "text": "Where?",
+    "time": 1.6
+   },
+   {
+    "speaker": "Sarah",
+    "text": "Everywhere.",
+    "time": 1.6
+   },
+   {
+    "speaker": "Marcus",
+    "text": "Get away from the windows.",
+    "time": 2.3
+   }
+  ]
+ },
+ "c9_outside_a": {
+  "source": "Chapter 10 (The Fall of the Supermarket) implementation prompt (approved script)",
+  "lines": [
+   {
+    "speaker": "Eddie",
+    "text": "That's it. We can't go back.",
+    "time": 2.4
+   },
+   {
+    "speaker": "",
+    "text": "Is everyone here?",
+    "time": 1.8
+   }
+  ]
+ },
+ "c9_outside_b": {
+  "source": "Chapter 10 (The Fall of the Supermarket) implementation prompt (approved script)",
+  "lines": [
+   {
+    "speaker": "Ruth",
+    "text": "We need to keep moving.",
+    "time": 2.2
+   },
+   {
+    "speaker": "",
+    "text": "Toward the farms.",
+    "time": 1.8
+   },
+   {
+    "speaker": "Eddie",
+    "text": "Through all that?",
+    "time": 1.8
+   },
+   {
+    "speaker": "",
+    "text": "We don't have another choice.",
+    "time": 2.5
+   }
+  ]
+ },
+ "c9_outside_alive": {
+  "source": "Chapter 10 implementation: short connective lines (no approved script for these beats)",
+  "lines": [
+   {
+    "speaker": "Marcus",
+    "text": "All of us. Barely.",
+    "time": 1.9
+   }
+  ]
+ },
+ "c9_outside_lost": {
+  "source": "Chapter 10 implementation: short connective lines (no approved script for these beats)",
+  "lines": [
+   {
+    "speaker": "Ruth",
+    "text": "Not Marcus.",
+    "time": 1.6
+   },
+   {
+    "speaker": "Eddie",
+    "text": "He was right behind us...",
+    "time": 2.3
+   }
+  ]
+ },
+ "c9_prep_eddie": {
+  "source": "Chapter 10 implementation: short connective lines (no approved script for these beats)",
+  "lines": [
+   {
+    "speaker": "Eddie",
+    "text": "I've got what I can carry. It's not much.",
+    "time": 3.2
+   }
+  ]
+ },
+ "c9_prep_ruth_stable": {
+  "source": "Chapter 10 implementation: short connective lines (no approved script for these beats)",
+  "lines": [
+   {
+    "speaker": "Ruth",
+    "text": "Sarah can walk. Slowly, but she can walk.",
+    "time": 3.2
+   }
+  ]
+ },
+ "c9_prep_ruth_serious": {
+  "source": "Chapter 10 implementation: short connective lines (no approved script for these beats)",
+  "lines": [
+   {
+    "speaker": "Ruth",
+    "text": "She can't go far like this. We'll carry her if we have to.",
+    "time": 4.1
+   }
+  ]
+ },
+ "c9_prep_sarah_stable": {
+  "source": "Chapter 10 implementation: short connective lines (no approved script for these beats)",
+  "lines": [
+   {
+    "speaker": "Sarah",
+    "text": "I'll keep up. I promise.",
+    "time": 2.2
+   }
+  ]
+ },
+ "c9_prep_sarah_serious": {
+  "source": "Chapter 10 implementation: short connective lines (no approved script for these beats)",
+  "lines": [
+   {
+    "speaker": "Sarah",
+    "text": "Don't slow down for me.",
+    "time": 2.2
+   },
+   {
+    "speaker": "",
+    "text": "We're not leaving anyone.",
+    "time": 2.3
+   }
+  ]
+ },
+ "c9_marcus_order": {
+  "source": "Chapter 10 implementation: short connective lines (no approved script for these beats)",
+  "lines": [
+   {
+    "speaker": "Marcus",
+    "text": "Out the back! Through the staff door - move!",
+    "time": 3.3
+   }
+  ]
+ },
+ "c9_marcus_saved": {
+  "source": "Chapter 10 implementation: short connective lines (no approved script for these beats)",
+  "lines": [
+   {
+    "speaker": "Marcus",
+    "text": "I'm okay. Go - go!",
+    "time": 1.9
+   }
+  ]
+ },
+ "c9_marcus_lost": {
+  "source": "Chapter 10 implementation: short connective lines (no approved script for these beats)",
+  "lines": [
+   {
+    "speaker": "Eddie",
+    "text": "Marcus!",
+    "time": 1.6
+   }
+  ]
+ },
+ "c9_road_alive": {
+  "source": "Chapter 10 implementation: short connective lines (no approved script for these beats)",
+  "lines": [
+   {
+    "speaker": "Marcus",
+    "text": "Noah's out there. Past the farms. We keep going.",
+    "time": 3.5
+   },
+   {
+    "speaker": "",
+    "text": "Together.",
+    "time": 1.6
+   }
+  ]
+ },
+ "c9_road_lost": {
+  "source": "Chapter 10 implementation: short connective lines (no approved script for these beats)",
+  "lines": [
+   {
+    "speaker": "Eddie",
+    "text": "He'd want us to find Noah.",
+    "time": 2.3
+   },
+   {
+    "speaker": "",
+    "text": "Then we find him. For Marcus.",
+    "time": 2.5
+   }
+  ]
+ },
+ "c9_supplies_low": {
+  "source": "Chapter 10 implementation: short connective lines (no approved script for these beats)",
+  "lines": [
+   {
+    "speaker": "",
+    "text": "Not much left. It'll have to do.",
+    "time": 2.7
+   }
+  ]
+ },
+ "c10_plan_alive": {
+  "source": "Chapter 11 (No Safe Road) implementation prompt (approved script)",
+  "lines": [
+   {
+    "speaker": "Eddie",
+    "text": "So... what's the plan?",
+    "time": 2.1
+   },
+   {
+    "speaker": "",
+    "text": "We keep moving.",
+    "time": 1.7
+   },
+   {
+    "speaker": "Eddie",
+    "text": "That was the plan five minutes ago.",
+    "time": 2.8
+   },
+   {
+    "speaker": "Ruth",
+    "text": "We need somewhere safe before it gets dark.",
+    "time": 3.3
+   },
+   {
+    "speaker": "",
+    "text": "The farms are outside town.",
+    "time": 2.4
+   },
+   {
+    "speaker": "Marcus",
+    "text": "Noah could be out there. I'm not turning back.",
+    "time": 3.4
+   },
+   {
+    "speaker": "Sarah",
+    "text": "Then we should go before something finds us.",
+    "time": 3.3
+   }
+  ]
+ },
+ "c10_plan_lost": {
+  "source": "Chapter 11 (No Safe Road) implementation prompt (approved script)",
+  "lines": [
+   {
+    "speaker": "Eddie",
+    "text": "So... what's the plan?",
+    "time": 2.1
+   },
+   {
+    "speaker": "",
+    "text": "We keep moving.",
+    "time": 1.7
+   },
+   {
+    "speaker": "Eddie",
+    "text": "That was the plan five minutes ago.",
+    "time": 2.8
+   },
+   {
+    "speaker": "Ruth",
+    "text": "We need somewhere safe before it gets dark.",
+    "time": 3.3
+   },
+   {
+    "speaker": "",
+    "text": "The farms are outside town.",
+    "time": 2.4
+   },
+   {
+    "speaker": "",
+    "text": "Noah's note pointed that way. We follow it - for Marcus.",
+    "time": 4.0
+   },
+   {
+    "speaker": "Sarah",
+    "text": "Then we should go before something finds us.",
+    "time": 3.3
+   }
+  ]
+ },
+ "c10_car": {
+  "source": "Chapter 11 (No Safe Road) implementation prompt (approved script)",
+  "lines": [
+   {
+    "speaker": "Eddie",
+    "text": "Please tell me it starts.",
+    "time": 2.3
+   },
+   {
+    "speaker": "",
+    "text": "Not happening.",
+    "time": 1.7
+   },
+   {
+    "speaker": "Eddie",
+    "text": "I really miss cars that work.",
+    "time": 2.5
+   },
+   {
+    "speaker": "Ruth",
+    "text": "Anything useful?",
+    "time": 1.8
+   },
+   {
+    "speaker": "",
+    "text": "A few supplies. That's it.",
+    "time": 2.3
+   }
+  ]
+ },
+ "c10_followed": {
+  "source": "Chapter 11 (No Safe Road) implementation prompt (approved script)",
+  "lines": [
+   {
+    "speaker": "Sarah",
+    "text": "Did you see that?",
+    "time": 1.8
+   },
+   {
+    "speaker": "",
+    "text": "Keep walking.",
+    "time": 1.6
+   },
+   {
+    "speaker": "Eddie",
+    "text": "That's not a very comforting answer.",
+    "time": 2.9
+   },
+   {
+    "speaker": "Ruth",
+    "text": "Nobody stop.",
+    "time": 1.6
+   }
+  ]
+ },
+ "c10_outskirts": {
+  "source": "Chapter 11 (No Safe Road) implementation prompt (approved script)",
+  "lines": [
+   {
+    "speaker": "Eddie",
+    "text": "I think we're actually getting out.",
+    "time": 2.8
+   },
+   {
+    "speaker": "",
+    "text": "Don't say that yet.",
+    "time": 1.9
+   },
+   {
+    "speaker": "Ruth",
+    "text": "There's something ahead.",
+    "time": 2.2
+   },
+   {
+    "speaker": "Sarah",
+    "text": "A building?",
+    "time": 1.6
+   },
+   {
+    "speaker": "",
+    "text": "Let's check it.",
+    "time": 1.7
+   }
+  ]
+ },
+ "c10_refuge_alive": {
+  "source": "Chapter 11 (No Safe Road) implementation prompt (approved script)",
+  "lines": [
+   {
+    "speaker": "Ruth",
+    "text": "We can stay here for a few hours.",
+    "time": 2.7
+   },
+   {
+    "speaker": "Eddie",
+    "text": "A few hours sounds amazing.",
+    "time": 2.4
+   },
+   {
+    "speaker": "",
+    "text": "We'll take turns watching the door.",
+    "time": 2.8
+   },
+   {
+    "speaker": "Marcus",
+    "text": "Tomorrow, we keep looking for Noah.",
+    "time": 2.8
+   },
+   {
+    "speaker": "",
+    "text": "We will.",
+    "time": 1.6
+   }
+  ]
+ },
+ "c10_refuge_lost": {
+  "source": "Chapter 11 (No Safe Road) implementation prompt (approved script)",
+  "lines": [
+   {
+    "speaker": "Ruth",
+    "text": "We can stay here for a few hours.",
+    "time": 2.7
+   },
+   {
+    "speaker": "Eddie",
+    "text": "A few hours sounds amazing.",
+    "time": 2.4
+   },
+   {
+    "speaker": "",
+    "text": "We'll take turns watching the door.",
+    "time": 2.8
+   },
+   {
+    "speaker": "",
+    "text": "At first light, we keep heading for the farms.",
+    "time": 3.4
+   }
+  ]
+ },
+ "c10_roadblock": {
+  "source": "Chapter 11 implementation: short connective lines (the approved script leaves these beats open)",
+  "lines": [
+   {
+    "speaker": "",
+    "text": "The road's blocked. We'll have to find a way around.",
+    "time": 3.8
+   }
+  ]
+ },
+ "c10_car_fuel": {
+  "source": "Chapter 11 implementation: short connective lines (the approved script leaves these beats open)",
+  "lines": [
+   {
+    "speaker": "",
+    "text": "Tank's empty. It isn't going anywhere.",
+    "time": 3.0
+   }
+  ]
+ },
+ "c10_sarah_stable": {
+  "source": "Chapter 11 implementation: short connective lines (the approved script leaves these beats open)",
+  "lines": [
+   {
+    "speaker": "Ruth",
+    "text": "Sarah needs to stop.",
+    "time": 2.0
+   },
+   {
+    "speaker": "Sarah",
+    "text": "I'm fine. I'm just... so tired.",
+    "time": 2.6
+   }
+  ],
+  "choices": [
+   {
+    "text": "\"We stop. She needs a rest.\"",
+    "next": "c10_help",
+    "flag": "ch10_choice_help"
+   },
+   {
+    "text": "\"We can't stop here. Keep moving.\"",
+    "next": "c10_push",
+    "flag": "ch10_choice_push"
+   }
+  ]
+ },
+ "c10_sarah_serious": {
+  "source": "Chapter 11 implementation: short connective lines (the approved script leaves these beats open)",
+  "lines": [
+   {
+    "speaker": "Ruth",
+    "text": "Sarah needs to stop.",
+    "time": 2.0
+   },
+   {
+    "speaker": "Sarah",
+    "text": "It's the wound. It's worse when I walk.",
+    "time": 3.0
+   }
+  ],
+  "choices": [
+   {
+    "text": "\"We stop. She needs a rest.\"",
+    "next": "c10_help",
+    "flag": "ch10_choice_help"
+   },
+   {
+    "text": "\"We can't stop here. Keep moving.\"",
+    "next": "c10_push",
+    "flag": "ch10_choice_push"
+   }
+  ]
+ },
+ "c10_help": {
+  "source": "Chapter 11 implementation: short connective lines (the approved script leaves these beats open)",
+  "lines": [
+   {
+    "speaker": "",
+    "text": "Sit down for a while. Drink something.",
+    "time": 3.0
+   },
+   {
+    "speaker": "Ruth",
+    "text": "Thank you.",
+    "time": 1.6
+   }
+  ]
+ },
+ "c10_push": {
+  "source": "Chapter 11 implementation: short connective lines (the approved script leaves these beats open)",
+  "lines": [
+   {
+    "speaker": "Sarah",
+    "text": "I can keep going.",
+    "time": 1.8
+   },
+   {
+    "speaker": "Ruth",
+    "text": "Slowly, then. Stay close to me.",
+    "time": 2.6
+   }
+  ]
+ },
+ "c10_house_clear": {
+  "source": "Chapter 11 implementation: short connective lines (the approved script leaves these beats open)",
+  "lines": [
+   {
+    "speaker": "",
+    "text": "Nobody here. Nothing moving.",
+    "time": 2.4
+   }
+  ]
+ },
+ "c11_wake_alive": {
+  "source": "Chapter 12 (The Farm Road) implementation prompt (approved script)",
+  "lines": [
+   {
+    "speaker": "Eddie",
+    "text": "I was really hoping we'd wake up somewhere else.",
+    "time": 3.5
+   },
+   {
+    "speaker": "",
+    "text": "We need to keep moving.",
+    "time": 2.2
+   },
+   {
+    "speaker": "Ruth",
+    "text": "We're low on supplies.",
+    "time": 2.1
+   },
+   {
+    "speaker": "Sarah",
+    "text": "How much farther?",
+    "time": 1.8
+   },
+   {
+    "speaker": "",
+    "text": "Hopefully not far.",
+    "time": 1.9
+   },
+   {
+    "speaker": "Marcus",
+    "text": "Noah's out here somewhere. I know it.",
+    "time": 2.9
+   },
+   {
+    "speaker": "",
+    "text": "Then let's find out where.",
+    "time": 2.3
+   }
+  ]
+ },
+ "c11_wake_lost": {
+  "source": "Chapter 12 (The Farm Road) implementation prompt (approved script)",
+  "lines": [
+   {
+    "speaker": "Eddie",
+    "text": "I was really hoping we'd wake up somewhere else.",
+    "time": 3.5
+   },
+   {
+    "speaker": "",
+    "text": "We need to keep moving.",
+    "time": 2.2
+   },
+   {
+    "speaker": "Ruth",
+    "text": "We're low on supplies.",
+    "time": 2.1
+   },
+   {
+    "speaker": "Sarah",
+    "text": "How much farther?",
+    "time": 1.8
+   },
+   {
+    "speaker": "",
+    "text": "Hopefully not far.",
+    "time": 1.9
+   },
+   {
+    "speaker": "",
+    "text": "Noah's trail goes this way. We follow it - like Marcus would have.",
+    "time": 4.2
+   }
+  ]
+ },
+ "c11_campsite_alive": {
+  "source": "Chapter 12 (The Farm Road) implementation prompt (approved script)",
+  "lines": [
+   {
+    "speaker": "Marcus",
+    "text": "A kid?",
+    "time": 1.6
+   },
+   {
+    "speaker": "",
+    "text": "That's what it says.",
+    "time": 2.0
+   },
+   {
+    "speaker": "Marcus",
+    "text": "It has to be him.",
+    "time": 1.8
+   },
+   {
+    "speaker": "Eddie",
+    "text": "Marcus, we don't know that.",
+    "time": 2.4
+   },
+   {
+    "speaker": "Marcus",
+    "text": "I'm not stopping now.",
+    "time": 2.1
+   }
+  ]
+ },
+ "c11_campsite_lost": {
+  "source": "Chapter 12 (The Farm Road) implementation prompt (approved script)",
+  "lines": [
+   {
+    "speaker": "Ruth",
+    "text": "This could be Noah.",
+    "time": 1.9
+   },
+   {
+    "speaker": "",
+    "text": "Then we're going the right way.",
+    "time": 2.6
+   }
+  ]
+ },
+ "c11_field_alive": {
+  "source": "Chapter 12 (The Farm Road) implementation prompt (approved script)",
+  "lines": [
+   {
+    "speaker": "Sarah",
+    "text": "Did something just move?",
+    "time": 2.2
+   },
+   {
+    "speaker": "Eddie",
+    "text": "Please tell me that was a cow.",
+    "time": 2.5
+   },
+   {
+    "speaker": "",
+    "text": "Stay close.",
+    "time": 1.6
+   },
+   {
+    "speaker": "Ruth",
+    "text": "I don't like this.",
+    "time": 1.9
+   },
+   {
+    "speaker": "Marcus",
+    "text": "Keep going. We're almost there.",
+    "time": 2.6
+   }
+  ]
+ },
+ "c11_field_lost": {
+  "source": "Chapter 12 (The Farm Road) implementation prompt (approved script)",
+  "lines": [
+   {
+    "speaker": "Sarah",
+    "text": "Did something just move?",
+    "time": 2.2
+   },
+   {
+    "speaker": "Eddie",
+    "text": "Please tell me that was a cow.",
+    "time": 2.5
+   },
+   {
+    "speaker": "",
+    "text": "Stay close.",
+    "time": 1.6
+   },
+   {
+    "speaker": "Ruth",
+    "text": "I don't like this.",
+    "time": 1.9
+   }
+  ]
+ },
+ "c11_message_alive": {
+  "source": "Chapter 12 (The Farm Road) implementation prompt (approved script)",
+  "lines": [
+   {
+    "speaker": "Marcus",
+    "text": "That's his handwriting.",
+    "time": 2.2
+   },
+   {
+    "speaker": "",
+    "text": "You're sure?",
+    "time": 1.6
+   },
+   {
+    "speaker": "Marcus",
+    "text": "I'd recognize it anywhere.",
+    "time": 2.3
+   },
+   {
+    "speaker": "Eddie",
+    "text": "Then he's still ahead of us.",
+    "time": 2.4
+   },
+   {
+    "speaker": "Marcus",
+    "text": "We're close.",
+    "time": 1.6
+   }
+  ]
+ },
+ "c11_message_lost": {
+  "source": "Chapter 12 (The Farm Road) implementation prompt (approved script)",
+  "lines": [
+   {
+    "speaker": "",
+    "text": "Noah made it this far.",
+    "time": 2.1
+   },
+   {
+    "speaker": "Ruth",
+    "text": "Then maybe he's still alive.",
+    "time": 2.4
+   }
+  ]
+ },
+ "c11_attack": {
+  "source": "Chapter 12 (The Farm Road) implementation prompt (approved script)",
+  "lines": [
+   {
+    "speaker": "Eddie",
+    "text": "Oh, come on. Not again!",
+    "time": 2.2
+   },
+   {
+    "speaker": "Sarah",
+    "text": "It's outside!",
+    "time": 1.6
+   },
+   {
+    "speaker": "",
+    "text": "Away from the windows!",
+    "time": 2.1
+   },
+   {
+    "speaker": "Ruth",
+    "text": "What do we do?",
+    "time": 1.7
+   },
+   {
+    "speaker": "",
+    "text": "Get to the front door. Now!",
+    "time": 2.4
+   }
+  ]
+ },
+ "c11_light_alive": {
+  "source": "Chapter 12 (The Farm Road) implementation prompt (approved script)",
+  "lines": [
+   {
+    "speaker": "Eddie",
+    "text": "Please tell me we're not going in there tonight.",
+    "time": 3.5
+   },
+   {
+    "speaker": "",
+    "text": "Not yet.",
+    "time": 1.6
+   },
+   {
+    "speaker": "Ruth",
+    "text": "We need to rest.",
+    "time": 1.8
+   },
+   {
+    "speaker": "Marcus",
+    "text": "Noah could be in that house.",
+    "time": 2.4
+   },
+   {
+    "speaker": "",
+    "text": "Then we'll get there.",
+    "time": 2.1
+   },
+   {
+    "speaker": "Marcus",
+    "text": "Tomorrow?",
+    "time": 1.6
+   },
+   {
+    "speaker": "",
+    "text": "At first light.",
+    "time": 1.7
+   }
+  ]
+ },
+ "c11_light_lost": {
+  "source": "Chapter 12 (The Farm Road) implementation prompt (approved script)",
+  "lines": [
+   {
+    "speaker": "Eddie",
+    "text": "Please tell me we're not going in there tonight.",
+    "time": 3.5
+   },
+   {
+    "speaker": "",
+    "text": "Not yet.",
+    "time": 1.6
+   },
+   {
+    "speaker": "Ruth",
+    "text": "We need to rest.",
+    "time": 1.8
+   },
+   {
+    "speaker": "Sarah",
+    "text": "Do you think Noah's there?",
+    "time": 2.3
+   },
+   {
+    "speaker": "",
+    "text": "There's only one way to find out.",
+    "time": 2.7
+   }
+  ]
+ },
+ "c11_campsite_seen": {
+  "source": "Chapter 12 implementation: short connective lines (the approved script leaves these beats open)",
+  "lines": [
+   {
+    "speaker": "",
+    "text": "Someone camped here. Not long ago.",
+    "time": 2.8
+   }
+  ]
+ },
+ "c11_read_note_hint": {
+  "source": "Chapter 12 implementation: short connective lines (the approved script leaves these beats open)",
+  "lines": [
+   {
+    "speaker": "",
+    "text": "A note. Let me read it.",
+    "time": 2.2
+   }
+  ]
+ },
+ "c11_farmhouse": {
+  "source": "Chapter 12 implementation: short connective lines (the approved script leaves these beats open)",
+  "lines": [
+   {
+    "speaker": "",
+    "text": "Wait here. I'll check the rooms first.",
+    "time": 3.0
+   }
+  ]
+ },
+ "c11_bedroom_found": {
+  "source": "Chapter 12 implementation: short connective lines (the approved script leaves these beats open)",
+  "lines": [
+   {
+    "speaker": "",
+    "text": "There's something on the bed.",
+    "time": 2.5
+   }
+  ]
+ },
+ "p4_skitter_seen": {
+  "lines": [
+   {
+    "speaker": "",
+    "text": "What the hell is that?!",
+    "time": 1.6
+   },
+   {
+    "speaker": "Eddie",
+    "text": "WHAT THE HELL IS THAT THING?!",
+    "time": 1.6
+   }
+  ]
+ },
+ "p4_skitter_run": {
+  "lines": [
+   {
+    "speaker": "Marcus",
+    "text": "RUN! GET BACK INSIDE!",
+    "time": 1.8
+   }
+  ]
+ },
+ "p4_garage_safe": {
+  "lines": [
+   {
+    "speaker": "",
+    "text": "Holy shit...",
+    "time": 2.0
+   }
+  ]
+ },
+ "exp_warn1_Eddie": {
+  "source": "Dynamic Exploration & Survival Expansion prompt (approved lines)",
+  "lines": [
+   {
+    "speaker": "Eddie",
+    "text": "We've been out here a while. Maybe we should head back.",
+    "time": 3.9
+   }
+  ]
+ },
+ "exp_warn1_Ruth": {
+  "source": "Dynamic Exploration & Survival Expansion prompt (approved lines)",
+  "lines": [
+   {
+    "speaker": "Ruth",
+    "text": "I don't like how quiet it's getting.",
+    "time": 2.9
+   }
+  ]
+ },
+ "exp_warn2_Marcus": {
+  "source": "Dynamic Exploration & Survival Expansion prompt (approved lines)",
+  "lines": [
+   {
+    "speaker": "Marcus",
+    "text": "We're pushing our luck. We should get moving.",
+    "time": 3.4
+   }
+  ]
+ },
+ "exp_warn2_Sarah": {
+  "source": "Dynamic Exploration & Survival Expansion prompt (approved lines)",
+  "lines": [
+   {
+    "speaker": "Sarah",
+    "text": "Did you hear that? Something's following us.",
+    "time": 3.3
+   }
+  ]
+ },
+ "exp_warn3_Eddie": {
+  "source": "Dynamic Exploration & Survival Expansion prompt (approved lines)",
+  "lines": [
+   {
+    "speaker": "Eddie",
+    "text": "We need to get back to the shelter. Now!",
+    "time": 3.1
+   },
+   {
+    "speaker": "",
+    "text": "Everyone stay close. We're heading back.",
+    "time": 3.1
+   }
+  ]
+ },
+ "exp_warn3_alone": {
+  "source": "Survival expansion: short connective lines",
+  "lines": [
+   {
+    "speaker": "",
+    "text": "I've been out too long. I need to get back.",
+    "time": 3.3
+   }
+  ]
+ },
+ "exp_warn2_alone": {
+  "source": "Survival expansion: short connective lines",
+  "lines": [
+   {
+    "speaker": "",
+    "text": "Something's out there. Moving.",
+    "time": 2.5
+   }
+  ]
+ },
+ "exp_car_inspect": {
+  "source": "Dynamic Exploration & Survival Expansion prompt (approved lines)",
+  "lines": [
+   {
+    "speaker": "",
+    "text": "This thing might actually run.",
+    "time": 2.5
+   }
+  ]
+ },
+ "exp_car_eddie": {
+  "source": "Dynamic Exploration & Survival Expansion prompt (approved lines)",
+  "lines": [
+   {
+    "speaker": "Eddie",
+    "text": "If we can get it working, supply runs would be a lot easier.",
+    "time": 4.2
+   }
+  ]
+ },
+ "exp_car_running": {
+  "source": "Survival expansion: short connective lines",
+  "lines": [
+   {
+    "speaker": "",
+    "text": "It's running. We've got wheels again.",
+    "time": 2.9
+   }
+  ]
+ },
+ "exp_secured": {
+  "source": "Survival expansion: short connective lines",
+  "lines": [
+   {
+    "speaker": "",
+    "text": "Doors shut. We're safe. For now.",
+    "time": 2.7
+   }
+  ]
+ },
+ "sv_mem_rescued_Marcus": {
+  "source": "Survivor expansion prompt (approved lines)",
+  "lines": [
+   {
+    "speaker": "Marcus",
+    "text": "I haven't forgotten what you did back there.",
+    "time": 3.3
+   }
+  ]
+ },
+ "sv_ruth_empty_trips": {
+  "source": "Survivor expansion prompt (approved lines)",
+  "lines": [
+   {
+    "speaker": "Ruth",
+    "text": "We can't keep going like this.",
+    "time": 2.5
+   }
+  ]
+ },
+ "sv_Eddie_high": {
+  "source": "Survivor expansion: short personality / consequence lines",
+  "lines": [
+   {
+    "speaker": "Eddie",
+    "text": "Hey. For what it's worth - I'm glad you're the one going out there.",
+    "time": 4.2
+   }
+  ]
+ },
+ "sv_Eddie_low": {
+  "source": "Survivor expansion: short personality / consequence lines",
+  "lines": [
+   {
+    "speaker": "Eddie",
+    "text": "Ha. Great. Everything's great. Totally fine.",
+    "time": 3.3
+   }
+  ]
+ },
+ "sv_Eddie_danger": {
+  "source": "Survivor expansion: short personality / consequence lines",
+  "lines": [
+   {
+    "speaker": "Eddie",
+    "text": "Okay, I'm not panicking. This is my calm face.",
+    "time": 3.4
+   }
+  ]
+ },
+ "sv_Marcus_high": {
+  "source": "Survivor expansion: short personality / consequence lines",
+  "lines": [
+   {
+    "speaker": "Marcus",
+    "text": "You keep looking out for us. Noah would've liked you.",
+    "time": 3.8
+   }
+  ]
+ },
+ "sv_Marcus_low": {
+  "source": "Survivor expansion: short personality / consequence lines",
+  "lines": [
+   {
+    "speaker": "Marcus",
+    "text": "Every hour we sit here is an hour Noah's out there alone.",
+    "time": 4.0
+   }
+  ]
+ },
+ "sv_Ruth_high": {
+  "source": "Survivor expansion: short personality / consequence lines",
+  "lines": [
+   {
+    "speaker": "Ruth",
+    "text": "I've counted everything twice. We'll manage, thanks to you.",
+    "time": 4.1
+   }
+  ]
+ },
+ "sv_Ruth_low": {
+  "source": "Survivor expansion: short personality / consequence lines",
+  "lines": [
+   {
+    "speaker": "Ruth",
+    "text": "Somebody has to keep track of what we've got left.",
+    "time": 3.6
+   }
+  ]
+ },
+ "sv_Ruth_supplies": {
+  "source": "Survivor expansion: short personality / consequence lines",
+  "lines": [
+   {
+    "speaker": "Ruth",
+    "text": "Food and water are nearly gone. We need more before tonight.",
+    "time": 4.2
+   }
+  ]
+ },
+ "sv_Sarah_high": {
+  "source": "Survivor expansion: short personality / consequence lines",
+  "lines": [
+   {
+    "speaker": "Sarah",
+    "text": "I feel safer when you're the one leading.",
+    "time": 3.2
+   }
+  ]
+ },
+ "sv_Sarah_low": {
+  "source": "Survivor expansion: short personality / consequence lines",
+  "lines": [
+   {
+    "speaker": "Sarah",
+    "text": "Please don't take risks we can't come back from.",
+    "time": 3.5
+   }
+  ]
+ },
+ "sv_Sarah_hurt": {
+  "source": "Survivor expansion: short personality / consequence lines",
+  "lines": [
+   {
+    "speaker": "Sarah",
+    "text": "It still hurts. I'm trying not to complain.",
+    "time": 3.3
+   }
+  ]
+ },
+ "sv_night_food": {
+  "source": "Survivor expansion: short personality / consequence lines",
+  "lines": [
+   {
+    "speaker": "Ruth",
+    "text": "I checked the shelves this morning. There's almost nothing left.",
+    "time": 4.2
+   }
+  ]
+ },
+ "sv_night_medicine": {
+  "source": "Survivor expansion: short personality / consequence lines",
+  "lines": [
+   {
+    "speaker": "Ruth",
+    "text": "Sarah's wound looks worse. She needs medicine, soon.",
+    "time": 3.8
+   }
+  ]
+ },
+ "sv_night_medicine_eddie": {
+  "source": "Survivor expansion: short personality / consequence lines",
+  "lines": [
+   {
+    "speaker": "Eddie",
+    "text": "Someone's hurt and getting worse. We need medicine.",
+    "time": 3.7
+   }
+  ]
+ },
+ "sv_night_argue": {
+  "source": "Survivor expansion: short personality / consequence lines",
+  "lines": [
+   {
+    "speaker": "Eddie",
+    "text": "We can't keep sending people out into that.",
+    "time": 3.3
+   },
+   {
+    "speaker": "Ruth",
+    "text": "And we can't sit here and starve either.",
+    "time": 3.1
+   }
+  ]
+ },
+ "sv_night_thanks": {
+  "source": "Survivor expansion: short personality / consequence lines",
+  "lines": [
+   {
+    "speaker": "Eddie",
+    "text": "Hey - thanks for last night's run. We actually ate.",
+    "time": 3.7
+   }
+  ]
+ },
+ "sv_night_thanks_ruth": {
+  "source": "Survivor expansion: short personality / consequence lines",
+  "lines": [
+   {
+    "speaker": "Ruth",
+    "text": "Thank you for bringing those supplies back.",
+    "time": 3.3
+   }
+  ]
+ },
+ "sv_worse": {
+  "source": "Survivor expansion: short personality / consequence lines",
+  "lines": [
+   {
+    "speaker": "",
+    "text": "Her condition is getting worse. I need to find medicine.",
+    "time": 4.0
+   }
+  ]
+ },
+ "sv_companion_Eddie": {
+  "source": "Survivor expansion: short personality / consequence lines",
+  "lines": [
+   {
+    "speaker": "Eddie",
+    "text": "Okay. Partners in crime. Scavenging crime.",
+    "time": 3.2
+   }
+  ]
+ },
+ "sv_companion_Ruth": {
+  "source": "Survivor expansion: short personality / consequence lines",
+  "lines": [
+   {
+    "speaker": "Ruth",
+    "text": "I'll keep an eye out for anything we can use.",
+    "time": 3.4
+   }
+  ]
+ },
+ "sv_companion_Sarah": {
+  "source": "Survivor expansion: short personality / consequence lines",
+  "lines": [
+   {
+    "speaker": "Sarah",
+    "text": "I'll stay close. I'll tell you if I hear anything.",
+    "time": 3.6
+   }
+  ]
+ },
+ "sv_companion_Marcus": {
+  "source": "Survivor expansion: short personality / consequence lines",
+  "lines": [
+   {
+    "speaker": "Marcus",
+    "text": "Fine. Maybe we'll find something about Noah.",
+    "time": 3.3
+   }
+  ]
+ },
+ "sv_companion_reluctant": {
+  "source": "Survivor expansion: short personality / consequence lines",
+  "lines": [
+   {
+    "speaker": "",
+    "text": "They don't look happy about it, but they come.",
+    "time": 3.4
+   }
+  ]
+ },
+ "sv_found_Eddie": {
+  "source": "Survivor expansion: short personality / consequence lines",
+  "lines": [
+   {
+    "speaker": "Eddie",
+    "text": "Found a can wedged under a car. You're welcome.",
+    "time": 3.5
+   }
+  ]
+ },
+ "sv_sarah_early": {
+  "source": "Survivor expansion: short personality / consequence lines",
+  "lines": [
+   {
+    "speaker": "Sarah",
+    "text": "Wait. Something's moving out there. We should start heading back.",
+    "time": 3.6
+   }
+  ]
+ },
+ "c12_symbol": {
+  "source": "Chapter 13 (The Truth Beneath Greyhaven) implementation prompt (approved script)",
+  "lines": [
+   {
+    "speaker": "",
+    "text": "Noah's message. In the corner, in pencil - a symbol. I never noticed it.",
+    "time": 4.2
+   },
+   {
+    "speaker": "Eddie",
+    "text": "Tell me I'm not the only one seeing that.",
+    "time": 3.2
+   },
+   {
+    "speaker": "",
+    "text": "It's the same symbol.",
+    "time": 2.1
+   },
+   {
+    "speaker": "Ruth",
+    "text": "Where did you find this map?",
+    "time": 2.4
+   },
+   {
+    "speaker": "Eddie",
+    "text": "Old town records. Looks like some kind of maintenance station.",
+    "time": 4.2
+   },
+   {
+    "speaker": "",
+    "text": "And what's underneath it?",
+    "time": 2.3
+   },
+   {
+    "speaker": "Eddie",
+    "text": "That's the part I don't like.",
+    "time": 2.5
+   }
+  ]
+ },
+ "c12_symbol_marcus": {
+  "source": "Chapter 13: supporting lines (implementation)",
+  "lines": [
+   {
+    "speaker": "Marcus",
+    "text": "Noah drew that. Or he saw it somewhere.",
+    "time": 3.0
+   },
+   {
+    "speaker": "",
+    "text": "Then it matters.",
+    "time": 1.8
+   },
+   {
+    "speaker": "Marcus",
+    "text": "Go. I'll keep watch here. If it leads to him, you tell me first.",
+    "time": 4.2
+   }
+  ]
+ },
+ "c12_setout": {
+  "source": "Chapter 13: supporting lines (implementation)",
+  "lines": [
+   {
+    "speaker": "Eddie",
+    "text": "Okay. Station's just across the road. Stay close.",
+    "time": 3.6
+   }
+  ]
+ },
+ "c12_fog": {
+  "source": "Chapter 13 (The Truth Beneath Greyhaven) implementation prompt (approved script)",
+  "lines": [
+   {
+    "speaker": "Eddie",
+    "text": "You ever notice how the fog never seems to move with the wind?",
+    "time": 4.2
+   },
+   {
+    "speaker": "",
+    "text": "I've noticed.",
+    "time": 1.6
+   },
+   {
+    "speaker": "Eddie",
+    "text": "Yeah. That's not comforting.",
+    "time": 2.4
+   }
+  ]
+ },
+ "c12_inside": {
+  "source": "Chapter 13: supporting lines (implementation)",
+  "lines": [
+   {
+    "speaker": "Eddie",
+    "text": "Nobody's been here in a long time. Power's dead.",
+    "time": 3.5
+   },
+   {
+    "speaker": "",
+    "text": "There'll be a panel somewhere.",
+    "time": 2.5
+   }
+  ]
+ },
+ "c12_clue_radio": {
+  "source": "Chapter 13: supporting lines (implementation)",
+  "lines": [
+   {
+    "speaker": "",
+    "text": "A worker's radio, still switched on. The battery died a long time ago.",
+    "time": 4.2
+   }
+  ]
+ },
+ "c12_clue_report": {
+  "source": "Chapter 13: supporting lines (implementation)",
+  "lines": [
+   {
+    "speaker": "",
+    "text": "Inspection report, water-damaged. '...lower access: vibration persists. Recommend no further entry.'",
+    "time": 4.2
+   }
+  ]
+ },
+ "c12_clue_log": {
+  "source": "Chapter 13: supporting lines (implementation)",
+  "lines": [
+   {
+    "speaker": "",
+    "text": "Maintenance log. Dates go back decades. The same entry, over and over: 'Lower level sealed. Do not reopen.'",
+    "time": 4.2
+   }
+  ]
+ },
+ "c12_clue_map": {
+  "source": "Chapter 13: supporting lines (implementation)",
+  "lines": [
+   {
+    "speaker": "",
+    "text": "An old map of the service tunnels. Someone circled a chamber below this building - and drew the symbol beside it.",
+    "time": 4.2
+   }
+  ]
+ },
+ "c12_clue_stone": {
+  "source": "Chapter 13: supporting lines (implementation)",
+  "lines": [
+   {
+    "speaker": "",
+    "text": "Stone blocks under the concrete. Older than the town. Much older.",
+    "time": 4.2
+   }
+  ]
+ },
+ "c12_fuse": {
+  "source": "Chapter 13: supporting lines (implementation)",
+  "lines": [
+   {
+    "speaker": "",
+    "text": "A main fuse, still in its box. This should fit the panel.",
+    "time": 4.0
+   }
+  ]
+ },
+ "c12_panel_nofuse": {
+  "source": "Chapter 13: supporting lines (implementation)",
+  "lines": [
+   {
+    "speaker": "",
+    "text": "The main fuse is missing. There might be a spare in storage.",
+    "time": 4.2
+   }
+  ]
+ },
+ "c12_access_locked": {
+  "source": "Chapter 13: supporting lines (implementation)",
+  "lines": [
+   {
+    "speaker": "",
+    "text": "Electric lock. No power.",
+    "time": 2.2
+   }
+  ]
+ },
+ "c12_power": {
+  "source": "Chapter 13 (The Truth Beneath Greyhaven) implementation prompt (approved script)",
+  "lines": [
+   {
+    "speaker": "Eddie",
+    "text": "Please tell me that was the generator.",
+    "time": 3.0
+   },
+   {
+    "speaker": "",
+    "text": "I don't think it was.",
+    "time": 2.1
+   }
+  ]
+ },
+ "c12_low_locker": {
+  "source": "Chapter 13: supporting lines (implementation)",
+  "lines": [
+   {
+    "speaker": "",
+    "text": "Batteries and a pack of painkillers. Someone stocked this for a long shift.",
+    "time": 4.2
+   }
+  ]
+ },
+ "c12_scratches": {
+  "source": "Chapter 13 (The Truth Beneath Greyhaven) implementation prompt (approved script)",
+  "lines": [
+   {
+    "speaker": "Eddie",
+    "text": "These scratches... they don't look like tools made them.",
+    "time": 4.0
+   },
+   {
+    "speaker": "",
+    "text": "Then what did?",
+    "time": 1.7
+   },
+   {
+    "speaker": "Eddie",
+    "text": "I was hoping you knew.",
+    "time": 2.1
+   }
+  ]
+ },
+ "c12_chamber": {
+  "source": "Chapter 13 (The Truth Beneath Greyhaven) implementation prompt (approved script)",
+  "lines": [
+   {
+    "speaker": "",
+    "text": "This was here before the town.",
+    "time": 2.5
+   },
+   {
+    "speaker": "Eddie",
+    "text": "How much before?",
+    "time": 1.8
+   },
+   {
+    "speaker": "",
+    "text": "I don't know.",
+    "time": 1.6
+   },
+   {
+    "speaker": "Eddie",
+    "text": "I really hate that answer.",
+    "time": 2.3
+   }
+  ]
+ },
+ "c12_not_yet": {
+  "source": "Chapter 13 (The Truth Beneath Greyhaven) implementation prompt (approved script)",
+  "lines": [
+   {
+    "speaker": "Eddie",
+    "text": "We need to leave.",
+    "time": 1.8
+   },
+   {
+    "speaker": "",
+    "text": "Not yet. I've almost got it.",
+    "time": 2.4
+   },
+   {
+    "speaker": "Eddie",
+    "text": "Whatever's in there isn't waiting!",
+    "time": 2.8
+   }
+  ]
+ },
+ "c12_move": {
+  "source": "Chapter 13 (The Truth Beneath Greyhaven) implementation prompt (approved script)",
+  "lines": [
+   {
+    "speaker": "Eddie",
+    "text": "MOVE!",
+    "time": 1.6
+   }
+  ]
+ },
+ "c12_below": {
+  "source": "Chapter 13 (The Truth Beneath Greyhaven) implementation prompt (approved script)",
+  "lines": [
+   {
+    "speaker": "Eddie",
+    "text": "That wasn't the thing chasing us.",
+    "time": 2.7
+   },
+   {
+    "speaker": "",
+    "text": "No.",
+    "time": 1.6
+   },
+   {
+    "speaker": "Eddie",
+    "text": "Then what the hell was it?",
+    "time": 2.3
+   }
+  ]
+ },
+ "c12_took": {
+  "source": "Chapter 13: supporting lines (implementation)",
+  "lines": [
+   {
+    "speaker": "Eddie",
+    "text": "Got it? Good. Now let's GO.",
+    "time": 2.4
+   }
+  ]
+ },
+ "c12_left": {
+  "source": "Chapter 13: supporting lines (implementation)",
+  "lines": [
+   {
+    "speaker": "Eddie",
+    "text": "Leave it. Nothing in there is worth staying for.",
+    "time": 3.5
+   }
+  ]
+ },
+ "c12_return": {
+  "source": "Chapter 13 (The Truth Beneath Greyhaven) implementation prompt (approved script)",
+  "lines": [
+   {
+    "speaker": "Ruth",
+    "text": "Did you find anything?",
+    "time": 2.1
+   },
+   {
+    "speaker": "",
+    "text": "Something underneath this town.",
+    "time": 2.6
+   },
+   {
+    "speaker": "Eddie",
+    "text": "And whatever it is, I don't think it wants visitors.",
+    "time": 3.8
+   }
+  ]
+ },
+ "c12_map": {
+  "source": "Chapter 13 (The Truth Beneath Greyhaven) implementation prompt (approved script)",
+  "lines": [
+   {
+    "speaker": "",
+    "text": "This is where the tunnels meet.",
+    "time": 2.6
+   },
+   {
+    "speaker": "Ruth",
+    "text": "That part of town was abandoned years ago.",
+    "time": 3.2
+   },
+   {
+    "speaker": "Eddie",
+    "text": "So we're not going there, right?",
+    "time": 2.7
+   },
+   {
+    "speaker": "",
+    "text": "...",
+    "time": 1.6
+   },
+   {
+    "speaker": "",
+    "text": "We need answers.",
+    "time": 1.8
+   }
+  ]
+ },
+ "c13_road": {
+  "source": "Chapter 14 (Into the Veil) implementation prompt (approved script)",
+  "lines": [
+   {
+    "speaker": "Eddie",
+    "text": "You know what's weird? I've lived around here for years. I've never heard of this place.",
+    "time": 4.2
+   },
+   {
+    "speaker": "",
+    "text": "Maybe that's why they took it off the maps.",
+    "time": 3.3
+   },
+   {
+    "speaker": "Ruth",
+    "text": "And you want to go there?",
+    "time": 2.3
+   },
+   {
+    "speaker": "",
+    "text": "Whatever's underneath Greyhaven, this road leads to it.",
+    "time": 3.9
+   },
+   {
+    "speaker": "Eddie",
+    "text": "Great. The creepy road to the creepy place. Love that.",
+    "time": 3.9
+   }
+  ]
+ },
+ "c13_road_marcus": {
+  "source": "Chapter 14: supporting lines (implementation)",
+  "lines": [
+   {
+    "speaker": "Marcus",
+    "text": "If Noah saw that symbol, he might have followed it. Find out where it goes.",
+    "time": 4.2
+   }
+  ]
+ },
+ "c13_setout": {
+  "source": "Chapter 14: supporting lines (implementation)",
+  "lines": [
+   {
+    "speaker": "Eddie",
+    "text": "Okay. Stay where I can see you.",
+    "time": 2.6
+   }
+  ]
+ },
+ "c13_setout_Sarah": {
+  "source": "Chapter 14: supporting lines (implementation) (companion variant)",
+  "lines": [
+   {
+    "speaker": "Sarah",
+    "text": "Okay. Stay where I can see you.",
+    "time": 2.6
+   }
+  ]
+ },
+ "c13_setout_Ruth": {
+  "source": "Chapter 14: supporting lines (implementation) (companion variant)",
+  "lines": [
+   {
+    "speaker": "Ruth",
+    "text": "Okay. Stay where I can see you.",
+    "time": 2.6
+   }
+  ]
+ },
+ "c13_setout_Marcus": {
+  "source": "Chapter 14: supporting lines (implementation) (companion variant)",
+  "lines": [
+   {
+    "speaker": "Marcus",
+    "text": "Okay. Stay where I can see you.",
+    "time": 2.6
+   }
+  ]
+ },
+ "c13_sign": {
+  "source": "Chapter 14 (Into the Veil) implementation prompt (approved script)",
+  "lines": [
+   {
+    "speaker": "Eddie",
+    "text": "Didn't we already pass that?",
+    "time": 2.4
+   },
+   {
+    "speaker": "",
+    "text": "I thought so.",
+    "time": 1.6
+   },
+   {
+    "speaker": "Eddie",
+    "text": "Okay. That's officially not normal.",
+    "time": 2.8
+   }
+  ]
+ },
+ "c13_sign_Sarah": {
+  "source": "Chapter 14: supporting lines (implementation) (companion variant)",
+  "lines": [
+   {
+    "speaker": "Sarah",
+    "text": "Didn't we already pass that?",
+    "time": 2.4
+   },
+   {
+    "speaker": "",
+    "text": "I thought so.",
+    "time": 1.6
+   },
+   {
+    "speaker": "Sarah",
+    "text": "Okay. That's officially not normal.",
+    "time": 2.8
+   }
+  ]
+ },
+ "c13_sign_Ruth": {
+  "source": "Chapter 14: supporting lines (implementation) (companion variant)",
+  "lines": [
+   {
+    "speaker": "Ruth",
+    "text": "Didn't we already pass that?",
+    "time": 2.4
+   },
+   {
+    "speaker": "",
+    "text": "I thought so.",
+    "time": 1.6
+   },
+   {
+    "speaker": "Ruth",
+    "text": "Okay. That's officially not normal.",
+    "time": 2.8
+   }
+  ]
+ },
+ "c13_sign_Marcus": {
+  "source": "Chapter 14: supporting lines (implementation) (companion variant)",
+  "lines": [
+   {
+    "speaker": "Marcus",
+    "text": "Didn't we already pass that?",
+    "time": 2.4
+   },
+   {
+    "speaker": "",
+    "text": "I thought so.",
+    "time": 1.6
+   },
+   {
+    "speaker": "Marcus",
+    "text": "Okay. That's officially not normal.",
+    "time": 2.8
+   }
+  ]
+ },
+ "c13_roof": {
+  "source": "Chapter 14 (Into the Veil) implementation prompt (approved script)",
+  "lines": [
+   {
+    "speaker": "Eddie",
+    "text": "Up there. On the roof.",
+    "time": 2.1
+   },
+   {
+    "speaker": "",
+    "text": "I see it.",
+    "time": 1.6
+   }
+  ]
+ },
+ "c13_roof_Sarah": {
+  "source": "Chapter 14: supporting lines (implementation) (companion variant)",
+  "lines": [
+   {
+    "speaker": "Sarah",
+    "text": "Up there. On the roof.",
+    "time": 2.1
+   },
+   {
+    "speaker": "",
+    "text": "I see it.",
+    "time": 1.6
+   }
+  ]
+ },
+ "c13_roof_Ruth": {
+  "source": "Chapter 14: supporting lines (implementation) (companion variant)",
+  "lines": [
+   {
+    "speaker": "Ruth",
+    "text": "Up there. On the roof.",
+    "time": 2.1
+   },
+   {
+    "speaker": "",
+    "text": "I see it.",
+    "time": 1.6
+   }
+  ]
+ },
+ "c13_roof_Marcus": {
+  "source": "Chapter 14: supporting lines (implementation) (companion variant)",
+  "lines": [
+   {
+    "speaker": "Marcus",
+    "text": "Up there. On the roof.",
+    "time": 2.1
+   },
+   {
+    "speaker": "",
+    "text": "I see it.",
+    "time": 1.6
+   }
+  ]
+ },
+ "c13_crab": {
+  "source": "Chapter 14 (Into the Veil) implementation prompt (approved script)",
+  "lines": [
+   {
+    "speaker": "Eddie",
+    "text": "Oh, you've got to be kidding me.",
+    "time": 2.7
+   },
+   {
+    "speaker": "",
+    "text": "Back up. Slowly.",
+    "time": 1.8
+   }
+  ]
+ },
+ "c13_crab_Sarah": {
+  "source": "Chapter 14: supporting lines (implementation) (companion variant)",
+  "lines": [
+   {
+    "speaker": "Sarah",
+    "text": "Oh, you've got to be kidding me.",
+    "time": 2.7
+   },
+   {
+    "speaker": "",
+    "text": "Back up. Slowly.",
+    "time": 1.8
+   }
+  ]
+ },
+ "c13_crab_Ruth": {
+  "source": "Chapter 14: supporting lines (implementation) (companion variant)",
+  "lines": [
+   {
+    "speaker": "Ruth",
+    "text": "Oh, you've got to be kidding me.",
+    "time": 2.7
+   },
+   {
+    "speaker": "",
+    "text": "Back up. Slowly.",
+    "time": 1.8
+   }
+  ]
+ },
+ "c13_crab_Marcus": {
+  "source": "Chapter 14: supporting lines (implementation) (companion variant)",
+  "lines": [
+   {
+    "speaker": "Marcus",
+    "text": "Oh, you've got to be kidding me.",
+    "time": 2.7
+   },
+   {
+    "speaker": "",
+    "text": "Back up. Slowly.",
+    "time": 1.8
+   }
+  ]
+ },
+ "c13_run": {
+  "source": "Chapter 14 (Into the Veil) implementation prompt (approved script)",
+  "lines": [
+   {
+    "speaker": "Eddie",
+    "text": "RUN!",
+    "time": 1.6
+   }
+  ]
+ },
+ "c13_run_Sarah": {
+  "source": "Chapter 14: supporting lines (implementation) (companion variant)",
+  "lines": [
+   {
+    "speaker": "Sarah",
+    "text": "RUN!",
+    "time": 1.6
+   }
+  ]
+ },
+ "c13_run_Ruth": {
+  "source": "Chapter 14: supporting lines (implementation) (companion variant)",
+  "lines": [
+   {
+    "speaker": "Ruth",
+    "text": "RUN!",
+    "time": 1.6
+   }
+  ]
+ },
+ "c13_run_Marcus": {
+  "source": "Chapter 14: supporting lines (implementation) (companion variant)",
+  "lines": [
+   {
+    "speaker": "Marcus",
+    "text": "RUN!",
+    "time": 1.6
+   }
+  ]
+ },
+ "c13_voice_react": {
+  "source": "Chapter 14 (Into the Veil) implementation prompt (approved script)",
+  "lines": [
+   {
+    "speaker": "Eddie",
+    "text": "Did you hear that?",
+    "time": 1.9
+   },
+   {
+    "speaker": "",
+    "text": "Yeah.",
+    "time": 1.6
+   },
+   {
+    "speaker": "Eddie",
+    "text": "Don't follow it.",
+    "time": 1.8
+   }
+  ]
+ },
+ "c13_voice_react_Sarah": {
+  "source": "Chapter 14: supporting lines (implementation) (companion variant)",
+  "lines": [
+   {
+    "speaker": "Sarah",
+    "text": "Did you hear that?",
+    "time": 1.9
+   },
+   {
+    "speaker": "",
+    "text": "Yeah.",
+    "time": 1.6
+   },
+   {
+    "speaker": "Sarah",
+    "text": "Don't follow it.",
+    "time": 1.8
+   }
+  ]
+ },
+ "c13_voice_react_Ruth": {
+  "source": "Chapter 14: supporting lines (implementation) (companion variant)",
+  "lines": [
+   {
+    "speaker": "Ruth",
+    "text": "Did you hear that?",
+    "time": 1.9
+   },
+   {
+    "speaker": "",
+    "text": "Yeah.",
+    "time": 1.6
+   },
+   {
+    "speaker": "Ruth",
+    "text": "Don't follow it.",
+    "time": 1.8
+   }
+  ]
+ },
+ "c13_voice_react_Marcus": {
+  "source": "Chapter 14: supporting lines (implementation) (companion variant)",
+  "lines": [
+   {
+    "speaker": "Marcus",
+    "text": "Did you hear that?",
+    "time": 1.9
+   },
+   {
+    "speaker": "",
+    "text": "Yeah.",
+    "time": 1.6
+   },
+   {
+    "speaker": "Marcus",
+    "text": "Don't follow it.",
+    "time": 1.8
+   }
+  ]
+ },
+ "c13_chamber": {
+  "source": "Chapter 14 (Into the Veil) implementation prompt (approved script)",
+  "lines": [
+   {
+    "speaker": "",
+    "text": "This is what the map was pointing to.",
+    "time": 2.9
+   },
+   {
+    "speaker": "Eddie",
+    "text": "Whatever this place is, it wasn't built by the town.",
+    "time": 3.8
+   }
+  ]
+ },
+ "c13_chamber_Sarah": {
+  "source": "Chapter 14: supporting lines (implementation) (companion variant)",
+  "lines": [
+   {
+    "speaker": "",
+    "text": "This is what the map was pointing to.",
+    "time": 2.9
+   },
+   {
+    "speaker": "Sarah",
+    "text": "Whatever this place is, it wasn't built by the town.",
+    "time": 3.8
+   }
+  ]
+ },
+ "c13_chamber_Ruth": {
+  "source": "Chapter 14: supporting lines (implementation) (companion variant)",
+  "lines": [
+   {
+    "speaker": "",
+    "text": "This is what the map was pointing to.",
+    "time": 2.9
+   },
+   {
+    "speaker": "Ruth",
+    "text": "Whatever this place is, it wasn't built by the town.",
+    "time": 3.8
+   }
+  ]
+ },
+ "c13_chamber_Marcus": {
+  "source": "Chapter 14: supporting lines (implementation) (companion variant)",
+  "lines": [
+   {
+    "speaker": "",
+    "text": "This is what the map was pointing to.",
+    "time": 2.9
+   },
+   {
+    "speaker": "Marcus",
+    "text": "Whatever this place is, it wasn't built by the town.",
+    "time": 3.8
+   }
+  ]
+ },
+ "c13_shadow": {
+  "source": "Chapter 14 (Into the Veil) implementation prompt (approved script)",
+  "lines": [
+   {
+    "speaker": "Eddie",
+    "text": "Tell me that's just a shadow.",
+    "time": 2.5
+   },
+   {
+    "speaker": "",
+    "text": "I don't know what that is.",
+    "time": 2.3
+   }
+  ]
+ },
+ "c13_shadow_Sarah": {
+  "source": "Chapter 14: supporting lines (implementation) (companion variant)",
+  "lines": [
+   {
+    "speaker": "Sarah",
+    "text": "Tell me that's just a shadow.",
+    "time": 2.5
+   },
+   {
+    "speaker": "",
+    "text": "I don't know what that is.",
+    "time": 2.3
+   }
+  ]
+ },
+ "c13_shadow_Ruth": {
+  "source": "Chapter 14: supporting lines (implementation) (companion variant)",
+  "lines": [
+   {
+    "speaker": "Ruth",
+    "text": "Tell me that's just a shadow.",
+    "time": 2.5
+   },
+   {
+    "speaker": "",
+    "text": "I don't know what that is.",
+    "time": 2.3
+   }
+  ]
+ },
+ "c13_shadow_Marcus": {
+  "source": "Chapter 14: supporting lines (implementation) (companion variant)",
+  "lines": [
+   {
+    "speaker": "Marcus",
+    "text": "Tell me that's just a shadow.",
+    "time": 2.5
+   },
+   {
+    "speaker": "",
+    "text": "I don't know what that is.",
+    "time": 2.3
+   }
+  ]
+ },
+ "c13_trapped": {
+  "source": "Chapter 14: supporting lines (implementation)",
+  "lines": [
+   {
+    "speaker": "Eddie",
+    "text": "I'm stuck - the beam's on my leg! Help me!",
+    "time": 3.2
+   }
+  ]
+ },
+ "c13_trapped_Sarah": {
+  "source": "Chapter 14: supporting lines (implementation) (companion variant)",
+  "lines": [
+   {
+    "speaker": "Sarah",
+    "text": "I'm stuck - the beam's on my leg! Help me!",
+    "time": 3.2
+   }
+  ]
+ },
+ "c13_trapped_Ruth": {
+  "source": "Chapter 14: supporting lines (implementation) (companion variant)",
+  "lines": [
+   {
+    "speaker": "Ruth",
+    "text": "I'm stuck - the beam's on my leg! Help me!",
+    "time": 3.2
+   }
+  ]
+ },
+ "c13_trapped_Marcus": {
+  "source": "Chapter 14: supporting lines (implementation) (companion variant)",
+  "lines": [
+   {
+    "speaker": "Marcus",
+    "text": "I'm stuck - the beam's on my leg! Help me!",
+    "time": 3.2
+   }
+  ]
+ },
+ "c13_helped": {
+  "source": "Chapter 14: supporting lines (implementation)",
+  "lines": [
+   {
+    "speaker": "Eddie",
+    "text": "Thanks. I mean it. Now get us out of here.",
+    "time": 3.2
+   }
+  ]
+ },
+ "c13_helped_Sarah": {
+  "source": "Chapter 14: supporting lines (implementation) (companion variant)",
+  "lines": [
+   {
+    "speaker": "Sarah",
+    "text": "Thanks. I mean it. Now get us out of here.",
+    "time": 3.2
+   }
+  ]
+ },
+ "c13_helped_Ruth": {
+  "source": "Chapter 14: supporting lines (implementation) (companion variant)",
+  "lines": [
+   {
+    "speaker": "Ruth",
+    "text": "Thanks. I mean it. Now get us out of here.",
+    "time": 3.2
+   }
+  ]
+ },
+ "c13_helped_Marcus": {
+  "source": "Chapter 14: supporting lines (implementation) (companion variant)",
+  "lines": [
+   {
+    "speaker": "Marcus",
+    "text": "Thanks. I mean it. Now get us out of here.",
+    "time": 3.2
+   }
+  ]
+ },
+ "c13_hurt": {
+  "source": "Chapter 14: supporting lines (implementation)",
+  "lines": [
+   {
+    "speaker": "Eddie",
+    "text": "You went for the paper first. ...Fine. I can walk. Just about.",
+    "time": 4.2
+   }
+  ]
+ },
+ "c13_hurt_Sarah": {
+  "source": "Chapter 14: supporting lines (implementation) (companion variant)",
+  "lines": [
+   {
+    "speaker": "Sarah",
+    "text": "You went for the paper first. ...Fine. I can walk. Just about.",
+    "time": 4.2
+   }
+  ]
+ },
+ "c13_hurt_Ruth": {
+  "source": "Chapter 14: supporting lines (implementation) (companion variant)",
+  "lines": [
+   {
+    "speaker": "Ruth",
+    "text": "You went for the paper first. ...Fine. I can walk. Just about.",
+    "time": 4.2
+   }
+  ]
+ },
+ "c13_hurt_Marcus": {
+  "source": "Chapter 14: supporting lines (implementation) (companion variant)",
+  "lines": [
+   {
+    "speaker": "Marcus",
+    "text": "You went for the paper first. ...Fine. I can walk. Just about.",
+    "time": 4.2
+   }
+  ]
+ },
+ "c13_night": {
+  "source": "Chapter 14 (Into the Veil) implementation prompt (approved script)",
+  "lines": [
+   {
+    "speaker": "Eddie",
+    "text": "It's getting closer, isn't it?",
+    "time": 2.5
+   },
+   {
+    "speaker": "",
+    "text": "Yeah.",
+    "time": 1.6
+   },
+   {
+    "speaker": "Eddie",
+    "text": "What do we do?",
+    "time": 1.7
+   }
+  ]
+ },
+ "c13_night_Sarah": {
+  "source": "Chapter 14: supporting lines (implementation) (companion variant)",
+  "lines": [
+   {
+    "speaker": "Sarah",
+    "text": "It's getting closer, isn't it?",
+    "time": 2.5
+   },
+   {
+    "speaker": "",
+    "text": "Yeah.",
+    "time": 1.6
+   },
+   {
+    "speaker": "Sarah",
+    "text": "What do we do?",
+    "time": 1.7
+   }
+  ]
+ },
+ "c13_night_Ruth": {
+  "source": "Chapter 14: supporting lines (implementation) (companion variant)",
+  "lines": [
+   {
+    "speaker": "Ruth",
+    "text": "It's getting closer, isn't it?",
+    "time": 2.5
+   },
+   {
+    "speaker": "",
+    "text": "Yeah.",
+    "time": 1.6
+   },
+   {
+    "speaker": "Ruth",
+    "text": "What do we do?",
+    "time": 1.7
+   }
+  ]
+ },
+ "c13_night_Marcus": {
+  "source": "Chapter 14: supporting lines (implementation) (companion variant)",
+  "lines": [
+   {
+    "speaker": "Marcus",
+    "text": "It's getting closer, isn't it?",
+    "time": 2.5
+   },
+   {
+    "speaker": "",
+    "text": "Yeah.",
+    "time": 1.6
+   },
+   {
+    "speaker": "Marcus",
+    "text": "What do we do?",
+    "time": 1.7
+   }
+  ]
+ },
+ "c13_ready": {
+  "source": "Chapter 14 (Into the Veil) implementation prompt (approved script)",
+  "lines": [
+   {
+    "speaker": "",
+    "text": "We get ready.",
+    "time": 1.6
+   }
+  ]
+ },
+ "c13_voice": {
+  "source": "Chapter 14: supporting lines (implementation)",
+  "lines": [
+   {
+    "speaker": "Distant voice",
+    "text": "Hello...? Is someone down here? This way...",
+    "time": 3.3
+   },
+   {
+    "speaker": "",
+    "text": "That sounded like Ruth. But Ruth is back at the house.",
+    "time": 3.9
+   }
+  ]
+ },
+ "c13_voice_alt": {
+  "source": "Chapter 14: supporting lines (implementation)",
+  "lines": [
+   {
+    "speaker": "Distant voice",
+    "text": "Hey...? Anybody? Over here...",
+    "time": 2.5
+   },
+   {
+    "speaker": "",
+    "text": "That sounded like Eddie. But Eddie is back at the house.",
+    "time": 4.0
+   }
+  ]
+ },
+ "c13_note": {
+  "source": "Chapter 14 (Into the Veil) implementation prompt (approved script)",
+  "lines": [
+   {
+    "speaker": "",
+    "text": "A handwritten note: 'The lower passage is not to be opened. Whatever comes through the mist does not always come from outside.'",
+    "time": 4.2
+   }
+  ]
+ },
+ "c13_crank": {
+  "source": "Chapter 14: supporting lines (implementation)",
+  "lines": [
+   {
+    "speaker": "",
+    "text": "A gate crank, hung on a hook inside the locker.",
+    "time": 3.5
+   }
+  ]
+ },
+ "c13_release_jammed": {
+  "source": "Chapter 14: supporting lines (implementation)",
+  "lines": [
+   {
+    "speaker": "",
+    "text": "The manual release. The crank handle is missing.",
+    "time": 3.5
+   }
+  ]
+ },
+ "c13_winch": {
+  "source": "Chapter 14: supporting lines (implementation)",
+  "lines": [
+   {
+    "speaker": "",
+    "text": "The winch turns. Somewhere, a chain takes the weight off the doorway.",
+    "time": 4.2
+   }
+  ]
+ },
+ "c13_clue_plaque": {
+  "source": "Chapter 14: supporting lines (implementation)",
+  "lines": [
+   {
+    "speaker": "",
+    "text": "A maintenance plaque, half broken away: 'This chamber is n-' The rest is gone.",
+    "time": 4.2
+   }
+  ]
+ },
+ "c13_clue_markings": {
+  "source": "Chapter 14: supporting lines (implementation)",
+  "lines": [
+   {
+    "speaker": "",
+    "text": "The symbol again, cut deep into stone that was here long before the concrete.",
+    "time": 4.2
+   }
+  ]
+ },
+ "c13_clue_fragments": {
+  "source": "Chapter 14: supporting lines (implementation)",
+  "lines": [
+   {
+    "speaker": "",
+    "text": "Broken stone. The carving on it is worn smooth. Older than anything in Greyhaven.",
+    "time": 4.2
+   }
+  ]
+ },
+ "c13_return": {
+  "source": "Chapter 14 (Into the Veil) implementation prompt (approved script)",
+  "lines": [
+   {
+    "speaker": "Ruth",
+    "text": "You look terrible.",
+    "time": 1.9
+   },
+   {
+    "speaker": "",
+    "text": "We found the entrance.",
+    "time": 2.1
+   },
+   {
+    "speaker": "Eddie",
+    "text": "And something down there knows we're looking.",
+    "time": 3.4
+   }
+  ]
+ },
+ "c13_return_other": {
+  "source": "Chapter 14: supporting lines (implementation)",
+  "lines": [
+   {
+    "speaker": "Eddie",
+    "text": "You look terrible.",
+    "time": 1.9
+   },
+   {
+    "speaker": "",
+    "text": "We found the entrance. And something down there knows we're looking.",
+    "time": 4.2
+   }
+  ]
+ },
+ "c13_explain_help": {
+  "source": "Chapter 14: supporting lines (implementation)",
+  "lines": [
+   {
+    "speaker": "",
+    "text": "When the doorway opened, the mist moved. Toward it - then out.",
+    "time": 4.2
+   },
+   {
+    "speaker": "Ruth",
+    "text": "Then it's spreading.",
+    "time": 2.0
+   }
+  ]
+ },
+ "c13_explain_evidence": {
+  "source": "Chapter 14: supporting lines (implementation)",
+  "lines": [
+   {
+    "speaker": "",
+    "text": "When the doorway opened, the mist moved. I brought this back from it.",
+    "time": 4.2
+   },
+   {
+    "speaker": "Ruth",
+    "text": "And what did it cost?",
+    "time": 2.1
+   }
+  ]
+ },
+ "c14_wake": {
+  "source": "Chapter 15 (The Last Shelter) implementation prompt (approved script)",
+  "lines": [
+   {
+    "speaker": "Ruth",
+    "text": "You need to see this.",
+    "time": 2.1
+   }
+  ]
+ },
+ "c14_window": {
+  "source": "Chapter 15 (The Last Shelter) implementation prompt (approved script)",
+  "lines": [
+   {
+    "speaker": "Eddie",
+    "text": "It wasn't this close yesterday.",
+    "time": 2.6
+   },
+   {
+    "speaker": "Ruth",
+    "text": "Something's changed.",
+    "time": 2.0
+   },
+   {
+    "speaker": "",
+    "text": "It's coming this way.",
+    "time": 2.1
+   }
+  ]
+ },
+ "c14_meeting": {
+  "source": "Chapter 15 (The Last Shelter) implementation prompt (approved script)",
+  "lines": [
+   {
+    "speaker": "Ruth",
+    "text": "We need to decide what we're doing.",
+    "time": 2.8
+   },
+   {
+    "speaker": "Eddie",
+    "text": "We can't just sit here and wait.",
+    "time": 2.7
+   },
+   {
+    "speaker": "",
+    "text": "Then we prepare.",
+    "time": 1.8
+   },
+   {
+    "speaker": "Sarah",
+    "text": "Prepare for what?",
+    "time": 1.8
+   }
+  ]
+ },
+ "c14_meeting_marcus": {
+  "source": "Chapter 15 (The Last Shelter) implementation prompt (approved script)",
+  "lines": [
+   {
+    "speaker": "Ruth",
+    "text": "We need to decide what we're doing.",
+    "time": 2.8
+   },
+   {
+    "speaker": "Eddie",
+    "text": "We can't just sit here and wait.",
+    "time": 2.7
+   },
+   {
+    "speaker": "",
+    "text": "Then we prepare.",
+    "time": 1.8
+   },
+   {
+    "speaker": "Marcus",
+    "text": "Prepare for what?",
+    "time": 1.8
+   }
+  ]
+ },
+ "c14_meeting_end": {
+  "source": "Chapter 15 (The Last Shelter) implementation prompt (approved script)",
+  "lines": [
+   {
+    "speaker": "",
+    "text": "Whatever comes through that fog.",
+    "time": 2.7
+   },
+   {
+    "speaker": "",
+    "text": "Supplies. The doors. A way out the back.",
+    "time": 3.1
+   }
+  ]
+ },
+ "c14_recall_evidence": {
+  "source": "Chapter 15: supporting lines (implementation)",
+  "lines": [
+   {
+    "speaker": "Eddie",
+    "text": "And this time, we all come back. Together. Right?",
+    "time": 3.6
+   }
+  ]
+ },
+ "c14_recall_help": {
+  "source": "Chapter 15: supporting lines (implementation)",
+  "lines": [
+   {
+    "speaker": "Eddie",
+    "text": "You came back for me down there. I won't forget it.",
+    "time": 3.7
+   }
+  ]
+ },
+ "c14_pack_enough": {
+  "source": "Chapter 15: supporting lines (implementation)",
+  "lines": [
+   {
+    "speaker": "Ruth",
+    "text": "There's enough for all of us. For a day or two, anyway.",
+    "time": 3.9
+   }
+  ]
+ },
+ "c14_pack_short": {
+  "source": "Chapter 15: supporting lines (implementation)",
+  "lines": [
+   {
+    "speaker": "Ruth",
+    "text": "It's not enough for everyone. We'll have to share what we've got.",
+    "time": 4.2
+   }
+  ]
+ },
+ "c14_defend_front": {
+  "source": "Chapter 15: supporting lines (implementation)",
+  "lines": [
+   {
+    "speaker": "",
+    "text": "The cabinet's against the front door. It won't stop them. It'll slow them.",
+    "time": 4.2
+   }
+  ]
+ },
+ "c14_defend_window": {
+  "source": "Chapter 15: supporting lines (implementation)",
+  "lines": [
+   {
+    "speaker": "",
+    "text": "Boards over the window. Nailed twice.",
+    "time": 2.9
+   }
+  ]
+ },
+ "c14_defend_back": {
+  "source": "Chapter 15: supporting lines (implementation)",
+  "lines": [
+   {
+    "speaker": "",
+    "text": "The back door's wedged - from inside, so we can still get out.",
+    "time": 4.2
+   }
+  ]
+ },
+ "c14_escape": {
+  "source": "Chapter 15 (The Last Shelter) implementation prompt (approved script)",
+  "lines": [
+   {
+    "speaker": "Ruth",
+    "text": "What if the doors don't hold?",
+    "time": 2.5
+   },
+   {
+    "speaker": "",
+    "text": "Then we use the back way.",
+    "time": 2.3
+   },
+   {
+    "speaker": "Eddie",
+    "text": "And if that doesn't work?",
+    "time": 2.3
+   },
+   {
+    "speaker": "",
+    "text": "Then we improvise.",
+    "time": 1.9
+   }
+  ]
+ },
+ "c9_no_car": {
+  "source": "Vehicle continuity: the repaired car is left at the supermarket lot",
+  "lines": [
+   {
+    "speaker": "Eddie",
+    "text": "Not the car - it's out front, right where they're coming in. Out the back. On foot.",
+    "time": 4.4
+   }
+  ]
+ },
+ "c14_no_car": {
+  "source": "Chapter 15: supporting lines (implementation)",
+  "lines": [
+   {
+    "speaker": "Eddie",
+    "text": "And the car's still back at the supermarket. So - walking. Great.",
+    "time": 4.2
+   }
+  ]
+ },
+ "c14_run_warn": {
+  "source": "Chapter 15 (The Last Shelter) implementation prompt (approved script)",
+  "lines": [
+   {
+    "speaker": "Eddie",
+    "text": "We shouldn't stay out here.",
+    "time": 2.4
+   },
+   {
+    "speaker": "",
+    "text": "Just a little longer.",
+    "time": 2.1
+   },
+   {
+    "speaker": "Eddie",
+    "text": "That's what people say right before something terrible happens.",
+    "time": 4.2
+   }
+  ]
+ },
+ "c14_run_warn_alone": {
+  "source": "Chapter 15: supporting lines (implementation)",
+  "lines": [
+   {
+    "speaker": "",
+    "text": "The mist is closing in. I shouldn't stay out here.",
+    "time": 3.6
+   }
+  ]
+ },
+ "c14_calm_Eddie": {
+  "source": "Chapter 15 (The Last Shelter) implementation prompt (approved script)",
+  "lines": [
+   {
+    "speaker": "Eddie",
+    "text": "You know, I really thought buying a video game was going to be the worst decision I made that day.",
+    "time": 4.2
+   },
+   {
+    "speaker": "",
+    "text": "Still might be.",
+    "time": 1.7
+   },
+   {
+    "speaker": "Eddie",
+    "text": "Yeah. Fair point.",
+    "time": 1.8
+   }
+  ]
+ },
+ "c14_calm_Ruth": {
+  "source": "Chapter 15 (The Last Shelter) implementation prompt (approved script)",
+  "lines": [
+   {
+    "speaker": "Ruth",
+    "text": "We've made it farther than I thought we would.",
+    "time": 3.4
+   },
+   {
+    "speaker": "",
+    "text": "We're not done yet.",
+    "time": 1.9
+   },
+   {
+    "speaker": "Ruth",
+    "text": "I know. That's what worries me.",
+    "time": 2.6
+   }
+  ]
+ },
+ "c14_calm_Sarah": {
+  "source": "Chapter 15: supporting lines (implementation)",
+  "lines": [
+   {
+    "speaker": "Sarah",
+    "text": "Whatever happens tonight - thank you. For not leaving any of us.",
+    "time": 4.2
+   },
+   {
+    "speaker": "",
+    "text": "We're not done yet.",
+    "time": 1.9
+   }
+  ]
+ },
+ "c14_calm_Marcus": {
+  "source": "Chapter 15: supporting lines (implementation)",
+  "lines": [
+   {
+    "speaker": "Marcus",
+    "text": "Every time something moves out there, I think of Noah out in it.",
+    "time": 4.2
+   },
+   {
+    "speaker": "",
+    "text": "We'll keep looking.",
+    "time": 1.9
+   },
+   {
+    "speaker": "Marcus",
+    "text": "Don't promise me anything. Just don't stop.",
+    "time": 3.3
+   }
+  ]
+ },
+ "c14_skitter": {
+  "source": "Chapter 15 (The Last Shelter) implementation prompt (approved script)",
+  "lines": [
+   {
+    "speaker": "Ruth",
+    "text": "There's something outside!",
+    "time": 2.3
+   }
+  ]
+ },
+ "c14_hounds": {
+  "source": "Chapter 15 (The Last Shelter) implementation prompt (approved script)",
+  "lines": [
+   {
+    "speaker": "Eddie",
+    "text": "Those things again!",
+    "time": 1.9
+   },
+   {
+    "speaker": "",
+    "text": "Get away from the door!",
+    "time": 2.2
+   },
+   {
+    "speaker": "Ruth",
+    "text": "It's not going to hold!",
+    "time": 2.2
+   }
+  ]
+ },
+ "c14_failing": {
+  "source": "Chapter 15: supporting lines (implementation)",
+  "lines": [
+   {
+    "speaker": "Ruth",
+    "text": "It's coming through!",
+    "time": 2.0
+   }
+  ]
+ },
+ "c14_after_saved": {
+  "source": "Chapter 15: supporting lines (implementation)",
+  "lines": [
+   {
+    "speaker": "Eddie",
+    "text": "That was too close. Everyone okay?",
+    "time": 2.8
+   }
+  ]
+ },
+ "c14_after_hurt": {
+  "source": "Chapter 15: supporting lines (implementation)",
+  "lines": [
+   {
+    "speaker": "Eddie",
+    "text": "Get her - get them away from the door! Keep pressure on it!",
+    "time": 4.1
+   }
+  ]
+ },
+ "c14_impact": {
+  "source": "Chapter 15: supporting lines (implementation)",
+  "lines": [
+   {
+    "speaker": "Ruth",
+    "text": "What was that?!",
+    "time": 1.7
+   }
+  ]
+ },
+ "c14_crab": {
+  "source": "Chapter 15 (The Last Shelter) implementation prompt (approved script)",
+  "lines": [
+   {
+    "speaker": "Eddie",
+    "text": "It's at the front!",
+    "time": 1.9
+   },
+   {
+    "speaker": "",
+    "text": "We can't stay here.",
+    "time": 1.9
+   }
+  ]
+ },
+ "c14_go": {
+  "source": "Chapter 15: supporting lines (implementation)",
+  "lines": [
+   {
+    "speaker": "Eddie",
+    "text": "Out the back! Everyone, stay together!",
+    "time": 3.0
+   }
+  ]
+ },
+ "c14_trapped_Ruth": {
+  "source": "Chapter 15: supporting lines (implementation)",
+  "lines": [
+   {
+    "speaker": "Ruth",
+    "text": "I'm caught - the fence! Go! Don't wait for me!",
+    "time": 3.4
+   }
+  ]
+ },
+ "c14_trapped_Sarah": {
+  "source": "Chapter 15: supporting lines (implementation)",
+  "lines": [
+   {
+    "speaker": "Sarah",
+    "text": "I can't get through! Go - just go!",
+    "time": 2.8
+   }
+  ]
+ },
+ "c14_trapped_Marcus": {
+  "source": "Chapter 15: supporting lines (implementation)",
+  "lines": [
+   {
+    "speaker": "Marcus",
+    "text": "My leg's caught! Go! Find Noah!",
+    "time": 2.6
+   }
+  ]
+ },
+ "c14_went_back": {
+  "source": "Chapter 15: supporting lines (implementation)",
+  "lines": [
+   {
+    "speaker": "",
+    "text": "Got you. Move!",
+    "time": 1.7
+   }
+  ]
+ },
+ "c14_kept_moving": {
+  "source": "Chapter 15: supporting lines (implementation)",
+  "lines": [
+   {
+    "speaker": "Eddie",
+    "text": "We can't stop. We can't. Keep going.",
+    "time": 2.9
+   }
+  ]
+ },
+ "c14_lost_supplies": {
+  "source": "Chapter 15: supporting lines (implementation)",
+  "lines": [
+   {
+    "speaker": "",
+    "text": "The bag tore on the fence. Some of the food is gone.",
+    "time": 3.8
+   }
+  ]
+ },
+ "c14_end_Ruth": {
+  "source": "Chapter 15 (The Last Shelter) implementation prompt (approved script)",
+  "lines": [
+   {
+    "speaker": "Eddie",
+    "text": "That was the last safe place we had.",
+    "time": 2.9
+   },
+   {
+    "speaker": "",
+    "text": "Then we find another way.",
+    "time": 2.3
+   },
+   {
+    "speaker": "Ruth",
+    "text": "Where do we go?",
+    "time": 1.7
+   }
+  ]
+ },
+ "c14_end_Sarah": {
+  "source": "Chapter 15 (The Last Shelter) implementation prompt (approved script)",
+  "lines": [
+   {
+    "speaker": "Eddie",
+    "text": "That was the last safe place we had.",
+    "time": 2.9
+   },
+   {
+    "speaker": "",
+    "text": "Then we find another way.",
+    "time": 2.3
+   },
+   {
+    "speaker": "Sarah",
+    "text": "Where do we go?",
+    "time": 1.7
+   }
+  ]
+ },
+ "c14_end_Marcus": {
+  "source": "Chapter 15 (The Last Shelter) implementation prompt (approved script)",
+  "lines": [
+   {
+    "speaker": "Eddie",
+    "text": "That was the last safe place we had.",
+    "time": 2.9
+   },
+   {
+    "speaker": "",
+    "text": "Then we find another way.",
+    "time": 2.3
+   },
+   {
+    "speaker": "Marcus",
+    "text": "Where do we go?",
+    "time": 1.7
+   }
+  ]
+ },
+ "c14_back": {
+  "source": "Chapter 15 (The Last Shelter) implementation prompt (approved script)",
+  "lines": [
+   {
+    "speaker": "",
+    "text": "Back to where this started.",
+    "time": 2.4
+   }
+  ]
+ },
+ "c15_open": {
+  "source": "Chapter 16 (What Remains) implementation prompt (approved script)",
+  "lines": [
+   {
+    "speaker": "Eddie",
+    "text": "So... that's it? No more supermarket. No more shelter. Nothing?",
+    "time": 4.4
+   },
+   {
+    "speaker": "",
+    "text": "We're still alive.",
+    "time": 1.9
+   },
+   {
+    "speaker": "Eddie",
+    "text": "Yeah. For now.",
+    "time": 1.7
+   },
+   {
+    "speaker": "Ruth",
+    "text": "We can't stay here.",
+    "time": 1.9
+   },
+   {
+    "speaker": "",
+    "text": "I know.",
+    "time": 1.6
+   }
+  ]
+ },
+ "c15_open_alt": {
+  "source": "Chapter 16 (What Remains) implementation prompt (approved script)",
+  "lines": [
+   {
+    "speaker": "@1",
+    "text": "So that's it? No more shelter. Nothing?",
+    "time": 3.0
+   },
+   {
+    "speaker": "",
+    "text": "We're still alive.",
+    "time": 1.9
+   },
+   {
+    "speaker": "@1",
+    "text": "For now.",
+    "time": 1.6
+   },
+   {
+    "speaker": "@2",
+    "text": "We can't stay here.",
+    "time": 1.9
+   },
+   {
+    "speaker": "",
+    "text": "I know.",
+    "time": 1.6
+   }
+  ]
+ },
+ "c15_map_under": {
+  "source": "Chapter 16 (What Remains) implementation prompt (approved script)",
+  "lines": [
+   {
+    "speaker": "",
+    "text": "There's one place we haven't reached.",
+    "time": 2.9
+   },
+   {
+    "speaker": "Eddie",
+    "text": "Please don't say underneath the town.",
+    "time": 2.9
+   },
+   {
+    "speaker": "",
+    "text": "Underneath the town.",
+    "time": 2.0
+   },
+   {
+    "speaker": "Eddie",
+    "text": "I really need to stop asking questions.",
+    "time": 3.0
+   }
+  ]
+ },
+ "c15_map_under_alt": {
+  "source": "Chapter 16 (What Remains) implementation prompt (approved script)",
+  "lines": [
+   {
+    "speaker": "",
+    "text": "There's one place we haven't reached.",
+    "time": 2.9
+   },
+   {
+    "speaker": "@1",
+    "text": "Underneath the town?",
+    "time": 2.0
+   },
+   {
+    "speaker": "",
+    "text": "Underneath the town.",
+    "time": 2.0
+   }
+  ]
+ },
+ "c15_shared": {
+  "source": "Chapter 16: supporting lines (implementation)",
+  "lines": [
+   {
+    "speaker": "",
+    "text": "A little food, a little water, passed around. Nobody says much. It helps anyway.",
+    "time": 4.4
+   }
+  ]
+ },
+ "c15_talk_Eddie": {
+  "source": "Chapter 16 (What Remains) implementation prompt (approved script)",
+  "lines": [
+   {
+    "speaker": "Eddie",
+    "text": "Remember when all this started? We were just trying to buy a game.",
+    "time": 4.4
+   },
+   {
+    "speaker": "",
+    "text": "Feels like a lifetime ago.",
+    "time": 2.3
+   },
+   {
+    "speaker": "Eddie",
+    "text": "I would've picked something less scary if I'd known.",
+    "time": 3.8
+   }
+  ]
+ },
+ "c15_talk_Eddie_low": {
+  "source": "Chapter 16: supporting lines (implementation)",
+  "lines": [
+   {
+    "speaker": "Eddie",
+    "text": "Remember when all this started? We were just trying to buy a game.",
+    "time": 4.4
+   },
+   {
+    "speaker": "",
+    "text": "Feels like a lifetime ago.",
+    "time": 2.3
+   },
+   {
+    "speaker": "Eddie",
+    "text": "Yeah. I'm not sure I'd follow you again. But I'm here.",
+    "time": 3.9
+   }
+  ]
+ },
+ "c15_talk_Ruth": {
+  "source": "Chapter 16 (What Remains) implementation prompt (approved script)",
+  "lines": [
+   {
+    "speaker": "Ruth",
+    "text": "You kept us going longer than anyone expected.",
+    "time": 3.4
+   },
+   {
+    "speaker": "",
+    "text": "We're not finished.",
+    "time": 1.9
+   },
+   {
+    "speaker": "Ruth",
+    "text": "Then make sure we finish together.",
+    "time": 2.8
+   }
+  ]
+ },
+ "c15_talk_Ruth_low": {
+  "source": "Chapter 16: supporting lines (implementation)",
+  "lines": [
+   {
+    "speaker": "Ruth",
+    "text": "I don't know if this is right. But I don't have a better idea.",
+    "time": 4.3
+   },
+   {
+    "speaker": "",
+    "text": "We're not finished.",
+    "time": 1.9
+   },
+   {
+    "speaker": "Ruth",
+    "text": "No. Not yet.",
+    "time": 1.6
+   }
+  ]
+ },
+ "c15_talk_Sarah": {
+  "source": "Chapter 16: supporting lines (implementation)",
+  "lines": [
+   {
+    "speaker": "Sarah",
+    "text": "Whatever's down there - I'd rather face it with all of you than alone.",
+    "time": 4.4
+   }
+  ]
+ },
+ "c15_talk_Sarah_saved": {
+  "source": "Chapter 16: supporting lines (implementation)",
+  "lines": [
+   {
+    "speaker": "Sarah",
+    "text": "You pulled me away from that door. I haven't said thank you.",
+    "time": 4.2
+   },
+   {
+    "speaker": "",
+    "text": "You don't have to.",
+    "time": 1.9
+   }
+  ]
+ },
+ "c15_talk_Sarah_hurt": {
+  "source": "Chapter 16: supporting lines (implementation)",
+  "lines": [
+   {
+    "speaker": "Sarah",
+    "text": "I'll keep up. Don't slow down for me.",
+    "time": 2.9
+   },
+   {
+    "speaker": "",
+    "text": "We go together.",
+    "time": 1.7
+   }
+  ]
+ },
+ "c15_talk_Marcus": {
+  "source": "Chapter 16: supporting lines (implementation)",
+  "lines": [
+   {
+    "speaker": "Marcus",
+    "text": "Noah's still out there somewhere. If the way out is below, maybe that's where he went too.",
+    "time": 4.4
+   },
+   {
+    "speaker": "",
+    "text": "Then we keep looking.",
+    "time": 2.1
+   }
+  ]
+ },
+ "c15_talk_Marcus_back": {
+  "source": "Chapter 16: supporting lines (implementation)",
+  "lines": [
+   {
+    "speaker": "Marcus",
+    "text": "You came back for me at the fence. I owe you.",
+    "time": 3.4
+   },
+   {
+    "speaker": "Marcus",
+    "text": "Noah's still out there. I'm not done looking.",
+    "time": 3.4
+   }
+  ]
+ },
+ "c15_plan": {
+  "source": "Chapter 16 (What Remains) implementation prompt (approved script)",
+  "lines": [
+   {
+    "speaker": "",
+    "text": "The passage leads beyond the old district.",
+    "time": 3.2
+   },
+   {
+    "speaker": "Ruth",
+    "text": "You think it's a way out?",
+    "time": 2.3
+   },
+   {
+    "speaker": "",
+    "text": "Maybe.",
+    "time": 1.6
+   },
+   {
+    "speaker": "Eddie",
+    "text": "And the other route?",
+    "time": 2.0
+   },
+   {
+    "speaker": "",
+    "text": "Back toward whatever's underneath this place.",
+    "time": 3.4
+   },
+   {
+    "speaker": "Eddie",
+    "text": "Of course it is.",
+    "time": 1.8
+   }
+  ]
+ },
+ "c15_plan_alt": {
+  "source": "Chapter 16 (What Remains) implementation prompt (approved script)",
+  "lines": [
+   {
+    "speaker": "",
+    "text": "The passage leads beyond the old district.",
+    "time": 3.2
+   },
+   {
+    "speaker": "@2",
+    "text": "You think it's a way out?",
+    "time": 2.3
+   },
+   {
+    "speaker": "",
+    "text": "Maybe.",
+    "time": 1.6
+   },
+   {
+    "speaker": "@1",
+    "text": "And the other route?",
+    "time": 2.0
+   },
+   {
+    "speaker": "",
+    "text": "Back toward whatever's underneath this place.",
+    "time": 3.4
+   }
+  ]
+ },
+ "c15_plan_evidence": {
+  "source": "Chapter 16: supporting lines (implementation)",
+  "lines": [
+   {
+    "speaker": "",
+    "text": "The marks on the rubbing match the doorway. Whatever's down there, someone tried to shut it in before.",
+    "time": 4.4
+   }
+  ]
+ },
+ "c15_no_car": {
+  "source": "Chapter 16: supporting lines (implementation)",
+  "lines": [
+   {
+    "speaker": "",
+    "text": "The car's still back at the supermarket. We walk.",
+    "time": 3.6
+   }
+  ]
+ },
+ "c15_colossus": {
+  "source": "Chapter 16 (What Remains) implementation prompt (approved script)",
+  "lines": [
+   {
+    "speaker": "Eddie",
+    "text": "No. No, no, no. Not that thing again.",
+    "time": 2.9
+   },
+   {
+    "speaker": "",
+    "text": "Everybody down!",
+    "time": 1.7
+   }
+  ]
+ },
+ "c15_colossus_alt": {
+  "source": "Chapter 16 (What Remains) implementation prompt (approved script)",
+  "lines": [
+   {
+    "speaker": "@1",
+    "text": "No. Not that thing again.",
+    "time": 2.3
+   },
+   {
+    "speaker": "",
+    "text": "Everybody down!",
+    "time": 1.7
+   }
+  ]
+ },
+ "c15_roof": {
+  "source": "Chapter 16: supporting lines (implementation)",
+  "lines": [
+   {
+    "speaker": "Eddie",
+    "text": "Roof! Left side!",
+    "time": 1.8
+   }
+  ]
+ },
+ "c15_roof_alt": {
+  "source": "Chapter 16: supporting lines (implementation)",
+  "lines": [
+   {
+    "speaker": "@1",
+    "text": "On the roof!",
+    "time": 1.6
+   }
+  ]
+ },
+ "c15_hound": {
+  "source": "Chapter 16: supporting lines (implementation)",
+  "lines": [
+   {
+    "speaker": "Ruth",
+    "text": "Behind us - on the road!",
+    "time": 2.2
+   }
+  ]
+ },
+ "c15_hound_alt": {
+  "source": "Chapter 16: supporting lines (implementation)",
+  "lines": [
+   {
+    "speaker": "@1",
+    "text": "Behind us!",
+    "time": 1.6
+   }
+  ]
+ },
+ "c15_entrance": {
+  "source": "Chapter 16 (What Remains) implementation prompt (approved script)",
+  "lines": [
+   {
+    "speaker": "Ruth",
+    "text": "This is it?",
+    "time": 1.6
+   },
+   {
+    "speaker": "",
+    "text": "This is it.",
+    "time": 1.6
+   },
+   {
+    "speaker": "Eddie",
+    "text": "I hate that we've gotten used to places like this.",
+    "time": 3.6
+   }
+  ]
+ },
+ "c15_entrance_alt": {
+  "source": "Chapter 16 (What Remains) implementation prompt (approved script)",
+  "lines": [
+   {
+    "speaker": "@2",
+    "text": "This is it?",
+    "time": 1.6
+   },
+   {
+    "speaker": "",
+    "text": "This is it.",
+    "time": 1.6
+   }
+  ]
+ },
+ "c15_reveal": {
+  "source": "Chapter 16 (What Remains) implementation prompt (approved script)",
+  "lines": [
+   {
+    "speaker": "",
+    "text": "They tried to keep it inside.",
+    "time": 2.5
+   },
+   {
+    "speaker": "Eddie",
+    "text": "Who did?",
+    "time": 1.6
+   },
+   {
+    "speaker": "",
+    "text": "I don't know.",
+    "time": 1.6
+   },
+   {
+    "speaker": "Eddie",
+    "text": "Did it work?",
+    "time": 1.6
+   },
+   {
+    "speaker": "",
+    "text": "Not forever.",
+    "time": 1.6
+   }
+  ]
+ },
+ "c15_reveal_alt": {
+  "source": "Chapter 16 (What Remains) implementation prompt (approved script)",
+  "lines": [
+   {
+    "speaker": "",
+    "text": "They tried to keep it inside.",
+    "time": 2.5
+   },
+   {
+    "speaker": "@1",
+    "text": "Who did?",
+    "time": 1.6
+   },
+   {
+    "speaker": "",
+    "text": "I don't know.",
+    "time": 1.6
+   },
+   {
+    "speaker": "@1",
+    "text": "Did it work?",
+    "time": 1.6
+   },
+   {
+    "speaker": "",
+    "text": "Not forever.",
+    "time": 1.6
+   }
+  ]
+ },
+ "c15_go": {
+  "source": "Chapter 16 (What Remains) implementation prompt (approved script)",
+  "lines": [
+   {
+    "speaker": "Eddie",
+    "text": "We need to go!",
+    "time": 1.7
+   }
+  ]
+ },
+ "c15_go_alt": {
+  "source": "Chapter 16 (What Remains) implementation prompt (approved script)",
+  "lines": [
+   {
+    "speaker": "@1",
+    "text": "We need to go!",
+    "time": 1.7
+   }
+  ]
+ },
+ "c15_clue_symbols": {
+  "source": "Chapter 16: supporting lines (implementation)",
+  "lines": [
+   {
+    "speaker": "",
+    "text": "The symbol, again and again - older cuts under newer ones. People came back here, more than once.",
+    "time": 4.4
+   }
+  ]
+ },
+ "c15_clue_seals": {
+  "source": "Chapter 16: supporting lines (implementation)",
+  "lines": [
+   {
+    "speaker": "",
+    "text": "Stone seals, cracked from the inside. Some were mended. Some weren't.",
+    "time": 4.4
+   }
+  ]
+ },
+ "c15_clue_records": {
+  "source": "Chapter 16: supporting lines (implementation)",
+  "lines": [
+   {
+    "speaker": "",
+    "text": "Old pages in an iron box. Dates centuries apart. Every hand writes the same thing: the mist came, and it was shut in again.",
+    "time": 4.4
+   }
+  ]
+ },
+ "c15_clue_records_evidence": {
+  "source": "Chapter 16: supporting lines (implementation)",
+  "lines": [
+   {
+    "speaker": "",
+    "text": "Old pages in an iron box - the same symbol as on our records. Every hand writes it: the mist came, and it was shut in again. Closing it is possible. Keeping it closed is not.",
+    "time": 4.4
+   }
+  ]
+ },
+ "c15_clue_tunnel": {
+  "source": "Chapter 16: supporting lines (implementation)",
+  "lines": [
+   {
+    "speaker": "",
+    "text": "The service tunnel runs east, beyond the town. There's air moving in it - fresh air.",
+    "time": 4.4
+   }
+  ]
+ },
+ "c15_two_ways": {
+  "source": "Chapter 16: supporting lines (implementation)",
+  "lines": [
+   {
+    "speaker": "",
+    "text": "The tunnel out. Or back to the mechanism. It won't hold on its own.",
+    "time": 4.4
+   }
+  ]
+ },
+ "c15_stay": {
+  "source": "Chapter 16 (What Remains) implementation prompt (approved script)",
+  "lines": [
+   {
+    "speaker": "@1",
+    "text": "You're coming with us, right?",
+    "time": 2.5
+   },
+   {
+    "speaker": "",
+    "text": "Get them out.",
+    "time": 1.6
+   },
+   {
+    "speaker": "@1",
+    "text": "That's not what I asked.",
+    "time": 2.2
+   },
+   {
+    "speaker": "",
+    "text": "Go!",
+    "time": 1.6
+   }
+  ]
+ },
+ "c15_stay_Eddie": {
+  "source": "Chapter 16 (What Remains) implementation prompt (approved script)",
+  "lines": [
+   {
+    "speaker": "Eddie",
+    "text": "You're coming with us, right?",
+    "time": 2.5
+   },
+   {
+    "speaker": "",
+    "text": "Get them out.",
+    "time": 1.6
+   },
+   {
+    "speaker": "Eddie",
+    "text": "That's not what I asked.",
+    "time": 2.2
+   },
+   {
+    "speaker": "",
+    "text": "Go!",
+    "time": 1.6
+   }
+  ]
+ },
+ "c15_voice": {
+  "source": "Chapter 16: supporting lines (implementation)",
+  "lines": [
+   {
+    "speaker": "Distant voice",
+    "text": "...",
+    "time": 1.6
+   }
+  ]
+ },
+ "c15_end_a": {
+  "source": "Chapter 16 (What Remains) implementation prompt (approved script)",
+  "lines": [
+   {
+    "speaker": "Ruth",
+    "text": "We made it.",
+    "time": 1.6
+   },
+   {
+    "speaker": "",
+    "text": "Yeah.",
+    "time": 1.6
+   },
+   {
+    "speaker": "Eddie",
+    "text": "So... what now?",
+    "time": 1.7
+   },
+   {
+    "speaker": "",
+    "text": "We keep going.",
+    "time": 1.7
+   }
+  ]
+ },
+ "c15_end_a_alt": {
+  "source": "Chapter 16 (What Remains) implementation prompt (approved script)",
+  "lines": [
+   {
+    "speaker": "@1",
+    "text": "We made it.",
+    "time": 1.6
+   },
+   {
+    "speaker": "",
+    "text": "Yeah.",
+    "time": 1.6
+   },
+   {
+    "speaker": "@1",
+    "text": "So what now?",
+    "time": 1.6
+   },
+   {
+    "speaker": "",
+    "text": "We keep going.",
+    "time": 1.7
+   }
+  ]
+ },
+ "c15_end_b": {
+  "source": "Chapter 16 (What Remains) implementation prompt (approved script)",
+  "lines": [
+   {
+    "speaker": "Eddie",
+    "text": "Did we stop it?",
+    "time": 1.7
+   },
+   {
+    "speaker": "",
+    "text": "I don't know.",
+    "time": 1.6
+   },
+   {
+    "speaker": "Eddie",
+    "text": "But it's getting smaller.",
+    "time": 2.3
+   }
+  ]
+ },
+ "c15_end_b_alt": {
+  "source": "Chapter 16 (What Remains) implementation prompt (approved script)",
+  "lines": [
+   {
+    "speaker": "@1",
+    "text": "Did we stop it?",
+    "time": 1.7
+   },
+   {
+    "speaker": "",
+    "text": "I don't know.",
+    "time": 1.6
+   },
+   {
+    "speaker": "@1",
+    "text": "But it's getting smaller.",
+    "time": 2.3
+   }
+  ]
+ },
+ "c15_end_c": {
+  "source": "Chapter 16: supporting lines (implementation)",
+  "lines": [
+   {
+    "speaker": "Eddie",
+    "text": "We wait. A little longer. They'd have waited for us.",
+    "time": 3.8
+   },
+   {
+    "speaker": "Ruth",
+    "text": "...Then we go. That's what they wanted.",
+    "time": 3.0
+   }
+  ]
+ },
+ "c15_end_c_alt": {
+  "source": "Chapter 16: supporting lines (implementation)",
+  "lines": [
+   {
+    "speaker": "@1",
+    "text": "We wait a little longer. They'd have waited for us.",
+    "time": 3.7
+   },
+   {
+    "speaker": "@1",
+    "text": "...Then we go. That's what they wanted.",
+    "time": 3.0
    }
   ]
  }

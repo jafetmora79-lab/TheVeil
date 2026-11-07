@@ -41,6 +41,10 @@ func _ready() -> void:
 	collision_mask = 0
 	monitoring = false
 	monitorable = true
+	if kind == "pickup":
+		add_to_group("veil_pickup")
+	if kind == "hinge":
+		add_to_group("veil_door")                   # companions open these on their way
 	if target:
 		_base = target.transform
 	if state_key != "" and Game.world_state.has(state_key):
@@ -56,19 +60,75 @@ func get_prompt() -> String:
 		return ""
 	match kind:
 		"hinge", "slide":
-			return "[E] %s %s" % ["Close" if is_open else "Open", label]
+			return key_hint() + "%s %s" % ["Close" if is_open else "Open", label]
 		"pickup":
-			return "[E] Pick Up " + label
+			return key_hint() + "TAKE " + display_name().to_upper()
 		"toggle":
-			return "[E] " + label
+			return key_hint() + label
 		"observe":
-			return "[E] Examine " + label
+			return key_hint() + "Examine " + label
 	return prompt_text
+
+
+## "[E] " on keyboard / mouse, nothing on a touch screen (the on-screen use button carries the action).
+static func key_hint() -> String:
+	return "" if DisplayServer.is_touchscreen_available() and OS.has_feature("mobile") else "[E] "
+
+
+## Item name from game/data/items.json when this is an inventory pickup (so prompts use the real item names).
+func display_name() -> String:
+	if item_id != "":
+		var info: Dictionary = Game.item_info(item_id)
+		if info.has("name"):
+			return String(info["name"])
+	return label
+
+
+## One highlight for every collectible (food, batteries, medicine, keys, quest items, loot in containers): a faint
+## additive rim while the player is aiming at it, removed when they look away or it is taken. The player calls this.
+var _hl: ShaderMaterial
+const HL_SHADER := preload("res://game/interaction/pickup_highlight.gdshader")
+
+
+func set_focus(on: bool) -> void:
+	if kind != "pickup" or target == null:
+		return
+	if _hl == null:
+		_hl = ShaderMaterial.new()
+		_hl.shader = HL_SHADER
+	var mat: Material = _hl if on and not taken else null
+	for m in target.find_children("*", "GeometryInstance3D", true, false):
+		(m as GeometryInstance3D).material_overlay = mat
+	if target is GeometryInstance3D:
+		(target as GeometryInstance3D).material_overlay = mat
+
+
+## Loot inside a container: the container part (drawer / cabinet door) and the container piece's own colliders,
+## which the aim assist's line-of-sight check ignores (the item sits inside that solid box). Set by the owner.
+var container: Interactable
+var los_ignore: Array[RID] = []
+
+
+## World-space point the aim assist and line-of-sight checks use (centre of the pickup box).
+func focus_point() -> Vector3:
+	for c in get_children():
+		if c is CollisionShape3D:
+			return (c as CollisionShape3D).global_position
+	return global_position
+
+
+## Optional: returns a dialogue id ("" = allowed) - a door that will not open yet says why instead.
+var lock_check: Callable = Callable()
 
 
 func interact(by: Node) -> void:
 	if taken or _busy:
 		return
+	if lock_check.is_valid() and not is_open:
+		var why: String = lock_check.call()
+		if why != "":
+			Dialogue.say(why, false, true)
+			return
 	match kind:
 		"hinge", "slide":
 			set_open(not is_open)
@@ -126,27 +186,6 @@ func _take(instant: bool) -> void:
 	for c in get_children():
 		if c is CollisionShape3D:
 			c.set_deferred("disabled", true)
-
-
-## Subtle look-at highlight for small pickups (the player calls this when its ray lands on / leaves us): a faint
-## warm emissive overlay on the target's meshes, so a set of keys reads as takeable without a glowing outline.
-var _hl_mat: StandardMaterial3D      # per instance: a static var breaks --script runs (compiled before autoloads)
-
-
-func set_focus(on: bool) -> void:
-	if kind != "pickup" or target == null:
-		return
-	if _hl_mat == null:
-		_hl_mat = StandardMaterial3D.new()
-		_hl_mat.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
-		_hl_mat.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
-		_hl_mat.blend_mode = BaseMaterial3D.BLEND_MODE_ADD
-		_hl_mat.albedo_color = Color(1.0, 0.85, 0.55, 0.22)
-	var mat: Material = _hl_mat if on and not taken else null
-	for m in target.find_children("*", "GeometryInstance3D", true, false):
-		(m as GeometryInstance3D).material_overlay = mat
-	if target is GeometryInstance3D:
-		(target as GeometryInstance3D).material_overlay = mat
 
 
 func _store() -> void:

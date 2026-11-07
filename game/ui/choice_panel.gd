@@ -2,7 +2,7 @@ extends CanvasLayer
 class_name VeilChoicePanel
 ## THE VEIL - small modal choice UI (dialogue choices, "rest until morning?" confirmations).
 ## ask(title, options) shows buttons, frees the mouse, pauses player control, and returns the picked index
-## (await). Keys 1..9 also pick. pick(i) lets tests answer without input.
+## (await), pausing the game while it is open. Keys 1..9 also pick. pick(i) lets tests answer without input.
 
 signal picked(index: int)
 
@@ -11,9 +11,11 @@ var _box: VBoxContainer
 var _title: Label
 var _open := false
 var _player: Node = null
+var _paused_by_me := false                    ## the panel paused the game (monsters, NPCs, timers) and unpauses it
 
 
 func _ready() -> void:
+	add_to_group("veil_choice_panel")             # the world's talk camera holds while any choice is open
 	layer = 12
 	process_mode = Node.PROCESS_MODE_ALWAYS
 	var c := CenterContainer.new()
@@ -52,6 +54,9 @@ func ask(title: String, options: Array, player: Node = null) -> int:
 		_player.look_enabled = false
 	_open = true
 	_panel.visible = true
+	# a decision is modal: the world holds still while it is open (only unpaused again by whoever paused it)
+	_paused_by_me = not get_tree().paused
+	get_tree().paused = true
 	Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
 	var i: int = await picked
 	return i
@@ -62,6 +67,9 @@ func pick(i: int) -> void:
 		return
 	_open = false
 	_panel.visible = false
+	if _paused_by_me:
+		_paused_by_me = false
+		get_tree().paused = false
 	Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
 	if _player and is_instance_valid(_player) and "controls_enabled" in _player:
 		_player.controls_enabled = true

@@ -1,0 +1,53 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>THE VEIL — House Walkthrough</title>
+<style>
+  :root { color-scheme: dark; --bg:#10151a; --panel:#1b242bee; --edge:#35424b; --txt:#e8ecee; --muted:#a3b0b8; --accent:#a7d4bf; }
+  * { box-sizing: border-box; }
+  html, body { margin:0; height:100%; background:var(--bg); color:var(--txt); font:14px system-ui, sans-serif; overflow:hidden; }
+  #view { position:fixed; inset:0; }
+  #panel { position:fixed; top:12px; left:12px; width:min(330px, calc(100vw - 24px)); background:var(--panel); border:1px solid var(--edge);
+           border-radius:9px; padding:12px; display:grid; gap:8px; z-index:2; }
+  #panel h1 { margin:0; font-size:15px; letter-spacing:.12em; }
+  select, button, input { background:#111a20; border:1px solid var(--edge); color:var(--txt); border-radius:6px; padding:8px; font:inherit; width:100%; }
+  button { cursor:pointer; } button:hover { border-color:var(--accent); }
+  .row { display:flex; gap:6px; } .row > * { flex:1; }
+  label.chk { display:flex; gap:6px; align-items:center; color:var(--muted); } label.chk input { width:auto; }
+  #status { color:var(--muted); font-size:12px; min-height:1.2em; }
+  #help { color:var(--muted); font-size:12px; line-height:1.45; }
+  #cross { position:fixed; left:50%; top:50%; width:6px; height:6px; margin:-3px; border-radius:50%; background:#fff8; z-index:1; display:none; }
+  .new { color:var(--accent); }
+</style>
+</head>
+<body>
+<div id="view"></div>
+<div id="cross"></div>
+<div id="panel">
+  <h1>THE VEIL — HOUSES</h1>
+  <select id="house"></select>
+  <input id="branch" title="Branch to load the models from">
+  <div class="row"><button id="load">Load</button><button id="enter">Enter house</button></div>
+  <div class="row">
+    <label class="chk"><input type="checkbox" id="furn" checked>Furniture</label>
+    <label class="chk"><input type="checkbox" id="roof">Hide exterior</label>
+  </div>
+  <div id="status"></div>
+  <div id="help">
+    <b>Walk:</b> click the view, then <b>WASD</b> + mouse, <b>Space</b>/<b>C</b> up/down, <b>Shift</b> faster, <b>Esc</b> releases the mouse.<br>
+    <b>Orbit:</b> drag (when the mouse is free), wheel to zoom.<br>
+    No walls are solid here: walk through doors, up stairs with Space.
+    <span class="new">★</span> = changed on this branch.
+  </div>
+</div>
+<script type="importmap">
+{ "imports": {
+  "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
+  "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"
+} }
+</script>
+<script type="module" src="houses.js"></script>
+</body>
+</html>

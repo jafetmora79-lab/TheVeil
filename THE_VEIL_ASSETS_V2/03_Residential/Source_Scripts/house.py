@@ -329,7 +329,9 @@ class House:
             if not under:
                 M, _ = wall(self.ext, self.col, p0, p1, y0, y_top, EXT_T, siding, None, holes_w,
                             ext={"pos": tuple(e_out)}, faces=("pos",))
-                if not garage and y_floor > 0.05:   # foundation band
+                # foundation band: ground-floor rooms only. Upper-storey rooms used to draw it too, from the ground
+                # up to THEIR floor (3.58 m), a solid concrete slab over the ground-floor doors and windows below
+                if not garage and y_floor > 0.05 and r["lvl"] == 0:   # foundation band
                     fm = MB()
                     for (a, b, c2, d2) in [(-e_out[0], L + e_out[1], 0.0, y_floor)]:
                         z = EXT_T / 2 + 0.02
@@ -445,7 +447,10 @@ class House:
         if o.get("paint"):
             paint = mat_of(o["paint"])
         elif exterior and o.get("style") == "front":
-            paint = mat_of(self.cw.get("door", "Town_PaintRed"))
+            # the Town_Paint* textures are flat, low-contrast stucco paints: on a door leaf at night they read as a
+            # concrete slab. Front doors get stained wood (grain, raised panels) instead.
+            dp = self.cw.get("door", "Town_PaintRed")
+            paint = mat_of("Furn_WoodDark" if dp.startswith("Town_Paint") else dp)
         elif exterior:
             paint = m01("Furn_WoodPainted")
         else:
@@ -522,6 +527,24 @@ class House:
                                                floor_y=self.floor_y(r), ceil_y=self.floor_y(r) + 1.6,
                                                walk=list(r.get("walk", r["rect"]))))
 
+    def _close_void_edges(self, st, y_top):
+        """The opening in the upper floor showed the hollow between the ceiling below and the floor above (and the
+        gap in every wall stack at that height): line all four edges of the opening, both faces, from the lower
+        room's ceiling up to the upper floor, in the lower room's wall finish."""
+        vx0, vz0, vx1, vz1 = st["void"]
+        lower = [q for q in self.p["rooms"] if q["lvl"] == st["from"] and self._overlap(q["rect"], st["void"])]
+        if not lower:
+            return
+        y_lo = min(self.ceil_y(q) for q in lower)
+        if y_top - y_lo < 0.01:
+            return
+        mat = mat_of(lower[0]["wall"])
+        for (ax, az), (bx, bz) in (((vx0, vz0), (vx1, vz0)), ((vx1, vz0), (vx1, vz1)),
+                                   ((vx1, vz1), (vx0, vz1)), ((vx0, vz1), (vx0, vz0))):
+            a, b, c, d = [ax, y_lo, az], [bx, y_lo, bz], [bx, y_top, bz], [ax, y_top, az]
+            self.inner.quad(mat, a, b, c, d)
+            self.inner.quad(mat, d, c, b, a)
+
     def build_stair(self, st):
         x0, z0, x1, z1 = st["rect"]
         lvl_from, lvl_to = st["from"], st["to"]
@@ -534,8 +557,10 @@ class House:
         dirn = st.get("dir", "+z")
         width = (x1 - x0) if dirn in ("+z", "-z") else (z1 - z0)
         if "void_len" not in st or st.get("auto_void", True):
-            # open the ceiling where a 1.75 m player (+0.35 margin) would hit the slab above
-            start = max(0.0, run * (y_b - 2.1 - y_a) / (y_b - y_a) - 0.35)
+            # open the floor above wherever a 1.76 m player (capsule + camera) would come within 2.25 m of the
+            # UNDERSIDE of the slab (0.4 m below the upper floor), plus 0.45 m for the capsule radius. The upper
+            # floor's collision faces up only, so a head that reached it went through it and snagged / clipped.
+            start = max(0.0, run * (y_b - 0.4 - 2.25 - y_a) / (y_b - y_a) - 0.45)
             st["void_len"] = run - start
         if dirn == "+z":
             origin, yaw = (x0, y_a, z0), 0.0
@@ -550,6 +575,7 @@ class House:
             origin, yaw = (x1, y_a, z0), -math.pi / 2
             void = (x1 - run, z0, x1 - run + min(run, st.get("void_len", run)), z1)
         st["void"] = tuple(round(v, 4) for v in void)
+        self._close_void_edges(st, y_b)
         arch.stair(self.inner, self.col, origin, yaw, width, n, rise, tread, open_sides=st.get("open", ("r",)))
         # guard rails on every void edge except the arrival edge and edges that run along a wall
         vx0, vz0, vx1, vz1 = st["void"]

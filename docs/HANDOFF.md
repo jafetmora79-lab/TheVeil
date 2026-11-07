@@ -497,6 +497,32 @@ playthrough test to make sure everything still agrees.
   new source files BEFORE any `git clean`. One clean deleted an unstaged generator and it had to be rewritten.
 * **Pack 04 / 06 builds rewrite `.import` files:** re-run `godot --headless --import` before tests, or preloads fail.
 
+### Chapter 5 polish (branch `claude/chapter5-polish`)
+
+* **Signs:** `com_plans.sign_3d` laid its letters out along +x, but the street-side reader has +x on their left, so
+  every 3D sign was mirrored. Text now runs from +x. The flat decal signs were already correct.
+* **Fridges:** the appliance-door hinge was authored as +100 deg, which swings a left-hinged leaf into the body. It
+  is now -100 (Pack 03 and `scavenge_houses.json`). `world._outward_deg` also recognises `ScavengeFurniture`.
+* **Front doors:** a front door whose colorway gives it a `Town_Paint*` texture (it read as concrete) now uses
+  stained wood. The survivor house's proportions are standard (2.6 m ceilings, 1.0 x 2.15 m doors), so it was not
+  reshaped.
+* **Pickups:**
+  * `pickup_highlight.gdshader` with `Interactable.set_focus`, and "TAKE <item name>" prompts from `items.json`.
+  * `player._assist_pickup`: a 10-degree / 16 cm aim assist with line of sight, which ignores the loot's own
+    container (`Interactable.container` / `los_ignore`).
+* **Inventory:** `game/ui/inventory_panel.gd` (grid, 3D-model icons, details, quantity, weight, actions that
+  exist). Weights and the 15 kg capacity are placeholders in `items.json` and are display only.
+* **Guidance:**
+  * `hud.set_marker()` puts one destination marker on screen; `chapter5._update_marker()` picks its target from
+    the objective flags.
+  * New objective step `c5_leave` (flag `c5_left_store`).
+* **Radio:** `game/props/veil_radio.gd` (reusable; `play_broadcast(dialogue_id)`). `RES_Radio` is now a modelled
+  radio with `Radio_Display` and `Radio_LED` nodes.
+* **Companion:** `companion_follow.gd` opens hinge doors across the trail, steps aside when the player walks into
+  it, and faces the player when idle.
+* **Not on this branch:** the light-budget fix, window-glass colliders and conversation camera live on
+  `claude/practical-cray-hi2y54`. Merging the two touches `world.gd`, `player.gd`, `hud.gd` and
+  `interactable.gd`.
 ### 9.14 Cinematic repair, gameplay polish and Chapter 4 quality pass
 
 None of this was observed in a renderer (no screenshots). All checks are data-based in
@@ -571,3 +597,173 @@ arrives inside the game shop (the owner's case).
   * Energies are unchanged (not brighter).
 * **Pre-existing, not fixed:** `--script` runs print "Identifier not found: Game" for `interactable.gd` before the
   autoloads exist. The test still runs; it appears at the merged Phase 4 base (ae21bca).
+
+### 9.15 Global NPC conversation camera and Chapter 8 (branch `claude/chapter8-something-at-the-doors`)
+* **Why the talk zoom stopped working in later chapters:**
+  * `converse()` refused when one sight line, eye to head, was blocked. A door frame or a counter edge was
+    enough. The chapters then fell back to plain timed subtitles: no zoom, no continue prompt and no movement
+    lock. Ruth and Sarah at their doorway and the Chapter 5 survivor hit this every time.
+  * A second `converse()` during a talk cut the first one off.
+* **The shared fix (`world.gd`; there is still only one dialogue system):**
+  * `can_talk` checks the head, face and chest; one clear line is enough. Glass and walls still refuse.
+  * The talk camera stays at the protagonist's eye. It only turns toward the speaker's face and upper body, with a
+    10 % FOV zoom over about 0.4 s and a gentler re-aim when the speaker changes. Because it never moves, it cannot
+    clip.
+  * A speaker hidden from the eye (behind a wall beside a doorway, or behind another NPC) is never framed; the
+    view stays on the last visible speaker.
+  * Invisible "keep out" blockers (group `veil_talk_transparent`) do not block a talk.
+  * Chapter 6: Ruth and Sarah now start talking once Ruth is actually in view, instead of at the yard fence. If the
+    player never comes into view within 12 s, the plain lines play as before.
+  * It eases back to the player's own view (~0.4 s), then restores FOV and control.
+  * `end_conversation()` is for scripted interruptions. `talk_watchdog()` releases any left-over talk camera, and
+    world `_ready` clears queued dialogue, so a load never resumes half-way through a talk.
+  * Hold-E skip shows a progress bar (`SKIPPING [####------]`) and still stops at choices.
+  * `converse()` only queues plain lines during exceptions: driving, encounters, cinematics and a hidden player.
+* **Chapter 8 (`chapter8.gd`, started by sleeping after Chapter 7):**
+  * Scenes in order:
+    * Eddie;
+    * inspect the damaged rear barricade, then Marcus;
+    * boards (back corridor), duct tape (service counter) and a hammer (loading-bay pallets);
+    * first-person repair;
+    * the lights fail;
+    * inspect and reseat at the Chapter 4 breaker panel, which restores partial power;
+    * three impacts on the way back, and the barricade gives way;
+    * the Hound kills the temporary survivor once (a cut to black, no gore) and Sarah is hurt;
+    * push a pallet stack across the back doorway; the Hound withdraws;
+    * help Sarah: painkillers or shelter medical stock, used once, or none (she stays seriously hurt);
+    * the group talk, then "CHAPTER 8 COMPLETE".
+  * Sleeping sets `ch8_rested` only. Chapter 9 is not started.
+  * Ruth and Sarah (if not invited in Chapter 6) and the Chapter 5 survivor (if not helped) arrive at the
+    shelter during the night before Chapter 8, so the approved script plays in every branch (`st().ruth_sarah_arrived`).
+  * Dev entry: `game/tools/dev_chapter8.gd`. Test: `game/tests/chapter8_test.gd`.
+
+### 9.16 Chapter numbering and Chapter 10 "The Fall of the Supermarket" (branch `claude/chapter9-supermarket-fall`)
+* **Displayed chapter numbers** come from one place, `game/data/chapters.json`, via `Game.chapter_number()`,
+  `chapter_label()` and `chapter_name()`.
+  * The current chapter is the highest one with a set start flag, so existing saves get the right number with no
+    migration.
+  * Internal ids are unchanged: flags, objective ids and `chapterN.gd` file names keep their old numbers.
+
+  | # | Title | Starts at | Code |
+  |---|---|---|---|
+  | 1 | An Ordinary Evening | waking at home | `world.gd` |
+  | 2 | One Last Stop | the town arrival zoom (`arrival_shot`) | `world.gd` |
+  | 3 | The Veil Arrives | `p3_mist` | `world.gd` Phase 3 |
+  | 4 | The Last Open Door | leaving the game shop together (`p3_fled_together`) | `world.gd` Phase 3 |
+  | 5 | Lock-In | `p3_doors_shut` | `phase4.gd` |
+  | 6 | The First Search | `p4_slept` | `chapter5.gd` |
+  | 7 | Voices in the Mist | `ch6_started` | `chapter6.gd` |
+  | 8 | A Trace of Noah | `ch7_started` | `chapter7.gd` |
+  | 9 | Something at the Doors | `ch8_started` | `chapter8.gd` |
+  | 10 | The Fall of the Supermarket | `ch9_started` | `chapter9.gd` |
+* **Where the numbers are shown:**
+  * Start and completion cards use `hud.chapter_start(n)` / `hud.chapter_complete(n)`. They appear in the upper
+    screen, clear of the arrival zoom's sign and the subtitles, and a start card shows once (flag `chapter_card_<n>`).
+  * The pause menu shows the current chapter. The main menu's Continue button shows the saved chapter, and saves
+    store `chapter` / `chapter_name` for display.
+  * Objective completion texts use the corrected numbers.
+* **Chapter 10 (`chapter9.gd`):**
+  * Marcus's decision talk.
+  * Preparation:
+    * the shelter's medical stock becomes real painkiller items;
+    * up to 2 food and 2 water units are packed, never more than exist (an empty stock still progresses, with a
+      warning);
+    * switching the flashlight on checks it;
+    * a word with Eddie, Ruth and Sarah.
+  * The warning: impacts, scraping, flicker, a shape beyond the glass, first person.
+  * The fall: the doorway barricade gives way, a Hound breaks in and stalks the far end of the back aisle, another
+    passes the front doors.
+  * The escape on foot: the group follows through the staff door, the back corridor and the rear exit.
+  * Marcus's moment:
+    * a Hound pins him in the corridor;
+    * trust from `p4_choice_noah` and `marcus_trust_search` gives the player 4 / 8 / 12 s to pull him free;
+    * otherwise he is dragged away in a cut to black. The narrative bible: "Marcus may die during the supermarket
+      evacuation", "his trust depends on actions and dialogue".
+  * A look back, then a roll call that reflects the outcome.
+  * The rendezvous in Ruth and Sarah's front yard, then "CHAPTER 10 COMPLETE".
+  * The store is lost as a shelter: no rest, supplies closed, and the communal stock left behind is recorded as
+    `abandoned_stock`.
+  * The next chapter is not started.
+  * Dev entry: `game/tools/dev_chapter9.gd`. Test: `game/tests/chapter9_test.gd` (also the numbering, save and menu
+    labels).
+
+### 9.17 Chapter 11 "No Safe Road" (branch `claude/chapter10-no-safe-road`; code `chapter10.gd`, flags `ch10_*`)
+* **Numbering:** the owner's prompt called this "Chapter 10". With the corrected mapping it displays as
+  **CHAPTER 11** (`game/data/chapters.json`, start flag `ch10_started`). It starts at the rendezvous right after
+  "CHAPTER 10 COMPLETE"; there is no sleep in between, because the supermarket is gone.
+* **The route** (all existing town geometry):
+  * the street, the open lot and the main road;
+  * the abandoned sedan (`VEH_Sedan_Dusty`) at (-28, 4): the driver's door, then the fuel gauge (empty), the glove
+    compartment (1 battery) and the trunk (1 water), each once;
+  * the roadblock at x -46: a broken-down van, a pickup and barriers between the roadside building (z -7) and the
+    south wall (z 7);
+  * the side route: through the gap at x -28, behind the building, through the gate in a chain-link fence at x -44,
+    back to the road;
+  * the follower: a Hound silhouette crosses the fog and goes behind the building block, first person, no fight;
+  * Sarah's choice (`ch10_choice_help` / `ch10_choice_push`):
+    * help: an hour passes and one water or food item is used, or `ch10_exposure` is set if there is none;
+    * push: `ch10_sarah_exhausted`;
+    * her line follows the Chapter 9 treatment (tired, or her wound);
+  * the outskirts and the mill-worker house (`MILL_HOUSE`, -92, 14): front door, main room, the group gathers, the
+    talk, rest (a few hours, +30 health), the window, a distant unexplained call, then "CHAPTER 11 COMPLETE".
+* **Roster:** Marcus appears only if he was saved in the evacuation; his line becomes the protagonist's line
+  otherwise.
+* **Checkpoints:**
+  * `world.save_checkpoint(name)` writes `user://checkpoints/<name>.json` (`chapter11_start`, `chapter11_end`),
+    never `user://veil_save.json`. `Game.load_checkpoint(name)` reads one.
+  * Note: the game's existing autosave on every story flag (`world._on_flag`, used by the death retry) still writes
+    the main slot during normal play. That behaviour predates this chapter and is unchanged.
+* **Dev entry and test:** `game/tools/dev_chapter10.gd`; `game/tests/chapter10_test.gd`.
+
+### 9.18 Chapter 12 "The Farm Road" (branch `claude/chapter11-farm-road`; code `chapter11.gd`, flags `ch11_*`)
+* **Numbering:** displayed as **CHAPTER 12** (the prompt's "Chapter 11" is No Safe Road under the corrected
+  mapping). It starts in the mill-worker house right after "CHAPTER 11 COMPLETE".
+* **Base:** branched from `claude/chapter10-no-safe-road`, with the integrated build
+  (`claude/chapter7-trace-of-noah` 65ede7b) merged in.
+  * That build's `world.npc_route` assigned an untyped conditional array to an `Array[RID]`, so every NPC route
+    search failed with a script error. Fixed (typed array).
+* **The farm road** (existing pieces in the open fields west of town):
+  * an abandoned pickup, a picket fence with one panel down, a country bus shelter (an optional snack, taken once);
+  * the camp at (-113, -55): bedroll, cold lantern, an empty can, a small jacket, tracks (each can be examined), and
+    the note `campsite_note`, read in the inventory's inspect view like Noah's first note. Flags `ch11_note_read`,
+    `noah_clue_campsite`.
+* **The field:** the view is controlled (turn, then the FOV narrows 20 %) onto a Hound silhouette, which walks off
+  into the fog. FOV and control are restored afterwards. Never replayed.
+* **The farmhouse** is Greyhaven's `HOUSE_20` (Pack 03 `RES_House_Abandoned`, -77.9, -92), with hinge doors added
+  for the front, kitchen and bedroom 1.
+  * The group waits in the living room.
+  * The search covers the living room, the kitchen, the back door (inspect) and bedroom 1 upstairs.
+  * In bedroom 1 is `noahs_message`, read in the inventory. Flags `ch11_message_read`, `noah_clue_farmhouse`.
+  * Regrouping plays the talk. The encounter follows: a shape passes the side window, a blow on the back door, the
+    approved lines.
+  * Then a Hound with the Chapter 7 `VeilHoundAI` (collisions, non-lethal bites, leash 26 m) chases while the group
+    follows the player out of the front door to the field at (-104, -99).
+* **The distant light:** an `OmniLight3D` inside `HOUSE_19` flickers, the view is drawn to it with a slight zoom, a
+  dark shape passes behind it, then "CHAPTER 12 COMPLETE".
+* **Checkpoints:** `chapter12_start` and `chapter12_after_encounter` (`user://checkpoints/`).
+* **Without Marcus:** his lines go to the protagonist, Ruth or Sarah as written in the prompt.
+* **Known:** the farmhouse stairs are narrow (0.95 m). Walking up their middle works; about 25 cm off-centre the
+  player catches on the stringer. Same for the upstairs hall beside the stairwell rail.
+* **Dev entry and test:** `game/tools/dev_chapter11.gd`; `game/tests/chapter11_test.gd`.
+
+### 9.19 Audio, vehicle and survival integration (branch `claude/audio-vehicle-survival-integration`)
+Written without running Godot: nothing below has been seen working yet.
+* **Car:** parts are real finds (`game/data/expedition.json` `vehicle_parts`): battery by a wreck on the west road, fuel by a
+  delivery van behind the store, fuse at the gas station. `expedition.car_leads()` feeds the town map, which feeds the
+  yellow diamond. One fuel can is half a tank. Fuel and condition save in `Game.vehicle_state`, fitted parts in
+  `world_state.expedition.car_parts`. Out of fuel or wrecked, the car cannot reverse; `exit_spot` tries eight spots.
+* **Riders:** `survivors.board_car()` seats up to three (trip companion, then followers); after a load inside the car only
+  the trip companion is reseated.
+* **Creatures and the car:** while driving, `VeilHoundAI._tp()` is the car; bites go to `sedan.monster_hit()`.
+* **Stairs:** `game/world/stair_assist.gd` adds solid convex collision per flight from `game/data/house_stairs.json`
+  (from `plans.py`). Root cause: the houses' one-sided guard faced out of the stair. The GLBs were not rebuilt; `arch.py` has the
+  corrected normal for any later rebuild. Regenerate the JSON if a plan's stairs change.
+* **Audio:** selected library files in `game/audio/library`, listed by bank in `game/data/audio_banks.json`, played through
+  `Sfx.bank()` / `Sfx.bank_at()`. Their `.import` files were written by hand (loops forward, music and ambience QOA);
+  Godot imports them on the next editor open. `game/enemies/creature_voice.gd` is one creature's 3D voice and feet.
+  Encounter music is the director at the end of `game/autoload/sfx.gd`. The approved `skitter_hiss.wav` is unchanged and still
+  the leap screech. The old `game/audio/encounters` pack is no longer used by the struggles.
+* **Struggles:** `game/encounters/struggle.gd` now turns the view to the creature instead of moving the creature in front of
+  the view, and clears walls with a ray. No creature can be killed in the game, so no death sounds were imported.
+* **Crab:** the scene's own wide boxes (`ShellShape`, `LegSpan`, `ArmsShape`) are off, a 0.95 m capsule stands in, stride clips use
+  the real speeds from the scene metadata, it faces the player inside 4.5 m, and it looks ahead and turns round walls.

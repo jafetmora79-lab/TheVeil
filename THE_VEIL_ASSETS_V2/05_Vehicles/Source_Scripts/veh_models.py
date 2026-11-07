@@ -194,7 +194,11 @@ class Vehicle:
                 h = V(sgn, 0, 0)
                 self.qo(own, "atlas", [A["P0"], B["P0"], B["P1"], A["P1"]], self.paint(zm, "lower", own), h + V(0, -0.6, 0))
                 self.qo(own, "atlas", [A["P1"], B["P1"], B["P2"], A["P2"]], self.paint(zm, "side", own), h)
+                # a door's window section is glass if either end has a real window: the front quarter (from the
+                # foot of the A-pillar up along it) is a triangle of glass that narrows to a point, not a metal wedge
                 greenhouse = (a["top"] - a["belt"] > 0.08) and (b["top"] - b["belt"] > 0.08)
+                if own != "Body" and own.startswith("Door"):
+                    greenhouse = (a["top"] - a["belt"] > 0.08) or (b["top"] - b["belt"] > 0.08)
                 glass = greenhouse and (own != "Body" or any(x0 <= zm <= x1 for x0, x1 in c.get("extra_glass", [])))
                 if glass and own not in self.skip_glass:
                     self.qo(own, "glass", [A["P2"], B["P2"], B["P3"], A["P3"]], "glass", h + V(0, 0.4, 0))

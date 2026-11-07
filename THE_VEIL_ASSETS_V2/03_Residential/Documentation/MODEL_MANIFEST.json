@@ -1142,7 +1142,7 @@
     "INT_ApplianceDoor_Fridge": {
      "veil_interact": "hinge",
      "axis": "y",
-     "open_deg": 100
+     "open_deg": -100
     }
    },
    "kind": "furniture",
@@ -1193,12 +1193,12 @@
     "INT_ApplianceDoor_Freezer": {
      "veil_interact": "hinge",
      "axis": "y",
-     "open_deg": 100
+     "open_deg": -100
     },
     "INT_ApplianceDoor_Fridge": {
      "veil_interact": "hinge",
      "axis": "y",
-     "open_deg": 100
+     "open_deg": -100
     }
    },
    "kind": "furniture",
@@ -2069,35 +2069,37 @@
    "category": "Furniture/kitchen",
    "glb": "03_Residential/Furniture/RES_Radio.glb",
    "obj": "03_Residential/Furniture/OBJ/RES_Radio.obj",
-   "triangles": 16,
-   "collision_triangles": 0,
+   "triangles": 384,
+   "collision_triangles": 12,
    "collision": [
-    "none"
+    "convcolonly"
    ],
    "materials": [
-    "M_Furn_WoodDark",
-    "M_Furn_MetalBrushed"
+    "M_Furn_PlasticDirty",
+    "M_Furn_Rubber",
+    "M_Furn_MetalBrushed",
+    "M_Res_DetailAtlasGlow"
    ],
    "bounds_min": [
-    -0.2,
+    -0.16,
     0.0,
-    -0.08
+    -0.123
    ],
    "bounds_max": [
-    0.254,
-    0.551,
-    0.08
+    0.204,
+    0.476,
+    0.069
    ],
    "dimensions": [
-    0.454,
-    0.551,
-    0.16
+    0.364,
+    0.476,
+    0.192
    ],
    "kind": "furniture",
    "size": [
-    0.4,
-    0.16,
-    0.22
+    0.32,
+    0.1,
+    0.22999999999999998
    ],
    "on_surface": true,
    "prop": true
@@ -6748,7 +6750,6 @@
     "M_Res_BulbGlow",
     "M_Res_GarageDoor",
     "M_Furn_MetalBrushed",
-    "M_Town_PaintRed",
     "M_Furn_WoodPainted",
     "M_Res_DetailAtlas",
     "M_Furn_PlasticDirty"
@@ -6937,7 +6938,7 @@
    "category": "House_Variants",
    "glb": "03_Residential/House_Variants/RES_House_TwoStorey.glb",
    "obj": "03_Residential/House_Variants/OBJ/RES_House_TwoStorey.obj",
-   "triangles": 10396,
+   "triangles": 10256,
    "collision_triangles": 1706,
    "collision": [
     "colonly",
@@ -6970,7 +6971,6 @@
     "M_Int_Linoleum",
     "M_Int_BasementConcrete",
     "M_Res_BulbGlow",
-    "M_Town_PaintBlack",
     "M_Furn_MetalBrushed",
     "M_Res_DetailAtlas",
     "M_Furn_PlasticDirty"
@@ -7209,7 +7209,7 @@
    "category": "House_Variants",
    "glb": "03_Residential/House_Variants/RES_House_Farmhouse.glb",
    "obj": "03_Residential/House_Variants/OBJ/RES_House_Farmhouse.obj",
-   "triangles": 11162,
+   "triangles": 11032,
    "collision_triangles": 1736,
    "collision": [
     "colonly",
@@ -7239,7 +7239,6 @@
     "M_Int_Linoleum",
     "M_Res_Insulation",
     "M_Res_BulbGlow",
-    "M_Town_PaintRed",
     "M_Furn_MetalBrushed",
     "M_Res_DetailAtlas",
     "M_Furn_PlasticDirty"
@@ -7498,7 +7497,6 @@
     "M_Int_CarpetWorn",
     "M_Int_TilesKitchen",
     "M_Res_BulbGlow",
-    "M_Town_PaintGreen",
     "M_Furn_MetalBrushed",
     "M_Furn_WoodPainted",
     "M_Res_DetailAtlas",
@@ -7684,7 +7682,7 @@
    "category": "House_Variants",
    "glb": "03_Residential/House_Variants/RES_House_Abandoned.glb",
    "obj": "03_Residential/House_Variants/OBJ/RES_House_Abandoned.obj",
-   "triangles": 5188,
+   "triangles": 5076,
    "collision_triangles": 1084,
    "collision": [
     "colonly",
@@ -7873,7 +7871,7 @@
    "category": "House_Variants",
    "glb": "03_Residential/House_Variants/RES_House_SplitLevel.glb",
    "obj": "03_Residential/House_Variants/OBJ/RES_House_SplitLevel.obj",
-   "triangles": 7804,
+   "triangles": 7684,
    "collision_triangles": 1378,
    "collision": [
     "colonly",
@@ -7902,7 +7900,6 @@
     "M_Int_Linoleum",
     "M_Int_BasementConcrete",
     "M_Res_BulbGlow",
-    "M_Town_PaintYellow",
     "M_Furn_MetalBrushed",
     "M_Res_GarageDoor",
     "M_Res_DetailAtlas",
@@ -8166,7 +8163,6 @@
     "M_Int_TilesKitchen",
     "M_Int_Linoleum",
     "M_Res_BulbGlow",
-    "M_Town_PaintYellow",
     "M_Furn_MetalBrushed",
     "M_Furn_WoodPainted",
     "M_Res_DetailAtlas",
@@ -8330,7 +8326,7 @@
    "category": "House_Variants",
    "glb": "03_Residential/House_Variants/RES_House_MillWorker.glb",
    "obj": "03_Residential/House_Variants/OBJ/RES_House_MillWorker.obj",
-   "triangles": 6306,
+   "triangles": 6188,
    "collision_triangles": 974,
    "collision": [
     "colonly",
@@ -8545,7 +8541,6 @@
     "M_Int_Linoleum",
     "M_Int_BasementConcrete",
     "M_Res_BulbGlow",
-    "M_Town_PaintRed",
     "M_Furn_MetalBrushed",
     "M_Furn_WoodPainted",
     "M_Res_GarageDoor",
@@ -8711,7 +8706,7 @@
    "category": "House_Furnishing",
    "glb": "03_Residential/House_Variants/RES_PlayerHome_Furnishing.glb",
    "obj": null,
-   "triangles": 6720,
+   "triangles": 7088,
    "collision_triangles": 372,
    "collision": [
     "colonly"
@@ -8803,7 +8798,6 @@
     "M_Res_BulbGlow",
     "M_Res_GarageDoor",
     "M_Furn_MetalBrushed",
-    "M_Town_PaintRed",
     "M_Furn_WoodPainted",
     "M_Res_DetailAtlas",
     "M_Furn_PlasticDirty"
@@ -9021,7 +9015,6 @@
     "M_Res_BulbGlow",
     "M_Res_GarageDoor",
     "M_Furn_MetalBrushed",
-    "M_Town_PaintYellow",
     "M_Furn_WoodPainted",
     "M_Res_DetailAtlas",
     "M_Furn_PlasticDirty"
@@ -9148,7 +9141,7 @@
    "category": "House_Variants",
    "glb": "03_Residential/House_Variants/RES_House_TwoStorey_B.glb",
    "obj": null,
-   "triangles": 10396,
+   "triangles": 10256,
    "collision_triangles": 1706,
    "collision": [
     "colonly",
@@ -9181,7 +9174,6 @@
     "M_Int_Linoleum",
     "M_Int_BasementConcrete",
     "M_Res_BulbGlow",
-    "M_Town_PaintGreen",
     "M_Furn_MetalBrushed",
     "M_Res_DetailAtlas",
     "M_Furn_PlasticDirty"
@@ -9387,7 +9379,6 @@
     "M_Int_CarpetWorn",
     "M_Int_TilesKitchen",
     "M_Res_BulbGlow",
-    "M_Town_PaintGreen",
     "M_Furn_MetalBrushed",
     "M_Furn_WoodPainted",
     "M_Res_DetailAtlas",
@@ -9602,7 +9593,6 @@
     "M_Int_CarpetWorn",
     "M_Int_TilesKitchen",
     "M_Res_BulbGlow",
-    "M_Town_PaintNavy",
     "M_Furn_MetalBrushed",
     "M_Furn_WoodPainted",
     "M_Res_DetailAtlas",
@@ -9761,7 +9751,6 @@
     "M_Int_TilesKitchen",
     "M_Int_Linoleum",
     "M_Res_BulbGlow",
-    "M_Town_PaintRed",
     "M_Furn_MetalBrushed",
     "M_Furn_WoodPainted",
     "M_Res_DetailAtlas",
@@ -10050,7 +10039,6 @@
     "M_Int_TilesKitchen",
     "M_Int_Linoleum",
     "M_Res_BulbGlow",
-    "M_Town_PaintRed",
     "M_Furn_MetalBrushed",
     "M_Furn_WoodPainted",
     "M_Res_DetailAtlas",
@@ -10214,7 +10202,7 @@
    "category": "House_Variants",
    "glb": "03_Residential/House_Variants/RES_House_TwoStorey_Mirror.glb",
    "obj": null,
-   "triangles": 10396,
+   "triangles": 10256,
    "collision_triangles": 1706,
    "collision": [
     "colonly",
@@ -10247,7 +10235,6 @@
     "M_Int_Linoleum",
     "M_Int_BasementConcrete",
     "M_Res_BulbGlow",
-    "M_Town_PaintBlack",
     "M_Furn_MetalBrushed",
     "M_Res_DetailAtlas",
     "M_Furn_PlasticDirty"
@@ -10486,7 +10473,7 @@
    "category": "House_Variants",
    "glb": "03_Residential/House_Variants/RES_House_MillWorker_B.glb",
    "obj": null,
-   "triangles": 6306,
+   "triangles": 6188,
    "collision_triangles": 974,
    "collision": [
     "colonly",
@@ -10512,7 +10499,6 @@
     "M_Int_Linoleum",
     "M_Int_CarpetWorn",
     "M_Res_BulbGlow",
-    "M_Town_PaintRed",
     "M_Furn_MetalBrushed",
     "M_Res_DetailAtlas",
     "M_Furn_PlasticDirty"
@@ -10617,7 +10603,7 @@
    "category": "House_Variants",
    "glb": "03_Residential/House_Variants/RES_House_SplitLevel_Mirror.glb",
    "obj": null,
-   "triangles": 7804,
+   "triangles": 7684,
    "collision_triangles": 1378,
    "collision": [
     "colonly",
@@ -10646,7 +10632,6 @@
     "M_Int_Linoleum",
     "M_Int_BasementConcrete",
     "M_Res_BulbGlow",
-    "M_Town_PaintYellow",
     "M_Furn_MetalBrushed",
     "M_Res_GarageDoor",
     "M_Res_DetailAtlas",
@@ -10882,7 +10867,7 @@
    "category": "House_Variants",
    "glb": "03_Residential/House_Variants/RES_House_SplitLevel_B.glb",
    "obj": null,
-   "triangles": 7804,
+   "triangles": 7684,
    "collision_triangles": 1378,
    "collision": [
     "colonly",
@@ -10911,7 +10896,6 @@
     "M_Int_Linoleum",
     "M_Int_BasementConcrete",
     "M_Res_BulbGlow",
-    "M_Town_PaintRed",
     "M_Furn_MetalBrushed",
     "M_Res_GarageDoor",
     "M_Res_DetailAtlas",
@@ -11271,7 +11255,6 @@
     "M_Int_CarpetWorn",
     "M_Int_TilesKitchen",
     "M_Res_BulbGlow",
-    "M_Town_PaintNavy",
     "M_Furn_MetalBrushed",
     "M_Furn_WoodPainted",
     "M_Res_DetailAtlas",

@@ -57,9 +57,10 @@ var _step_smooth := 0.0
 
 func _ready() -> void:
 	collision_layer = 2
-	collision_mask = 1 | 4            # world + vehicles
+	collision_mask = 1 | 4 | VeilSurvivorBody.LAYER            # world, vehicles and survivors
 	floor_max_angle = deg_to_rad(46.0)
 	floor_snap_length = 0.35
+	floor_constant_speed = true                                 # stairs at walking pace, up and down alike
 	capsule = CapsuleShape3D.new()
 	capsule.radius = RADIUS
 	capsule.height = HEIGHT
@@ -143,9 +144,10 @@ func _physics_process(delta: float) -> void:
 		velocity.y = -0.5
 	else:
 		velocity.y -= GRAVITY * delta
-	if is_on_floor() and hv.length() > 0.05:
-		_step_up(hv, delta)
+	if is_on_floor() and hv.length() > 0.05 and get_floor_normal().y > 0.93:
+		_step_up(hv, delta)                      # (flat ground only: stairs are ramps, a lift there only jolts)
 	move_and_slide()
+	_fall_guard(delta)
 	# eye height + head bob
 	_eye = move_toward(_eye, EYE_CROUCH if crouching else EYE, delta * 3.5)
 	var moving := hv.length() > 0.4 and is_on_floor()
@@ -155,7 +157,8 @@ func _physics_process(delta: float) -> void:
 		_bob_t = lerpf(_bob_t, roundf(_bob_t / PI) * PI, delta * 6.0)
 	if moving and int(_bob_t / PI) != _last_step:
 		_last_step = int(_bob_t / PI)
-		Sfx.play("step_soft" if crouching else "step", global_position, -10.0 if crouching else -6.0, randf_range(0.9, 1.1))
+		pass                                        # (footsteps: the recorded walk / run loops below)
+	_footsteps(moving and visible and controls_enabled, sprinting, crouching, hv.length())
 	var amp := 0.028 if sprinting else 0.016
 	_step_smooth = move_toward(_step_smooth, 0.0, delta * 1.6)
 	head.position.y = _eye + sin(_bob_t * 2.0) * amp - _step_smooth
@@ -167,33 +170,10 @@ func _physics_process(delta: float) -> void:
 
 
 ## Stair-step: when the way ahead is blocked by a low vertical face (a curb, a door sill), lift the capsule onto it.
-## Probe: up STEP, forward (at least 8 cm so slow walking still finds the edge), then back down onto a walkable floor.
+## The shared swept step check requires headroom and a walkable landing.
 func _step_up(hv: Vector3, delta: float) -> void:
-	# probe a full capsule radius ahead: the rounded bottom touches a curb edge about RADIUS before the face
-	var fwd := hv.normalized() * maxf(hv.length() * delta, RADIUS + 0.06)
-	var t := global_transform
-	var col := KinematicCollision3D.new()
-	if not test_move(t, fwd, col):
-		return
-	if col.get_normal().y > 0.7:            # a slope we can already walk up
-		return
-	var up := Vector3(0, STEP, 0)
-	if test_move(t, up):                     # no head room
-		return
-	var t_up := t.translated(up)
-	if test_move(t_up, fwd):                 # still blocked up there: it is a wall, not a step
-		return
-	var t_fwd := t_up.translated(fwd)
-	var down := KinematicCollision3D.new()
-	if not test_move(t_fwd, Vector3(0, -STEP - 0.05, 0), down):
-		return
-	if down.get_normal().y < 0.7:
-		return
-	var rise := STEP - down.get_travel().length()
-	if rise < 0.01:
-		return
-	global_position = t_fwd.origin + down.get_travel() + Vector3(0, 0.002, 0)
-	_step_smooth += rise                       # the camera eases up instead of popping
+	var probe := hv.normalized() * maxf(hv.length() * delta, RADIUS + 0.06)
+	_step_smooth += VeilSurvivorBody.step_up(self, probe, STEP)
 
 
 func _update_stamina(sprinting: bool, delta: float) -> void:
@@ -258,10 +238,20 @@ func _can_stand() -> bool:
 # ------------------------------------------------------------------ interaction
 func _update_focus() -> void:
 	var f: Node = null
+	var hit_d := INF
 	if controls_enabled and ray.is_colliding():
 		var c := ray.get_collider()
+		hit_d = camera.global_position.distance_to(ray.get_collision_point())
 		if c and c.has_method("get_prompt"):
 			f = c
+	# aim assist for small collectibles (loot in an open drawer or cabinet, items on shelves): no pixel hunting.
+	# A visible pickup close to the crosshair wins over the container part / surface the ray happened to hit.
+	# only when the ray found nothing to use, or found the container a loot item sits in (never over NPCs / doors)
+	var container := f is Interactable and (f as Interactable).kind in ["hinge", "slide"]
+	if controls_enabled and (f == null or container):
+		var a := _assist_pickup(hit_d, ray.get_collider() if ray.is_colliding() else null)
+		if a and (f == null or a.container == f or _same_piece(a, f)):
+			f = a
 	if f != _focus:
 		if _focus and is_instance_valid(_focus) and _focus.has_method("set_focus"):
 			_focus.set_focus(false)
@@ -269,6 +259,62 @@ func _update_focus() -> void:
 			f.set_focus(true)
 	_focus = f
 	_set_prompt(f.get_prompt() if f else "")
+
+
+## The ray hit another door / drawer of the piece the loot sits in (e.g. the neighbouring closed cabinet door).
+func _same_piece(a: Interactable, f: Node) -> bool:
+	if a.container == null or not (f is Node):
+		return false
+	if not a.container.is_open:
+		return false
+	var piece: Node = a.container
+	while piece and piece.get_parent() and not (String(piece.get_parent().name) in ["Furniture", "ScavengeFurniture"]):
+		piece = piece.get_parent()
+	return piece != null and piece.get_parent() != null and piece.is_ancestor_of(f)
+
+
+const ASSIST_COS := 0.985          ## ~10 degrees around the crosshair
+const ASSIST_RADIUS := 0.16        ## or within 16 cm of the view line
+
+
+## Nearest-to-the-crosshair pickup within reach that the player can actually see (no walls, closed doors or
+## drawers in between: closed containers switch their loot's layer off, so it is never offered).
+func _assist_pickup(ray_hit_d: float, ray_hit: Object) -> Interactable:
+	var eye := camera.global_position
+	var fwd := -camera.global_transform.basis.z
+	var best: Interactable = null
+	var best_score := INF
+	var space := get_world_3d().direct_space_state
+	for n in get_tree().get_nodes_in_group("veil_pickup"):
+		var it := n as Interactable
+		if it == null or it.taken or (it.collision_layer & 8) == 0 or not it.monitorable or not it.is_visible_in_tree():
+			continue
+		var p := it.focus_point()
+		var to := p - eye
+		var d := to.length()
+		if d > REACH + 0.3 or d < 0.05:
+			continue
+		var along := to.dot(fwd)
+		if along <= 0.0:
+			continue
+		var off := (to - fwd * along).length()
+		if to.normalized().dot(fwd) < ASSIST_COS and off > ASSIST_RADIUS:
+			continue
+		var own: Array[RID] = it.los_ignore
+		var hit_own := ray_hit is CollisionObject3D and own.has((ray_hit as CollisionObject3D).get_rid())
+		if ray_hit_d < d - 0.35 and not hit_own and ray_hit != it.container:
+			continue                                   # something solid well in front of it on the view line
+		var ex: Array[RID] = [get_rid()]
+		ex.append_array(own)
+		var q := PhysicsRayQueryParameters3D.create(eye, p, 1, ex)
+		var hit := space.intersect_ray(q)
+		if not hit.is_empty() and (hit["position"] as Vector3).distance_to(p) > 0.3:
+			continue                                   # hidden behind something
+		var score := off + d * 0.02
+		if score < best_score:
+			best_score = score
+			best = it
+	return best
 
 
 func _set_prompt(t: String) -> void:
@@ -291,7 +337,7 @@ func _input(event: InputEvent) -> void:
 
 # ------------------------------------------------------------------ waking up (Friday, 6:42 PM)
 ## Camera starts low and tilted (lying on the bed), then sits up and stands. Controls return at the end.
-func play_wake_up(duration := 4.2) -> void:
+func play_wake_up(duration := 4.2, give_control := true) -> void:
 	controls_enabled = false
 	look_enabled = false
 	var y0 := head.position.y
@@ -307,6 +353,66 @@ func play_wake_up(duration := 4.2) -> void:
 		_pitch = head.rotation.x
 		head.rotation.y = 0.0
 		head.rotation.z = 0.0
-		controls_enabled = true
-		look_enabled = true)
+		if give_control:                          # (the opening keeps control until the first-day wash is over)
+			controls_enabled = true
+			look_enabled = true)
 	await tw.finished
+
+
+# ------------------------------------------------------------------ footsteps (game/audio, recorded loops)
+const WALK_STEPS := preload("res://game/audio/the_veil_walk_footsteps.wav")
+const RUN_STEPS := preload("res://game/audio/the_veil_run_footsteps.wav")
+var _walk_sfx: AudioStreamPlayer
+var _run_sfx: AudioStreamPlayer
+
+
+## Walking: the quiet walk loop (quieter still crouched); running: the heavier run loop. Never both at once;
+## silent when standing still, in the air, in the car (the player is hidden) or while control is taken.
+func _footsteps(moving: bool, sprinting: bool, crouching: bool, speed := WALK) -> void:
+	if _walk_sfx == null:
+		_walk_sfx = AudioStreamPlayer.new()
+		_walk_sfx.stream = WALK_STEPS
+		_run_sfx = AudioStreamPlayer.new()
+		_run_sfx.stream = RUN_STEPS
+		for a in [_walk_sfx, _run_sfx]:
+			add_child(a)
+			a.finished.connect(a.play)                 # loop the recording
+	var want_run := moving and sprinting
+	var want_walk := moving and not sprinting
+	_walk_sfx.volume_db = -28.0 if crouching else -22.0
+	_run_sfx.volume_db = -18.0
+	# the recordings' step rate follows the real ground speed (walk recorded at walking pace, run at a sprint)
+	_walk_sfx.pitch_scale = clampf(speed / WALK, 0.6, 1.3)
+	_run_sfx.pitch_scale = clampf(speed / SPRINT, 0.8, 1.25)
+	for pair in [[_walk_sfx, want_walk], [_run_sfx, want_run]]:
+		var a: AudioStreamPlayer = pair[0]
+		if pair[1] and not a.playing:
+			a.play(randf() * 4.0)                       # from a random point: no identical start each time
+		elif not pair[1] and a.playing:
+			a.stop()
+
+
+# ------------------------------------------------------------------ out of the world
+## The last floor the player stood on (sampled while in control). A real fall far below it - out of the built
+## world - puts them back there: nothing else changes (chapter, items, puzzles). Scripted moves are teleports
+## (no falling speed), so they never trigger it.
+var _safe_pos := Vector3.INF
+var _safe_t := 0.0
+var fall_recoveries := 0              ## tests
+var _air_t := 0.0
+
+
+func _fall_guard(delta: float) -> void:
+	_safe_t -= delta
+	if is_on_floor() and controls_enabled and visible and _safe_t <= 0.0:
+		_safe_t = 0.4
+		_safe_pos = global_position
+	if not controls_enabled or not visible:
+		_air_t = 0.0                                    # a scene holds the player (or moves them): never a "fall"
+		_safe_pos = Vector3.INF                         # and the next floor stood on is the new reference
+		return
+	_air_t = 0.0 if is_on_floor() else _air_t + delta
+	if _safe_pos.is_finite() and _air_t > 1.0 and global_position.y < _safe_pos.y - 20.0:
+		global_position = _safe_pos + Vector3(0, 0.3, 0)
+		velocity = Vector3.ZERO
+		fall_recoveries += 1

@@ -1,0 +1,303 @@
+{
+ "_comment": "THE VEIL - expedition / dynamic danger tuning (game/world/expedition.gd). Times are seconds of ACTIVE time outside (paused, menus, dialogue and cinematics do not count). Levels: 0 low, 1 rising, 2 high, 3 critical.",
+ "danger_thresholds_s": [
+  180,
+  360,
+  600
+ ],
+ "level_names": [
+  "LOW",
+  "RISING",
+  "HIGH",
+  "CRITICAL"
+ ],
+ "max_dynamic_creatures": 2,
+ "encounter_cooldown_s": [
+  90,
+  75,
+  55,
+  40
+ ],
+ "encounter_chance": [
+  0.3,
+  0.55,
+  0.75,
+  0.9
+ ],
+ "hound_from_level": 2,
+ "sound_interval_s": [
+  55,
+  35,
+  22,
+  14
+ ],
+ "spawn_distance": [
+  24,
+  40
+ ],
+ "warning_cooldown_s": 75,
+ "driving_time_scale": 0.6,
+ "follower_hurry": [
+  1.0,
+  1.1,
+  1.25,
+  1.4
+ ],
+ "sleep_requires_supplies_from_flag": "c5_started",
+ "caches": [
+  {
+   "id": "lot_food",
+   "item": "canned_food",
+   "pos": [
+    12.0,
+    0.2,
+    -50.0
+   ],
+   "label": "Canned Food"
+  },
+  {
+   "id": "street_water",
+   "item": "water_bottle",
+   "pos": [
+    30.0,
+    0.2,
+    -54.0
+   ],
+   "label": "Water"
+  },
+  {
+   "id": "lot_snack",
+   "item": "energy_snack",
+   "pos": [
+    0.0,
+    0.2,
+    -30.0
+   ],
+   "label": "Snack Bar"
+  },
+  {
+   "id": "road_water",
+   "item": "water_bottle",
+   "pos": [
+    -20.0,
+    0.2,
+    3.5
+   ],
+   "label": "Water"
+  },
+  {
+   "id": "behind_food",
+   "item": "canned_food",
+   "pos": [
+    -36.0,
+    0.2,
+    -14.0
+   ],
+   "label": "Canned Food"
+  },
+  {
+   "id": "west_water",
+   "item": "water_bottle",
+   "pos": [
+    -52.0,
+    0.2,
+    -1.5
+   ],
+   "label": "Water"
+  },
+  {
+   "id": "yard_food",
+   "item": "canned_food",
+   "pos": [
+    44.0,
+    0.2,
+    -52.0
+   ],
+   "label": "Canned Food"
+  },
+  {
+   "id": "lot2_food",
+   "item": "canned_food",
+   "pos": [
+    -12,
+    0.2,
+    -36
+   ],
+   "label": "Canned Food"
+  },
+  {
+   "id": "lot2_water",
+   "item": "water_bottle",
+   "pos": [
+    -24,
+    0.2,
+    -42
+   ],
+   "label": "Water"
+  },
+  {
+   "id": "west2_water",
+   "item": "water_bottle",
+   "pos": [
+    -48,
+    0.2,
+    -30
+   ],
+   "label": "Water"
+  },
+  {
+   "id": "east_food",
+   "item": "canned_food",
+   "pos": [
+    12,
+    0.2,
+    -36
+   ],
+   "label": "Canned Food"
+  },
+  {
+   "id": "east_water",
+   "item": "water_bottle",
+   "pos": [
+    54,
+    0.2,
+    -36
+   ],
+   "label": "Water"
+  },
+  {
+   "id": "yard2_snack",
+   "item": "energy_snack",
+   "pos": [
+    -36,
+    0.2,
+    -36
+   ],
+   "label": "Snack Bar"
+  },
+  {
+   "id": "ammo_west",
+   "item": "handgun_rounds",
+   "pos": [
+    -48,
+    0.2,
+    -42
+   ],
+   "label": "Rounds"
+  },
+  {
+   "id": "ammo_east",
+   "item": "handgun_round",
+   "pos": [
+    48,
+    0.2,
+    -24
+   ],
+   "label": "Round"
+  },
+  {
+   "id": "road2_water",
+   "item": "water_bottle",
+   "pos": [
+    -18,
+    0.2,
+    -24
+   ],
+   "label": "Water"
+  },
+  {
+   "id": "ammo_rare",
+   "item": "handgun_ammo",
+   "pos": [
+    21.2,
+    0.2,
+    -75.4
+   ],
+   "label": "Ammo"
+  },
+  {
+   "id": "gas_fuel",
+   "item": "fuel_can",
+   "label": "Fuel",
+   "pos": [
+    142.0,
+    0.2,
+    -10.5
+   ]
+  },
+  {
+   "id": "gas_tape",
+   "item": "duct_tape",
+   "label": "Duct Tape",
+   "pos": [
+    156.0,
+    0.2,
+    -10.5
+   ]
+  },
+  {
+   "id": "van_fuel",
+   "item": "fuel_can",
+   "label": "Fuel",
+   "pos": [
+    17.5,
+    0.2,
+    -48.0
+   ]
+  }
+ ],
+ "vehicle_parts": [
+  {
+   "id": "car_battery",
+   "item": "car_battery",
+   "pos": [
+    -56.0,
+    0.2,
+    -2.6
+   ],
+   "model": "res://THE_VEIL_ASSETS_V2/08_Inventory/Food_And_Supplies/INV_SpareBatteries.glb",
+   "scale": 3.0,
+   "prop": {
+    "scene": "res://THE_VEIL_ASSETS_V2/05_Vehicles/Abandoned_Variants/VEH_Sedan_Damaged.glb",
+    "pos": [
+     -56.0,
+     0.2,
+     -4.6
+    ],
+    "yaw": 1.5708
+   }
+  },
+  {
+   "id": "fuel_can",
+   "item": "fuel_can",
+   "pos": [
+    14.0,
+    0.2,
+    -48.0
+   ],
+   "model": "res://THE_VEIL_ASSETS_V2/08_Inventory/Food_And_Supplies/INV_WaterBottle.glb",
+   "scale": 1.6,
+   "prop": {
+    "scene": "res://THE_VEIL_ASSETS_V2/05_Vehicles/Abandoned_Variants/VEH_DeliveryVan_BrokenDown.glb",
+    "pos": [
+     14.0,
+     0.2,
+     -50.6
+    ],
+    "yaw": 1.5708
+   }
+  },
+  {
+   "id": "car_fuse",
+   "item": "car_fuse",
+   "pos": [
+    148.0,
+    0.2,
+    -10.5
+   ],
+   "model": "res://THE_VEIL_ASSETS_V2/08_Inventory/Tools/INV_PortableFuse.glb",
+   "scale": 2.5
+  }
+ ],
+ "_comment_caches": "Supply finds restock every new day (one per day each). Handgun rounds are one-time finds, never restocked (game/world/expedition.gd)."
+}
