@@ -24,6 +24,7 @@ const SKITTER_PATH := "res://THE_VEIL_ASSETS_V2/07_Creatures/Godot_Scenes/CRT_Sk
 const HOUND_AI := preload("res://game/enemies/hound_ai.gd")
 const CRAB_PATH := "res://THE_VEIL_ASSETS_V2/07_Creatures/Godot_Scenes/CRT_Shellcrawler.tscn"
 const STRUGGLE := preload("res://game/encounters/struggle.gd")
+const CAR_QUEST := preload("res://game/world/car_quest.gd")
 const EXIT_SPOT := Vector3(0.0, 1.4, 0.2)              # market-local: at the front doors themselves (from Cline)
 const OUTSIDE_SPOT := Vector3(0.0, 1.3, -0.9)          # market-local: just outside the front doors
 const SUPPLY_ITEMS := ["canned_food", "water_bottle", "energy_snack", "chocolate_bar", "cola_bottle", "painkillers", "batteries"]
@@ -59,8 +60,10 @@ func setup(w: Node) -> void:
 	_place_supply_chest(m)
 	_day = _today()
 	_spawn_caches()
-	for c in cfg.get("vehicle_parts", []):
-		_cache(c, "exp/part_" + String(c["id"]), String(c["item"]), "", String(c["model"]), float(c.get("scale", 1.0)))
+	# the car parts: real places with their own interactions (game/world/car_quest.gd), set out with the wrecks
+	quest = CAR_QUEST.new()
+	add_child(quest)
+	quest.setup(self)
 	VeilRestPoint.supply_gate = sleep_gate
 	# between story nights the shelter can wait out a day (supermarket era): supplies eaten, a new day in town
 	VeilRestPoint.extra_night = _extra_night_ok
@@ -481,6 +484,7 @@ func dead_car() -> bool:
 		for f in _followers():
 			if String(f.npc.name) == "Eddie":
 				Dialogue.say("exp_car_eddie", false, false)
+		Dialogue.say("cq_clues", true, false)            # where the parts might be (said once; leads go on the map)
 	_inspect_car()
 	return true
 
@@ -505,7 +509,8 @@ func _part_prop(c: Dictionary) -> void:
 ## Search leads for the town map: [key, short label, world position]. Before the repair: each part still out there,
 ## once the car has been inspected. After it: a fuel can when the tank runs low, duct tape when the car is knocked
 ## about (real finds, today's).
-const LEAD_NAMES := {"car_battery": "POSSIBLE CAR BATTERY", "fuel_can": "POSSIBLE FUEL", "car_fuse": "POSSIBLE CAR FUSE", "duct_tape": "POSSIBLE DUCT TAPE"}
+const LEAD_NAMES := {"car_battery": "POSSIBLE CAR BATTERY", "fuel_can": "POSSIBLE GAS CANISTER", "car_fuse": "POSSIBLE CAR FUSE",
+	"starter_relay": "POSSIBLE STARTER RELAY", "duct_tape": "POSSIBLE DUCT TAPE"}
 
 
 func car_leads() -> Array:
@@ -532,52 +537,74 @@ func car_leads() -> Array:
 	return out
 
 
-## The car's three faults, what fixes each and where that part lies (it never moves: a fixed find, not random loot).
-const CAR_PARTS := [["car_battery", "Battery", "dead - needs a car battery"], ["fuel_can", "Fuel", "tank empty - needs a fuel can"],
-	["car_fuse", "Ignition fuse", "blown - needs a fuse"]]
+## The car's four faults, what fixes each and where that part lies (fixed finds, not random loot: car_quest.gd).
+## [item, checklist name, missing text, where to look]
+const CAR_PARTS := [["car_battery", "Battery", "missing", "the delivery van behind the supermarket"],
+	["car_fuse", "Replacement Fuse", "blown", "the wrecked sedan on the west road"],
+	["fuel_can", "Fuel", "tank empty", "the gas station pumps"],
+	["starter_relay", "Final Component", "starter relay missing", "a pickup past the parking lot - something's been scraping around it"]]
+const FIT_VERB := {"car_battery": "Install the battery", "car_fuse": "Insert the fuse", "fuel_can": "Pour in the gas canister",
+	"starter_relay": "Fit the starter relay"}
 
 
 func installed(id: String) -> bool:
 	return Game.has_flag("vehicle_repaired") or bool((st().get("car_parts", {}) as Dictionary).get(id, false))
 
 
-## [E] Inspect Vehicle: its condition, part by part; a carried part is fitted from here (progress is kept).
+func all_installed() -> bool:
+	return CAR_PARTS.all(func(c): return installed(String(c[0])))
+
+
+## The checklist as it really stands (each line from the saved state and the inventory).
+func checklist() -> String:
+	var text := "VEHICLE CHECKLIST"
+	for c in CAR_PARTS:
+		var id := String(c[0])
+		var mark := "[X]" if installed(id) else ("[+]" if Game.has_item(id) else "[  ]")
+		var state := "installed" if installed(id) else ("carried - ready to fit" if Game.has_item(id) else "%s (%s)" % [c[2], c[3]])
+		if id == "fuel_can" and installed(id):
+			state = "%d%%" % roundi(world.sedan.fuel * 100.0)
+		text += "\n%s %s - %s" % [mark, c[1], state]
+	return text
+
+
+## [E] Inspect Car: the checklist; a carried part is fitted from here (progress is kept); Start Engine at the end.
 func _inspect_car() -> void:
 	var p4 := _p4()
 	if p4 == null or p4.choice.is_open() or _repairing:
 		return
 	while not Game.has_flag("vehicle_repaired"):
-		var text := "VEHICLE CONDITION"
+		var text := checklist()
 		var opts: Array = []
 		var ids: Array = []
 		for c in CAR_PARTS:
-			var state := "OK - fitted" if installed(c[0]) else ("part carried - ready to fit" if Game.has_item(c[0]) else String(c[2]))
-			if c[0] == "fuel_can":
-				state = "%d%% - %s" % [roundi(world.sedan.fuel * 100.0) if installed(c[0]) else 0, state]
-			text += "\n%s - %s" % [c[1], state]
 			if not installed(c[0]) and Game.has_item(c[0]):
-				opts.append("Fit the %s" % String(Game.item_info(c[0]).get("name", c[0])).to_lower())
+				opts.append(String(FIT_VERB[c[0]]))
 				ids.append(c[0])
-		text += "\nTires - OK"
-		if ids.is_empty():
-			text += "\n\nNothing here to fit yet. " + ("Search leads are on the town map (M): pick one and mark it." if Game.has_flag("map_acquired") else "The parts must be out in town: the gas station, abandoned vehicles.")
+		if all_installed():
+			opts.append("Start Engine")
+			ids.append("_start")
+		elif ids.is_empty():
+			text += "\n\nNothing here to fit yet. " + ("Search leads are on the town map (M): pick one and mark it." if Game.has_flag("map_acquired") else "The parts must be out in town.")
 		opts.append("Close")
 		var i: int = await p4.choice.ask(text, opts, _player())
 		if i < 0 or i >= ids.size():
 			break
-		await _fit(String(ids[i]))
+		if ids[i] == "_start":
+			await start_engine()
+		else:
+			await _fit(String(ids[i]))
 	_part_markers()
 
 
 func _fit(id: String) -> void:
+	if installed(id) or not Game.has_item(id):
+		return                                         # never twice, never without the part
 	_repairing = true
 	var p := _player()
 	p.set("controls_enabled", false)
 	p.set("velocity", Vector3.ZERO)
-	var at: Vector3 = world.sedan.global_position + Vector3(0, 0.8, 0)
-	for k in 2:
-		Sfx.play("door_close", at, -8.0, 0.6 + 0.15 * k)
-		await get_tree().create_timer(0.6).timeout
+	await quest.install(id)
 	Game.remove_item(id)
 	if id == "fuel_can":
 		world.sedan.fuel = PlayerSedan.FUEL_PER_CAN        # one can in an empty tank
@@ -585,13 +612,26 @@ func _fit(id: String) -> void:
 	parts[id] = true
 	st()["car_parts"] = parts
 	p.set("controls_enabled", true)
+	p.set("look_enabled", true)
 	_repairing = false
-	if CAR_PARTS.all(func(c): return installed(c[0])):
-		Game.set_flag("vehicle_repaired")          # all three fitted: it runs (set once, never twice)
-		Dialogue.say("exp_car_running", false, true)
-		_hint("The car runs again. E at the driver's door to get in.")
-	else:
-		world.save()
+	world.save()
+	_refresh()
+
+
+## Everything is in: the starter, the engine catching, the car running (set once, never twice).
+func start_engine() -> void:
+	if Game.has_flag("vehicle_repaired") or not all_installed():
+		return
+	_repairing = true
+	await quest.start_engine()
+	Game.set_flag("vehicle_repaired")
+	world.sedan.survival = true
+	Dialogue.say("exp_car_running", false, true)
+	_hint("The car runs again. E at the driver's door to get in.")
+	_player().set("controls_enabled", true)
+	_player().set("look_enabled", true)
+	_repairing = false
+	world.save()
 	_refresh()
 
 
@@ -610,14 +650,17 @@ func car_menu() -> bool:
 		return true
 	while true:
 		var text := "VEHICLE CONDITION\n" + String(car.status_text())
+		var why: String = quest.unusable_reason()
+		if why != "":
+			text = why + "\n" + text
 		if car.fuel <= 0.0:
-			text += "\nThe tank is empty - it needs a fuel can (gas station, abandoned vehicles; see the town map)."
+			text += "\nThe tank is empty - it needs a gas canister (gas station, abandoned vehicles; see the town map)."
 		if car.condition <= 0.0:
 			text += "\nIt won't run like this - it needs patching up with duct tape (see the town map)."
 		var opts: Array = []
 		var acts: Array = []
 		if Game.has_item("fuel_can") and car.fuel < 0.95:
-			opts.append("Pour in the fuel can")
+			opts.append("Pour in the gas canister")
 			acts.append("fuel")
 		if Game.has_item("duct_tape") and car.condition < 0.95:
 			opts.append("Patch it up (duct tape)")
@@ -631,6 +674,7 @@ func car_menu() -> bool:
 		var a: String = acts[clampi(i, 0, acts.size() - 1)] if i >= 0 else "close"
 		match a:
 			"fuel":
+				await quest.install("fuel_can")
 				Game.remove_item("fuel_can")
 				car.fuel = minf(car.fuel + PlayerSedan.FUEL_PER_CAN, 1.0)
 				Sfx.play("pickup", car.global_position + Vector3(0, 0.8, 0), -6.0, 0.6)
@@ -665,6 +709,7 @@ func _repair() -> void:
 
 var _repairing := false
 var _props_placed := false
+var quest: Node                          ## VeilCarQuest
 
 
 # ------------------------------------------------------------------ danger, encounters, warnings
@@ -870,12 +915,29 @@ func _spawn_hunter(kind: String) -> bool:
 	var at := find_spawn(26.0, 40.0)
 	if not at.is_finite():
 		return false
+	var ai := make_hunter(kind, at, [at, at + (at - p).normalized() * 6.0], 70.0)
+	if ai == null:
+		return false
+	var c: Node3D = ai.body
+	ai.set("_last_seen", p)
+	ai.state = "SUSPICIOUS"
+	ai.set("awareness", 0.4)
+	creatures.append({"node": c, "ai": ai, "kind": kind + "_hunter", "exit": at})
+	report["spawned"] += 1
+	report["max_active"] = maxi(int(report["max_active"]), creatures.size())
+	_play("skitter" if kind == "skitter" else "crab", at + Vector3(0, 0.5, 0), -4.0)
+	return true
+
+
+## A Skitter or Shellcrawler with the Hound's AI, its own clips and pace, at `at` with a patrol and a leash (the
+## dynamic hunters above; the car-part guard in car_quest.gd). Returns the AI (its .body is the creature) or null.
+func make_hunter(kind: String, at: Vector3, points: Array, leash: float) -> Node:
 	var ps := load(SKITTER_PATH if kind == "skitter" else CRAB_PATH) as PackedScene
 	if ps == null:
-		return false
+		return null
 	var c := ps.instantiate() as CharacterBody3D
 	if c == null:
-		return false
+		return null
 	c.name = "EXP_" + kind.capitalize()
 	world.add_child(c)
 	c.global_position = at
@@ -913,8 +975,8 @@ func _spawn_hunter(kind: String) -> bool:
 		ai.face_offset = PI * 0.5
 		ai.turn_rate = 0.07
 		ai.burst = true
-	ai.leash = 70.0
-	ai.setup(c, _player(), [at, at + (at - p).normalized() * 6.0])
+	ai.leash = leash
+	ai.setup(c, _player(), points)
 	if kind == "crab":
 		var shape := c.get_node_or_null("AIShape") as CollisionShape3D
 		if shape and shape.shape is CapsuleShape3D:
@@ -925,15 +987,8 @@ func _spawn_hunter(kind: String) -> bool:
 		for clip in ai.clip_map.values():
 			if ai.anim.has_animation(clip) and clip != "Attack_Lunge" and clip != "Attack_Grasp" and clip != "Defend":
 				ai.anim.get_animation(clip).loop_mode = Animation.LOOP_LINEAR
-	ai.set("_last_seen", p)
-	ai.state = "SUSPICIOUS"
-	ai.set("awareness", 0.4)
 	_hook_struggle(ai, kind)
-	creatures.append({"node": c, "ai": ai, "kind": kind + "_hunter", "exit": at})
-	report["spawned"] += 1
-	report["max_active"] = maxi(int(report["max_active"]), creatures.size())
-	_play("skitter" if kind == "skitter" else "crab", at + Vector3(0, 0.5, 0), -4.0)
-	return true
+	return ai
 
 
 ## One shared struggle controller (game/encounters/struggle.gd): a creature's attack may become a struggle.
@@ -1101,8 +1156,7 @@ func _process(delta: float) -> void:
 	if not _props_placed and Game.has_flag("c5_started"):
 		_props_placed = true                             # (the wrecks: not in the ordinary town of the opening)
 		if not Game.has_flag("ch9_supermarket_lost"):
-			for c in cfg.get("vehicle_parts", []):
-				_part_prop(c)
+			quest.place()
 	_prune()
 	_supply_chest_marker()
 	if active():
