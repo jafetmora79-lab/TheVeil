@@ -839,8 +839,15 @@ func _spawn_hunter(kind: String) -> bool:
 		ai.jaw_offset = 0.0
 		ai.bite_range = 2.1
 		ai.face_offset = PI * 0.5
+		ai.turn_rate = 0.07
+		ai.burst = true
 	ai.leash = 70.0
 	ai.setup(c, _player(), [at, at + (at - p).normalized() * 6.0])
+	if kind == "crab":
+		var shape := c.get_node_or_null("AIShape") as CollisionShape3D
+		if shape and shape.shape is CapsuleShape3D:
+			(shape.shape as CapsuleShape3D).radius = 0.7       # its real width: it no longer slips through corners
+			shape.position = Vector3(0, 0.8, 0)
 	if ai.anim:
 		for clip in ai.clip_map.values():
 			if ai.anim.has_animation(clip) and clip != "Attack_Lunge" and clip != "Attack_Grasp":
