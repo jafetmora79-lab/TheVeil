@@ -72,6 +72,8 @@ var hold := false                   ## a struggle holds the creature in place (i
 var _recover_t := 0.0
 var _recover_len := 0.0
 var _recover_mode := ""
+var _inv_at := Vector3.ZERO
+var _inv_t := 0.0
 
 
 func setup(p_body: CharacterBody3D, p_player: CharacterBody3D, points: Array) -> void:
@@ -261,6 +263,28 @@ func _physics_process(delta: float) -> void:
 					_last_seen = _tp()
 					awareness = 0.99
 					_start_chase()
+		"INVESTIGATE":
+			# a noise somewhere (a car alarm): it walks over, looks about for a while, then goes home. Seeing or
+			# hearing the player on the way turns it on them as usual.
+			if sees or hears:
+				if sees:
+					awareness = minf(awareness + delta * lerpf(1.6, 0.45, clampf(dist / sight_range, 0.0, 1.0)), 1.0)
+				_suspect(_tp())
+			elif _flat(body.global_position, _inv_at) > 1.4:
+				_move_to(_inv_at, walk_speed * 1.6, delta, "Walk")
+				_patrol_stuck += delta
+				if _patrol_stuck > 3.0:
+					if _flat(body.global_position, _patrol_ref) < 0.4:
+						_inv_t = 0.0                      # cannot get any closer: look from here
+						_inv_at = body.global_position
+					_patrol_ref = body.global_position
+					_patrol_stuck = 0.0
+			else:
+				_inv_t -= delta
+				_idle(delta, "Alert")
+				if _inv_t <= 0.0:
+					state = "RETURN"
+					awareness = 0.0
 		"SEARCH":
 			_search_t -= delta
 			if sees and dist < sight_range * 0.8 and not far_home:
@@ -284,6 +308,19 @@ func recoil(seconds: float, mode: String) -> void:
 	_recover_len = seconds
 	_recover_mode = mode
 	_bite_t = maxf(_bite_t, seconds + bite_cooldown)
+
+
+## Go and look at a noise (`at`, world), staying `linger` seconds there; ignored mid-chase or while recovering.
+func investigate(at: Vector3, linger: float) -> bool:
+	if hold or state in ["CHASE", "RECOVER"]:
+		return false
+	state = "INVESTIGATE"
+	_inv_at = at
+	_inv_t = linger
+	_patrol_stuck = 0.0
+	_patrol_ref = body.global_position
+	awareness = minf(awareness, 0.3)
+	return true
 
 
 func _suspect(at: Vector3) -> void:

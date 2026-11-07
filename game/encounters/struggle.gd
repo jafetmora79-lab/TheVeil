@@ -22,13 +22,14 @@ const STYLE := {
 		"start": [[0.0, SCREECH], [0.0, "ss_rush"], [0.3, "ss_impact"]], "hold": "ss_hold",
 		"win": [[0.0, "ss_thrown"], [0.0, "pl_push"]],
 		"damage": 16.0, "recover": 3.2, "anim": "Attack_Lunge", "react": "Hit_React", "reach": 0.4, "pitch": -0.18},
-	"crab": {"title": "BREAK FREE!", "hint": "[LEFT CLICK REPEATEDLY]  ESCAPE ITS GRIP", "time": 5.5,
+	"crab": {"title": "BREAK FREE!", "hint": "CLICK REPEATEDLY — BREAK FREE", "time": 5.5,
 		"start": [[0.0, "cs_snap"], [0.2, "cs_grab"]], "hold": "cs_hold",
 		"win": [[0.0, "cs_forced"], [0.0, "pl_escape"], [0.35, "cs_release"], [0.6, "cs_back"]],
 		"damage": 28.0, "recover": 3.0, "anim": "Attack_Grasp", "react": "Defend", "reach": 1.7, "pitch": -0.8},
 }
 const CHANCE := 0.35            ## of an eligible attack
 const COOLDOWN := 40.0          ## seconds between struggles (any creature)
+const FORCED_COOLDOWN := 9.0    ## a creature that always grabs: this long after the last struggle
 const PER_CLICK := 0.085        ## ~12 clicks in the allowed time; held buttons count once
 const DECAY := 0.10             ## per second
 const INTRO := 0.32             ## the creature closes the last stretch; nothing jumps into place
@@ -58,6 +59,7 @@ var _seq := 0                   ## sounds still queued from an earlier moment ar
 var _effort_t := 0.0
 var _hiss_t := 1.0
 var _relax := 0.0
+var _since := 999.0               ## seconds since the last struggle ended
 
 
 func setup(w: Node) -> void:
@@ -73,6 +75,7 @@ func _exit_tree() -> void:
 
 func _process(delta: float) -> void:
 	_cool = maxf(_cool - delta, 0.0)
+	_since += delta
 	if _relax > 0.0:
 		_relax -= delta
 		_aim(player.rotation.y, 0.0, delta * 2.0)
@@ -113,7 +116,8 @@ func _input(e: InputEvent) -> void:
 
 ## Called by the creature AI at the moment it would bite. True = this attack is a struggle now.
 func try_start(ai: Node) -> bool:
-	if active or _cool > 0.0 or randf() > CHANCE or get_tree().paused:
+	var forced := bool(ai.get_meta("struggle_force", false))   # (the car-part guard: a grab is always a struggle)
+	if active or get_tree().paused or ((_since < FORCED_COOLDOWN) if forced else (_cool > 0.0)) or (not forced and randf() > CHANCE):
 		return false
 	var kind := String(ai.get_meta("struggle_kind", ""))
 	if not STYLE.has(kind) or not _player_free() or float(player.get("health")) < 30.0:
@@ -226,6 +230,7 @@ func _aim(yaw: float, pitch: float, delta: float) -> void:
 func _finish(won: bool, cancelled := false) -> void:
 	active = false
 	_cool = COOLDOWN + randf_range(0.0, 20.0)
+	_since = 0.0
 	_ui.visible = false
 	_loop.stop()
 	_grip.stop()

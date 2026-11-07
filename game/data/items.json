@@ -150,22 +150,22 @@
    "name": "Car Battery",
    "category": "tool",
    "weight": 12.0,
-   "model": "res://THE_VEIL_ASSETS_V2/08_Inventory/Food_And_Supplies/INV_SpareBatteries.glb",
-   "description": "A car battery out of the wreck on the west road. It still holds a charge."
+   "model": "res://game/props/car_parts/CarBattery.tscn",
+   "description": "A car battery pulled from the delivery van behind the supermarket. Heavy, but it should still work."
   },
   "fuel_can": {
-   "name": "Fuel",
+   "name": "Gas Canister",
    "category": "tool",
    "weight": 4.0,
-   "model": "res://THE_VEIL_ASSETS_V2/08_Inventory/Food_And_Supplies/INV_WaterBottle.glb",
-   "description": "A big plastic bottle of petrol, siphoned from a delivery van behind the supermarket."
+   "model": "res://game/props/car_parts/GasCanister.tscn",
+   "description": "A red gas canister, mostly full. Enough fuel to get a car running - or to keep it running a while longer."
   },
   "car_fuse": {
    "name": "Fuse",
    "category": "tool",
    "weight": 0.1,
    "model": "res://THE_VEIL_ASSETS_V2/08_Inventory/Tools/INV_PortableFuse.glb",
-   "description": "A replacement fuse from the gas station. The car's main fuse burned out when the mist came."
+   "description": "An intact fuse from the wrecked sedan's fuse panel. The car's main fuse burned out when the mist came."
   },
   "utility_map": {
    "name": "Utility Map",
@@ -253,6 +253,13 @@
    "model": "res://THE_VEIL_ASSETS_V2/08_Inventory/Weapons/INV_AmmoBox.glb",
    "description": "One round for the handgun.",
    "rounds": 1
+  },
+  "starter_relay": {
+   "name": "Starter Relay",
+   "category": "tool",
+   "weight": 0.2,
+   "model": "res://game/props/car_parts/StarterRelay.tscn",
+   "description": "A small starter relay from the pickup past the parking lot. Without it the car won't turn over."
   }
  },
  "carry_capacity_kg": 15.0,

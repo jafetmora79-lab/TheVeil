@@ -1,0 +1,129 @@
+[gd_scene load_steps=19 format=3]
+
+[ext_resource type="Texture2D" path="res://THE_VEIL_ASSETS_V2/01_Textures/Furniture/T_Furn_PlasticDirty.png" id="t1"]
+
+[sub_resource type="StandardMaterial3D" id="m_box"]
+albedo_color = Color(0.08, 0.08, 0.09, 1)
+roughness = 0.95
+texture_filter = 2
+albedo_texture = ExtResource("t1")
+uv1_scale = Vector3(1, 1, 1)
+
+[sub_resource type="StandardMaterial3D" id="m_cover"]
+albedo_color = Color(0.15, 0.15, 0.16, 1)
+roughness = 0.95
+texture_filter = 2
+albedo_texture = ExtResource("t1")
+uv1_scale = Vector3(1, 1, 1)
+
+[sub_resource type="StandardMaterial3D" id="m_good"]
+albedo_color = Color(0.85, 0.55, 0.08, 1)
+roughness = 0.95
+texture_filter = 2
+
+[sub_resource type="StandardMaterial3D" id="m_f0"]
+albedo_color = Color(0.8, 0.6, 0.1, 1)
+roughness = 0.95
+texture_filter = 2
+
+[sub_resource type="StandardMaterial3D" id="m_f1"]
+albedo_color = Color(0.2, 0.4, 0.8, 1)
+roughness = 0.95
+texture_filter = 2
+
+[sub_resource type="StandardMaterial3D" id="m_f2"]
+albedo_color = Color(0.7, 0.1, 0.1, 1)
+roughness = 0.95
+texture_filter = 2
+
+[sub_resource type="StandardMaterial3D" id="m_f3"]
+albedo_color = Color(0.2, 0.6, 0.25, 1)
+roughness = 0.95
+texture_filter = 2
+
+[sub_resource type="StandardMaterial3D" id="m_f4"]
+albedo_color = Color(0.8, 0.6, 0.1, 1)
+roughness = 0.95
+texture_filter = 2
+
+[sub_resource type="StandardMaterial3D" id="m_f5"]
+albedo_color = Color(0.7, 0.1, 0.1, 1)
+roughness = 0.95
+texture_filter = 2
+
+[sub_resource type="BoxMesh" id="mesh0"]
+size = Vector3(0.18, 0.12, 0.04)
+material = SubResource("m_box")
+
+[sub_resource type="BoxMesh" id="mesh1"]
+size = Vector3(0.018, 0.035, 0.012)
+material = SubResource("m_f0")
+
+[sub_resource type="BoxMesh" id="mesh2"]
+size = Vector3(0.018, 0.035, 0.012)
+material = SubResource("m_f1")
+
+[sub_resource type="BoxMesh" id="mesh3"]
+size = Vector3(0.018, 0.035, 0.012)
+material = SubResource("m_good")
+
+[sub_resource type="BoxMesh" id="mesh4"]
+size = Vector3(0.018, 0.035, 0.012)
+material = SubResource("m_f3")
+
+[sub_resource type="BoxMesh" id="mesh5"]
+size = Vector3(0.018, 0.035, 0.012)
+material = SubResource("m_f4")
+
+[sub_resource type="BoxMesh" id="mesh6"]
+size = Vector3(0.018, 0.035, 0.012)
+material = SubResource("m_f5")
+
+[sub_resource type="BoxMesh" id="mesh7"]
+size = Vector3(0.18, 0.12, 0.008)
+material = SubResource("m_cover")
+
+[node name="FusePanel" type="Node3D"]
+
+[node name="Cover" type="Node3D" parent="."]
+position = Vector3(-0.09, 0, 0.03)
+
+[node name="Housing" type="MeshInstance3D" parent="."]
+mesh = SubResource("mesh0")
+position = Vector3(0, 0, 0)
+rotation_degrees = Vector3(0, 0, 0)
+
+[node name="Fuse_0" type="MeshInstance3D" parent="."]
+mesh = SubResource("mesh1")
+position = Vector3(-0.065, 0, 0.024)
+rotation_degrees = Vector3(0, 0, 0)
+
+[node name="Fuse_1" type="MeshInstance3D" parent="."]
+mesh = SubResource("mesh2")
+position = Vector3(-0.039, 0, 0.024)
+rotation_degrees = Vector3(0, 0, 0)
+
+[node name="Fuse_Good" type="MeshInstance3D" parent="."]
+mesh = SubResource("mesh3")
+position = Vector3(-0.013, 0, 0.024)
+rotation_degrees = Vector3(0, 0, 0)
+
+[node name="Fuse_3" type="MeshInstance3D" parent="."]
+mesh = SubResource("mesh4")
+position = Vector3(0.013, 0, 0.024)
+rotation_degrees = Vector3(0, 0, 0)
+
+[node name="Fuse_4" type="MeshInstance3D" parent="."]
+mesh = SubResource("mesh5")
+position = Vector3(0.039, 0, 0.024)
+rotation_degrees = Vector3(0, 0, 0)
+
+[node name="Fuse_5" type="MeshInstance3D" parent="."]
+mesh = SubResource("mesh6")
+position = Vector3(0.065, 0, 0.024)
+rotation_degrees = Vector3(0, 0, 0)
+
+[node name="Plate" type="MeshInstance3D" parent="Cover"]
+mesh = SubResource("mesh7")
+position = Vector3(0.09, 0, 0)
+rotation_degrees = Vector3(0, 0, 0)

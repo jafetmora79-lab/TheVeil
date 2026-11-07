@@ -376,14 +376,20 @@ func _run() -> void:
 	world.enter_car()
 	await frames(5)
 	ok("exp_car_found", game.has_flag("vehicle_found") and not world.in_car and said.has("This thing might actually run."))
-	for k in ["car_battery", "fuel_can", "car_fuse"]:
-		var it: Interactable = ex.its["exp/part_" + k]
-		ok("exp_part_reach_" + k, await aim(it, [Vector3(0, 0, 1), Vector3(1, 0, 0), Vector3(-1, 0, 0), Vector3(0, 0, -1)], world.market, 0.9),
-			str(it.global_position))
-		it.interact(world.player)
-		await frames(5)
-	ok("exp_parts", game.has_item("car_battery") and game.has_item("fuel_can") and game.has_item("car_fuse"))
-	world.enter_car()
+	# the parts (their own step-by-step sites: car_quest_test covers each step; here they are just collected)
+	var q = ex.quest
+	for k in ["car_battery", "fuel_can", "car_fuse", "starter_relay"]:
+		ok("exp_part_site_" + k, ex.its.get("exp/part_" + k) != null)
+	for f in [q._take_gas, q._battery_inspect, q._battery_cable.bind("neg"), q._battery_cable.bind("pos"), q._fuse_inspect,
+			q._fuse_door, q._fuse_panel, q._fuse_look, q._fuse_pull, q._take_relay]:
+		f.call()
+		await wait_until(func(): return not q.busy, 60 * 8)
+		await frames(3)
+	q._acquire("car_battery")                            # (the pull meter has its own test)
+	ok("exp_parts", game.has_item("car_battery") and game.has_item("fuel_can") and game.has_item("car_fuse") and game.has_item("starter_relay"))
+	for k in ["car_battery", "fuel_can", "car_fuse", "starter_relay"]:
+		await ex._fit(k)
+	await ex.start_engine()
 	ok("exp_repaired", await wait_until(func(): return game.has_flag("vehicle_repaired") and said.has("It's running. We've got wheels again."), 60 * 6)
 		and not game.has_item("car_battery") and not game.has_item("fuel_can") and not game.has_item("car_fuse"))
 	await frames(10)

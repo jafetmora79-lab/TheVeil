@@ -32,7 +32,20 @@ func _snapshot(game: Node, w: Node) -> Dictionary:
 	return {"inv": inv, "packs": game.world_state.get("companion_packs", {}), "stock": game.shelter_stock(),
 		"quick": game.world_state.get("quickslots", []), "flags": game.flags.size(),
 		"spares": int(fl.spares) if fl else -1, "fuel": snappedf(float(w.sedan.fuel), 0.001),
-		"cond": snappedf(float(w.sedan.condition), 0.001), "taken": game.world_state.keys().filter(func(k): return String(k).begins_with("scav/")).size()}
+		"cond": snappedf(float(w.sedan.condition), 0.001), "taken": game.world_state.keys().filter(func(k): return String(k).begins_with("scav/")).size(),
+		"quest": _quest(game, w)}
+
+
+## The car quest as the world shows it (not just the saved dictionary): steps, props, the guard's place.
+func _quest(game: Node, w: Node) -> Dictionary:
+	var q = w.expedition.quest
+	var bat: Node3D = q.sites["car_battery"]["battery"]
+	var door: Node3D = q.sites["car_fuse"]["door"]
+	return {"gas": q.acquired("fuel_can"), "can_visible": (q.sites["fuel_can"]["root"] as Node3D).visible,
+		"bat": q.part_state("car_battery"), "clamp": snappedf((bat.get_node("ClampNeg") as Node3D).position.y, 0.001),
+		"fuse": q.part_state("car_fuse"), "door": snappedf(door.rotation.y, 0.01),
+		"alarm": int(q.q().get("alarm_uses", 0)), "parts": w.expedition.st().get("car_parts", {}),
+		"live": q.steps.keys().filter(func(k): return q.steps[k].collision_layer == 8)}
 
 
 func _run() -> void:
@@ -59,7 +72,22 @@ func _run() -> void:
 		st["water"] = 4
 		game.world_state["shelter_stock"] = st
 		VeilQuickSlots.assign(0, "painkillers")
-		game.flags["vehicle_repaired"] = true
+		# the car quest part way: the canister in hand, the battery's negative cable off, the sedan's door and fuse
+		# panel open, the alarm used once
+		var q = w.expedition.quest
+		q._take_gas()
+		await _frames(120)
+		q._battery_inspect()
+		await _frames(200)
+		q._battery_cable("neg")
+		await _frames(120)
+		q._fuse_inspect()
+		await _frames(160)
+		q._fuse_door()
+		await _frames(90)
+		q._fuse_panel()
+		await _frames(150)
+		q.q()["alarm_uses"] = 1
 		await _frames(3)
 		w.sedan.fuel = 0.42
 		w.sedan.condition = 0.63

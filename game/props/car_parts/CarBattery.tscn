@@ -1,0 +1,136 @@
+[gd_scene load_steps=19 format=3]
+
+[ext_resource type="Texture2D" path="res://THE_VEIL_ASSETS_V2/01_Textures/Furniture/T_Furn_PlasticDirty.png" id="t1"]
+[ext_resource type="Texture2D" path="res://THE_VEIL_ASSETS_V2/01_Textures/Furniture/T_Furn_MetalRusted.png" id="t2"]
+
+[sub_resource type="StandardMaterial3D" id="m_case"]
+albedo_color = Color(0.12, 0.12, 0.13, 1)
+roughness = 0.95
+texture_filter = 2
+albedo_texture = ExtResource("t1")
+uv1_scale = Vector3(1, 1, 1)
+
+[sub_resource type="StandardMaterial3D" id="m_lid"]
+albedo_color = Color(0.2, 0.2, 0.21, 1)
+roughness = 0.95
+texture_filter = 2
+albedo_texture = ExtResource("t1")
+uv1_scale = Vector3(1, 1, 1)
+
+[sub_resource type="StandardMaterial3D" id="m_pos"]
+albedo_color = Color(0.7, 0.08, 0.06, 1)
+roughness = 0.95
+texture_filter = 2
+
+[sub_resource type="StandardMaterial3D" id="m_neg"]
+albedo_color = Color(0.08, 0.08, 0.08, 1)
+roughness = 0.95
+texture_filter = 2
+
+[sub_resource type="StandardMaterial3D" id="m_metal"]
+albedo_color = Color(0.55, 0.5, 0.45, 1)
+roughness = 0.95
+texture_filter = 2
+albedo_texture = ExtResource("t2")
+uv1_scale = Vector3(1, 1, 1)
+
+[sub_resource type="StandardMaterial3D" id="m_cable_r"]
+albedo_color = Color(0.55, 0.06, 0.05, 1)
+roughness = 0.95
+texture_filter = 2
+
+[sub_resource type="StandardMaterial3D" id="m_cable_b"]
+albedo_color = Color(0.04, 0.04, 0.04, 1)
+roughness = 0.95
+texture_filter = 2
+
+[sub_resource type="BoxMesh" id="mesh0"]
+size = Vector3(0.26, 0.17, 0.17)
+material = SubResource("m_case")
+
+[sub_resource type="BoxMesh" id="mesh1"]
+size = Vector3(0.265, 0.02, 0.175)
+material = SubResource("m_lid")
+
+[sub_resource type="BoxMesh" id="mesh2"]
+size = Vector3(0.14, 0.012, 0.02)
+material = SubResource("m_lid")
+
+[sub_resource type="CylinderMesh" id="mesh3"]
+top_radius = 0.012
+bottom_radius = 0.012
+height = 0.025
+radial_segments = 8
+rings = 1
+material = SubResource("m_pos")
+
+[sub_resource type="CylinderMesh" id="mesh4"]
+top_radius = 0.012
+bottom_radius = 0.012
+height = 0.025
+radial_segments = 8
+rings = 1
+material = SubResource("m_neg")
+
+[sub_resource type="BoxMesh" id="mesh5"]
+size = Vector3(0.035, 0.03, 0.04)
+material = SubResource("m_metal")
+
+[sub_resource type="BoxMesh" id="mesh6"]
+size = Vector3(0.02, 0.02, 0.22)
+material = SubResource("m_cable_r")
+
+[sub_resource type="BoxMesh" id="mesh7"]
+size = Vector3(0.035, 0.03, 0.04)
+material = SubResource("m_metal")
+
+[sub_resource type="BoxMesh" id="mesh8"]
+size = Vector3(0.02, 0.02, 0.22)
+material = SubResource("m_cable_b")
+
+[node name="CarBattery" type="Node3D"]
+
+[node name="Case" type="MeshInstance3D" parent="."]
+mesh = SubResource("mesh0")
+position = Vector3(0, 0.085, 0)
+rotation_degrees = Vector3(0, 0, 0)
+
+[node name="Lid" type="MeshInstance3D" parent="."]
+mesh = SubResource("mesh1")
+position = Vector3(0, 0.18, 0)
+rotation_degrees = Vector3(0, 0, 0)
+
+[node name="Handle" type="MeshInstance3D" parent="."]
+mesh = SubResource("mesh2")
+position = Vector3(0, 0.2, 0)
+rotation_degrees = Vector3(0, 0, 0)
+
+[node name="TerminalPos" type="MeshInstance3D" parent="."]
+mesh = SubResource("mesh3")
+position = Vector3(0.095, 0.2, 0.05)
+rotation_degrees = Vector3(0, 0, 0)
+
+[node name="TerminalNeg" type="MeshInstance3D" parent="."]
+mesh = SubResource("mesh4")
+position = Vector3(-0.095, 0.2, 0.05)
+rotation_degrees = Vector3(0, 0, 0)
+
+[node name="ClampPos" type="MeshInstance3D" parent="."]
+mesh = SubResource("mesh5")
+position = Vector3(0.095, 0.215, 0.05)
+rotation_degrees = Vector3(0, 0, 0)
+
+[node name="CablePos" type="MeshInstance3D" parent="."]
+mesh = SubResource("mesh6")
+position = Vector3(0.095, 0.225, 0.17)
+rotation_degrees = Vector3(0, 0, 0)
+
+[node name="ClampNeg" type="MeshInstance3D" parent="."]
+mesh = SubResource("mesh7")
+position = Vector3(-0.095, 0.215, 0.05)
+rotation_degrees = Vector3(0, 0, 0)
+
+[node name="CableNeg" type="MeshInstance3D" parent="."]
+mesh = SubResource("mesh8")
+position = Vector3(-0.095, 0.225, 0.17)
+rotation_degrees = Vector3(0, 0, 0)

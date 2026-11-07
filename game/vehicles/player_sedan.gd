@@ -392,7 +392,7 @@ func _status_warn() -> void:
 	if condition <= 0.0:
 		w = "The engine dies with a grinding knock. It won't go any further until it's patched up (duct tape, at the car). E gets out."
 	elif fuel <= 0.0:
-		w = "Out of fuel - the car rolls to a stop. E gets out; bring a fuel can back to it."
+		w = "Out of fuel - the car rolls to a stop. E gets out; bring a gas canister back to it."
 	elif condition < 0.35:
 		w = "The car is badly knocked about and labouring. " + status_text()
 	elif fuel < 0.2:

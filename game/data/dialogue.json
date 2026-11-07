@@ -6719,5 +6719,30 @@
     "time": 3.0
    }
   ]
+ },
+ "cq_clues": {
+  "source": "Car repair quest: natural clues",
+  "lines": [
+   {
+    "speaker": "",
+    "text": "Dead battery, blown fuse, empty tank. And the starter clicks - the relay's gone.",
+    "time": 3.8
+   },
+   {
+    "speaker": "",
+    "text": "That delivery van behind the store had its hood up. The battery might still be good.",
+    "time": 3.8
+   },
+   {
+    "speaker": "",
+    "text": "The gas station will have fuel. Maybe a fuse in one of the wrecks on the west road.",
+    "time": 3.8
+   },
+   {
+    "speaker": "",
+    "text": "There's a pickup past the lot with its hood open... but something's been scraping around out there.",
+    "time": 4.2
+   }
+  ]
  }
 }
