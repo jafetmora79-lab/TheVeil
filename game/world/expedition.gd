@@ -701,7 +701,7 @@ func _danger(delta: float) -> void:
 	if _encounter_t <= 0.0:
 		_encounter_t = float(cfg.get("encounter_cooldown_s", [90, 75, 55, 40])[lv])
 		# a long quiet spell outside (nothing about for ~2 minutes): the next valid opportunity is taken
-		var chance: float = 1.0 if _quiet_t > 110.0 else float(cfg.get("encounter_chance", [0.3, 0.55, 0.75, 0.9])[lv])
+		var chance: float = 1.0 if (_quiet_t > 240.0 and lv >= 1) else float(cfg.get("encounter_chance", [0.0, 0.35, 0.5, 0.6])[lv])
 		if randf() < chance and not world.in_car:
 			if encounter(lv):
 				_quiet_t = 0.0
@@ -771,20 +771,28 @@ func _distant_sound(lv: int) -> void:
 ## One dynamic encounter: a Skitter glimpsed in the fog, or a Hound coming in from open ground (HIGH and up).
 func encounter(lv: int) -> bool:
 	_prune()
-	if creatures.size() >= int(cfg.get("max_dynamic_creatures", 2)) + (1 if lv >= 3 else 0) or emergency():
-		return false
-	# the threat escalates with time outside: Hounds first, then Skitters, the Shellcrawler last
+	if lv <= 0 or creatures.size() >= int(cfg.get("max_dynamic_creatures", 2)) or emergency():
+		return false                                 # the first minutes outside are quiet (distant sounds only)
+	var hunting := false
+	for c in creatures:
+		var ai = c.get("ai")
+		if ai and is_instance_valid(ai) and String(ai.get("state")) in ["CHASE", "SUSPICIOUS"]:
+			hunting = true
+	# Hounds are the common threat, Skitters rarer, the Shellcrawler rare; while one is already after the player,
+	# a second only roams (it does not come for them)
 	match lv:
-		0:
-			return _spawn_hound(0)                   # uneasy: one roaming at the edge of the fog, not hunting yet
 		1:
-			return _spawn_hound(1) if randf() < 0.8 else _spawn_skitter()
+			return _spawn_hound(0)                   # a roamer out in the fog, unaware - often seen before it sees
 		2:
-			return _spawn_hunter("skitter") if randf() < 0.55 else _spawn_hound(2)
+			if hunting:
+				return _spawn_hound(0)
+			return _spawn_hunter("skitter") if randf() < 0.25 else _spawn_hound(1)
+	if hunting:
+		return _spawn_hound(0)
 	var r := randf()
-	if r < 0.4 and _spawn_hunter("crab"):
+	if r < 0.15 and _spawn_hunter("crab"):
 		return true
-	return _spawn_hunter("skitter") if r < 0.7 else _spawn_hound(3)
+	return _spawn_hunter("skitter") if r < 0.45 else _spawn_hound(2)
 
 
 ## A believable entry point: outdoors, open ground the creature can stand on and move from, out of the camera's
@@ -1028,6 +1036,7 @@ func _prune() -> void:
 		if gone_away and unseen:
 			report["despawned_unseen"] += 1
 			n.queue_free()
+			_encounter_t = maxf(_encounter_t, float(cfg.get("encounter_cooldown_s", [999, 150, 120, 95])[mini(int(st().get("level", 0)), 3)]))
 			continue
 		keep.append(c)
 	creatures = keep

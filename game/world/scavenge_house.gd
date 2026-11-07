@@ -92,6 +92,25 @@ func _process(_d: float) -> void:
 			continue
 		var c: Interactable = _loot_container[id]
 		it.collision_layer = 8 if c.is_open else 0      # nothing to grab through a closed door or drawer
+	_tip_t -= _d
+	if ok and _tip_t <= 0.0 and not Game.has_flag("scav_container_tip"):
+		_tip_t = 0.5
+		var pl: Node3D = world.player
+		if pl and _inside(house.to_local(pl.global_position)):
+			Game.set_flag("scav_container_tip")
+			world.hud.set_hint("Supplies are kept out of sight: open the cabinets, the fridge and the drawers (E).")
+			get_tree().create_timer(7.0).timeout.connect(func(): if is_instance_valid(world): world.hud.set_hint(""))
+
+
+var _tip_t := 0.0
+
+
+func _inside(lp: Vector3) -> bool:
+	for r in (house.get_meta("veil_house", {}) as Dictionary).get("rooms", []):
+		var rc: Array = r["rect"]
+		if lp.x > float(rc[0]) and lp.x < float(rc[2]) and lp.z > float(rc[1]) and lp.z < float(rc[3]):
+			return true
+	return false
 
 
 # ------------------------------------------------------------------ house doors
@@ -207,14 +226,17 @@ func _plan() -> Array:
 			if c:
 				used.append(c)
 				out.append({"l": l, "id": String(l["id"]), "c": c, "key": "scav/%s/loot_%s" % [house.name, l["id"]]})
-	elif absi(("%s/day%d" % [house.name, _day]).hash()) % 100 < 55:
-		var l: Dictionary = fresh[absi(("%s/what%d" % [house.name, _day]).hash()) % fresh.size()]
-		var c := _pick_container(String(l["item"]), "%s/where%d" % [house.name, _day], used)
-		if c == null:
-			c = parts.get("%s/%s" % [l["piece"], l["part"]])
-		if c:
-			out.append({"l": l, "id": "%s_d%d" % [l["id"], _day], "c": c,
-				"key": "scav/%s/loot_%s_d%d" % [house.name, l["id"], _day]})
+	elif absi(("%s/day%d" % [house.name, _day]).hash()) % 100 < 80:
+		# a new day: most houses have something again - one find, sometimes two - in varied containers
+		var count := 2 if absi(("%s/two%d" % [house.name, _day]).hash()) % 100 < 50 else 1
+		for k in count:
+			var l: Dictionary = fresh[absi(("%s/what%d_%d" % [house.name, _day, k]).hash()) % fresh.size()]
+			var c := _pick_container(String(l["item"]), "%s/where%d_%d" % [house.name, _day, k], used)
+			if c == null:
+				continue
+			used.append(c)
+			out.append({"l": l, "id": "%s_d%d_%d" % [l["id"], _day, k], "c": c,
+				"key": "scav/%s/loot_%s_d%d_%d" % [house.name, l["id"], _day, k]})
 	return out
 
 

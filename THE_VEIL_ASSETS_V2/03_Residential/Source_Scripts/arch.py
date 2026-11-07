@@ -265,9 +265,8 @@ def stair(mb, col, origin, yaw, width, n, rise=RISE, tread=TREAD, mat_tread=WOOD
                 loc.box(WOOD_P, (xr - 0.015, y, k * tread + 0.12), (xr + 0.015, y + 0.88, k * tread + 0.15), skip=())
             loc.box(WOOD_D, (xr - 0.05, 0, 0.0), (xr + 0.05, 1.05, 0.1), skip=())
     lc.quad(COL_KEY, [0, 0, -0.05], [width, 0, -0.05], [width, H, L], [0, H, L], n=(0, 1, 0))
-    for side in open_sides:   # keep the player on the stair when the side is open; set 6 cm in from the edge so the
-        xr = width - 0.06 if side == "r" else 0.06    # capsule never reaches the landing rail's collider above
-        lc.quad(COL_KEY, [xr, 0, 0], [xr, H, L], [xr, H + 1.0, L], [xr, 1.0, 0], n=(-1 if side == "r" else 1, 0, 0))   # faces INTO the stair
+    # (no one-sided guard face here any more: game/world/stair_assist.gd lays a SOLID guard along every open side;
+    # this face sat 2 cm outside it and, pushing the other way, wedged anyone walking close to the rail)
     M = T(*origin) @ Ry(yaw)
     mb.merge(loc, M)
     if col is not None:
