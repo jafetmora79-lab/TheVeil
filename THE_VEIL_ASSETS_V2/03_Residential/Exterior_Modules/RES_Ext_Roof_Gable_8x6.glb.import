@@ -3,6 +3,7 @@
 importer="scene"
 importer_version=1
 type="PackedScene"
+uid="uid://dsv5qjy87huuj"
 path="res://.godot/imported/RES_Ext_Roof_Gable_8x6.glb-08969730684794eb43e35572044e1147.scn"
 
 [deps]
@@ -16,6 +17,7 @@ nodes/root_type=""
 nodes/root_name=""
 nodes/apply_root_scale=true
 nodes/root_scale=1.0
+nodes/import_as_skeleton_bones=false
 meshes/ensure_tangents=false
 meshes/generate_lods=false
 meshes/create_shadow_meshes=true
@@ -24,12 +26,20 @@ meshes/lightmap_texel_size=0.2
 meshes/force_disable_compression=false
 skins/use_named_skins=true
 animation/import=false
+animation/fps=30
+animation/trimming=false
+animation/remove_immutable_tracks=true
+animation/import_rest_as_RESET=false
 import_script/path=""
 _subresources={
 "materials": {
 "M_Arch_RoofShinglesDarkGray": {
 "use_external/enabled": true,
 "use_external/path": "res://THE_VEIL_ASSETS_V2/Materials_Godot/Architecture/M_Arch_RoofShinglesDarkGray.tres"
+},
+"M_Arch_SidingWhite": {
+"use_external/enabled": true,
+"use_external/path": "res://THE_VEIL_ASSETS_V2/Materials_Godot/Architecture/M_Arch_SidingWhite.tres"
 },
 "M_Arch_TrimPainted": {
 "use_external/enabled": true,
@@ -38,10 +48,6 @@ _subresources={
 "M_Town_PaintWhite": {
 "use_external/enabled": true,
 "use_external/path": "res://THE_VEIL_ASSETS_V2/02_Town/Materials/M_Town_PaintWhite.tres"
-},
-"M_Arch_SidingWhite": {
-"use_external/enabled": true,
-"use_external/path": "res://THE_VEIL_ASSETS_V2/Materials_Godot/Architecture/M_Arch_SidingWhite.tres"
 }
 }
 }

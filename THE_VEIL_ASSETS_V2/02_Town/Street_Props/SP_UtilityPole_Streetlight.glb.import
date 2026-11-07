@@ -3,6 +3,7 @@
 importer="scene"
 importer_version=1
 type="PackedScene"
+uid="uid://dx1mbovdw11gy"
 path="res://.godot/imported/SP_UtilityPole_Streetlight.glb-4787f3c24c5b22b420d511601808318e.scn"
 
 [deps]
@@ -16,6 +17,7 @@ nodes/root_type=""
 nodes/root_name=""
 nodes/apply_root_scale=true
 nodes/root_scale=1.0
+nodes/import_as_skeleton_bones=false
 meshes/ensure_tangents=false
 meshes/generate_lods=false
 meshes/create_shadow_meshes=true
@@ -24,36 +26,40 @@ meshes/lightmap_texel_size=0.2
 meshes/force_disable_compression=false
 skins/use_named_skins=true
 animation/import=false
+animation/fps=30
+animation/trimming=false
+animation/remove_immutable_tracks=true
+animation/import_rest_as_RESET=false
 import_script/path=""
 _subresources={
 "materials": {
-"M_Town_PoleWood": {
+"M_Com_SignageBacking": {
 "use_external/enabled": true,
-"use_external/path": "res://THE_VEIL_ASSETS_V2/02_Town/Materials/M_Town_PoleWood.tres"
+"use_external/path": "res://THE_VEIL_ASSETS_V2/Materials_Godot/Commercial/M_Com_SignageBacking.tres"
 },
 "M_Furn_MetalBrushed": {
 "use_external/enabled": true,
 "use_external/path": "res://THE_VEIL_ASSETS_V2/Materials_Godot/Furniture/M_Furn_MetalBrushed.tres"
 },
+"M_Furn_PlasticDirty": {
+"use_external/enabled": true,
+"use_external/path": "res://THE_VEIL_ASSETS_V2/Materials_Godot/Furniture/M_Furn_PlasticDirty.tres"
+},
 "M_Furn_WoodDark": {
 "use_external/enabled": true,
 "use_external/path": "res://THE_VEIL_ASSETS_V2/Materials_Godot/Furniture/M_Furn_WoodDark.tres"
 },
-"M_Furn_PlasticDirty": {
+"M_Town_LampGlow": {
 "use_external/enabled": true,
-"use_external/path": "res://THE_VEIL_ASSETS_V2/Materials_Godot/Furniture/M_Furn_PlasticDirty.tres"
+"use_external/path": "res://THE_VEIL_ASSETS_V2/02_Town/Materials/M_Town_LampGlow.tres"
 },
 "M_Town_PaintBlack": {
 "use_external/enabled": true,
 "use_external/path": "res://THE_VEIL_ASSETS_V2/02_Town/Materials/M_Town_PaintBlack.tres"
 },
-"M_Com_SignageBacking": {
+"M_Town_PoleWood": {
 "use_external/enabled": true,
-"use_external/path": "res://THE_VEIL_ASSETS_V2/Materials_Godot/Commercial/M_Com_SignageBacking.tres"
-},
-"M_Town_LampGlow": {
-"use_external/enabled": true,
-"use_external/path": "res://THE_VEIL_ASSETS_V2/02_Town/Materials/M_Town_LampGlow.tres"
+"use_external/path": "res://THE_VEIL_ASSETS_V2/02_Town/Materials/M_Town_PoleWood.tres"
 }
 }
 }

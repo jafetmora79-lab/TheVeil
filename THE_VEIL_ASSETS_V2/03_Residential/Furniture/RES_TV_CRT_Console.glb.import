@@ -3,6 +3,7 @@
 importer="scene"
 importer_version=1
 type="PackedScene"
+uid="uid://li1l80wngett"
 path="res://.godot/imported/RES_TV_CRT_Console.glb-238d2498dd21aa3a648b8f0dbd3c148e.scn"
 
 [deps]
@@ -16,6 +17,7 @@ nodes/root_type=""
 nodes/root_name=""
 nodes/apply_root_scale=true
 nodes/root_scale=1.0
+nodes/import_as_skeleton_bones=false
 meshes/ensure_tangents=false
 meshes/generate_lods=false
 meshes/create_shadow_meshes=true
@@ -24,24 +26,28 @@ meshes/lightmap_texel_size=0.2
 meshes/force_disable_compression=false
 skins/use_named_skins=true
 animation/import=false
+animation/fps=30
+animation/trimming=false
+animation/remove_immutable_tracks=true
+animation/import_rest_as_RESET=false
 import_script/path=""
 _subresources={
 "materials": {
+"M_Furn_FabricUpholstery": {
+"use_external/enabled": true,
+"use_external/path": "res://THE_VEIL_ASSETS_V2/Materials_Godot/Furniture/M_Furn_FabricUpholstery.tres"
+},
 "M_Furn_WoodDark": {
 "use_external/enabled": true,
 "use_external/path": "res://THE_VEIL_ASSETS_V2/Materials_Godot/Furniture/M_Furn_WoodDark.tres"
-},
-"M_Res_DetailAtlasGlow": {
-"use_external/enabled": true,
-"use_external/path": "res://THE_VEIL_ASSETS_V2/03_Residential/Materials/M_Res_DetailAtlasGlow.tres"
 },
 "M_Res_DetailAtlas": {
 "use_external/enabled": true,
 "use_external/path": "res://THE_VEIL_ASSETS_V2/03_Residential/Materials/M_Res_DetailAtlas.tres"
 },
-"M_Furn_FabricUpholstery": {
+"M_Res_DetailAtlasGlow": {
 "use_external/enabled": true,
-"use_external/path": "res://THE_VEIL_ASSETS_V2/Materials_Godot/Furniture/M_Furn_FabricUpholstery.tres"
+"use_external/path": "res://THE_VEIL_ASSETS_V2/03_Residential/Materials/M_Res_DetailAtlasGlow.tres"
 }
 }
 }

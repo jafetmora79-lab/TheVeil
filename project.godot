@@ -1,5 +1,10 @@
-; THE VEIL - Godot 4.3 project (Compatibility renderer).
-; The repository root is the project root, so every asset keeps its res://THE_VEIL_ASSETS_V2/... path.
+; Engine configuration file.
+; It's best edited using the editor UI and not directly,
+; since the parameters that go here are not all obvious.
+;
+; Format:
+;   [section] ; section goes between []
+;   param=value ; assign values to parameters
 
 config_version=5
 
@@ -11,6 +16,10 @@ run/main_scene="res://game/scenes/MainMenu.tscn"
 config/features=PackedStringArray("4.3", "GL Compatibility")
 boot_splash/bg_color=Color(0.039, 0.043, 0.055, 1)
 boot_splash/show_image=false
+
+[audio]
+
+general/default_playback_type.web=0
 
 [autoload]
 
@@ -28,19 +37,13 @@ window/stretch/aspect="expand"
 
 [physics]
 
-common/physics_ticks_per_second=60
 3d/physics_engine="GodotPhysics3D"
 
 [rendering]
 
 renderer/rendering_method="gl_compatibility"
-limits/opengl/max_renderable_lights=64
-limits/opengl/max_lights_per_object=16
 renderer/rendering_method.mobile="gl_compatibility"
 textures/vram_compression/import_etc2_astc=true
+limits/opengl/max_renderable_lights=64
+limits/opengl/max_lights_per_object=16
 environment/defaults/default_clear_color=Color(0.039, 0.043, 0.055, 1)
-anti_aliasing/quality/msaa_3d=0
-
-[audio]
-
-general/default_playback_type.web=0

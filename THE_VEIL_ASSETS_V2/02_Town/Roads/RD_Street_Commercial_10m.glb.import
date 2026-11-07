@@ -3,6 +3,7 @@
 importer="scene"
 importer_version=1
 type="PackedScene"
+uid="uid://ceg8uvvlumtvc"
 path="res://.godot/imported/RD_Street_Commercial_10m.glb-fa8ff4541064b0dad560f744cf212dc3.scn"
 
 [deps]
@@ -16,6 +17,7 @@ nodes/root_type=""
 nodes/root_name=""
 nodes/apply_root_scale=true
 nodes/root_scale=1.0
+nodes/import_as_skeleton_bones=false
 meshes/ensure_tangents=false
 meshes/generate_lods=false
 meshes/create_shadow_meshes=true
@@ -24,9 +26,17 @@ meshes/lightmap_texel_size=0.2
 meshes/force_disable_compression=false
 skins/use_named_skins=true
 animation/import=false
+animation/fps=30
+animation/trimming=false
+animation/remove_immutable_tracks=true
+animation/import_rest_as_RESET=false
 import_script/path=""
 _subresources={
 "materials": {
+"M_Com_StorefrontConcrete": {
+"use_external/enabled": true,
+"use_external/path": "res://THE_VEIL_ASSETS_V2/Materials_Godot/Commercial/M_Com_StorefrontConcrete.tres"
+},
 "M_Road_AsphaltCracked": {
 "use_external/enabled": true,
 "use_external/path": "res://THE_VEIL_ASSETS_V2/Materials_Godot/Roads/M_Road_AsphaltCracked.tres"
@@ -35,17 +45,13 @@ _subresources={
 "use_external/enabled": true,
 "use_external/path": "res://THE_VEIL_ASSETS_V2/Materials_Godot/Roads/M_Road_CurbConcrete.tres"
 },
-"M_Road_MarkingYellow": {
-"use_external/enabled": true,
-"use_external/path": "res://THE_VEIL_ASSETS_V2/Materials_Godot/Roads/M_Road_MarkingYellow.tres"
-},
 "M_Road_MarkingWhite": {
 "use_external/enabled": true,
 "use_external/path": "res://THE_VEIL_ASSETS_V2/Materials_Godot/Roads/M_Road_MarkingWhite.tres"
 },
-"M_Com_StorefrontConcrete": {
+"M_Road_MarkingYellow": {
 "use_external/enabled": true,
-"use_external/path": "res://THE_VEIL_ASSETS_V2/Materials_Godot/Commercial/M_Com_StorefrontConcrete.tres"
+"use_external/path": "res://THE_VEIL_ASSETS_V2/Materials_Godot/Roads/M_Road_MarkingYellow.tres"
 }
 }
 }

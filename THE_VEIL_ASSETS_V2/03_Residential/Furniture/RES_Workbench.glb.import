@@ -3,6 +3,7 @@
 importer="scene"
 importer_version=1
 type="PackedScene"
+uid="uid://b11omyo58jarh"
 path="res://.godot/imported/RES_Workbench.glb-87fa30fd0796bfcb6048f2b59e0795af.scn"
 
 [deps]
@@ -16,6 +17,7 @@ nodes/root_type=""
 nodes/root_name=""
 nodes/apply_root_scale=true
 nodes/root_scale=1.0
+nodes/import_as_skeleton_bones=false
 meshes/ensure_tangents=false
 meshes/generate_lods=false
 meshes/create_shadow_meshes=true
@@ -24,24 +26,28 @@ meshes/lightmap_texel_size=0.2
 meshes/force_disable_compression=false
 skins/use_named_skins=true
 animation/import=false
+animation/fps=30
+animation/trimming=false
+animation/remove_immutable_tracks=true
+animation/import_rest_as_RESET=false
 import_script/path=""
 _subresources={
 "materials": {
-"M_Furn_WoodLight": {
+"M_Furn_MetalBrushed": {
 "use_external/enabled": true,
-"use_external/path": "res://THE_VEIL_ASSETS_V2/Materials_Godot/Furniture/M_Furn_WoodLight.tres"
+"use_external/path": "res://THE_VEIL_ASSETS_V2/Materials_Godot/Furniture/M_Furn_MetalBrushed.tres"
 },
 "M_Furn_WoodDark": {
 "use_external/enabled": true,
 "use_external/path": "res://THE_VEIL_ASSETS_V2/Materials_Godot/Furniture/M_Furn_WoodDark.tres"
 },
+"M_Furn_WoodLight": {
+"use_external/enabled": true,
+"use_external/path": "res://THE_VEIL_ASSETS_V2/Materials_Godot/Furniture/M_Furn_WoodLight.tres"
+},
 "M_Res_Pegboard": {
 "use_external/enabled": true,
 "use_external/path": "res://THE_VEIL_ASSETS_V2/03_Residential/Materials/M_Res_Pegboard.tres"
-},
-"M_Furn_MetalBrushed": {
-"use_external/enabled": true,
-"use_external/path": "res://THE_VEIL_ASSETS_V2/Materials_Godot/Furniture/M_Furn_MetalBrushed.tres"
 }
 }
 }

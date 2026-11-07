@@ -451,11 +451,19 @@ func _on_map_input(e: InputEvent) -> void:
 func _toggle_dest() -> void:
 	if selected == "":
 		return
-	if String(Game.world_state.get("map_dest", "")) == selected:
+	var is_current := String(Game.world_state.get("map_dest", "")) == selected
+	if is_current:
 		Game.world_state.erase("map_dest")
+		if world and world.hud:
+			world.hud.set_marker(null)              # clear the HUD marker
 	else:
 		Game.world_state["map_dest"] = selected      # one search destination at a time
+		if world and world.hud and houses.has(selected):
+			var door: Vector3 = houses[selected]["door"]
+			var label: String = _street(selected)
+			world.hud.set_marker(door + Vector3(0, 1.6, 0), label)  # show HUD marker for destination
 	_layout()
+	close()  # close the map after selecting a destination
 
 
 func _street(z: String) -> String:
