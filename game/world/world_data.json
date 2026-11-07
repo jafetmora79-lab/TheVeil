@@ -949,16 +949,6 @@
    "yaw": 1.570796
   },
   {
-   "zone": "EXT_HOUSE_27",
-   "variant": "RES_House_Ranch",
-   "origin": [
-    188.0,
-    0.15,
-    420.0
-   ],
-   "yaw": -1.570796
-  },
-  {
    "zone": "EXT_HOUSE_28",
    "variant": "RES_House_TwoStorey",
    "origin": [
