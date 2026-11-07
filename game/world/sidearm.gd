@@ -266,10 +266,17 @@ func _hit(n: Node3D) -> void:
 						if is_instance_valid(ap) and ap.has_animation(was):
 							ap.play(was))
 				break
-	Sfx.play("hurt", n.global_position + Vector3(0, 0.6, 0), 2.0, 0.6)
 	var ai: Node = n.get_node_or_null("AI")
+	if ai and ai.get("voice"):
+		ai.voice.pain()                                # its own yelp / shell crack
+	else:
+		Sfx.play("hurt", n.global_position + Vector3(0, 0.6, 0), 2.0, 0.6)
 	if String(n.name) in ROAMERS and ai and "state" in ai:
 		ai.state = "RETURN"                            # it turns back and leaves (the expedition removes it unseen)
+		if ai.get("voice"):
+			get_tree().create_timer(0.4).timeout.connect(func():
+				if is_instance_valid(ai):
+					ai.voice.hurt())                     # limping off, whimpering
 		report["driven_off"] += 1
 
 

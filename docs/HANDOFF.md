@@ -745,3 +745,25 @@ arrives inside the game shop (the owner's case).
 * **Known:** the farmhouse stairs are narrow (0.95 m). Walking up their middle works; about 25 cm off-centre the
   player catches on the stringer. Same for the upstairs hall beside the stairwell rail.
 * **Dev entry and test:** `game/tools/dev_chapter11.gd`; `game/tests/chapter11_test.gd`.
+
+### 9.19 Audio, vehicle and survival integration (branch `claude/audio-vehicle-survival-integration`)
+Written without running Godot: nothing below has been seen working yet.
+* **Car:** parts are real finds (`game/data/expedition.json` `vehicle_parts`): battery by a wreck on the west road, fuel by a
+  delivery van behind the store, fuse at the gas station. `expedition.car_leads()` feeds the town map, which feeds the
+  yellow diamond. One fuel can is half a tank. Fuel and condition save in `Game.vehicle_state`, fitted parts in
+  `world_state.expedition.car_parts`. Out of fuel or wrecked, the car cannot reverse; `exit_spot` tries eight spots.
+* **Riders:** `survivors.board_car()` seats up to three (trip companion, then followers); after a load inside the car only
+  the trip companion is reseated.
+* **Creatures and the car:** while driving, `VeilHoundAI._tp()` is the car; bites go to `sedan.monster_hit()`.
+* **Stairs:** `game/world/stair_assist.gd` adds solid convex collision per flight from `game/data/house_stairs.json`
+  (from `plans.py`). Root cause: the houses' one-sided guard faced out of the stair. The GLBs were not rebuilt; `arch.py` has the
+  corrected normal for any later rebuild. Regenerate the JSON if a plan's stairs change.
+* **Audio:** selected library files in `game/audio/library`, listed by bank in `game/data/audio_banks.json`, played through
+  `Sfx.bank()` / `Sfx.bank_at()`. Their `.import` files were written by hand (loops forward, music and ambience QOA);
+  Godot imports them on the next editor open. `game/enemies/creature_voice.gd` is one creature's 3D voice and feet.
+  Encounter music is the director at the end of `game/autoload/sfx.gd`. The approved `skitter_hiss.wav` is unchanged and still
+  the leap screech. The old `game/audio/encounters` pack is no longer used by the struggles.
+* **Struggles:** `game/encounters/struggle.gd` now turns the view to the creature instead of moving the creature in front of
+  the view, and clears walls with a ray. No creature can be killed in the game, so no death sounds were imported.
+* **Crab:** the scene's own wide boxes (`ShellShape`, `LegSpan`, `ArmsShape`) are off, a 0.95 m capsule stands in, stride clips use
+  the real speeds from the scene metadata, it faces the player inside 4.5 m, and it looks ahead and turns round walls.

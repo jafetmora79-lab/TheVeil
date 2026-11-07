@@ -24,6 +24,7 @@ var click_hint: Label
 var feet_y:= 0.0
 var test_lights: Array = []
 var sound: AudioStreamPlayer3D
+var roof_steps: AudioStreamPlayer3D
 var saved_controls:= true
 var saved_look:= true
 var saved_fov:= 72.0
@@ -249,6 +250,12 @@ func _spawn() -> void :
 	sound.stream = SOUND
 	sound.unit_size = 10.0
 	creature.add_child(sound)
+	roof_steps = AudioStreamPlayer3D.new()               # its legs on the roof, under the rattle
+	roof_steps.stream = Sfx.bank("sk_roof_loop")
+	roof_steps.unit_size = 10.0
+	roof_steps.volume_db = -4.0
+	creature.add_child(roof_steps)
+	roof_steps.play()
 	report["rooftop"] = creature.global_position.y > house.global_position.y + 2.0
 
 func _ui() -> void :
@@ -364,6 +371,8 @@ func _encounter() -> void :
 	var open_yard:= _clear_run(drop_to, _ground(drop_to + rush_to.normalized() * maxf(rush_to.length() - LEAP_FROM, 0.0)))
 	report["open_yard"] = open_yard
 	_play("Attack_Lunge")
+	if roof_steps: roof_steps.stop()
+	Sfx.bank_at("ss_rush", creature.global_position, 0.0, 6.0)      # (the air and the legs, under the approved screech)
 	t = 0.0
 	while open_yard and t < DROP_S:
 		t += get_process_delta_time()
@@ -424,6 +433,7 @@ func _encounter() -> void :
 		cam.fov = lerpf(fov_start, 64.0, fall)
 		await get_tree().process_frame
 	Sfx.play("hurt", cam.global_position, 0.0, 0.8)
+	Sfx.bank_at("ss_impact", cam.global_position, 0.0, 6.0)
 	creature.global_position = chest
 	report["pinned"] = true
 	report["landing_snap_m"] = 0.0
@@ -485,6 +495,7 @@ func _encounter() -> void :
 	report["throw_side"] = signf((landing - saved_position).dot(right))
 	if animation: animation.speed_scale = 1.0
 	_play("Hit_React")
+	Sfx.bank_at("ss_thrown", thrown_from, 0.0, 6.0)
 	t = 0.0
 	while t < 0.55:
 		t += get_process_delta_time()
@@ -530,6 +541,7 @@ func _encounter() -> void :
 			report["anatomical_facing_dot"] = anatomy.normalized().dot(toward_lens)
 	report["faced_player_for_hiss"] = report.get("anatomical_facing_dot",0.0)>0.85
 	_play("Scuttle_Fast")
+	Sfx.bank_at("ss_retreat", creature.global_position, 0.0, 6.0)
 	if animation: animation.speed_scale = ESCAPE_SPEED / SCUTTLE_NATIVE      # the legs keep pace with the run
 	var route: Array = plan[2]
 	report["zigzag_segments"] = route.size()
