@@ -91,6 +91,8 @@ func begin(w: Node, chapter9: Node, restoring: bool) -> void:
 	ruth = c9.ruth
 	sarah = c9.sarah
 	house = w.get_node("Residential/Houses/" + HOUSE)
+	if w.has_method("clear_story_glass"):
+		w.clear_story_glass(house)
 	if not Game.world_state.has(STATE):
 		Game.world_state[STATE] = {"roster": c9.roster(), "sarah": "", "choice": ""}
 	_streams["call"] = Sfx._make(4.0, _call_wave)

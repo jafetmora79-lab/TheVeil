@@ -194,6 +194,18 @@ func _physics_process(delta: float) -> void:
 		_update_walk(delta)
 
 
+## A walk that ends inside the player, another survivor or a wall edge takes one short corrective step to the
+## nearest clear spot (a single capsule query on arrival - nothing runs per frame).
+func _settle_clear() -> void:
+	var body := root as VeilSurvivorBody
+	if body == null or not body.is_inside_tree() or body.is_clear(body.global_position):
+		return
+	var safe := body.nearest_safe(body.global_position, 1.2)
+	var frame := body.get_parent_node_3d()
+	if safe.is_finite() and frame and safe.distance_to(body.global_position) > 0.05:
+		_path = [frame.to_local(safe)]
+
+
 func _update_walk(delta: float) -> void:
 	if _path.is_empty():
 		_walk = move_toward(_walk, 0.0, delta * 3.0)
@@ -205,6 +217,7 @@ func _update_walk(delta: float) -> void:
 	if d.length() < 0.08:
 		_path.pop_front()
 		if _path.is_empty():
+			_settle_clear()
 			arrived.emit()
 		return
 	_walk = move_toward(_walk, 1.0, delta * 3.0)
