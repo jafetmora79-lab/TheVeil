@@ -316,12 +316,72 @@ L["Cottage"] = [
     ("RES_Armchair_Wingback", "LIV", "c", (-0.2, 4.2), -130), ("RES_TV_CRT_Small", "LIV", "c", (-0.3, 6.3), -110),
     ("RES_Lamp_Floor", "LIV", "c", (-3.3, 3.9), 0), ("RES_Curtains_Gingham", "LIV", "mount", "F", -3.0, 0.0),
     ("RES_Fridge_Retro", "KIT", "wall", "L", 8.0), ("RES_Counter_Sink", "KIT", "wall", "B", -1.8), ("RES_Stove_Harvest", "KIT", "wall", "B", -3.0),
-    ("RES_DiningTable_Round", "KIT", "c", (-1.55, 9.3), 0),
+    ("RES_DiningTable_Round", "KIT", "c", (-1.5, 8.55), 0),     # clear of the chimney stack (x -1.2, z 9.4)
     ("RES_Bed_Double", "BED", "wall", "R", 4.9), ("RES_Nightstand", "BED", "wall", "R", 3.4), ("RES_Wardrobe", "BED", "wall", "B", 1.6, dict(off=0.0)),
     ("RES_ShowerStall", "BATH", "wall", "F", 1.3),
     ("RES_Toilet", "BATH", "wall", "B", 1.3), ("RES_BathSink_Pedestal", "BATH", "wall", "F", 0.4),
     ("RES_Bed_Single", "BED2", "wall", "R", 8.4),
 ]
+
+# ---- reconstruction pass: lived-in additions, appended so every earlier placement (and the story coordinates
+# taken from it) stays exactly where it was. ("on", "<model>") sits on the latest earlier piece of that model in
+# the same room.
+def _extend(key, items):
+    lay = L[key]
+    for e in items:
+        if e[2] == "on" and isinstance(e[3], str):
+            e = e[:3] + (max(i for i, x in enumerate(lay) if x[0] == e[3] and x[1] == e[1]),) + e[4:]
+        lay.append(e)
+
+
+# Cottage - a small working-class home: a lived-in front room, a working kitchen, one couple's bedroom and a
+# spare room used for storage and a single bed
+_extend("Cottage", [
+    ("RES_CoffeeTable_Wood", "LIV", "c", (-2.45, 5.2), 90), ("RES_Newspaper", "LIV", "on", "RES_CoffeeTable_Wood", (0.1, 0.0), 20),
+    ("RES_SideTable_Drawer", "LIV", "c", (-3.4, 6.55), 0), ("RES_Lamp_Table", "LIV", "on", "RES_SideTable_Drawer", (0.0, 0.0), 0),
+    ("RES_Picture_Landscape", "LIV", "mount", "L", 4.1, 1.65), ("RES_WallClock", "LIV", "mount", "B", 0.25),
+    ("RES_DiningChair_Wood", "KIT", "c", (-1.5, 7.8), 0), ("RES_DiningChair_Wood", "KIT", "c", (-2.25, 8.55), 90),
+    ("RES_WallCabinet_0.8", "KIT", "mount", "B", -1.8),
+    ("RES_DishRack", "KIT", "on", "RES_Counter_Sink", (0.3, 0.0), 0), ("RES_Kettle", "KIT", "on", "RES_Stove_Harvest", (-0.15, 0.1), 30),
+    ("RES_TrashCan_Pedal", "KIT", "wall", "L", 10.85), ("RES_WallCalendar", "KIT", "mount", "L", 7.4),
+    ("RES_MedicineCabinet", "BATH", "mount", "F", 0.4, 1.55), ("RES_TowelRack", "BATH", "mount", "R", 8.3),
+    ("RES_Lamp_Table", "BED", "on", "RES_Nightstand", (0.0, 0.0), 0), ("RES_Dresser", "BED", "wall", "L", 3.3),
+    ("RES_Picture_Family", "BED", "on", "RES_Dresser", (0.0, 0.05), 0), ("RES_Curtains_Gingham", "BED", "mount", "F", 2.27, 0.0),
+    ("RES_Nightstand", "BED2", "wall", "R", 9.75), ("RES_AlarmClock", "BED2", "on", "RES_Nightstand", (0.0, 0.0), -15),
+    ("RES_CardboardBox_Stack", "BED2", "c", (2.25, 7.45), 8), ("RES_Poster_Band", "BED2", "mount", "L", 8.3, 1.7),
+    ("RES_CoatRack_Wall", "HALL", "mount", "F", 0.9), ("RES_ShoeRack", "HALL", "wall", "F", 0.9, dict(off=0.0)),
+])
+
+# TwoStorey - a family residence: furnished halls, a full dining set, a kitchen table, three distinct bedrooms
+# (parents, a teenager, a younger child) and a used basement
+_extend("TwoStorey", [
+    ("RES_SideTable_Drawer", "LIV", "c", (-4.1, 4.35), 0), ("RES_Lamp_Table", "LIV", "on", "RES_SideTable_Drawer", (0.0, 0.0), 0),
+    ("RES_Curtains_Plaid", "LIV", "mount", "F", -2.85, 0.0), ("RES_Picture_Family", "LIV", "mount", "R", 7.4, 1.6),
+    ("RES_WallClock", "LIV", "mount", "B", -1.6), ("RES_Newspaper", "LIV", "on", "RES_CoffeeTable_Wood", (0.1, -0.1), 35),
+    ("RES_DiningChair_Wood", "DIN", "c", (-2.55, 9.7), -90), ("RES_DiningChair_Wood", "DIN", "c", (-3.3, 10.45), 180),
+    ("RES_Dishes_Set", "DIN", "on", "RES_DiningTable_Round", (0.0, 0.0), 0), ("RES_Picture_Landscape", "DIN", "mount", "R", 9.2, 1.6),
+    ("RES_Bookshelf_Tall", "DEN", "wall", "L", 5.6), ("RES_Lamp_Floor", "DEN", "c", (1.6, 3.85), 0),
+    ("RES_Radio", "DEN", "on", "RES_Desk", (0.35, 0.0), 0), ("RES_WallCalendar", "DEN", "mount", "L", 4.1),
+    ("RES_DiningTable_Round", "KIT", "c", (2.45, 8.7), 0), ("RES_DiningChair_Vinyl", "KIT", "c", (2.45, 7.95), 0),
+    ("RES_WallCabinet_0.8", "KIT", "mount", "R", 8.6),
+    ("RES_Kettle", "KIT", "on", "RES_Stove_Harvest", (-0.15, 0.1), 20), ("RES_DishRack", "KIT", "on", "RES_Counter_Sink", (0.3, 0.0), 0),
+    ("RES_SideTable_Drawer", "FOY", "wall", "L", 6.9), ("RES_Lamp_Table", "FOY", "on", "RES_SideTable_Drawer", (0.0, 0.0), 0),
+    ("RES_Picture_Landscape", "FOY", "mount", "L", 8.3, 1.6),
+    ("RES_Picture_Family", "UHAL", "mount", "L", 7.4, 1.6), ("RES_Bookshelf_Low", "UHAL", "wall", "B", -0.5),
+    ("RES_Nightstand", "BED1", "wall", "L", 6.75), ("RES_Lamp_Table", "BED1", "on", "RES_Nightstand", (0.0, 0.0), 0),
+    ("RES_Wardrobe", "BED1", "wall", "B", -3.7), ("RES_Curtains_Gingham", "BED1", "mount", "F", -2.85, 0.0),
+    ("RES_Painting_Barn", "BED1", "mount", "L", 5.5, 1.75),
+    ("RES_Nightstand", "BED2", "wall", "L", 10.75), ("RES_Lamp_Table", "BED2", "on", "RES_Desk", (0.3, 0.0), 0),
+    ("RES_Poster_Band", "BED2", "mount", "R", 8.4, 1.7), ("RES_Bookshelf_Low", "BED2", "wall", "F", -2.2),
+    ("RES_GameConsole", "BED2", "on", "RES_Desk", (-0.25, 0.0), 0),
+    ("RES_Nightstand", "BED3", "wall", "R", 6.65), ("RES_AlarmClock", "BED3", "on", "RES_Nightstand", (0.0, 0.0), 15),
+    ("RES_Dresser", "BED3", "wall", "B", 3.4), ("RES_Picture_Landscape", "BED3", "mount", "L", 6.4, 1.6),
+    ("RES_StorageBin", "BED3", "c", (2.0, 6.7), 0),
+    ("RES_TowelRack", "BATH2", "mount", "L", 8.5), ("RES_LaundryBasket", "BATH2", "wall", "F", 1.9),
+    ("RES_Rug_Rect", "BREC", "c", (-2.2, 7.0), 90), ("RES_Lamp_Floor", "BREC", "c", (-4.1, 8.6), 0),
+    ("RES_StorageBin", "BUTIL", "c", (2.0, 4.2), 0), ("RES_CardboardBox_Closed", "BUTIL", "c", (2.0, 10.8), 10),
+])
+
 
 L["MillWorker"] = [
     ("RES_Rug_Oval", "PAR", "c", (0.6, 6.2), 0), ("RES_Sofa_Plaid", "PAR", "wall", "R", 6.0),
