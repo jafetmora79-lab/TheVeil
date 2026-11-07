@@ -285,7 +285,7 @@ func _run() -> void:
 	for b in p4.choice._box.get_children():
 		if b is Button:
 			labels.append(String((b as Button).text).get_slice(".  ", 1) if String((b as Button).text).contains(".  ") else (b as Button).text)
-	ok("exp_menu_options", labels.size() == 3 and String(labels[0]).begins_with("Continue Story") and labels[1] == "Scavenge for Supplies"
+	ok("exp_menu_options", labels.size() == 3 and String(labels[0]).begins_with("Continue Story") and labels[1] == "Go Scavenging"
 		and labels[2] == "Stay Inside", str(labels))
 	p4.choice.pick(1)
 	await frames(5)

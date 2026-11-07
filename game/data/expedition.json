@@ -1,9 +1,9 @@
 {
  "_comment": "THE VEIL - expedition / dynamic danger tuning (game/world/expedition.gd). Times are seconds of ACTIVE time outside (paused, menus, dialogue and cinematics do not count). Levels: 0 low, 1 rising, 2 high, 3 critical.",
  "danger_thresholds_s": [
-  150,
-  330,
-  540
+  180,
+  360,
+  600
  ],
  "level_names": [
   "LOW",
@@ -13,16 +13,16 @@
  ],
  "max_dynamic_creatures": 2,
  "encounter_cooldown_s": [
-  9999,
-  150,
   90,
-  50
+  75,
+  55,
+  40
  ],
  "encounter_chance": [
-  0.0,
-  0.35,
-  0.6,
-  0.85
+  0.3,
+  0.55,
+  0.75,
+  0.9
  ],
  "hound_from_level": 2,
  "sound_interval_s": [
@@ -32,8 +32,8 @@
   14
  ],
  "spawn_distance": [
-  34,
-  46
+  24,
+  40
  ],
  "warning_cooldown_s": 75,
  "driving_time_scale": 0.6,
