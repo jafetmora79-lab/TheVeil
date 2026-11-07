@@ -575,6 +575,7 @@ func _fit() -> void:
 func open() -> void:
 	refresh()
 	visible = true
+	get_tree().paused = true
 	_fit()
 	_fit.call_deferred()                               # again once the new details have been laid out
 
@@ -583,6 +584,7 @@ func close() -> void:
 	if visible:
 		close_inspect()
 		visible = false
+		get_tree().paused = false
 		closed.emit()
 
 
