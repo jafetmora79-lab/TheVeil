@@ -126,13 +126,6 @@ Ks 0 0 0
 illum 1
 map_Kd ../../../01_Textures/Interiors/T_Int_TilesBathroom.png
 
-newmtl M_Com_StorageConcrete
-Ka 0 0 0
-Kd 1 1 1
-Ks 0 0 0
-illum 1
-map_Kd ../../../01_Textures/Commercial/T_Com_StorageConcrete.png
-
 newmtl M_Furn_WoodPainted
 Ka 0 0 0
 Kd 1 1 1
@@ -168,25 +161,11 @@ Ks 0 0 0
 illum 1
 map_Kd ../../../01_Textures/Interiors/T_Int_Linoleum.png
 
-newmtl M_Int_BasementConcrete
-Ka 0 0 0
-Kd 1 1 1
-Ks 0 0 0
-illum 1
-map_Kd ../../../01_Textures/Interiors/T_Int_BasementConcrete.png
-
 newmtl M_Res_BulbGlow
 Ka 0 0 0
 Kd 1 1 1
 Ks 0 0 0
 illum 1
-
-newmtl M_Town_PaintBlack
-Ka 0 0 0
-Kd 1 1 1
-Ks 0 0 0
-illum 1
-map_Kd ../../../02_Town/Textures/T_Town_PaintBlack.png
 
 newmtl M_Furn_MetalBrushed
 Ka 0 0 0

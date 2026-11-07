@@ -6,7 +6,17 @@
   "done": "Friday evening - to be continued",
   "act1": "The Veil",
   "act1_night": "Secure the supermarket",
-  "act2_search": "The First Search"
+  "act2_search": "The First Search",
+  "act2_voices": "Voices in the Mist",
+  "act2_trace": "A Trace of Noah",
+  "act3_doors": "Something at the Doors",
+  "act3_fall": "The Fall of the Supermarket",
+  "act3_road": "No Safe Road",
+  "act4_farm_road": "The Farm Road",
+  "act5_truth": "The Truth Beneath Greyhaven",
+  "act5_veil": "Into the Veil",
+  "act5_shelter": "The Last Shelter",
+  "act6_remains": "What Remains"
  },
  "steps": [
   {
@@ -85,7 +95,7 @@
    "id": "mist_market",
    "flag": "p3_in_market",
    "goal": "act1",
-   "text": "Get to the supermarket"
+   "text": "Reach the supermarket"
   },
   {
    "id": "mist_doors",
@@ -148,6 +158,12 @@
    "text": "Prepare for the search"
   },
   {
+   "id": "c5_leave",
+   "flag": "c5_left_store",
+   "goal": "act2_search",
+   "text": "Leave the supermarket with Eddie"
+  },
+  {
    "id": "c5_reach",
    "flag": "c5_house_reached",
    "goal": "act2_search",
@@ -179,9 +195,639 @@
   },
   {
    "id": "c5_complete",
-   "flag": "c6_started",
+   "flag": "ch6_started",
    "goal": "act2_search",
-   "text": "Chapter 5 complete - The First Search"
+   "text": "Chapter 6 complete - The First Search"
+  },
+  {
+   "id": "c6_marcus",
+   "flag": "ch6_marcus_briefing_complete",
+   "goal": "act2_voices",
+   "text": "Talk to Marcus"
+  },
+  {
+   "id": "c6_eddie",
+   "flag": "ch6_eddie_talked",
+   "goal": "act2_voices",
+   "text": "Talk to Eddie"
+  },
+  {
+   "id": "c6_prepare",
+   "flag": "ch6_eddie_ready",
+   "goal": "act2_voices",
+   "text": "Prepare for the search"
+  },
+  {
+   "id": "c6_leave",
+   "flag": "ch6_left_supermarket",
+   "goal": "act2_voices",
+   "text": "Leave the supermarket with Eddie"
+  },
+  {
+   "id": "c6_search",
+   "flag": "ch6_house_found",
+   "goal": "act2_voices",
+   "text": "Search the residential area"
+  },
+  {
+   "id": "c6_house",
+   "flag": "ch6_ruth_sarah_met",
+   "goal": "act2_voices",
+   "text": "Investigate the house"
+  },
+  {
+   "id": "c6_voice",
+   "flag": "ch6_voice_resolved",
+   "goal": "act2_voices",
+   "text": "Investigate the distant voice"
+  },
+  {
+   "id": "c6_avoid",
+   "flag": "ch6_hound_encounter_complete",
+   "goal": "act2_voices",
+   "text": "Avoid the creature"
+  },
+  {
+   "id": "c6_return",
+   "flag": "ch6_returned_to_supermarket",
+   "goal": "act2_voices",
+   "text": "Return to the supermarket"
+  },
+  {
+   "id": "c6_report",
+   "flag": "chapter_6_complete",
+   "goal": "act2_voices",
+   "text": "Report to Marcus"
+  },
+  {
+   "id": "c6_complete",
+   "flag": "ch7_started",
+   "goal": "act2_voices",
+   "text": "Chapter 7 complete - Voices in the Mist"
+  },
+  {
+   "id": "c7_marcus",
+   "flag": "ch7_marcus_briefing_complete",
+   "goal": "act2_trace",
+   "text": "Talk to Marcus"
+  },
+  {
+   "id": "c7_prepare",
+   "flag": "ch7_eddie_warning_complete",
+   "goal": "act2_trace",
+   "text": "Prepare to leave with Marcus"
+  },
+  {
+   "id": "c7_leave",
+   "flag": "ch7_departure_complete",
+   "goal": "act2_trace",
+   "text": "Leave the supermarket with Marcus"
+  },
+  {
+   "id": "c7_vehicle",
+   "flag": "ch7_vehicle_reached",
+   "goal": "act2_trace",
+   "text": "Reach the abandoned vehicle"
+  },
+  {
+   "id": "c7_search",
+   "flag": "ch7_backpack_found",
+   "goal": "act2_trace",
+   "text": "Search the abandoned vehicle"
+  },
+  {
+   "id": "c7_examine",
+   "flag": "noah_clue_backpack",
+   "goal": "act2_trace",
+   "text": "Examine Noah's backpack"
+  },
+  {
+   "id": "c7_road",
+   "flag": "ch7_road_investigation_complete",
+   "goal": "act2_trace",
+   "text": "Investigate the old service road"
+  },
+  {
+   "id": "c7_return",
+   "flag": "ch7_returned_to_supermarket",
+   "goal": "act2_trace",
+   "text": "Return to the supermarket"
+  },
+  {
+   "id": "c7_report",
+   "flag": "ch7_report_complete",
+   "goal": "act2_trace",
+   "text": "Report to Eddie"
+  },
+  {
+   "id": "c7_complete",
+   "flag": "ch8_started",
+   "goal": "act2_trace",
+   "text": "Chapter 8 complete - A Trace of Noah"
+  },
+  {
+   "id": "c8_eddie",
+   "flag": "ch8_eddie_talked",
+   "goal": "act3_doors",
+   "text": "Talk to Eddie"
+  },
+  {
+   "id": "c8_inspect",
+   "flag": "ch8_barricade_inspected",
+   "goal": "act3_doors",
+   "text": "Inspect the back entrance"
+  },
+  {
+   "id": "c8_materials",
+   "flag": "ch8_materials_collected",
+   "goal": "act3_doors",
+   "text": "Find materials to reinforce the entrance"
+  },
+  {
+   "id": "c8_repair",
+   "flag": "ch8_barricade_repaired",
+   "goal": "act3_doors",
+   "text": "Repair the back barricade"
+  },
+  {
+   "id": "c8_power",
+   "flag": "ch8_power_restored",
+   "goal": "act3_doors",
+   "text": "Check the backup power"
+  },
+  {
+   "id": "c8_return",
+   "flag": "ch8_attack_started",
+   "goal": "act3_doors",
+   "text": "Return to the others"
+  },
+  {
+   "id": "c8_secure",
+   "flag": "ch8_entrance_secured",
+   "goal": "act3_doors",
+   "text": "Secure the back entrance"
+  },
+  {
+   "id": "c8_help",
+   "flag": "ch8_survivor_helped",
+   "goal": "act3_doors",
+   "text": "Help the injured survivor"
+  },
+  {
+   "id": "c8_gather",
+   "flag": "ch8_aftermath_complete",
+   "goal": "act3_doors",
+   "text": "Join the others"
+  },
+  {
+   "id": "c8_complete",
+   "flag": "ch9_started",
+   "goal": "act3_doors",
+   "text": "Chapter 9 complete - Something at the Doors"
+  },
+  {
+   "id": "c9_marcus",
+   "flag": "ch9_marcus_talked",
+   "goal": "act3_fall",
+   "text": "Talk to Marcus"
+  },
+  {
+   "id": "c9_gather",
+   "flag": "ch9_prepared",
+   "goal": "act3_fall",
+   "text": "Gather essential supplies"
+  },
+  {
+   "id": "c9_warning",
+   "flag": "ch9_fall_started",
+   "goal": "act3_fall",
+   "text": "Stay with the group"
+  },
+  {
+   "id": "c9_escape",
+   "flag": "ch9_escaped",
+   "goal": "act3_fall",
+   "text": "Escape the supermarket"
+  },
+  {
+   "id": "c9_rendezvous",
+   "flag": "ch9_rendezvous_reached",
+   "goal": "act3_fall",
+   "text": "Reach the temporary rendezvous point"
+  },
+  {
+   "id": "c9_regroup",
+   "flag": "chapter_9_complete",
+   "goal": "act3_fall",
+   "text": "Regroup with the survivors"
+  },
+  {
+   "id": "c9_complete",
+   "flag": "ch10_started",
+   "goal": "act3_fall",
+   "text": "Chapter 10 complete - The Fall of the Supermarket"
+  },
+  {
+   "id": "c10_eddie",
+   "flag": "ch10_plan_done",
+   "goal": "act3_road",
+   "text": "Talk to Eddie"
+  },
+  {
+   "id": "c10_way_out",
+   "flag": "ch10_car_found",
+   "goal": "act3_road",
+   "text": "Find a way out of Greyhaven"
+  },
+  {
+   "id": "c10_car",
+   "flag": "ch10_car_done",
+   "goal": "act3_road",
+   "text": "Investigate the abandoned vehicle"
+  },
+  {
+   "id": "c10_road",
+   "flag": "ch10_roadblock_seen",
+   "goal": "act3_road",
+   "text": "Continue toward the countryside road"
+  },
+  {
+   "id": "c10_around",
+   "flag": "ch10_around_done",
+   "goal": "act3_road",
+   "text": "Find a way around the blocked road"
+  },
+  {
+   "id": "c10_group",
+   "flag": "ch10_followed_done",
+   "goal": "act3_road",
+   "text": "Stay with the group"
+  },
+  {
+   "id": "c10_choice",
+   "flag": "ch10_choice_made",
+   "goal": "act3_road",
+   "text": "Decide what to do for Sarah"
+  },
+  {
+   "id": "c10_stretch",
+   "flag": "ch10_building_seen",
+   "goal": "act3_road",
+   "text": "Head for the outskirts"
+  },
+  {
+   "id": "c10_building",
+   "flag": "ch10_refuge_checked",
+   "goal": "act3_road",
+   "text": "Investigate the building"
+  },
+  {
+   "id": "c10_gather",
+   "flag": "ch10_refuge_talk_done",
+   "goal": "act3_road",
+   "text": "Gather the group inside"
+  },
+  {
+   "id": "c10_rest",
+   "flag": "chapter_10_complete",
+   "goal": "act3_road",
+   "text": "Rest for a few hours"
+  },
+  {
+   "id": "c10_complete",
+   "flag": "ch11_started",
+   "goal": "act3_road",
+   "text": "Chapter 11 complete - No Safe Road"
+  },
+  {
+   "id": "c11_talk",
+   "flag": "ch11_talk_done",
+   "goal": "act4_farm_road",
+   "text": "Talk to the survivors"
+  },
+  {
+   "id": "c11_road",
+   "flag": "ch11_campsite_reached",
+   "goal": "act4_farm_road",
+   "text": "Follow the farm road"
+  },
+  {
+   "id": "c11_clue",
+   "flag": "ch11_note_read",
+   "goal": "act4_farm_road",
+   "text": "Inspect the campsite"
+  },
+  {
+   "id": "c11_farmhouse",
+   "flag": "ch11_farmhouse_reached",
+   "goal": "act4_farm_road",
+   "text": "Locate the old farmhouse"
+  },
+  {
+   "id": "c11_search",
+   "flag": "ch11_search_done",
+   "goal": "act4_farm_road",
+   "text": "Search the farmhouse"
+  },
+  {
+   "id": "c11_read",
+   "flag": "ch11_message_read",
+   "goal": "act4_farm_road",
+   "text": "Read the message"
+  },
+  {
+   "id": "c11_regroup",
+   "flag": "ch11_regrouped",
+   "goal": "act4_farm_road",
+   "text": "Regroup with the survivors"
+  },
+  {
+   "id": "c11_escape",
+   "flag": "ch11_escaped",
+   "goal": "act4_farm_road",
+   "text": "Escape the farmhouse"
+  },
+  {
+   "id": "c11_light",
+   "flag": "chapter_11_complete",
+   "goal": "act4_farm_road",
+   "text": "Stay with the group"
+  },
+  {
+   "id": "c11_complete",
+   "flag": "ch12_started",
+   "goal": "act4_farm_road",
+   "text": "Chapter 12 complete - The Farm Road"
+  },
+  {
+   "id": "c12_talk",
+   "flag": "ch12_talk_done",
+   "goal": "act5_truth",
+   "text": "Talk to Eddie"
+  },
+  {
+   "id": "c12_setout",
+   "flag": "ch12_set_out",
+   "goal": "act5_truth",
+   "text": "Prepare and set out with Eddie"
+  },
+  {
+   "id": "c12_station",
+   "flag": "ch12_station_reached",
+   "goal": "act5_truth",
+   "text": "Investigate the old maintenance station"
+  },
+  {
+   "id": "c12_fuse",
+   "flag": "ch12_fuse_found",
+   "goal": "act5_truth",
+   "text": "Find a way to restore power"
+  },
+  {
+   "id": "c12_power",
+   "flag": "ch12_power_on",
+   "goal": "act5_truth",
+   "text": "Restore power to the lower level"
+  },
+  {
+   "id": "c12_access",
+   "flag": "ch12_access_open",
+   "goal": "act5_truth",
+   "text": "Open the access door"
+  },
+  {
+   "id": "c12_descend",
+   "flag": "ch12_descended",
+   "goal": "act5_truth",
+   "text": "Go down to the service tunnels"
+  },
+  {
+   "id": "c12_chamber",
+   "flag": "ch12_chamber_open",
+   "goal": "act5_truth",
+   "text": "Explore the tunnels"
+  },
+  {
+   "id": "c12_records",
+   "flag": "ch12_records_taken",
+   "goal": "act5_truth",
+   "text": "Recover the underground records"
+  },
+  {
+   "id": "c12_escape",
+   "flag": "ch12_door_secured",
+   "goal": "act5_truth",
+   "text": "Get back up and shut the access door"
+  },
+  {
+   "id": "c12_choice",
+   "flag": "ch12_supply_choice",
+   "goal": "act5_truth",
+   "text": "Take the supplies or leave now"
+  },
+  {
+   "id": "c12_leave",
+   "flag": "ch12_left_station",
+   "goal": "act5_truth",
+   "text": "Leave the station"
+  },
+  {
+   "id": "c12_return",
+   "flag": "ch12_returned",
+   "goal": "act5_truth",
+   "text": "Return to the mill house"
+  },
+  {
+   "id": "c12_map",
+   "flag": "chapter_12_complete",
+   "goal": "act5_truth",
+   "text": "Look at the map with the group"
+  },
+  {
+   "id": "c12_complete",
+   "flag": "ch13_started",
+   "goal": "act5_truth",
+   "text": "Chapter 13 complete - The Truth Beneath Greyhaven"
+  },
+  {
+   "id": "c13_talk",
+   "flag": "ch13_talk_done",
+   "goal": "act5_veil",
+   "text": "Look at the map with the group"
+  },
+  {
+   "id": "c13_setout",
+   "flag": "ch13_set_out",
+   "goal": "act5_veil",
+   "text": "Prepare and choose who comes along"
+  },
+  {
+   "id": "c13_district",
+   "flag": "ch13_district_reached",
+   "goal": "act5_veil",
+   "text": "Reach the abandoned district"
+  },
+  {
+   "id": "c13_gate",
+   "flag": "ch13_gate_open",
+   "goal": "act5_veil",
+   "text": "Open the checkpoint gate"
+  },
+  {
+   "id": "c13_passage",
+   "flag": "ch13_in_passage",
+   "goal": "act5_veil",
+   "text": "Get to the maintenance passage"
+  },
+  {
+   "id": "c13_chamber",
+   "flag": "ch13_chamber_reached",
+   "goal": "act5_veil",
+   "text": "Follow the passage"
+  },
+  {
+   "id": "c13_entrance",
+   "flag": "ch13_entrance_open",
+   "goal": "act5_veil",
+   "text": "Find a way through the sealed entrance"
+  },
+  {
+   "id": "c13_choice",
+   "flag": "ch13_choice_made",
+   "goal": "act5_veil",
+   "text": "Decide: your companion or the evidence"
+  },
+  {
+   "id": "c13_out",
+   "flag": "ch13_out_of_passage",
+   "goal": "act5_veil",
+   "text": "Get out through the damaged passage"
+  },
+  {
+   "id": "c13_escape",
+   "flag": "ch13_returned",
+   "goal": "act5_veil",
+   "text": "Escape the district"
+  },
+  {
+   "id": "c13_night",
+   "flag": "chapter_13_complete",
+   "goal": "act5_veil",
+   "text": "Rest at the mill house"
+  },
+  {
+   "id": "c13_complete",
+   "flag": "ch14_started",
+   "goal": "act5_veil",
+   "text": "Chapter 14 complete - Into the Veil"
+  },
+  {
+   "id": "c14_window",
+   "flag": "ch14_window_seen",
+   "goal": "act5_shelter",
+   "text": "Investigate the disturbance"
+  },
+  {
+   "id": "c14_meeting",
+   "flag": "ch14_meeting_done",
+   "goal": "act5_shelter",
+   "text": "Talk with the group"
+  },
+  {
+   "id": "c14_prepare",
+   "flag": "ch14_prepared",
+   "goal": "act5_shelter",
+   "text": "Check the supplies, reinforce the entrances, prepare an escape route"
+  },
+  {
+   "id": "c14_watch",
+   "flag": "ch14_siege_started",
+   "goal": "act5_shelter",
+   "text": "Keep watch at the window"
+  },
+  {
+   "id": "c14_skitters",
+   "flag": "ch14_skitters_done",
+   "goal": "act5_shelter",
+   "text": "Hold the window"
+  },
+  {
+   "id": "c14_hounds",
+   "flag": "ch14_hounds_done",
+   "goal": "act5_shelter",
+   "text": "Save the survivor"
+  },
+  {
+   "id": "c14_crab",
+   "flag": "ch14_crab_seen",
+   "goal": "act5_shelter",
+   "text": "Hold on"
+  },
+  {
+   "id": "c14_evac",
+   "flag": "ch14_safe",
+   "goal": "act5_shelter",
+   "text": "Get everyone out"
+  },
+  {
+   "id": "c14_end",
+   "flag": "chapter_14_complete",
+   "goal": "act5_shelter",
+   "text": "Look back"
+  },
+  {
+   "id": "c14_complete",
+   "flag": "ch15_started",
+   "goal": "act5_shelter",
+   "text": "Chapter 15 complete - The Last Shelter"
+  },
+  {
+   "id": "c15_prepare",
+   "flag": "ch15_plan_done",
+   "goal": "act6_remains",
+   "text": "Prepare for the final journey"
+  },
+  {
+   "id": "c15_setout",
+   "flag": "ch15_set_out",
+   "goal": "act6_remains",
+   "text": "Set out"
+  },
+  {
+   "id": "c15_district",
+   "flag": "ch15_crossed",
+   "goal": "act6_remains",
+   "text": "Reach the old district"
+  },
+  {
+   "id": "c15_passage",
+   "flag": "ch15_in_passage",
+   "goal": "act6_remains",
+   "text": "Get into the passage"
+  },
+  {
+   "id": "c15_lower",
+   "flag": "ch15_chamber_reached",
+   "goal": "act6_remains",
+   "text": "Enter the lower passage"
+  },
+  {
+   "id": "c15_mechanism",
+   "flag": "ch15_mechanism_done",
+   "goal": "act6_remains",
+   "text": "Restore the ancient barrier"
+  },
+  {
+   "id": "c15_decide",
+   "flag": "ch15_decided",
+   "goal": "act6_remains",
+   "text": "Decide"
+  },
+  {
+   "id": "c15_end",
+   "flag": "chapter_15_complete",
+   "goal": "act6_remains",
+   "text": "The end"
   }
  ],
  "_comment": "Steps complete in list order for display, but each errand step only checks its own flag, so the supermarket and the game shop can be done in either order (the bible leaves the stop order open). Phase 3 (mist_*) is a WORKING DRAFT sequence of Act I's opening.",

@@ -13,7 +13,6 @@ class_name VeilChapter5
 const CAN := preload("res://THE_VEIL_ASSETS_V2/08_Inventory/Food_And_Supplies/INV_CannedFood.glb")
 const WATER := preload("res://THE_VEIL_ASSETS_V2/08_Inventory/Food_And_Supplies/INV_WaterBottle.glb")
 const BATTERY_PACK := preload("res://THE_VEIL_ASSETS_V2/08_Inventory/Food_And_Supplies/INV_SpareBatteries.glb")
-const RADIO := preload("res://THE_VEIL_ASSETS_V2/03_Residential/Furniture/RES_Radio.glb")
 const FOLLOW := preload("res://game/npc/companion_follow.gd")
 const SCAV := preload("res://game/world/scavenge_house.gd")
 
@@ -22,15 +21,17 @@ const SURVIVOR_HOUSE := "HOUSE_05"        # its neighbour
 const STATE := "c5"
 
 # supermarket-local
-const EDDIE_SHELTER := Vector3(6.2, 0.04, 4.9)        # customer side of the service counter (the supply stash)
-const MARCUS_SPOT := Vector3(1.1, 0.04, 4.7)          # by the checkout counters
-const STASH := Vector3(6.0, 1.09, 5.8)               # customer-service counter top
+# Staff side of the service counter, outside the front-door walking route.
+const EDDIE_SHELTER := Vector3(6.2, 0.04, 4.05)
+const MARCUS_SPOT := Vector3(-2.0, 0.04, 6.9)
+const STASH := Vector3(6.9, 1.05, 5.0)               # customer-service counter top (was 5.8: behind it, in mid-air)
+const BACKPACK := preload("res://THE_VEIL_ASSETS_V2/08_Inventory/Food_And_Supplies/INV_SmallBackpack.glb")
 const EXIT_SPOT := Vector3(0.0, 1.2, 3.6)             # sales side of the vestibule wall (openings at x = +-1.5)
-const SURVIVOR_SPOT := Vector3(-1.0, 0.04, 4.3)
+const SURVIVOR_SPOT := Vector3(-5.2, 0.04, 7.1)
 const OUTSIDE_Z := -2.0                               # local z below this = outside the front doors
 const INSIDE_Z := 3.3                                 # local z above this = in the sales hall
 # HOUSE_04-local (Pack 03 cottage: furnishing placement from build_residential.furnish_instances)
-const RADIO_POS := Vector3(-1.55, 1.35, 9.3)                                 # round dining table
+const RADIO_POS := Vector3(-1.575, 1.35, 8.68)                              # on the round kitchen table (clear of the chimney stack at x -1.2, z 9.4)
 const HOUSE_RECT := [Vector2(-3.75, 2.4), Vector2(3.75, 11.4)]
 # HOUSE_05-local
 const SURVIVOR_POS := Vector3(-0.3, 0.6, 4.7)                                # foyer, behind the front door
@@ -48,7 +49,7 @@ var survivor: Node3D
 var eddie_follow: VeilCompanionFollow
 var survivor_follow: VeilCompanionFollow
 var its := {}
-var radio: Node3D
+var radio: VeilRadio
 var scav: Node
 var radio_runs := 0
 var _static: AudioStreamPlayer3D
@@ -84,13 +85,27 @@ func begin(w: Node, phase4: Node, restoring: bool) -> void:
 	Dialogue.line_started.connect(_on_line)
 	if not Game.has_flag("c5_started"):
 		Game.set_flag("c5_started")
+		hud.chapter_start(6)                        # over the wake-up fade (after "SATURDAY")
 		world._atmo().set_state(3)                  # morning: the daytime Veil (Pack 09 VEIL_ACTIVE preset)
 	else:
 		world._atmo().set_state(3, true)
 		if Game.has_flag("c5_radio_used") and not Game.has_flag("c5_radio_done"):
 			Game.set_flag("c5_radio_done")          # a load mid-broadcast never replays it
 	_apply()
+	if Game.has_flag("c5_rested"):
+		_start_chapter6(true)
 	Game.refresh_objective()
+
+
+## Chapter 6 continues after the night that follows Chapter 5; it is a child of this node.
+var chapter6: Node
+func _start_chapter6(restoring: bool) -> void:
+	if chapter6 != null:
+		return
+	chapter6 = load("res://game/world/chapter6.gd").new()
+	chapter6.name = "Chapter6"
+	add_child(chapter6)
+	chapter6.begin(world, self, restoring)
 
 
 func ml(p: Vector3) -> Vector3:
@@ -143,12 +158,43 @@ func _setup_market() -> void:
 	stash.name = "C5_Stash"
 	market.add_child(stash)
 	stash.position = STASH
-	for m in [[CAN, Vector3(-0.35, 0, 0.05)], [WATER, Vector3(0.0, 0, -0.05)], [BATTERY_PACK, Vector3(0.35, 0, 0.0)]]:
-		var n := (m[0] as PackedScene).instantiate() as Node3D
-		n.position = m[1]
-		stash.add_child(n)
+	# the supplies are one backpack lying on the counter (the inventory screen it opens holds the real items)
+	var bag := BACKPACK.instantiate() as Node3D
+	bag.name = "C5_Backpack"
+	bag.rotation.y = 0.35
+	stash.add_child(bag)
+	_settle_stash.call_deferred(stash)
 	its["stash"] = _spot("C5_CheckSupplies", market, STASH + Vector3(0, 0.08, 0), Vector3(1.2, 0.45, 0.6), "", _check_supplies)
-	its["exit"] = _spot("C5_HeadOut", market, EXIT_SPOT, Vector3(3.2, 2.2, 0.5), "", _head_out)
+	# leaving is done at the real front doors (the shut auto-door leaves), not at a box in mid-air: the interaction
+	# sits on the leaves' inner face, as wide and tall as the pair
+	its["exit"] = _spot("C5_HeadOut", market, _door_spot(), Vector3(2.5, 2.2, 0.3), "", _head_out)
+
+
+## Market-local centre of the front door pair, just on the inside of the leaves.
+func _door_spot() -> Vector3:
+	var zs := 0.0
+	var n := 0
+	for d in world._auto_doors:
+		zs += market.to_local((d[0] as Node3D).global_position).z
+		n += 1
+	var z := (zs / n if n > 0 else 0.1) + 0.2
+	return Vector3(0.0, 1.15, z)
+
+
+## Rest the stash (backpack, origin at its base) on the collider below it: the counter top.
+func _settle_stash(stash: Node3D) -> void:
+	await get_tree().physics_frame
+	await get_tree().physics_frame
+	var space: PhysicsDirectSpaceState3D = world.get_world_3d().direct_space_state
+	var ex: Array[RID] = [player.get_rid()]
+	var hit: Dictionary = space.intersect_ray(PhysicsRayQueryParameters3D.create(stash.global_position + Vector3(0, 0.4, 0),
+		stash.global_position - Vector3(0, 0.6, 0), 1, ex))
+	if not hit.is_empty():
+		stash_gap = stash.global_position.y - (hit["position"] as Vector3).y
+		stash.global_position.y = (hit["position"] as Vector3).y + 0.002
+
+
+var stash_gap := INF                                  ## tests: how far the stash was off the counter top
 
 
 func _setup_house() -> void:
@@ -162,8 +208,7 @@ func _setup_house() -> void:
 	for id in scav.loot:
 		its["item_" + id] = scav.loot[id]
 		scav.loot[id].used.connect(_on_pickup.bind(id))
-	# the survivor's house is NOT explorable: its front door only opens for the conversation, and the doorway is
-	# blocked (two-storey variant with a basement stair that would trap the player)
+	# the survivor's house: its front door and interior doors open (two-storey variant, no basement)
 	var fd := shouse.find_child("INT_Door_Front", true, false) as Node3D
 	if fd:
 		var deg := 95.0
@@ -172,33 +217,30 @@ func _setup_house() -> void:
 			deg = world._toward_deg(fd, deg, shouse.global_transform * (into as Vector3))
 		var dit := Interactable.attach(fd, {"kind": "hinge", "label": "Front Door", "open_deg": deg, "hinge_axis": Vector3.UP,
 			"state_key": "c5/%s/INT_Door_Front" % SURVIVOR_HOUSE})
-		dit.collision_layer = 0                        # never offered to the player
 		its["c5/%s/INT_Door_Front" % SURVIVOR_HOUSE] = dit
-		var block := StaticBody3D.new()
-		block.name = "C5_SurvivorDoorway"
-		block.collision_layer = 1
-		var bcs := CollisionShape3D.new()
-		var bb := BoxShape3D.new()
-		bb.size = Vector3(1.3, 2.2, 0.5)
-		bcs.shape = bb
-		block.add_child(bcs)
-		shouse.add_child(block)
-		block.position = Vector3(-0.3, 0.6 + 1.1, 3.6)    # just inside the front opening (centre x -0.3)
-	radio = RADIO.instantiate() as Node3D
-	radio.name = "C5_Radio"
-	house.add_child(radio)
-	radio.position = RADIO_POS
-	radio.rotation.y = PI * 0.15
-	var rit := Interactable.attach(radio, {"kind": "custom", "label": "Radio", "prompt_text": ""})
-	rit.used.connect(_use_radio)
-	its["radio"] = rit
-	_static = AudioStreamPlayer3D.new()
-	_static.name = "Static"
-	_static.stream = _streams["static_loop"]
-	_static.volume_db = -16.0
-	_static.unit_size = 3.0
-	_static.max_distance = 22.0
-	radio.add_child(_static)
+		# a normal front door (the player can open it and walk in); the foyer floor is solid (the two-storey design no
+		# longer has the basement flight that needed blocking here)
+		# every interior door opens (E), as in the explorable houses: the kitchen, den, dining room and the bedrooms
+		# and bathroom upstairs were behind doors that never opened
+		var dh = SCAV.new()
+		dh.name = "C5_SurvivorDoors"
+		dh.world = world
+		dh.house = shouse
+		add_child(dh)
+		dh._open_house_doors()
+		for n in dh.doors:
+			its["c5/%s/%s" % [SURVIVOR_HOUSE, n]] = dh.doors[n]
+	# the radio: a reusable prop (game/props/veil_radio.gd), interacted with in place on the dining table
+	var vr := VeilRadio.new()
+	vr.name = "C5_Radio"
+	house.add_child(vr)
+	vr.position = RADIO_POS
+	vr.rotation.y = PI * 0.15
+	vr.setup(_streams["static_loop"])
+	vr.used.connect(_use_radio)
+	radio = vr
+	its["radio"] = vr.interactable
+	_static = vr.hiss
 	var rect: Array = HOUSE_RECT
 	var c := Vector3((rect[0].x + rect[1].x) * 0.5, 1.8, (rect[0].y + rect[1].y) * 0.5)
 	world._area("C5_HouseInside", hl(c), Vector3(rect[1].x - rect[0].x, 2.4, rect[1].y - rect[0].y), 2,
@@ -274,11 +316,11 @@ func _apply() -> void:
 			eddie_follow.start()
 		_:
 			_reparent(eddie, market)
-			eddie.position = EDDIE_SHELTER
+			world.place_survivor(eddie, EDDIE_SHELTER)
 			world.animators["Eddie"].face_towards(ml(STASH))
 	if marcus:
 		_reparent(marcus, market)
-		marcus.position = MARCUS_SPOT
+		world.place_survivor(marcus, MARCUS_SPOT)
 		world.animators["Marcus"].face_towards(ml(Vector3(-4.1, 1.1, 4.0)))
 	# survivor
 	match String(s.get("survivor", "house")):
@@ -289,7 +331,7 @@ func _apply() -> void:
 			survivor_follow.start()
 		"shelter":
 			_reparent(survivor, market)
-			survivor.position = SURVIVOR_SPOT
+			world.place_survivor(survivor, SURVIVOR_SPOT)
 			survivor.visible = true
 		_:
 			survivor.visible = _survivor_met() and not Game.has_flag("c5_survivor_helped")
@@ -307,14 +349,84 @@ func _apply() -> void:
 
 func _refresh_prompts() -> void:
 	var talked := Game.has_flag("c5_talked_both")
+	var k := Interactable.key_hint()
 	if its.has("npc_Eddie"):
-		its["npc_Eddie"].prompt_text = "" if Game.has_flag("c5_eddie_talked") else "[E] Talk"
+		its["npc_Eddie"].prompt_text = "" if Game.has_flag("c5_eddie_talked") else k + "TALK TO EDDIE"
 	if its.has("npc_Marcus"):
 		var report := Game.has_flag("c5_returned") and not Game.has_flag("c5_reported")
-		its["npc_Marcus"].prompt_text = "[E] Talk" if (not Game.has_flag("c5_marcus_talked") or report) else ""
-	its["stash"].prompt_text = "[E] Check the Supplies" if talked and not Game.has_flag("c5_supplies_checked") else ""
-	its["exit"].prompt_text = "[E] Head Out with Eddie" if Game.has_flag("c5_supplies_checked") and not Game.has_flag("c5_prepared") else ""
-	its["radio"].prompt_text = "[E] Use the Radio" if Game.has_flag("c5_supplies_done") and not Game.has_flag("c5_radio_used") else ""
+		its["npc_Marcus"].prompt_text = k + "TALK TO MARCUS" if (not Game.has_flag("c5_marcus_talked") or report) else ""
+	its["stash"].prompt_text = k + "CHECK THE SUPPLIES" if talked and not Game.has_flag("c5_supplies_checked") else ""
+	# the front doors: open once the supplies are checked; before that a short contextual note (no dialogue)
+	if Game.has_flag("c5_prepared"):
+		its["exit"].prompt_text = ""
+	elif Game.has_flag("c5_supplies_checked"):
+		its["exit"].prompt_text = k + "OPEN DOOR"
+	else:
+		its["exit"].prompt_text = "NOT YET - TALK TO EDDIE AND MARCUS FIRST" if not talked else "NOT YET - CHECK THE SUPPLIES FIRST"
+	its["radio"].prompt_text = k + "INVESTIGATE RADIO" if Game.has_flag("c5_supplies_done") and not Game.has_flag("c5_radio_used") else ""
+	_update_marker()
+
+
+## The one active destination for the HUD marker (only the current objective's target; cleared when done).
+func _update_marker() -> void:
+	if Game.has_flag("ch6_started"):
+		return                                    # Chapter 6 owns the marker from here on
+	var t: Variant = null
+	var label := ""
+	if Game.has_flag("c5_complete"):
+		t = null
+	elif not Game.has_flag("c5_eddie_talked") and st().get("eddie", "") != "following":
+		t = eddie
+		label = "EDDIE"
+	elif not Game.has_flag("c5_marcus_talked"):
+		t = marcus
+		label = "MARCUS"
+	elif not Game.has_flag("c5_supplies_checked"):
+		t = ml(STASH + Vector3(0, 0.3, 0))
+		label = "SUPPLIES"
+	elif not Game.has_flag("c5_prepared"):
+		t = ml(_door_spot())
+		label = "EXIT"
+	elif not Game.has_flag("c5_left_store"):
+		t = ml(Vector3(0, 1.4, -2.5))
+		label = "EXIT"
+	elif not Game.has_flag("c5_house_reached"):
+		t = hl(Vector3(-1.6, 1.6, 3.0))
+		label = "HOUSE"
+	elif not Game.has_flag("c5_supplies_done"):
+		t = _next_container()
+		label = "SEARCH"
+	elif not Game.has_flag("c5_radio_used"):
+		t = radio
+		label = "RADIO"
+	elif not Game.has_flag("c5_returned"):
+		t = ml(Vector3(0, 1.4, -1.5)) if not _in_store(market.to_local(player.global_position)) else ml(Vector3(0, 1.4, 5.0))
+		label = "SUPERMARKET"
+	elif not Game.has_flag("c5_reported"):
+		t = marcus
+		label = "MARCUS"
+	hud.set_marker(t, label)
+	marker_target = t
+
+
+var marker_target: Variant = null      ## tests
+
+
+## The nearest container that still holds loot (the drawer / cabinet itself, not the hidden item).
+func _next_container() -> Variant:
+	var best: Variant = null
+	var bd := INF
+	for id in scav.loot:
+		var it: Interactable = scav.loot[id]
+		if it.taken:
+			continue
+		var c: Interactable = scav._loot_container[id]
+		var p := c.focus_point()
+		var d := p.distance_to(player.global_position)
+		if d < bd:
+			bd = d
+			best = p
+	return best
 
 
 func _reparent(n: Node3D, to: Node) -> void:
@@ -328,7 +440,7 @@ func _talk_eddie(_b: Node) -> void:
 		return
 	_busy["talk"] = true
 	its["npc_Eddie"].prompt_text = ""
-	await _say_wait("c5_eddie_morning")
+	await _talk("c5_eddie_morning", eddie)
 	Game.set_flag("c5_eddie_talked")
 	_busy["talk"] = false
 	_after_talk()
@@ -344,7 +456,7 @@ func _talk_marcus(_b: Node) -> void:
 		return
 	_busy["talk"] = true
 	its["npc_Marcus"].prompt_text = ""
-	await _say_wait("c5_marcus_morning")
+	await _talk("c5_marcus_morning", marcus)
 	Game.set_flag("c5_marcus_talked")
 	_busy["talk"] = false
 	_after_talk()
@@ -380,7 +492,7 @@ func _head_out(_b: Node) -> void:
 	its["exit"].prompt_text = ""
 	_set_doors(true)                              # pulled open first, so nobody walks into a moving door
 	var a: Node = world.animators["Eddie"]
-	a.walk_to([Vector3(1.5, 0.04, 4.3)], 1.5)       # by the right-hand opening of the vestibule wall
+	world.npc_walk("Eddie", Vector3(1.5, 0.04, 4.3), 1.5)       # by the right-hand opening of the vestibule wall
 	Dialogue.say("c5_eddie_exit", false, true)
 	await _wait_for(func(): return not a.is_walking(), 8.0)
 	while Dialogue.is_busy():
@@ -424,10 +536,9 @@ func _use_radio(_b: Node) -> void:
 	radio_runs += 1
 	Game.set_flag("c5_radio_used")
 	its["radio"].prompt_text = ""
-	_static.stop()
-	await _say_wait("c5_radio_broadcast")
+	await (radio as VeilRadio).play_broadcast("c5_radio_broadcast")
 	await get_tree().create_timer(1.2).timeout      # the transmission stops: silence
-	await _say_wait("c5_radio_eddie")
+	await _talk("c5_radio_eddie", eddie)
 	Game.set_flag("c5_radio_done")
 	world._beacon("c5", ml(Vector3(0, 3.0, -1.5)), Color(0.8, 0.9, 1.0))
 	_refresh_prompts()
@@ -468,7 +579,7 @@ func _survivor_encounter() -> void:
 	survivor.visible = true
 	if door and not door.is_open:
 		door.set_open(true)
-	Dialogue.say("c5_survivor", false, true)
+	_talk_start("c5_survivor", survivor)
 
 
 func _on_choices(id: String, choices: Array) -> void:
@@ -485,7 +596,14 @@ func _on_choices(id: String, choices: Array) -> void:
 	if c["flag"] == "c5_survivor_helped":
 		st()["survivor"] = "following"
 		_reparent(survivor, world)
-		survivor_follow.start()
+		# The porch railing opens at the west steps. Join through the door and stairs in order.
+		survivor_follow.start([
+			shouse.to_global(Vector3(-0.3, 0.6, 4.0)),
+			shouse.to_global(Vector3(-0.3, 0.58, 2.8)),
+			shouse.to_global(Vector3(-3.0, 0.58, 2.8)),
+			shouse.to_global(Vector3(-3.0, 0.58, 2.1)),
+			shouse.to_global(Vector3(-3.0, 0.0, 0.8)),
+		])
 		Game.set_flag("c5_survivor_following")
 	elif door and door.is_open:
 		await get_tree().create_timer(1.0).timeout
@@ -508,11 +626,17 @@ func _process(delta: float) -> void:
 	var near := _near_doors(pl) or _near_doors(el)
 	if survivor.visible:
 		near = near or _near_doors(market.to_local(survivor.global_position))
-	if Game.has_flag("c5_returned"):
+	if Game.has_flag("ch6_started") or (world.expedition != null and world.expedition.active()):
+		pass                                      # Chapter 6 runs the doors from here on (a supply run: the trip does)
+	elif Game.has_flag("c5_returned"):
 		if _doors_open and not near:
 			_set_doors(false)                         # home: pulled shut once everyone is clear of them
-	elif near != _doors_open and (_near_doors(pl) or not near):
-		_set_doors(near)
+	elif near != _doors_open and (_near_doors(pl) or not near) \
+			and not (near and world.expedition != null and world.expedition.doors_held()):
+		_set_doors(near)                          # (shelter time: only "[E] Leave Shelter" opens them)
+	if following and not Game.has_flag("c5_left_store") and _away_from_store(pl, 2.0):
+		Game.set_flag("c5_left_store")
+	_update_marker()
 	if following and not Game.has_flag("c5_street_said") and _away_from_store(pl, 10.0) and not Dialogue.is_busy():
 		Game.set_flag("c5_street_said")
 		Dialogue.say("c5_street", false, true)
@@ -558,12 +682,12 @@ func _returned() -> void:
 	eddie_follow.stop()
 	_reparent(eddie, market)
 	st()["eddie"] = "shelter"
-	world.animators["Eddie"].walk_to([EDDIE_SHELTER], 1.3)
+	world.npc_walk("Eddie", EDDIE_SHELTER, 1.3)
 	if String(st().get("survivor", "")) == "following":
 		survivor_follow.stop()
 		_reparent(survivor, market)
 		st()["survivor"] = "shelter"
-		world.animators["Survivor"].walk_to([SURVIVOR_SPOT], 1.2)
+		world.npc_walk("Survivor", SURVIVOR_SPOT, 1.2)
 	Game.set_flag("c5_returned")                 # saves with everyone back in the shelter
 	_refresh_prompts()
 
@@ -573,7 +697,7 @@ func _report() -> void:
 		return
 	_busy["report"] = true
 	its["npc_Marcus"].prompt_text = ""
-	await _say_wait("c5_report")
+	await _talk("c5_report", marcus)
 	if Game.has_flag("c5_survivor_helped"):
 		await _say_wait("c5_report_survivor")
 	Game.set_flag("c5_reported")
@@ -589,17 +713,20 @@ func _complete() -> void:
 	if p4.rest:
 		p4.rest.get_parent().visible = true
 		p4.rest.interactable.prompt_text = "[E] Sleep"
-	await hud.title_card("CHAPTER 5 COMPLETE  -  THE FIRST SEARCH", 3.2)
+	await hud.chapter_complete(6)
 
 
 func _on_rest(_id: String) -> void:
-	# sleep stays available after the chapter; it only passes time (no day counter or Chapter 6 yet)
+	# the next morning is Chapter 6 (game/world/chapter6.gd); started while the screen is still black
+	var report: Dictionary = p4.record_night("c5_rested")
 	Game.set_flag("c5_rested")
+	_start_chapter6(false)
 	if p4.flashlight:
 		p4.flashlight.set_on(false)
 	await get_tree().create_timer(1.0).timeout
 	await hud.fade_to(0.0, 2.0)
 	player.set("controls_enabled", true)
+	p4.show_night_report(report)
 	p4.rest.interactable.prompt_text = "[E] Sleep"
 
 
@@ -621,6 +748,35 @@ func _set_doors(open: bool) -> void:
 		tw.tween_property(leaf, "transform", t, 0.8)
 		_door_tweens.append(tw)
 	Sfx.play("door_open" if open else "door_close", ml(Vector3(0, 1.2, 0.2)), -4.0, 0.7)
+
+
+## A stationary NPC conversation: through the world's talk camera (zoom on the speaker, player held); falls
+## back to plain timed lines when no talk camera is possible (in the car, an encounter, NPC not in view).
+func _talk(id: String, npc: Node3D) -> void:
+	var ok := false
+	if npc and world.has_method("converse"):
+		ok = await world.converse([id], [npc])
+	var held := false
+	if not ok:
+		held = world.player.controls_enabled
+		world.player.controls_enabled = false
+		world.player.velocity = Vector3.ZERO
+		Dialogue.say(id, false, true)
+	await get_tree().process_frame
+	while Dialogue.is_busy() or (world.get("conversing") == true):
+		await get_tree().process_frame
+	if held:
+		world.player.controls_enabled = true
+
+
+## Start a conversation that may lead into a choice (not awaited): talk camera when the NPC can be framed,
+## otherwise the same lines as plain subtitles (a doorway can hide them from the camera).
+func _talk_start(id: String, npc: Node3D) -> void:
+	var ok := false
+	if npc and world.has_method("converse") and world.get("conversing") != true:
+		ok = await world.converse([id], [npc])
+	if not ok:
+		Dialogue.say(id, false, true)
 
 
 func _say_wait(id: String) -> void:

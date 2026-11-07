@@ -233,7 +233,7 @@ def build_mesh(rig, legs, tents, uv):
         inside = s + (np.array([0.0, 0.1, 0.0]) - np.array([s[0], 0, 0])) * 0.45
         # the sweep runs down into the foot (fore: under the claw roots; hind: onto the hoof plate) - ending it at
         # 0.55 left the hind hoofs ~0.3 m (1.8 m at encounter scale) below the leg and the fore claws detached
-        end_f = 0.86 if kind == "hind" else 0.78
+        end_f = 0.86 if kind == "hind" else 0.93     # fore: down into the palm pad (0.78 left a visible gap above it)
         pts = [inside, s, s + (e - s) * 0.5 + np.array([0, 0.35, 0]), e, e + (w - e) * 0.25, e + (w - e) * 0.62, w,
                w + (c - w) * 0.55, w + (c - w) * end_f]
         Cl = G.resample(pts, 22)
@@ -278,19 +278,25 @@ def build_mesh(rig, legs, tents, uv):
         fwd = np.array([0.0, 0.0, 1.0])
         lat = np.array([1.0 if c[0] > 0 else -1.0, 0, 0])
         if kind == "fore":
-            base = w + (c - w) * 0.64                # claw roots inside the foot end of the leg sweep
+            # paw: a broad, flattened palm pad under the leg end carries the weight (its underside sits at y 0.06,
+            # the road plane); three long claws root at the pad's front edge in a loose half-W fan and curve down
+            # and forward, their tips just touching the road (no longer stilts holding the palm in the air)
+            G.plate(atl, np.array([c[0], 0.17, c[2] + 0.05]), (1.3, 0.24, 1.5), {b[2]: 1.0}, uv["hoof"], normal=(0, 1, 0),
+                    along=(lat[0] * 0.1, 0, 1), taper=(0.8, 0.85))
             for dlat, dfw, ln in ((-0.55, 0.85, 1.25), (0.05, 1.05, 1.45), (0.6, 0.7, 1.1)):
-                tipp = np.array([c[0] + lat[0] * dlat, 0.11, c[2] + dfw * ln])
-                mid = base + (tipp - base) * 0.5 + np.array([0, 0.35, 0]) + fwd * 0.15
+                base = np.array([c[0] + lat[0] * dlat * 0.7, 0.24, c[2] + 0.75])
+                tipp = np.array([c[0] + lat[0] * dlat, 0.11, c[2] + dfw * ln + 0.3])
+                mid = base + (tipp - base) * 0.45 + np.array([0, 0.2, 0])
                 Cdg = G.resample([base, mid, tipp], 6)
                 G.sweep(atl, Cdg, [0.22, 0.2, 0.17, 0.13, 0.09, 0.05], lambda p, sv, bb=b[2]: {bb: 1.0}, uv["claw"],
                         n=5, tip=0.12, front=(0, -1, 0))
         else:
-            G.plate(atl, np.array([c[0], 0.2, c[2] + 0.25]), (1.1, 0.35, 1.5), {b[2]: 1.0}, uv["hoof"], normal=(0, 1, 0),
+            # hoof plate bottom at y 0.06, the same as the fore claw tips: every planted foot touches the road
+            G.plate(atl, np.array([c[0], 0.235, c[2] + 0.25]), (1.1, 0.35, 1.5), {b[2]: 1.0}, uv["hoof"], normal=(0, 1, 0),
                     along=(lat[0] * 0.15, 0, 1), taper=(0.7, 0.75))
             for dlat in (-0.35, 0.4):
                 base = np.array([c[0] + dlat, 0.3, c[2] + 0.62])     # rooted in the hoof plate
-                tipp = base + np.array([dlat * 0.4, -0.24, 0.65])
+                tipp = base + np.array([dlat * 0.4, -0.2, 0.65])         # tip bottom at y 0.06
                 Cdg = G.resample([base, (base + tipp) / 2 + np.array([0, 0.12, 0]), tipp], 5)
                 G.sweep(atl, Cdg, [0.18, 0.15, 0.11, 0.07, 0.04], lambda p, sv, bb=b[2]: {bb: 1.0}, uv["claw"], n=5,
                         tip=0.1, front=(0, -1, 0))

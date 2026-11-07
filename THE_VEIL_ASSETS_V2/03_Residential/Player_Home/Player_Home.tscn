@@ -349,7 +349,7 @@ metadata/veil_interactables = [{
 "pos": [-5.725, 0.66, 7.63],
 "veil_interact": "hinge",
 "axis": "y",
-"open_deg": 100
+"open_deg": -100
 }, {
 "node": "Furniture/Counter_Base_1_2_01/RES_Counter_Base_1_2/INT_Drawer_1",
 "pos": [-5.013, 1.3, 10.905],
@@ -412,13 +412,13 @@ metadata/veil_interactables = [{
 "open_deg": 85
 }, {
 "node": "Furniture/WallCabinet_0_8_01/RES_WallCabinet_0_8/INT_CabinetDoor_L",
-"pos": [-5.01, 2.06, 11.188],
+"pos": [-5.56, 2.06, 11.188],
 "veil_interact": "hinge",
 "axis": "y",
 "open_deg": -100
 }, {
 "node": "Furniture/WallCabinet_0_8_01/RES_WallCabinet_0_8/INT_CabinetDoor_R",
-"pos": [-5.79, 2.06, 11.188],
+"pos": [-6.34, 2.06, 11.188],
 "veil_interact": "hinge",
 "axis": "y",
 "open_deg": 100
@@ -554,7 +554,7 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -5, 0.6, 2.362)
 metadata/room = "LIV"
 
 [node name="Picture_Family_01" parent="Furniture" instance=ExtResource("31_RES_Picture_Family")]
-transform = Transform3D(0, 0, 1, 0, 1, 0, -1, 0, 0, -6.383, 2.2, 4.4)
+transform = Transform3D(0, 0, 1, 0, 1, 0, -1, 0, 0, -6.383, 2.2, 2.9)
 metadata/room = "LIV"
 
 [node name="CoatRack_Wall_01" parent="Furniture" instance=ExtResource("10_RES_CoatRack_Wall")]
@@ -586,7 +586,7 @@ transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, -3.2, 0.6, 11.16)
 metadata/room = "KIT"
 
 [node name="WallCabinet_0_8_01" parent="Furniture" instance=ExtResource("46_RES_WallCabinet_0.8")]
-transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, -5.4, 2.05, 11.333)
+transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, -5.95, 2.05, 11.333)
 metadata/room = "KIT"
 
 [node name="DishRack_01" parent="Furniture" instance=ExtResource("19_RES_DishRack")]

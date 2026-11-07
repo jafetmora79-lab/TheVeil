@@ -155,6 +155,25 @@ func look(it: Node3D) -> bool:
 	var v := (c - eye).normalized()
 	player.set_yaw_pitch(atan2(-v.x, -v.z), asin(clampf(v.y, -1.0, 1.0)))
 	await watch_frames(5)
+	if player._focus != it and it is Interactable:
+		# from a slight angle the nearest face can be the neighbouring door's edge: aim at the box centre instead
+		v = ((it as Interactable).focus_point() - eye).normalized()
+		player.set_yaw_pitch(atan2(-v.x, -v.z), asin(clampf(v.y, -1.0, 1.0)))
+		await watch_frames(5)
+	return player._focus == it
+
+
+## Aim deliberately OFF the item (by `off` metres sideways) - the aim assist must still select it.
+func look_near(it: Interactable, off: float) -> bool:
+	var player = world.player
+	await frames(2)
+	var eye: Vector3 = player.camera.global_position
+	var c: Vector3 = it.focus_point()
+	var v := (c - eye).normalized()
+	var side := v.cross(Vector3.UP).normalized()
+	v = (c + side * off - eye).normalized()
+	player.set_yaw_pitch(atan2(-v.x, -v.z), asin(clampf(v.y, -1.0, 1.0)))
+	await watch_frames(5)
 	return player._focus == it
 
 
@@ -194,6 +213,7 @@ func _initialize() -> void:
 func _run() -> void:
 	game = root.get_node("Game")
 	ps = load("res://game/scenes/World.tscn")
+	root.get_node("Dialogue").auto_confirm = true     # the "player" confirms each conversation line
 	DEV.prepare(game)
 	world = ps.instantiate()
 	root.add_child(world)
@@ -210,10 +230,16 @@ func _run() -> void:
 	var inv0: Array = game.inventory.duplicate()
 	var spares0: int = p4.flashlight.spares if p4.flashlight else -1
 	# ---- scene 1: talk to both
-	ok("c5_cant_leave_yet", c5.its["exit"].prompt_text == "")
+	ok("c5_cant_leave_yet", c5.its["exit"].prompt_text.begins_with("NOT YET"), c5.its["exit"].prompt_text)
 	ok("c5_eddie_reach", await aim(c5.its["npc_Eddie"], [Z, -Z, X, -X], mk, 1.4))
 	c5.its["npc_Eddie"].interact(world.player)
+	await frames(30)
+	var c5cam := root.get_viewport().get_camera_3d()
+	ok("c5_talk_camera_zoom", c5cam != null and c5cam.name == "TalkCam" and not world.player.controls_enabled
+		and c5cam.global_position.distance_to(world.player.camera.global_position) < 0.03
+		and absf(1.0 - c5cam.fov / world.player.camera.fov - 0.1) < 0.025, c5cam.name if c5cam else "-")
 	ok("c5_eddie_talk", await wait_talk(func(): return game.has_flag("c5_eddie_talked")))
+	ok("c5_talk_camera_released", await wait_until(func(): return root.get_viewport().get_camera_3d() == world.player.camera and world.player.controls_enabled, 60 * 3))
 	ok("c5_marcus_reach", await aim(c5.its["npc_Marcus"], [Z, -Z, X, -X], mk, 1.4))
 	c5.its["npc_Marcus"].interact(world.player)
 	ok("c5_marcus_talk", await wait_talk(func(): return game.has_flag("c5_marcus_talked")))
@@ -227,6 +253,11 @@ func _run() -> void:
 	await frames(5)
 	ok("c5_inventory_shown", game.has_flag("c5_supplies_checked") and world.hud.inv_panel.visible)
 	ok("c5_no_duplicate_gear", game.inventory == inv0, str(game.inventory))
+	ok("c5_inventory_holds_input", not world.player.controls_enabled)
+	world.hud.toggle_inventory()                   # the player closes the screen (Tab / CLOSE)
+	await frames(3)
+	ok("c5_exit_on_doors", mk.to_local(c5.its["exit"].global_position).z < 1.0, str(mk.to_local(c5.its["exit"].global_position)))
+	ok("c5_eddie_clear_of_counter", c5.EDDIE_SHELTER.z < 4.5 and c5.stash_gap != INF and absf(c5.stash_gap) < 0.3, "gap %.3f" % c5.stash_gap)
 	ok("c5_exit_reach", await aim(c5.its["exit"], [Z, -Z], mk, 1.2))
 	c5.its["exit"].interact(world.player)
 	ok("c5_exit_confirm", await wait_until(func(): return p4.choice.is_open(), 60))
@@ -247,9 +278,14 @@ func _run() -> void:
 	_watch = true
 	var out_store := [Vector3(1.5, 0.2, 4.4), Vector3(1.5, 0.2, 1.8), Vector3(0.3, 0.2, 1.0), Vector3(0.3, 0.2, -3.5)]
 	var walked := await walk_route(out_store, mk)
+	await watch_frames(20)
+	ok("c5_leave_then_house", game.has_flag("c5_left_store") and game.current_step().get("id", "") == "c5_reach", game.current_step().get("id", ""))
+	ok("c5_marker_house", c5.marker_target is Vector3 and (c5.marker_target as Vector3).distance_to(c5.hl(Vector3(-1.6, 1.6, 3.0))) < 0.1
+		and world.hud.marker_visible)
 	walked = walked and await walk_world([Vector3(11.5, 0.2, -23.5), Vector3(11.5, 0.2, -60.5), Vector3(15.6, 0.2, -62.5),
 		Vector3(15.6, 0.2, -66.6)])
 	ok("c5_house_reachable_walk", walked, str(world.player.global_position))
+	ok("c5_left_store_objective", game.has_flag("c5_left_store"))
 	ok("c5_doors_shut_behind", not c5._doors_open)
 	ok("c5_street_line", game.has_flag("c5_street_said"))
 	ok("c5_eddie_kept_up", await wait_until(func(): return c5.eddie.global_position.distance_to(world.player.global_position) < 4.5, 60 * 12),
@@ -261,6 +297,11 @@ func _run() -> void:
 	fd.interact(world.player)
 	await watch_frames(40)
 	ok("c5_enter_house", await walk_route([Vector3(-1.6, 0.8, 2.6), Vector3(-1.6, 0.8, 4.6)], h) and game.has_flag("c5_house_reached"))
+	var fr: Interactable = c5.scav.parts.get("RES_Fridge_Retro/INT_ApplianceDoor_Fridge")
+	if fr:
+		# hinge on the leaf's left edge, leaf along +x, front +z: opening must swing the free edge forward
+		var swung: Vector3 = Basis(fr.hinge_axis, deg_to_rad(fr.open_deg)) * Vector3(1, 0, 0)
+		ok("c5_fridge_opens_forward", swung.z > 0.5, "open_deg %.0f" % fr.open_deg)
 	for k in ["food", "batteries", "medical"]:
 		var item: Interactable = c5.its["item_" + k]
 		ok("c5_item_in_closed_container_" + k, item.collision_layer == 0 and not item.taken)
@@ -284,26 +325,75 @@ func _run() -> void:
 			reached = reached and await walk_route(plan[2], h)
 		var sk: Interactable = c5.scav._loot_container[k]
 		var item: Interactable = c5.its["item_" + k]
-		ok("c5_container_reach_" + k, reached and await look(sk), "%s %s" % [h.to_local(world.player.global_position), sk.get_parent().name])
+		ok("c5_container_reach_" + k, reached and await look(sk), "%s %s focus %s" % [h.to_local(world.player.global_position), sk.get_parent().name,
+			(world.player._focus as Node).get_parent().name if world.player._focus else "-"])
 		ok("c5_cant_take_through_closed_" + k, item.collision_layer == 0)
 		sk.interact(world.player)
 		await watch_frames(30)
 		ok("c5_container_open_" + k, sk.is_open)
 		ok("c5_item_inside_" + k, _inside(item, sk), str(item.target.global_position))
+		ok("c5_marker_container_" + k, c5.marker_target is Vector3)
+		ok("c5_item_assist_" + k, await look_near(item, 0.09), "focus %s" % world.player._focus)
 		ok("c5_item_reach_" + k, await look(item))
+		var geo: Array = item.target.find_children("*", "GeometryInstance3D", true, false)
+		ok("c5_item_highlight_" + k, geo.size() > 0 and (geo[0] as GeometryInstance3D).material_overlay != null)
+		ok("c5_item_prompt_" + k, world.player._prompt.contains("TAKE " + String(game.item_info(item.item_id)["name"]).to_upper()), world.player._prompt)
 		item.interact(world.player)
 		await watch_frames(10)
 		if k == "food":
 			ok("c5_eddie_follows_inside", await wait_until(func(): return c5._in_house(c5.eddie.global_position), 60 * 10),
 				"eddie %s" % h.to_local(c5.eddie.global_position))
 	ok("c5_food_in_inventory", game.has_item("canned_food"))
+	# the inventory screen: grid shows every carried item, real quantities, weight, and holds the world's input
+	world.hud.toggle_inventory()
+	await frames(5)
+	var inv: VeilInventoryPanel = world.hud.inv_panel
+	var occupied := 0
+	for b in inv._slots:
+		if not (b as Button).disabled:
+			occupied += 1
+	var usable_n: int = game.inventory.filter(func(id): return VeilInventoryPanel.usable(id)).size()
+	ok("inv_grid", inv.visible and occupied == usable_n and usable_n > 0 and not world.player.controls_enabled, "%d slots for %d usable items" % [occupied, usable_n])
+	# (painkillers at full health show no button on purpose: the shelter's no-waste healing rule)
+	ok("inv_only_usable", inv._ids.all(func(id): return not inv.actions_for(id).is_empty() or id == "batteries" or game.item_info(id).get("category", "") == "medical")
+		and not inv._ids.has("groceries") and not inv._ids.has("horror_game"), str(inv._ids))
+	ok("inv_square", absf(inv.get_child(1).get_child(0).size.x - inv.get_child(1).get_child(0).size.y) < 2.0,
+		str(inv.get_child(1).get_child(0).size))
+	inv.select(0)
+	inv.inspect()
+	await frames(30)
+	var yaw0: float = inv._insp_pivot.rotation.y if inv._insp_pivot else 0.0
+	await frames(30)
+	ok("inv_inspect_turns", inv.is_inspecting() and inv._insp_pivot != null and absf(inv._insp_pivot.rotation.y - yaw0) > 0.05)
+	inv.close_inspect()
+	ok("inv_battery_qty", VeilInventoryPanel.quantity("batteries") == p4.flashlight.spares)
+	var wsum := 0.0
+	for id in game.inventory:
+		wsum += float(game.item_info(id).get("weight", 0.0)) * (p4.flashlight.spares if id == "batteries" else 1)
+	ok("inv_weight", absf(VeilInventoryPanel.carried_weight() - wsum) < 0.001 and inv._weight.text.contains("/ 15.0 kg"), inv._weight.text)
+	inv.select(inv._ids.find("flashlight"))           # the panel's own list (usable items only), not the raw inventory
+	ok("inv_details", inv._name.text == "FLASHLIGHT" and inv._actions.get_child_count() >= 1, inv._name.text)
+	world.hud.toggle_inventory()
+	await frames(5)
+	ok("inv_closes", not inv.visible and world.player.controls_enabled)
+	# quick slots: flashlight in slot 1, key 1 switches it (the existing flashlight action); saved in world_state
+	VeilQuickSlots.assign(0, "flashlight")
+	var was_on: bool = p4.flashlight.on
+	var ev := InputEventKey.new()
+	ev.physical_keycode = KEY_1
+	ev.pressed = true
+	root.push_input(ev)
+	await frames(3)
+	ok("quickslot_use", p4.flashlight.on != was_on and game.world_state.get("quickslots", [])[0] == "flashlight")
+	p4.flashlight.set_on(was_on)
+	_eddie_prev = c5.eddie.global_position          # the inventory frames above were not watched
 	ok("c5_medical_in_inventory", game.has_item("painkillers"))
 	ok("c5_batteries_real", game.has_item("batteries") and p4.flashlight.spares == spares0 + 2, "spares %d -> %d" % [spares0, p4.flashlight.spares])
 	ok("c5_supplies_done", game.has_flag("c5_supplies_done") and game.current_step().get("id", "") == "c5_radio")
 	ok("c5_found_line", game.has_flag("c5_found_said"))
 	# ---- scene 5: the radio (from the bedroom back to the living-room side of the dining table)
 	ok("c5_walk_to_radio", await walk_route([Vector3(1.4, 0.8, 2.75), Vector3(1.25, 0.8, 3.6), Vector3(1.3, 0.8, 5.2),
-		Vector3(-0.2, 0.8, 5.2), Vector3(-2.0, 0.8, 6.0), Vector3(-2.0, 0.8, 7.4), Vector3(-1.6, 0.8, 8.3)], h))
+		Vector3(-0.2, 0.8, 5.2), Vector3(-2.0, 0.8, 6.0), Vector3(-2.0, 0.8, 7.4), Vector3(-1.6, 0.8, 7.35)], h))
 	_watch = false
 	await reload()
 	ok("c5_load_no_dupes", game.inventory.count("canned_food") == 1 and p4.flashlight.spares == spares0 + 2
@@ -314,8 +404,12 @@ func _run() -> void:
 	var rit: Interactable = c5.its["radio"]
 	ok("c5_radio_static", c5._static.playing)
 	ok("c5_radio_reach", await look(rit))
+	ok("c5_radio_prompt", world.player._prompt.contains("INVESTIGATE RADIO"), world.player._prompt)
+	ok("c5_marker_radio", c5.marker_target == c5.radio)
 	rit.interact(world.player)
-	ok("c5_radio_done", await wait_talk(func(): return game.has_flag("c5_radio_done"), 120.0) and not c5._static.playing)
+	await frames(30)
+	ok("c5_radio_lit_while_playing", c5.radio.on and c5.radio._m_led.emission_energy_multiplier > 1.0)
+	ok("c5_radio_done", await wait_talk(func(): return game.has_flag("c5_radio_done"), 120.0) and not c5._static.playing and not c5.radio.on)
 	rit.interact(world.player)
 	await frames(5)
 	ok("c5_radio_once", c5.radio_runs == 1 and rit.prompt_text == "")
@@ -338,8 +432,13 @@ func _run() -> void:
 	var sp2: PhysicsDirectSpaceState3D = world.get_world_3d().direct_space_state
 	var bh := sp2.intersect_ray(PhysicsRayQueryParameters3D.create(c5.shouse.global_transform * Vector3(-0.3, 1.5, 1.0),
 		c5.shouse.global_transform * Vector3(-0.3, 1.5, 6.0), 1))
-	ok("c5_survivor_house_not_enterable", bh and (bh["collider"] as Node).name == "C5_SurvivorDoorway"
-		and c5.its["c5/HOUSE_05/INT_Door_Front"].collision_layer == 0, str((bh["collider"] as Node).name) if bh else "nothing")
+	ok("c5_survivor_house_enterable", bh.is_empty() and c5.its["c5/HOUSE_05/INT_Door_Front"].collision_layer == 8,
+		str((bh["collider"] as Node).name) if bh else "clear")
+	# no basement any more: the foyer floor under the flight is solid
+	var sh := sp2.intersect_ray(PhysicsRayQueryParameters3D.create(c5.shouse.global_transform * Vector3(0.56, 1.2, 8.8),
+		c5.shouse.global_transform * Vector3(0.56, -0.5, 8.8), 1))
+	ok("c5_survivor_foyer_floor_solid", not sh.is_empty() and (sh["position"] as Vector3).y > (c5.shouse.global_transform * Vector3(0, 0.4, 0)).y,
+		str(sh.get("position", "nothing")))
 	p4.choice.pick(0)
 	ok("c5_survivor_helped", await wait_talk(func(): return game.has_flag("c5_survivor_helped") and c5.survivor_follow.active, 30.0))
 	# ---- scene 7: back to the supermarket (out through the neighbour's front path gap at x 29-32)
@@ -358,17 +457,21 @@ func _run() -> void:
 	await frames(100)
 	ok("c5_doors_closed_home", not c5._doors_open)
 	# ---- scene 8: report
-	ok("c5_report_prompt", c5.its["npc_Marcus"].prompt_text == "[E] Talk")
+	ok("c5_report_prompt", c5.its["npc_Marcus"].prompt_text.ends_with("TALK TO MARCUS"), c5.its["npc_Marcus"].prompt_text)
 	ok("c5_marcus_reach_back", await aim(c5.its["npc_Marcus"], [Z, -Z, X, -X], mk, 1.4))
 	c5.its["npc_Marcus"].interact(world.player)
 	ok("c5_reported", await wait_talk(func(): return game.has_flag("c5_reported") and game.has_flag("c5_complete"), 90.0))
-	ok("c5_complete_card", world.hud.title.text.begins_with("CHAPTER 5 COMPLETE"), world.hud.title.text)
-	ok("c5_no_chapter6", not game.has_flag("c6_started") and game.current_step().get("id", "") == "c5_complete")
+	ok("c5_complete_card", world.hud.chapter_l.text == game.chapter_label(6, true) and world.hud.chapter_l.text.begins_with("CHAPTER 6 COMPLETE"), world.hud.chapter_l.text)
+	await frames(3)
+	ok("c5_marker_cleared", c5.marker_target == null and not world.hud.marker_visible)
+	ok("c5_no_chapter6", not game.has_flag("ch6_started") and game.current_step().get("id", "") == "c5_complete")
 	ok("c5_sleep_available", p4.rest.interactable.prompt_text == "[E] Sleep")
 	await reload()
 	ok("c5_load_complete", game.has_flag("c5_complete") and c5.eddie.get_parent() == world.market
 		and c5.survivor.visible and c5.st()["survivor"] == "shelter" and world.phase4.rest.interactable.prompt_text == "[E] Sleep"
 		and game.has_item("painkillers") and world.find_children("Eddie", "", true, false).size() == 1)
+	# the survival rule: enough food and water for everyone tonight (deposited supplies)
+	game.world_state["shelter_stock"] = {"food": 12, "water": 12, "medical": int(game.shelter_stock().get("medical", 0)), "batteries": 0}
 	p4.rest.interactable.interact(world.player)
 	ok("c5_rest_confirm", await wait_until(func(): return p4.choice.is_open(), 60))
 	p4.choice.pick(0)

@@ -20,6 +20,10 @@ signal arrived
 var mood := "calm"
 var look_target: Node3D            ## defaults to the active camera
 var walk_speed := 1.25
+## Collision movement (VeilSurvivorBody move_and_slide, physics rate) only while a companion follows the player.
+## Scripted walks (cinematics, regroups, retreats) follow their planned paths every frame without collision: they
+## are routed around the world already, and colliding with each other / the player got them stuck or pushed out.
+var physical := false
 
 var skel: Skeleton3D
 var root: Node3D                   ## the character node that is moved / turned
@@ -37,11 +41,15 @@ var _gest := {"la": 0.0, "lf": 0.0, "ra": 0.0, "rf": 0.0, "nod": 0.0, "tilt": 0.
 var _gest_to := {"la": 0.0, "lf": 0.0, "ra": 0.0, "rf": 0.0, "nod": 0.0, "tilt": 0.0}
 var _gest_timer := 0.0
 var _look := Vector2.ZERO           ## smoothed (yaw, pitch)
+var _prev_look := Vector2.ZERO
 var _glance := Vector2.ZERO
 var _glance_timer := 2.0
 var _scare := 0.0
 var _path: Array = []
 var _walk := 0.0                    ## 0..1 blend into the walk cycle
+var _run := 0.0                     ## 0..1 blend from walking into running (by actual speed)
+var _speed := 0.0
+var _step_i := 0
 var _phase := 0.0
 var _turn_goal = null               ## world-space direction the body should turn towards (or null)
 
@@ -121,6 +129,24 @@ func talk(seconds: float) -> void:
 	_talk_left = maxf(_talk_left, seconds)
 
 
+## Seated pose (no clip needed): thighs forward, knees bent, hips lowered so the pelvis rests at seat_y (metres
+## above the character's floor). Blended in / out over ~0.6 s. The caller places the root on the seat.
+var seated := false
+var hold_facing := false               ## riding in the car: the body keeps facing the way it was placed
+var seat_y := 0.48
+var _sit := 0.0
+var _hip_h := -1.0
+const SIT_THIGH := 86.0
+const SIT_KNEE := 88.0
+
+
+func set_seated(on: bool, seat_height := 0.48) -> void:
+	seated = on
+	seat_y = seat_height
+	if on:
+		walk_to([])
+
+
 func set_mood(m: String) -> void:
 	mood = m
 
@@ -149,16 +175,36 @@ func world_forward() -> Vector3:
 
 # ------------------------------------------------------------------ per frame
 func _process(delta: float) -> void:
+	_npc_steps(delta)
 	if skel == null or not root.is_visible_in_tree():
 		return
 	_t += delta
 	_talk_left = maxf(_talk_left - delta, 0.0)
 	_scare = move_toward(_scare, 1.0 if mood == "scared" else 0.0, delta * 0.8)
-	_update_walk(delta)
+	if not physical:
+		_update_walk(delta)
 	_update_turn(delta)
 	_update_gestures(delta)
 	_update_look(delta)
+	_sit = move_toward(_sit, 1.0 if seated else 0.0, delta * 1.7)
 	_pose()
+
+
+func _physics_process(delta: float) -> void:
+	if physical and skel != null and root.is_visible_in_tree():
+		_update_walk(delta)
+
+
+## A walk that ends inside the player, another survivor or a wall edge takes one short corrective step to the
+## nearest clear spot (a single capsule query on arrival - nothing runs per frame).
+func _settle_clear() -> void:
+	var body := root as VeilSurvivorBody
+	if body == null or not body.is_inside_tree() or body.is_clear(body.global_position):
+		return
+	var safe := body.nearest_safe(body.global_position, 1.2)
+	var frame := body.get_parent_node_3d()
+	if safe.is_finite() and frame and safe.distance_to(body.global_position) > 0.05:
+		_path = [frame.to_local(safe)]
 
 
 func _update_walk(delta: float) -> void:
@@ -172,17 +218,49 @@ func _update_walk(delta: float) -> void:
 	if d.length() < 0.08:
 		_path.pop_front()
 		if _path.is_empty():
+			_settle_clear()
 			arrived.emit()
 		return
 	_walk = move_toward(_walk, 1.0, delta * 3.0)
 	var step := minf(walk_speed * _walk * delta, d.length())
-	root.position += d.normalized() * step
-	_phase += step / 0.62 * PI                      # one stride (two steps) ~1.24 m
+	var body := root as VeilSurvivorBody if physical else null
+	var before := root.global_position
+	if body:
+		var frame := body.get_parent_node_3d()
+		var motion := frame.global_basis * (d.normalized() * step)
+		if body.step_target.is_finite():
+			var remaining := body.step_target - before
+			var advance := Vector3.UP * minf(remaining.y, 4.0 * delta) if remaining.y > 0.012 else remaining.limit_length(walk_speed * delta)
+			if remaining.length() < 0.015 or body.move_and_collide(advance):
+				body.step_target = Vector3.INF
+		else:
+			var fall := -0.5 if body.is_on_floor() else maxf(body.velocity.y - 18.0 * delta, -8.0)
+			body.velocity = motion / delta + Vector3.UP * fall
+			body.move_and_slide()
+			if body.is_on_wall() and body.get_floor_normal().y > 0.93:
+				var probe := motion.normalized() * minf(d.length(), VeilSurvivorBody.RADIUS + 0.06)
+				body.step_target = VeilSurvivorBody.step_landing(body, probe, 0.35)
+	else:
+		root.position += d.normalized() * step
+	var moved := before.distance_to(root.global_position)
+	if moved < 0.001:
+		_walk = move_toward(_walk, 0.0, delta * 3.0)
+	_speed = lerpf(_speed, moved / maxf(delta, 0.001), minf(delta * 6.0, 1.0))
+	_run = move_toward(_run, clampf((_speed - 2.4) / 1.8, 0.0, 1.0), delta * 2.5)
+	_phase += moved / lerpf(0.62, 0.98, _run) * PI   # one stride ~1.24 m walking, ~1.96 m running
+	var si := int(_phase / PI)
+	if si != _step_i:
+		_step_i = si
+	if moved > 0.0005:
+		_steps_t = 0.25                              # walking now: the recorded footsteps play (see _npc_steps)
 	var parent := root.get_parent_node_3d()
 	_turn_goal = (parent.global_transform.basis * d.normalized()) if parent else d.normalized()
 
 
 func _update_turn(delta: float) -> void:
+	if hold_facing:
+		_turn_goal = null
+		return
 	var cam = _target_pos()
 	if _turn_goal == null and turn_to_face and cam != null and _path.is_empty():
 		var to := (cam as Vector3) - root.global_position
@@ -238,7 +316,7 @@ func _update_look(delta: float) -> void:
 			var local := skel.global_transform.basis.inverse() * to
 			var yaw := atan2(-local.dot(R), local.dot(F))
 			var pitch := atan2(local.dot(U), Vector2(local.dot(F), local.dot(R)).length())
-			if absf(yaw) < deg_to_rad(110.0):
+			if absf(yaw) < deg_to_rad(110.0) or look_target != null:   # a held gaze never flips to a glance (no rattle)
 				want = Vector2(clampf(yaw, -1.2, 1.2), clampf(pitch, -0.5, max_pitch))
 	if want == Vector2.ZERO:
 		_glance_timer -= delta
@@ -247,6 +325,9 @@ func _update_look(delta: float) -> void:
 			_glance = Vector2(randf_range(-0.5, 0.5), randf_range(-0.1, 0.12)) * (1.6 if mood == "scared" else 1.0)
 		want = _glance
 	_look = _look.lerp(want, minf(delta * 4.0, 1.0))
+	if look_target != null:                            # a held gaze: steady (a capped turn rate, no frame-to-frame jitter)
+		_look = _prev_look + (_look - _prev_look).limit_length(delta * 2.5)
+	_prev_look = _look
 
 
 func _q(axis: Vector3, deg: float) -> Quaternion:
@@ -272,8 +353,9 @@ func _pose() -> void:
 	var ph := _phase
 	# --- torso: breathing, weight shift, scared hunch, walk counter-rotation, nods on speech
 	_pose_bone("Hips", _q(F, sway * 1.4) * _q(U, sin(ph) * 4.0 * w))
-	_pose_bone("Spine", _q(R, -br * 0.7 - s * 4.0) * _q(U, -sin(ph) * 2.5 * w))
-	_pose_bone("Chest", _q(R, -br * 1.4 - s * 5.0) * _q(F, -sway * 0.8))
+	var rn := _run
+	_pose_bone("Spine", _q(R, -br * 0.7 - s * 4.0 - 9.0 * rn) * _q(U, -sin(ph) * (2.5 + 3.0 * rn) * w))
+	_pose_bone("Chest", _q(R, -br * 1.4 - s * 5.0 - 4.0 * rn) * _q(F, -sway * 0.8))
 	_pose_bone("UpperChest", _q(R, -br * 0.8 - s * 3.0) * _q(U, -sin(ph) * 3.0 * w))
 	# --- head / neck: look-at + nods + tilt
 	var nod: float = _gest["nod"] * 4.0 + sin(t * 2.3) * 1.5 * minf(_talk_left, 1.0)
@@ -288,18 +370,62 @@ func _pose() -> void:
 		var out := -1.0 if side == "Left" else 1.0
 		var k := "l" if side == "Left" else "r"
 		var opp := -1.0 if side == "Left" else 1.0
-		var swing := sin(ph) * opp * 22.0 * w
+		var swing := sin(ph) * opp * (22.0 + 26.0 * _run) * w
 		var idle := sin(t * 0.9 + out) * 1.5 * (1.0 - w)
 		var g_up: float = _gest[k + "a"] * 28.0
 		var g_fore: float = _gest[k + "f"] * 55.0
 		_pose_bone(side + "UpperArm", _q(R, swing + idle + g_up + s * 14.0) * _q(F, -out * (g_up * 0.25 + s * 4.0)))
-		_pose_bone(side + "LowerArm", _q(R, g_fore + s * 34.0 + maxf(swing, 0.0) * 0.6 + 4.0 * w))
+		_pose_bone(side + "LowerArm", _q(R, g_fore + s * 34.0 + maxf(swing, 0.0) * 0.6 + 4.0 * w + 72.0 * _run * w))
 	# --- legs: walk cycle (thigh swing, knee bend on the back swing)
 	for side in ["Left", "Right"]:
 		var sg := 1.0 if side == "Left" else -1.0
 		var c := sin(ph) * sg
-		_pose_bone(side + "UpperLeg", _q(R, c * 24.0 * w + s * 2.0))
-		_pose_bone(side + "LowerLeg", _q(R, -maxf(-cos(ph) * sg, 0.0) * 38.0 * w - maxf(c, 0.0) * 8.0 * w - s * 3.0))
+		var sit_out := (-1.0 if side == "Left" else 1.0) * 6.0 * _sit          # knees slightly apart
+		_pose_bone(side + "UpperLeg", _q(R, c * (24.0 + 14.0 * _run) * w + maxf(c, 0.0) * 12.0 * _run * w + s * 2.0 + SIT_THIGH * _sit) * _q(F, sit_out))
+		_pose_bone(side + "LowerLeg", _q(R, -maxf(-cos(ph) * sg, 0.0) * (38.0 + 50.0 * _run) * w - maxf(c, 0.0) * 8.0 * w - s * 3.0 - SIT_KNEE * _sit))
 		_pose_bone(side + "Foot", _q(R, -c * 10.0 * w))
-	# a small bounce while walking (on the skeleton node, not the character root)
-	skel.position.y = absf(sin(ph)) * 0.025 * w
+	# a small bounce while walking (on the skeleton node, not the character root); seated: pelvis down to the seat
+	if _hip_h < 0.0:
+		var hi := bone("Hips")
+		_hip_h = (skel.get_bone_global_rest(hi).origin * skel.global_transform.basis.get_scale()).y if hi >= 0 else 0.95
+	skel.position.y = absf(sin(ph)) * (0.025 + 0.035 * _run) * w - 0.03 * _run * w - maxf(_hip_h - seat_y - 0.06, 0.0) * _sit
+
+
+# ------------------------------------------------------------------ footsteps (the same recordings as the player's)
+const NPC_WALK_STEPS := preload("res://game/audio/the_veil_walk_footsteps.wav")
+const NPC_RUN_STEPS := preload("res://game/audio/the_veil_run_footsteps.wav")
+var _steps_t := 0.0
+var _walk_sfx: AudioStreamPlayer3D
+var _run_sfx: AudioStreamPlayer3D
+
+
+## Walking: the walk recording, running: the run recording (never both), from where the NPC is, quieter than the
+## player's own, at a pace matched to their speed; silent when they stop or are hidden.
+func _npc_steps(delta: float) -> void:
+	_steps_t -= delta
+	var moving: bool = _steps_t > 0.0 and root != null and root.is_visible_in_tree()
+	if _walk_sfx == null:
+		if not moving or root == null:
+			return
+		_walk_sfx = AudioStreamPlayer3D.new()
+		_walk_sfx.stream = NPC_WALK_STEPS
+		_run_sfx = AudioStreamPlayer3D.new()
+		_run_sfx.stream = NPC_RUN_STEPS
+		for a in [_walk_sfx, _run_sfx]:
+			a.unit_size = 4.0
+			a.max_distance = 30.0
+			root.add_child(a)
+			a.position = Vector3(0, 0.1, 0)
+			a.finished.connect(a.play)                    # loop the recording
+	var running: bool = moving and _run > 0.5
+	var walking: bool = moving and not running
+	_walk_sfx.volume_db = -14.0
+	_run_sfx.volume_db = -11.0
+	_walk_sfx.pitch_scale = clampf(_speed / 2.4, 0.6, 1.3)
+	_run_sfx.pitch_scale = clampf(_speed / 4.3, 0.8, 1.25)
+	for pair in [[_walk_sfx, walking], [_run_sfx, running]]:
+		var a: AudioStreamPlayer3D = pair[0]
+		if pair[1] and not a.playing:
+			a.play(randf() * 4.0)
+		elif not pair[1] and a.playing:
+			a.stop()

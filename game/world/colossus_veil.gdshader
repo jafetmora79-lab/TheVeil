@@ -20,7 +20,10 @@ uniform vec3 mist_col : source_color = vec3(0.11, 0.125, 0.13);
 uniform vec3 key_dir = vec3(-0.35, 0.8, 0.45);      // towards the moon (world space)
 uniform float key_energy = 0.55;
 uniform float ambient = 0.32;
-uniform float emission_energy = 0.35;
+uniform float emission_energy = 0.12;           // the plate seams only hint at a glow
+uniform float albedo_mul = 0.55;                // the atlas's bone / plate colours read as dirty, dark bone
+uniform float distance_fade = 0.035;            // extra fade into the mist with distance (on top of the scene fog)
+uniform float far_hide = 100000.0;              // beyond this distance (m) the surface dissolves into the mist (staging)
 
 varying float world_y;
 
@@ -33,11 +36,13 @@ void vertex() {
 void fragment() {
 	float h = world_y - ground_y;
 	float d = clamp((h - dissolve_start) / max(dissolve_end - dissolve_start, 0.001), 0.0, 1.0);
+	d = max(d, clamp((length(VERTEX) - far_hide) / 12.0, 0.0, 1.0));
 	int idx = int(mod(FRAGCOORD.x, 4.0)) + int(mod(FRAGCOORD.y, 4.0)) * 4;
 	if (d > (BAYER[idx] + 0.5) / 16.0) {
 		discard;
 	}
-	vec3 tex = texture(albedo_tex, UV).rgb;
+	vec3 tex = texture(albedo_tex, UV).rgb * albedo_mul;
+	tex = mix(tex, vec3(dot(tex, vec3(0.3, 0.59, 0.11))), 0.35);
 	vec3 lv = normalize((VIEW_MATRIX * vec4(normalize(key_dir), 0.0)).xyz);
 	float lam = max(dot(normalize(NORMAL), lv), 0.0);
 	vec3 col = tex * (ambient + key_energy * lam) + texture(emission_tex, UV).rgb * emission_energy;
@@ -45,5 +50,7 @@ void fragment() {
 	float lum = dot(col, vec3(0.3, 0.59, 0.11));
 	col = mix(col, vec3(lum), c * 0.7);                 // contrast / saturation drop with height
 	col = mix(col, mist_col, c * 0.85);                  // sinking into the mist colour (never brighter than it)
+	float dist = length(VERTEX);                         // view space: distance from the camera
+	col = mix(col, mist_col, clamp(1.0 - exp(-distance_fade * dist), 0.0, 0.9));
 	ALBEDO = col;
 }

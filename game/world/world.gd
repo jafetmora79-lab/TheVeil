@@ -49,6 +49,7 @@ var player: VeilPlayer
 var sedan: PlayerSedan
 var hud: VeilHUD
 var in_car := false
+var fog_zones: Node
 var drive_time := 0.0
 var _park_t := 0.0
 var _ending := false
@@ -56,6 +57,11 @@ var interactables := {}
 
 
 func _ready() -> void:
+	add_to_group("veil_world")
+	Sfx.play_music(Sfx.MUSIC_GAMEPLAY, true, -14.0, 2.5)     # in-game exploration (seamless loop)
+	# a conversation cut off by a load / quit never resumes half-way: no queued lines, no confirm mode, no lock
+	Dialogue.clear()
+	Dialogue.confirm_mode = false
 	data = JSON.parse_string(FileAccess.get_file_as_string("res://game/world/world_data.json"))
 	home = get_node("Residential/Houses/PLAYER_HOME")
 	hud = HUD_SCRIPT.new()
@@ -67,21 +73,90 @@ func _ready() -> void:
 	add_child(player)
 	player.prompt_changed.connect(hud.set_prompt)
 	sedan = SEDAN_SCRIPT.new()
+	sedan.radio_changed.connect(func(station: String):
+		hud.set_hint("RADIO — " + (station if station != "" else "OFF"))
+		get_tree().create_timer(2.5).timeout.connect(func(): if in_car and hud: hud.set_hint("W accelerate · S brake / reverse · A/D steer · Space handbrake · Q radio · E exit")))
 	sedan.name = "Sedan"
 	add_child(sedan)
 	sedan.global_transform = (home.get_node("Markers/Sedan_Driveway") as Node3D).global_transform
 	sedan.global_position.y += 0.05
 	sedan.entry_area.used.connect(func(_b): enter_car())
 	sedan.speed_changed.connect(hud.set_speed)
+	for furniture in find_children("Furnishing", "Node3D", true, false):
+		for collider in furniture.find_children("*", "CollisionObject3D", true, false):
+			collider.add_to_group("veil_furniture")
 	_setup_home()
 	_setup_town()
 	_setup_triggers()
+	expedition = EXPEDITION.new()
+	expedition.name = "Expedition"
+	add_child(expedition)
+	expedition.setup.call_deferred(self)
+	survivors = SURVIVORS.new()
+	survivors.name = "Survivors"
+	add_child(survivors)
+	survivors.setup.call_deferred(self)
+	# a hidden Easter egg in the woods before town (isolated: game/easter_egg/)
+	var egg: Node = load("res://game/easter_egg/golden_peek.gd").new()
+	egg.name = "EasterEggGolden"
+	add_child(egg)
+	egg.setup.call_deferred(self)
+	# an optional rooftop Skitter at a house in town (after the mist; once; isolated: game/encounters/)
+	var roof_egg: Node = load("res://game/encounters/roof_skitter.gd").new()
+	roof_egg.name = "OptionalRoofSkitterEncounter"
+	add_child(roof_egg)
+	roof_egg.setup.call_deferred(self)
+	# the store manager's handgun (self-defence on supply runs; game/world/sidearm.gd)
+	sidearm = load("res://game/world/sidearm.gd").new()
+	sidearm.name = "Sidearm"
+	add_child(sidearm)
+	sidearm.setup.call_deferred(self)
+	# navigation help: the way back to the shelter, and the town map on M (game/ui/nav_map.gd)
+	nav = load("res://game/ui/nav_map.gd").new()
+	nav.name = "NavMap"
+	add_child(nav)
+	nav.setup.call_deferred(self)
+	# the generated walk / driveway paving lay 1 cm above the sidewalks and the intersection near the game shop
+	# (coplanar enough to flicker): it now tucks 3 cm lower, under them, where they overlap
+	var lc := find_child("RES_LotConnections_Game", true, false) as Node3D
+	if lc and not lc.has_meta("tucked"):
+		lc.set_meta("tucked", true)
+		lc.position.y -= 0.03
+	# floating arrows at the turns of the opening drive (game/world/road_arrows.gd)
+	var ra = load("res://game/world/road_arrows.gd").new()
+	ra.name = "RoadArrows"
+	add_child(ra)
+	ra.setup.call_deferred(self)
+	var sf = load("res://game/world/sign_fix.gd").new()             # no mirrored text anywhere
+	sf.name = "SignFix"
+	add_child(sf)
+	var og = load("res://game/world/opening_guide.gd").new()      # the opening: markers, the front door, reminders
+	og.name = "OpeningGuide"
+	add_child(og)
+	og.setup.call_deferred(self)
+	var fz = load("res://game/world/fog_zones.gd").new()           # lighter fog underground and by the station
+	fz.name = "FogZones"
+	add_child(fz)
+	fz.setup.call_deferred(self)
+	fog_zones = fz
+	var sm = load("res://game/world/store_markers.gd").new()       # [E] over the store's real interactions
+	sm.name = "StoreMarkers"
+	add_child(sm)
+	sm.setup.call_deferred(self)
 	_apply_view_ranges()
 	_setup_night()
 	_light_budget_all()
+	# the filler ground (TOWN_Ground_Game) was coplanar with the parking lots / drives laid over it (both at LOT_Y),
+	# so where a ground cell was only partly covered the two z-fought (the brown strips in the supermarket lot).
+	# It sits 1.5 cm lower now: paved surfaces always win; walking is unaffected.
+	var tg := find_child("TOWN_Ground_Game", true, false) as Node3D
+	if tg:
+		tg.position.y -= GROUND_DROP
+		ground_dropped = true
 	get_tree().node_added.connect(_on_node_added)
 	Game.flag_set.connect(_on_flag)
 	Sfx.start_ambience()
+	VeilStairAssist.apply(get_node("Residential/Houses"))     # solid stair collision over the two-storey houses
 	print("[World] ready: houses=%d interactables=%d" % [get_node("Residential/Houses").get_child_count(), interactables.size()])
 	if OS.has_feature("web") and str(JavaScriptBridge.eval("window.location.search")).contains("autotest"):
 		_web_autotest.call_deferred()
@@ -92,6 +167,10 @@ func _ready() -> void:
 		Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
 	else:
 		_opening()
+	# items picked up are saved straight away (only flags used to save: anything found after the last story step
+	# was lost on Continue). Not before the restore above, which must read the saved player state first.
+	_world_live = true
+	Game.inventory_changed.connect(_save_soon)
 
 
 # ------------------------------------------------------------------ performance: distance culling
@@ -136,12 +215,16 @@ func _opening() -> void:
 	player.set_yaw_pitch(sp.global_rotation.y, 0.0)
 	hud.allow_pause = false
 	Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
-	player.play_wake_up(4.6)
+	player.play_wake_up(4.6, false)
 	await get_tree().create_timer(1.0).timeout
+	hud.chapter_start(1, 2.8)                     # CHAPTER 1 (upper screen) with the time card below it
 	hud.title_card("FRIDAY  —  6:42 PM", 2.4)
 	await hud.fade_to(0.0, 3.0)
 	Dialogue.say("wake", true)
-	await get_tree().create_timer(3.2).timeout
+	await get_tree().create_timer(0.7).timeout       # the wake-up look-around ends (4.6 s): straight into the wash
+	await bathroom.wash_face()                       # first: the bathroom, a splash of water, the mirror
+	player.controls_enabled = true                   # control only now (also if the wash was already done)
+	player.look_enabled = true
 	hud.allow_pause = true
 	hud.set_objective(Game.current_goal(), Game.current_step().get("text", ""))
 	hud.set_hint("WASD move · Mouse look · Shift sprint · Ctrl crouch · E interact · Tab inventory · Esc pause")
@@ -172,7 +255,12 @@ func _label_for(n: String) -> String:
 	return n.trim_prefix("INT_").capitalize()
 
 
+var bathroom: VeilHomeBathroom
 func _setup_home() -> void:
+	bathroom = VeilHomeBathroom.new()                 # bathroom layout + working mirror + the first-day wash
+	bathroom.name = "HomeBathroom"
+	add_child(bathroom)
+	bathroom.setup(self, home)
 	var meta: Array = home.get_meta("veil_interactables", [])
 	for e in meta:
 		var path: String = e["node"]
@@ -227,10 +315,14 @@ func _setup_home() -> void:
 ## doors, up for lids, down-and-out for oven doors). Some Pack 03 hinge data has the sign reversed.
 func _outward_deg(door: Node3D, deg: float, axis: Vector3) -> float:
 	var furn := door
-	while furn and furn.get_parent() and furn.get_parent().name != "Furniture":
+	# the furniture piece: its parent is a house's "Furniture" batch or a scavenge house's "ScavengeFurniture"
+	while furn and furn.get_parent() and not (String(furn.get_parent().name) in ["Furniture", "ScavengeFurniture"]):
 		furn = furn.get_parent() as Node3D
-	if furn == null:
+	if furn == null or furn.get_parent() == null:
 		return deg
+	var probe := Interactable.aabb_of(door)
+	if probe.size.length() < 0.01:
+		return deg                     # no mesh bounds (headless): the authored sign is already outward
 	var body := Interactable.aabb_of(furn).get_center()
 	var c := Interactable.aabb_of(door).get_center()
 	var to_furn := furn.global_transform.affine_inverse() * door.get_parent_node_3d().global_transform
@@ -316,6 +408,22 @@ var game_shop: Node3D
 var eddie: Node3D
 var eddie_face: Node
 var cashier: Node3D
+const CASHIER_AT := Vector3(-4.85, 0.04, 4.0)     ## market-local: behind lane 4's register (x -4.1), between the lanes
+
+
+## The checkout is only there while it means something: paid (groceries_done) -> no prompt; the cashier gone
+## (the Veil, p3_mist) -> hidden and not interactable at all (also after a load).
+func _cashier_state() -> void:
+	var it: Interactable = interactables.get("market/cashier")
+	if it == null:
+		return
+	if Game.has_flag("groceries_done") or Game.has_flag("p3_mist"):
+		it.prompt_text = ""
+	if Game.has_flag("p3_mist"):
+		if cashier:
+			cashier.visible = false
+		it.collision_layer = 0
+		it.set_deferred("monitorable", false)
 var marcus: Node3D
 var faces := {}               ## speaker name -> VeilFace (talks on that speaker's dialogue lines)
 var animators := {}           ## speaker name -> NpcAnimator (procedural body: idle, look-at, gestures, walk)
@@ -334,6 +442,10 @@ var _auto_open := false
 ## large mesh near several lamps keeps all of them. Nothing is brightened: energies are untouched.
 const LIGHT_FADE_INTERIOR := Vector2(26.0, 10.0)      # begin, length (m) for lights with range <= 8 m
 const LIGHT_FADE_EXTERIOR := Vector2(40.0, 12.0)
+
+
+const GROUND_DROP := 0.015
+var ground_dropped := false
 
 
 func _light_budget(l: Light3D) -> void:
@@ -389,11 +501,49 @@ func _add_glass_colliders() -> void:
 
 
 var glass_panes := 0
+var _light_glass: Dictionary = {}
+
+
+## Story-critical windows (the game shop front, the mill house): the dirty glass keeps its texture and PSX look but
+## its grime is thinned, so what is behind it reads. Material swap only (shared, cached) - no new transparency cost.
+func clear_story_glass(root: Node) -> void:
+	if root == null:
+		return
+	for n in root.find_children("*", "MeshInstance3D", true, false):
+		var mi := n as MeshInstance3D
+		if mi.mesh == null:
+			continue
+		for i in mi.mesh.get_surface_count():
+			var m := mi.mesh.surface_get_material(i) as StandardMaterial3D
+			if m == null or not m.resource_name.contains("WindowGlassDirty"):
+				continue
+			var light: StandardMaterial3D = _light_glass.get(m)
+			if light == null:
+				light = m.duplicate() as StandardMaterial3D
+				light.albedo_color = Color(m.albedo_color.r, m.albedo_color.g, m.albedo_color.b, m.albedo_color.a * 0.4)
+				_light_glass[m] = light
+			mi.set_surface_override_material(i, light)
+
+
+## The parking-lot edge piece right in front of the supermarket entrance carries a strip of dry grass that reads as
+## a stray patch on the forecourt: its grass surface gets the sidewalk concrete instead.
+func _pave_forecourt() -> void:
+	var conc := load("res://THE_VEIL_ASSETS_V2/Materials_Godot/Roads/M_Road_SidewalkConcrete.tres")
+	for mi in find_children("SW_ParkingLotEdge_10m_Mesh", "MeshInstance3D", true, false):
+		var m := mi as MeshInstance3D
+		if m.global_position.distance_to(market.global_position) > 14.0 or m.mesh == null:
+			continue
+		for i in m.mesh.get_surface_count():
+			var src := m.get_active_material(i)
+			if src and String(src.resource_path).contains("Grass") and conc:
+				m.set_surface_override_material(i, conc)
 
 
 func _setup_town() -> void:
 	market = get_node("Commercial/SUPERMARKET")
 	game_shop = get_node("Commercial/GAME_SHOP")
+	clear_story_glass(game_shop)
+	_pave_forecourt.call_deferred()
 	_add_glass_colliders()
 	# supermarket: bi-parting automatic doors open while the player stands in front of / inside the vestibule
 	for side in [["L", -1.0], ["R", 1.0]]:
@@ -401,8 +551,10 @@ func _setup_town() -> void:
 		if leaf:
 			_auto_doors.append([leaf, leaf.transform, Vector3(side[1] * 1.12, 0, 0)])
 	var sensor := _area("Trigger_MarketDoors", market.global_transform * Vector3(0, 1.2, 0.2), Vector3(4.4, 2.4, 5.0), 2,
-		func(b): if b == player: _set_auto_doors(true), market.global_transform.basis)
-	sensor.body_exited.connect(func(b): if b == player: _set_auto_doors(false))
+		func(b): if b == player or b is VeilSurvivorBody: _set_auto_doors(true), market.global_transform.basis)
+	sensor.body_exited.connect(func(b):
+		if (b == player or b is VeilSurvivorBody) and not sensor.get_overlapping_bodies().any(func(o): return o != b and (o == player or o is VeilSurvivorBody)):
+			_set_auto_doors(false))                   # shut only once nobody is in the doorway
 	var inside_m := _area("Trigger_MarketInside", market.global_transform * Vector3(0, 2.0, 9.0), Vector3(40, 4.0, 11.0), 2,
 		func(b): if b == player: _on_market_entered(), market.global_transform.basis)
 	inside_m.body_exited.connect(func(b): if b == player:
@@ -417,11 +569,15 @@ func _setup_town() -> void:
 			market_merch.set_glow(id, _glow_mat())
 	_setup_coolers()
 	# checkout: lane 4. The cashier is a generic placeholder (no cashier is named in the bible).
-	# the cashier stands on the staff side of lane 4 (lane-local (1.0, 0, -0.75)), facing the customer aisle (+x)
-	cashier = _spawn_npc(CASHIER, CASHIER_FACE, market, Vector3(-4.25, 0.04, 4.0), -PI * 0.5, "Cashier")
+	# Stand just off the lane 4 approach, with a clear interaction line from the aisle.
+	cashier = _spawn_npc(CASHIER, CASHIER_FACE, market, CASHIER_AT, -PI * 0.5, "Cashier")
+	_place_exact(cashier, market.to_global(CASHIER_AT))       # behind lane 4's till (Register_45), facing the lane
 	var c_it := Interactable.attach(cashier, {"kind": "custom", "label": "Cashier", "prompt_text": "[E] Pay for Groceries"})
+	var c_cs := c_it.get_child(0) as CollisionShape3D
+	(c_cs.shape as BoxShape3D).size = (c_cs.shape as BoxShape3D).size.max(Vector3(3.4, 1.8, 3.4))   # reachable across the belt
 	c_it.used.connect(_checkout)
 	interactables["market/cashier"] = c_it
+	_cashier_state()
 	# game shop: hinged entrance door, a game off the New Releases rack, Eddie behind the counter
 	var door := game_shop.get_node("Building").find_child("INT_Door_Entrance", true, false) as Node3D
 	if door:
@@ -439,7 +595,10 @@ func _setup_town() -> void:
 	if not Game.has_item("horror_game") and not Game.has_flag("game_bought"):
 		shop_merch.set_glow("horror_game", _glow_mat(Color(1.0, 0.35, 0.3)))
 	var behind := game_shop.get_node_or_null("NavTargets/BehindCounter") as Node3D
-	eddie = _spawn_npc(EDDIE, EDDIE_FACE, game_shop, Vector3(behind.position.x, 0.04, behind.position.z) if behind else Vector3(2.8, 0.04, 7.5), 0.0, "Eddie")
+	var eddie_at := Vector3(behind.position.x, 0.04, behind.position.z) if behind else Vector3(2.8, 0.04, 7.5)
+	eddie = _spawn_npc(EDDIE, EDDIE_FACE, game_shop, eddie_at, 0.0, "Eddie")
+	if not Game.has_flag("p3_mist"):
+		_place_exact(eddie, game_shop.to_global(eddie_at))              # behind his counter, as before
 	eddie_face = faces["Eddie"]
 	var talk := Interactable.attach(eddie, {"kind": "custom", "label": "Eddie", "prompt_text": "[E] Talk to Eddie"})
 	talk.used.connect(_talk_eddie)
@@ -465,43 +624,104 @@ func _dlg_time(ids: Array) -> float:
 	return t
 
 
-## STANDARD NPC CONVERSATION (Eddie, Marcus, the cashier, Chapter 4 survivors). converse(ids, npcs):
-##   1. refuses (returns false) when a wall, door or window separates the player from any listed NPC;
-##   2. the NPCs turn to face the protagonist;
-##   3. a talk camera borrows the first-person view and eases (<= 0.35 m, FOV 52) toward whoever is speaking,
-##      never closer than 1.25 m and never through geometry (checked every frame);
-##   4. VeilFace talking + gestures play (_on_line); white pixel subtitles with a black outline;
-##   5. every line waits for the player's confirmation (Dialogue.confirm_mode; [E] / click / Space);
-##   6. choices (choice panel) and follow-up lines queued during the talk stay inside it;
-##   7. after the last line the view returns smoothly to first person and control is restored.
+## STANDARD NPC CONVERSATION - the one shared path for every spoken exchange with an NPC in Chapters 1-8.
+## converse(ids, npcs):
+##   1. refuses (returns false) only when a wall, door or window really separates the player from the NPC spoken
+##      to (several sight lines: head, face, chest; one clear line is enough, so a door frame no longer blocks it);
+##   2. the player stops (velocity 0, movement and interaction locked) and the NPCs turn to face the protagonist;
+##   3. the talk camera stays at the protagonist's own eye position (it never moves toward the NPC, so it cannot
+##      clip into a head, a counter or a wall) and only turns toward the current speaker's face and upper body,
+##      with a subtle zoom (FOV -10 %) over ~0.4 s; a new speaker gets a gentler re-aim;
+##   4. VeilFace talking + gestures play (_on_line); speaker name + subtitle on the HUD;
+##   5. every line waits for the player (Dialogue.confirm_mode): E / left click = next line, HOLD E = skip the
+##      remaining lines up to (never past) a choice; choices always wait for the player's pick;
+##   6. choices and follow-up lines queued during the talk stay inside it (the camera holds while anything is
+##      queued or the choice panel is open);
+##   7. after the last line the view eases back (~0.4 s) to the player's normal view, the FOV is restored, and
+##      control comes back - also when the talk was skipped, ended in a choice, or was cut by a scripted event
+##      (end_conversation()); a watchdog releases any lock left over (talk_watchdog()).
+## Exceptions keep their own camera: driving, creature encounters, chase scenes and cinematics (converse() only
+## queues the lines there).
+## the survival expansion's shared expedition controller (game/world/expedition.gd)
+const EXPEDITION := preload("res://game/world/expedition.gd")
+var expedition: Node
+## survivor trust / health / morale / companions (game/world/survivors.gd)
+const SURVIVORS := preload("res://game/world/survivors.gd")
+var survivors: Node
+var sidearm: Node
+var nav: Node
 var conversing := false
-var talk_report := {"count": 0, "blocked": 0, "cam_hits": 0, "min_face_dist": 99.0}
+var talk_report := {"count": 0, "blocked": 0, "cam_hits": 0, "min_face_dist": 99.0, "max_fov_drop": 0.0, "zoom_ins": 0,
+	"zoom_outs": 0, "released": 0, "watchdog": 0}
+const TALK_RANGE := 12.0              ## a talk started by an approach (a doorway, a yard) can begin a few metres off
+const TALK_FOV_SCALE := 0.9            ## subtle zoom: 10 % narrower field of view
+const TALK_EASE_IN := 7.0              ## exponential rates: ~0.4 s to settle on a speaker
+const TALK_EASE_SPEAKER := 4.5         ## gentler re-aim when the speaker changes
+const TALK_EASE_OUT := 8.0
 
 
-## Line of sight from the player's eyes to an NPC's head (window glass counts: see _add_glass_colliders).
-func can_talk(npc: Node3D) -> bool:
-	if npc == null or not is_instance_valid(npc):
-		return false
+## Points on an NPC the player can see it by (head, face, chest).
+func _talk_points(npc: Node3D) -> Array:
 	var head = _speaker_head(String(npc.name))
 	var h: Vector3 = head if head != null else npc.global_position + Vector3(0, 1.6, 0)
-	var eye := player.camera.global_position
-	if eye.distance_to(h) > 6.0:
+	var base := npc.global_position
+	return [h, h - Vector3(0, 0.15, 0), Vector3(base.x, lerpf(base.y, h.y, 0.72), base.z)]
+
+
+## Line of sight from the player's eyes to an NPC (window glass counts: see _add_glass_colliders). Any one of the
+## sample points being in plain view is enough.
+func can_talk(npc: Node3D) -> bool:
+	if npc == null or not is_instance_valid(npc) or not npc.is_visible_in_tree():
 		return false
-	var q := PhysicsRayQueryParameters3D.create(eye, h, 1, [player.get_rid()])
-	return get_world_3d().direct_space_state.intersect_ray(q).is_empty()
+	var eye := player.camera.global_position
+	var ex: Array[RID] = [player.get_rid()]
+	if npc is CollisionObject3D:
+		ex.append((npc as CollisionObject3D).get_rid())
+	for p in _talk_points(npc):
+		if eye.distance_to(p) > TALK_RANGE:
+			continue
+		var hit := _talk_ray(eye, p, ex)
+		if hit.is_empty() or (hit["collider"] as Node).is_ancestor_of(npc) or npc.is_ancestor_of(hit["collider"]):
+			return true
+	return false
 
 
-## Returns false only when refused (an NPC is out of sight behind a wall / door / window).
+## A sight line for conversations. Invisible blockers that only keep the player out of a space (group
+## "veil_talk_transparent", e.g. Ruth and Sarah's doorway) do not hide anyone; real walls, doors and glass do.
+func _talk_ray(from: Vector3, to: Vector3, ex: Array[RID]) -> Dictionary:
+	var q := PhysicsRayQueryParameters3D.create(from, to, 1, ex)
+	var space := get_world_3d().direct_space_state
+	var hit := space.intersect_ray(q)
+	for _i in 3:
+		if hit.is_empty() or not (hit["collider"] as Node).is_in_group("veil_talk_transparent"):
+			break
+		q.exclude = q.exclude + [(hit["collider"] as CollisionObject3D).get_rid()]
+		hit = space.intersect_ray(q)
+	return hit
+
+
+## True while a normal conversation may take the camera (no driving, encounter, hidden player or cinematic).
+func _talk_camera_allowed() -> bool:
+	return not in_car and not _encounter_running and player.visible and not (_cine and is_instance_valid(_cine))
+
+
+## Returns false only when refused (the NPC spoken to is out of sight behind a wall / door / window).
 func converse(ids: Array, npcs: Array = []) -> bool:
-	if in_car or _encounter_running or not player.visible or conversing:
+	if conversing:
+		# already talking (a scripted follow-up): the new lines take over inside the same talk camera
 		for i in ids.size():
 			Dialogue.say(ids[i], false, i == 0)
-		return true                              # spoken as plain timed lines (no talk camera available)
+		return true
+	if not _talk_camera_allowed():
+		for i in ids.size():
+			Dialogue.say(ids[i], false, i == 0)
+		return true                              # spoken as plain timed lines (an exception keeps its own camera)
 	if not npcs.is_empty() and not can_talk(npcs[0]):      # the one spoken to must be in plain view
 		talk_report["blocked"] += 1
 		return false
 	conversing = true
 	talk_report["count"] += 1
+	_talk_speaker = String(npcs[0].name) if not npcs.is_empty() else _talk_speaker
 	for n in npcs:
 		var a = animators.get(String(n.name))
 		if a:
@@ -516,7 +736,20 @@ func converse(ids: Array, npcs: Array = []) -> bool:
 
 
 func _choice_open() -> bool:
-	return phase4 != null and is_instance_valid(phase4) and phase4.get("choice") != null and phase4.choice.is_open()
+	if phase4 != null and is_instance_valid(phase4) and phase4.get("choice") != null and phase4.choice.is_open():
+		return true
+	for c in get_tree().get_nodes_in_group("veil_choice_panel"):
+		if c.has_method("is_open") and c.is_open():
+			return true
+	return false
+
+
+## The direction to look for the current speaker: the face and upper body (a little below the head bone).
+func _talk_target():
+	var head = _speaker_head(_talk_speaker)
+	if head == null:
+		return null
+	return (head as Vector3) - Vector3(0, 0.12, 0)
 
 
 func _talk_camera() -> void:
@@ -524,53 +757,104 @@ func _talk_camera() -> void:
 	_end_cine()
 	_talk_id += 1
 	var id := _talk_id
-	var base := player.camera.global_transform
-	var fov0 := player.camera.fov
+	player.controls_enabled = false
+	player.velocity = Vector3.ZERO
+	var src := player.camera
+	var fov0 := src.fov
 	var cam := Camera3D.new()
 	cam.name = "TalkCam"
 	add_child(cam)
-	cam.global_transform = base
+	cam.global_transform = src.global_transform
 	cam.fov = fov0
+	cam.near = src.near
+	cam.far = src.far
+	cam.environment = src.environment
+	cam.attributes = src.attributes
+	cam.cull_mask = src.cull_mask
 	cam.current = true
 	_talk_cam = cam
-	player.controls_enabled = false
+	talk_report["zoom_ins"] += 1
 	var idle := 0.0
-	var space := get_world_3d().direct_space_state
+	var aimed := ""
+	var rate := TALK_EASE_IN
 	while id == _talk_id and is_instance_valid(cam):
 		var dt := get_process_delta_time()
 		var busy := Dialogue.is_busy() or _choice_open()
 		idle = 0.0 if busy else idle + dt
-		var ending := idle > 0.0
 		if idle > 0.45:                         # nothing more queued: hand the view back
 			break
-		var want := base
+		var eye := src.global_position          # the protagonist's own eyes: the camera never travels
+		var want := Transform3D(cam.global_transform.basis, eye)
 		var fov := fov0
-		var head = _speaker_head(_talk_speaker)
-		if head != null and not ending:
-			var to: Vector3 = head - base.origin
-			var pos := base.origin + to.normalized() * clampf(to.length() - 1.25, 0.0, 0.35)
-			var q := PhysicsRayQueryParameters3D.create(base.origin, pos + to.normalized() * 0.2, 1, [player.get_rid()])
-			if not space.intersect_ray(q).is_empty():
-				pos = base.origin
-			want = Transform3D(Basis(), pos).looking_at(head, Vector3.UP)
-			fov = 52.0
-			talk_report["min_face_dist"] = minf(talk_report["min_face_dist"], cam.global_position.distance_to(head))
-			var see := PhysicsRayQueryParameters3D.create(cam.global_position, head, 1, [player.get_rid()])
-			if not space.intersect_ray(see).is_empty():
+		var at = _talk_target()
+		if at != null and idle == 0.0:
+			fov = fov0 * TALK_FOV_SCALE
+			# a speaker hidden from the protagonist's eyes (behind a wall beside a doorway, behind another NPC) is
+			# never framed: the view stays on the last visible speaker instead of turning to a wall
+			var hit := _talk_ray(eye, at, [player.get_rid()])
+			var hidden: bool = not hit.is_empty() and eye.distance_to(hit["position"]) < eye.distance_to(at) - 0.45
+			if hidden:
+				talk_report["hidden_speaker"] = int(talk_report.get("hidden_speaker", 0)) + 1
+			else:
+				if _talk_speaker != aimed:
+					rate = TALK_EASE_IN if aimed == "" else TALK_EASE_SPEAKER
+					aimed = _talk_speaker
+				var to: Vector3 = at - eye
+				if to.length() > 0.3:
+					want = Transform3D(Basis(), eye).looking_at(at, Vector3.UP)
+				talk_report["min_face_dist"] = minf(talk_report["min_face_dist"], eye.distance_to(at))
+		# the camera is aimed at a speaker the player cannot see (should never happen: tests)
+		if aimed != "" and aimed == _talk_speaker and at != null and idle == 0.0:
+			var chk := _talk_ray(eye, at, [player.get_rid()])
+			if not chk.is_empty() and eye.distance_to(chk["position"]) < eye.distance_to(at) - 0.45 and cam.global_transform.basis.z.dot(-(at - eye).normalized()) > 0.99:
 				talk_report["cam_hits"] += 1
-		cam.global_transform = cam.global_transform.interpolate_with(want, minf(dt * 3.0, 1.0))
-		cam.fov = lerpf(cam.fov, fov, minf(dt * 3.0, 1.0))
+		var k := 1.0 - exp(-rate * dt)
+		cam.global_transform = Transform3D(cam.global_transform.basis.slerp(want.basis.orthonormalized(), k).orthonormalized(), eye)
+		cam.fov = lerpf(cam.fov, fov, k)
+		talk_report["max_fov_drop"] = maxf(talk_report["max_fov_drop"], 1.0 - cam.fov / fov0)
+		player.controls_enabled = false           # held for the whole talk (a closing choice panel re-enables them)
+		player.velocity = Vector3.ZERO
 		await get_tree().process_frame
-	# ease back to the first-person view, then hand control back
+	# ease back to the first-person view (the player's own camera, unchanged during the talk), then hand back control
 	var t := 0.0
-	while t < 0.45 and id == _talk_id and is_instance_valid(cam):
+	while t < 0.4 and id == _talk_id and is_instance_valid(cam):
 		var dt2 := get_process_delta_time()
-		cam.global_transform = cam.global_transform.interpolate_with(base, minf(dt2 * 7.0, 1.0))
-		cam.fov = lerpf(cam.fov, fov0, minf(dt2 * 7.0, 1.0))
+		var k2 := 1.0 - exp(-TALK_EASE_OUT * dt2)
+		cam.global_transform = Transform3D(cam.global_transform.basis.slerp(src.global_transform.basis.orthonormalized(), k2).orthonormalized(),
+			src.global_position)
+		cam.fov = lerpf(cam.fov, fov0, k2)
+		player.velocity = Vector3.ZERO
 		await get_tree().process_frame
 		t += dt2
 	if id == _talk_id:
+		talk_report["zoom_outs"] += 1
 		_end_talk()
+
+
+## A scripted event that must take over in the middle of a conversation: the talk ends at once, the queued lines
+## are dropped, the view and the controls are handed back (the event then takes the camera it needs).
+func end_conversation() -> void:
+	if _talk_cam and is_instance_valid(_talk_cam):
+		Dialogue.clear()
+	Dialogue.confirm_mode = false
+	_end_talk()
+	conversing = false
+
+
+## Safety net (every frame): a talk camera or a conversation lock never outlives its conversation.
+func talk_watchdog() -> void:
+	if _talk_cam and is_instance_valid(_talk_cam) and not conversing and not Dialogue.is_busy() and not _choice_open():
+		_talk_stale += get_physics_process_delta_time()
+		if _talk_stale > 1.5:
+			talk_report["watchdog"] += 1
+			_end_talk()
+	else:
+		_talk_stale = 0.0
+	if not conversing and Dialogue.confirm_mode and not Dialogue.is_busy():
+		Dialogue.confirm_mode = false
+
+
+var _talk_stale := 0.0
 
 
 ## Older timed entry point (kept for callers that only need the framing for a fixed time).
@@ -597,6 +881,8 @@ func _end_talk() -> void:
 		_talk_cam = null
 		player.camera.current = true
 		player.controls_enabled = true
+		player.velocity = Vector3.ZERO
+		talk_report["released"] += 1
 
 
 func _on_line(speaker: String, _t: String, dur: float) -> void:
@@ -618,10 +904,13 @@ func _on_line(speaker: String, _t: String, dur: float) -> void:
 ## `yaw` is the facing in the parent frame (0 = parent -Z); the animator measures the model's real forward
 ## from its feet, so the facing is right whatever way the GLB was authored.
 func _spawn_npc(scene: PackedScene, face_tex: Texture2D, parent: Node3D, pos: Vector3, yaw: float, speaker: String) -> Node3D:
-	var n := scene.instantiate() as Node3D
+	var n := VeilSurvivorBody.new()
 	n.name = speaker
-	parent.add_child(n)
 	n.position = pos
+	n.add_child(scene.instantiate())
+	parent.add_child(n)
+	if not n.place_at(parent.to_global(pos)):
+		n.hide()
 	var anim: Node = NPC_ANIM.new()
 	anim.name = "Animator"
 	n.add_child(anim)
@@ -635,6 +924,34 @@ func _spawn_npc(scene: PackedScene, face_tex: Texture2D, parent: Node3D, pos: Ve
 	n.add_child(f)
 	faces[speaker] = f
 	return n
+
+
+# Called at authored scene transitions and when reconstructing story state from a save.
+func place_survivor(npc: Node3D, local_point: Vector3) -> bool:
+	var body := npc as VeilSurvivorBody
+	if body == null:
+		return false
+	var animator := body.get_node_or_null("Animator") as NpcAnimator
+	if animator:
+		animator.walk_to([])
+	var requested := body.get_parent_node_3d().to_global(local_point)
+	var key := "%s:%s" % [get_path_to(body.get_parent()), local_point]
+	var record: Dictionary = Game.world_state.get("shelter_npc_positions", {}).get(String(body.name), {})
+	var saved: Array = record.get("feet", [])
+	var restored := false
+	if _restoring_survivors and record.get("home", "") == key and saved.size() == 3:
+		var point := Vector3(saved[0], saved[1], saved[2])
+		var floor_point := VeilSurvivorBody.floor_at(get_world_3d().direct_space_state, point)
+		if floor_point.is_finite() and floor_point.distance_to(point) < 0.15 \
+				and point.distance_to(requested) <= 30.0 and body.is_clear(floor_point):
+			restored = body.place_at(floor_point)
+	var ok := restored or body.place_at(requested)
+	if ok and body.get_parent() == market:
+		body.set_meta("shelter_home", key)
+		body.set_meta("shelter_feet", body.global_position)
+	if not ok and not body.is_clear(body.global_position):
+		body.hide()
+	return ok
 
 
 ## Soft pulsing rim highlight (additive overlay) on everything under `n`.
@@ -724,7 +1041,7 @@ func focus_shot(target: Vector3, fov_to := 28.0, t_in := 2.6, hold := 1.8, title
 	if my_id != _cine_id:
 		return
 	if title != "":
-		hud.title_card(title, hold)
+		hud.location_caption(title, hold)          # small caption: the storefront sign stays the focus
 	await get_tree().create_timer(hold).timeout
 	if my_id != _cine_id:
 		return
@@ -768,6 +1085,7 @@ func _arrival_shot() -> void:
 	Game.set_flag("arrival_shot")
 	sedan.speed_cap = ARRIVAL_SPEED
 	Dialogue.say("town", true)
+	hud.chapter_start(2, 2.6)                     # upper screen: the zoom's target (the sign) stays clear
 	await focus_shot(market.global_transform * Vector3(0.0, 4.2, -0.3), 30.0, 2.0, 1.6, "GREYHAVEN MARKET")
 	sedan.speed_cap = -1.0
 
@@ -780,7 +1098,7 @@ func _arrival_shot() -> void:
 ## (flag `auto_parked`); a blocked path or a timeout hands control back and the manual parking trigger still works.
 const PARK_LOT := "RD_ParkingLot_10x20m_003"     # the lot module in front of the entrance (local z 0 = Main St)
 const PARK_STALL_X := -3.70                      # stall centre (lot-local x): two stalls east of the entrance
-const PARK_FINAL_Z := 17.1                       # car centre at rest: rear wheels just short of the wheel stop
+const PARK_FINAL_Z := 16.6                       # car centre at rest: half a metre clear of the wheel stop and the cart row
 const PARK_STRAIGHT := 1.5                       # straight reverse after the arc
 const PARK_R := 5.0                              # reverse arc radius (car centre), ~28 deg of steering
 var _auto_parking := false
@@ -868,6 +1186,12 @@ func _auto_park() -> void:
 	_auto_parking = true
 	park_report = {"started": true}
 	var paths := park_paths()
+	# coming in over the pavement or the grass: the car is put straight into the stall behind a short fade (the
+	# reversing manoeuvre is played from the tarmac; if it fails or ends off the tarmac, the same fade places it)
+	if not car_on_asphalt():
+		park_report["placed"] = true
+		await _fade_park(paths)
+		return
 	var S := {"phase": "approach", "st": {"i": 0, "rem": 99.0}}      # shared with the drive lambda (by reference)
 	var t := 0.0
 	var stuck_t := 0.0
@@ -950,15 +1274,71 @@ func _auto_park() -> void:
 	park_report.merge({"ok": ok, "time": t, "pos_err": Vector2(fin.x, fin.z).distance_to(Vector2(endp.x, endp.z)),
 		"yaw_err_deg": rad_to_deg(absf(Vector2(f.x, f.z).angle_to(Vector2(paths["final_fwd"].x, paths["final_fwd"].z)))),
 		"max_dev": max_dev}, true)
-	if not ok:
-		return                                     # control is back with the driver; the manual parking check remains
+	if not ok or not car_on_asphalt():
+		# the manoeuvre did not end in the stall (blocked, off the tarmac): put it there behind a fade instead
+		park_report["placed"] = true
+		_auto_parking = true
+		await _fade_park(paths)
+		return
 	sedan.parking_brake = true
 	Sfx.play("door_close", sedan.global_position, -14.0, 0.6)     # handbrake ratchet stand-in
 	Game.set_flag("auto_parked")
 	Game.set_flag("reached_town")
 	Game.set_flag("parked")
 	Dialogue.say("parked", true, true)
+	await get_tree().create_timer(1.4).timeout
+	if in_car and sedan.driven and absf(sedan.speed) < 0.2:
+		exit_car()                                 # parked: the player gets out by themselves
 	save()
+
+
+## Into the stall behind a short fade (nose out, square to the bay, on the tarmac), then the usual parked state.
+func _fade_park(paths: Dictionary) -> void:
+	sedan.drive_script = Callable()
+	hud.set_hint("")
+	await hud.fade_to(1.0, 0.45)
+	var endp: Vector3 = paths["reverse"][-1]
+	var fwd: Vector3 = paths["final_fwd"]
+	sedan.speed = 0.0
+	sedan.steer = 0.0
+	sedan.velocity = Vector3.ZERO
+	var space := get_world_3d().direct_space_state
+	var g0 := space.intersect_ray(PhysicsRayQueryParameters3D.create(sedan.global_position + Vector3.UP, sedan.global_position - Vector3.UP * 4.0, 1, [sedan.get_rid()]))
+	var g1 := space.intersect_ray(PhysicsRayQueryParameters3D.create(endp + Vector3.UP * 3.0, endp - Vector3.UP * 4.0, 1, [sedan.get_rid()]))
+	var lift: float = sedan.global_position.y - ((g0["position"] as Vector3).y if g0 else sedan.global_position.y)
+	var y: float = ((g1["position"] as Vector3).y if g1 else endp.y) + lift
+	sedan.global_transform = Transform3D(Basis.looking_at(fwd * Vector3(1, 0, 1), Vector3.UP), Vector3(endp.x, y, endp.z))
+	for i in 3:
+		await get_tree().physics_frame
+	if in_car:
+		sedan.driver_cam.current = true
+	_auto_parking = false
+	sedan.parking_brake = true
+	Sfx.play("door_close", sedan.global_position, -14.0, 0.6)
+	Game.set_flag("auto_parked")
+	Game.set_flag("reached_town")
+	Game.set_flag("parked")
+	await hud.fade_to(0.0, 0.6)
+	Dialogue.say("parked", true, true)
+	await get_tree().create_timer(1.4).timeout
+	if in_car and sedan.driven and absf(sedan.speed) < 0.2:
+		exit_car()
+	save()
+
+
+## All four corners of the car over road or parking-lot surface (not the grass, the pavement or a kerb).
+func car_on_asphalt() -> bool:
+	var space := get_world_3d().direct_space_state
+	for c in [Vector3(-0.85, 0, -2.1), Vector3(0.85, 0, -2.1), Vector3(-0.85, 0, 2.1), Vector3(0.85, 0, 2.1)]:
+		var at: Vector3 = sedan.global_transform * c
+		var q := PhysicsRayQueryParameters3D.create(at + Vector3(0, 1.5, 0), at - Vector3(0, 2.0, 0), 1, [sedan.get_rid()])
+		var hit := space.intersect_ray(q)
+		if hit.is_empty():
+			return false
+		var n := String((hit["collider"] as Node).name)
+		if not (n.begins_with("RD_") or n.contains("Road") or n.contains("Parking")):
+			return false
+	return true
 
 
 func _end_cine() -> void:
@@ -975,6 +1355,24 @@ func _end_cine() -> void:
 		elif player.visible:
 			player.camera.current = true
 			player.controls_enabled = true
+
+
+## A companion following the player reached the supermarket's entrance while the doors are shut: they open (the
+## powered sensor, or pulled open by hand once the power is gone), so nobody walks into the glass. Scripted
+## door-closing scenes are left alone (the doors are shut on purpose there).
+func companion_at_market_doors(at: Vector3) -> void:
+	if market == null or Game.has_flag("p3_doors_shut") and not Game.has_flag("c5_started"):
+		return
+	if expedition != null and expedition.doors_held():
+		return                                   # shelter time: a companion never opens the exit on its own
+	var o := market.get_node_or_null("Doorways/Entrance_Outside") as Node3D
+	var i := market.get_node_or_null("Doorways/Entrance_Inside") as Node3D
+	if o == null or i == null or minf(at.distance_to(o.global_position), at.distance_to(i.global_position)) > 2.6:
+		return
+	if _doors_powered:
+		_set_auto_doors(true)
+	elif phase4 and phase4.chapter5 and not phase4.chapter5._doors_open:
+		phase4.chapter5._set_doors(true)
 
 
 func _set_auto_doors(open: bool) -> void:
@@ -1090,6 +1488,7 @@ func _checkout(_by: Node) -> void:
 	Game.add_item("groceries")
 	Sfx.play("pickup", market.global_transform * Vector3(-4.1, 1.1, 4.0))
 	_glow(cashier, false)
+	_cashier_state()
 	if can_talk(cashier):
 		converse(["market_checkout", "groceries_done"], [cashier])
 	else:
@@ -1125,6 +1524,7 @@ func _talk_eddie(_by: Node) -> void:
 ##   cross to the supermarket -> shut the jammed doors -> end of the build.
 var atmos: Node
 var _tentacles: Array = []
+const STOMP_QUICKEN := 1.45                     ## the Colossus foot's descent: a heavy, fast fall (the rest unchanged)
 var _doors_powered := true
 var _p3_shop_talked := false
 var _p3_npcs_moved := false
@@ -1135,8 +1535,8 @@ var mist_ceiling: Node3D
 var shut_it: Interactable
 
 const MARCUS_SHOP_POS := Vector3(-3.6, 0.04, 4.4)        # game-shop local: between the wall shelf and the New Releases rack
-const MARKET_EDDIE_POS := Vector3(-1.6, 0.04, 6.2)       # supermarket local, front of the sales floor, facing the doors
-const MARKET_MARCUS_POS := Vector3(1.4, 0.04, 6.6)
+const MARKET_EDDIE_POS := Vector3(6.2, 0.04, 4.05)       # staff side of customer service
+const MARKET_MARCUS_POS := Vector3(-2.0, 0.04, 6.9)
 const PROTAG_PATH := "res://THE_VEIL_ASSETS_V2/06_Characters/Protagonist/CHR_Protagonist.glb"
 const PROTAG_FACE_PATH := "res://THE_VEIL_ASSETS_V2/06_Characters/Facial/Faces/T_Face_Protagonist.png"
 const TENTACLE_AI := preload("res://game/enemies/tentacle_ai.gd")
@@ -1181,19 +1581,19 @@ func _p3_tick(_delta: float) -> void:
 		var cam := get_viewport().get_camera_3d()
 		if cam:
 			mist_ceiling.global_position = Vector3(cam.global_position.x, 0.0, cam.global_position.z)
-	if not player.visible or in_car or _encounter_running or conversing:
+	if not player.visible or in_car or _encounter_running or conversing:   # the Veil waits for a conversation to end
 		return
 	if not Game.has_flag("p3_mist"):
 		if Game.has_flag("groceries_done") and Game.has_flag("game_bought"):
 			_p3_start_mist()
 	elif not Game.has_flag("p3_stepped_out"):
-		if _outdoors() or _near_shop_door():
+		if _outdoors():
 			_colossus_encounter()
 	elif not Game.has_flag("p3_back_inside"):
 		if not _outdoors():
 			_p3_back_inside()
 	elif _p3_shop_talked and not _p3_npcs_moved and _outdoors():
-		_p3_move_npcs_to_market()
+		_p3_escape_tentacle()
 
 
 func _atmo() -> Node:
@@ -1210,11 +1610,12 @@ func _p3_start_mist() -> void:
 		return
 	Game.set_flag("phase2_done")
 	Game.set_flag("p3_mist")
+	hud.chapter_start(3)
 	hud.set_hint("")
 	_clear_beacon("market")
 	if cashier:
 		cashier.visible = false                 # people are going missing
-		interactables["market/cashier"].set_deferred("monitorable", false)
+	_cashier_state()
 	for k in animators:
 		animators[k].set_mood("scared")
 	_atmo().apply_preset(night_preset("approach"))
@@ -1222,12 +1623,12 @@ func _p3_start_mist() -> void:
 	Sfx.play("veil_rumble", player.global_position + Vector3(0, 2, 0), -2.0)
 	_stutter_lights(market if market.to_local(player.global_position).z > -0.4 else game_shop)
 	Dialogue.say("p3_fog", false, true)
-	# the game-shop door stays shut: Eddie opens it in the encounter (shot A); he waits by it, clear of its swing
+	_p3_place_marcus_in_shop()                   # Marcus is in the game shop with Eddie before anything appears
 	var sd: Interactable = interactables.get("shop/entrance")
-	if sd and sd.is_open and player.global_position.distance_to(game_shop.global_transform * Vector3(-3.2, 0.04, 0.6)) > 1.8:
-		sd.set_open(false)
+	if sd and not sd.is_open:
+		sd.set_open(true)
 	if eddie and eddie.get_parent() == game_shop and animators.has("Eddie"):
-		animators["Eddie"].walk_to([Vector3(0.9, 0.04, 7.5), Vector3(0.0, 0.04, 5.0), Vector3(-0.4, 0.04, 1.7), SHOP_EDDIE_WAIT], 1.7)
+		animators["Eddie"].walk_to([Vector3(0.9, 0.04, 7.5), Vector3(0.0, 0.04, 5.0), Vector3(-0.4, 0.04, 1.7), Vector3(-2.2, 0.04, 1.3)], 1.7)
 	await get_tree().create_timer(5.0).timeout
 	_atmo().apply_preset(night_preset("active"))
 
@@ -1269,17 +1670,8 @@ func _build_mist_ceiling() -> void:
 
 
 # ------------------------------------------------------------------ the Colossus encounter
-## Two stagings, the same story event:
-##  * game shop (Eddie inside, the usual case): A Eddie walks to the closed door and pulls it open (the view waits
-##    until it is open) - B first-person steps through the doorway onto the sidewalk - C the giant foot comes down
-##    on the road, plants (deep impact, restrained shake, dust) - D the view climbs the leg until it is lost in the
-##    mist - E the protagonist's terrified face - F Eddie calls from the doorway - G both walk back in, Eddie
-##    shuts the door, Marcus joins, everyone takes a conversation spot facing each other - H first person again
-##    and the standard conversation (talk camera on Eddie, confirm each line) - control back after the last line.
-##  * any other doorway (supermarket): steps out, C-E, then "GET BACK INSIDE THE STORE" (unchanged flow).
-## Every camera position is validated (sphere query; NPC bodies; the window glass colliders) and every move is a
-## sphere sweep; a camera that cannot travel a path cuts instead. A per-frame watchdog counts any frame where the
-## active camera is inside geometry / an NPC or crossed a surface since the last frame (enc_report.cam_violations).
+## Front-left claw tips in skeleton space at scale 1 (build_colossus.py LEGS "FL" contact (-6.1, 0, 6.0) and its
+## three claws; tip y 0.11 minus the 0.05 tip radius).
 const CAM_R := 0.16
 const SHOP_EDDIE_WAIT := Vector3(-2.2, 0.04, 1.3)       # game-shop local: by the door, clear of the leaf's swing
 const SHOP_EDDIE_OPEN := Vector3(-3.95, 0.04, 1.05)     # handle side, outside the leaf's swing (radius 0.97)
@@ -1292,7 +1684,9 @@ const SHOP_G_CAMS := [Vector3(0.6, 1.75, 3.0), Vector3(0.2, 1.8, 3.6), Vector3(1
 	Vector3(0.9, 1.7, 1.1), Vector3(1.6, 1.7, 1.6), Vector3(0.0, 1.7, 2.1), Vector3(2.2, 1.75, 1.2)]
 ## the fore claw tips of the Colossus in skeleton space at scale 1 (build_colossus.py: LEGS "FL" contact
 ## (-6.1, 0, 6.0), claws (dlat, dfw, ln) -> tip y 0.11 minus the 0.05 tip radius)
-const FL_TIPS := [Vector3(-5.55, 0.06, 7.06), Vector3(-6.15, 0.06, 7.52), Vector3(-6.7, 0.06, 6.77)]
+## front-left paw contact points (skeleton space, scale 1, build_colossus.py): the palm pad's underside (the
+## weight-bearing surface, y 0.06) and the three claw tips (also y 0.06, just touching)
+const FL_TIPS := [Vector3(-6.1, 0.06, 6.2), Vector3(-5.55, 0.06, 7.36), Vector3(-6.15, 0.06, 7.82), Vector3(-6.7, 0.06, 7.07)]
 const FL_FOOT_REST := Vector3(-6.0, 2.4, 5.6)            # Leg_FL_Foot rest origin (sanity check, tests)
 const VEIL_SHADER := preload("res://game/world/colossus_veil.gdshader")
 var _cam_prev := Vector3.INF
@@ -1396,7 +1790,7 @@ func _cam_travel(cam: Camera3D, pts: Array, speed: float, look: Callable) -> voi
 		cam.global_position = b
 
 
-## Walk an NPC (parent-local waypoints) and wait for it; snaps to the last point after `timeout` (never stalls).
+## Wait for authored movement without a visible teleport if the path is blocked.
 func _walk_wait(speaker: String, pts: Array, speed: float, timeout: float) -> void:
 	var a = animators.get(speaker)
 	if a == null:
@@ -1408,8 +1802,6 @@ func _walk_wait(speaker: String, pts: Array, speed: float, timeout: float) -> vo
 		t += get_process_delta_time()
 	if a.is_walking():
 		a.walk_to([])
-		a.root.position = pts[-1]
-		enc_report["walk_snaps"] = enc_report.get("walk_snaps", 0) + 1
 
 
 ## The creature's encounter look: its own textures through colossus_veil.gdshader (see there).
@@ -1449,6 +1841,10 @@ func _soften_fog_cards() -> Callable:
 		m.distance_fade_max_distance = old[2]
 
 
+const STANCE_RATE := 1.0                 ## Walk_Heavy: a planted foot slides back 1 m per animation second (scale 1)
+var _enc_sounds: Array = []              ## encounter audio, faded out when the encounter ends
+
+
 func _tips_world(sk: Skeleton3D, foot: int) -> Array:
 	var rest := sk.get_bone_global_rest(foot)
 	var pose := sk.get_bone_global_pose(foot)
@@ -1458,6 +1854,41 @@ func _tips_world(sk: Skeleton3D, foot: int) -> Array:
 	return out
 
 
+## Walk-in check: every touchdown of any of the four feet before the hero contact, and whether the camera saw it.
+const FOOT_BONES := ["Leg_FL_Foot", "Leg_FR_Foot", "Leg_HL_Foot", "Leg_HR_Foot"]
+func _feet_watch_setup(ap: AnimationPlayer, sk: Skeleton3D, anim: Animation) -> Dictionary:
+	var lows := {}
+	var t0 := ap.current_animation_position
+	for b in FOOT_BONES:
+		lows[b] = INF
+	var t := 0.0
+	while t < anim.length:
+		ap.seek(t, true)
+		sk.force_update_all_bone_transforms()
+		for b in FOOT_BONES:
+			lows[b] = minf(lows[b], sk.get_bone_global_pose(sk.find_bone(b)).origin.y)
+		t += anim.length / 90.0
+	ap.seek(t0, true)
+	return {"lows": lows, "down": {}, "events": [], "ground": sk.global_position.y}
+
+
+func _feet_watch_tick(w: Dictionary, sk: Skeleton3D, cam: Camera3D) -> void:
+	var s := sk.global_transform.basis.get_scale().y
+	for b in FOOT_BONES:
+		var local := sk.get_bone_global_pose(sk.find_bone(b)).origin
+		var rel: float = (local.y - float(w["lows"][b])) * s
+		var was_down: bool = w["down"].get(b, true)
+		if not was_down and rel < 0.08 * COLOSSUS_SCALE:
+			var p := sk.global_transform * local
+			p.y = float(w["ground"])                   # where the claws meet the road (the bone is the wrist, high up)
+			w["events"].append({"foot": b, "seen": cam.is_position_in_frustum(p + Vector3(0, 0.5, 0)),
+				"dist": cam.global_position.distance_to(p), "pos": p})
+		if rel < 0.08 * COLOSSUS_SCALE:
+			w["down"][b] = true
+		elif rel > 0.5 * COLOSSUS_SCALE:
+			w["down"][b] = false
+
+
 func _min_tip_y(sk: Skeleton3D, foot: int) -> float:
 	var y := INF
 	for p in _tips_world(sk, foot):
@@ -1465,6 +1896,7 @@ func _min_tip_y(sk: Skeleton3D, foot: int) -> float:
 	return y
 
 
+## The animation time where the foot's swing ends: tips come back down to their stance height.
 func _near_shop_door() -> bool:
 	if eddie == null or eddie.get_parent() != game_shop:
 		return false
@@ -1472,73 +1904,83 @@ func _near_shop_door() -> bool:
 	return absf(l.x + 3.2) < 1.1 and l.z > 0.35 and l.z < 2.3
 
 
+func _swing_end(ap: AnimationPlayer, sk: Skeleton3D, foot: int, anim: Animation) -> float:
+	var dt := 1.0 / 60.0
+	var t := 0.0
+	var prev := INF
+	var low := INF
+	var ys: Array = []
+	while t < anim.length:
+		ap.seek(t, true)
+		sk.force_update_all_bone_transforms()
+		var y := _min_tip_y(sk, foot)
+		ys.append([t, y])
+		low = minf(low, y)
+		t += dt
+	for i in range(1, ys.size()):
+		if ys[i - 1][1] > low + 0.05 and ys[i][1] <= low + 0.01:
+			return ys[i][0]
+	return 0.0
+
+
+## Eddie and Marcus react to the impact: startled face, then fear, and they look towards it.
+func _npc_fright(at: Vector3) -> void:
+	for k in ["Eddie", "Marcus"]:
+		if not animators.has(k):
+			continue
+		var a = animators[k]
+		a.set_mood("scared")
+		a.face_towards(at)
+		a.talk(1.0)                                 # a startled flinch of the arms / head
+		var f = faces.get(k)
+		if f:
+			f.set_expression("shocked")
+			f.widen_eyes(2.0)
+	await get_tree().create_timer(1.6).timeout
+	for k in ["Eddie", "Marcus"]:
+		var f = faces.get(k)
+		if f:
+			f.set_expression("scared")
+
+
+func _enc_fade_sounds() -> void:
+	for p in _enc_sounds:
+		if p and is_instance_valid(p):
+			var tw := (p as AudioStreamPlayer3D).create_tween()
+			tw.tween_property(p, "volume_db", -60.0, 0.8)
+			tw.tween_callback(p.queue_free)
+	_enc_sounds.clear()
+
+
 func _colossus_encounter() -> void:
 	_encounter_running = true
 	Game.set_flag("p3_stepped_out")
 	_end_cine()
-	_end_talk()
-	var shop_case := _near_shop_door() or (eddie != null and eddie.get_parent() == game_shop
-		and player.global_position.distance_to(game_shop.global_position) < player.global_position.distance_to(market.global_position)
-		and game_shop.to_local(player.global_position).z > -0.6)
-	_enc_store = game_shop if shop_case else (market if player.global_position.distance_to(market.global_position) < player.global_position.distance_to(game_shop.global_position) else game_shop)
-	enc_report["staging"] = "shop" if shop_case else "doorway"
+	_enc_store = market if player.global_position.distance_to(market.global_position) < player.global_position.distance_to(game_shop.global_position) else game_shop
 	var door_in: Vector3 = (_enc_store.get_node("Doorways/Entrance_Inside") as Node3D).global_position
 	var door_out: Vector3 = (_enc_store.get_node("Doorways/Entrance_Outside") as Node3D).global_position
-	var n := ((door_out - door_in) * Vector3(1, 0, 1)).normalized()
+	var n := (door_out - door_in) * Vector3(1, 0, 1)
+	n = n.normalized()
 	var side := n.cross(Vector3.UP).normalized()
-	var eye_h := player.camera.global_position.y - player.global_position.y
-	var P := game_shop.global_transform * SHOP_OUT_SPOT if shop_case else player.global_position
-	var ground := P.y if not shop_case else door_out.y + 0.04
-	P.y = ground
-	var L := P + n * 8.5 + side * 1.6
+	var P := player.global_position
+	var ground := P.y
+	var L := P + n * 15.0 + side * 1.6                 # across the street, well clear of the storefront
 	L.y = ground
+	# --- Stage 1: something enormous moving (sound first), controls held
 	player.controls_enabled = false
 	player.velocity = Vector3.ZERO
 	hud.allow_pause = false
 	hud.set_hint("")
-	var restore_cards := _soften_fog_cards()
+	_enc_sounds.append(Sfx.play("colossus_call", P + n * 14.0 + Vector3(0, 9, 0), 4.0, 0.8))   # close enough to be heard at once
+	Sfx.play_music(Sfx.MUSIC_COLOSSUS, false, -6.0, 0.6, Sfx.MUSIC_GAMEPLAY)   # the reveal theme, then back to the loop
 	var cam := Camera3D.new()
 	cam.name = "EncounterCam"
 	add_child(cam)
 	cam.global_transform = player.camera.global_transform
 	cam.fov = player.camera.fov
-	cam.near = 0.05
 	cam.far = 700.0
 	cam.current = true
-	var watch := func(): _cam_watch()
-	get_tree().process_frame.connect(watch)
-	for k in ["Eddie", "Marcus"]:
-		if animators.has(k):
-			animators[k].turn_to_face = false
-	# ---- A: Eddie opens the door (game shop). The exterior is not framed until the leaf is open.
-	var sd: Interactable = interactables.get("shop/entrance")
-	if shop_case:
-		_cam_shot = "A"
-		var look_door := game_shop.global_transform * Vector3(-3.2, 1.3, 0.4)
-		# the protagonist hangs back a step (out of Eddie's way); first person, validated move
-		var a_eye := game_shop.global_transform * (SHOP_A_SPOT + Vector3(0, eye_h, 0))
-		Dialogue.say("p3_eddie_hurry", false, true)
-		_walk_wait("Eddie", [Vector3(-2.4, 0.04, 1.0), SHOP_EDDIE_OPEN], 1.7, 4.0)
-		await _cam_travel(cam, [cam.global_position, a_eye], 1.4, func(_p): return look_door)
-		player.global_position = game_shop.global_transform * SHOP_A_SPOT + Vector3(0, 0.02, 0)
-		var tw0 := create_tween()
-		var q0 := cam.global_basis.get_rotation_quaternion()
-		var q1 := Transform3D(Basis(), cam.global_position).looking_at(look_door, Vector3.UP).basis.get_rotation_quaternion()
-		tw0.tween_method(func(k): cam.global_basis = Basis(q0.slerp(q1, k * k * (3.0 - 2.0 * k))), 0.0, 1.0, 0.6)
-		while animators["Eddie"].is_walking():
-			await get_tree().process_frame
-		animators["Eddie"].face_towards(game_shop.global_transform * Vector3(-3.4, 0.04, 0.3))
-		await get_tree().create_timer(0.45).timeout
-		if sd and not sd.is_open:
-			sd.set_open(true)
-			Sfx.play("door_open", sd.global_position, 0.0, 0.9)
-		await get_tree().create_timer(sd.anim_time + 0.25 if sd else 0.3).timeout
-		enc_report["door_open_before_exterior"] = sd == null or sd.is_open
-		_walk_wait("Eddie", [SHOP_EDDIE_ASIDE], 1.4, 2.0)
-		Sfx.play("colossus_call", P + n * 30.0 + Vector3(0, 20, 0), 2.0, 0.8)
-	else:
-		Sfx.play("colossus_call", P + n * 30.0 + Vector3(0, 20, 0), 2.0, 0.8)
-	# ---- the creature, placed so the front-left claws come down on L (claw-tip contact, not the foot bone)
+	# --- the creature: placed so its front-left foot lands exactly on L
 	var c := (load(COLOSSUS_PATH) as PackedScene).instantiate() as Node3D
 	c.name = "Colossus_Encounter"
 	add_child(c)
@@ -1548,35 +1990,30 @@ func _colossus_encounter() -> void:
 	c.set_physics_process(false)
 	var model := c.get_node("Model") as Node3D
 	model.scale = Vector3.ONE * COLOSSUS_SCALE
-	_veil_colossus(c, ground)
+	enc_report["veil_surfaces"] = VeilCreatureLook.apply_colossus(c, ground)   # dark, textured, sinks into the mist
 	var walk_dir := side
-	c.rotation.y = atan2(walk_dir.x, walk_dir.z)
+	c.rotation.y = atan2(walk_dir.x, walk_dir.z)                 # the model faces +Z
 	c.global_position = L
 	var ap := c.get_node(String(c.get_meta("animation_player", "Model/AnimationPlayer"))) as AnimationPlayer
 	var sk := c.find_children("*", "Skeleton3D", true, false)[0] as Skeleton3D
 	var foot := sk.find_bone("Leg_FL_Foot")
 	var body_b := sk.find_bone("Body")
-	enc_report["foot_rest_err"] = sk.get_bone_global_rest(foot).origin.distance_to(FL_FOOT_REST)
 	var anim := ap.get_animation("Walk_Heavy")
 	anim.loop_mode = Animation.LOOP_LINEAR
 	ap.play("Walk_Heavy", 0.0)
-	var t_c := 0.0
-	var low := INF
-	var t := 0.0
-	while t < anim.length:                                     # contact frame = lowest claw tip of that foot
-		ap.seek(t, true)
-		var fy := _min_tip_y(sk, foot)
-		if fy < low:
-			low = fy
-			t_c = t
-		t += 1.0 / 60.0
-	var place := func():
-		ap.seek(t_c, true)
+	# contact frame = the end of the front-left foot's swing, measured on its claw tips (the foot bone is the wrist,
+	# 2.4 m up the leg; the old "lowest bone" pick landed mid-stance, so the foot never really came down on cue)
+	var t_c := _swing_end(ap, sk, foot, anim)
+	var place := func(at: float):
+		ap.seek(at, true)
+		sk.force_update_all_bone_transforms()
 		var tips := _tips_world(sk, foot)
 		var mid: Vector3 = (tips[0] + tips[1] + tips[2]) / 3.0
-		var dy := _min_tip_y(sk, foot) - (ground + 0.02)            # claw tips rest on the road (2 cm)
+		var dy := _min_tip_y(sk, foot) - (ground + 0.02)        # claw tips rest on the road (2 cm)
 		c.global_position += Vector3(L.x - mid.x, -dy, L.z - mid.z)
-	place.call()
+	place.call(t_c)
+	# only the near leg may come down by the store: the other three feet must land farther out over the street;
+	# if this rig's "left" is the other side, walk the other way (mirror) and place again
 	var others := ["Leg_FR_Foot", "Leg_HL_Foot", "Leg_HR_Foot"].map(func(b): return sk.find_bone(b))
 	var near_out := INF
 	for b in others:
@@ -1584,171 +2021,224 @@ func _colossus_encounter() -> void:
 	if near_out < (L - P).dot(n) + 2.0:
 		walk_dir = -walk_dir
 		c.rotation.y = atan2(walk_dir.x, walk_dir.z)
-		place.call()
+		place.call(t_c)
 		near_out = INF
 		for b in others:
 			near_out = minf(near_out, ((sk.global_transform * sk.get_bone_global_pose(b).origin) - P).dot(n))
 	enc_report["other_feet_min_out_m"] = near_out
-	# the foot is held raised (up in the mist) until the view is on the street, then comes down to the exact
-	# contact frame: DESCENT s of animation at half speed
-	const DESCENT := 0.7
-	var t_lift := fposmod(t_c - DESCENT, anim.length)
-	ap.seek(t_lift, true)
+	# contact = the first frame the claw tips reach the road (not the end of the swing: the foot touches down
+	# before it stops); the leg comes down from the top of its swing, up in the mist
+	var t_touch := t_c
+	var t_apex := fposmod(t_c - anim.length * 0.5, anim.length)
+	var y_c := 0.0
+	ap.seek(t_c, true)
+	sk.force_update_all_bone_transforms()
+	y_c = _min_tip_y(sk, foot)
+	var best_y := -INF
+	var scan := 0.0
+	while scan < anim.length * 0.5:
+		var tt := fposmod(t_c - scan, anim.length)
+		ap.seek(tt, true)
+		sk.force_update_all_bone_transforms()
+		var yy := _min_tip_y(sk, foot)
+		if yy <= y_c + 0.04 * COLOSSUS_SCALE:
+			t_touch = tt                                         # still touching: contact is at or before this
+		if yy > best_y:
+			best_y = yy
+			t_apex = tt
+		scan += 1.0 / 120.0
+	t_c = t_touch
+	place.call(t_c)                                               # claw tips on L, on the road, at first touch
+	var contact_pos := c.global_position
+	# ONE leg event: the near front leg comes down once, from the top of its swing in the mist, onto L. (The old
+	# walk-in showed one full stride first: the same leg touched down silently ~21 m away, in view, before the
+	# real step - the "duplicate leg".) The stride's time is kept as a held beat: the call, the look, the silence;
+	# the creature is not shown until its swing begins, high above (see DROP below), so the leg comes down out of
+	# the mist from above and stops on the road instead of appearing or fading in. Parts beyond 40 m stay in the
+	# mist (far_hide) until the face close-up.
+	const SPEED := 0.5
+	var descent := fposmod(t_c - t_apex, anim.length)
+	var span := descent                                           # animation seconds shown before contact
+	var rate := STANCE_RATE * COLOSSUS_SCALE                       # metres per animation second
+	c.global_position = contact_pos - walk_dir * rate * span
+	ap.seek(fposmod(t_c - span, anim.length), true)
 	ap.speed_scale = 0.0
-	# ---- B: the street. First person through the open doorway onto the sidewalk (or a slow look from where he is)
-	_cam_shot = "B"
-	var S_eye := P + Vector3(0, eye_h, 0)
-	var look_road := func(_p): return L + Vector3(0, 3.0, 0) - side * 1.0
-	if shop_case:
-		var pts := [cam.global_position, game_shop.global_transform * Vector3(-3.2, eye_h + 0.04, 1.05),
-			game_shop.global_transform * Vector3(-3.2, eye_h + 0.04, -0.35), S_eye]
-		await _cam_travel(cam, pts, 1.35, func(p):
-			return look_road.call(p) if game_shop.to_local(p).z < 0.2 else game_shop.global_transform * Vector3(-3.2, eye_h, -3.0))
-		player.global_position = P + Vector3(0, 0.02, 0)
-		player.set_yaw_pitch(atan2(-n.x, -n.z), 0.0)
-	else:
-		var tw1 := create_tween()
-		var qa := cam.global_basis.get_rotation_quaternion()
-		var qb := Transform3D(Basis(), cam.global_position).looking_at(look_road.call(null), Vector3.UP).basis.get_rotation_quaternion()
-		tw1.tween_method(func(k): cam.global_basis = Basis(qa.slerp(qb, k * k * (3.0 - 2.0 * k))), 0.0, 1.0, 1.5)
-		S_eye = cam.global_position
-	ap.speed_scale = 0.5
-	var guard := 0.0
-	while fposmod(ap.current_animation_position - t_lift, anim.length) < DESCENT - 0.008 and guard < 3.0:
+	c.visible = false
+	var veil_mats: Array = []
+	for mi in c.find_children("*", "MeshInstance3D", true, false):
+		var m := mi as MeshInstance3D
+		if m.mesh:
+			for i in m.mesh.get_surface_count():
+				var sm := m.get_surface_override_material(i) as ShaderMaterial
+				if sm:
+					veil_mats.append(sm)
+	var set_far := func(m: float):                               # staging: the far legs stay in the mist for now
+		for sm in veil_mats:
+			sm.set_shader_parameter("far_hide", m)
+	set_far.call(40.0)
+	var set_band := func(k: float):                              # 0: everything above the road is in the mist; 1: normal
+		for sm in veil_mats:
+			sm.set_shader_parameter("dissolve_start", lerpf(-2.0, 10.0, k))
+			sm.set_shader_parameter("dissolve_end", lerpf(0.5, 17.0, k))
+	set_band.call(0.0)
+	# the player instinctively looks at the sound / the darkness ahead
+	var tw0 := create_tween()
+	var b0 := cam.global_basis.get_rotation_quaternion()
+	var b1 := Transform3D(Basis(), cam.global_position).looking_at(L + Vector3(0, 4.0, 0) + side * -1.0, Vector3.UP).basis.get_rotation_quaternion()
+	tw0.tween_method(func(q): cam.global_basis = Basis(b0.slerp(b1, q * q * (3.0 - 2.0 * q))), 0.0, 1.0, 1.5)
+	await get_tree().create_timer(anim.length / SPEED * 0.55).timeout   # the held beat (a little shorter than a stride)
+	# the leg comes DOWN FROM ABOVE and stops: no fade. The whole creature starts DROP metres higher (the foot above
+	# the mist ceiling, out of sight) and comes down accelerating (y offset DROP * (1 - k^2)), so the foot drops out of
+	# the mist and stops hard on the road on the contact frame; the horizontal stance-rate walk is unchanged.
+	const DROP := 12.0
+	set_band.call(1.0)
+	var walk_from := c.global_position
+	c.global_position = walk_from + Vector3.UP * DROP
+	c.visible = true
+	ap.speed_scale = SPEED * STOMP_QUICKEN
+	var feet_watch := _feet_watch_setup(ap, sk, anim)
+	feet_watch["ground"] = L.y
+	ap.seek(fposmod(t_c - span, anim.length), true)
+	var elapsed := 0.0
+	var dur := span / (SPEED * STOMP_QUICKEN)                     # the descent ~12% quicker, the pose still lands on t_c
+	while elapsed < dur:                                          # to the very contact frame: no last-frame snap
 		await get_tree().process_frame
-		guard += get_process_delta_time()
-	ap.seek(t_c, true)                                          # land exactly on the contact frame
-	# ---- C: the foot lands and plants
-	_cam_shot = "C"
-	var tip_y := _min_tip_y(sk, foot)
+		elapsed += get_process_delta_time()
+		var k := clampf(elapsed / dur, 0.0, 1.0)
+		c.global_position = walk_from.lerp(contact_pos, k) + Vector3.UP * DROP * (1.0 - k * k)
+		_feet_watch_tick(feet_watch, sk, cam)
+	enc_report["walkin_touchdowns"] = feet_watch["events"]
+	enc_report["leg_drop_m"] = DROP
+	# touchdowns the camera could see before the real step (the hero contact itself, at L, is not one of them)
+	var extra := 0
+	for e in feet_watch["events"]:
+		var ep: Vector3 = e["pos"]
+		if e["seen"] and float(e["dist"]) < 40.0 and Vector2(ep.x - L.x, ep.z - L.z).length() > 10.0:
+			extra += 1
+	enc_report["walkin_extra_seen"] = extra
+	c.global_position = contact_pos
+	ap.seek(t_c, true)                                            # exactly the touch-down frame
+	# --- Stage 2: the footstep (impact) - sound, dust and shake on the contact frame
+	sk.force_update_all_bone_transforms()
 	var tips_now := _tips_world(sk, foot)
 	var mid_now: Vector3 = (tips_now[0] + tips_now[1] + tips_now[2]) / 3.0
 	enc_report["foot_error_m"] = Vector2(mid_now.x - L.x, mid_now.z - L.z).length()
-	enc_report["foot_height_m"] = tip_y - ground
+	enc_report["foot_height_m"] = _min_tip_y(sk, foot) - ground
 	enc_report["body_height_m"] = (sk.global_transform * sk.get_bone_global_pose(body_b).origin).y - ground
 	enc_report["ceiling_m"] = CEILING_LAYERS[0]
 	enc_report["leg_distance_m"] = Vector2(L.x - P.x, L.z - P.z).length()
-	ap.speed_scale = 0.0                                        # planted: the weight is on it
-	Sfx.play("colossus_step", L + Vector3(0, 1, 0), 6.0, 0.62)
+	enc_report["walk_in_m"] = rate * span
+	enc_report["apex_height_m"] = best_y - ground
+	ap.speed_scale = 0.0                                          # planted: the weight comes down on it
+	_enc_sounds.append(Sfx.play("colossus_step", L + Vector3(0, 1, 0), 6.0, 0.7))
 	_impact_dust(L)
-	_shake(cam, 0.4, 0.05)
+	_crush_lamp(L)
+	_shake(cam, 0.35, 0.05)
+	_npc_fright(L)
 	for l in get_tree().get_nodes_in_group("veil_streetlight"):
 		if l is Light3D and l.global_position.distance_to(L) < 45.0:
 			(l as Light3D).visible = false
 			get_tree().create_timer(randf_range(0.3, 1.2)).timeout.connect(func(): if is_instance_valid(l): l.visible = true)
-	await get_tree().create_timer(0.5).timeout
+	await get_tree().create_timer(0.9).timeout
 	enc_report["foot_planted_drift_m"] = Vector2(_tips_world(sk, foot)[1].x - tips_now[1].x, _tips_world(sk, foot)[1].z - tips_now[1].z).length()
-	await get_tree().create_timer(0.6).timeout
-	# ---- D: up the leg into the mist (the anchor must see the leg at several heights: no awning / roof in the way)
-	_cam_shot = "D"
-	var leg_pts := [L + Vector3(0, 2.0, 0), L + Vector3(0, 6.0, 0), L + Vector3(0, 11.0, 0)]
-	var d_cands := [S_eye]
-	for k in [1.5, 3.0, 4.5]:
-		for s_ in [0.0, -1.2, 1.2]:
-			d_cands.append(S_eye + n * k + side * s_)
-	var d_at = pick_anchor(d_cands, leg_pts)
-	enc_report["leg_anchor_found"] = d_at != null
-	if d_at == null:
-		d_at = S_eye
-	if (d_at as Vector3).distance_to(cam.global_position) > 0.05:
-		if cam_path_ok(cam.global_position, d_at):
-			await _cam_travel(cam, [cam.global_position, d_at], 1.2, func(_p): return L + Vector3(0, 1.5, 0))
-		else:
-			cam.global_position = d_at
-	cam.fov = 60.0
-	var look_from := L + Vector3(0, 1.0, 0)
-	var look_to := L + Vector3(0, 40.0, 0) + (L - P).normalized() * 6.0
-	var start: Vector3 = cam.global_position
-	var tw := create_tween()
-	tw.tween_method(func(k: float):
-		var e := k * k * (3.0 - 2.0 * k)
-		cam.global_position = start + Vector3(0, -0.12 * e, 0)
-		cam.look_at(look_from.lerp(look_to, e), Vector3.UP)
-		cam.fov = lerpf(60.0, 50.0, e), 0.0, 1.0, 4.0)
-	await tw.finished
-	enc_report["max_look_up_deg"] = rad_to_deg(asin(clampf((look_to - start).normalized().y, -1.0, 1.0)))
-	# ---- E: his face (VeilFace shock -> fear), eyes following the leg up
-	_cam_shot = "E"
-	var d_leg := ((L - P) * Vector3(1, 0, 1)).normalized()
-	var parent_me: Node3D = game_shop if shop_case else self
-	var me_pos := game_shop.to_local(P) if shop_case else P
-	var me := _spawn_npc(load(PROTAG_PATH), load(PROTAG_FACE_PATH), parent_me, me_pos, 0.0, "Protagonist")
+	# --- Stage 3: the protagonist's face (he is frozen; his eyes go up)
+	var d_leg := (L - P) * Vector3(1, 0, 1)
+	d_leg = d_leg.normalized()
+	var me := _spawn_npc(load(PROTAG_PATH), load(PROTAG_FACE_PATH), self, P, atan2(-d_leg.x, -d_leg.z), "Protagonist")
+	_cine_double(me, P)                         # a stand-in: exactly here, no collision (it overlaps the player)
 	me.name = "Protagonist_Cine"
-	me.visible = false                       # the view is still where he stands: shown once the camera has cut
 	var ma = animators["Protagonist"]
-	ma.turn_to_face = false
-	ma.face_towards(L)
-	me.rotate_y(ma.world_forward().signed_angle_to(d_leg, Vector3.UP))
 	ma.set_mood("scared")
+	ma.turn_to_face = false
 	ma.max_pitch = 1.05
 	var gaze := Node3D.new()
 	gaze.name = "Gaze"
 	add_child(gaze)
-	gaze.global_position = L + Vector3(0, 6.0, 0)
+	gaze.global_position = L + Vector3(0, 1.2, 0)
 	ma.look_target = gaze
 	faces["Protagonist"].set_expression("shocked")
 	faces["Protagonist"].widen_eyes(2.5)
-	await get_tree().process_frame
 	var head: Vector3 = (ma.skel.global_transform * ma.skel.get_bone_global_pose(ma.bone("Head")).origin)
-	var e_cands := []
-	for dd in [1.05, 1.3, 1.6]:
-		for s_ in [0.42, -0.42, 0.0]:
-			e_cands.append(head + d_leg * dd + side * s_ - Vector3(0, 0.04, 0))
-	var e_at = pick_anchor(e_cands, [head])
-	enc_report["face_anchor_found"] = e_at != null
-	var key := OmniLight3D.new()                                # soft spill on his face (shop windows)
+	var key := OmniLight3D.new()                                  # soft spill from the shop windows on his face
 	key.light_color = Color(0.9, 0.86, 0.78)
-	key.light_energy = 0.8
+	key.light_energy = 0.9
 	key.omni_range = 3.0
 	add_child(key)
 	key.global_position = head + d_leg * 1.2 + side * 0.6 + Vector3(0, 0.3, 0)
-	cam.global_position = e_at if e_at != null else head + d_leg * 1.3
+	cam.global_position = head + d_leg * 1.05 + side * 0.42 - Vector3(0, 0.04, 0)
 	cam.look_at(head + Vector3(0, 0.02, 0), Vector3.UP)
-	me.visible = true
 	cam.fov = 42.0
 	enc_report["face_cam_distance_m"] = cam.global_position.distance_to(head)
 	var tg := create_tween()
-	tg.tween_property(gaze, "global_position", L + Vector3(0, 16.0, 0), 2.4).set_trans(Tween.TRANS_SINE)
-	await get_tree().create_timer(1.0).timeout
+	tg.tween_property(gaze, "global_position", L + Vector3(0, 14.0, 0), 2.6).set_trans(Tween.TRANS_SINE)
 	faces["Protagonist"].set_expression("scared")
-	# it moves on: the legs stride through the mist, the body never comes down out of it
+	var unhide := c.create_tween()
+	unhide.tween_method(set_far, 40.0, 400.0, 2.6)
+	unhide.tween_callback(set_far.bind(100000.0))
+	await get_tree().create_timer(2.8).timeout
+	# --- Stage 4: from his eyes, up the leg into the mist. He is hidden for this shot (the camera sits where his
+	# eyes are, so nothing of him can cut the frame); the view rotates only (one smooth quaternion slerp, no
+	# per-step look_at flips), from a spot that can actually see the leg (moved out from under any awning)
+	key.queue_free()
+	me.visible = false
+	var start := head + d_leg * 0.12
+	var space := get_world_3d().direct_space_state
+	for k in 7:
+		var blocked := false
+		for hgt in [3.0, 7.0, 11.0]:
+			var q := PhysicsRayQueryParameters3D.create(start, L + Vector3(0, hgt, 0), 1, [player.get_rid()])
+			if not space.intersect_ray(q).is_empty():
+				blocked = true
+		if not blocked:
+			break
+		start += d_leg * 0.5
+	cam.global_position = start
+	cam.fov = 60.0
+	var look_from := L + Vector3(0, 1.0, 0)
+	var look_to := L + Vector3(0, 40.0, 0) + d_leg * 6.0
+	var qa := Transform3D(Basis(), start).looking_at(look_from, Vector3.UP).basis.get_rotation_quaternion()
+	var qb := Transform3D(Basis(), start).looking_at(look_to, Vector3.UP).basis.get_rotation_quaternion()
+	cam.global_basis = Basis(qa)
+	var tw := create_tween()
+	tw.tween_method(func(k: float):
+		var e := k * k * (3.0 - 2.0 * k)
+		cam.global_basis = Basis(qa.slerp(qb, e))
+		cam.fov = lerpf(60.0, 50.0, e), 0.0, 1.0, 4.2)
+	tg = create_tween()
+	tg.tween_property(gaze, "global_position", L + Vector3(0, 40.0, 0), 4.0)
+	await tw.finished
+	enc_report["max_look_up_deg"] = rad_to_deg(asin(clampf((look_to - start).normalized().y, -1.0, 1.0)))
+	# --- Stage 5: it moves on. The body moves at the clip's stance rate (1 m per animation second at scale 1),
+	# so whichever foot is planted stays put while it walks off (no sliding); steps sound on their contacts
 	ap.speed_scale = 0.5
-	var speed: float = float(c.get_meta("walk_speed_mps", 1.0)) * COLOSSUS_SCALE * 0.5
+	var speed: float = STANCE_RATE * COLOSSUS_SCALE * ap.speed_scale
 	var away := c.create_tween()
 	away.tween_property(c, "global_position", c.global_position + walk_dir * speed * 30.0, 30.0)
 	away.tween_callback(c.queue_free)
-	Sfx.play("colossus_step", L + walk_dir * 12.0, 4.0, 0.62)
-	await get_tree().create_timer(1.6).timeout
-	key.queue_free()
-	if shop_case:
-		await _shop_regroup(cam, me, P, n, side)
-	else:
-		await get_tree().create_timer(1.2).timeout
-	# ---- back to the first person
-	_cam_shot = ""
-	get_tree().process_frame.disconnect(watch)
-	restore_cards.call()
+	_enc_sounds.append(Sfx.play("colossus_step", L + walk_dir * 6.0, 4.0, 0.65))
+	await get_tree().create_timer(2.0).timeout
+	_enc_sounds.append(Sfx.play("colossus_step", L + walk_dir * 12.0, 2.0, 0.6))
+	await get_tree().create_timer(1.6).timeout                  # frozen for a moment
+	# --- Stage 6: back to the first person, eased (no snap); the encounter's sounds fade out with it
 	gaze.queue_free()
 	me.queue_free()
 	animators.erase("Protagonist")
 	faces.erase("Protagonist")
+	player.set_yaw_pitch(atan2(-d_leg.x, -d_leg.z), deg_to_rad(8.0))
+	var fp := player.camera.global_transform
+	var tb := create_tween()
+	tb.tween_property(cam, "global_transform", fp, 0.7).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
+	tb.parallel().tween_property(cam, "fov", player.camera.fov, 0.7)
+	_enc_fade_sounds()
+	await tb.finished
 	cam.queue_free()
 	player.camera.current = true
-	for k in ["Eddie", "Marcus"]:
-		if animators.has(k):
-			animators[k].turn_to_face = true
+	player.controls_enabled = true
 	hud.allow_pause = true
 	_encounter_running = false
+	# --- Stage 7: survival begins
 	player.set_survival(true)
 	hud.set_survival_visible(true)
-	if shop_case:
-		player.controls_enabled = false             # H: the conversation holds the view until its last line
-		Game.set_flag("p3_back_inside")
-		_p3_reach_shop()
-		save()
-		return
-	player.set_yaw_pitch(atan2(-d_leg.x, -d_leg.z), deg_to_rad(8.0))
-	player.controls_enabled = true
 	hud.title_card("GET BACK INSIDE THE STORE", 2.2)
 	Dialogue.say("p3_colossus", false, true)
 	_p3_spawn_tentacles()
@@ -1756,7 +2246,6 @@ func _colossus_encounter() -> void:
 	save()
 
 
-## F + G: Eddie calls from the doorway; both walk back in, the door is shut, Marcus joins, everyone faces each other.
 func _shop_regroup(cam: Camera3D, me: Node3D, P: Vector3, n: Vector3, side: Vector3) -> void:
 	var X := game_shop.global_transform
 	_p3_place_marcus_in_shop()
@@ -1846,8 +2335,6 @@ func _shop_regroup(cam: Camera3D, me: Node3D, P: Vector3, n: Vector3, side: Vect
 	for k in names:                                         # never left half-way (timeout only)
 		if animators.has(k) and animators[k].is_walking():
 			animators[k].walk_to([])
-			animators[k].root.position = SHOP_TALK[k]
-			enc_report["walk_snaps"] = enc_report.get("walk_snaps", 0) + 1
 	if sd and sd.is_open:
 		sd.set_open(false)
 	enc_report["door_closed_after_regroup"] = sd == null or not sd.is_open
@@ -1883,6 +2370,28 @@ func _shop_regroup(cam: Camera3D, me: Node3D, P: Vector3, n: Vector3, side: Vect
 	animators["Eddie"].turn_to_face = true
 
 
+## Put an NPC exactly at its authored spot (behind a counter): the survivor-body safe placement would push it out
+## because its capsule touches the counter. It keeps its collision.
+func _place_exact(n: Node3D, at: Vector3) -> void:
+	if n == null:
+		return
+	n.set("_placement_valid", true)
+	n.global_position = at
+	n.show()
+
+
+## A cinematic stand-in for the protagonist: the shot is framed on it, so it stands exactly where asked (the safe
+## placement of survivor bodies would move it away from the player it overlaps, or hide it) and collides with nothing.
+func _cine_double(me: Node3D, at: Vector3) -> void:
+	if me.has_method("place_at"):
+		me.set("_placement_valid", true)
+	me.global_position = at
+	me.show()                                       # (showing a survivor body re-enables its layer: cleared after)
+	if me is CollisionObject3D:
+		(me as CollisionObject3D).collision_layer = 0
+		(me as CollisionObject3D).collision_mask = 0
+
+
 func _shake(cam: Camera3D, seconds: float, amount: float) -> void:
 	var base := cam.global_position
 	var t := 0.0
@@ -1893,6 +2402,72 @@ func _shake(cam: Camera3D, seconds: float, amount: float) -> void:
 		t += get_process_delta_time()
 	if is_instance_valid(cam):
 		cam.global_position = base
+
+
+## The street lamp the foot comes down by (the nearest within 15 m of the footfall): its light dies for good in a
+## burst of sparks, its post (the lamp model standing under the light) crushed and knocked over.
+func _crush_lamp(at: Vector3) -> void:
+	var best: Light3D = null
+	var bd := 15.0
+	for l in get_tree().get_nodes_in_group("veil_streetlight"):
+		if l is Light3D:
+			var d := Vector2(l.global_position.x - at.x, l.global_position.z - at.z).length()
+			if d < bd:
+				bd = d
+				best = l
+	if best == null:
+		return
+	var post: Node3D = null
+	var pd := 2.0
+	for n in find_children("*Lamp*", "Node3D", true, false):
+		if n is Light3D or n is MeshInstance3D or n is CollisionObject3D:
+			continue
+		var dd := Vector2(n.global_position.x - best.global_position.x, n.global_position.z - best.global_position.z).length()
+		if dd < pd:
+			pd = dd
+			post = n
+	enc_report["lamp_crushed"] = String(post.name) if post else String(best.name)
+	var spark_at := best.global_position
+	best.remove_from_group("veil_streetlight")
+	best.visible = false
+	var sp := CPUParticles3D.new()
+	sp.one_shot = true
+	sp.amount = 40
+	sp.lifetime = 0.9
+	sp.explosiveness = 0.95
+	sp.direction = Vector3(0, 1, 0)
+	sp.spread = 80.0
+	sp.initial_velocity_min = 3.0
+	sp.initial_velocity_max = 7.0
+	sp.gravity = Vector3(0, -9.8, 0)
+	var q := QuadMesh.new()
+	q.size = Vector2(0.05, 0.05)
+	var m := StandardMaterial3D.new()
+	m.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
+	m.albedo_color = Color(1.0, 0.75, 0.35)
+	m.billboard_mode = BaseMaterial3D.BILLBOARD_ENABLED
+	q.material = m
+	sp.mesh = q
+	add_child(sp)
+	sp.global_position = spark_at
+	sp.emitting = true
+	get_tree().create_timer(2.0).timeout.connect(sp.queue_free)
+	var flash := OmniLight3D.new()
+	flash.light_color = Color(1.0, 0.8, 0.5)
+	flash.light_energy = 4.0
+	flash.omni_range = 8.0
+	add_child(flash)
+	flash.global_position = spark_at
+	get_tree().create_timer(0.12).timeout.connect(flash.queue_free)
+	Sfx.play("door_close", spark_at, 4.0, 0.5)
+	if post and post != self:
+		var away := (post.global_position - at) * Vector3(1, 0, 1)
+		var axis := Vector3.UP.cross(away.normalized() if away.length() > 0.1 else Vector3.FORWARD).normalized()
+		var tw := create_tween().set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_IN)
+		var b0 := post.global_basis
+		tw.tween_method(func(k: float):
+			if is_instance_valid(post):
+				post.global_basis = Basis(axis, k * 1.35) * b0.scaled(Vector3(1.0, lerpf(1.0, 0.55, k), 1.0)), 0.0, 1.0, 0.45)
 
 
 func _impact_dust(at: Vector3) -> void:
@@ -1963,21 +2538,19 @@ func _p3_spawn_tentacles() -> void:
 		_tentacles.append(t)
 
 
+## Health reached zero: the death cinematic (game/world/death_sequence.gd) plays once, then YOU DIED with RETRY
+## (last save) / MAIN MENU. Damage cannot retrigger it (player.damage ignores a dead player).
+var death: VeilDeathSequence
+
+
 func _on_player_died() -> void:
-	player.controls_enabled = false
-	await hud.fade_to(1.0, 0.8)
-	var store := _enc_store if _enc_store else game_shop
-	var inside: Vector3 = (store.get_node("Doorways/Entrance_Inside") as Node3D).global_position
-	var into := (inside - (store.get_node("Doorways/Entrance_Outside") as Node3D).global_position) * Vector3(1, 0, 1)
-	player.global_position = inside + into.normalized() * 1.5 + Vector3(0, 0.1, 0)
-	player.velocity = Vector3.ZERO
-	player.health = 60.0
-	player.stamina = player.MAX_STAMINA
-	player.set_survival(true)
-	await get_tree().create_timer(0.6).timeout
-	hud.fade_to(0.0, 1.2)
-	player.controls_enabled = true
-	Dialogue.say("p3_wake_hurt", false, true)
+	if death != null:
+		return
+	_end_cine()
+	death = VeilDeathSequence.new()
+	death.name = "DeathSequence"
+	add_child(death)
+	death.play(self)
 
 
 func _p3_back_inside() -> void:
@@ -2017,20 +2590,579 @@ func _p3_reach_shop() -> void:
 	Game.set_flag("p3_in_shop")
 	_clear_beacon("shop")
 	_p3_place_marcus_in_shop()
-	# H: the standard conversation (talk camera on whoever speaks, each line confirmed)
-	if not await converse(["p3_shop", "p3_eddie_go"], [eddie, marcus]):
-		Dialogue.say("p3_shop", false, true)
-		Dialogue.say("p3_eddie_go")
-	player.controls_enabled = true
+	await _shop_seated_talk()                     # sit away from the windows, talk, 2 HOURS LATER, the lights
 	_p3_shop_talked = true
-	if _tentacles.is_empty():
-		_p3_spawn_tentacles()                       # the street is hunted while they cross
-	# both head for the back of the shop (they are moved to the supermarket once the player is outside)
+	# both get ready by the front of the shop: they leave with the protagonist (_p3_flee_together)
 	if animators.has("Eddie") and eddie.get_parent() == game_shop:
-		animators["Eddie"].walk_to([Vector3(-0.4, 0.04, 1.7), Vector3(0.0, 0.04, 5.0), Vector3(0.3, 0.04, 7.6)], 1.6)
+		npc_walk("Eddie", Vector3(-1.6, 0.04, 1.7), 1.6)
 	if animators.has("Marcus") and marcus.get_parent() == game_shop:
-		animators["Marcus"].walk_to([Vector3(-3.4, 0.04, 6.8), Vector3(-1.0, 0.04, 7.7)], 1.6)
+		npc_walk("Marcus", Vector3(-2.4, 0.04, 2.4), 1.6)
 	_beacon("market", market.global_transform * Vector3(0, 2.6, -0.9), Color(0.7, 0.85, 1.0))
+
+
+# ------------------------------------------------------------------ the game shop: retreat to the stock room, talk, two hours later
+## game-shop local (Pack 04 com_plans GAME_SHOP): the stock room behind the sales floor (x -5.6..0.8, z 8.4..11.6),
+## its door at x -2.0 (hinge -2.465, 8.43, opens -95 deg into the room). Seats are the room's own furniture:
+## the closed cardboard box (-0.6, 9.3; 0.40 m) and the document-box stack (-5.0, 9.2; 0.80 m). No seat is spawned;
+## there are two, so Eddie stays on his feet.
+const STOCK_DOOR_OUT := Vector3(-2.0, 0.04, 7.55)
+const STOCK_IN := Vector3(-2.0, 0.04, 9.45)
+const SEAT_BOX := Vector3(-0.6, 0.04, 9.3)
+const SEAT_DOCS := Vector3(-5.0, 0.04, 9.2)
+const STOCK_CIRCLE := Vector3(-2.7, 0.04, 9.6)
+const EDDIE_STAND := Vector3(-2.6, 0.04, 10.4)
+const SEATED_EYE := 1.22                      # box top 0.44 + seated eye height
+const STAND_EYE := 1.62
+var seated_report := {}
+var _steps_on := false
+
+
+## First person along a collision-free route (A* in the shop's frame): the camera rides on the protagonist's body.
+func _fp_walk(cam: Camera3D, to_local: Vector3, speed: float, eye := STAND_EYE) -> void:
+	var X := game_shop.global_transform
+	var from := game_shop.to_local(player.global_position)
+	from.y = to_local.y
+	var pts: Array = npc_route(game_shop, from, to_local)
+	player.set_physics_process(false)             # scripted steps (the route is already collision-free)
+	for q in pts:
+		var target: Vector3 = X * (q as Vector3)
+		# never loops forever: done within 15 cm, or when its time is up (then he is put on the point)
+		var budget := ((target - player.global_position) * Vector3(1, 0, 1)).length() / maxf(speed, 0.1) + 1.5
+		var spent := 0.0
+		while true:
+			var d := (target - player.global_position) * Vector3(1, 0, 1)
+			if d.length() < 0.15 or spent > budget:
+				if spent > budget:
+					player.global_position = Vector3(target.x, player.global_position.y, target.z)
+				break
+			var dt := get_process_delta_time()
+			spent += dt
+			var stepv := d.normalized() * minf(speed * dt, d.length())
+			player.global_position += stepv
+			var want := Transform3D(Basis(), cam.global_position).looking_at(cam.global_position + d.normalized() + Vector3(0, -0.08, 0), Vector3.UP).basis
+			cam.global_basis = Basis(cam.global_basis.get_rotation_quaternion().slerp(want.get_rotation_quaternion(), minf(dt * 7.0, 1.0)))
+			cam.global_position = player.global_position + Vector3(0, eye - 0.15 + sin(Time.get_ticks_msec() * 0.012) * 0.025 * speed / 4.0, 0)
+			await get_tree().process_frame
+	player.set_physics_process(true)
+
+
+func _fp_look(cam: Camera3D, at: Vector3, seconds: float) -> void:
+	var b0 := cam.global_basis.get_rotation_quaternion()
+	var b1 := Transform3D(Basis(), cam.global_position).looking_at(at, Vector3.UP).basis.get_rotation_quaternion()
+	var t := 0.0
+	while t < seconds:
+		t += get_process_delta_time()
+		var k := clampf(t / seconds, 0.0, 1.0)
+		cam.global_basis = Basis(b0.slerp(b1, k * k * (3.0 - 2.0 * k)))
+		await get_tree().process_frame
+
+
+func _fp_track(cam: Camera3D, at: Vector3, rate: float) -> void:
+	var want := Transform3D(Basis(), cam.global_position).looking_at(at, Vector3.UP).basis.get_rotation_quaternion()
+	cam.global_basis = Basis(cam.global_basis.get_rotation_quaternion().slerp(want, minf(get_process_delta_time() * rate, 1.0)))
+
+
+func _stock_door(open: bool, seconds := 0.45) -> void:
+	var leaf := game_shop.find_child("INT_Door_StockRoom", true, false) as Node3D
+	if leaf == null:
+		return
+	if not leaf.has_meta("closed_xf"):
+		leaf.set_meta("closed_xf", leaf.transform)
+	var base: Transform3D = leaf.get_meta("closed_xf")
+	var t := base if not open else Transform3D(base.basis * Basis(Vector3.UP, deg_to_rad(-95.0)), base.origin)
+	var tw := create_tween().set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
+	tw.tween_property(leaf, "transform", t, seconds)
+	Sfx.play("door_open" if open else "door_close", leaf.global_position, -4.0)
+	await tw.finished
+	seated_report["door_open" if open else "door_closed"] = true
+
+
+func _shop_seated_talk() -> void:
+	var X := game_shop.global_transform
+	player.controls_enabled = false
+	player.velocity = Vector3.ZERO
+	hud.allow_pause = false
+	var cam := Camera3D.new()
+	cam.name = "RetreatCam"
+	add_child(cam)
+	cam.global_transform = player.camera.global_transform
+	cam.fov = player.camera.fov
+	cam.current = true
+	seated_report["spawned_seats"] = 0
+	# 1. panic: away from the storefront, a run for the stock room in first person; Eddie and Marcus come too
+	for k in ["Eddie", "Marcus"]:
+		if animators.has(k):
+			animators[k].set_mood("scared")
+			animators[k].turn_to_face = false
+	npc_walk("Eddie", STOCK_DOOR_OUT + Vector3(-0.7, 0, -0.9), 3.4)
+	npc_walk("Marcus", STOCK_DOOR_OUT + Vector3(0.6, 0, -1.1), 3.2)
+	await _fp_look(cam, X * (STOCK_DOOR_OUT + Vector3(0, 1.5, 0)), 0.45)
+	await _fp_walk(cam, STOCK_DOOR_OUT, 4.2)
+	await _fp_look(cam, X * (STOCK_IN + Vector3(0, 1.4, 0.6)), 0.2)
+	await _stock_door(true, 0.35)                 # shoved open
+	# Eddie and Marcus go in first; the protagonist holds the door (a step aside) and goes in last
+	npc_walk("Eddie", EDDIE_STAND, 3.0)
+	npc_walk("Marcus", SEAT_DOCS + Vector3(0.62, 0, 0.0), 3.0)
+	await _fp_walk(cam, STOCK_DOOR_OUT + Vector3(0.85, 0, -0.35), 2.4)
+	var t := 0.0
+	var inside := func(k: String) -> bool:
+		return not animators.has(k) or game_shop.to_local(animators[k].root.global_position).z > 8.9
+	while t < 6.0 and not (inside.call("Eddie") and inside.call("Marcus")):
+		_fp_track(cam, X * (STOCK_IN + Vector3(0, 1.3, 0)), 5.0)
+		await get_tree().process_frame
+		t += get_process_delta_time()
+	for pair in [["Eddie", EDDIE_STAND], ["Marcus", SEAT_DOCS + Vector3(0.62, 0, 0.0)]]:
+		if not inside.call(pair[0]):                       # never left outside: put in (rare; logged)
+			animators[pair[0]].walk_to([])
+			animators[pair[0]].root.position = pair[1]
+			seated_report["snapped_inside"] = seated_report.get("snapped_inside", 0) + 1
+	seated_report["others_in_first"] = inside.call("Eddie") and inside.call("Marcus")
+	await _fp_walk(cam, STOCK_IN, 3.0)
+	seated_report["fp_retreat"] = true
+	# 2. inside last: turn, pull the door shut
+	await _fp_look(cam, X * (STOCK_DOOR_OUT + Vector3(0, 1.3, 0.6)), 0.45)
+	await _stock_door(false, 0.6)
+	_colossus_step_outside(cam, 0.8)
+	await get_tree().create_timer(1.4).timeout   # everyone holds still, listening
+	# 3. take a seat: the protagonist on the cardboard box, Marcus on the document boxes, Eddie stands
+	await _fp_walk(cam, SEAT_BOX + Vector3(-0.55, 0, 0.0), 1.4)
+	var circle := X * (STOCK_CIRCLE + Vector3(0, 1.0, 0))
+	await _fp_look(cam, circle, 0.4)
+	var tw_sit := create_tween()
+	tw_sit.tween_property(cam, "global_position", X * (SEAT_BOX + Vector3(-0.05, SEATED_EYE, 0)), 0.8).set_trans(Tween.TRANS_SINE)
+	t = 0.0
+	while t < 5.0 and ["Eddie", "Marcus"].any(func(k): return animators.has(k) and animators[k].is_walking()):
+		await get_tree().process_frame
+		t += get_process_delta_time()
+	_seat("Marcus", SEAT_DOCS, 0.80, STOCK_CIRCLE)
+	if animators.has("Eddie"):
+		animators["Eddie"].walk_to([])
+		animators["Eddie"].face_towards(X * STOCK_CIRCLE)
+	await tw_sit.finished
+	await _fp_look(cam, circle, 0.5)
+	seated_report["seated"] = animators.has("Marcus") and animators["Marcus"].seated
+	seated_report["anchor"] = true
+	# the conversation (approved lines), quiet, the creature still walking outside
+	_steps_on = true
+	_distant_steps(cam)
+	Dialogue.confirm_mode = true
+	await _say_all("p3_seated_a")
+	_colossus_step_outside(cam, 1.0)
+	await get_tree().create_timer(1.2).timeout
+	await _say_all("p3_seated_b")
+	Dialogue.confirm_mode = false
+	# 4. hold, slow fade, the store goes quiet, 2 HOURS LATER
+	await get_tree().create_timer(2.0).timeout
+	_steps_on = false
+	await hud.fade_to(1.0, 3.0)
+	Sfx.stop_ambience()
+	var lbl := VeilUI.label("2 HOURS LATER", 30)   # the game's title font (as the chapter cards)
+	lbl.add_theme_color_override("font_color", Color(1, 1, 1))
+	lbl.set_anchors_preset(Control.PRESET_CENTER)
+	lbl.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	lbl.grow_horizontal = Control.GROW_DIRECTION_BOTH
+	lbl.grow_vertical = Control.GROW_DIRECTION_BOTH
+	lbl.modulate.a = 0.0
+	hud.add_child(lbl)                            # above the fade layer
+	var tl := create_tween()
+	tl.tween_property(lbl, "modulate:a", 1.0, 0.8)
+	tl.tween_interval(2.0)
+	tl.tween_property(lbl, "modulate:a", 0.0, 0.8)
+	await tl.finished
+	lbl.queue_free()
+	seated_report["time_skip"] = true
+	Game.set_flag("p3_two_hours_later")
+	for n in find_children("Colossus_Encounter", "", true, false):
+		n.queue_free()                            # it has gone: no more footsteps
+	if market_merch and market_merch.has_method("loot"):
+		market_merch.loot()                       # people raided the supermarket in the meantime
+	_tip_carts()
+	# 5. a short third-person look at the three of them, from inside the room (validated camera point)
+	var me := _spawn_npc(load(PROTAG_PATH), load(PROTAG_FACE_PATH), game_shop, SEAT_BOX + Vector3(0.05, 0, 0), 0.0, "Protagonist")
+	_cine_double(me, game_shop.to_global(SEAT_BOX + Vector3(0.05, 0, 0)))                         # a stand-in: exactly here, no collision (it overlaps the player)
+	me.name = "Protagonist_Seated"
+	_seat("Protagonist", SEAT_BOX, 0.44, STOCK_CIRCLE)
+	var must := [X * (STOCK_CIRCLE + Vector3(0, 1.0, 0)), X * (SEAT_BOX + Vector3(0, 1.1, 0)), X * (SEAT_DOCS + Vector3(0.3, 1.4, 0)),
+		X * (EDDIE_STAND + Vector3(0, 1.5, 0))]
+	var c_at = pick_anchor([X * Vector3(0.35, 2.2, 8.75), X * Vector3(0.4, 2.35, 10.1), X * Vector3(-5.2, 2.25, 8.75),
+		X * Vector3(-3.6, 2.5, 8.7), X * Vector3(-0.4, 2.45, 10.6), X * Vector3(-1.4, 2.5, 8.7)], must)
+	seated_report["third_anchor"] = c_at != null
+	var cam3 := Camera3D.new()
+	cam3.name = "StockRoomCam"
+	add_child(cam3)
+	cam3.global_position = c_at if c_at != null else X * Vector3(-1.4, 2.4, 8.75)
+	cam3.look_at(X * (STOCK_CIRCLE + Vector3(0, 0.9, 0)), Vector3.UP)
+	cam3.fov = 62.0
+	cam3.current = true
+	Sfx.start_ambience()
+	await hud.fade_to(0.0, 2.0)
+	await get_tree().create_timer(2.4).timeout
+	# 6. first person again: up, out to the front window - the supermarket's lights across the street
+	await hud.fade_to(1.0, 0.5)
+	me.queue_free()
+	animators.erase("Protagonist")
+	faces.erase("Protagonist")
+	cam.current = true
+	cam3.queue_free()
+	if animators.has("Marcus"):
+		animators["Marcus"].set_seated(false)
+		place_survivor(animators["Marcus"].root, SEAT_DOCS + Vector3(0.75, 0, 0.1))   # stood up clear of the boxes (screen black)
+	cam.global_position = X * (SEAT_BOX + Vector3(-0.05, STAND_EYE, 0))
+	await hud.fade_to(0.0, 0.8)
+	await _fp_look(cam, X * (STOCK_IN + Vector3(0, 1.4, -0.8)), 0.6)
+	await _fp_walk(cam, STOCK_IN, 1.6)
+	await _stock_door(true, 0.6)
+	npc_walk("Eddie", Vector3(-1.4, 0.04, 1.3), 1.4)
+	npc_walk("Marcus", Vector3(-2.3, 0.04, 2.1), 1.3)
+	await _fp_walk(cam, Vector3(-0.6, 0.04, 2.0), 1.6)
+	await _fp_look(cam, market.global_transform * Vector3(0.0, 4.0, -0.3), 0.9)
+	Dialogue.confirm_mode = true
+	await _say_all("p3_lights")
+	Dialogue.confirm_mode = false
+	seated_report["lights_talk"] = true
+	# control back where the protagonist stands (inside the shop)
+	var dm: Vector3 = (market.global_position - player.global_position) * Vector3(1, 0, 1)
+	player.set_yaw_pitch(atan2(-dm.x, -dm.z), 0.0)
+	player.visible = true
+	cam.queue_free()
+	player.camera.current = true
+	for k in ["Eddie", "Marcus"]:
+		if animators.has(k):
+			animators[k].turn_to_face = true
+	hud.allow_pause = true
+	player.controls_enabled = true
+
+
+## Sit a character on an existing seat (shop-local), facing `toward`.
+func _seat(speaker: String, seat: Vector3, height: float, toward: Vector3, edge := 0.22) -> void:
+	var a = animators.get(speaker)
+	if a == null:
+		return
+	var X := game_shop.global_transform
+	var to2: Vector3 = toward - seat
+	to2.y = 0.0
+	a.walk_to([])
+	if not place_survivor(a.root, seat + to2.normalized() * edge):
+		return          # on the seat's front edge, not inside the box
+	a.turn_to_face = false
+	a.face_towards(X * toward)
+	a.root.rotate_y(a.world_forward().signed_angle_to((X.basis * to2).normalized(), Vector3.UP))
+	a.set_seated(true, height)
+	a.set_mood("scared")
+
+
+func _say_all(id: String) -> void:
+	Dialogue.say(id, false, true)
+	await get_tree().process_frame
+	while Dialogue.is_busy():
+		await get_tree().process_frame
+
+
+## One heavy Colossus footstep somewhere outside the shop front (sound + a restrained shake of the shot).
+func _colossus_step_outside(cam: Camera3D, strength := 0.6) -> void:
+	var out: Vector3 = game_shop.global_transform * Vector3(randf_range(-14.0, 14.0), 2.0, -24.0)
+	Sfx.play("colossus_step", out, 2.0 * strength, 0.66)
+	if is_instance_valid(cam):
+		_shake(cam, 0.3, 0.018 * strength)
+
+
+func _distant_steps(cam: Camera3D) -> void:
+	while _steps_on and is_instance_valid(cam):
+		await get_tree().create_timer(randf_range(3.5, 5.5)).timeout
+		if _steps_on:
+			_colossus_step_outside(cam, 0.6)
+
+
+## A couple of the supermarket's shopping carts lie on their side after the raid.
+func _tip_carts() -> void:
+	if market.has_meta("carts_tipped"):
+		return
+	market.set_meta("carts_tipped", true)
+	var k := 0
+	for n in market.find_children("Cart_*", "Node3D", true, false):
+		if k >= 2:
+			break
+		var c := n as Node3D
+		if c is RigidBody3D:
+			(c as RigidBody3D).freeze = true
+		c.rotation.z = 1.5 if k == 0 else -1.45
+		c.position.y += 0.28
+		k += 1
+
+
+## After the shop talk, once the player is outside: Eddie and Marcus run WITH the protagonist to the supermarket
+## (the existing companion follow, breadcrumbs of the player's own path: no wall clipping, no teleport).
+var _p3_followers: Array = []
+
+
+const TENTACLE_ESCAPE_SHOT := preload("res://game/world/tentacle_escape_shot.gd")
+
+
+func _p3_escape_tentacle() -> void:
+	if _encounter_running:
+		return                                           # (the tick asks every frame while the shot plays)
+	_encounter_running = true
+	var was_controls := player.controls_enabled
+	var was_look := player.look_enabled
+	var was_pause := hud.allow_pause
+	player.controls_enabled = false
+	player.look_enabled = false
+	player.velocity = Vector3.ZERO
+	hud.allow_pause = false
+	var suspended: Array[Node] = []
+	for tentacle in _tentacles:
+		var ai := tentacle.get_node_or_null("AI") as Node
+		if ai and ai.is_processing():
+			ai.set_process(false)
+			suspended.append(ai)
+	var shot := TENTACLE_ESCAPE_SHOT.new()
+	shot.name = "TentacleEscapeShot"
+	add_child(shot)
+	enc_report["tentacle_escape_shot"] = await shot.play(self)
+	shot.queue_free()
+	player.camera.make_current()
+	player.controls_enabled = was_controls
+	player.look_enabled = was_look
+	hud.allow_pause = was_pause
+	for ai in suspended:
+		if is_instance_valid(ai):
+			ai.set_process(true)
+	_encounter_running = false
+	_p3_flee_together()
+
+
+func _p3_flee_together() -> void:
+	_p3_npcs_moved = true
+	Game.set_flag("p3_fled_together")             # the run to the supermarket begins (chapter 4)
+	hud.chapter_start(4)
+	_chase_start()
+	for pair in [[eddie, 1.6], [marcus, 2.8]]:
+		var n: Node3D = pair[0]
+		if n == null:
+			continue
+		n.reparent(self, true)
+		var f := VeilCompanionFollow.new()
+		f.name = "Follow"
+		f.gap = pair[1]
+		f.walk_speed = 2.2                              # a frightened jog
+		f.run_speed = 4.2
+		n.add_child(f)
+		f.setup(n, player)
+		# Follow the collision-checked route to the door before joining the outdoor trail.
+		var din := game_shop.get_node("Doorways/Entrance_Inside") as Node3D
+		var dout := game_shop.get_node("Doorways/Entrance_Outside") as Node3D
+		var body := n as VeilSurvivorBody
+		var via: Array = []
+		if game_shop.to_local(n.global_position).z > 0.2 and body:
+			var safe := body.nearest_safe(din.global_position)
+			if safe.is_finite():
+				via = npc_route(game_shop, game_shop.to_local(n.global_position), game_shop.to_local(safe), body)
+				via = via.map(func(point): return game_shop.to_global(point))
+				if not via.is_empty():
+					via.append(dout.global_position)
+		f.start(via)
+		if f.anim:
+			f.anim.physical = false                      # the trail is the player's own footsteps: no jamming
+		_p3_followers.append(f)
+		if animators.has(String(n.name)):
+			animators[String(n.name)].set_mood("scared")
+
+
+## The run to the supermarket: RUN TO THE STORE!, the chase track, the three tentacles on the road between the
+## two stores awake and striking (their own wind-up / strike / recovery, game/enemies/tentacle_ai.gd). It ends at
+## the supermarket's doors: the music fades and the tentacles stop striking (they retract when the doors shut).
+const CHASE_MUSIC := preload("res://game/audio/the_veil_tentacle_chase_FAST.wav")
+var _chase_music: AudioStreamPlayer
+
+
+func _chase_start() -> void:
+	if Game.has_flag("p3_in_market"):
+		return
+	_p3_spawn_tentacles()
+	hud.set_hint("RUN TO THE STORE!")
+	get_tree().create_timer(4.0).timeout.connect(func():
+		if hud.hint.text == "RUN TO THE STORE!":
+			hud.set_hint(""))
+	if _chase_music == null:
+		_chase_music = AudioStreamPlayer.new()
+		_chase_music.stream = CHASE_MUSIC
+		_chase_music.volume_db = -10.0
+		add_child(_chase_music)
+		_chase_music.finished.connect(func():
+			if Game.has_flag("p3_fled_together") and not Game.has_flag("p3_in_market"):
+				_chase_music.play())
+		_chase_music.play()
+
+
+func _chase_end() -> void:
+	for t in _tentacles:
+		var ai = t.get_node_or_null("AI") if is_instance_valid(t) else null
+		if ai:
+			ai.set_process(false)                      # safe inside: no more strikes
+	if _chase_music and _chase_music.playing:
+		var tw := create_tween()
+		tw.tween_property(_chase_music, "volume_db", -40.0, 2.0)
+		tw.tween_callback(_chase_music.stop)
+
+
+func _p3_stop_following() -> void:
+	for f in _p3_followers:
+		if is_instance_valid(f):
+			f.stop()
+			f.queue_free()
+	_p3_followers.clear()
+	for n in [eddie, marcus]:
+		if n and n.get_parent() != market:
+			n.reparent(market, true)
+
+
+## Walk an NPC (its parent's local frame) to `to` around furniture and walls: npc_route() on the real colliders.
+func npc_walk(speaker: String, to: Vector3, speed := 1.3) -> void:
+	var a = animators.get(speaker)
+	if a == null:
+		return
+	var par := a.root.get_parent_node_3d() as Node3D
+	var body := a.root as VeilSurvivorBody
+	# scripted walks route around the static world only (walls, counters, doors): the player and the other NPCs
+	# are moving and must not make the route "blocked" (an empty route left Eddie standing outside the stock room)
+	speed *= 1.2                                     # NPCs a little quicker
+	var path := npc_route(par, a.root.position, to, body, true)
+	if path.is_empty() and body:
+		var safe := body.nearest_safe(par.to_global(to))
+		if safe.is_finite():
+			path = npc_route(par, a.root.position, par.to_local(safe), body, true)
+	if not path.is_empty():
+		a.walk_to(path, speed)
+		return
+	# no route: never walk through a wall. A clear straight line is walked; otherwise the NPC is put there, and only
+	# while the camera cannot see it (else it stays and is placed at the next unseen moment)
+	var from_w: Vector3 = a.root.global_position
+	var to_w := par.to_global(to)
+	var space := get_world_3d().direct_space_state
+	var clear := true
+	for h in [0.5, 1.3]:
+		var rq := PhysicsRayQueryParameters3D.create(from_w + Vector3(0, h, 0), to_w + Vector3(0, h, 0), 1, [player.get_rid()])
+		if not space.intersect_ray(rq).is_empty():
+			clear = false
+	if clear:
+		a.walk_to([to], speed)
+		return
+	_place_unseen(a.root, to)
+
+
+## Put an NPC at `to` (its parent's frame) once neither its spot nor the target is in view.
+func _place_unseen(n: Node3D, to: Vector3) -> void:
+	var par := n.get_parent_node_3d()
+	for i in 600:
+		var cam := get_viewport().get_camera_3d()
+		if cam == null or not (cam.is_position_in_frustum(n.global_position + Vector3(0, 1, 0)) or cam.is_position_in_frustum(par.to_global(to) + Vector3(0, 1, 0))):
+			break
+		await get_tree().create_timer(0.1).timeout
+	if is_instance_valid(n) and n.has_method("place_at"):
+		place_survivor(n, to)
+
+
+## Reuse the local XZ grid search for survivor capsules and cinematic camera routes.
+## Survivor searches return an empty path when the requested route is obstructed.
+func npc_route(frame: Node3D, from: Vector3, to: Vector3, body: VeilSurvivorBody = null, static_only := false) -> Array:
+	var space := get_world_3d().direct_space_state
+	var sph := SphereShape3D.new()
+	sph.radius = 0.28
+	var q := PhysicsShapeQueryParameters3D.new()
+	var ex_rid: Array[RID] = [player.get_rid()]
+	if body:
+		ex_rid.append(body.get_rid())
+	if static_only:
+		# scripted walks: the original check (a sphere at knee and chest height, static world only). The full capsule
+		# started 3.5 cm above the floor, so the 15 cm kerb at the supermarket entrance counted as a wall and every
+		# route into the store failed.
+		body = null
+	q.shape = body.capsule if body else sph
+	q.collision_mask = 1 if static_only else (VeilSurvivorBody.SOLIDS if body else 1 | VeilSurvivorBody.LAYER)
+	q.exclude = ex_rid
+	var heights := [VeilSurvivorBody.HEIGHT * 0.5 + VeilSurvivorBody.FOOT_CLEARANCE] if body else [0.5, 1.3]
+	var X := frame.global_transform
+	var y := from.y
+	var CELL := 0.3
+	var lo := Vector2(minf(from.x, to.x) - 6.0, minf(from.z, to.z) - 6.0)
+	if body:
+		var end := Vector2(to.x, to.z)
+		lo = end + (lo - end).snapped(Vector2.ONE * CELL)
+	var cache := {}
+	var free_at := func(c: Vector2i) -> bool:
+		if cache.has(c):
+			return cache[c]
+		var p := Vector3(lo.x + c.x * CELL, y, lo.y + c.y * CELL)
+		var ok := not body or VeilSurvivorBody.floor_at(space, X * p).is_finite()
+		for h in heights:
+			q.transform = Transform3D(Basis(), X * (p + Vector3(0, h, 0)))
+			if not space.intersect_shape(q, 1).is_empty():
+				ok = false
+				break
+		cache[c] = ok
+		return ok
+	var cell_of := func(p: Vector3) -> Vector2i: return Vector2i(roundi((p.x - lo.x) / CELL), roundi((p.z - lo.y) / CELL))
+	var s: Vector2i = cell_of.call(from)
+	var g: Vector2i = cell_of.call(to)
+	var w := int((maxf(from.x, to.x) + 6.0 - lo.x) / CELL) + 1
+	var hgt := int((maxf(from.z, to.z) + 6.0 - lo.y) / CELL) + 1
+	var open := {s: 0.0}
+	var cost := {s: 0.0}
+	var came := {}
+	var found := false
+	var it := 0
+	while not open.is_empty() and it < 9000:
+		it += 1
+		var cur: Vector2i = s
+		var best := INF
+		for k in open:
+			if open[k] < best:
+				best = open[k]
+				cur = k
+		open.erase(cur)
+		if cur == g or (not body and (cur - g).length_squared() <= 1):
+			g = cur
+			found = true
+			break
+		for d in [Vector2i(1, 0), Vector2i(-1, 0), Vector2i(0, 1), Vector2i(0, -1), Vector2i(1, 1), Vector2i(1, -1), Vector2i(-1, 1), Vector2i(-1, -1)]:
+			var nb: Vector2i = cur + d
+			if nb.x < 0 or nb.y < 0 or nb.x >= w or nb.y >= hgt or not free_at.call(nb):
+				continue
+			if d.x != 0 and d.y != 0 and (not free_at.call(Vector2i(cur.x + d.x, cur.y)) or not free_at.call(Vector2i(cur.x, cur.y + d.y))):
+				continue
+			var nc: float = cost[cur] + (1.414 if d.x != 0 and d.y != 0 else 1.0)
+			if not cost.has(nb) or nc < cost[nb]:
+				cost[nb] = nc
+				came[nb] = cur
+				open[nb] = nc + Vector2(nb - g).length()
+	if not found:
+		return [] if body else [to]
+	var cells: Array = [g]
+	while cells[0] != s and came.has(cells[0]):
+		cells.push_front(came[cells[0]])
+	var pts: Array = []
+	for c in cells:
+		pts.append(Vector3(lo.x + c.x * CELL, y, lo.y + c.y * CELL))
+	if pts.size() == 1:
+		return [to]
+	pts[-1] = to
+	# String pulling: keep only the waypoints needed for clear shape sweeps.
+	pts[0] = from
+	var out: Array = []
+	var i := 0
+	while i < pts.size() - 1:
+		var j := pts.size() - 1
+		while j > i + 1:
+			q.transform = Transform3D(Basis(), X * (pts[i] + Vector3(0, heights[0] if body else 0.8, 0)))
+			q.motion = X.basis * (pts[j] - pts[i])
+			var r := space.cast_motion(q)
+			q.motion = Vector3.ZERO
+			if r.size() > 0 and r[0] >= 1.0:
+				break
+			j -= 1
+		out.append(pts[j])
+		i = j
+	return out
 
 
 func _p3_move_npcs_to_market() -> void:
@@ -2039,8 +3171,8 @@ func _p3_move_npcs_to_market() -> void:
 		var n: Node3D = pair[0]
 		if n == null:
 			continue
-		n.reparent(market, false)
-		n.position = pair[1]
+		n.reparent(market, true)
+		place_survivor(n, pair[1])
 		var anim = n.get_node_or_null("Animator")
 		if anim:
 			anim.walk_to([])
@@ -2051,10 +3183,12 @@ func _p3_move_npcs_to_market() -> void:
 
 
 func _p3_reach_market() -> void:
-	if not Game.has_flag("p3_in_shop") or Game.has_flag("p3_in_market"):
+	if _encounter_running or not Game.has_flag("p3_in_shop") or Game.has_flag("p3_in_market"):
 		return
 	if not _p3_npcs_moved:
 		_p3_move_npcs_to_market()
+	_p3_stop_following()                         # they came in with the player
+	_chase_end()
 	Game.set_flag("p3_in_market")
 	_set_auto_doors(true)                       # the power dies with the doors open
 	_doors_powered = false
@@ -2062,15 +3196,12 @@ func _p3_reach_market() -> void:
 		if l is Light3D and String(l.name).begins_with("Light_"):
 			(l as Light3D).light_energy *= 0.35
 	shut_it.prompt_text = "[E] Pull the Doors Shut"
-	if animators.has("Eddie"):
-		animators["Eddie"].walk_to([Vector3(-1.0, 0.04, 4.3)], 1.4)
-	if animators.has("Marcus"):
-		animators["Marcus"].walk_to([Vector3(1.1, 0.04, 4.7)], 1.4)
+	npc_walk("Eddie", MARKET_EDDIE_POS, 1.4)           # around the vestibule wall, carts and baskets
+	npc_walk("Marcus", MARKET_MARCUS_POS, 1.4)
 	for d in _auto_doors:
 		_glow(d[0], true, Color(0.7, 0.85, 1.0))
-	await get_tree().create_timer(1.2).timeout         # Eddie and Marcus come over first
-	if not await converse(["p3_market"], [eddie, marcus]):
-		Dialogue.say("p3_market", false, true)        # story beat: still heard if they are not in view yet
+	Dialogue.say("p3_market", false, true)
+	talk_shot(_dlg_time(["p3_market"]))
 
 
 func _p3_shut_doors(_by: Node) -> void:
@@ -2111,8 +3242,11 @@ func _p3_restore() -> void:
 		hud.set_survival_visible(true)
 		if not Game.has_flag("p3_doors_shut"):
 			_p3_spawn_tentacles()
-	if Game.has_flag("p3_back_inside"):
-		_p3_place_marcus_in_shop()
+	_p3_place_marcus_in_shop()
+	if Game.has_flag("p3_two_hours_later") or Game.has_flag("p3_in_market"):
+		if market_merch and market_merch.has_method("loot"):
+			market_merch.loot()
+		_tip_carts()
 	if Game.has_flag("p3_in_shop"):
 		_p3_shop_talked = true
 		_p3_move_npcs_to_market()
@@ -2321,6 +3455,7 @@ var _exit_requested := false
 
 
 func _physics_process(delta: float) -> void:
+	talk_watchdog()
 	_p3_tick(delta)
 	_arrival_ease()
 	if _exit_requested:
@@ -2331,7 +3466,11 @@ func _physics_process(delta: float) -> void:
 		var pk := get_node_or_null("Trigger_Parking") as Area3D
 		if pk and pk.overlaps_body(sedan) and absf(sedan.speed) < 0.5 and Game.has_flag("entered_car"):
 			_park_t += delta
-			if _park_t > 1.0 and not Game.has_flag("parked"):
+			if _park_t > 1.0 and not Game.has_flag("parked") and not car_on_asphalt():
+				if hud.hint.text == "":
+					hud.set_hint("Park on the tarmac - not on the grass or the pavement.")
+				_park_t = 0.0
+			elif _park_t > 1.0 and not Game.has_flag("parked"):
 				Game.set_flag("reached_town")
 				Game.set_flag("parked")
 				Dialogue.say("parked", true, true)
@@ -2361,18 +3500,25 @@ func enter_car() -> void:
 	if not Game.has_flag("fridge_checked"):
 		Dialogue.say("need_kitchen", false, true)
 		return
-	if Game.has_flag("groceries_done") and Game.has_flag("game_bought"):
+	if Game.has_flag("groceries_done") and Game.has_flag("game_bought") and not Game.has_flag("vehicle_repaired"):
+		if expedition and expedition.dead_car():
+			return                                   # the survival expansion: inspect / repair the dead car
 		_p3_car_dead()
 		return
+	if expedition and expedition.has_method("car_menu") and await expedition.car_menu():
+		return                                       # refuelled / patched / looked at it, not getting in now
 	in_car = true
 	player.activate(false)
 	await sedan.swing_door(true, 0.3)
+	if survivors and survivors.has_method("board_car"):
+		await survivors.board_car()                  # a trip companion takes the passenger seat before we drive off
 	sedan.set_driven(true)
 	sedan.swing_door(false, 0.35)
 	Game.set_flag("left_house")
 	Game.set_flag("entered_car")
 	Dialogue.say("in_car", true)
-	hud.set_hint("W accelerate · S brake / reverse · A/D steer · Space handbrake · E exit · mouse look")
+	hud.set_hint("W accelerate · S brake / reverse · A/D steer · Space handbrake · Q radio · E exit · mouse look"
+		+ ("\n" + sedan.status_text() if sedan.survival else ""))
 
 
 func exit_car() -> void:
@@ -2396,6 +3542,8 @@ func exit_car() -> void:
 	player.velocity = Vector3.ZERO
 	player.set_yaw_pitch(sedan.global_rotation.y, 0.0)
 	player.activate(true)
+	if survivors and survivors.has_method("leave_car"):
+		survivors.leave_car()
 	hud.set_speed(-1.0)
 	hud.set_hint("")
 	await get_tree().create_timer(0.6).timeout
@@ -2423,11 +3571,75 @@ func _on_flag(f: String) -> void:
 		save()
 
 
-func save() -> void:
+func can_heal_with(id: String) -> bool:
+	return Game.has_item(id) and float(Game.item_info(id).get("heal_amount", 0)) > 0.0 \
+		and player.health > 0.0 and player.health < VeilPlayer.MAX_HEALTH and not in_car
+
+func use_healing_item(id: String) -> bool:
+	if not can_heal_with(id):
+		return false
+	player.heal(float(Game.item_info(id)["heal_amount"]))
+	Game.remove_item(id)
+	save()
+	return true
+
+func shelter_roster() -> Array:
+	var roster := []
+	for speaker in animators:
+		var body := (animators[speaker] as NpcAnimator).root as VeilSurvivorBody
+		if is_instance_valid(body) and body.visible and body.get_parent() == market \
+				and speaker != "Cashier":
+			roster.append(speaker)
+	roster.sort()
+	return roster
+
+func deposit_shelter_item(id: String) -> bool:
+	var resource := Game.shelter_resource(id)
+	if resource.is_empty() or not Game.has_item(id) or not Game.has_flag("p4_started"):
+		return false
+	if id == "batteries":
+		var flashlight := get_tree().get_first_node_in_group("veil_flashlight") as VeilFlashlight
+		if flashlight == null or flashlight.spares <= 0:
+			return false
+		flashlight.add_spares(-1)
+		if flashlight.spares == 0:
+			Game.remove_item(id)
+		else:
+			Game.inventory_changed.emit()
+	else:
+		Game.remove_item(id)
+	var stock := Game.shelter_stock()
+	stock[resource] = int(stock[resource]) + 1
+	Game.world_state["shelter_stock"] = stock
+	save()
+	return true
+
+
+var _restoring_survivors := false
+
+## A chapter checkpoint (user://checkpoints/<name>.json): the same contents as a save, in its own file, so the
+## player's own save slot is never overwritten by the story.
+func save_checkpoint(checkpoint: String) -> void:
+	save(Game.checkpoint_path(checkpoint))
+
+
+func save(path := "") -> void:
+	var positions := {}
+	for speaker in animators:
+		var body := (animators[speaker] as NpcAnimator).root as VeilSurvivorBody
+		if is_instance_valid(body) and body.get_parent() == market and body.visible and body.has_meta("shelter_home"):
+			var feet: Vector3 = body.get_meta("shelter_feet")
+			var an = animators.get(speaker)
+			if an and not an.is_walking():
+				feet = body.global_position          # where they stand now: they stay there after a load
+			positions[speaker] = {"home": body.get_meta("shelter_home"), "feet": [feet.x, feet.y, feet.z]}
+	Game.world_state["shelter_npc_positions"] = positions
+	if Game.has_flag("p4_started"):
+		Game.world_state["shelter_roster"] = shelter_roster()
 	var p := player.global_position
-	Game.player_state = {"in_vehicle": in_car, "pos": [p.x, p.y, p.z], "yaw": player.rotation.y}
+	Game.player_state = {"in_vehicle": in_car, "pos": [p.x, p.y, p.z], "yaw": player.rotation.y, "health": player.health}
 	Game.vehicle_state = sedan.state()
-	Game.save_game()
+	Game.save_game(path if path != "" else Game.SAVE_PATH)
 
 
 func _restore() -> bool:
@@ -2443,11 +3655,19 @@ func _restore() -> bool:
 		in_car = true
 		player.activate(false)
 		sedan.set_driven(true)
-		hud.set_hint("W accelerate · S brake / reverse · A/D steer · Space handbrake · E exit")
-	_p3_restore.call_deferred()
-	if Game.has_flag("p3_doors_shut"):
-		_start_phase4.call_deferred(true)
+		hud.set_hint("W accelerate · S brake / reverse · A/D steer · Space handbrake · Q radio · E exit")
+	player.health = clampf(float(ps.get("health", VeilPlayer.MAX_HEALTH)), 0.0, VeilPlayer.MAX_HEALTH)
+	player.health_changed.emit(player.health, VeilPlayer.MAX_HEALTH)
+	_restore_survivor_story.call_deferred()
 	return true
+
+
+func _restore_survivor_story() -> void:
+	_restoring_survivors = true
+	_p3_restore()
+	if Game.has_flag("p3_doors_shut"):
+		_start_phase4(true)
+	_restoring_survivors = false
 
 
 # ------------------------------------------------------------------ Phase 4 hook (the chapter lives in phase4.gd)
@@ -2491,7 +3711,33 @@ func _web_autotest() -> void:
 		Game.has_flag("left_house"), in_car, sedan.global_position.distance_to(p0), Game.current_step().get("id", ""), Game.has_save()])
 
 
+var _world_live := false
+var _save_pending := false
+
+
+## One save a moment after the inventory changes (several pickups in a row make one save).
+func _save_soon() -> void:
+	if _save_pending or not _world_live:
+		return
+	_save_pending = true
+	await get_tree().create_timer(0.5, true).timeout
+	_save_pending = false
+	save_if_alive()
+
+
+## Leaving (main menu, quit, closing the window) keeps what was found; never while dead (the death screen reloads).
+func save_if_alive() -> void:
+	if _world_live and is_instance_valid(player) and player.health > 0.0:
+		save()
+
+
+func _notification(what: int) -> void:
+	if what == NOTIFICATION_WM_CLOSE_REQUEST:
+		save_if_alive()
+
+
 func _to_menu() -> void:
+	save_if_alive()
 	get_tree().paused = false
 	Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
 	Sfx.stop_ambience()

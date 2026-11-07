@@ -4,7 +4,7 @@
   "CRT_Colossus": {
    "name": "CRT_Colossus",
    "glb": "07_Creatures/Colossus/CRT_Colossus.glb",
-   "triangles": 8476,
+   "triangles": 8496,
    "bones": 62,
    "bone_names": [
     "Root",
@@ -133,39 +133,39 @@
    ],
    "checks": {
     "Idle_Breathe": {
-     "min_y": -0.003,
+     "min_y": 0.0091,
      "max_stretch": 1.6409,
-     "p999_stretch": 1.1595,
-     "min_squash": 0.8981,
+     "p999_stretch": 1.1585,
+     "min_squash": 0.8986,
      "lowest_contact_y": -0.0,
      "highest_lowest_foot_y": 0.0,
      "planted_slip": 0.0,
      "loop_seamless": true
     },
     "Walk_Heavy": {
-     "min_y": -0.003,
+     "min_y": 0.0091,
      "max_stretch": 1.7319,
-     "p999_stretch": 1.2598,
-     "min_squash": 0.7818,
+     "p999_stretch": 1.2581,
+     "min_squash": 0.785,
      "lowest_contact_y": -0.0,
      "highest_lowest_foot_y": 0.0,
      "planted_slip": 0.05,
      "loop_seamless": true
     },
     "Tentacles_Sway": {
-     "min_y": -0.003,
+     "min_y": 0.0091,
      "max_stretch": 1.7038,
-     "p999_stretch": 1.2045,
-     "min_squash": 0.8681,
+     "p999_stretch": 1.2037,
+     "min_squash": 0.8683,
      "lowest_contact_y": -0.0,
      "highest_lowest_foot_y": 0.0,
      "planted_slip": 0.0,
      "loop_seamless": true
     },
     "Alert": {
-     "min_y": -0.003,
+     "min_y": 0.0091,
      "max_stretch": 1.6002,
-     "p999_stretch": 1.2828,
+     "p999_stretch": 1.2746,
      "min_squash": 0.7753,
      "lowest_contact_y": -0.0,
      "highest_lowest_foot_y": 0.0,
@@ -173,9 +173,9 @@
      "loop_seamless": null
     },
     "Attack_TentacleStrike": {
-     "min_y": -0.003,
+     "min_y": 0.0091,
      "max_stretch": 1.6409,
-     "p999_stretch": 1.2245,
+     "p999_stretch": 1.2241,
      "min_squash": 0.8195,
      "lowest_contact_y": -0.0,
      "highest_lowest_foot_y": 0.0,
@@ -183,30 +183,30 @@
      "loop_seamless": null
     },
     "Attack_Heavy": {
-     "min_y": -0.003,
+     "min_y": 0.0091,
      "max_stretch": 1.7532,
-     "p999_stretch": 1.3,
-     "min_squash": 0.8041,
+     "p999_stretch": 1.2989,
+     "min_squash": 0.8049,
      "lowest_contact_y": -0.0,
      "highest_lowest_foot_y": 0.0,
      "planted_slip": 0.0972,
      "loop_seamless": null
     },
     "Hit_React": {
-     "min_y": -0.003,
+     "min_y": 0.0091,
      "max_stretch": 1.66,
-     "p999_stretch": 1.2465,
-     "min_squash": 0.797,
+     "p999_stretch": 1.2462,
+     "min_squash": 0.7971,
      "lowest_contact_y": -0.0,
      "highest_lowest_foot_y": 0.0,
      "planted_slip": 0.0,
      "loop_seamless": null
     },
     "Death_Collapse": {
-     "min_y": -0.003,
+     "min_y": 0.0091,
      "max_stretch": 2.156,
-     "p999_stretch": 1.7528,
-     "min_squash": 0.477,
+     "p999_stretch": 1.7516,
+     "min_squash": 0.4753,
      "lowest_contact_y": -0.0,
      "highest_lowest_foot_y": 0.0,
      "planted_slip": 0.0733,

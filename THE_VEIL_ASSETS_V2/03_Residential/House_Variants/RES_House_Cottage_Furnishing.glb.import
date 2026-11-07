@@ -130,6 +130,18 @@ _subresources={
 "M_Int_TilesBathroom": {
 "use_external/enabled": true,
 "use_external/path": "res://THE_VEIL_ASSETS_V2/Materials_Godot/Interiors/M_Int_TilesBathroom.tres"
+},
+"M_Town_PaintRed": {
+"use_external/enabled": true,
+"use_external/path": "res://THE_VEIL_ASSETS_V2/02_Town/Materials/M_Town_PaintRed.tres"
+},
+"M_Res_Mirror": {
+"use_external/enabled": true,
+"use_external/path": "res://THE_VEIL_ASSETS_V2/03_Residential/Materials/M_Res_Mirror.tres"
+},
+"M_Town_PaintNavy": {
+"use_external/enabled": true,
+"use_external/path": "res://THE_VEIL_ASSETS_V2/02_Town/Materials/M_Town_PaintNavy.tres"
 }
 }
 }
