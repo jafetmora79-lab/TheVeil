@@ -16,7 +16,7 @@ const STYLE := {
 		"start": ["hound_leg_bite", "hound_stinger"], "loop": "hound_struggle_loop", "win": ["hound_pushed_off", "hound_head_shake"],
 		"after": "hound_chase_restart", "damage": 22.0, "recover": 2.6, "mode": "back", "anim": "Attack_Bite", "react": "Hit_React"},
 	"skitter": {"title": "GET IT OFF!", "hint": "[LEFT CLICK REPEATEDLY]  THROW THE SKITTER", "time": 4.5,
-		"start": ["skitter_leap_screech", "skitter_stinger"], "loop": "skitter_on_player", "win": ["skitter_throw_off", "skitter_hiss"],
+		"start": ["res://game/encounters/skitter_hiss.wav", "skitter_stinger"], "loop": "skitter_on_player", "win": ["skitter_throw_off", "res://game/encounters/skitter_hiss.wav"],
 		"after": "skitter_zigzag_retreat", "damage": 16.0, "recover": 3.2, "mode": "flee", "anim": "Attack_Lunge", "react": "Hit_React"},
 	"crab": {"title": "BREAK FREE!", "hint": "[LEFT CLICK REPEATEDLY]  ESCAPE ITS GRIP", "time": 5.5,
 		"start": ["crab_claw_grab", "crab_stinger"], "loop": "crab_grip_loop", "win": ["crab_release", "crab_step_back"],
@@ -127,19 +127,19 @@ func _pose(delta: float) -> void:
 	match _kind:
 		"hound":
 			# jaws on the lower leg: the body in front, head down at the player's shin; the view drops to it
-			var want := player.global_position + fwd * 1.35
+			var want := player.global_position + fwd * 1.25
 			body.global_position = body.global_position.lerp(Vector3(want.x, body.global_position.y, want.z), minf(delta * 8.0, 1.0))
 			body.rotation.y = atan2(-fwd.x, -fwd.z) + sin(Time.get_ticks_msec() * 0.018) * 0.12   # head shaking
 			_aim(player.rotation.y, -0.62, delta)
 		"skitter":
 			# on the chest, face to face: close in front of the camera, tilted up, legs around the view
-			var at := cam.global_position + fwd * 0.62 + Vector3(0, -0.42, 0)
+			var at := cam.global_position + fwd * 0.4 + Vector3(0, -0.5, 0)
 			body.global_position = at + Vector3(randf_range(-0.015, 0.015), randf_range(-0.015, 0.015), 0)
 			body.rotation = Vector3(-1.05, atan2(-fwd.x, -fwd.z), sin(Time.get_ticks_msec() * 0.03) * 0.15)
 			_aim(player.rotation.y, -0.18, delta)
 		"crab":
 			# caught and pulled in: the view drawn toward the body, the claws closed in front
-			var want2 := player.global_position + fwd * 1.5
+			var want2 := player.global_position + fwd * 1.2
 			body.global_position = body.global_position.lerp(Vector3(want2.x, body.global_position.y, want2.z), minf(delta * 6.0, 1.0))
 			body.rotation.y = atan2(-fwd.x, -fwd.z)
 			player.global_position += (body.global_position - player.global_position) * Vector3(1, 0, 1) * delta * 0.15
@@ -218,11 +218,14 @@ func _stream(id: String, loop: bool) -> AudioStream:
 	return s
 
 
+## A one-shot near the listener. An id is a file in the encounter pack, or a full res:// path (the approved
+## Skitter hiss from game/encounters/ is used as is).
 func _one(id: String, db: float) -> void:
-	if id == "" or not ResourceLoader.exists(SND % id):
+	var path := id if id.begins_with("res://") else SND % id
+	if id == "" or not ResourceLoader.exists(path):
 		return
 	var p := AudioStreamPlayer.new()
-	p.stream = load(SND % id)
+	p.stream = load(path)
 	p.volume_db = db
 	add_child(p)
 	p.play()

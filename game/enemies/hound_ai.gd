@@ -51,6 +51,9 @@ var native := {}
 var jaw_offset := 1.15
 var bite_range := 1.9
 var face_offset := 0.0
+var turn_rate := 0.18               ## per-frame turn blend (heavier creatures turn slower, never snap)
+var burst := false                  ## chase in lunges (short fast bursts, then a heavy shuffle): the Shellcrawler
+var _burst_t := 0.0
 ## A struggle may take an attack over (game/encounters/struggle.gd): return true from it to replace the bite.
 var on_attack: Callable = Callable()
 var hold := false                   ## a struggle holds the creature in place (its pose is driven from outside)
@@ -196,7 +199,11 @@ func _physics_process(delta: float) -> void:
 				state = "SEARCH"
 				_search_t = 4.5
 			else:
-				_move_to(_last_seen if not sees else player.global_position, chase_speed, delta, "Run")
+				var sp := chase_speed
+				if burst:
+					_burst_t = fmod(_burst_t + delta, 2.2)
+					sp *= 1.35 if _burst_t < 0.9 else 0.55
+				_move_to(_last_seen if not sees else player.global_position, sp, delta, "Run")
 		"RECOVER":
 			# after a struggle: "back" = stagger, shake it off, then hunt again; "flee" = a fast zigzag away, then gone
 			_recover_t -= delta
@@ -327,7 +334,7 @@ func _snap_floor() -> void:
 func _face(d: Vector3) -> void:
 	d.y = 0.0
 	if d.length() > 0.01:
-		body.rotation.y = lerp_angle(body.rotation.y, atan2(d.x, d.z) + face_offset, 0.18)
+		body.rotation.y = lerp_angle(body.rotation.y, atan2(d.x, d.z) + face_offset, turn_rate)
 
 
 func _play(clip: String, speed := 0.0) -> void:
