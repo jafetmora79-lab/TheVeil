@@ -1201,7 +1201,7 @@ func _park_plan_now() -> Dictionary:
 
 
 ## Pure-pursuit tracker on a polyline. dir = +1 forward / -1 reverse. Returns Vector2(target speed, steer angle).
-func _pursue(path: Array[Vector3], st: Dictionary, dir: float, v_max: float, ld: float) -> Vector2:
+func _pursue(path: Array[Vector3], st: Dictionary, dir: float, v_max: float, ld: float, decel := 0.7) -> Vector2:
 	var p := sedan.global_position
 	var p2 := Vector2(p.x, p.z)
 	var i: int = st["i"]
@@ -1240,7 +1240,7 @@ func _pursue(path: Array[Vector3], st: Dictionary, dir: float, v_max: float, ld:
 		sin_a = signf(sin_a) if absf(sin_a) > 0.01 else 1.0
 	var kappa := 2.0 * sin_a / la
 	var steer_ang := atan(kappa * PlayerSedan.WHEELBASE * dir)
-	var v := minf(v_max, sqrt(maxf(2.0 * 0.7 * rem, 0.0)))
+	var v := minf(v_max, sqrt(maxf(2.0 * decel * rem, 0.0)))     # eases to a stop at the end of the leg
 	if rem < 0.06:
 		v = 0.0
 	return Vector2(v * dir, steer_ang)
@@ -1285,12 +1285,12 @@ func _auto_park() -> void:
 	sedan.drive_script = func(_dt: float) -> Vector2:
 		match S["phase"]:
 			"approach":
-				return _pursue(paths["approach"], S["st"], 1.0, 3.0, 4.5)
+				return _pursue(paths["approach"], S["st"], 1.0, 4.5, 4.5, 1.2)    # a parking pace, not a crawl
 			"turn":                                     # steer while stationary before reversing
 				var c := _pursue(paths["reverse"], {"i": 0, "rem": 99.0}, -1.0, 0.0, 2.6)
 				return Vector2(0.0, c.y)
 			"reverse":
-				return _pursue(paths["reverse"], S["st"], -1.0, 2.0, 2.6)
+				return _pursue(paths["reverse"], S["st"], -1.0, 2.0, 2.6, 1.0)
 		return Vector2(0.0, 0.0)
 	var ok := true
 	while true:
