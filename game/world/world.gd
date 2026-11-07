@@ -148,7 +148,8 @@ func _ready() -> void:
 	_light_budget_all()
 	# the filler ground (TOWN_Ground_Game) was coplanar with the parking lots / drives laid over it (both at LOT_Y),
 	# so where a ground cell was only partly covered the two z-fought (the brown strips in the supermarket lot).
-	# It sits 1.5 cm lower now: paved surfaces always win; walking is unaffected.
+	# It sits 5 cm lower now: paved surfaces always win (1.5 cm still flickered at a distance and at grazing angles,
+	# with the camera's 4 cm near plane); walking is unaffected.
 	var tg := find_child("TOWN_Ground_Game", true, false) as Node3D
 	if tg:
 		tg.position.y -= GROUND_DROP
@@ -444,7 +445,7 @@ const LIGHT_FADE_INTERIOR := Vector2(26.0, 10.0)      # begin, length (m) for li
 const LIGHT_FADE_EXTERIOR := Vector2(40.0, 12.0)
 
 
-const GROUND_DROP := 0.015
+const GROUND_DROP := 0.05
 var ground_dropped := false
 
 
@@ -539,11 +540,31 @@ func _pave_forecourt() -> void:
 				m.set_surface_override_material(i, conc)
 
 
+## The lot modules' concrete wheel stops (10 cm, centred in each stall of the far row) had no collision: the car
+## drove through them. Each gets a box on its own layer (64), which only the car checks - people step over them.
+func _wheel_stop_colliders() -> void:
+	for lot in find_children("RD_ParkingLot_10x20m*", "Node3D", true, false):
+		var body := StaticBody3D.new()
+		body.name = "WheelStops"
+		body.collision_layer = 64
+		body.collision_mask = 0
+		lot.add_child(body)
+		for x in [-3.75, -1.25, 1.25, 3.75]:
+			for z in [19.1]:                     # (the far row; the street-side row has no stops - cars cross it)
+				var cs := CollisionShape3D.new()
+				var bx := BoxShape3D.new()
+				bx.size = Vector3(1.7, 0.1, 0.16)
+				cs.shape = bx
+				cs.position = Vector3(x, 0.2, z)
+				body.add_child(cs)
+
+
 func _setup_town() -> void:
 	market = get_node("Commercial/SUPERMARKET")
 	game_shop = get_node("Commercial/GAME_SHOP")
 	clear_story_glass(game_shop)
 	_pave_forecourt.call_deferred()
+	_wheel_stop_colliders()
 	_add_glass_colliders()
 	# supermarket: bi-parting automatic doors open while the player stands in front of / inside the vestibule
 	for side in [["L", -1.0], ["R", 1.0]]:
@@ -1100,7 +1121,8 @@ const PARK_LOT := "RD_ParkingLot_10x20m_003"     # the lot module in front of th
 const PARK_STALL_X := -3.70                      # stall centre (lot-local x): two stalls east of the entrance
 const PARK_FINAL_Z := 16.6                       # car centre at rest: half a metre clear of the wheel stop and the cart row
 const PARK_STRAIGHT := 1.5                       # straight reverse after the arc
-const PARK_R := 5.0                              # reverse arc radius (car centre), ~28 deg of steering
+const PARK_R := 4.5                              # reverse arc radius (car centre), ~31 deg of steering
+const PARK_BRAKE := 5.0                          # m/s^2: how firmly the parking takeover slows a car caught at speed
 var _auto_parking := false
 var park_report := {}
 
@@ -1110,22 +1132,72 @@ func _park_lot_xf() -> Transform3D:
 	return lot.global_transform if lot else Transform3D(Basis(Vector3.UP, PI), Vector3(31, 0, -6))
 
 
-## The three legs of the manoeuvre as world-space polylines (car-centre paths).
+## The standard plan (approach along the aisle towards -x, reverse in): world-space car-centre polylines.
 func park_paths() -> Dictionary:
+	return _park_plan(-1.0, Vector2(22.0, PARK_FINAL_Z - PARK_STRAIGHT - PARK_R), Vector2(-1, 0), 0.0)
+
+
+## The manoeuvre from where the car really is (lot-local p0, heading h, speed v): a straight stretch in which it
+## brakes (5 m/s^2) along its own heading, a smooth curve into the aisle, the aisle to the stop beside the stall,
+## then a short reverse arc and a straight into the stall. side -1: travelling towards -x along the aisle (stop past
+## the stall on that side); +1: the mirror image. Returns {} when the plan would leave the tarmac.
+func _park_plan(side: float, p0: Vector2, h: Vector2, v: float) -> Dictionary:
 	var L := _park_lot_xf()
-	var zl := PARK_FINAL_Z - PARK_STRAIGHT - PARK_R        # approach lane (lot-local z)
-	var xs := PARK_STALL_X - PARK_R                         # where the car stops before reversing
+	var zl := PARK_FINAL_Z - PARK_STRAIGHT - PARK_R
+	var xs := PARK_STALL_X + side * PARK_R
+	var lane := Vector2(side, 0.0)
+	var stop := Vector2(xs, zl)
+	var pts: Array[Vector2] = []
+	var sb := maxf(0.0, (v * v - 9.0) / (2.0 * PARK_BRAKE)) + 0.5
+	var a := p0 + h * sb
+	for k in 6:
+		pts.append(p0.lerp(a, k / 5.0))
+	var q := stop - lane * 3.0                           # the last 3 m along the aisle, straight
+	if (q - a).dot(lane) < 1.0:
+		return {}                                        # the stop is not ahead along this way down the aisle
+	var d := 0.4 * a.distance_to(q)
+	var c1 := a + h * d
+	var c2 := q - lane * d
+	for k in range(1, 25):
+		var t := k / 24.0
+		var u := 1.0 - t
+		pts.append(u * u * u * a + 3.0 * u * u * t * c1 + 3.0 * u * t * t * c2 + t * t * t * q)
+	for k in range(1, 7):
+		pts.append(q.lerp(stop, k / 6.0))
+	for pt in pts:                                       # car centre at least ~1.2 m inside the tarmac (all 4 modules)
+		if pt.x < -13.8 or pt.x > 23.8 or pt.y < 1.4 or pt.y > 18.6:
+			return {}
 	var approach: Array[Vector3] = []
-	for k in range(0, 61):
-		approach.append(L * Vector3(lerpf(22.0, xs, k / 60.0), 0.0, zl))
+	for pt in pts:
+		approach.append(L * Vector3(pt.x, 0.0, pt.y))
 	var rev: Array[Vector3] = []
 	var c := Vector2(xs, PARK_FINAL_Z - PARK_STRAIGHT)
+	var ph1 := -PI / 2 - side * PI / 2
 	for k in range(0, 31):
-		var ph := lerpf(-PI / 2, 0.0, k / 30.0)
+		var ph := lerpf(-PI / 2, ph1, k / 30.0)
 		rev.append(L * Vector3(c.x + PARK_R * cos(ph), 0.0, c.y + PARK_R * sin(ph)))
 	for k in range(1, 11):
 		rev.append(L * Vector3(PARK_STALL_X, 0.0, PARK_FINAL_Z - PARK_STRAIGHT + PARK_STRAIGHT * k / 10.0))
 	return {"approach": approach, "reverse": rev, "final_fwd": L.basis * Vector3(0, 0, -1)}
+
+
+## The best plan for the car as it is now: the way down the aisle it is already heading first.
+func _park_plan_now() -> Dictionary:
+	var L := _park_lot_xf()
+	var inv := L.affine_inverse()
+	var lp := inv * sedan.global_position
+	var f := -sedan.global_transform.basis.z
+	if sedan.speed < -0.3:
+		f = -f
+	var lf := inv.basis * f
+	var h := Vector2(lf.x, lf.z).normalized()
+	var v := absf(sedan.speed)
+	var first := -1.0 if h.x <= 0.0 else 1.0
+	for side in [first, -first]:
+		var plan := _park_plan(side, Vector2(lp.x, lp.z), h, v)
+		if not plan.is_empty():
+			return plan
+	return {}
 
 
 ## Pure-pursuit tracker on a polyline. dir = +1 forward / -1 reverse. Returns Vector2(target speed, steer angle).
@@ -1185,10 +1257,12 @@ func _maybe_auto_park(b: Node) -> void:
 func _auto_park() -> void:
 	_auto_parking = true
 	park_report = {"started": true}
-	var paths := park_paths()
-	# coming in over the pavement or the grass: the car is put straight into the stall behind a short fade (the
-	# reversing manoeuvre is played from the tarmac; if it fails or ends off the tarmac, the same fade places it)
-	if not car_on_asphalt():
+	var paths := _park_plan_now()
+	# coming in over the pavement or the grass, or so that no clean path fits on the tarmac: the car is put straight
+	# into the stall behind a short fade (if the manoeuvre fails or ends off the tarmac, the same fade places it)
+	if paths.is_empty() or not car_on_asphalt():
+		if paths.is_empty():
+			paths = park_paths()
 		park_report["placed"] = true
 		await _fade_park(paths)
 		return
@@ -1207,6 +1281,7 @@ func _auto_park() -> void:
 	var lot_xf := _park_lot_xf()
 	pcam.global_position = lot_xf * Vector3(1.0, 6.5, 6.0)
 	park_report["cam_blocked_frames"] = 0
+	sedan.script_decel = PARK_BRAKE
 	sedan.drive_script = func(_dt: float) -> Vector2:
 		match S["phase"]:
 			"approach":
@@ -1215,7 +1290,7 @@ func _auto_park() -> void:
 				var c := _pursue(paths["reverse"], {"i": 0, "rem": 99.0}, -1.0, 0.0, 2.6)
 				return Vector2(0.0, c.y)
 			"reverse":
-				return _pursue(paths["reverse"], S["st"], -1.0, 1.3, 2.6)
+				return _pursue(paths["reverse"], S["st"], -1.0, 2.0, 2.6)
 		return Vector2(0.0, 0.0)
 	var ok := true
 	while true:
@@ -1262,6 +1337,7 @@ func _auto_park() -> void:
 		elif phase == "reverse" and st["rem"] < 0.06 and absf(sedan.speed) < 0.03:
 			break
 	sedan.drive_script = Callable()
+	sedan.script_decel = PlayerSedan.SCRIPT_ACCEL
 	sedan.speed = 0.0
 	_auto_parking = false
 	hud.set_hint("")
@@ -1295,6 +1371,7 @@ func _auto_park() -> void:
 ## Into the stall behind a short fade (nose out, square to the bay, on the tarmac), then the usual parked state.
 func _fade_park(paths: Dictionary) -> void:
 	sedan.drive_script = Callable()
+	sedan.script_decel = PlayerSedan.SCRIPT_ACCEL
 	hud.set_hint("")
 	await hud.fade_to(1.0, 0.45)
 	var endp: Vector3 = paths["reverse"][-1]

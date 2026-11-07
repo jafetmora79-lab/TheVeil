@@ -51,6 +51,9 @@ var parking_brake := false:
 		_brake_armed = false
 var _brake_armed := false
 const SCRIPT_ACCEL := 1.6        # m/s^2 for scripted speed changes
+## Scripted slowing down may be firmer than speeding up (the automatic parking brakes at up to 5 m/s^2, so a car
+## caught at speed stops on the lot instead of rolling past it); other scripted drives keep the gentle rate.
+var script_decel := SCRIPT_ACCEL
 const STEER_RATE := 1.3          # rad/s at the front wheels while scripted (a driver turning the wheel)
 var _wheels := {}
 var _wheel_base := {}
@@ -68,7 +71,7 @@ var entry_area: Interactable
 
 func _ready() -> void:
 	collision_layer = 4
-	collision_mask = 1
+	collision_mask = 1 | 64                       # 64: parking wheel stops (the car meets them; people step over)
 	floor_max_angle = deg_to_rad(40.0)
 	floor_snap_length = 0.5
 	wall_min_slide_angle = deg_to_rad(5)
@@ -272,7 +275,8 @@ func _physics_process(delta: float) -> void:
 			throttle = minf(throttle, 0.55)         # badly knocked about: it labours
 	if scripted:
 		var cmd: Vector2 = drive_script.call(delta)
-		speed = move_toward(speed, cmd.x, SCRIPT_ACCEL * delta)
+		var slowing := absf(cmd.x) < absf(speed) or signf(cmd.x) * signf(speed) < 0.0
+		speed = move_toward(speed, cmd.x, (script_decel if slowing else SCRIPT_ACCEL) * delta)
 		steer = move_toward(steer, clampf(cmd.y, -MAX_STEER, MAX_STEER), STEER_RATE * delta)
 		throttle = 0.0
 		brake = 0.0
