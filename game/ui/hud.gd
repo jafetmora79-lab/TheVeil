@@ -258,7 +258,10 @@ func show_subtitle(t: String) -> void:
 
 
 func set_hint(t: String) -> void:
-	hint.text = t
+	if Game.chapter_number() > 1 and t == "WASD move · Mouse look · Shift sprint · Ctrl crouch · E interact · Tab inventory · Esc pause":
+		hint.text = ""
+	else:
+		hint.text = t
 
 
 func set_speed(kmh: float) -> void:
