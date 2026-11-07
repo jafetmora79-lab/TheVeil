@@ -5595,6 +5595,16 @@
    }
   ]
  },
+ "c9_no_car": {
+  "source": "Vehicle continuity: the repaired car is left at the supermarket lot",
+  "lines": [
+   {
+    "speaker": "Eddie",
+    "text": "Not the car - it's out front, right where they're coming in. Out the back. On foot.",
+    "time": 4.4
+   }
+  ]
+ },
  "c14_no_car": {
   "source": "Chapter 15: supporting lines (implementation)",
   "lines": [

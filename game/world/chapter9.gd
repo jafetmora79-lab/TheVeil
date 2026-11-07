@@ -894,6 +894,9 @@ func _escaped() -> void:
 			h.queue_free()
 	hounds.clear()
 	_lookback()
+	if Game.has_flag("vehicle_repaired"):
+		# the repaired car stays at the lot (Chapters 14 and 15 remember it there): said why, once out the back
+		get_tree().create_timer(4.5).timeout.connect(func(): Dialogue.say("c9_no_car", false, false))
 
 
 ## A brief first-person look back: the store in the fog, its emergency lights stuttering, the noises inside.
