@@ -93,6 +93,8 @@ func begin(w: Node, restoring: bool) -> void:
 	Dialogue.choices_offered.connect(_on_choices)
 	if Game.has_item("flashlight"):
 		_attach_flashlight()
+		if not Game.has_flag("p4_flashlight"):
+			Game.set_flag("p4_flashlight")           # already carried: that step is done, no second flashlight
 	if not Game.has_flag("p4_started"):
 		Game.set_flag("p4_started")
 		hud.chapter_start(5)
@@ -202,7 +204,9 @@ func _setup_pickups() -> void:
 	fl.position = SERVICE_FLASHLIGHT
 	fl.rotation.y = 0.4
 	var fl_it := Interactable.attach(fl, {"kind": "pickup", "label": "Flashlight", "item_id": "flashlight",
-		"state_key": "p4/flashlight"})
+		"state_key": "p4/flashlight", "prompt_text": Interactable.key_hint() + "Pick Up Flashlight"})
+	if Game.has_item("flashlight") and not fl_it.taken:
+		fl_it._take(true)                             # carried already: no second one on the counter
 	fl_it.used.connect(func(_b): _got_flashlight())
 	its["flashlight"] = fl_it
 	var bp := BATTERY_PACK.instantiate() as Node3D
@@ -358,6 +362,8 @@ func _got_flashlight() -> void:
 	_attach_flashlight()
 	flashlight.set_on(true)
 	Dialogue.say("p4_flashlight", false, true)
+	hud.set_hint("Flashlight: F turns it on / off  ·  R puts in fresh batteries  ·  Tab: inventory")
+	get_tree().create_timer(6.0).timeout.connect(func(): if is_instance_valid(hud): hud.set_hint(""))
 
 
 func _got_batteries(n: int) -> void:
@@ -375,7 +381,18 @@ func _attach_flashlight() -> void:
 	flashlight.setup(player, cfg.get("flashlight", {}))
 
 
+## The night's work (breaker, back door, pallets) waits for the flashlight: it is pitch dark back there.
+func _need_light() -> bool:
+	if Game.has_flag("p4_flashlight") or Game.has_item("flashlight"):
+		return false
+	hud.set_hint("Too dark to work back here. Find a flashlight first - the customer service desk.")
+	get_tree().create_timer(4.0).timeout.connect(func(): if is_instance_valid(hud): hud.set_hint(""))
+	return true
+
+
 func _throw_breaker(_b: Node) -> void:
+	if _need_light():
+		return
 	if Game.has_flag("p4_breaker"):
 		Dialogue.say("p4_breaker_again", false, true)
 		return
@@ -404,6 +421,8 @@ func _pull_loading(_b: Node) -> void:
 
 
 func _close_back(_b: Node) -> void:
+	if _need_light():
+		return
 	if Game.has_flag("p4_backexit_closed"):
 		return
 	its["backdoor"].prompt_text = ""
@@ -417,6 +436,8 @@ func _close_back(_b: Node) -> void:
 
 
 func _push_pallet(_b: Node, which: String) -> void:
+	if _need_light():
+		return
 	var need := "p4_loading_down" if which == "loading" else "p4_backexit_closed"
 	var done_flag := "p4_loading_secured" if which == "loading" else "p4_backexit_secured"
 	if Game.has_flag(done_flag):

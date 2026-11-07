@@ -62,7 +62,7 @@ func get_prompt() -> String:
 		"hinge", "slide":
 			return key_hint() + "%s %s" % ["Close" if is_open else "Open", label]
 		"pickup":
-			return key_hint() + "TAKE " + display_name().to_upper()
+			return prompt_text if prompt_text != "" else key_hint() + "TAKE " + display_name().to_upper()
 		"toggle":
 			return key_hint() + label
 		"observe":

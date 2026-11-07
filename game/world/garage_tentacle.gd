@@ -41,8 +41,9 @@ func _physics_process(delta: float) -> void:
 		return
 	_tick = 0.2
 	var l: Vector3 = p4.market.to_local(player.global_position)
-	if l.x > 17.2 and l.x < 20.0 and absf(l.z - 15.9) < 1.8 and player.get("controls_enabled"):
-		_on_enter()
+	if l.x > 17.2 and l.x < 20.0 and absf(l.z - 15.9) < 1.8 and player.get("controls_enabled") \
+			and world.get("_world_live") == true and Game.has_flag("p4_flashlight"):
+		_on_enter()                                  # (never while a load / retry is still restoring the world)
 
 
 func _on_enter() -> void:
@@ -50,6 +51,10 @@ func _on_enter() -> void:
 		return
 	running = true
 	world.save()                                       # the checkpoint: RETRY comes back to here
+	var back: Vector3 = p4.ml(Vector3(15.6, 0.0, 15.9))
+	back.y = player.global_position.y
+	Game.player_state["pos"] = [back.x, back.y, back.z]   # ...a step back from the door, outside the trigger
+	Game.save_game()
 	await _reveal()
 	await _escape()
 
@@ -65,22 +70,51 @@ func _reveal() -> void:
 	cam.fov = src.fov
 	cam.current = true
 	p4._hold_cam(cam)
+	# 1. warning (short): a scrape outside, the door rattles in its rails, something heavy hits it
+	p4._play("scrape" if p4._streams.has("scrape") else "slither", p4.ml(GAP_LOOK), 2.0)
+	await p4._fp_face(cam, p4.ml(GAP_LOOK + Vector3(0, 0.4, 0)), 0.35)
+	var ld: Node3D = p4.its.get("loading_door")
+	if ld:
+		var t0 := ld.transform
+		var tr := create_tween()
+		for k in 3:
+			tr.tween_property(ld, "transform", Transform3D(t0.basis, t0.origin + Vector3(0, 0.03 * (1 - 2 * (k % 2)), 0)), 0.05)
+		tr.tween_property(ld, "transform", t0, 0.05)
+	await get_tree().create_timer(0.25).timeout
+	p4._play("impact", p4.ml(Vector3(20.1, 0.9, 15.9)), 4.0)
+	world._shake(cam, 0.2, 0.03)
+	await get_tree().create_timer(0.3).timeout
+	# 2. the thrust: from outside, under the door, in a fifth of a second - hard acceleration, a dead stop
 	var ps := load(TENTACLE) as PackedScene
 	if ps:
 		tentacle = ps.instantiate() as Node3D
 		tentacle.name = "P4_GarageTentacle"
 		tentacle.set("autoplay", "")
 		p4.market.add_child(tentacle)
-		# on its side, pointing into the bay (+Y -> -X); its MistRoot at the door: what is outside stays dark
-		tentacle.transform = Transform3D(Basis(Vector3(0, 0, 1), PI * 0.5), ROOT)
+		var aim := _aim_basis()
+		tentacle.transform = Transform3D(aim, ROOT + Vector3(2.2, 0, 0))      # out of sight, outside the door
 		if tentacle.has_method("emerge"):
 			tentacle.call("emerge")
-	p4._play("slither", p4.ml(GAP_LOOK), 4.0)
-	await p4._fp_face(cam, p4.ml(GAP_LOOK), 0.7)
-	var t := 0.0
-	while t < 2.2:                                     # hold on it while it slides in
-		t += get_process_delta_time()
-		await get_tree().process_frame
+		if tentacle.has_method("play"):
+			tentacle.call("play", "Strike", 0.05)
+		var th := tentacle.create_tween()
+		th.tween_property(tentacle, "position", ROOT, 0.2).set_trans(Tween.TRANS_EXPO).set_ease(Tween.EASE_OUT)
+	p4._play("slither", p4.ml(GAP_LOOK), 6.0)
+	world._shake(cam, 0.35, 0.05)
+	await p4._fp_face(cam, p4.ml(GAP_LOOK + Vector3(-1.2, 0.2, 0)), 0.18)    # the view snaps to it
+	# 3. a breath of stillness, then it lunges for the player and is jerked short at the end of its reach
+	await get_tree().create_timer(0.4).timeout
+	if tentacle and is_instance_valid(tentacle):
+		var to: Vector3 = p4.market.to_local(player.global_position) - ROOT
+		to.y = 0.0
+		var reach := clampf(to.length() - 1.4, 0.4, 2.0)
+		tentacle.transform.basis = _aim_basis()
+		var tg := tentacle.create_tween()
+		tg.tween_property(tentacle, "position", ROOT + to.normalized() * reach, 0.16).set_trans(Tween.TRANS_EXPO).set_ease(Tween.EASE_OUT)
+		tg.tween_property(tentacle, "position", ROOT + to.normalized() * reach * 0.55, 0.28).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
+		Sfx.play("hurt", player.global_position, -10.0, 1.4)            # a gasp: it missed, just
+		world._shake(cam, 0.3, 0.06)
+	await get_tree().create_timer(0.5).timeout
 	report["revealed"] = tentacle != null
 	# control back (move + look), then the timer
 	p4._cam_held = null
@@ -116,6 +150,12 @@ func _escape() -> void:
 		await _taken()
 
 
+## On its side, pointing into the bay (+Y -> -X), swung towards the player (kept within the door opening's arc).
+func _aim_basis() -> Basis:
+	var to: Vector3 = p4.market.to_local(player.global_position) - ROOT
+	return Basis(Vector3.UP, clampf(atan2(-to.z, -to.x), -0.9, 0.9)) * Basis(Vector3(0, 0, 1), PI * 0.5)
+
+
 ## While the player runs: the tentacle keeps searching and turns after him; past half time it reaches.
 func _creep(dt: float) -> void:
 	if tentacle == null:
@@ -139,7 +179,7 @@ func _survived() -> void:
 	if tentacle and tentacle.has_method("retract"):
 		tentacle.call("retract")                        # forced back out under the closing door
 		var tw := tentacle.create_tween()
-		tw.tween_property(tentacle, "position", ROOT + Vector3(1.6, 0, 0), 0.45).set_trans(Tween.TRANS_SINE)
+		tw.tween_property(tentacle, "position", ROOT + Vector3(2.4, 0, 0), 0.18).set_trans(Tween.TRANS_EXPO).set_ease(Tween.EASE_IN)
 	while not Game.has_flag("p4_loading_down"):
 		await get_tree().process_frame
 	p4._play("impact", p4.ml(Vector3(20.1, 0.9, 15.9)), 6.0)   # one heavy hit on the shut door
@@ -213,7 +253,17 @@ func _taken() -> void:
 	world.add_child(panel)
 	Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
 	var i: int = await panel.ask("YOU DIED", ["RETRY", "MAIN MENU"])
+	# leave nothing running into the reload: the held camera, the creature, the music, any pause
+	p4._cam_held = null
+	if tentacle and is_instance_valid(tentacle):
+		tentacle.queue_free()
+	tentacle = null
+	p4._music_stop(0.0)
+	running = false
+	get_tree().paused = false
 	if i == 0:
-		VeilDeathSequence.retry()                       # the checkpoint saved when the encounter began
+		# the checkpoint saved when the encounter began (a step back from the door); reloaded on the next frame,
+		# outside this button's signal
+		(func(): VeilDeathSequence.retry()).call_deferred()
 	else:
 		world.call("_to_menu")

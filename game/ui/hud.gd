@@ -60,6 +60,8 @@ func _ready() -> void:
 	obj_box.add_child(step_l)
 	sub = _centered_label("", 21, 0.5, 0.86)
 	sub.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	sub.anchor_left = 0.2                                  # long lines wrap well inside the screen, clear of the hotbar
+	sub.anchor_right = 0.8
 	sub.add_theme_color_override("font_color", Color(1, 1, 1, 1))     # white pixel text, black outline
 	speaker_l = _centered_label("", 15, 0.5, 0.80)         # who is talking, above the line
 	speaker_l.add_theme_color_override("font_color", Color(0.93, 0.83, 0.55, 1))
@@ -230,6 +232,12 @@ func _process(_d: float) -> void:
 	_update_marker()
 	# continue / skip prompt + hold-to-skip (hold E, the mouse button or a touch for 0.8 s; once per hold)
 	var on := _dialogue_prompt_on()
+	if quick:
+		# locked lines and cinematic cameras: the hotbar steps aside (it comes back with control)
+		var w := get_tree().get_first_node_in_group("veil_world")
+		var cine = w.get("_cine") if w else null
+		var held: bool = on or (w != null and bool(w.get("conversing"))) or (cine != null and is_instance_valid(cine))
+		quick.modulate.a = move_toward(quick.modulate.a, 0.0 if held else 1.0, _d * 6.0)
 	confirm_l.visible = on
 	if on:
 		var touch := DisplayServer.is_touchscreen_available() and OS.has_feature("mobile")
