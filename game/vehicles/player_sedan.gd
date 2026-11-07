@@ -125,7 +125,7 @@ func _rel(sb: Node3D, cs: Node3D) -> Transform3D:
 
 # ------------------------------------------------------------------ entry / exit
 func get_prompt() -> String:
-	return "[E] Enter Vehicle"
+	return entry_area.prompt_text if entry_area else "[E] Enter Vehicle"
 
 
 func set_driven(on: bool) -> void:

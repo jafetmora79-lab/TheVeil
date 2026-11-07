@@ -65,6 +65,7 @@ func setup(w: Node) -> void:
 	VeilRestPoint.extra_night = _extra_night_ok
 	VeilRestPoint.record_extra = _record_extra
 	_encounter_t = float(cfg.get("encounter_cooldown_s", [999, 150])[1])   # a load never starts with an encounter
+	Game.inventory_changed.connect(_part_markers)       # a part picked up: its diamond goes
 	_refresh()
 
 
@@ -471,38 +472,83 @@ func dead_car() -> bool:
 		for f in _followers():
 			if String(f.npc.name) == "Eddie":
 				Dialogue.say("exp_car_eddie", false, false)
-		_hint("GET THE VEHICLE RUNNING: a battery, fuel and a fuse.")
-		return true
-	var missing := []
-	for k in [["car_battery", "a battery"], ["fuel_can", "fuel"], ["car_fuse", "a fuse"]]:
-		if not Game.has_item(k[0]):
-			missing.append(k[1])
-	if not missing.is_empty():
-		_hint("Still needed for the car: " + ", ".join(missing) + ".")
-		return true
-	_repair()
+	_inspect_car()
 	return true
 
 
-func _repair() -> void:
-	if Game.has_flag("vehicle_repaired") or _repairing:
+## The car's three faults, what fixes each and where that part lies (it never moves: a fixed find, not random loot).
+const CAR_PARTS := [["car_battery", "Battery", "dead - needs a car battery"], ["fuel_can", "Fuel", "tank empty - needs a fuel can"],
+	["car_fuse", "Ignition fuse", "blown - needs a fuse"]]
+
+
+func installed(id: String) -> bool:
+	return Game.has_flag("vehicle_repaired") or bool((st().get("car_parts", {}) as Dictionary).get(id, false))
+
+
+## [E] Inspect Vehicle: its condition, part by part; a carried part is fitted from here (progress is kept).
+func _inspect_car() -> void:
+	var p4 := _p4()
+	if p4 == null or p4.choice.is_open() or _repairing:
 		return
+	while not Game.has_flag("vehicle_repaired"):
+		var text := "VEHICLE CONDITION"
+		var opts: Array = []
+		var ids: Array = []
+		for c in CAR_PARTS:
+			var state := "OK - fitted" if installed(c[0]) else ("part carried - ready to fit" if Game.has_item(c[0]) else String(c[2]))
+			text += "\n%s - %s" % [c[1], state]
+			if not installed(c[0]) and Game.has_item(c[0]):
+				opts.append("Fit the %s" % String(Game.item_info(c[0]).get("name", c[0])).to_lower())
+				ids.append(c[0])
+		text += "\nTires - OK"
+		if ids.is_empty():
+			text += "\n\nThe missing parts are marked out in town (yellow diamonds)."
+		opts.append("Close")
+		var i: int = await p4.choice.ask(text, opts, _player())
+		if i < 0 or i >= ids.size():
+			break
+		await _fit(String(ids[i]))
+	_part_markers()
+
+
+func _fit(id: String) -> void:
 	_repairing = true
 	var p := _player()
 	p.set("controls_enabled", false)
-	p.velocity = Vector3.ZERO
+	p.set("velocity", Vector3.ZERO)
 	var at: Vector3 = world.sedan.global_position + Vector3(0, 0.8, 0)
-	for k in 3:
-		Sfx.play("door_close", at, -8.0, 0.6 + 0.1 * k)
-		await get_tree().create_timer(0.7).timeout
-	for k in ["car_battery", "fuel_can", "car_fuse"]:
-		Game.remove_item(k)
-	Game.set_flag("vehicle_repaired")              # set with the parts used: never repaired (or rewarded) twice
-	Dialogue.say("exp_car_running", false, true)
-	_hint("The car runs again. E at the driver's door to get in.")
+	for k in 2:
+		Sfx.play("door_close", at, -8.0, 0.6 + 0.15 * k)
+		await get_tree().create_timer(0.6).timeout
+	Game.remove_item(id)
+	var parts: Dictionary = st().get("car_parts", {})
+	parts[id] = true
+	st()["car_parts"] = parts
 	p.set("controls_enabled", true)
 	_repairing = false
+	if CAR_PARTS.all(func(c): return installed(c[0])):
+		Game.set_flag("vehicle_repaired")          # all three fitted: it runs (set once, never twice)
+		Dialogue.say("exp_car_running", false, true)
+		_hint("The car runs again. E at the driver's door to get in.")
+	else:
+		world.save()
 	_refresh()
+
+
+## Yellow diamonds on the parts still out there, once the car has been looked at (until it runs).
+func _part_markers() -> void:
+	for c in cfg.get("vehicle_parts", []):
+		var key := "exp/part_" + String(c["id"])
+		var it: Interactable = its.get(key)
+		var on: bool = Game.has_flag("vehicle_found") and not Game.has_flag("vehicle_repaired") and it != null \
+			and is_instance_valid(it) and not it.taken and not installed(String(c["item"]))
+		world.hud.world_diamond("car_part_" + String(c["id"]), it if on else null)
+
+
+func _repair() -> void:
+	for c in CAR_PARTS:
+		if Game.has_item(c[0]) and not installed(c[0]):
+			await _fit(String(c[0]))
 
 
 var _repairing := false
@@ -919,6 +965,11 @@ func _process(delta: float) -> void:
 
 
 func _refresh() -> void:
+	_part_markers()
+	if world.sedan and world.sedan.get("entry_area"):
+		var dead: bool = Game.has_flag("c5_started") and shelter() != "" and Game.has_flag("groceries_done") \
+			and Game.has_flag("game_bought") and not Game.has_flag("vehicle_repaired")
+		world.sedan.entry_area.prompt_text = "[E] Inspect Vehicle" if dead else "[E] Enter Vehicle"
 	var c5 := _c5()
 	var e: Interactable = its.get("exit")
 	if e:
