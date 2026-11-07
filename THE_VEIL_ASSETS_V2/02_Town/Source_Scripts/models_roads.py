@@ -445,8 +445,8 @@ def rd_parking_lot():
     for x in (-5.0, -2.5, 0.0, 2.5):
         for (z0, z1) in ((0.3, 5.3), (14.7, 19.7)):
             mb.ground_poly(w, [(x, z0), (x + 0.1, z0), (x + 0.1, z1), (x, z1)], y=LOT_Y + MARK_Y)
-    for x in (-3.75, -1.25, 1.25, 3.75):  # concrete wheel stops
-        for z in (0.9, 19.1):
+    for x in (-3.75, -1.25, 1.25, 3.75):  # concrete wheel stops: the far row only (cars drive in across the
+        for z in (19.1,):                    # street-side row, so stops there were driven through)
             mb.box(m01("Road_CurbConcrete"), (x - 0.85, LOT_Y, z - 0.08), (x + 0.85, LOT_Y + 0.1, z + 0.08))
     return model(name, mb, col, meta=dict(kind="lot", footprint=(-5, 0, 5, 20)))
 
