@@ -22,7 +22,7 @@ const CFG := "res://game/data/expedition.json"
 const HOUND_PATH := "res://THE_VEIL_ASSETS_V2/07_Creatures/Godot_Scenes/CRT_Hound.tscn"
 const SKITTER_PATH := "res://THE_VEIL_ASSETS_V2/07_Creatures/Godot_Scenes/CRT_Skitter.tscn"
 const HOUND_AI := preload("res://game/enemies/hound_ai.gd")
-const EXIT_SPOT := Vector3(0.0, 1.3, 3.75)             # market-local: the vestibule wall's sales side, between the openings
+const EXIT_SPOT := Vector3(0.0, 1.4, 0.2)              # market-local: at the front doors themselves (from Cline)
 const OUTSIDE_SPOT := Vector3(0.0, 1.3, -0.9)          # market-local: just outside the front doors
 const SUPPLY_ITEMS := ["canned_food", "water_bottle", "energy_snack", "chocolate_bar", "cola_bottle", "painkillers", "batteries"]
 
@@ -48,6 +48,7 @@ func setup(w: Node) -> void:
 	var m: Node3D = world.market
 	its["exit"] = _spot("EXP_PlanTrip", m.global_transform * EXIT_SPOT, Vector3(1.6, 1.6, 0.4), _use_exit, m.global_transform.basis)
 	its["outside"] = _spot("EXP_OpenDoors", m.global_transform * OUTSIDE_SPOT, Vector3(3.0, 2.2, 0.6), _use_outside, m.global_transform.basis)
+	_place_supply_chest(m)
 	_day = _today()
 	_spawn_caches()
 	for c in cfg.get("vehicle_parts", []):
@@ -151,10 +152,6 @@ func _use_exit(_b: Node) -> void:
 	if Game.has_flag("vehicle_repaired"):
 		opts.append("Use the Car")
 		ids.append("car")
-	var rest: Node3D = p4.get("rest")
-	if rest and is_instance_valid(rest) and (not rest.can_rest.is_valid() or rest.can_rest.call()):
-		opts.append("Rest / Sleep")
-		ids.append("rest")
 	opts.append("Stay Inside")
 	ids.append("stay")
 	var i: int = await p4.choice.ask("WHERE ARE YOU HEADING?", opts, _player())
@@ -164,11 +161,6 @@ func _use_exit(_b: Node) -> void:
 		pick = ["scavenge_car", "story", "stay"][clampi(j, 0, 2)] if j >= 0 else "stay"
 	_busy_menu = false
 	match pick:
-		"rest":
-			# the bedroll in the manager's office: lit and pointed to (the sleep itself is the usual one there)
-			world._beacon("rest_hint", rest.global_position + Vector3(0, 0.6, 0), Color(0.6, 0.75, 1.0))
-			_hint("Sleep at the bedroll in the manager's office (lit). " + (sleep_gate() if sleep_gate() != "" else "There is enough for everyone tonight."))
-			get_tree().create_timer(30.0).timeout.connect(func(): world._clear_beacon("rest_hint"))
 		"story":
 			# the story's own exit and objective take it from here (nothing is restarted or skipped)
 			_hint("Objective: " + String(Game.current_step().get("text", "")))
@@ -390,6 +382,22 @@ func _settle(n: Node3D) -> void:
 		var it := n.get_node_or_null("Interact") as Interactable
 		if it:
 			it._base = n.transform
+
+
+## The shelter supplies get a real chest (from Cline's local fix): the storage chest model where the supplies are
+## kept. Visual only (no collision, no interaction of its own): the existing "[E] Shelter Supplies" point there
+## opens the supplies, so nothing competes with it or blocks it.
+func _place_supply_chest(market: Node3D) -> void:
+	var ps := load("res://THE_VEIL_ASSETS_V2/03_Residential/Interactive_Props/RES_IP_StorageChest.glb") as PackedScene
+	if ps == null:
+		return
+	var chest := ps.instantiate() as Node3D
+	chest.name = "EXP_SupplyChest"
+	market.add_child(chest)
+	chest.global_position = market.global_transform * Vector3(7.8, 0.04, 6.05)
+	for co in chest.find_children("*", "CollisionObject3D", true, false):
+		(co as CollisionObject3D).collision_layer = 0
+		(co as CollisionObject3D).collision_mask = 0
 
 
 # ------------------------------------------------------------------ the car (the protagonist's own sedan)
@@ -758,7 +766,7 @@ func _refresh() -> void:
 		if active() and in_store():
 			t = "[E] Secure the Doors"
 		elif can_scavenge():
-			t = "[E] Plan a Trip"
+			t = "[E] Leave Shelter"
 		e.prompt_text = t
 		e.collision_layer = 8 if t != "" else 0
 	var o: Interactable = its.get("outside")

@@ -55,6 +55,9 @@ var _insp_pivot: Node3D
 var _insp_tex: TextureRect
 var _insp_name: Label
 var _insp_desc: Label
+var _hud: VeilHUD
+var _paused_by_me := false
+var _bars_were_on := false
 
 
 func _ready() -> void:
@@ -575,6 +578,14 @@ func _fit() -> void:
 func open() -> void:
 	refresh()
 	visible = true
+	# the world stops while the inventory is open (from Cline bb80be0), and the HUD's health / stamina bars hide
+	# under it (Cline b75791c); both come back as they were on close (the inventory runs with the HUD: always)
+	_paused_by_me = not get_tree().paused
+	get_tree().paused = true
+	if _hud and _hud.surv:
+		_bars_were_on = _hud.surv.visible and _hud.surv.modulate.a > 0.5
+		if _bars_were_on:
+			_hud.set_survival_visible(false)
 	_fit()
 	_fit.call_deferred()                               # again once the new details have been laid out
 
@@ -583,6 +594,12 @@ func close() -> void:
 	if visible:
 		close_inspect()
 		visible = false
+		if _paused_by_me and not (_hud and _hud.is_paused()):
+			get_tree().paused = false
+		_paused_by_me = false
+		if _hud and _bars_were_on:
+			_hud.set_survival_visible(true)
+		_bars_were_on = false
 		closed.emit()
 
 
