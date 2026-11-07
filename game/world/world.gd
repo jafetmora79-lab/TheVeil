@@ -3507,6 +3507,8 @@ func enter_car() -> void:
 	in_car = true
 	player.activate(false)
 	await sedan.swing_door(true, 0.3)
+	if survivors and survivors.has_method("board_car"):
+		await survivors.board_car()                  # a trip companion takes the passenger seat before we drive off
 	sedan.set_driven(true)
 	sedan.swing_door(false, 0.35)
 	Game.set_flag("left_house")
@@ -3536,6 +3538,8 @@ func exit_car() -> void:
 	player.velocity = Vector3.ZERO
 	player.set_yaw_pitch(sedan.global_rotation.y, 0.0)
 	player.activate(true)
+	if survivors and survivors.has_method("leave_car"):
+		survivors.leave_car()
 	hud.set_speed(-1.0)
 	hud.set_hint("")
 	await get_tree().create_timer(0.6).timeout
