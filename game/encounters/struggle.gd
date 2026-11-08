@@ -30,8 +30,8 @@ const STYLE := {
 const CHANCE := 0.35            ## of an eligible attack
 const COOLDOWN := 40.0          ## seconds between struggles (any creature)
 const FORCED_COOLDOWN := 9.0    ## a creature that always grabs: this long after the last struggle
-const PER_CLICK := 0.085        ## ~12 clicks in the allowed time; held buttons count once
-const DECAY := 0.10             ## per second
+const PER_CLICK := 0.11         ## ~2.5 clicks a second wins in the allowed time; held buttons count once
+const DECAY := 0.08             ## per second
 const INTRO := 0.32             ## the creature closes the last stretch; nothing jumps into place
 const GRASP_FREEZE := 0.55      ## the Crab's claws stay shut at this point of Attack_Grasp
 
@@ -284,7 +284,11 @@ func _aim(yaw: float, pitch: float, delta: float) -> void:
 	player.set_yaw_pitch(lerp_angle(player.rotation.y, yaw, k), lerpf(p0, pitch, k))
 
 
+var last_won := false                   ## (tests) how the last struggle ended
+
+
 func _finish(won: bool, cancelled := false) -> void:
+	last_won = won and not cancelled
 	active = false
 	_cool = COOLDOWN + randf_range(0.0, 20.0)
 	_since = 0.0

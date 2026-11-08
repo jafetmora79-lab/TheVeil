@@ -4,8 +4,8 @@ const HOUSE_ID:= "HOUSE_03"            ## the ranch house in the row behind the 
 const SEEN:= "egg_roof_skitter_seen"
 const MODEL:= preload("res://THE_VEIL_ASSETS_V2/07_Creatures/Godot_Scenes/CRT_Skitter.tscn")
 const SOUND:= preload("res://game/encounters/skitter_rattle.wav")
-const CLICKS:= 12
-const STRUGGLE_S:= 3.0
+const CLICKS:= 10
+const STRUGGLE_S:= 4.0
 const HISS:= preload("res://game/encounters/skitter_hiss.wav")
 const STING:= preload("res://game/audio/the_veil_jumpscare_sting.wav")
 var world: Node

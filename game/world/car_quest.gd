@@ -29,7 +29,7 @@ const CARDS := {
 	"starter_relay": ["STARTER RELAY ACQUIRED", "Small. The car won't turn over without it."],
 }
 
-const PULL_PER_CLICK := 0.075        ## ~14 clicks
+const PULL_PER_CLICK := 0.09         ## ~2.5 clicks a second fills it in time
 const PULL_DECAY := 0.11             ## per second
 const PULL_TIME := 9.0               ## then the grip slips: try again (nothing lost)
 const ALARM_SECONDS := 16.0
@@ -827,10 +827,11 @@ func _input(e: InputEvent) -> void:
 func _pull_tick(delta: float) -> void:
 	if get_tree().paused:
 		return
+	var full := pull >= 1.0                       # (a bar filled by a click wins before this frame's slip)
 	_pull_t -= delta
 	pull = maxf(pull - PULL_DECAY * delta, 0.0)
 	_bar.size.x = 260.0 * pull
-	if pull >= 1.0:
+	if full or pull >= 1.0:
 		_end_pull(true)
 	elif _pull_t <= 0.0:
 		_end_pull(false)
