@@ -24,6 +24,8 @@ const SKITTER := "res://THE_VEIL_ASSETS_V2/07_Creatures/Godot_Scenes/CRT_Skitter
 const HOUND := "res://THE_VEIL_ASSETS_V2/07_Creatures/Godot_Scenes/CRT_Hound.tscn"
 const ACTIVE_RANGE := 110.0               ## people and cars only move while the player is this close to town
 const MAIN_X := Vector2(-110.0, 200.0)    ## the main street's extent (x) used by traffic
+const EAST_LANE := 1.8                    ## right-hand traffic: heading +x you drive on the +z side of the centre
+const WEST_LANE := -1.8
 
 var world: Node
 var people := {}                          ## name -> {"body", "anim", "route", "i", "wait"}
@@ -84,7 +86,12 @@ func _seen(p: Vector3, margin := 1.0) -> bool:
 
 
 func _player_near(p: Vector3, d: float) -> bool:
-	return world.player.global_position.distance_to(p) < d
+	return focus().distance_to(p) < d
+
+
+## Where the player is: the car while driving or seated in it (their body is left where they got in), else the body.
+func focus() -> Vector3:
+	return world.sedan.global_position if world.in_car and world.sedan else world.player.global_position
 
 
 func _story_busy() -> bool:
@@ -115,43 +122,242 @@ func _clip(n: Node, clip: String, speed := 1.0) -> void:
 		ap.play(clip, 0.15, speed)
 
 
-## A clothing / skin colour variation on a reused model (its own materials, multiplied): an anonymous person.
-func _tint(n: Node, col: Color) -> void:
+## A small variation on a reused model, so nobody reads as a second Frank or a second cashier: its clothes, hair and
+## badge recoloured (skin and face untouched) and a slightly different height. One look per index, never repeated.
+const LOOKS := [
+	{"Top": Color(0.55, 0.62, 0.95), "Shirt": Color(0.9, 0.9, 0.95), "Pants": Color(0.45, 0.45, 0.5), "Hair": Color(0.55, 0.42, 0.3), "Badge": Color(0.55, 0.62, 0.95), "h": 1.03},
+	{"Top": Color(0.62, 0.8, 0.6), "Shirt": Color(0.95, 0.9, 0.75), "Pants": Color(0.42, 0.42, 0.6), "Hair": Color(0.45, 0.45, 0.45), "Badge": Color(0.62, 0.8, 0.6), "Gear": Color(0.5, 0.5, 0.5), "h": 0.97},
+	{"Top": Color(0.95, 0.62, 0.6), "Shirt": Color(0.95, 0.85, 0.85), "Pants": Color(0.35, 0.33, 0.4), "Hair": Color(0.75, 0.55, 0.35), "Badge": Color(0.95, 0.62, 0.6), "h": 0.98},
+	{"Top": Color(0.8, 0.7, 0.5), "Shirt": Color(0.8, 0.85, 0.95), "Pants": Color(0.3, 0.32, 0.38), "Hair": Color(0.3, 0.25, 0.22), "Badge": Color(0.8, 0.7, 0.5), "Gear": Color(0.35, 0.35, 0.35), "h": 1.02},
+	{"Top": Color(0.5, 0.75, 0.85), "Shirt": Color(0.95, 0.95, 0.85), "Pants": Color(0.55, 0.48, 0.4), "Hair": Color(0.6, 0.6, 0.6), "Badge": Color(0.5, 0.75, 0.85), "h": 0.96},
+	{"Top": Color(0.85, 0.55, 0.85), "Shirt": Color(0.9, 0.9, 0.9), "Pants": Color(0.4, 0.4, 0.45), "Hair": Color(0.25, 0.22, 0.2), "Badge": Color(0.85, 0.55, 0.85), "Gear": Color(0.45, 0.4, 0.35), "h": 1.04},
+	{"Top": Color(0.7, 0.7, 0.72), "Shirt": Color(0.75, 0.85, 0.75), "Pants": Color(0.5, 0.45, 0.38), "Hair": Color(0.65, 0.5, 0.35), "Badge": Color(0.7, 0.7, 0.72), "h": 0.99},
+	{"Top": Color(0.9, 0.8, 0.55), "Shirt": Color(0.95, 0.9, 0.9), "Pants": Color(0.3, 0.35, 0.45), "Hair": Color(0.4, 0.3, 0.25), "Badge": Color(0.9, 0.8, 0.55), "Gear": Color(0.5, 0.45, 0.4), "h": 1.01},
+]
+const LOOK_OF := {"Civilian_A": 0, "Civilian_B": 1, "Joan": 2, "Res_Walker": 3, "Res_Neighbour": 4, "Res_Driveway": 5, "LT_Driver": 6}
+var _look_i := 6                          ## drivers take the remaining looks in turn
+
+
+func _vary(n: Node, idx := -1) -> void:
+	if idx < 0:
+		idx = _look_i
+		_look_i = 6 + (_look_i - 5) % 2       # (drivers: 6, 7, 6, 7 ...)
+	var look: Dictionary = LOOKS[idx % LOOKS.size()]
 	for mi in n.find_children("*", "MeshInstance3D", true, false):
-		for s in (mi as MeshInstance3D).get_surface_override_material_count():
-			var src = (mi as MeshInstance3D).get_active_material(s)
-			if src is StandardMaterial3D:
-				var d := (src as StandardMaterial3D).duplicate() as StandardMaterial3D
-				d.albedo_color = d.albedo_color * col
-				(mi as MeshInstance3D).set_surface_override_material(s, d)
+		var m := mi as MeshInstance3D
+		if m.mesh == null:
+			continue
+		for s in m.mesh.get_surface_count():
+			var src := m.get_active_material(s) as StandardMaterial3D
+			if src == null:
+				continue
+			var nm := src.resource_name
+			var part := nm.get_slice("_", nm.count("_"))       # "Frank_Top" -> "Top", "Police_Officer_Hair" -> "Hair"
+			if part == "TopCuff":
+				part = "Top"
+			elif part == "PantsHem":
+				part = "Pants"
+			if look.has(part):
+				var d := src.duplicate() as StandardMaterial3D
+				d.albedo_color = src.albedo_color * (look[part] as Color)
+				m.set_surface_override_material(s, d)
+	var model := n.get_child(0) as Node3D
+	if model:
+		model.scale = Vector3.ONE * float(look["h"])
 
 
 # ------------------------------------------------------------------ people
 func _person(nm: String, model: String, face: String, at: Vector3, tint := Color.WHITE) -> Node3D:
 	var body: Node3D = world._spawn_npc(load(model), load(FACES + face), world, _ground(at), 0.0, nm)
 	if tint != Color.WHITE:
-		_tint(body, tint)
+		_vary(body, LOOK_OF.get(nm, -1))             # (a reused model: its own fixed look)
 	var a = world.animators[nm]
-	people[nm] = {"body": body, "anim": a, "route": [], "i": 0, "wait": 0.0, "state": "routine"}
+	people[nm] = {"body": body, "anim": a, "route": [], "i": 0, "wait": 0.0, "state": "routine", "talk_t": 0.0}
 	report["people"] = people.size()
+	var it := Interactable.attach(body, {"kind": "custom", "label": nm, "prompt_text": ""})
+	it.used.connect(func(_b): _talk(nm))
+	people[nm]["it"] = it
 	return body
+
+
+## The nearest spot to `p` a person can stand on: not on the road, nothing solid there (a parked car, a bin, a
+## wall). Tries the spot itself, then rings round it out to 2.5 m. INF = none.
+func safe_point(p: Vector3) -> Vector3:
+	var q := PhysicsShapeQueryParameters3D.new()
+	var cap := CapsuleShape3D.new()
+	cap.radius = 0.32
+	cap.height = 1.5
+	q.shape = cap
+	q.collision_mask = 1
+	q.exclude = [world.player.get_rid()]
+	for r in [0.0, 0.6, 1.2, 1.8, 2.5]:
+		for k in (1 if r == 0.0 else 8):
+			var a := TAU * k / 8.0
+			var c: Vector3 = _ground(p + Vector3(cos(a), 0, sin(a)) * r)
+			if _on_road(c):
+				continue
+			q.transform = Transform3D(Basis(), c + Vector3.UP * 0.95)
+			var clear := true
+			for h in _space().intersect_shape(q, 4):
+				if not (h["collider"] is VeilSurvivorBody):
+					clear = false
+			if clear:
+				return c
+	return Vector3.INF
+
+
+## Off along a route leg: round anything in the way (the world's collision-checked route, the player's car
+## included), never through it; if there is no way, they wait and try the other end later.
+func _walk_leg(p: Dictionary, to: Vector3, speed: float) -> bool:
+	var body: Node3D = p["body"]
+	var goal := safe_point(to)
+	if not goal.is_finite():
+		return false
+	var path: Array = world.npc_route(world, body.global_position, goal, body as VeilSurvivorBody, false)
+	if path.is_empty():
+		if not _segment_clear(body.global_position, goal):
+			return false
+		path = [goal]
+	p["anim"].walk_to(path, speed)
+	return true
+
+
+func _segment_clear(a: Vector3, b: Vector3) -> bool:
+	var q := PhysicsShapeQueryParameters3D.new()
+	var s := SphereShape3D.new()
+	s.radius = 0.3
+	q.shape = s
+	q.collision_mask = 1
+	q.exclude = [world.player.get_rid()]
+	q.transform = Transform3D(Basis(), a + Vector3.UP * 0.9)
+	q.motion = b - a
+	var r := _space().cast_motion(q)
+	return r.size() > 0 and r[0] >= 0.999
+
+
+## [E] Talk: a line, a look at the player, a pause in their walk. Never while fleeing or in a scene.
+func can_talk(nm: String) -> bool:
+	var p: Dictionary = people.get(nm, {})
+	if p.is_empty() or not is_instance_valid(p["body"]) or not p["body"].visible:
+		return false
+	if _busy != "" or _story_busy() or Dialogue.is_busy():
+		return false
+	return String(p["state"]) in ["routine", "stay", "freeze"]
+
+
+func _talk(nm: String) -> void:
+	if not can_talk(nm):
+		return
+	var p: Dictionary = people[nm]
+	var veil := Game.has_flag("p3_mist")
+	var key := String(nm).to_lower()
+	if key.begins_with("res_"):
+		key = "resident"
+	elif key.begins_with("civilian"):
+		key = "civilian"
+	var id := "lt_talk_%s_%s" % [key, "post" if veil else "pre"]
+	if not Dialogue.data.has(id):
+		id = "lt_talk_civilian_%s" % ("post" if veil else "pre")
+	p["anim"].walk_to([], 0.0)
+	p["anim"].face_towards(world.player.global_position)
+	p["wait"] = 4.0
+	Dialogue.say(id, false, true)
+	report["talks"] = int(report.get("talks", 0)) + 1
+
+
+func _update_prompts() -> void:
+	for nm in people:
+		var p: Dictionary = people[nm]
+		if not p.has("it") or not is_instance_valid(p["it"]):
+			continue
+		var on := can_talk(nm)
+		(p["it"] as Interactable).prompt_text = "[E] Talk" if on else ""
+		(p["it"] as Interactable).collision_layer = 8 if on else 0
 
 
 func _spawn_people() -> void:
 	var sw := 5.4                                   # the shop-row sidewalk (z), between the doors and the kerb
 	_person("Frank", FRANK, "T_Face_Frank.png", Vector3(8.0, 0.2, sw))
 	people["Frank"]["route"] = [Vector3(8.0, 0.2, sw), Vector3(21.0, 0.2, sw)]
-	_person("Civilian_A", CASHIER, "T_Face_Cashier.png", Vector3(30.0, 0.2, sw), Color(0.75, 0.85, 1.0))
+	_person("Civilian_A", CASHIER, "T_Face_Cashier.png", Vector3(30.0, 0.2, sw), Color(0.9, 0.9, 0.9))
 	people["Civilian_A"]["route"] = [Vector3(30.0, 0.2, sw), Vector3(48.0, 0.2, sw)]
-	_person("Civilian_B", FRANK, "T_Face_Frank.png", Vector3(26.0, 0.2, -23.0), Color(0.85, 0.75, 0.7))
-	people["Civilian_B"]["route"] = [Vector3(26.0, 0.2, -23.0), Vector3(40.0, 0.2, -23.0)]
+	_person("Civilian_B", FRANK, "T_Face_Frank.png", Vector3(24.0, 0.2, -25.4), Color(0.85, 0.75, 0.7))
+	people["Civilian_B"]["route"] = [Vector3(24.0, 0.2, -25.4), Vector3(29.0, 0.2, -25.4)]   # the store front, clear of the lot
 	_person("Officer", POLICE, "T_Face_Police_Officer.png", Vector3(60.0, 0.2, sw))
 	people["Officer"]["route"] = []                # stands at the corner, watching the traffic
 	_person("Joan", CASHIER, "T_Face_Cashier.png", Vector3(147.0, 0.2, -24.5), Color(1.0, 0.85, 0.85))
 	people["Joan"]["route"] = [Vector3(147.0, 0.2, -24.5), Vector3(152.0, 0.2, -24.8)]
 	for k in people:
 		var b: Node3D = people[k]["body"]
-		b.global_position = _ground(b.global_position)
+		var sp := safe_point(b.global_position)
+		b.global_position = sp if sp.is_finite() else _ground(b.global_position)
+		var safe: Array = []
+		for wp in people[k]["route"]:
+			var s := safe_point(wp)
+			if s.is_finite():
+				safe.append(s)
+		people[k]["route"] = safe
+	_spawn_neighbours()
+
+
+## Near the protagonist's home (the opening street): three neighbours on short routes, found on the real ground
+## (outdoors, off the road, nothing solid there).
+func _spawn_neighbours() -> void:
+	var home_n := world.get_node_or_null("Trigger_LeftHouse") as Node3D
+	if home_n == null:
+		return
+	var home := home_n.global_position
+	var spots: Array = []
+	for i in 48:
+		var a := TAU * i / 48.0
+		for r in [7.0, 11.0, 15.0, 19.0]:
+			var c: Vector3 = home + Vector3(cos(a), 0, sin(a)) * r
+			var g := _ground(c)
+			if absf(g.y - home.y) > 1.2:
+				continue
+			if not _space().intersect_ray(PhysicsRayQueryParameters3D.create(g + Vector3.UP, g + Vector3.UP * 12.0, 1)).is_empty():
+				continue
+			var s := safe_point(g)
+			if s.is_finite() and s.distance_to(g) < 0.3 and not [Vector3(1.5, 0, 0), Vector3(-1.5, 0, 0), Vector3(0, 0, 1.5), Vector3(0, 0, -1.5)].any(func(o): return _on_road(s + o)):
+				spots.append(s)                     # (a clear metre and a half from any kerb)
+	report["home_spots"] = spots.size()
+	if spots.size() < 4:
+		return
+	spots.shuffle()
+	var used: Array = []
+	var pick := func(near: Vector3, dmin: float, dmax: float) -> Vector3:
+		for s in spots:
+			if near.is_finite() and (s.distance_to(near) < dmin or s.distance_to(near) > dmax or not _segment_clear(near, s)):
+				continue
+			if used.any(func(u): return (u as Vector3).distance_to(s) < 3.0):
+				continue
+			used.append(s)
+			return s
+		return Vector3.INF
+	var a0: Vector3 = pick.call(Vector3.INF, 0.0, 0.0)
+	var a1: Vector3 = pick.call(a0, 8.0, 15.0)
+	if a0.is_finite() and a1.is_finite():
+		_person("Res_Walker", CASHIER, "T_Face_Cashier.png", a0, Color(0.8, 0.9, 0.8))
+		people["Res_Walker"]["route"] = [a0, a1]
+		people["Res_Walker"]["home"] = true
+	var b0: Vector3 = pick.call(Vector3.INF, 0.0, 0.0)
+	if b0.is_finite():
+		_person("Res_Neighbour", FRANK, "T_Face_Frank.png", b0, Color(0.7, 0.8, 0.95))
+		people["Res_Neighbour"]["route"] = []
+		people["Res_Neighbour"]["home"] = true
+	# the third walks to (beside) a parked car and back
+	var parked := Vector3.INF
+	for n in world.find_children("VEH_*", "Node3D", true, false):
+		if n != world.sedan and (n as Node3D).global_position.distance_to(home) < 30.0:
+			parked = (n as Node3D).global_position
+			break
+	var c0: Vector3 = pick.call(Vector3.INF, 0.0, 0.0)
+	if c0.is_finite():
+		var c1: Vector3 = safe_point(parked + (c0 - parked).normalized() * 2.2) if parked.is_finite() else pick.call(c0, 6.0, 12.0)
+		if c1.is_finite():
+			_person("Res_Driveway", CASHIER, "T_Face_Cashier.png", c0, Color(0.95, 0.85, 0.7))
+			people["Res_Driveway"]["route"] = [c0, c1]
+			people["Res_Driveway"]["home"] = true
 
 
 func _restore_after_veil() -> void:
@@ -178,9 +384,12 @@ func _routine(nm: String, p: Dictionary, delta: float) -> void:
 	p["wait"] = float(p["wait"]) - delta
 	if float(p["wait"]) > 0.0:
 		return
-	p["i"] = (int(p["i"]) + 1) % route.size()
-	a.walk_to([route[p["i"]]], 1.15)
-	p["wait"] = randf_range(2.5, 6.0)               # a pause at each end: a look in a window, a phone, the street
+	var nxt := (int(p["i"]) + 1) % route.size()
+	if _walk_leg(p, route[nxt], 1.15):
+		p["i"] = nxt
+		p["wait"] = randf_range(2.5, 6.0)           # a pause at each end: a look in a window, a phone, the street
+	else:
+		p["wait"] = 3.0                             # the way is blocked (a car pulled in): wait, try again
 
 
 ## The Veil: routines stop; fear; flight (staggered so the street empties over ~20 s, never at once).
@@ -188,7 +397,8 @@ func _panic(delta: float) -> void:
 	_panic_t += delta
 	var plan := {"Civilian_A": [1.5, "building", Vector3(37.5, 0.2, 6.6)], "Joan": [3.0, "building", Vector3(152.0, 0.2, -26.6)],
 		"Civilian_B": [7.0, "fog", Vector3(70.0, 0.2, -23.0)], "Frank": [0.5, "freeze", Vector3.ZERO],
-		"Officer": [0.0, "stay", Vector3.ZERO]}
+		"Officer": [0.0, "stay", Vector3.ZERO], "Res_Walker": [2.0, "hide", Vector3.ZERO],
+		"Res_Neighbour": [4.0, "hide", Vector3.ZERO], "Res_Driveway": [6.0, "hide", Vector3.ZERO]}
 	for nm in plan:
 		if not people.has(nm):
 			continue
@@ -203,6 +413,9 @@ func _panic(delta: float) -> void:
 			p["anim"].walk_to([], 0.0)
 			if step[1] in ["building", "fog"]:
 				p["anim"].walk_to([step[2]], 3.4)
+		elif p["state"] == "hide" and not _seen(b.global_position):
+			b.visible = false                      # indoors (far from town when it comes; never in view)
+			p["state"] = "inside"
 		elif p["state"] == "building" and not p["anim"].is_walking() and not _seen(b.global_position):
 			b.visible = false                      # in through the door (never vanishes in view)
 			p["state"] = "inside"
@@ -216,9 +429,36 @@ func _car_node(i: int) -> Node3D:
 	var car := (load(CARS[i % CARS.size()]) as PackedScene).instantiate() as Node3D
 	world.add_child(car)
 	for co in car.find_children("*", "CollisionObject3D", true, false):
-		(co as CollisionObject3D).collision_layer = 0   # background traffic: no physics; it stops for the player
+		(co as CollisionObject3D).collision_layer = 0   # background traffic: no physics; it brakes for things instead
 		(co as CollisionObject3D).collision_mask = 0
 	return car
+
+
+## Someone at the wheel: a reused model on the car's own driver-seat marker, seated, facing the way it drives
+## (the cars run along their -Z, a person's model faces its +Z), carried with the car.
+const SEAT_DROP := 0.51
+var _drivers := 0
+
+
+func _add_driver(car: Node3D) -> Node3D:
+	var seat := car.find_child("Marker_Seat_Driver", true, false) as Node3D
+	if seat == null:
+		return null
+	_drivers += 1
+	var nm := "LT_Drv_%d" % _drivers
+	var body: Node3D = world._spawn_npc(load(CASHIER if _drivers % 2 == 0 else FRANK), load(FACES + ("T_Face_Cashier.png" if _drivers % 2 == 0 else "T_Face_Frank.png")),
+		world, seat.global_position, 0.0, nm)
+	_vary(body)
+	if body is CollisionObject3D:
+		(body as CollisionObject3D).collision_layer = 0
+		(body as CollisionObject3D).collision_mask = 0
+	body.reparent(seat, false)
+	body.global_transform = Transform3D(car.global_basis * Basis(Vector3.UP, PI), seat.global_position - Vector3(0, SEAT_DROP, 0))
+	var an = world.animators[nm]
+	an.walk_to([])
+	an.hold_facing = true
+	an.set_seated(true, 0.45)
+	return body
 
 
 ## A lane on the main street from x0 to x1 (all on the road surface), z offset from the centre line.
@@ -240,8 +480,10 @@ func _spawn_car(path: PackedVector3Array, speed: float, i: int) -> Dictionary:
 	if path.size() < 3:
 		return {}
 	var car := _car_node(i)
-	var c := {"node": car, "path": path, "s": 0.0, "speed": speed, "lane": i}
+	var c := {"node": car, "path": path, "s": 0.0, "speed": speed, "lane": i, "v": speed, "ray_t": 0.0, "block": 99.0,
+		"wheels": car.find_children("Wheel_*", "Node3D", true, false)}
 	_place_car(c)
+	c["driver"] = _add_driver(car)
 	cars.append(c)
 	report["cars_spawned"] = int(report["cars_spawned"]) + 1
 	return c
@@ -257,7 +499,7 @@ func _place_car(c: Dictionary) -> void:
 	var p := path[k].lerp(path[mini(k + 1, path.size() - 1)], t)
 	var ahead := path[mini(k + 1, path.size() - 1)] - path[k]
 	var car: Node3D = c["node"]
-	var yaw := atan2(ahead.x, ahead.z)
+	var yaw := atan2(-ahead.x, -ahead.z)              # the car models' front is their -Z: it points where it goes
 	if c.has("swerve"):
 		yaw += float(c["swerve"])
 	car.global_transform = Transform3D(Basis(Vector3.UP, yaw), p + Vector3(0, 0.02, 0))
@@ -274,11 +516,11 @@ func _traffic(delta: float) -> void:
 		var path: PackedVector3Array
 		match which:
 			0:
-				path = _lane(MAIN_X.x, MAIN_X.y, -1.8)                      # through town, eastbound
+				path = _lane(MAIN_X.x, MAIN_X.y, EAST_LANE)                 # through town, eastbound
 			1:
-				path = _lane(MAIN_X.y, MAIN_X.x, 1.8)                       # westbound, past the supermarket
+				path = _lane(MAIN_X.y, MAIN_X.x, WEST_LANE)                 # westbound, past the supermarket
 			2:
-				path = _lane(60.0, MAIN_X.y, -1.8)                          # out to the east edge of town
+				path = _lane(60.0, MAIN_X.y, EAST_LANE)                     # out to the east edge of town
 		if path.size() > 2 and not _seen(path[0]) and not cars.any(func(c): return c["lane"] == which):
 			_spawn_car(path, randf_range(9.0, 12.0), which)
 	var keep: Array = []
@@ -286,34 +528,81 @@ func _traffic(delta: float) -> void:
 		var car: Node3D = c["node"]
 		if not is_instance_valid(car):
 			continue
-		var sp: float = float(c["speed"]) * (1.7 if veil and not c.has("scripted") else 1.0)
-		# stops for the player standing in the road (it never runs anyone over)
-		var to_p: Vector3 = world.player.global_position - car.global_position
-		var fwd := car.global_basis.z
-		if not world.in_car and to_p.dot(fwd) > 0.0 and to_p.dot(fwd) < 9.0 and (to_p - fwd * to_p.dot(fwd)).length() < 1.6:
-			sp = 0.0
-		c["s"] = float(c["s"]) + sp * delta
+		var want: float = float(c["speed"]) * (1.7 if veil and not c.has("scripted") else 1.0)
+		var gap := _clear_ahead(c, delta)
+		c["gap"] = gap
+		want *= clampf((gap - 5.0) / 8.0, 0.0, 1.0)  # slows from 13 m, stopped 5 m short; waits, never clips
+		var v: float = c["v"]
+		v = move_toward(v, want, (9.0 if want < v else 3.0) * delta)
+		c["v"] = v
+		c["s"] = float(c["s"]) + v * delta
 		_place_car(c)
+		for wh in c["wheels"]:
+			if is_instance_valid(wh):
+				(wh as Node3D).rotation.x -= v * delta / 0.31
 		if float(c["s"]) >= float(c["total"]) - 0.1 and not c.has("crash"):
 			if not _seen(car.global_position):
-				car.queue_free()                    # gone round the far end, out of view
+				_drop_car(c)                        # gone round the far end, out of view
 				continue
 			c["s"] = float(c["total"]) - 0.1        # waits at the end of its lane until it is out of view
 		keep.append(c)
 	cars = keep
 
 
+## Metres of free road ahead in the car's lane: the cars in front, the player's car, the player on foot, anyone
+## walking, and (a ray every 0.2 s) anything solid - a parked car, a bin, a wall.
+func _clear_ahead(c: Dictionary, delta: float) -> float:
+	var car: Node3D = c["node"]
+	var fwd := -car.global_basis.z
+	var at := car.global_position
+	var best := 99.0
+	var obs: Array = []
+	for o in cars:
+		if o != c and is_instance_valid(o["node"]):
+			obs.append((o["node"] as Node3D).global_position)
+	if world.sedan:
+		obs.append(world.sedan.global_position)
+	if world.player.visible:
+		obs.append(world.player.global_position)
+	for nm in people:
+		var b = people[nm]["body"]
+		if is_instance_valid(b) and b.visible and b.get_parent() == world:
+			obs.append((b as Node3D).global_position)
+	for o in obs:
+		var rel: Vector3 = (o as Vector3) - at
+		rel.y = 0.0
+		var along := rel.dot(fwd)
+		if along > 0.5 and along < best and (rel - fwd * along).length() < 1.3:
+			best = along
+	c["ray_t"] = float(c["ray_t"]) - delta
+	if float(c["ray_t"]) <= 0.0:
+		c["ray_t"] = 0.2
+		var from := at + Vector3.UP * 0.8 + fwd * 2.5
+		var h := _space().intersect_ray(PhysicsRayQueryParameters3D.create(from, from + fwd * 14.0, 1, [world.player.get_rid()]))
+		c["block"] = (from.distance_to(h["position"]) + 2.5) if h else 99.0
+	return minf(best, float(c["block"]))
+
+
+func _drop_car(c: Dictionary) -> void:
+	var d = c.get("driver")
+	if d and is_instance_valid(d):
+		_unregister(d)
+	if is_instance_valid(c["node"]):
+		(c["node"] as Node).queue_free()
+
+
 # ------------------------------------------------------------------ the loop
 func _process(delta: float) -> void:
 	if world == null or world.player == null:
 		return
-	var near: bool = world.player.global_position.distance_to(Vector3(40.0, 0.0, -10.0)) < ACTIVE_RANGE + 80.0
+	var f := focus()
+	var near: bool = f.distance_to(Vector3(40.0, 0.0, -10.0)) < ACTIVE_RANGE + 80.0
 	for nm in people:
 		var p: Dictionary = people[nm]
 		var b = p["body"]
 		if not is_instance_valid(b):
 			continue
-		var on: bool = near and b.visible
+		var on: bool = b.visible and f.distance_to(b.global_position) < ACTIVE_RANGE
 		p["anim"].set_process(on)                    # (people out of range cost nothing)
 		if on and not Game.has_flag("p3_mist") and p["state"] == "routine":
 			_routine(nm, p, delta)
@@ -321,7 +610,12 @@ func _process(delta: float) -> void:
 		_traffic(delta)
 	if Game.has_flag("p3_mist"):
 		_panic(delta)
+	_prompt_t -= delta
+	if _prompt_t <= 0.0:
+		_prompt_t = 0.3
+		_update_prompts()
 	_events(delta)
+var _prompt_t := 0.0
 
 
 func _events(delta: float) -> void:
@@ -398,6 +692,8 @@ func _face(n: Node3D, dir: Vector3) -> void:
 
 # ------------------------------------------------------------------ 1. Frank and the Skitter
 func _frank() -> void:
+	if _busy != "":
+		return
 	if not people.has("Frank") or not is_instance_valid(people["Frank"]["body"]):
 		Game.set_flag("lt_frank_done")
 		return
@@ -504,15 +800,17 @@ func _cover_near(at: Vector3) -> Vector3:
 
 # ------------------------------------------------------------------ 2. panic on the road: the crash
 func _crash() -> void:
+	if _busy != "":
+		return
 	_begin("crash")
 	var pl: Vector3 = world.player.global_position
 	var x0 := pl.x - 70.0
 	var x1 := pl.x + 70.0
-	var first := _spawn_car(_lane(x0, x1, -1.8), 15.0, 0)
+	var first := _spawn_car(_lane(x0, x1, EAST_LANE), 15.0, 0)
 	if not first.is_empty():
 		first["scripted"] = true
 	await get_tree().create_timer(1.2).timeout
-	var path := _lane(x0, pl.x + 28.0, -1.8)
+	var path := _lane(x0, pl.x + 28.0, EAST_LANE)
 	var second := _spawn_car(path, 15.0, 1)
 	if second.is_empty():
 		_end("crash")
@@ -521,8 +819,14 @@ func _crash() -> void:
 	second["crash"] = true
 	# the swerve: near the end of its run it jinks round something unseen, onto the verge
 	var car: Node3D = second["node"]
-	while is_instance_valid(car) and float(second["s"]) < float(second.get("total", 99.0)) - 12.0:
+	var wait := 0.0
+	while is_instance_valid(car) and float(second["s"]) < float(second.get("total", 99.0)) - 12.0 and wait < 12.0:
 		await get_tree().process_frame
+		wait += get_process_delta_time()
+	if not is_instance_valid(car) or wait >= 12.0:
+		second.erase("crash")                       # held up (something in the road): it just drives on
+		_end("crash")
+		return
 	Sfx.play("door_close", car.global_position, 2.0, 0.35)        # tyres / the brakes
 	_snd("ev_unknown", car.global_position + Vector3(0, 1, -10), -6.0)
 	var tw := create_tween()
@@ -530,7 +834,7 @@ func _crash() -> void:
 	await tw.finished
 	cars.erase(second)
 	# into the roadside: a short shove to the kerb side, a jolt, stopped
-	var hit := _ground(Vector3(car.global_position.x + 3.0, 0.2, road_z - 5.2))
+	var hit := _ground(Vector3(car.global_position.x + 3.0, 0.2, road_z + 4.4))   # off its own (right-hand) kerb
 	var stop := create_tween().set_trans(Tween.TRANS_EXPO).set_ease(Tween.EASE_OUT)
 	stop.tween_property(car, "global_position", hit + Vector3(0, 0.02, 0), 0.35)
 	stop.parallel().tween_property(car, "rotation", car.rotation + Vector3(0.05, -0.5, 0.03), 0.35)
@@ -542,9 +846,13 @@ func _crash() -> void:
 	# the driver gets out and runs (an anonymous civilian), into the mist
 	await get_tree().create_timer(0.8).timeout
 	Sfx.play("door_open", car.global_position, 0.0, 1.2)
+	var seated = second.get("driver")
+	if seated and is_instance_valid(seated):
+		_unregister(seated)
+		seated.queue_free()                         # (the one at the wheel is the one who gets out)
 	var drv: Node3D = world._spawn_npc(load(CASHIER), load(FACES + "T_Face_Cashier.png"), world,
-		_ground(car.global_transform * Vector3(1.4, 0, 0)), 0.0, "LT_Driver")
-	_tint(drv, Color(0.8, 0.8, 0.9))
+		_ground(car.global_transform * Vector3(-1.5, 0, -0.3)), 0.0, "LT_Driver")
+	_vary(drv)
 	var da = world.animators["LT_Driver"]
 	da.set_mood("scared")
 	da.walk_to([_ground(drv.global_position + Vector3(-18.0, 0, -6.0))], 3.6)
@@ -556,6 +864,8 @@ func _crash() -> void:
 
 # ------------------------------------------------------------------ 3. the officer and the evacuation
 func _police() -> void:
+	if _busy != "":
+		return
 	if not people.has("Officer") or not is_instance_valid(people["Officer"]["body"]) or not people["Officer"]["body"].visible:
 		Game.set_flag("lt_police_done")
 		return
@@ -568,9 +878,9 @@ func _police() -> void:
 	oa.face_towards(Vector3(ob.global_position.x - 20.0, 0, road_z))
 	oa.talk(2.0)
 	_say("lt_officer_go")
-	var c1 := _spawn_car(_lane(ob.global_position.x - 60.0, MAIN_X.y, 1.8), 13.0, 0)
+	var c1 := _spawn_car(_lane(ob.global_position.x - 60.0, MAIN_X.y, EAST_LANE), 13.0, 0)
 	await get_tree().create_timer(1.0).timeout
-	var c2 := _spawn_car(_lane(ob.global_position.x - 60.0, MAIN_X.y, -1.8), 12.0, 1)
+	var c2 := _spawn_car(_lane(ob.global_position.x - 60.0, MAIN_X.y, EAST_LANE), 12.0, 1)
 	for c in [c1, c2]:
 		if not c.is_empty():
 			c["scripted"] = true
@@ -609,6 +919,8 @@ func _police() -> void:
 
 # ------------------------------------------------------------------ 4. Joan and the Hound
 func _joan() -> void:
+	if _busy != "":
+		return
 	if not people.has("Joan") or not is_instance_valid(people["Joan"]["body"]):
 		_person("Joan", CASHIER, "T_Face_Cashier.png", Vector3(152.0, 0.2, -27.5), Color(1.0, 0.85, 0.85))
 	_begin("joan")
@@ -702,9 +1014,11 @@ func _window() -> void:
 
 
 func _window_scene(at: Vector3) -> void:
+	if _busy != "":
+		return
 	_begin("window")
 	var fig: Node3D = world._spawn_npc(load(CASHIER), load(FACES + "T_Face_Cashier.png"), world, at, 0.0, "LT_Window")
-	_tint(fig, Color(0.35, 0.35, 0.4))                     # half seen, against the light
+	_vary(fig)                     # half seen, against the light
 	fig.global_position = at
 	var fa = world.animators["LT_Window"]
 	fa.face_towards(world.player.global_position)
