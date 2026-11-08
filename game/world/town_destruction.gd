@@ -1,14 +1,17 @@
 extends Node
 class_name VeilTownDestruction
-## THE VEIL - the town after the two hours in the stock room (p3_two_hours_later): some houses stand broken.
-## Nine houses that are not explorable, not lootable and not used by any scene swap to damaged models built from
-## their own house type (game/tools/build_destroyed_houses.gd -> game/world/destroyed/<HOUSE>.glb):
-##   colossus      HOUSE_14      crushed from above, walls splayed, a three-toed print in the yard
-##   skitter       HOUSE_18, EXT_HOUSE_12   panes gone, torn roof, dark inside; a Skitter moves behind the glass
-##   tentacle      HOUSE_09      the garage wall burst open, the door on the drive, the ground ruptured, a dead tentacle
-##   hound         EXT_HOUSE_19  front door broken in and flat in the hall, claw marks, a few stains, furniture tipped
-##   shellcrawler  HOUSE_17      a corner caved in, the foundation cracked, scrapes on the drive, the fence flattened
-##   evacuation    HOUSE_11, EXT_HOUSE_29, EXT_HOUSE_02   door left open, boards on a window, belongings, a car left
+## THE VEIL - the town after the two hours in the stock room (p3_two_hours_later): the town lies broken.
+## Every house that is not lootable and not part of a story scene swaps to a damaged model built from its own house
+## type (game/tools/build_destroyed_houses.gd -> game/world/destroyed/<type>__<kind>.glb, one per type and kind):
+##   colossus      crushed from above, walls splayed, a three-toed print in the yard
+##   skitter       panes gone, torn roof, dark inside; a Skitter moves behind the glass
+##   tentacle      the wall burst open, the door on the drive, the ground ruptured, a dead tentacle through it
+##   hound         front door broken in and flat in the hall, claw marks, a few stains, furniture tipped
+##   shellcrawler  a corner caved in, the foundation cracked, scrapes on the drive, the fence flattened
+##   evacuation    door left open, boards on a window, belongings, a barricade (EXT_HOUSE_02: a car left)
+##   home          the protagonist's home: the Colossus came down on its back corner - only the outer shell is
+##                 swapped (and the windows in the crushed part); its doors, rooms, furniture and collision stay as
+##                 they are, so everything the story does there still works.
 ## The original house is never deleted or moved: it is hidden (and its collision switched off) and the damaged
 ## model stands on the same spot with the house's own materials (restored by name) and collision built from the
 ## damaged meshes. Rubble that would land on a road, sidewalk or near anything the player can use is left out.
@@ -17,9 +20,16 @@ class_name VeilTownDestruction
 const DIR := "res://game/world/destroyed/"
 const FLAG := "p3_two_hours_later"
 const TARGETS := {
-	"HOUSE_14": "colossus", "HOUSE_18": "skitter", "EXT_HOUSE_12": "skitter", "HOUSE_09": "tentacle",
-	"EXT_HOUSE_19": "hound", "HOUSE_17": "shellcrawler", "HOUSE_11": "evacuation", "EXT_HOUSE_29": "evacuation",
-	"EXT_HOUSE_02": "evacuation"}
+	"HOUSE_02": "shellcrawler", "HOUSE_09": "tentacle", "HOUSE_10": "evacuation", "HOUSE_11": "evacuation",
+	"HOUSE_12": "hound", "HOUSE_14": "colossus", "HOUSE_16": "hound", "HOUSE_17": "shellcrawler",
+	"HOUSE_18": "skitter", "HOUSE_21": "shellcrawler", "EXT_HOUSE_01": "hound", "EXT_HOUSE_02": "evacuation",
+	"EXT_HOUSE_05": "skitter", "EXT_HOUSE_06": "tentacle", "EXT_HOUSE_07": "hound", "EXT_HOUSE_09": "evacuation",
+	"EXT_HOUSE_11": "colossus", "EXT_HOUSE_12": "skitter", "EXT_HOUSE_13": "tentacle", "EXT_HOUSE_14": "shellcrawler",
+	"EXT_HOUSE_15": "evacuation", "EXT_HOUSE_17": "skitter", "EXT_HOUSE_18": "colossus", "EXT_HOUSE_19": "hound",
+	"EXT_HOUSE_20": "shellcrawler", "EXT_HOUSE_22": "skitter", "EXT_HOUSE_23": "evacuation", "EXT_HOUSE_26": "evacuation",
+	"EXT_HOUSE_28": "skitter", "EXT_HOUSE_29": "evacuation", "EXT_HOUSE_32": "colossus", "EXT_HOUSE_33": "colossus",
+	"EXT_HOUSE_35": "shellcrawler", "EXT_HOUSE_39": "evacuation", "EXT_HOUSE_40": "tentacle", "PLAYER_HOME": "home",
+}
 ## the kinds whose furniture is part of the damaged model (crushed / sagged / dark); the others keep the original
 const OWN_FURNITURE := ["colossus", "shellcrawler", "skitter"]
 const ABN := "res://THE_VEIL_ASSETS_V2/09_Horror_Atmosphere/Abandoned_Props/"
@@ -40,7 +50,7 @@ func setup(w: Node) -> void:
 	world = w
 	for i in 2:
 		await get_tree().process_frame
-	if Game.has_flag(FLAG):
+	if after_skip():
 		apply()
 
 
@@ -51,7 +61,7 @@ func _process(delta: float) -> void:
 		_t -= delta
 		if _t <= 0.0:
 			_t = 0.5
-			if Game.has_flag(FLAG):
+			if after_skip():
 				apply()
 		return
 	_skitter_tick(delta)
@@ -76,7 +86,8 @@ func apply() -> void:
 # ------------------------------------------------------------------ the swap
 func _swap(h: Node3D, kind: String, avoid: Array) -> Dictionary:
 	var r := {"kind": kind}
-	var path := DIR + String(h.name) + ".glb"
+	var variant := String(h.scene_file_path).get_file().get_basename()
+	var path := DIR + "%s__%s.glb" % [variant, kind]
 	if not ResourceLoader.exists(path):
 		r["missing"] = true
 		return r
@@ -97,6 +108,15 @@ func _swap(h: Node3D, kind: String, avoid: Array) -> Dictionary:
 	var hide: Array = [h.get_node_or_null("House")]
 	if kind in OWN_FURNITURE:
 		hide.append(h.get_node_or_null("Furnishing"))
+	if kind == "home":
+		hide = []                                        # the home keeps its doors, rooms and collision
+		if ext:
+			ext.visible = false                          # only its outer shell is swapped
+		var hc := Vector2(box.position.x + 2.2, box.end.z - 2.2)
+		for sash in h.find_children("INT_WindowSash*", "MeshInstance3D", true, false):
+			var lp: Vector3 = h.global_transform.affine_inverse() * (sash as Node3D).global_position
+			if Vector2(lp.x, lp.z).distance_to(hc) < 4.6:
+				(sash as Node3D).visible = false             # (its windows went with the crushed corner)
 	for n in hide:
 		if n == null:
 			continue
@@ -134,7 +154,7 @@ func _swap(h: Node3D, kind: String, avoid: Array) -> Dictionary:
 			cs.transform = h.global_transform.affine_inverse() * m3.global_transform
 			body.add_child(cs)
 			continue
-		var tm := m3.mesh.create_trimesh_shape()
+		var tm: Shape3D = null if kind == "home" else m3.mesh.create_trimesh_shape()   # (the home: its own collision)
 		if tm:
 			var cs2 := CollisionShape3D.new()
 			cs2.shape = tm
@@ -150,7 +170,13 @@ func _swap(h: Node3D, kind: String, avoid: Array) -> Dictionary:
 		"hound": _dress_hound(h, meta, r)
 		"shellcrawler": _dress_shellcrawler(h, box, r)
 		"evacuation": _dress_evacuation(h, meta, box, r)
+		"home": _dress_colossus_home(h, box, r)
 	return r
+
+
+func _dress_colossus_home(h: Node3D, box: AABB, r: Dictionary) -> void:
+	_prop(h, CORR + "CORR_Ground_Discoloration.glb", Vector3(box.position.x + 1.0, 0.0, box.end.z + 4.0), 0.4, 1.4)
+	r["dressed"] = true
 
 
 ## Everything the player must reach or walk: interactables, quest / supply props.
@@ -405,3 +431,11 @@ func _left_car(h: Node3D) -> bool:
 	body.add_child(cs)
 	car.add_child(body)
 	return true
+
+
+## The two-hour skip has happened (its own flag, or any story step that only comes after it - older saves too).
+static func after_skip() -> bool:
+	for f in ["p3_two_hours_later", "p3_fled_together", "p3_in_market", "c5_started"]:
+		if Game.has_flag(f):
+			return true
+	return false

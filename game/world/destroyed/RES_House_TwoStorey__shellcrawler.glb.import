@@ -3,13 +3,13 @@
 importer="scene"
 importer_version=1
 type="PackedScene"
-uid="uid://c5l5khfowsoji"
-path="res://.godot/imported/EXT_HOUSE_02.glb-5910577259138f58258f49d385322f8f.scn"
+uid="uid://c2wyr7ca4k6dk"
+path="res://.godot/imported/RES_House_TwoStorey__shellcrawler.glb-1b86ab0d7817dd0cde9cb259d1b31804.scn"
 
 [deps]
 
-source_file="res://game/world/destroyed/EXT_HOUSE_02.glb"
-dest_files=["res://.godot/imported/EXT_HOUSE_02.glb-5910577259138f58258f49d385322f8f.scn"]
+source_file="res://game/world/destroyed/RES_House_TwoStorey__shellcrawler.glb"
+dest_files=["res://.godot/imported/RES_House_TwoStorey__shellcrawler.glb-1b86ab0d7817dd0cde9cb259d1b31804.scn"]
 
 [params]
 

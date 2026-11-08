@@ -725,17 +725,21 @@ func _inspect_car() -> void:
 	var p4 := _p4()
 	if p4 == null or p4.choice.is_open() or _repairing:
 		return
+	if not active() and CAR_PARTS.any(func(c): return Game.has_item(String(c[0])) and not installed(String(c[0]))):
+		_hint("I'll work on the car on a supply run, once I'm done with what I'm doing.")
 	while not Game.has_flag("vehicle_repaired"):
 		var rows := checklist_rows()
 		var opts: Array = []
 		var ids: Array = []
 		for c in CAR_PARTS:
-			if not installed(c[0]) and Game.has_item(c[0]):
+			if not installed(c[0]) and Game.has_item(c[0]) and active():     # fitting: only on a supply run
 				opts.append(String(FIT_VERB[c[0]]))
 				ids.append(c[0])
-		if all_installed():
+		if all_installed() and active():
 			opts.append("Start Engine")
 			ids.append("_start")
+		elif not active():
+			rows.append("I'll work on the car on a supply run, once I'm done with what I'm doing.")
 		elif ids.is_empty():
 			rows.append("Nothing to fit yet. The parts must be out in town - look around the wrecks and the gas station.")
 		opts.append("Close")

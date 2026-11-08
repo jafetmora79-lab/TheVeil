@@ -191,9 +191,23 @@ func _step(key: String, parent: Node3D, pos: Vector3, size: Vector3, prompt: Str
 	var cs := it.get_child(0) as CollisionShape3D
 	(cs.shape as BoxShape3D).size = size
 	cs.position = Vector3.ZERO
-	it.used.connect(func(_b: Node) -> void: cb.call())
+	it.used.connect(func(_b: Node) -> void:
+		if not trip_ok():
+			_not_now()
+			return
+		cb.call())
 	steps[key] = it
 	return it
+
+
+## Car parts are a supply-run job: on a story errand (or anywhere outside a scavenging trip) the protagonist
+## leaves them for later.
+func trip_ok() -> bool:
+	return ex != null and ex.active()
+
+
+func _not_now() -> void:
+	_say("I'll come back for this once I'm done with what I'm doing.", 3.0)
 
 
 ## The anchor of a part's site: where its diamond and map lead point; `taken` once the part is in hand.

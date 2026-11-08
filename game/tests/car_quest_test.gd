@@ -12,6 +12,7 @@ var w: Node
 var game: Node
 var q: Node
 var ex: Node
+var _off_trip := false
 
 
 func ok(name: String, cond: bool, detail := "") -> void:
@@ -32,6 +33,9 @@ func _frames(n: int) -> void:
 
 ## A choice panel opened by the game itself pauses the tree: close it so the test can go on.
 func _unblock() -> void:
+	if ex and is_instance_valid(ex) and not _off_trip:
+		ex.st()["active"] = true                 # this whole test is a supply run (car parts are a trip's job)
+		ex.st()["went_out"] = false              # (and never "back in with the doors shut": no trip-over card)
 	if w and is_instance_valid(w) and w.phase4 and w.phase4.choice.is_open():
 		w.phase4.choice.pick(-1)
 
@@ -46,6 +50,7 @@ func _until(cond: Callable, max_frames: int) -> bool:
 
 
 func _use(key: String) -> void:
+	ex.st()["active"] = true                     # (a supply run: the trip logic may have closed it meanwhile)
 	var it: Interactable = q.steps[key]
 	it.interact(w.player)
 	await _until(func(): return not q.busy, 600)
@@ -75,6 +80,7 @@ func _run() -> void:
 	game.flags["fridge_checked"] = true
 	game.world_state["supply_grace"] = true
 	await _load_world()
+	ex.st()["active"] = true                     # car parts are a supply-run job (taken on a trip only)
 	var p: CharacterBody3D = w.player
 	ok("quest_placed", q.placed and q.sites.size() == 4, str(q.sites.keys()))
 	for k in ["fuel_can", "car_battery", "car_fuse", "starter_relay"]:
@@ -182,7 +188,7 @@ func _run() -> void:
 		await _frames(6)
 	await _until(func(): return not q.busy, 300)
 	ok("bat_pulled", q.acquired("car_battery") and game.inventory.count("car_battery") == 1 and not bat.visible, "%d clicks" % clicks)
-	ok("bat_card", w.hud.caption_l.text.begins_with("CAR BATTERY ACQUIRED"))
+	ok("bat_card", w.hud.caption_l.text.begins_with("CAR BATTERY ACQUIRED"), w.hud.caption_l.text)
 	q._battery_pull()
 	await _frames(5)
 	ok("bat_once", game.inventory.count("car_battery") == 1)
