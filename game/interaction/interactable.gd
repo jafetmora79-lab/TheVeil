@@ -55,7 +55,28 @@ func _ready() -> void:
 			set_open(true, true)
 
 
+## Optional: returns another Interactable that speaks for this one right now (or null). The shelter's front doors
+## carry several chapters' story interactions; while the shelter exit menu is on offer they all show and open that
+## one menu, so the same doorway never shows two different prompts (game/world/expedition.gd).
+var redirect: Callable = Callable()
+
+
+func _redirected() -> Interactable:
+	if not redirect.is_valid():
+		return null
+	var r = redirect.call(self)
+	return r if r is Interactable and r != self and is_instance_valid(r) else null
+
+
 func get_prompt() -> String:
+	var r := _redirected()
+	if r:
+		return r.get_prompt()
+	return own_prompt()
+
+
+## This interaction's own prompt (ignoring any redirect).
+func own_prompt() -> String:
 	if taken:
 		return ""
 	match kind:
@@ -122,6 +143,10 @@ var lock_check: Callable = Callable()
 
 
 func interact(by: Node) -> void:
+	var r := _redirected()
+	if r:
+		r.interact(by)
+		return
 	if taken or _busy:
 		return
 	if lock_check.is_valid() and not is_open:

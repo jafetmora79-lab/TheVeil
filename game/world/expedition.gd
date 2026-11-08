@@ -65,6 +65,7 @@ func setup(w: Node) -> void:
 	add_child(quest)
 	quest.setup(self)
 	VeilRestPoint.supply_gate = sleep_gate
+	HOUND_AI.chase_gate = _may_chase                 # one hunter at a time, at the moment a chase would start
 	# between story nights the shelter can wait out a day (supermarket era): supplies eaten, a new day in town
 	VeilRestPoint.extra_night = _extra_night_ok
 	VeilRestPoint.record_extra = _record_extra
@@ -160,32 +161,35 @@ func _use_exit(_b: Node) -> void:
 		if in_store():
 			secure()
 		return
-	if not can_scavenge() or _busy_menu:
+	if not can_scavenge() or _busy_menu or not _menu_allowed():
+		return
+	var p4 := _p4()
+	var sa = world.get("sidearm")
+	if sa and sa.handover_pending():
+		_busy_menu = true                            # "before you go back out there": the handgun first
+		await sa.handover(p4.choice)
+		_busy_menu = false
 		return
 	_busy_menu = true
-	var p4 := _p4()
-	var opts := ["Continue Story - " + String(Game.current_step().get("text", "")), "Go Scavenging"]
-	var ids := ["story", "scavenge"]
-	if Game.has_flag("vehicle_repaired"):
-		opts.append("Use the Car")
-		ids.append("car")
-	opts.append("Stay Inside")
-	ids.append("stay")
+	var m := menu_options()
+	var opts: Array = m["labels"]
+	var ids: Array = m["ids"]
+	last_menu = ids.duplicate()
 	var i: int = await p4.choice.ask("LEAVE THE SHELTER", opts, _player())
 	var pick: String = ids[clampi(i, 0, ids.size() - 1)] if i >= 0 else "stay"
 	if pick == "car":
 		var j: int = await p4.choice.ask("What is the trip for?", ["Supplies", "The Story", "Cancel"], _player())
 		pick = ["scavenge_car", "story", "stay"][clampi(j, 0, 2)] if j >= 0 else "stay"
+		if pick == "scavenge_car" and not scavenge_available():
+			pick = "stay"
 	_busy_menu = false
 	match pick:
 		"story":
-			# the story's own exit and objective take it from here (nothing is restarted or skipped); the doors open
-			story_departure = true
-			_story_out = false
-			var c5d := _c5()
-			if c5d:
-				c5d._set_doors(true)
-			_hint("Objective: " + String(Game.current_step().get("text", "")))
+			continue_story()
+		"sleep":
+			var rest = p4.get("rest") if p4 else null
+			if rest:
+				rest.request()
 		"scavenge":
 			var who := ""
 			if world.survivors:
@@ -207,6 +211,106 @@ func _use_exit(_b: Node) -> void:
 
 
 var _busy_menu := false
+var last_menu: Array = []                   ## (tests) the ids the last shelter menu offered
+
+
+## The shelter exit's choices right now, in order: {"labels", "ids"}. One menu for every chapter.
+func menu_options() -> Dictionary:
+	var labels: Array = []
+	var ids: Array = []
+	var sd := story_door()
+	var blocked := sd != null and String(sd.own_prompt()).begins_with("NOT YET")
+	var step := String(Game.current_step().get("text", ""))
+	labels.append("Continue Story" + (" - " + step if step != "" else "") + (" (not yet)" if blocked else ""))
+	ids.append("story")
+	if scavenge_available():
+		labels.append("Go Scavenging")
+		ids.append("scavenge")
+		if Game.has_flag("vehicle_repaired"):
+			labels.append("Use the Car")
+			ids.append("car")
+	if sleep_available():
+		labels.append("Sleep / End Day")
+		ids.append("sleep")
+	labels.append("Stay Inside")
+	ids.append("stay")
+	return {"labels": labels, "ids": ids}
+
+
+## One supply run per in-game day (a day = one shelter night; saved in the trip state).
+func scavenge_available() -> bool:
+	return can_scavenge() and int(st().get("scavenged_day", -1)) != _today()
+
+
+## The office bed, offered from the exit too: a story night (the chapter's own rest prompt is up) or a survival
+## night between story nights. The rest point itself still applies the story gate and the supply rule.
+func sleep_available() -> bool:
+	var p4 := _p4()
+	var rest = p4.get("rest") if p4 else null
+	if rest == null or rest.get("_busy") == true:
+		return false
+	if rest.interactable and rest.interactable.prompt_text != "":
+		return true
+	return _extra_night_ok()
+
+
+## Not during a cinematic, a struggle, a conversation or any other scene that holds the player.
+func _menu_allowed() -> bool:
+	var p := _player()
+	if p == null or not p.visible or p.get("controls_enabled") == false:
+		return false
+	if world.get("_encounter_running") == true or world.conversing:
+		return false
+	var cine = world.get("_cine")
+	return not (cine and is_instance_valid(cine))
+
+
+## The chapter's own story interaction on the shelter doors that has something to say right now (or null).
+func story_door() -> Interactable:
+	for d in _story_doors():
+		if d.own_prompt() != "":
+			return d
+	return null
+
+
+func _story_doors() -> Array:
+	var out := []
+	var c5 := _c5()
+	if c5 and c5.its.has("exit") and is_instance_valid(c5.its["exit"]):
+		out.append(c5.its["exit"])
+	var ds = world.interactables.get("market/doors_shut")
+	if ds and is_instance_valid(ds):
+		out.append(ds)
+	return out
+
+
+## While the shelter menu is on offer every story door shows that menu instead (Interactable.redirect).
+func _door_redirect(_d: Interactable) -> Interactable:
+	var e: Interactable = its.get("exit")
+	if e and e.prompt_text != "" and not active():
+		return e
+	return null
+
+
+## "Continue Story": the chapter's own door action when it has one (so its scene runs exactly as written), a "not
+## yet" reason when the chapter still needs something first, otherwise the doors open for the current objective.
+func continue_story() -> void:
+	var sd := story_door()
+	if sd:
+		var why := String(sd.own_prompt())
+		if why.begins_with("NOT YET"):
+			_hint(why)
+			return
+		story_departure = true
+		_story_out = false
+		sd.used.emit(_player())
+		return
+	story_departure = true
+	_story_out = false
+	var c5d := _c5()
+	if c5d:
+		c5d._set_doors(true)
+	_hint("Objective: " + String(Game.current_step().get("text", "")))
 var _quiet_t := 0.0                         ## active time outside with nothing about
 var story_departure := false            ## "Continue Story" was chosen: the doors may open until the player is back in
 var _story_out := false
@@ -233,6 +337,8 @@ func start(kind: String, vehicle: bool) -> void:
 	s["collected"] = {}
 	s["returned"] = false
 	s["trips"] = int(s.get("trips", 0)) + 1
+	if kind == "scavenge":
+		s["scavenged_day"] = _today()                # the next one waits for tomorrow
 	s["went_out"] = false
 	s["started_at"] = Game.play_time
 	_encounter_t = 60.0
@@ -336,6 +442,7 @@ func _exit_tree() -> void:
 	VeilRestPoint.extra_night = Callable()             # (never a call into a freed controller)
 	VeilRestPoint.record_extra = Callable()
 	VeilRestPoint.supply_gate = Callable()
+	HOUND_AI.chase_gate = Callable()
 
 
 ## VeilRestPoint.supply_gate: "" = sleep allowed; otherwise the reason it is not.
@@ -853,12 +960,71 @@ func _role_count(role: String) -> int:
 	return n
 
 
+## The player in one of the town's houses: the creatures stay outside and keep at it - the hunter walks the yard
+## and the street in front (its give-up clock waits), roamers keep patrolling. The moment the player is out again,
+## whatever is still about and near hears the door and comes to look (its own sight and hearing do the rest).
+var _was_in_house := false
+var _yard_t := 0.0
+var house_report := {"entered": 0, "exited": 0, "alerted_on_exit": 0}
+
+
+func _house_state(el: float) -> void:
+	var p := _player().global_position
+	var inside: bool = not world.in_car and in_house(p)
+	if inside and not _was_in_house:
+		house_report["entered"] += 1
+		_dbg("player went into a house: the creatures wait outside")
+	elif _was_in_house and not inside and not world.in_car:
+		house_report["exited"] += 1
+		for c in creatures:
+			var ai = c.get("ai")
+			var b: Node3D = c["node"]
+			if ai == null or not is_instance_valid(ai) or not is_instance_valid(b) or String(c.get("role", "")) == "leaving":
+				continue
+			if b.global_position.distance_to(p) < 40.0 and String(ai.state) in ["PATROL", "SUSPICIOUS", "SEARCH", "RETURN"]:
+				ai.home = b.global_position
+				ai.set("_last_seen", p)
+				ai.state = "SUSPICIOUS"
+				ai.set("awareness", maxf(float(ai.get("awareness")), 0.75))
+				c["born_el"] = el                             # a fresh start on the hunt
+				house_report["alerted_on_exit"] += 1
+				_dbg("%s heard the player come out (%.1f m)" % [c["kind"], b.global_position.distance_to(p)])
+	_was_in_house = inside
+	if not inside:
+		return
+	# inside: nobody gives up while the player hides; the hunter walks the yard (a new spot every few seconds)
+	_yard_t -= 1.0
+	for c in creatures:
+		var ai = c.get("ai")
+		if ai == null or not is_instance_valid(ai) or String(c.get("role", "")) == "leaving":
+			continue
+		c["born_el"] = float(c.get("born_el", el)) + 1.0
+		if String(c.get("role", "")) == "hunter" and _yard_t <= 0.0 and _last_out.is_finite() \
+				and String(ai.state) in ["SUSPICIOUS", "SEARCH"]:
+			var spot := _yard_spot(_last_out)
+			if spot.is_finite():
+				ai.set("_last_seen", spot)
+	if _yard_t <= 0.0:
+		_yard_t = 5.0
+
+
+## A point on open ground 3-7 m from where the player went in (the yard, the path, the street), never indoors.
+func _yard_spot(around: Vector3) -> Vector3:
+	for i in 8:
+		var a := randf() * TAU
+		var c := around + Vector3(cos(a), 0.0, sin(a)) * randf_range(3.0, 7.0)
+		if _outdoors_at(c) and not in_house(c, 1.0):
+			return c
+	return around
+
+
 func _direct(lv: int) -> void:
 	_prune()
 	var el := float(st().get("elapsed", 0.0))
 	var tgt := threat_target()
 	if emergency():
 		return
+	_house_state(el)
 	# the hunter keeps coming: refresh where it thinks the player is (never while it is chasing, recovering or
 	# already going home - a handgun shot or a lost trail sends it off for good)
 	var chasing := 0
@@ -917,6 +1083,23 @@ func _direct(lv: int) -> void:
 			_next_tent = el + _lvv("tentacle_cooldown_s", lv, [999, 999, 999, 55, 40])
 		else:
 			_next_tent = el + 5.0
+
+
+## The chase gate: a trip creature may start hunting only if no other one is (otherwise it turns away and leaves).
+## Story creatures (not in `creatures`) are never held back.
+func _may_chase(ai: Node) -> bool:
+	var mine = null
+	for c in creatures:
+		if c.get("ai") == ai:
+			mine = c
+	if mine == null:
+		return true
+	for c in creatures:
+		var o = c.get("ai")
+		if c != mine and o and is_instance_valid(o) and String(o.state) == "CHASE":
+			_leave(mine, "a second creature found the player: only one hunts at a time")
+			return false
+	return true
 
 
 ## Only one creature hunts the player at a time (checked every frame): a roamer that spots them while another is
@@ -1528,12 +1711,15 @@ func _refresh() -> void:
 		var stopped: bool = Game.has_flag("vehicle_repaired") and world.sedan.survival and not world.sedan.drivable()
 		world.sedan.entry_area.prompt_text = "[E] Inspect Vehicle" if dead or stopped else "[E] Enter Vehicle"
 	var c5 := _c5()
+	for d in _story_doors():
+		if not (d as Interactable).redirect.is_valid():
+			(d as Interactable).redirect = _door_redirect
 	var e: Interactable = its.get("exit")
 	if e:
 		var t := ""
 		if active() and in_store():
 			t = "[E] Secure the Doors"
-		elif can_scavenge():
+		elif can_scavenge() and not story_departure and _menu_allowed():
 			t = "[E] Leave Shelter"
 		e.prompt_text = t
 		e.collision_layer = 8 if t != "" else 0

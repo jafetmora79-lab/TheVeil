@@ -230,6 +230,8 @@ func _unhandled_input(e: InputEvent) -> void:
 
 func _process(_d: float) -> void:
 	_update_marker()
+	if not _obj_pending.is_empty() and not scene_holds_objective():
+		_flush_objective()
 	# continue / skip prompt + hold-to-skip (hold E, the mouse button or a touch for 0.8 s; once per hold)
 	var on := _dialogue_prompt_on()
 	if quick:
@@ -286,7 +288,54 @@ func set_speed(kmh: float) -> void:
 		speed_l.text += "   FUEL %d%%" % roundi(car.fuel * 100.0)
 
 
+## Objectives wait for the scene that unlocked them: a flag set at the start of a cinematic, a conversation, a
+## creature scene or any stretch where control is held would otherwise show the next goal while the previous scene
+## is still playing. Only the latest objective is kept (never two chapters' at once); the same one is never
+## re-announced. Skipping a scene ends the hold like finishing it; a load arrives the same way (refresh_objective).
+var _obj_pending: Array = []          ## [goal, step] waiting for the scene to end
+var _obj_shown: Array = ["", ""]
+
+
 func set_objective(goal: String, step: String) -> void:
+	if [goal, step] == _obj_shown and _obj_pending.is_empty():
+		return
+	_obj_pending = [goal, step]
+	if not scene_holds_objective():
+		_flush_objective()
+
+
+## True while a scene is playing: a locked line, a conversation, a cinematic camera, a creature scene, held control.
+func scene_holds_objective() -> bool:
+	if _dialogue_prompt_on():
+		return true
+	var w := get_tree().get_first_node_in_group("veil_world")
+	if w == null:
+		return false
+	if bool(w.get("conversing")) or w.get("_encounter_running") == true:
+		return true
+	var cine = w.get("_cine")
+	if cine != null and is_instance_valid(cine):
+		return true
+	var p = w.get("player")
+	if p and is_instance_valid(p) and p.visible and not bool(w.get("in_car")) and p.get("controls_enabled") == false:
+		return true
+	var s = w.get_node_or_null("Struggle")
+	return s != null and s.get("active") == true
+
+
+func _flush_objective() -> void:
+	if _obj_pending.is_empty():
+		return
+	var goal: String = _obj_pending[0]
+	var step: String = _obj_pending[1]
+	_obj_pending = []
+	if [goal, step] == _obj_shown:
+		return
+	_obj_shown = [goal, step]
+	_show_objective(goal, step)
+
+
+func _show_objective(goal: String, step: String) -> void:
 	if _obj_tween:
 		_obj_tween.kill()
 	_obj_tween = create_tween()

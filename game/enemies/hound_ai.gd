@@ -331,8 +331,15 @@ func _suspect(at: Vector3) -> void:
 		_start_chase()
 
 
+## Optional gate (set by the expedition's threat director): false = another creature is already hunting the
+## player; this one turns away instead (only one hunts at a time - checked at the moment a chase would start).
+static var chase_gate: Callable = Callable()
+
+
 func _start_chase() -> void:
 	if state == "CHASE":
+		return
+	if chase_gate.is_valid() and not bool(chase_gate.call(self)):
 		return
 	state = "CHASE"
 	_unseen = 0.0
