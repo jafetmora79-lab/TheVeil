@@ -48,7 +48,7 @@ func _setup_input() -> void:
 	var keys := {
 		"move_forward": [KEY_W, KEY_UP], "move_back": [KEY_S, KEY_DOWN], "move_left": [KEY_A, KEY_LEFT],
 		"move_right": [KEY_D, KEY_RIGHT], "sprint": [KEY_SHIFT], "crouch": [KEY_CTRL, KEY_C], "interact": [KEY_E],
-		"inventory": [KEY_TAB, KEY_I], "pause": [KEY_ESCAPE, KEY_P], "handbrake": [KEY_SPACE], "car_radio": [KEY_Q],
+		"inventory": [KEY_TAB, KEY_I], "pause": [KEY_ESCAPE, KEY_P], "handbrake": [KEY_SPACE], "jump": [KEY_SPACE], "car_radio": [KEY_Q],
 	}
 	for action in keys:
 		if InputMap.has_action(action):

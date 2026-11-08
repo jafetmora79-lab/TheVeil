@@ -274,7 +274,7 @@ func show_subtitle(t: String) -> void:
 
 func set_hint(t: String) -> void:
 	# the opening's controls line belongs to Chapter 1 only (from Cline 6a6af35)
-	if Game.chapter_number() > 1 and t == "WASD move · Mouse look · Shift sprint · Ctrl crouch · E interact · Tab inventory · Esc pause":
+	if Game.chapter_number() > 1 and t == "WASD move · Mouse look · Shift sprint · Space jump · Ctrl crouch · E interact · Tab inventory · Esc pause":
 		hint.text = ""
 	else:
 		hint.text = t
