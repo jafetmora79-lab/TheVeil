@@ -4,7 +4,7 @@ extends SceneTree
 ## Headless, short; how it looks is for the playtest.
 ##   godot --headless --path . --fixed-fps 60 --script res://game/tests/town_destruction_test.gd
 
-const STORY := ["PLAYER_HOME", "HOUSE_03", "HOUSE_04", "HOUSE_05", "HOUSE_06", "HOUSE_19", "HOUSE_20", "MILL_HOUSE", "FARMHOUSE"]
+const STORY := ["HOUSE_03", "HOUSE_04", "HOUSE_05", "HOUSE_06", "HOUSE_19", "HOUSE_20", "MILL_HOUSE", "FARMHOUSE"]
 var fails := 0
 var w: Node
 var game: Node
@@ -62,12 +62,14 @@ func _run() -> void:
 		var d := h.get_node_or_null("Destroyed")
 		var col := h.get_node_or_null("DestroyedCol")
 		var hidden := not (h.get_node("House") as Node3D).visible
+		if T[id] == "home":
+			hidden = not (h.find_child("*_Exterior", true, false) as Node3D).visible and (h.get_node("House") as Node3D).visible
 		var remapped := false
 		if d:
 			for mi in d.find_children("Exterior*", "MeshInstance3D", true, false):
 				var m := (mi as MeshInstance3D).get_surface_override_material(0)
 				remapped = m != null and m.resource_path.begins_with("res://THE_VEIL_ASSETS_V2")
-		if d and col and col.get_child_count() > 0 and hidden and remapped:
+		if d and col and (col.get_child_count() > 0 or T[id] == "home") and hidden and remapped:
 			swapped.append(id)
 		else:
 			bad.append("%s d=%s col=%s hidden=%s mat=%s" % [id, d != null, col != null, hidden, remapped])
@@ -75,9 +77,22 @@ func _run() -> void:
 	var kinds := {}
 	for id in T:
 		kinds[T[id]] = true
-	ok("six_kinds", kinds.size() == 6, str(kinds.keys()))
-	ok("models_damaged", T.keys().all(func(id): return int(td.report[id].get("collision_meshes", 0)) >= 2))
-	ok("skitter_inside", td.skitters.size() == 2 and td.skitters.all(func(s): return is_instance_valid(s["node"])))
+	ok("seven_kinds", kinds.size() == 7, str(kinds.keys()))
+	ok("models_damaged", T.keys().all(func(id): return T[id] == "home" or int(td.report[id].get("collision_meshes", 0)) >= 2))
+	var n_sk := T.values().count("skitter")
+	ok("skitter_inside", td.skitters.size() == n_sk and td.skitters.all(func(s): return is_instance_valid(s["node"])), "%d / %d" % [td.skitters.size(), n_sk])
+	var home: Node3D = _houses().get_node("PLAYER_HOME")
+	var door_cols := 0
+	for co in home.get_node("House").find_children("*", "CollisionObject3D", true, false):
+		if (co as CollisionObject3D).collision_layer != 0:
+			door_cols += 1
+	ok("home_keeps_doors_and_rooms", door_cols > 3 and (home.get_node("House") as Node3D).visible, "%d live collision bodies" % door_cols)
+	var free_left := 0
+	for h in _houses().get_children():
+		var nm := String(h.name)
+		if not T.has(nm) and not STORY.has(nm) and not (load("res://game/world/scavenge_house.gd").load_specs().get("houses", {}) as Dictionary).has(nm):
+			free_left += 1
+	ok("every_free_house_damaged", free_left == 0, "%d left intact" % free_left)
 	ok("tentacle_dressing", td.report["HOUSE_09"].get("tentacle", false))
 	# ---- 3. lootable and story houses untouched
 	var specs: Dictionary = load("res://game/world/scavenge_house.gd").load_specs()
@@ -140,7 +155,7 @@ func _run() -> void:
 		var hh: Node = _houses().get_node(String(id))
 		once = once and hh.find_children("Destroyed", "", false, false).size() == 1 and hh.find_children("DestroyedCol", "", false, false).size() == 1
 	ok("destroyed_after_reload", td.applied and once)
-	ok("skitters_not_doubled", td.skitters.size() == 2)
+	ok("skitters_not_doubled", td.skitters.size() == T.values().count("skitter"))
 	ok("dressing_not_doubled", T.keys().all(func(id): return _houses().get_node(String(id)).find_children("Dress_LeftCar", "", false, false).size() <= 1))
 	print("RESULT %s fails=%d" % ["PASS" if fails == 0 else "FAIL", fails])
 	quit(1 if fails > 0 else 0)

@@ -11,18 +11,47 @@ extends SceneTree
 
 const VARIANTS := "res://THE_VEIL_ASSETS_V2/03_Residential/House_Variants/"
 const OUT := "res://game/world/destroyed/"
-## house id -> [house variant, damage kind]   (kept in step with town_destruction.gd TARGETS)
+## house id -> [house type, damage kind]   (kept in step with town_destruction.gd TARGETS). Every house that is not
+## lootable and not part of a story scene. One model is built per (type, kind) and shared by the houses using it.
 const TARGETS := {
-	"HOUSE_14": ["RES_House_TwoStorey", "colossus"],
-	"HOUSE_18": ["RES_House_Ranch_B", "skitter"],
-	"EXT_HOUSE_12": ["RES_House_Ranch_B", "skitter"],
+	"HOUSE_02": ["RES_House_TwoStorey", "shellcrawler"],
 	"HOUSE_09": ["RES_House_Ranch_C_Mirror", "tentacle"],
-	"EXT_HOUSE_19": ["RES_House_Ranch_C_Mirror", "hound"],
-	"HOUSE_17": ["RES_House_TwoStorey_B", "shellcrawler"],
+	"HOUSE_10": ["RES_House_MillWorker", "evacuation"],
 	"HOUSE_11": ["RES_House_Cottage_B_Mirror", "evacuation"],
-	"EXT_HOUSE_29": ["RES_House_Cottage_B_Mirror", "evacuation"],
+	"HOUSE_12": ["RES_House_TwoStorey_Mirror", "hound"],
+	"HOUSE_14": ["RES_House_TwoStorey", "colossus"],
+	"HOUSE_16": ["RES_House_MillWorker_B", "hound"],
+	"HOUSE_17": ["RES_House_TwoStorey_B", "shellcrawler"],
+	"HOUSE_18": ["RES_House_Ranch_B", "skitter"],
+	"HOUSE_21": ["RES_House_SplitLevel_B", "shellcrawler"],
+	"EXT_HOUSE_01": ["RES_House_TwoStorey_Mirror", "hound"],
 	"EXT_HOUSE_02": ["RES_House_TwoStorey", "evacuation"],
+	"EXT_HOUSE_05": ["RES_House_TwoStorey", "skitter"],
+	"EXT_HOUSE_06": ["RES_House_Ranch_C_Mirror", "tentacle"],
+	"EXT_HOUSE_07": ["RES_House_MillWorker_B", "hound"],
+	"EXT_HOUSE_09": ["RES_House_TwoStorey_Mirror", "evacuation"],
+	"EXT_HOUSE_11": ["RES_House_TwoStorey", "colossus"],
+	"EXT_HOUSE_12": ["RES_House_Ranch_B", "skitter"],
+	"EXT_HOUSE_13": ["RES_House_MillWorker", "tentacle"],
+	"EXT_HOUSE_14": ["RES_House_TwoStorey", "shellcrawler"],
+	"EXT_HOUSE_15": ["RES_House_TwoStorey", "evacuation"],
+	"EXT_HOUSE_17": ["RES_House_TwoStorey", "skitter"],
+	"EXT_HOUSE_18": ["RES_House_TwoStorey", "colossus"],
+	"EXT_HOUSE_19": ["RES_House_Ranch_C_Mirror", "hound"],
+	"EXT_HOUSE_20": ["RES_House_TwoStorey", "shellcrawler"],
+	"EXT_HOUSE_22": ["RES_House_TwoStorey_B", "skitter"],
+	"EXT_HOUSE_23": ["RES_House_TwoStorey", "evacuation"],
+	"EXT_HOUSE_26": ["RES_House_MillWorker", "evacuation"],
+	"EXT_HOUSE_28": ["RES_House_TwoStorey", "skitter"],
+	"EXT_HOUSE_29": ["RES_House_Cottage_B_Mirror", "evacuation"],
+	"EXT_HOUSE_32": ["RES_House_TwoStorey", "colossus"],
+	"EXT_HOUSE_33": ["RES_House_MillWorker_B", "colossus"],
+	"EXT_HOUSE_35": ["RES_House_TwoStorey_B", "shellcrawler"],
+	"EXT_HOUSE_39": ["RES_House_TwoStorey", "evacuation"],
+	"EXT_HOUSE_40": ["RES_House_MillWorker", "tentacle"],
+	"PLAYER_HOME": ["Player_Home", "home"],
 }
+const HOME_SCENE := "res://THE_VEIL_ASSETS_V2/03_Residential/Player_Home/Player_Home.tscn"
 
 var rng := RandomNumberGenerator.new()
 var dark: StandardMaterial3D
@@ -36,11 +65,15 @@ func _initialize() -> void:
 	dark = _flat("M_Destroy_Soot", Color(0.07, 0.065, 0.06))
 	blood = _flat("M_Destroy_Stain", Color(0.24, 0.05, 0.04))
 	mud = _flat("M_Destroy_Mud", Color(0.16, 0.13, 0.1))
+	var combos := {}
 	for id in TARGETS:
 		var spec: Array = TARGETS[id]
-		rng.seed = hash(id)
-		var ok := _build(String(id), String(spec[0]), String(spec[1]))
-		print("BUILT %s %s %s %s" % [id, spec[1], "ok" if ok else "FAILED", report.get(id, {})])
+		combos["%s__%s" % [spec[0], spec[1]]] = spec
+	for key in combos:
+		var spec: Array = combos[key]
+		rng.seed = hash(key)
+		var ok := _build(String(key), String(spec[0]), String(spec[1]))
+		print("BUILT %s %s %s" % [key, "ok" if ok else "FAILED", report.get(key, {})])
 	quit(0)
 
 
@@ -59,7 +92,7 @@ var _box: AABB                     ## the exterior shell's bounds (house-root sp
 
 
 func _build(id: String, variant: String, kind: String) -> bool:
-	var ps := load(VARIANTS + variant + ".tscn") as PackedScene
+	var ps := load(HOME_SCENE if variant == "Player_Home" else VARIANTS + variant + ".tscn") as PackedScene
 	if ps == null:
 		return false
 	_src_root = ps.instantiate() as Node3D
@@ -79,6 +112,7 @@ func _build(id: String, variant: String, kind: String) -> bool:
 		"hound": _hound(out, ext, inte, furn, r)
 		"shellcrawler": _shellcrawler(out, ext, inte, furn, r)
 		"evacuation": _evacuation(out, ext, inte, furn, r)
+		"home": _home(out, ext, r)
 	report[id] = r
 	var doc := GLTFDocument.new()
 	var st := GLTFState.new()
@@ -517,3 +551,36 @@ func _evacuation(out: Node3D, ext: MeshInstance3D, inte: MeshInstance3D, furn: M
 	r["removed"] = e.get_meta("removed")
 	r["boards"] = nboard
 	r["door"] = _door_center("INT_Door_Front")
+
+
+# ------------------------------------------------------------------ the protagonist's home: its back corner stepped on
+## Shell only (the game keeps the home's own doors, rooms, furniture and collision): the exterior's back corner
+## (away from the front door and the drive) crushed down, the roof torn there, rubble behind it and a print in the
+## back yard. The windows in the crushed part are hidden by the game.
+func _home(out: Node3D, ext: MeshInstance3D, r: Dictionary) -> void:
+	var c := Vector2(_box.position.x + 2.2, _box.end.z - 2.2)
+	var R := 5.0
+	var floor_y := 1.0
+	var crush := func(p: Vector3, _m: String) -> Vector3:
+		if p.y <= floor_y:
+			return p
+		var d := Vector2(p.x, p.z).distance_to(c) / R
+		var f := clampf(1.0 - d, 0.0, 1.0)
+		f = f * f * (3.0 - 2.0 * f)
+		var flat := floor_y + (p.y - floor_y) * 0.3 + _noise3(p) * 0.15
+		return Vector3(p.x, lerpf(p.y, flat, f), p.z)
+	var keep := func(ct: Vector3, m: String, _a, _b, _cc) -> bool:
+		var d := Vector2(ct.x, ct.z).distance_to(c) / R
+		if _glass(m):
+			return d > 0.9 or rng.randf() > 0.7
+		if ct.y > floor_y + 0.8 and d < 0.5 and rng.randf() < 0.25:
+			return false
+		return true
+	var e := _copy(out, ext, "Exterior", crush, keep)
+	var mats := _mats(ext, ["Siding", "Roof", "Brick", "Trim"])
+	_rubble(out, c + Vector2(0.0, 2.6), 0.0, 3.0, 22, mats, 1.0)
+	var px := Vector2(c.x - 1.5, _box.end.z + 4.5)
+	_mark(out, _blob(2.2, 11, 0.2), mud, Transform3D(Basis(Vector3.UP, 0.4).scaled(Vector3(1.0, 1.0, 1.4)), Vector3(px.x, 0.035, px.y)), "Print_Heel")
+	r["removed"] = e.get_meta("removed")
+	r["crush_c"] = c
+	r["crush_r"] = R

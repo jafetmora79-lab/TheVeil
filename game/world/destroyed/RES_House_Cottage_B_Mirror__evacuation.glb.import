@@ -3,13 +3,13 @@
 importer="scene"
 importer_version=1
 type="PackedScene"
-uid="uid://hhaelb1uqm5m"
-path="res://.godot/imported/EXT_HOUSE_19.glb-c8a56565c6b212bbc353b161738606f2.scn"
+uid="uid://5dvsubrnm02a"
+path="res://.godot/imported/RES_House_Cottage_B_Mirror__evacuation.glb-1fdf8ee4b6b18115429daee81558ee51.scn"
 
 [deps]
 
-source_file="res://game/world/destroyed/EXT_HOUSE_19.glb"
-dest_files=["res://.godot/imported/EXT_HOUSE_19.glb-c8a56565c6b212bbc353b161738606f2.scn"]
+source_file="res://game/world/destroyed/RES_House_Cottage_B_Mirror__evacuation.glb"
+dest_files=["res://.godot/imported/RES_House_Cottage_B_Mirror__evacuation.glb-1fdf8ee4b6b18115429daee81558ee51.scn"]
 
 [params]
 

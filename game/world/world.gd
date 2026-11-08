@@ -52,6 +52,7 @@ var in_car := false
 var fog_zones: Node
 var world_edge: Node
 var town_destruction: Node
+var road_home: Node
 var drive_time := 0.0
 var _park_t := 0.0
 var _ending := false
@@ -151,6 +152,11 @@ func _ready() -> void:
 	add_child(td)
 	td.setup.call_deferred(self)
 	town_destruction = td
+	var rh = load("res://game/world/road_home.gd").new()             # the road home: wrecks in the trees, Skitters
+	rh.name = "RoadHome"
+	add_child(rh)
+	rh.setup.call_deferred(self)
+	road_home = rh
 	# (no floating [E] markers in the game shop: the prompt shows when the player is close, which is enough)
 	_apply_view_ranges()
 	_setup_night()

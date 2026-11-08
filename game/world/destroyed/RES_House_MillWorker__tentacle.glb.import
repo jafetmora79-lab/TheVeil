@@ -3,13 +3,13 @@
 importer="scene"
 importer_version=1
 type="PackedScene"
-uid="uid://bmepkl0l83rgj"
-path="res://.godot/imported/HOUSE_11.glb-a9bad2ab66274a8fb1832ef00e604873.scn"
+uid="uid://dixkwdlgcbikx"
+path="res://.godot/imported/RES_House_MillWorker__tentacle.glb-6cf28759c6aeb08ef37970fbc7bf5a16.scn"
 
 [deps]
 
-source_file="res://game/world/destroyed/HOUSE_11.glb"
-dest_files=["res://.godot/imported/HOUSE_11.glb-a9bad2ab66274a8fb1832ef00e604873.scn"]
+source_file="res://game/world/destroyed/RES_House_MillWorker__tentacle.glb"
+dest_files=["res://.godot/imported/RES_House_MillWorker__tentacle.glb-6cf28759c6aeb08ef37970fbc7bf5a16.scn"]
 
 [params]
 

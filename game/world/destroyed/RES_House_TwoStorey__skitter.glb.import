@@ -3,13 +3,13 @@
 importer="scene"
 importer_version=1
 type="PackedScene"
-uid="uid://cqiyany655clq"
-path="res://.godot/imported/HOUSE_14.glb-94f1d5e66c3c74b6a9ec7beb29773ba2.scn"
+uid="uid://cdm88lb433l54"
+path="res://.godot/imported/RES_House_TwoStorey__skitter.glb-261fcab33f7e8e0be715402aaa88abfe.scn"
 
 [deps]
 
-source_file="res://game/world/destroyed/HOUSE_14.glb"
-dest_files=["res://.godot/imported/HOUSE_14.glb-94f1d5e66c3c74b6a9ec7beb29773ba2.scn"]
+source_file="res://game/world/destroyed/RES_House_TwoStorey__skitter.glb"
+dest_files=["res://.godot/imported/RES_House_TwoStorey__skitter.glb-261fcab33f7e8e0be715402aaa88abfe.scn"]
 
 [params]
 
