@@ -151,10 +151,7 @@ func _ready() -> void:
 	add_child(td)
 	td.setup.call_deferred(self)
 	town_destruction = td
-	var sm = load("res://game/world/store_markers.gd").new()       # [E] over the store's real interactions
-	sm.name = "StoreMarkers"
-	add_child(sm)
-	sm.setup.call_deferred(self)
+	# (no floating [E] markers in the game shop: the prompt shows when the player is close, which is enough)
 	_apply_view_ranges()
 	_setup_night()
 	_restore_crushed_lamp.call_deferred()

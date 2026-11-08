@@ -493,6 +493,8 @@ func _spawn_caches() -> void:
 		var once := Game.item_info(String(c["item"])).has("rounds")    # handgun rounds: one-time finds, never restocked
 		if not once and _day > 0 and (idx + _day) % 2 == 1:
 			continue                                     # each new day only about half the spots have something
+		if String(c["item"]) == "fuel_can" and not Game.has_flag("vehicle_repaired"):
+			continue                                     # until the car runs the only can is the repair quest's own
 		var key := "exp/cache_" + String(c["id"]) + ("" if _day == 0 or once else "_d%d" % _day)
 		_cache(c, key, String(c["item"]), String(c.get("label", "")), "", 1.0)
 		if its.has(key) and is_instance_valid(its[key]):
@@ -775,6 +777,7 @@ func start_engine() -> void:
 	_repairing = true
 	await quest.start_engine()
 	Game.set_flag("vehicle_repaired")
+	_spawn_caches()                                    # the refuel cans (none while the car was dead)
 	world.sedan.survival = true
 	Dialogue.say("exp_car_running", false, true)
 	_hint("The car runs again. E at the driver's door to get in.")
@@ -1053,6 +1056,49 @@ func _in_shelter(p: Vector3) -> bool:
 	return l.z > 0.4 and l.z < 17.6 and absf(l.x) < 20.0
 
 
+## The shelter's ward: within SAFE_R of the current shelter (the supermarket, the Mill House, the refuge - the town
+## map's own record of it) the player is safe from the trip's creatures. A hunt ends the moment the player is back
+## in reach of it, and no trip creature comes nearer than that: it turns and goes off past the edge of the ward.
+## Story creatures (not in `creatures`) are never held back.
+const SAFE_R := 30.0
+
+
+func shelter_spot() -> Vector3:
+	var nm = world.get("nav")
+	var sh: Array = nm.shelter() if nm and nm.has_method("shelter") else []
+	return sh[0] if not sh.is_empty() else Vector3.INF
+
+
+func shelter_safe(p: Vector3) -> bool:
+	if _in_shelter(p):
+		return true
+	var c := shelter_spot()
+	return c.is_finite() and Vector2(p.x - c.x, p.z - c.z).length() < SAFE_R
+
+
+func _shelter_ward() -> void:
+	var c := shelter_spot()
+	if not c.is_finite() or creatures.is_empty():
+		return
+	var player_safe := shelter_safe(_player().global_position)
+	for cr in creatures:
+		var ai = cr.get("ai")
+		var n: Node3D = cr["node"]
+		if ai == null or not is_instance_valid(n) or not is_instance_valid(ai):
+			continue
+		var near := Vector2(n.global_position.x - c.x, n.global_position.z - c.z).length() < SAFE_R + 6.0
+		var hunting := String(ai.state) in ["CHASE", "SUSPICIOUS", "SEARCH"]
+		if (player_safe and hunting) or near:
+			if String(cr.get("role", "")) == "leaving" and not near:
+				continue
+			_leave(cr, "the shelter's ward")
+			var away := (n.global_position - c) * Vector3(1, 0, 1)
+			away = away.normalized() if away.length() > 0.1 else Vector3.FORWARD
+			ai.home = c + away * (SAFE_R + 40.0)               # out past the ward, never towards the doors
+			ai.leash = 999.0
+			ai.state = "RETURN"
+
+
 ## At the doors with the player inside: a chase ends there (it does not follow into the shelter).
 func _guard_doors() -> void:
 	if shelter() != "supermarket" or world.market == null or not _in_shelter(_player().global_position):
@@ -1209,6 +1255,9 @@ func _may_chase(ai: Node) -> bool:
 			mine = c
 	if mine == null:
 		return true
+	if shelter_safe(_player().global_position):
+		_leave(mine, "the player is by the shelter")
+		return false
 	for c in creatures:
 		var o = c.get("ai")
 		if c != mine and o and is_instance_valid(o) and String(o.state) == "CHASE":
@@ -1811,6 +1860,7 @@ func _process(delta: float) -> void:
 			quest.place()
 	_prune()
 	_guard_doors()
+	_shelter_ward()
 	_supply_chest_marker()
 	if active():
 		if _warn_t <= 0.0 and level() >= 1 and _clock_running():

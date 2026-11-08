@@ -104,8 +104,9 @@ func _busy() -> bool:
 	var cine = world.get("_cine")
 	if cine != null and is_instance_valid(cine):
 		return true
-	if world.get_node_or_null("Struggle") != null:
-		return true
+	var s := world.get_node_or_null("Struggle")
+	if s != null and s.get("active") == true:
+		return true                                      # (the controller node stays once made: only a live struggle)
 	var p: Node3D = world.player
 	if not world.in_car and (not p.visible or p.get("controls_enabled") == false):
 		return true

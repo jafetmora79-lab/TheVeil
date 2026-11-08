@@ -1,10 +1,10 @@
 {
  "_comment": "THE VEIL - expedition / dynamic danger tuning (game/world/expedition.gd). Times are seconds of ACTIVE time outside the shelter (houses, inventory, searching, companions and driving all count; pause menus and story scenes do not). Levels: 0 uneasy, 1 rising, 2 high, 3 critical, 4 extreme.",
  "danger_thresholds_s": [
-  45,
-  90,
-  150,
-  240
+  300,
+  600,
+  900,
+  1200
  ],
  "level_names": [
   "UNEASY",
