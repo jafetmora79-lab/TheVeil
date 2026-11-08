@@ -461,13 +461,13 @@ func _push_pallet(_b: Node, which: String) -> void:
 		var a: Vector3 = p0.lerp(p1, [0.0, 0.42, 0.78][i])
 		var b: Vector3 = p0.lerp(p1, [0.42, 0.78, 1.0][i])
 		var wob: float = deg_to_rad([1.6, -1.1, 0.0][i])
-		tw.tween_callback(_play.bind("scrape", ml(a), -6.0 - 2.0 * i))
+		tw.tween_callback(_play.bind("drag", ml(a), -2.0 - 1.5 * i))   # wood on concrete, one per shove
 		tw.tween_property(pal, "position", b, float([0.55, 0.5, 0.42][i])).from(a).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
 		tw.parallel().tween_property(pal, "rotation:y", yaw0 + wob, 0.45).set_trans(Tween.TRANS_SINE)
 		tw.tween_interval(0.22 if i < 2 else 0.0)
 	tw.tween_property(pal, "rotation:y", yaw0, 0.18)
-	Sfx.play("door_close", ml(p1), -4.0, 0.55)
 	await tw.finished
+	_play("thud", ml(p1), 0.0)                        # home against the door: one solid thud
 	pal.position = p1
 	pal.rotation.y = yaw0
 	player.controls_enabled = true
@@ -1332,6 +1332,8 @@ func _start_chapter5(restoring: bool) -> void:
 # ------------------------------------------------------------------ sounds (synthesised, original)
 func _make_sounds() -> void:
 	_streams["scrape"] = Sfx._make(2.6, _scrape_wave)
+	_streams["drag"] = Sfx._make(0.65, _drag_wave)
+	_streams["thud"] = Sfx._make(0.45, _thud_wave)
 	_streams["impact"] = Sfx._make(1.2, _impact_wave)
 	_streams["rattle"] = Sfx._make(1.4, _rattle_wave)
 	_streams["scuttle"] = Sfx._make(1.2, _scuttle_wave, true)
@@ -1363,6 +1365,20 @@ func _chase_wave(t: float, i: int) -> float:
 func _slither_wave(t: float, i: int) -> float:
 	var env := sin(PI * clampf(t / 3.0, 0.0, 1.0))
 	return Sfx._noise(i) * 0.4 * env * (0.45 + 0.55 * absf(sin(t * 5.3 + sin(t * 1.7) * 2.0))) + sin(TAU * 62.0 * t) * 0.08 * env
+
+
+## A wooden pallet stack dragged over concrete: low, grainy friction (coarse noise, no tone) that catches and slips,
+## under a dull body rumble. One shove's worth (0.65 s).
+func _drag_wave(t: float, i: int) -> float:
+	var env := sin(PI * clampf(t / 0.65, 0.0, 1.0))
+	var grain := Sfx._noise(i / 7) * 0.55 + Sfx._noise(i / 3) * 0.25          # coarse noise: low, woody
+	var catch := pow(absf(sin(TAU * 11.0 * t + sin(t * 23.0) * 1.5)), 3.0)   # stick-slip judder
+	return (grain * (0.35 + 0.65 * catch) + sin(TAU * 52.0 * t) * 0.18 * catch) * env
+
+
+## The stack lands against the door: one short solid thud.
+func _thud_wave(t: float, i: int) -> float:
+	return (sin(TAU * 62.0 * t) * 0.9 + Sfx._noise(i / 4) * 0.5) * exp(-t * 14.0)
 
 
 func _scrape_wave(t: float, i: int) -> float:
