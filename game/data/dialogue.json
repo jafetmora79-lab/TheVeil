@@ -6856,5 +6856,46 @@
     "time": 2.6
    }
   ]
+ },
+ "lt_frank_help": {
+  "lines": [
+   {
+    "speaker": "Frank",
+    "text": "Help! Somebody help me!",
+    "time": 2.2
+   }
+  ]
+ },
+ "lt_eddie_frank": {
+  "lines": [
+   {
+    "speaker": "Eddie",
+    "text": "Oh God - Frank! FRANK!",
+    "time": 2.2
+   },
+   {
+    "speaker": "Eddie",
+    "text": "We can't... get inside! Now!",
+    "time": 2.4
+   }
+  ]
+ },
+ "lt_officer_go": {
+  "lines": [
+   {
+    "speaker": "Officer",
+    "text": "Keep moving! Out of town - go, go!",
+    "time": 2.6
+   }
+  ]
+ },
+ "lt_joan_scream": {
+  "lines": [
+   {
+    "speaker": "Joan",
+    "text": "Get away from me!",
+    "time": 1.8
+   }
+  ]
  }
 }
