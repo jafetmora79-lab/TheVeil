@@ -145,7 +145,11 @@ func _ready() -> void:
 	sm.setup.call_deferred(self)
 	_apply_view_ranges()
 	_setup_night()
-	_restore_crushed_lamp.call_deferred()          # (the lamp the Colossus broke stays broken after a load)
+	_restore_crushed_lamp.call_deferred()
+	living = VeilLivingTown.new()                  # Greyhaven before / as the Veil arrives (game/world/living_town.gd)
+	living.name = "LivingTown"
+	add_child(living)
+	living.setup.call_deferred(self)          # (the lamp the Colossus broke stays broken after a load)
 	_light_budget_all()
 	# the filler ground (TOWN_Ground_Game) was coplanar with the parking lots / drives laid over it (both at LOT_Y),
 	# so where a ground cell was only partly covered the two z-fought (the brown strips in the supermarket lot).
@@ -3478,6 +3482,7 @@ const ARRIVAL_PLAYER_PATH := [Vector3(0.0, 0.04, -1.6), Vector3(0.0, 0.04, 1.0),
 const ARRIVAL_EDDIE_PATH := Vector3(1.3, 0.04, 5.4)
 const ARRIVAL_MARCUS_PATH := Vector3(-1.4, 0.04, 5.6)
 var _arrival_running := false
+var living: Node
 var arrival_report := {}
 
 
