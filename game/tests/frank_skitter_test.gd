@@ -68,6 +68,7 @@ func _run() -> void:
 	ok("F_stays_attached", float(r.get("drag_attach_error_m", 9.0)) < 0.1, "%.3f m" % float(r.get("drag_attach_error_m", 9.0)))
 	await frames(5)
 	ok("F_cleaned_up", w.get_node_or_null("LT_Skitter") == null and not lt.people["Frank"]["body"].visible and game.has_flag("lt_frank_done"))
+	ok("F_loop_sounds_stopped", r.get("loops_stopped", false))
 	ok("F_control_back", p.controls_enabled or w._cine != null)
 	print("RESULT %s fails=%d" % ["PASS" if fails == 0 else "FAIL", fails])
 	quit(1 if fails > 0 else 0)

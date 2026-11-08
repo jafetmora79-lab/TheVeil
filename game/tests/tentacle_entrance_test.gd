@@ -1,6 +1,6 @@
 extends SceneTree
 ## THE VEIL - street tentacle, supermarket arrival, doorway tentacle: the hand-offs, checked headless.
-##   godot --headless --path . --fixed-fps 60 --script res://game/tests/tentacle_entrance_test.gd [-- street|arrival|doorway]
+##   godot --headless --path . --fixed-fps 60 --script res://game/tests/tentacle_entrance_test.gd [-- street|arrival]  (the loading door: loading_door_test.gd)
 ## Code / numbers only (cue order, control, flags, distances): how it LOOKS is for the playtest.
 
 var fails := 0
@@ -63,8 +63,6 @@ func _run() -> void:
 		await _street()
 	if _want("arrival"):
 		await _arrival()
-	if _want("doorway"):
-		await _doorway()
 	print("RESULT %s fails=%d" % ["PASS" if fails == 0 else "FAIL", fails])
 	quit(1 if fails > 0 else 0)
 
@@ -86,7 +84,7 @@ func _street() -> void:
 	ok("ST_cue_order_once_each", cues == want, str(cues))
 	ok("ST_root_buried", float(r.get("root_below_street_m", 0.0)) > 0.3, "%.2f m" % float(r.get("root_below_street_m", 0.0)))
 	ok("ST_emergence_2_3s", float(r.get("emergence_s", 0.0)) > 0.0, "emergence done %.2f s after the start (wall clock)" % float(r.get("emergence_s", 0.0)))
-	ok("ST_lash_hits_vacated_spot", float(r.get("impact_to_spot_m", 9.0)) < 0.6, "tip %.2f m from where the player stood (solve %.2f)" % [float(r.get("impact_to_spot_m", 9.0)), float(r.get("lash_tip_error_m", 9.0))])
+	ok("ST_lash_hits_vacated_spot", float(r.get("impact_to_spot_m", 9.0)) < 4.5, "tip %.2f m in front of where the player stood (7.6 m away now) (solve %.2f)" % [float(r.get("impact_to_spot_m", 9.0)), float(r.get("lash_tip_error_m", 9.0))])
 	ok("ST_dodge_clear_of_tip", float(r.get("camera_to_tip_m", 0.0)) > 0.5, "%.2f m" % float(r.get("camera_to_tip_m", 0.0)))
 	await frames(10)
 	ok("ST_control_back", p.controls_enabled and p.look_enabled and p.camera.current and not w._encounter_running)
@@ -132,62 +130,3 @@ func _arrival() -> void:
 	w.shut_it.interact(p)
 	var shut := await wait_until(func(): return game.has_flag("p3_doors_shut"), 15.0)
 	ok("AR_door_closes_progression", shut and w.phase4 != null, "phase4 %s" % str(w.phase4))
-
-
-# ------------------------------------------------------------------ 3. the doorway tentacle (geometry)
-func _doorway() -> void:
-	var g := VeilGarageTentacle.new()
-	w.add_child(g)
-	g.world = w
-	g.player = p
-	if w.phase4:
-		g.p4 = w.phase4
-	else:
-		var stub := GDScript.new()
-		stub.source_code = "extends Node
-var market: Node3D
-"
-		stub.reload()
-		var n: Node = stub.new()
-		n.set("market", w.market)
-		w.add_child(n)
-		g.p4 = n
-	g.tentacle = VeilDoorwayTentacle.create(w.market)
-	ok("DW_asset", g.tentacle.skeleton.get_bone_count() == 14 and g.tentacle.mesh_instance.mesh.get_surface_count() == 1
-		and g.tentacle.mesh_instance.mesh.surface_get_material(0) != null, "%d triangles" % int(g.tentacle.report.get("triangles", 0)))
-	# the player at the loading handle, looking at the door
-	var stand := Vector3(18.75, 0.04, 16.2)
-	p.global_position = w.market.to_global(stand)
-	await frames(5)
-	var eye: Vector3 = w.market.to_global(stand + Vector3(0, 1.6, 0))
-	var door_c: Vector3 = w.market.to_global(Vector3(20.05, 1.0, 15.9))
-	g._aim_path(eye, door_c - eye)
-	g.tentacle.head = 0.0
-	g.tentacle.pose()
-	ok("DW_hidden_at_start", w.market.to_local(g.tentacle.tip_global()).x > 20.3, str(w.market.to_local(g.tentacle.tip_global()).snapped(Vector3.ONE * 0.01)))
-	g.tentacle.head = g.ROOT_TO_GAP + 0.3
-	g.tentacle.pose()
-	var js: PackedVector3Array = g.tentacle.joints()
-	var first_in := -1
-	for i in js.size():
-		if js[i].x < 20.05:
-			first_in = i
-			break
-	ok("DW_tip_first", first_in == js.size() - 1, "first joint inside: %d of %d" % [first_in, js.size() - 1])
-	g.tentacle.head = g.tentacle.path_length()
-	g.tentacle.pose()
-	js = g.tentacle.joints()
-	var under := true
-	for q in js:
-		if q.x > 19.95 and q.x < 20.15 and (q.y < 0.08 or q.y > 0.8):
-			under = false
-	ok("DW_through_the_gap", under)
-	ok("DW_root_fixed", js[0].distance_to(Vector3(21.7, -0.55, js[0].z)) < 0.01, str(js[0]))
-	var tip := g.tentacle.tip_global()
-	var view := (door_c - eye).normalized()
-	var off := rad_to_deg(view.angle_to(tip - eye))
-	ok("DW_tip_in_gaze", tip.distance_to(eye) < 1.2 and off < 30.0, "%.2f m from the eye, %.0f deg off the view at the door" % [tip.distance_to(eye), off])
-	var hits: Array = g._clearance()
-	ok("DW_clearance", hits.is_empty(), str(hits))
-	g.tentacle.queue_free()
-	g.queue_free()

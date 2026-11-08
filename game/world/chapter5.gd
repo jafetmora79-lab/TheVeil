@@ -158,6 +158,7 @@ func _setup_market() -> void:
 	stash.name = "C5_Stash"
 	market.add_child(stash)
 	stash.position = STASH
+	stash.visible = false                                 # (the supplies are the shelter crate by the desk now)
 	# the supplies are one backpack lying on the counter (the inventory screen it opens holds the real items)
 	var bag := BACKPACK.instantiate() as Node3D
 	bag.name = "C5_Backpack"
@@ -355,7 +356,8 @@ func _refresh_prompts() -> void:
 	if its.has("npc_Marcus"):
 		var report := Game.has_flag("c5_returned") and not Game.has_flag("c5_reported")
 		its["npc_Marcus"].prompt_text = k + "TALK TO MARCUS" if (not Game.has_flag("c5_marcus_talked") or report) else ""
-	its["stash"].prompt_text = k + "CHECK THE SUPPLIES" if talked and not Game.has_flag("c5_supplies_checked") else ""
+	its["stash"].prompt_text = ""                  # (the shelter supply crate is where the supplies are checked now)
+	its["stash"].collision_layer = 0
 	# the front doors: open once the supplies are checked; before that a short contextual note (no dialogue)
 	if Game.has_flag("c5_prepared"):
 		its["exit"].prompt_text = ""
@@ -382,7 +384,8 @@ func _update_marker() -> void:
 		t = marcus
 		label = "MARCUS"
 	elif not Game.has_flag("c5_supplies_checked"):
-		t = ml(STASH + Vector3(0, 0.3, 0))
+		var crate = world.expedition.supply_chest if world.get("expedition") and world.expedition.get("supply_chest") else null
+		t = (crate as Node3D).global_position + Vector3(0, 0.9, 0) if crate else ml(STASH + Vector3(0, 0.3, 0))
 		label = "SUPPLIES"
 	elif not Game.has_flag("c5_prepared"):
 		t = ml(_door_spot())

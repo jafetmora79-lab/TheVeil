@@ -11,7 +11,9 @@ extends Node3D
 
 const TENTACLE := preload("res://THE_VEIL_ASSETS_V2/07_Creatures/Godot_Scenes/CRT_MistTentacle_Medium.tscn")
 const CAMERA_MARGIN := 0.16
-const EXPOSED := 3.3                      ## metres of tentacle above the street once it is up
+const EXPOSED := 3.6                      ## metres of tentacle above the street once it is up
+const STING := preload("res://game/audio/the_veil_jumpscare_sting.wav")
+const DISTANCE := 7.6                     ## from the player (5 m further out than before: seen whole, sudden)
 
 var tentacle: Node3D                      ## left in place for the chase
 var poser: VeilTentaclePoser
@@ -58,7 +60,7 @@ func play(world: Node) -> bool:
 	exit_direction = exit_direction.normalized()
 	if exit_direction.is_zero_approx():
 		return false
-	var stage := _find_stage(player, feet, eye, exit_direction, 2.6)
+	var stage := _find_stage(player, feet, eye, exit_direction, DISTANCE)
 	if stage.is_empty():
 		return false
 	var ground: Vector3 = stage.ground
@@ -75,20 +77,19 @@ func play(world: Node) -> bool:
 	var q0 := camera.global_basis.get_rotation_quaternion()
 	var q1 := Basis.looking_at(ground + Vector3.UP * 1.2 - eye).get_rotation_quaternion()
 	var look := create_tween().set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
-	look.tween_method(func(k: float): camera.global_basis = Basis(q0.slerp(q1, k)), 0.0, 1.0, 0.6)
+	look.tween_method(func(k: float): camera.global_basis = Basis(q0.slerp(q1, k)), 0.0, 1.0, 0.25)
 	await look.finished
-	await _wait(0.35)
 
 	# --- warn: rumble first, then the asphalt cracks at the exact spot and the ground starts to heave
 	_cue("rumble")
 	Sfx.play("veil_rumble", ground + Vector3.UP * 0.3, 2.0, 1.2)
-	world._shake(camera, 0.7, 0.012)
-	await _wait(0.75)
+	world._shake(camera, 0.35, 0.015)
+	await _wait(0.3)
 	_cue("crack")
 	world._ground_burst(ground)                          # the crack: one sound, chunks, a jolt
 	mound = VeilTentacleMound.make(world, ground, int(ground.x * 13.0 + ground.z * 7.0), 0.12)
 	var heave := create_tween()
-	heave.tween_method(func(k: float): mound.grow(k), 0.12, 0.45, 0.55)
+	heave.tween_method(func(k: float): mound.grow(k), 0.12, 0.45, 0.15)
 	await heave.finished
 
 	# --- burst: the tip first, straight up; the body feeds through the same hole
@@ -110,41 +111,46 @@ func play(world: Node) -> bool:
 	var y_up := ground.y - maxf(length - EXPOSED, 0.4)    # the root stays this far down in the hole
 	tentacle.global_position = Vector3(ground.x, ground.y - length - 0.05, ground.z)   # the tip just under the street
 	_cue("emerge")
+	var sting := AudioStreamPlayer.new()                 # the jumpscare: on the burst itself
+	sting.stream = STING
+	sting.volume_db = -2.0
+	add_child(sting)
+	sting.play()
 	Sfx.bank_at("te_wet", ground + Vector3.UP * 0.5, 3.0, 8.0)
 	var rise := create_tween()
-	rise.tween_property(tentacle, "global_position:y", y_up, 1.25).set_trans(Tween.TRANS_QUART).set_ease(Tween.EASE_OUT)
-	rise.parallel().tween_method(func(k: float): mound.grow(k), 0.45, 1.0, 0.35)
+	rise.tween_property(tentacle, "global_position:y", y_up, 0.4).set_trans(Tween.TRANS_EXPO).set_ease(Tween.EASE_OUT)
+	rise.parallel().tween_method(func(k: float): mound.grow(k), 0.45, 1.0, 0.2)
 	await rise.finished
 	report["root_below_street_m"] = ground.y - tentacle.global_position.y
 
 	# --- curl: the upper body sweeps round in a circle (in the plane facing the player), then turns to them
-	await _morph(_arr(0.0, 0.92, 3), _arr(0.0, 0.0, 3), 0.85)
-	await _morph(_arr(0.0, 0.0, 3), _arr(0.05, 0.2, 4), 0.55)
+	await _morph(_arr(0.0, 0.92, 3), _arr(0.0, 0.0, 3), 0.35)
+	await _morph(_arr(0.0, 0.0, 3), _arr(0.05, 0.2, 4), 0.25)
 	report["emergence_s"] = (Time.get_ticks_msec() - _start_ms) / 1000.0
 
 	# --- notice, coil back, lash across where the player stood
-	await _wait(0.35)
+	await _wait(0.12)
 	var hit_at := Vector3(feet.x, ground.y + 0.05, feet.z)
 	var lash := _solve_lash(hit_at)                      # the forward bend that puts the tip on that spot
 	report["lash_tip_error_m"] = lash[1]
-	_morph(_arr(0.0, 0.0, 0), _arr(-0.04, -0.32, 4), 0.42)
-	await _wait(0.25)
+	_morph(_arr(0.0, 0.0, 0), _arr(-0.04, -0.32, 4), 0.2)
+	await _wait(0.12)
 	# the sidestep starts as it draws back: out of the way before the tip arrives
 	_cue("dodge")
 	var dodge := create_tween().set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_OUT)
-	dodge.tween_property(camera, "global_position", stage.dodge, 0.3)
-	dodge.parallel().tween_property(camera, "rotation:z", camera.rotation.z + float(stage.bank), 0.3)
-	await _wait(0.17)
+	dodge.tween_property(camera, "global_position", stage.dodge, 0.22)
+	dodge.parallel().tween_property(camera, "rotation:z", camera.rotation.z + float(stage.bank), 0.22)
+	await _wait(0.08)
 	_cue("lash")
 	Sfx.bank_at("te_strike", tentacle.global_position + Vector3.UP * 2.0, 0.0, 8.0)
-	await _morph(_arr(0.0, 0.0, 0), _arr(float(lash[2]), float(lash[0]), 4), 0.2, Tween.TRANS_QUAD, Tween.EASE_IN)
+	await _morph(_arr(0.0, 0.0, 0), _arr(float(lash[2]), float(lash[0]), 4), 0.14, Tween.TRANS_QUAD, Tween.EASE_IN)
 	_cue("impact")
 	var tip := poser.tip()
 	report["impact_to_spot_m"] = tip.distance_to(hit_at)
 	report["camera_to_tip_m"] = camera.global_position.distance_to(tip)
 	Sfx.bank_at("te_ground", hit_at, 2.0, 8.0)
 	world._shake(camera, 0.22, 0.05)
-	await _wait(0.35)
+	await _wait(0.25)
 
 	# --- handoff: it rears up again, Eddie shouts, the view goes back to the player
 	_morph(_arr(0.0, 0.0, 0), _arr(0.05, 0.12, 4), 0.5)
@@ -186,7 +192,7 @@ func _solve_lash(at: Vector3) -> Array:
 func _find_stage(player: VeilPlayer, feet: Vector3, eye: Vector3, forward: Vector3, reach: float) -> Dictionary:
 	var space := player.get_world_3d().direct_space_state
 	var side := forward.cross(Vector3.UP).normalized()
-	var distance := clampf(reach, 1.65, 3.3)
+	var distance := clampf(reach, 1.65, 9.0)
 	for sign_value in [1.0, -1.0]:
 		var sign_side: float = sign_value
 		for angle in [0.35, 0.0, 0.75]:
