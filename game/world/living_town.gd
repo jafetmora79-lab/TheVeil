@@ -843,6 +843,30 @@ func _face(n: Node3D, dir: Vector3) -> void:
 
 
 # ------------------------------------------------------------------ 1. Frank and the Skitter
+## One controller, both actors, in the player's view (they have just come out after the Colossus):
+##   run   - Frank runs across the street ahead of them, a look back, a stumble
+##   hunt  - the Skitter breaks from cover (a parked car, else the mist) at a scuttle and hisses
+##   leap  - an arc onto him: he goes down on his back on the pavement, it lands straddling his chest
+##   pin   - ~1.5 s: it tears at him, he thrashes, he screams
+##   drag  - it grips his shoulders and runs into the mist, dragging him head-first, feet trailing; it speeds up
+##   gone  - both removed only once out of sight or deep in the fog
+## Every sound fires on its action. The Skitter wears its approved look (VeilCreatureLook.apply_skitter) and its own
+## clips (VeilCreatureLook.skitter_anim, speed matched to the motion).
+var frank_report := {"states": []}
+
+
+func _fstate(s: String) -> void:
+	(frank_report["states"] as Array).append(s)
+
+
+## Frank lying on his back: feet at `feet`, head towards `head_dir` (flat), face up. Root slightly lifted so his
+## back rests on the ground (the model's depth), never sunk in or floating.
+func _lying(feet: Vector3, head_dir: Vector3) -> Transform3D:
+	var y := head_dir.normalized()
+	var x := y.cross(Vector3.UP).normalized()
+	return Transform3D(Basis(x, y, Vector3.UP), feet + Vector3.UP * 0.12)
+
+
 func _frank() -> void:
 	if _busy != "":
 		return
@@ -853,81 +877,149 @@ func _frank() -> void:
 	var p: Dictionary = people["Frank"]
 	var body: Node3D = p["body"]
 	var a = p["anim"]
-	var pl: Vector3 = world.player.global_position
-	# he comes running along the street in front of the player: from the east, out of the mist
-	var along := Vector3(-1, 0, 0)
-	var start := _ground(Vector3(pl.x + 16.0, 0.2, road_z + 2.5))
-	var pin := _ground(Vector3(pl.x + 5.0, 0.2, road_z + 2.5))
+	# --- staging, from where the player is looking: the street ahead, ~11 m out
+	var cam := world.get_viewport().get_camera_3d()
+	var eye: Vector3 = cam.global_position if cam else world.player.global_position
+	var fwd: Vector3 = (-cam.global_basis.z if cam else Vector3.FORWARD) * Vector3(1, 0, 1)
+	fwd = fwd.normalized() if fwd.length() > 0.1 else Vector3.FORWARD
+	var side := fwd.cross(Vector3.UP).normalized()
+	var pin := safe_point(_ground(world.player.global_position + fwd * 11.0))
+	if not pin.is_finite():
+		pin = _ground(world.player.global_position + fwd * 11.0)
+	var start := _ground(pin + side * 13.0)
+	var mid := _ground(pin + side * 5.0)
+	frank_report["pin"] = pin
+	# --- run: across the view, a look back, a stumble
+	_fstate("run")
 	body.visible = true
-	body.global_position = start
+	body.global_transform = Transform3D(Basis(), start)
+	a.set_process(true)
+	a.set_seated(false)
 	a.set_mood("scared")
 	p["state"] = "event"
+	a.walk_to([mid], 4.4)
 	_say("lt_frank_help")
-	_snd("pl_effort", start + Vector3.UP, -6.0)
-	a.walk_to([pin + Vector3(2.5, 0, 0)], 4.2)
 	while a.is_walking():
 		await get_tree().process_frame
-	# a look back; he stumbles
-	a.face_towards(start)
-	await get_tree().create_timer(0.35).timeout
-	a.walk_to([pin], 3.0)
-	# the Skitter: from behind a parked car (or the kerb's shadow) on the far side, a low run, then the leap
+	a.face_towards(start)                              # a look back over his shoulder
+	await get_tree().create_timer(0.3).timeout
+	a.walk_to([pin], 3.2)                              # the stumble: he loses his pace
+	# --- hunt: from cover, a fast scuttle and a hiss
 	var cover := _cover_near(pin)
+	if cover.distance_to(eye) < 6.0:
+		cover = _ground(pin + fwd * 9.0 - side * 3.0)
 	var sk := (load(SKITTER) as PackedScene).instantiate() as Node3D
 	sk.name = "LT_Skitter"
 	world.add_child(sk)
+	VeilCreatureLook.apply_skitter(sk, cover.y)        # its approved look (not the pale raw atlas)
 	for co in sk.find_children("*", "CollisionObject3D", true, false):
 		(co as CollisionObject3D).collision_layer = 0
 	if sk is CollisionObject3D:
 		(sk as CollisionObject3D).collision_layer = 0
+		(sk as CollisionObject3D).collision_mask = 0
 	sk.global_position = cover
-	_face(sk, pin - cover)
-	_clip(sk, "Scuttle_Fast", 1.3)
-	_snd("sk_prepare", cover + Vector3.UP * 0.5, 2.0)
-	var crouch := cover.lerp(pin, 0.45)
-	crouch = _ground(crouch)
-	await _move(sk, crouch, 0.3)
-	_clip(sk, "Attack_Lunge", 1.4)
+	var crouch := _ground(pin - side * 2.6 + fwd * 0.6)    # where it springs from: behind him on his line
+	_face(sk, crouch - cover)
+	_fstate("hunt")
+	var run_d := cover.distance_to(crouch)
+	var run_t := clampf(run_d / 7.5, 0.35, 1.4)
+	VeilCreatureLook.skitter_anim(sk, "scuttle", run_d / run_t)
+	_snd("sk_fury", cover + Vector3.UP * 0.4, 3.0)      # the hiss, as it breaks cover
+	if world.has_method("focus_shot"):
+		world.focus_shot(pin + Vector3.UP * 0.6, 42.0, 0.7, 3.4)   # the view goes to it (the existing focus)
+	var hunt := create_tween()
+	hunt.tween_method(func(k: float):
+		if is_instance_valid(sk):
+			sk.global_position = _ground(cover.lerp(crouch, k)), 0.0, 1.0, run_t)
+	await hunt.finished
+	# --- leap: an arc onto his back; he goes down face up, head away from it; it lands astride his chest
+	_fstate("leap")
+	var d := (pin - crouch) * Vector3(1, 0, 1)
+	d = d.normalized() if d.length() > 0.1 else -side
+	a.walk_to([], 0.0)
+	var feet := _ground(body.global_position)
+	var chest := feet + d * 1.15
+	var land := _ground(feet + d * 0.95)
+	_face(sk, d)
+	VeilCreatureLook.skitter_anim(sk, "attack")
 	_snd("ss_rush", crouch + Vector3.UP * 0.5, 3.0)
+	var from := sk.global_position
 	var leap := create_tween()
 	leap.tween_method(func(k: float):
 		if is_instance_valid(sk):
-			var q := crouch.lerp(pin, k)
-			sk.global_position = q + Vector3.UP * sin(k * PI) * 1.1, 0.0, 1.0, 0.42)
+			sk.global_position = from.lerp(land, k) + Vector3.UP * (sin(k * PI) * 1.0 + 0.3 * k)
+			sk.rotation.x = lerpf(-0.35, 0.25, k), 0.0, 1.0, 0.36)
 	await leap.finished
-	# impact: he goes down, pinned
-	_snd("ss_impact", pin + Vector3.UP * 0.5, 4.0)
-	_snd("hurt", pin + Vector3.UP, 2.0)
-	a.walk_to([], 0.0)
-	a.set_process(false)
-	var lie := Transform3D(Basis(Vector3.UP, body.global_rotation.y) * Basis(Vector3.RIGHT, -PI * 0.5), pin + Vector3.UP * 0.18)
-	var fall := create_tween().set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_IN)
-	fall.tween_property(body, "global_transform", lie, 0.3)
-	await fall.finished
-	sk.global_position = pin + Vector3.UP * 0.25
-	_clip(sk, "Attack_Lunge", 2.0)
-	_snd("ss_hold", pin + Vector3.UP * 0.5, 0.0)
-	# the struggle (short)
+	# impact: both together, now
+	_fstate("impact")
+	a.set_process(false)                               # (the scene owns his body from here)
+	var down := create_tween().set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_IN)
+	down.tween_property(body, "global_transform", _lying(feet, d), 0.22)
+	_snd("ss_impact", chest, 4.0)
+	Sfx.play("hurt", chest + Vector3.UP * 0.4, 4.0, 0.85)    # his cry, on the hit
+	await down.finished
+	sk.rotation.x = 0.0
+	sk.global_position = land + Vector3.UP * 0.3
+	if world.has_method("_shake") and cam:
+		world._shake(cam, 0.2, 0.02)
+	frank_report["skitter_to_chest_m"] = Vector2(sk.global_position.x - chest.x, sk.global_position.z - chest.z).length()
+	frank_report["frank_root_above_ground_m"] = body.global_position.y - _ground(feet).y
+	# --- pin: ~1.5 s, both moving
+	_fstate("pin")
+	_snd("ss_hold", chest, 0.0)
+	var lie := _lying(feet, d)
 	var t := 0.0
-	while t < 1.4:
+	var next_scream := 0.5
+	while t < 1.5:
 		await get_tree().process_frame
-		t += get_process_delta_time()
-		body.global_position = pin + Vector3.UP * 0.18 + Vector3(randf_range(-0.03, 0.03), 0, randf_range(-0.03, 0.03))
+		var dt := get_process_delta_time()
+		t += dt
+		body.global_transform = Transform3D(lie.basis.rotated(d, sin(t * 21.0) * 0.09), lie.origin)
+		sk.global_position = land + Vector3.UP * (0.3 + absf(sin(t * 13.0)) * 0.06)
+		if fmod(t, 0.45) < dt:
+			VeilCreatureLook.skitter_anim(sk, "attack", 0.0, 0.05)    # it tears at him again
+		if t >= next_scream:
+			next_scream = 99.0
+			Sfx.play("hurt", chest + Vector3.UP * 0.4, 2.0, 1.15)
+	# --- drag: it turns, grips his shoulders and runs into the mist; he trails feet-first behind it
+	_fstate("drag")
 	_say("lt_eddie_frank")
-	# dragged off into the mist, the Skitter backing away with him (always touching)
-	var away: Vector3 = _ground(pin + Vector3(0, 0, -9.0) + along * -6.0)
-	_clip(sk, "Crawl", -1.6)
-	_snd("ss_retreat", pin + Vector3.UP * 0.5, 0.0)
-	var drag := create_tween().set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN)
-	drag.tween_method(func(k: float):
-		if is_instance_valid(sk) and is_instance_valid(body):
-			var q: Vector3 = _ground(pin.lerp(away, k))
-			sk.global_position = q + Vector3.UP * 0.05 + (away - pin).normalized() * 0.6
-			body.global_position = q + Vector3.UP * 0.18, 0.0, 1.0, 3.2)
-	await drag.finished
+	var away := (pin - eye) * Vector3(1, 0, 1)
+	away = (away.normalized() + d * 0.4).normalized()
+	_face(sk, away)
+	_snd("ss_retreat", chest, 2.0)
+	_snd("sk_move_loop", chest, -2.0)
+	var travelled := 0.0
+	var speed := 1.2
+	var head_gap := 0.55                               # its rear legs at his shoulders
+	var max_sep := 0.0
+	var span := 0.0
+	while travelled < 60.0:
+		await get_tree().process_frame
+		var dt := get_process_delta_time()
+		speed = minf(speed + 5.5 * dt, 8.0)             # it accelerates away
+		travelled += speed * dt
+		span += dt
+		var lead := _ground(land + away * travelled)
+		sk.global_position = lead + Vector3.UP * 0.05
+		VeilCreatureLook.skitter_anim(sk, "scuttle", speed)
+		var head := lead - away * head_gap
+		var f := head - away * 1.75
+		var lying := _lying(_ground(f), away)
+		body.global_transform = Transform3D(lying.basis.rotated(away, sin(span * 9.0) * 0.06), lying.origin)
+		var sep := Vector2(sk.global_position.x - head.x, sk.global_position.z - head.z).length()
+		max_sep = maxf(max_sep, absf(sep - head_gap))
+		var gone_far := lead.distance_to(world.player.global_position) > 32.0
+		if travelled > 22.0 and (gone_far or not _seen(lead, 0.4)):
+			break
+	frank_report["drag_m"] = travelled
+	frank_report["drag_attach_error_m"] = max_sep
+	# --- gone: out of sight / deep in the fog; only now are they removed
+	_fstate("gone")
 	body.visible = false
 	p["state"] = "taken"
-	_free_when_unseen(sk, 25.0)
+	_unregister(body)
+	sk.queue_free()
 	report["frank_pin"] = pin
 	_end("frank")
 
