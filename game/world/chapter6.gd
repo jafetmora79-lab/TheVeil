@@ -349,9 +349,8 @@ func _head_out(_b: Node) -> void:
 		hud.toggle_inventory()
 	c5.its["exit"].prompt_text = ""
 	c5._set_doors(true)
-	var a: Node = world.animators["Eddie"]
-	world.npc_walk("Eddie", Vector3(1.5, 0.04, 4.3), 1.5)
-	await c5._wait_for(func(): return not a.is_walking(), 8.0)
+	# he follows at once (the follow walks him out through the open doors): no separate walk to the door first,
+	# which left him standing there while the player was already down the street
 	st()["eddie"] = "following"
 	c5._reparent(eddie, world)
 	c5.eddie_follow.start()

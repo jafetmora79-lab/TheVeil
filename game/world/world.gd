@@ -51,6 +51,7 @@ var hud: VeilHUD
 var in_car := false
 var fog_zones: Node
 var world_edge: Node
+var town_destruction: Node
 var drive_time := 0.0
 var _park_t := 0.0
 var _ending := false
@@ -145,6 +146,11 @@ func _ready() -> void:
 	add_child(edge)
 	edge.setup.call_deferred(self)
 	world_edge = edge
+	var td = load("res://game/world/town_destruction.gd").new()     # after the two hours: houses broken
+	td.name = "TownDestruction"
+	add_child(td)
+	td.setup.call_deferred(self)
+	town_destruction = td
 	var sm = load("res://game/world/store_markers.gd").new()       # [E] over the store's real interactions
 	sm.name = "StoreMarkers"
 	add_child(sm)
