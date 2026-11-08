@@ -150,9 +150,16 @@ func aim(it: Node3D, dirs: Array, frame: Node3D, dist := 1.2) -> bool:
 		var v := (c - eye).normalized()
 		player.set_yaw_pitch(atan2(-v.x, -v.z), asin(clampf(v.y, -1.0, 1.0)))
 		await frames(4)
-		if player._focus == it:
+		if player._focus == it or player._focus == _redirected(it):
 			return true
 	return false
+
+
+## A story door shows the shelter-exit menu while that menu is on offer (Interactable.redirect).
+func _redirected(it: Node3D) -> Node3D:
+	if it is Interactable and (it as Interactable).redirect.is_valid():
+		return (it as Interactable).redirect.call(it)
+	return null
 
 
 ## From where the player already stands (no teleport), look at the interactable's nearest face (where a player
@@ -241,7 +248,10 @@ const TO_RS := [Vector3(33.0, 0.2, -23.5), Vector3(57.0, 0.2, -23.5), Vector3(57
 const LEAVE_YARD := [Vector3(51.0, 0.2, -59.5), Vector3(51.0, 0.2, -56.0), Vector3(57.0, 0.2, -55.0)]
 const TO_ALLEY := [Vector3(60.0, 0.2, -56.0), Vector3(60.0, 0.2, -77.0), Vector3(50.0, 0.2, -77.0), Vector3(47.0, 0.2, -77.0)]
 const HOME_EAST := [Vector3(60.0, 0.2, -56.0), Vector3(57.0, 0.2, -40.0), Vector3(57.0, 0.2, -23.5), Vector3(32.7, 0.2, -23.5)]
-const HOME_WEST := [Vector3(51.0, 0.2, -55.0), Vector3(11.5, 0.2, -55.0), Vector3(11.5, 0.2, -23.5), Vector3(32.7, 0.2, -23.5)]
+const HOME_WEST := [Vector3(51.0, 0.2, -55.0), Vector3(11.5, 0.2, -55.0), Vector3(9.0, 0.2, -54.0), Vector3(9.0, 0.2, -46.5),
+	Vector3(11.5, 0.2, -45.0), Vector3(11.5, 0.2, -23.5), Vector3(32.7, 0.2, -23.5)]
+## round the car quest's battery van (it stands in the alley behind the supermarket, x 12-17, z -52..-48)
+const ROUND_VAN := [Vector3(9.0, 0.2, -54.0), Vector3(9.0, 0.2, -46.5), Vector3(11.5, 0.2, -45.0)]
 const INTO_STORE := [Vector3(0.3, 0.2, -2.5), Vector3(0.3, 0.2, 1.2), Vector3(1.5, 0.2, 1.8), Vector3(1.5, 0.2, 4.6), Vector3(-0.5, 0.2, 6.2)]
 
 
@@ -283,9 +293,16 @@ func _run() -> void:
 		world.hud.toggle_inventory()                 # the inventory screen holds the controls while it is open
 	await frames(5)
 	ok("c6_exit_reach", await aim(c5.its["exit"], [Z, -Z], world.market, 1.2))
-	c5.its["exit"].interact(world.player)
+	var door: Interactable = world.player._focus if world.player._focus is Interactable else c5.its["exit"]
+	door.interact(world.player)
 	ok("c6_exit_confirm", await wait_until(func(): return p4.choice.is_open(), 60))
-	p4.choice.pick(0)
+	if door != c5.its["exit"]:
+		# the shelter-exit menu: "Continue Story" (then the chapter's own confirm, if it asks)
+		p4.choice.pick(int(world.expedition.menu_options()["ids"].find("story")))
+		if await wait_until(func(): return p4.choice.is_open(), 60):
+			p4.choice.pick(0)
+	else:
+		p4.choice.pick(0)
 	ok("c6_eddie_following", await wait_talk(func(): return game.has_flag("ch6_eddie_following"), 30.0) and c5.eddie_follow.active)
 	await reload()
 	ok("c6_load_eddie_following", c5.eddie_follow.active and world.find_children("Eddie", "", true, false).size() == 1)
@@ -465,7 +482,7 @@ func _run() -> void:
 	await walk_world([Vector3(57.0, 0.2, -55.0), Vector3(30.0, 0.2, -55.0), Vector3(11.5, 0.2, -55.0)])
 	Input.action_release("sprint")
 	ok("c6_retreat_east_escaped", await wait_until(func(): return game.has_flag("ch6_hound_encounter_complete"), 60 * 20))
-	ok("c6_retreat_east_home", await walk_world([Vector3(11.5, 0.2, -23.5), Vector3(32.7, 0.2, -23.5)]) and await walk_route(INTO_STORE, world.market)
+	ok("c6_retreat_east_home", await walk_world(ROUND_VAN + [Vector3(11.5, 0.2, -23.5), Vector3(32.7, 0.2, -23.5)]) and await walk_route(INTO_STORE, world.market)
 		and await wait_until(func(): return game.has_flag("ch6_returned_to_supermarket"), 60 * 25))
 	c6.its["npc_Marcus"].interact(world.player)
 	ok("c6_retreat_east_complete", await wait_talk(func(): return game.has_flag("chapter_6_complete"), 120.0))
