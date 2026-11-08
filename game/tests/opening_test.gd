@@ -787,6 +787,9 @@ func _run() -> void:
 	ok("colossus_claws_on_road", absf(r.get("foot_height_m", 9.0) - 0.02) < 0.1, "%.3f m" % r.get("foot_height_m", -1.0))
 	ok("colossus_foot_planted", r.get("foot_planted_drift_m", 9.0) < 0.05, "%.3f m" % r.get("foot_planted_drift_m", -1.0))
 	ok("colossus_audio_cleared", world._enc_sounds.is_empty())
+	ok("colossus_lamp_broken", String(r.get("lamp_crushed", "")) != "" and r.get("lamp_light_off", false) and r.get("lamp_post_down", false)
+		and String(game.world_state.get("colossus_lamp", "")) != "", "lamp %s at %.1f m, off %s, down %s" % [r.get("lamp_crushed", ""),
+		float(r.get("lamp_distance_m", -1.0)), str(r.get("lamp_light_off", false)), str(r.get("lamp_post_down", false))])
 	ok("encounter_control_restored", not world._encounter_running and player.controls_enabled and player.camera.current)
 	ok("p3_objective_back", game.current_step().get("id", "") == "p3_back", game.current_step().get("text", ""))
 	ok("survival_on", player.survival_active and world.hud.surv.visible)
@@ -913,8 +916,12 @@ func _run() -> void:
 	var shut = world.interactables["market/doors_shut"]
 	ok("p3_doors_reach", await aim_at(player, shut, mk.global_transform.basis.z, 1.6))
 	shut.interact(player)
+	var no_ctrl: bool = not player.controls_enabled
 	await frames(60 * 7)
 	ok("p3_end", game.has_flag("p3_doors_shut") and leaf.position.distance_to(leaf0) < 0.05)
+	ok("p3_secure_scene", no_ctrl and world.secure_report.get("control_back", false) and player.controls_enabled and player.camera.current
+		and int(world.secure_report.get("frames", 9999)) < 60 * 7 and (world.secure_report.get("helpers_at_doors", []) as Array).size() >= 1,
+		str(world.secure_report))
 	await phase4_tests(game, ps)
 	world.save()
 	world.free()

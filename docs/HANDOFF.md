@@ -767,3 +767,19 @@ Written without running Godot: nothing below has been seen working yet.
   the view, and clears walls with a ray. No creature can be killed in the game, so no death sounds were imported.
 * **Crab:** the scene's own wide boxes (`ShellShape`, `LegSpan`, `ArmsShape`) are off, a 0.95 m capsule stands in, stride clips use
   the real speeds from the scene metadata, it faces the player inside 4.5 m, and it looks ahead and turns round walls.
+
+### 9.20 Final outstanding repairs (branch `claude/final-outstanding-repairs`, from `claude/monster-spawn-repair` c29cc16)
+* **Shelter exit:** one menu (`expedition._use_exit` / `menu_options()`). The chapters' door interactions keep their code but
+  `Interactable.redirect` makes them show and open that menu while it is on offer; "Continue Story" fires the chapter's own
+  door action (`story_door()`), or shows its NOT YET text. One supply run per day: `world_state.expedition.scavenged_day`.
+* **Objectives:** `hud.set_objective` holds the newest objective while `scene_holds_objective()` (locked line, conversation,
+  cinematic camera, `_encounter_running`, struggle, held control) and shows it after.
+* **Threat:** `expedition._house_state()` (clocks wait while the player is in a house, the hunter walks the yard, creatures
+  near the door are alerted on exit); `VeilHoundAI.chase_gate` = `expedition._may_chase` (one hunter at a time).
+* **Handgun:** no office pickup; `sidearm.handover()` (Sarah, or Marcus if she never joins) + practice (`st().tutorial`).
+  The view model's muzzle is its -Z (REST/AIMED/MUZZLE constants).
+* **Assets edited in place:** `COM_Supermarket_Furnishing.glb` (checkout bags moved to the floor, lanes 1-3) and
+  `RES_MedicineCabinet.glb` (inner walls, rim, back). Scripts used are not in the repo; the change is small and documented
+  in the commit message (31e36a0).
+* **Tests:** `game/tests/final_repairs_test.gd` (parts: shelter objectives radio tentacle assets park).
+

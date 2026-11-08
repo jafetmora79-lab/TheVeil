@@ -48,8 +48,14 @@ func _run() -> void:
 	var p4 = world.phase4
 
 	# ---- the handgun in the office
-	ok("gun_in_office", sa.pickup != null and is_instance_valid(sa.pickup) and not sa.has_gun())
-	(sa.pickup.get_node("Interact") as Interactable).interact(world.player)
+	# (no longer on the office floor: Sarah hands it over; the practice is skipped here)
+	ok("gun_in_office", sa.pickup == null and not sa.has_gun() and sa.handover_pending(), sa.presenter())
+	sa.handover(p4.choice)
+	for i in 60 * 30:
+		if p4.choice.is_open():
+			break
+		await process_frame
+	p4.choice.pick(1)
 	await frames(5)
 	ok("gun_taken", sa.has_gun() and sa.ammo() == 6, "ammo %d" % sa.ammo())
 
