@@ -2,8 +2,8 @@ extends Node
 class_name VeilGarageTentacle
 ## THE VEIL - Chapter 4: the loading-bay tentacle. The roll-up door is still open (the 0.9 m gap); something waits
 ## outside. On the player's approach (after the breaker, before the door is pulled down):
-##   reveal (camera held, ~2.5 s): the view turns to the gap; a Pack 07 Mist Tentacle lying on its side slides in
-##     under the door out of the dark (its Emerge clip: the part still outside dithers away); a wet drag
+##   reveal (camera held): the view turns to the gap; THREE Mist Tentacles, one beat at a time - the floor one
+##     pushes in under the door, pauses, grabs left to right; the upper one reaches down; the side one lashes across
 ##   escape: control comes back, THEN a 10 s countdown: pull the loading door down (the existing handle)
 ##   success: the tentacle is forced back out, the door shuts, one heavy impact, silence, "Holy shit..."
 ##   failure: it takes his leg - first person: look down, fall, dragged across the floor to the gap, black, YOU DIED
@@ -23,7 +23,6 @@ var world: Node
 var player: Node3D
 var running := false
 var closing := false
-var tentacle: VeilDoorwayTentacle      ## its own creature (game/enemies/doorway_tentacle.gd)
 var time_left := 0.0
 var report := {}
 
@@ -74,7 +73,7 @@ func _reveal() -> void:
 	cam.current = true
 	p4._hold_cam(cam)
 	# 1. warning (short): a scrape outside, the door rattles in its rails, something heavy hits it
-	p4._play("scrape" if p4._streams.has("scrape") else "slither", p4.ml(GAP_LOOK), 2.0)
+	p4._play("slither", p4.ml(GAP_LOOK), 2.0)            # something heavy and wet outside
 	await p4._fp_face(cam, p4.ml(GAP_LOOK + Vector3(0, 0.4, 0)), 0.35)
 	var ld: Node3D = p4.its.get("loading_door")
 	if ld:
@@ -87,31 +86,21 @@ func _reveal() -> void:
 	p4._play("impact", p4.ml(Vector3(20.1, 0.9, 15.9)), 4.0)
 	world._shake(cam, 0.2, 0.03)
 	await get_tree().create_timer(0.3).timeout
-	# 2. the thrust: the doorway tentacle (game/enemies/doorway_tentacle.gd), its root buried outside the dock. The
-	#    tip shoots under the door and along the floor, then rears up into the player's line of sight; every segment
-	#    follows the same line through the gap
-	tentacle = VeilDoorwayTentacle.create(p4.market)
-	tentacle.name = "P4_GarageTentacle"
-	_aim_path(cam.global_position, (p4.ml(GAP_LOOK + Vector3(0, 0.5, 0)) - cam.global_position))
-	tentacle.writhe = 1.3
-	tentacle.writhe_hz = 5.0
-	p4._play("slither", p4.ml(GAP_LOOK), 6.0)
-	var th := create_tween()
-	th.tween_property(tentacle, "head", ROOT_TO_GAP + 0.6, 0.2).set_trans(Tween.TRANS_EXPO).set_ease(Tween.EASE_OUT)
-	th.tween_property(tentacle, "head", tentacle.path_length(), 0.5).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
-	world._shake(cam, 0.35, 0.05)
-	await p4._fp_face(cam, p4.ml(GAP_LOOK + Vector3(0, 0.5, 0)), 0.2)        # the view snaps to where it comes in
-	await th.finished
-	# 3. the scare beat: its tip right in front of the face, lashing
-	tentacle.writhe = 1.6
-	tentacle.writhe_hz = 6.0
-	Sfx.play("hurt", player.global_position, -10.0, 1.4)            # a gasp
-	world._shake(cam, 0.3, 0.06)
-	_measure_gaze(cam)
-	await get_tree().create_timer(0.6).timeout
-	tentacle.writhe = 1.0                            # then a fast, searching writhe while it waits
-	tentacle.writhe_hz = 3.6
-	report["revealed"] = tentacle != null
+	# 2. the three, one beat at a time
+	_spawn_trio()
+	world._shake(cam, 0.3, 0.04)
+	await p4._fp_face(cam, p4.ml(GAP_LOOK + Vector3(-0.8, 0.3, 0)), 0.3)
+	await _beat("A", "push")
+	await _beat("A", "sense")
+	await _beat("A", "sweep")
+	Sfx.play("hurt", player.global_position, -10.0, 1.4)            # a gasp: it missed, just
+	world._shake(cam, 0.25, 0.05)
+	await p4._fp_face(cam, p4.ml(Vector3(19.8, 1.0, float(trio["B"]["root"].z))), 0.25)
+	await _beat("B", "reach")
+	await p4._fp_face(cam, p4.ml(Vector3(19.6, 0.5, float(trio["C"]["root"].z) + 0.6)), 0.2)
+	_beat("C", "lash")
+	await get_tree().create_timer(0.3).timeout
+	report["revealed"] = trio.size() == 3
 	report["clearance_hits"] = _clearance()
 	# control back (move + look), then the timer
 	p4._cam_held = null
@@ -137,7 +126,7 @@ func _escape() -> void:
 		hud.set_hint("CLOSE THE GARAGE DOOR — NOW!   %.1f" % maxf(time_left, 0.0))
 		if mp:
 			mp.volume_db = lerpf(-14.0, -1.0, 1.0 - time_left / ESCAPE_S)      # it builds as time runs out
-		_creep(dt)
+		_trio_tick(dt)
 		await get_tree().process_frame
 	hud.set_hint("")
 	report["time_left"] = time_left
@@ -147,83 +136,188 @@ func _escape() -> void:
 		await _taken()
 
 
-## The body's line (market frame): root under the dock outside -> up to the gap -> under the door (0.32 m up, the gap
-## is 0.9 m) -> along the floor into the bay -> rising to `eye`'s height, ending 0.85 m short of it, straight in its
-## line of sight. The lateral position at the door follows the player but stays inside the door's width.
-const ROOT_TO_GAP := 1.75
-const GAP_Y := 0.32
+## The real Pack 07 Mist Tentacle three times (its own mesh, rig and dark material - no stand-in), one controller.
+## Each tentacle: root outside the building (behind the door / frame), chain along its +Y aimed into the bay, pose
+## built on its bones (VeilTentaclePoser: bends only on the part inside, the part under / behind the door stays
+## straight). Motion is in beats - a push, a pause, a sudden sweep, a pull back - never a constant wiggle.
+##   A  floor  under the door, the original entry: slow push, a pause (sensing), a sudden left-right grab, back
+##   B  upper  root high outside, enters at the top of the gap and reaches DOWN at the player
+##   C  side   along the opening's edge, lashes ACROSS the opening
+var trio := {}                                         ## "A"/"B"/"C" -> {node, poser, root, dir, scale, slide, yaw, busy}
+var beat_log: Array = []                               ## (tests) the beats in the order they started
+var _beat_t := 0.0
+var _beat_next := 0
 
 
-func _aim_path(eye_world: Vector3, view_world := Vector3.ZERO) -> void:
-	if tentacle == null or not is_instance_valid(tentacle):
+func _door_span() -> Vector2:
+	var ld: Node3D = p4.its.get("loading_door")
+	if ld:
+		var b: AABB = (p4.market.global_transform.affine_inverse() * ld.global_transform) * Interactable.aabb_of(ld)
+		if b.size.z > 1.0:
+			return Vector2(b.position.z, b.end.z)
+	return Vector2(ROOT.z - 1.4, ROOT.z + 1.4)
+
+
+func _spawn_trio() -> void:
+	var span := _door_span()
+	var zc := (span.x + span.y) * 0.5
+	report["door_span"] = span
+	var gap_top := 0.8
+	# [root (market frame, outside), aim (into the bay), scale]
+	var spec := {
+		"A": [Vector3(22.6, 0.28, zc), Vector3(-1.0, 0.03, 0.0), 0.75],
+		"B": [Vector3(21.9, 1.5, minf(zc + 0.8, span.y - 0.4)), Vector3(20.05, gap_top - 0.02, minf(zc + 0.8, span.y - 0.4)) - Vector3(21.9, 1.5, minf(zc + 0.8, span.y - 0.4)), 0.65],
+		"C": [Vector3(21.9, 0.45, span.x + 0.3), Vector3(-1.0, 0.02, 0.5), 0.65],
+	}
+	for k in spec:
+		var t := (load(TENTACLE) as PackedScene).instantiate() as Node3D
+		t.name = "P4_GarageTentacle_" + k
+		t.set("autoplay", "")
+		p4.market.add_child(t)
+		var ap := t.find_child("AnimationPlayer", true, false) as AnimationPlayer
+		if ap:
+			ap.stop()
+		# its own dark material, fully shown: the mist-fade line is put well below the floor (the scene's
+		# tentacles lie low along the floor, which the fade would otherwise dither away)
+		t.set_process(false)
+		for m in t.get("_mats"):
+			(m as ShaderMaterial).set_shader_parameter("mist_level", -50.0)
+			(m as ShaderMaterial).set_shader_parameter("fade_height", 0.05)
+		var po := VeilTentaclePoser.attach(t)
+		trio[k] = {"node": t, "poser": po, "root": spec[k][0], "dir": (spec[k][1] as Vector3).normalized(),
+			"scale": float(spec[k][2]), "slide": -1.6, "yaw": 0.0, "busy": false}
+		_apply(k)
+	report["tentacles"] = trio.size()
+
+
+func _aim(dir: Vector3, s: float) -> Basis:
+	var y := dir.normalized()
+	var x := y.cross(Vector3.UP)
+	if x.length() < 0.05:
+		x = Vector3.RIGHT
+	x = x.normalized()
+	var z := x.cross(y).normalized()
+	return Basis(x, y, z).scaled(Vector3.ONE * s)
+
+
+func _apply(k: String) -> void:
+	var d: Dictionary = trio[k]
+	var t: Node3D = d["node"]
+	if not is_instance_valid(t):
 		return
-	var eye: Vector3 = p4.market.to_local(eye_world)
-	var zc := clampf(eye.z, ROOT.z - 0.7, ROOT.z + 0.7)
-	var gap := Vector3(20.05, GAP_Y, zc)
-	var inside := Vector3(19.55, GAP_Y + 0.02, lerpf(zc, eye.z, 0.35))
-	var to_eye := eye - inside
-	var stop := eye - to_eye.normalized() * 0.85
-	if view_world != Vector3.ZERO:
-		# right where the player is looking: 0.85 m out along the view (never below knee height)
-		var v: Vector3 = (p4.market.global_transform.basis.inverse() * view_world).normalized()
-		stop = eye + v * 0.85
-		stop.y = maxf(stop.y, 0.55)
-	var rise := inside.lerp(stop, 0.45)
-	rise.y = lerpf(inside.y, stop.y, 0.3)
-	tentacle.set_path([Vector3(21.7, -0.55, zc), Vector3(21.0, 0.15, zc), gap, inside, rise, stop])
+	var dir: Vector3 = (d["dir"] as Vector3).rotated(Vector3.UP, float(d["yaw"]))
+	t.transform = Transform3D(_aim(dir, float(d["scale"])), (d["root"] as Vector3) + dir * float(d["slide"]))
 
 
-## At the scare beat: how close the tip is to the eye, and how far off the centre of view (degrees).
-func _measure_gaze(cam: Camera3D) -> void:
-	var tip: Vector3 = tentacle.tip_global()
-	var to := tip - cam.global_position
-	report["tip_to_eye_m"] = to.length()
-	report["tip_off_view_deg"] = rad_to_deg((-cam.global_basis.z).angle_to(to))
+## Bend only the inside part (bones from `from` on): `lean` up / down (about the bone X), `curl` sideways.
+func _pose(k: String, from: int, lean: float, curl := 0.0) -> void:
+	var po: VeilTentaclePoser = trio[k]["poser"]
+	if po:
+		po.set_split(from, 0.0, 0.0, curl, lean)
+		po.apply()
 
 
-## Solid things the exposed body would pass through at full reach (spheres on the joints, root side excluded).
+## Tween a tentacle's slide / yaw / bend together over `secs` (heavy: eased, never oscillating).
+func _move(k: String, slide: float, yaw: float, lean: float, secs: float, trans := Tween.TRANS_SINE, ease_t := Tween.EASE_IN_OUT) -> void:
+	var d: Dictionary = trio[k]
+	var s0: float = d["slide"]
+	var y0: float = d["yaw"]
+	var po: VeilTentaclePoser = d["poser"]
+	var l0: float = po.lean[po.lean.size() - 1] if po else 0.0
+	var from := 4 if k == "A" else 5
+	var tw := create_tween().set_trans(trans).set_ease(ease_t)
+	tw.tween_method(func(f: float):
+		if not trio.has(k) or not is_instance_valid(d["node"]):
+			return
+		d["slide"] = lerpf(s0, slide, f)
+		d["yaw"] = lerpf(y0, yaw, f)
+		_apply(k)
+		_pose(k, from, lerpf(l0, lean, f)), 0.0, 1.0, secs)
+	await tw.finished
+
+
+func _beat(k: String, what: String, pace := 1.0) -> void:
+	if not trio.has(k) or trio[k]["busy"]:
+		return
+	trio[k]["busy"] = true
+	beat_log.append("%s:%s" % [k, what])
+	var at: Vector3 = p4.market.to_global(trio[k]["root"])
+	match what:
+		"push":                                           # slowly further in under the door
+			Sfx.bank_at("te_wet", at, 0.0, 8.0)
+			await _move(k, 0.0, -0.45, 0.04, 2.2 * pace)
+		"sense":                                          # it stops; the tip lifts a little, searching
+			await _move(k, 0.0, -0.45, 0.2, 0.8 * pace)
+		"sweep":                                          # sudden: left to right across where the player stands
+			Sfx.bank_at("te_strike", at, 2.0, 8.0)
+			await _move(k, 0.15, 0.45, -0.03, 0.32 * pace, Tween.TRANS_EXPO)
+			await _move(k, -0.35, 0.3, 0.06, 0.55 * pace)     # and back a little, heavy
+		"sweep_back":
+			Sfx.bank_at("te_strike", at, 0.0, 8.0)
+			await _move(k, 0.15, -0.45, -0.03, 0.32 * pace, Tween.TRANS_EXPO)
+			await _move(k, -0.35, -0.3, 0.06, 0.55 * pace)
+		"reach":                                          # B: in at the top of the gap and down at the player
+			Sfx.bank_at("te_strike", at, 0.0, 8.0)
+			await _move(k, 0.0, 0.0, 0.22, 0.25 * pace, Tween.TRANS_QUAD, Tween.EASE_OUT)
+			await _move(k, 0.0, 0.0, -0.08, 0.4 * pace, Tween.TRANS_EXPO)
+			await _move(k, -0.7, 0.0, 0.1, 0.7 * pace)
+		"lash":                                           # C: across the opening
+			Sfx.bank_at("te_strike", at, 0.0, 8.0)
+			await _move(k, 0.0, -0.35, 0.05, 0.22 * pace, Tween.TRANS_QUAD, Tween.EASE_OUT)
+			await _move(k, 0.0, 0.4, 0.02, 0.3 * pace, Tween.TRANS_EXPO)
+			await _move(k, -0.8, 0.1, 0.05, 0.65 * pace)
+		"retract":
+			await _move(k, -2.6, 0.0, 0.0, 0.45, Tween.TRANS_EXPO, Tween.EASE_IN)
+	if trio.has(k):
+		trio[k]["busy"] = false
+
+
+## During the 10 s: one beat at a time across the three, closer together as time runs out.
+func _trio_tick(dt: float) -> void:
+	if trio.is_empty():
+		return
+	_beat_t -= dt
+	if _beat_t > 0.0:
+		return
+	var k := 1.0 - clampf(time_left / ESCAPE_S, 0.0, 1.0)
+	_beat_t = lerpf(2.2, 0.9, k)
+	var order := [["A", "sweep_back"], ["B", "reach"], ["C", "lash"], ["A", "sweep"]]
+	var step: Array = order[_beat_next % order.size()]
+	_beat_next += 1
+	_beat(step[0], step[1], lerpf(1.0, 0.7, k))
+
+
+func _free_trio() -> void:
+	for k in trio:
+		var t = trio[k]["node"]
+		if is_instance_valid(t):
+			t.queue_free()
+	trio.clear()
+
+
+## Solid things the inside parts would pass through right now (bone joints inside the bay vs the world).
 func _clearance() -> Array:
 	var hits := []
-	if tentacle == null:
-		return hits
 	var space: PhysicsDirectSpaceState3D = world.get_world_3d().direct_space_state
 	var q := PhysicsShapeQueryParameters3D.new()
 	var sph := SphereShape3D.new()
-	sph.radius = 0.09
+	sph.radius = 0.07
 	q.shape = sph
 	q.collision_mask = 1
 	q.exclude = [player.get_rid()]
-	var js: PackedVector3Array = tentacle.joints()
-	for i in js.size():
-		var lp: Vector3 = js[i]
-		if lp.x > 20.3:
-			continue                                       # outside / under the dock
-		q.transform = Transform3D(Basis(), p4.market.to_global(lp))
-		for h in space.intersect_shape(q, 4):
-			hits.append("%d:%s" % [i, String((h["collider"] as Node).name)])
+	for k in trio:
+		var po: VeilTentaclePoser = trio[k]["poser"]
+		if po == null:
+			continue
+		po.sk.force_update_all_bone_transforms()
+		for b in po.bones:
+			var g: Vector3 = po.sk.global_transform * po.sk.get_bone_global_pose(b).origin
+			if p4.market.to_local(g).x > 19.9:
+				continue                                   # under / behind the door: not the bay
+			q.transform = Transform3D(Basis(), g)
+			for h in space.intersect_shape(q, 4):
+				hits.append("%s:%s" % [k, String((h["collider"] as Node).name)])
 	return hits
-
-
-## On its side, pointing into the bay (+Y -> -X), swung towards the player (kept within the door opening's arc).
-func _aim_basis() -> Basis:
-	var to: Vector3 = p4.market.to_local(player.global_position) - ROOT
-	return Basis(Vector3.UP, clampf(atan2(-to.z, -to.x), -0.9, 0.9)) * Basis(Vector3(0, 0, 1), LIFT)
-
-
-## While the player runs: the tentacle keeps searching and turns after him; past half time it reaches.
-func _creep(dt: float) -> void:
-	if tentacle == null or not is_instance_valid(tentacle):
-		return
-	_creep_t -= dt
-	if _creep_t <= 0.0:
-		_creep_t = 0.2
-		var cam: Camera3D = player.get("camera")
-		_aim_path(cam.global_position, -cam.global_basis.z)   # it keeps its tip up in the player's face
-		tentacle.head = tentacle.path_length()
-	if time_left < ESCAPE_S * 0.5 and not tentacle.has_meta("reaching"):
-		tentacle.set_meta("reaching", true)
-		_writhe(1.3, 4.6)                             # more frantic as time runs out
-var _creep_t := 0.0
 
 
 ## Phase 4's loading handle was used: the door comes down.
@@ -232,28 +326,17 @@ func on_close_started() -> void:
 		closing = true
 
 
-## The writhe's strength and pace (eased by the modifier itself).
-func _writhe(strength: float, hz: float) -> void:
-	if tentacle and is_instance_valid(tentacle):
-		tentacle.writhe = strength
-		tentacle.writhe_hz = hz
-
-
 func _survived() -> void:
-	_writhe(1.5, 6.5)                                  # thrashing as the door forces it out
-	if tentacle and is_instance_valid(tentacle):
-		# back out the way it came: the tip is the last thing to go under the door
-		var tw := create_tween()
-		tw.tween_property(tentacle, "head", 0.0, 0.45).set_trans(Tween.TRANS_EXPO).set_ease(Tween.EASE_IN)
-		report["retracted"] = true
+	for k in trio:                                     # forced back out under the closing door
+		trio[k]["busy"] = false
+		_beat(k, "retract")
+	report["retracted"] = true
 	while not Game.has_flag("p4_loading_down"):
 		await get_tree().process_frame
 	p4._play("impact", p4.ml(Vector3(20.1, 0.9, 15.9)), 6.0)   # one heavy hit on the shut door
 	world._shake(player.get("camera"), 0.3, 0.04)
 	p4._music_stop(0.15)
-	if tentacle:
-		tentacle.queue_free()
-	tentacle = null
+	_free_trio()
 	report["cleaned_up"] = true
 	await get_tree().create_timer(1.4).timeout         # silence
 	Dialogue.say("p4_garage_safe", false, true)
@@ -278,10 +361,15 @@ func _taken() -> void:
 	var out_dir: Vector3 = (p4.ml(ROOT) - feet) * Vector3(1, 0, 1)
 	out_dir = out_dir.normalized()
 	# the tentacle lashes to his leg
-	if tentacle:
-		_writhe(1.4, 5.5)
-		_aim_path(feet + Vector3(0, 1.0, 0))           # (ends 0.85 m short of that: at the ankle)
-		tentacle.head = tentacle.path_length()
+	for k in ["B", "C"]:
+		if trio.has(k):
+			trio[k]["busy"] = false
+			_beat(k, "retract")
+	if trio.has("A"):
+		var lf: Vector3 = p4.market.to_local(feet) - (trio["A"]["root"] as Vector3)
+		trio["A"]["dir"] = Vector3(lf.x, 0.0, lf.z).normalized()
+		trio["A"]["yaw"] = 0.0
+		_move("A", maxf(lf.length() - 3.6, 0.0), 0.0, -0.05, 0.25, Tween.TRANS_EXPO)   # its tip at his ankle
 	Sfx.play("hurt", feet, -2.0, 0.7)
 	await p4._fp_face(cam, feet + Vector3(0, 0.1, 0) - out_dir * 0.15, 0.3)   # looks down: it has his leg
 	await get_tree().create_timer(0.45).timeout
@@ -303,9 +391,10 @@ func _taken() -> void:
 		cam.global_position = start.lerp(gap, k * k) + Vector3(randf_range(-0.02, 0.02), randf_range(-0.015, 0.015), 0)
 		var back := Transform3D(Basis(), cam.global_position).looking_at(cam.global_position - out_dir * 2.0 + Vector3(0, 0.6, 0), Vector3.UP).basis
 		cam.global_basis = Basis(cam.global_basis.get_rotation_quaternion().slerp(back.get_rotation_quaternion(), minf(get_process_delta_time() * 4.0, 1.0)))
-		if tentacle and is_instance_valid(tentacle):
-			_aim_path(cam.global_position + Vector3(0, 0.6, 0))     # it keeps hold as it drags him to the gap
-			tentacle.head = tentacle.path_length()
+		if trio.has("A") and is_instance_valid(trio["A"]["node"]):
+			var lc: Vector3 = p4.market.to_local(cam.global_position) - (trio["A"]["root"] as Vector3)
+			trio["A"]["slide"] = maxf(Vector2(lc.x, lc.z).length() - 3.6, -1.5)   # it keeps hold, pulling him to the gap
+			_apply("A")
 		await get_tree().process_frame
 	p4._play("slither", gap, 6.0)
 	var hud: Node = world.get("hud")
@@ -319,9 +408,7 @@ func _taken() -> void:
 	var i: int = await panel.ask("YOU DIED", ["RETRY", "MAIN MENU"])
 	# leave nothing running into the reload: the held camera, the creature, the music, any pause
 	p4._cam_held = null
-	if tentacle and is_instance_valid(tentacle):
-		tentacle.queue_free()
-	tentacle = null
+	_free_trio()
 	p4._music_stop(0.0)
 	running = false
 	get_tree().paused = false
