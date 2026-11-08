@@ -648,7 +648,8 @@ func car_leads() -> Array:
 		for c in cfg.get("vehicle_parts", []):
 			var item := String(c["item"])
 			var pt = its.get("exp/part_" + String(c["id"]))
-			if pt != null and is_instance_valid(pt) and not pt.taken and not installed(item) and not Game.has_item(item):
+			if pt != null and is_instance_valid(pt) and not pt.taken and not installed(item) and not Game.has_item(item) \
+					and seen(String(c["id"])):
 				out.append(["part:" + String(c["id"]), String(LEAD_NAMES.get(item, "POSSIBLE CAR PART")), (pt as Node3D).global_position])
 		return out
 	var want: Array = []
@@ -666,10 +667,8 @@ func car_leads() -> Array:
 
 ## The car's four faults, what fixes each and where that part lies (fixed finds, not random loot: car_quest.gd).
 ## [item, checklist name, missing text, where to look]
-const CAR_PARTS := [["car_battery", "Battery", "missing", "the delivery van behind the supermarket"],
-	["car_fuse", "Replacement Fuse", "blown", "the wrecked sedan on the west road"],
-	["fuel_can", "Fuel", "tank empty", "the gas station pumps"],
-	["starter_relay", "Final Component", "starter relay missing", "a pickup past the parking lot - something's been scraping around it"]]
+const CAR_PARTS := [["fuel_can", "Fuel canister", "missing", ""], ["car_battery", "Battery", "missing", ""],
+	["car_fuse", "Fuse", "missing", ""], ["starter_relay", "Starter relay", "missing", ""]]
 const FIT_VERB := {"car_battery": "Install the battery", "car_fuse": "Insert the fuse", "fuel_can": "Pour in the gas canister",
 	"starter_relay": "Fit the starter relay"}
 
@@ -688,11 +687,20 @@ func checklist() -> String:
 	for c in CAR_PARTS:
 		var id := String(c[0])
 		var mark := "[X]" if installed(id) else ("[+]" if Game.has_item(id) else "[  ]")
-		var state := "installed" if installed(id) else ("carried - ready to fit" if Game.has_item(id) else "%s (%s)" % [c[2], c[3]])
-		if id == "fuel_can" and installed(id):
-			state = "%d%%" % roundi(world.sedan.fuel * 100.0)
+		var state := "installed" if installed(id) else ("collected" if Game.has_item(id) else String(c[2]))
 		text += "\n%s %s - %s" % [mark, c[1], state]
 	return text
+
+
+## The same, as rows for the compact checklist panel: [done, name, status, carried].
+func checklist_rows() -> Array:
+	var out: Array = []
+	for c in CAR_PARTS:
+		var id := String(c[0])
+		var done := installed(id)
+		var carried := not done and Game.has_item(id)
+		out.append([done, String(c[1]), "installed" if done else ("collected" if carried else "missing"), carried])
+	return out
 
 
 ## [E] Inspect Car: the checklist; a carried part is fitted from here (progress is kept); Start Engine at the end.
@@ -701,7 +709,7 @@ func _inspect_car() -> void:
 	if p4 == null or p4.choice.is_open() or _repairing:
 		return
 	while not Game.has_flag("vehicle_repaired"):
-		var text := checklist()
+		var rows := checklist_rows()
 		var opts: Array = []
 		var ids: Array = []
 		for c in CAR_PARTS:
@@ -712,9 +720,9 @@ func _inspect_car() -> void:
 			opts.append("Start Engine")
 			ids.append("_start")
 		elif ids.is_empty():
-			text += "\n\nNothing here to fit yet. " + ("Search leads are on the town map (M): pick one and mark it." if Game.has_flag("map_acquired") else "The parts must be out in town.")
+			rows.append("Nothing to fit yet. The parts must be out in town - look around the wrecks and the gas station.")
 		opts.append("Close")
-		var i: int = await p4.choice.ask(text, opts, _player())
+		var i: int = await p4.choice.ask("CAR REPAIR", opts, _player(), rows)
 		if i < 0 or i >= ids.size():
 			break
 		if ids[i] == "_start":
@@ -824,8 +832,64 @@ func _part_markers() -> void:
 		var key := "exp/part_" + String(c["id"])
 		var it: Interactable = its.get(key)
 		var on: bool = shelter() != "" and Game.has_flag("vehicle_found") and not Game.has_flag("vehicle_repaired") and it != null \
-			and is_instance_valid(it) and not it.taken and not installed(String(c["item"]))
+			and is_instance_valid(it) and not it.taken and not installed(String(c["item"])) and seen(String(c["id"]))
 		world.hud.world_diamond("car_part_" + String(c["id"]), it if on else null)
+
+
+# ------------------------------------------------------------------ car parts: found by looking, not handed out
+## A part is only marked (yellow diamond, map lead) once the player has come close to it (DISCOVER_M, with a
+## line of sight - never through a building or from across town); the first time, one short observation.
+## Saved in the expedition state ("car_seen"), so a load keeps what was found and never repeats the line.
+const DISCOVER_M := 5.5
+const SEEN_LINE := {"fuel_can": "exp_seen_fuel", "car_battery": "exp_seen_battery", "car_fuse": "exp_seen_fuse",
+	"starter_relay": "exp_seen_relay"}
+
+
+func seen(id: String) -> bool:
+	return bool((st().get("car_seen", {}) as Dictionary).get(id, false))
+
+
+func _discover_parts() -> void:
+	if Game.has_flag("vehicle_repaired") or not Game.has_flag("vehicle_found") or shelter() == "":
+		return
+	var p := _player()
+	if p == null or not p.visible:
+		return
+	var eye := p.global_position + Vector3(0, 1.5, 0)
+	for c in cfg.get("vehicle_parts", []):
+		var id := String(c["id"])
+		if seen(id):
+			continue
+		var it: Interactable = its.get("exp/part_" + id)
+		if it == null or not is_instance_valid(it) or it.taken or installed(String(c["item"])):
+			continue
+		var at := (it as Node3D).global_position
+		if Vector2(p.global_position.x - at.x, p.global_position.z - at.z).length() > DISCOVER_M:
+			continue
+		if _sees(eye, at):
+			mark_seen(id)
+
+
+func mark_seen(id: String) -> void:
+	if seen(id):
+		return
+	var d: Dictionary = st().get("car_seen", {})
+	d[id] = true
+	st()["car_seen"] = d
+	if SEEN_LINE.has(id):
+		Dialogue.say(String(SEEN_LINE[id]), true)
+	_part_markers()
+
+
+## A clear line from the eye to the part (or the first thing hit lies right by it: the wreck holding it).
+func _sees(eye: Vector3, at: Vector3) -> bool:
+	var target := at + Vector3(0, 0.25, 0)
+	var q := PhysicsRayQueryParameters3D.create(eye, target, 1)
+	var p := _player()
+	if p is CollisionObject3D:
+		q.exclude = [(p as CollisionObject3D).get_rid()]
+	var hit: Dictionary = (world.get_world_3d() as World3D).direct_space_state.intersect_ray(q)
+	return hit.is_empty() or (hit["position"] as Vector3).distance_to(target) < 1.6
 
 
 func _repair() -> void:
@@ -1750,6 +1814,7 @@ func _process(delta: float) -> void:
 
 
 func _refresh() -> void:
+	_discover_parts()
 	_part_markers()
 	if world.sedan and world.sedan.get("entry_area"):
 		var dead: bool = Game.has_flag("c5_started") and shelter() != "" and Game.has_flag("groceries_done") \

@@ -346,6 +346,8 @@ func _physics_process(delta: float) -> void:
 		var yaw_rate := speed / WHEELBASE * tan(steer) * (1.35 if hb else 1.0)
 		rotate_y(yaw_rate * delta)
 	var fwd := -global_transform.basis.z
+	if driven and not scripted and absf(speed) > 0.05 and not can_roll(fwd * signf(speed), absf(speed) * delta):
+		speed = 0.0                                     # the kerb of the playable roads: no further (back out / turn)
 	var vy := velocity.y
 	velocity = fwd * speed
 	velocity.y = vy - GRAVITY * delta if not is_on_floor() else -1.0
@@ -518,3 +520,47 @@ func _process(_delta: float) -> void:
 		back.y = 0.0
 		cam.global_transform = Transform3D(Basis(), q.global_position + back.normalized() * 0.05).looking_at(
 			q.global_position + back.normalized() * 10.0, Vector3.UP)
+
+
+# ------------------------------------------------------------------ where the car may go
+## The player's car stays on the town's paved surfaces: roads, intersections, driveways, parking lots, the gas
+## forecourt, sidewalks and kerb ramps (every RD_ / SW_ / forecourt piece), plus the dirt roads out west (painted
+## on the terrain: the nav map's WEST_ROADS corridor). Bare terrain - lawns, fields, the woods - is not driven
+## on: the leading bumper stops at its edge, and reversing or turning back is always possible. Buildings, fences
+## and trees already stop it by collision. Scripted drives (cinematics, parking) are not limited.
+const BUMPER := 2.3                    ## centre to the front / rear bumper (m)
+const HALF_W := 0.8
+const WEST_HALF := 5.0                 ## half-width of the west dirt-road corridor
+
+
+func can_roll(dir: Vector3, step: float) -> bool:
+	if not paved(global_position):
+		return true                                     # already off the paving (an old save, a shove): drive back
+	var side := dir.cross(Vector3.UP).normalized() * HALF_W
+	var front := global_position + dir * (BUMPER + step)
+	for p in [front, front + side, front - side]:
+		if not paved(p) and not paved(p + dir * 0.8):     # (a seam between two road tiles is not an edge)
+			return false
+	return true
+
+
+func paved(p: Vector3) -> bool:
+	var q := PhysicsRayQueryParameters3D.create(p + Vector3.UP * 4.0, p - Vector3.UP * 4.0, 1, [get_rid()])
+	var h := get_world_3d().direct_space_state.intersect_ray(q)
+	if h.is_empty():
+		return _west_road(p)
+	var n := String((h["collider"] as Node).name)
+	if not n.begins_with("TOWN_Ground"):
+		return true                                     # a road piece, a lot - or a solid thing collision handles
+	return _west_road(p)
+
+
+static func _west_road(p: Vector3) -> bool:
+	var v := Vector2(p.x, p.z)
+	for line in VeilNavMap.WEST_ROADS:
+		for i in (line as Array).size() - 1:
+			var a: Vector2 = line[i]
+			var b: Vector2 = line[i + 1]
+			if Geometry2D.get_closest_point_to_segment(v, a, b).distance_to(v) <= WEST_HALF:
+				return true
+	return false

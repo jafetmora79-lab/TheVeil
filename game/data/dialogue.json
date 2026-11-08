@@ -7042,5 +7042,55 @@
     "time": 1.8
    }
   ]
+ },
+ "exp_seen_fuel": {
+  "source": "Car quest: part discovery",
+  "lines": [
+   {
+    "speaker": "",
+    "text": "That might be enough gas to get the car running.",
+    "time": 3.0
+   }
+  ]
+ },
+ "exp_seen_battery": {
+  "source": "Car quest: part discovery",
+  "lines": [
+   {
+    "speaker": "",
+    "text": "That battery could work. I'll have to disconnect it first.",
+    "time": 3.0
+   }
+  ]
+ },
+ "exp_seen_fuse": {
+  "source": "Car quest: part discovery",
+  "lines": [
+   {
+    "speaker": "",
+    "text": "Looks like the right fuse. Let's hope it still works.",
+    "time": 3.0
+   }
+  ]
+ },
+ "exp_seen_relay": {
+  "source": "Car quest: part discovery",
+  "lines": [
+   {
+    "speaker": "",
+    "text": "That could be the last part I need.",
+    "time": 3.0
+   }
+  ]
+ },
+ "edge_warn": {
+  "source": "World edge: the Veil does not let you leave",
+  "lines": [
+   {
+    "speaker": "",
+    "text": "This road doesn't feel right...",
+    "time": 2.8
+   }
+  ]
  }
 }
