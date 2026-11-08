@@ -24,6 +24,9 @@ func _ready() -> void:
 	# Phase 3: the Veil (synthesised placeholders)
 	_streams["veil_rumble"] = _make(3.5, func(t, i): return (sin(TAU * 32.0 * t) * 0.5 + sin(TAU * 47.0 * t + sin(t * 3.0)) * 0.35 + _noise(i) * 0.12) * minf(t * 1.5, 1.0) * exp(-maxf(t - 2.2, 0.0) * 2.5))
 	_streams["colossus_call"] = _make(4.0, func(t, i): return (sin(TAU * (58.0 - 14.0 * t) * t) * 0.55 + sin(TAU * (87.0 - 20.0 * t) * t) * 0.3 + _noise(i) * 0.08 * sin(t * 30.0)) * minf(t * 2.0, 1.0) * exp(-maxf(t - 2.8, 0.0) * 3.0))
+	# a street lamp shorting out: crackling arcs over a 120 Hz buzz, a pop, then nothing
+	_streams["spark"] = _make(0.9, func(t, i): return ((_noise(i) * (0.9 if fmod(t * 23.0, 1.0) < 0.35 else 0.15)) * 0.55 \
+		+ sin(TAU * 120.0 * t) * 0.22 * (1.0 if sin(t * 61.0) > -0.2 else 0.0) + sin(TAU * 55.0 * t) * 0.5 * exp(-t * 30.0)) * exp(-t * 3.2))
 	_streams["static"] = _make(1.6, func(t, i): return _noise(i) * 0.35 * (0.6 + 0.4 * sin(t * 60.0)) * exp(-maxf(t - 1.2, 0.0) * 8.0))
 	_streams["tentacle_hiss"] = _make(0.7, func(t, i): return (_noise(i) * 0.5 + sin(TAU * 180.0 * t * (1.0 + t)) * 0.25) * exp(-t * 4.5))
 	_streams["colossus_step"] = _make(2.6, func(t, i): return (sin(TAU * 26.0 * t) * 0.9 + sin(TAU * 41.0 * t) * 0.5 + _noise(i) * 0.5 * exp(-t * 9.0)) * exp(-t * 1.6) * minf(t * 60.0, 1.0))

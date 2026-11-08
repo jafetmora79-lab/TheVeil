@@ -24,6 +24,7 @@ var player: Node3D
 var running := false
 var closing := false
 var tentacle: Node3D
+var wiggle: VeilTentacleWiggle          ## the organic writhe on its bones (game/enemies/tentacle_wiggle.gd)
 var time_left := 0.0
 var report := {}
 
@@ -100,6 +101,8 @@ func _reveal() -> void:
 			tentacle.call("emerge")
 		if tentacle.has_method("play"):
 			tentacle.call("play", "Strike", 0.05)
+		wiggle = VeilTentacleWiggle.attach(tentacle)
+		_writhe(1.3, 5.0)                            # it comes in thrashing
 		var th := tentacle.create_tween()
 		th.tween_property(tentacle, "position", ROOT, 0.2).set_trans(Tween.TRANS_EXPO).set_ease(Tween.EASE_OUT)
 	p4._play("slither", p4.ml(GAP_LOOK), 6.0)
@@ -112,13 +115,16 @@ func _reveal() -> void:
 		to.y = 0.0
 		var reach := clampf(to.length() - 1.4, 0.4, 2.0)
 		tentacle.transform.basis = _aim_basis()
+		_writhe(1.6, 6.0)                            # the lunge: a violent lash
 		var tg := tentacle.create_tween()
 		tg.tween_property(tentacle, "position", ROOT + to.normalized() * reach, 0.16).set_trans(Tween.TRANS_EXPO).set_ease(Tween.EASE_OUT)
 		tg.tween_property(tentacle, "position", ROOT + to.normalized() * reach * 0.55, 0.28).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
 		Sfx.play("hurt", player.global_position, -10.0, 1.4)            # a gasp: it missed, just
 		world._shake(cam, 0.3, 0.06)
 	await get_tree().create_timer(0.5).timeout
+	_writhe(0.9, 3.4)                                # then a fast, searching writhe while it waits
 	report["revealed"] = tentacle != null
+	report["wiggle"] = wiggle != null
 	# control back (move + look), then the timer
 	p4._cam_held = null
 	var fwd := -cam.global_basis.z
@@ -170,6 +176,7 @@ func _creep(dt: float) -> void:
 	if time_left < ESCAPE_S * 0.5 and not tentacle.has_meta("reaching") and tentacle.has_method("play"):
 		tentacle.set_meta("reaching", true)
 		tentacle.call("play", "Reach")
+		_writhe(1.2, 4.2)                             # reaching: more frantic as time runs out
 
 
 ## Phase 4's loading handle was used: the door comes down.
@@ -178,7 +185,15 @@ func on_close_started() -> void:
 		closing = true
 
 
+## The writhe's strength and pace (eased by the modifier itself).
+func _writhe(strength: float, hz: float) -> void:
+	if wiggle and is_instance_valid(wiggle):
+		wiggle.intensity = strength
+		wiggle.speed = hz
+
+
 func _survived() -> void:
+	_writhe(1.5, 6.5)                                  # thrashing as the door forces it out
 	if tentacle and tentacle.has_method("retract"):
 		tentacle.call("retract")                        # forced back out under the closing door
 		var tw := tentacle.create_tween()
@@ -190,6 +205,9 @@ func _survived() -> void:
 	p4._music_stop(0.15)
 	if tentacle:
 		tentacle.queue_free()
+	tentacle = null
+	wiggle = null
+	report["cleaned_up"] = true
 	await get_tree().create_timer(1.4).timeout         # silence
 	Dialogue.say("p4_garage_safe", false, true)
 	Sfx.start_ambience()
@@ -218,6 +236,7 @@ func _taken() -> void:
 		tentacle.transform.basis = Basis(Vector3.UP, atan2(-to.z, -to.x)) * Basis(Vector3(0, 0, 1), LIFT)
 		if tentacle.has_method("play"):
 			tentacle.call("play", "Strike", 0.05)
+		_writhe(1.4, 5.5)
 		var reach := minf(to.length() - 3.6, 3.0)       # its tip at his ankle
 		if reach > 0.0:
 			var tw := tentacle.create_tween()
@@ -261,6 +280,7 @@ func _taken() -> void:
 	if tentacle and is_instance_valid(tentacle):
 		tentacle.queue_free()
 	tentacle = null
+	wiggle = null
 	p4._music_stop(0.0)
 	running = false
 	get_tree().paused = false

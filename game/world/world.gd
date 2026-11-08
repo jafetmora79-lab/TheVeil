@@ -145,6 +145,7 @@ func _ready() -> void:
 	sm.setup.call_deferred(self)
 	_apply_view_ranges()
 	_setup_night()
+	_restore_crushed_lamp.call_deferred()          # (the lamp the Colossus broke stays broken after a load)
 	_light_budget_all()
 	# the filler ground (TOWN_Ground_Game) was coplanar with the parking lots / drives laid over it (both at LOT_Y),
 	# so where a ground cell was only partly covered the two z-fought (the brown strips in the supermarket lot).
@@ -1123,6 +1124,11 @@ const PARK_FINAL_Z := 16.6                       # car centre at rest: half a me
 const PARK_STRAIGHT := 1.5                       # straight reverse after the arc
 const PARK_R := 4.5                              # reverse arc radius (car centre), ~31 deg of steering
 const PARK_BRAKE := 5.0                          # m/s^2: how firmly the parking takeover slows a car caught at speed
+## The manoeuvre's pace (target: 4-7 s from the takeover to the stop in the stall; was 10-11 s measured)
+const PARK_ACCEL := 3.2                          # m/s^2 pulling away (driving: 1.6)
+const PARK_APPROACH_V := 7.0                     # m/s along the lot to the turning point
+const PARK_REVERSE_V := 4.2                      # m/s backing into the stall
+const PARK_EASE := 2.8                           # m/s^2: the easing into each stop (still exact at the end)
 var _auto_parking := false
 var park_report := {}
 
@@ -1282,15 +1288,16 @@ func _auto_park() -> void:
 	pcam.global_position = lot_xf * Vector3(1.0, 6.5, 6.0)
 	park_report["cam_blocked_frames"] = 0
 	sedan.script_decel = PARK_BRAKE
+	sedan.script_accel = PARK_ACCEL
 	sedan.drive_script = func(_dt: float) -> Vector2:
 		match S["phase"]:
 			"approach":
-				return _pursue(paths["approach"], S["st"], 1.0, 4.5, 4.5, 1.2)    # a parking pace, not a crawl
+				return _pursue(paths["approach"], S["st"], 1.0, PARK_APPROACH_V, 4.5, PARK_EASE)    # a parking pace, not a crawl
 			"turn":                                     # steer while stationary before reversing
 				var c := _pursue(paths["reverse"], {"i": 0, "rem": 99.0}, -1.0, 0.0, 2.6)
 				return Vector2(0.0, c.y)
 			"reverse":
-				return _pursue(paths["reverse"], S["st"], -1.0, 2.0, 2.6, 1.0)
+				return _pursue(paths["reverse"], S["st"], -1.0, PARK_REVERSE_V, 2.6, PARK_EASE)
 		return Vector2(0.0, 0.0)
 	var ok := true
 	while true:
@@ -1326,6 +1333,7 @@ func _auto_park() -> void:
 			ok = false
 			break
 		if phase == "approach" and st["rem"] < 0.06 and absf(sedan.speed) < 0.03:
+			park_report["t_approach"] = t
 			S["phase"] = "turn"
 			S["st"] = {"i": 0, "rem": 99.0}
 			park_report["stop_err"] = Vector2(sedan.global_position.x, sedan.global_position.z).distance_to(
@@ -1333,11 +1341,14 @@ func _auto_park() -> void:
 		elif phase == "turn":
 			var want := _pursue(paths["reverse"], {"i": 0, "rem": 99.0}, -1.0, 0.0, 2.6).y
 			if absf(sedan.steer - clampf(want, -PlayerSedan.MAX_STEER, PlayerSedan.MAX_STEER)) < 0.03:
+				park_report["t_turn"] = t
 				S["phase"] = "reverse"
 		elif phase == "reverse" and st["rem"] < 0.06 and absf(sedan.speed) < 0.03:
 			break
+	park_report["t_reverse"] = t
 	sedan.drive_script = Callable()
 	sedan.script_decel = PlayerSedan.SCRIPT_ACCEL
+	sedan.script_accel = PlayerSedan.SCRIPT_ACCEL
 	sedan.speed = 0.0
 	_auto_parking = false
 	hud.set_hint("")
@@ -2481,32 +2492,65 @@ func _shake(cam: Camera3D, seconds: float, amount: float) -> void:
 		cam.global_position = base
 
 
-## The street lamp the foot comes down by (the nearest within 15 m of the footfall): its light dies for good in a
-## burst of sparks, its post (the lamp model standing under the light) crushed and knocked over.
-func _crush_lamp(at: Vector3) -> void:
+## The street lamp the foot comes down by: the lamp POST nearest the footfall (within 15 m; the town's
+## SP_Lamp_Residential / SP_Lamp_Commercial models) and its light (within 3.5 m of the post, the arm's reach). The
+## leg's impact hits it: the light stutters and flares, sparks and an electrical crackle, the light dies for good and
+## the post is knocked over. Saved (world_state "colossus_lamp"): after the scene and after a load it stays down.
+func _lamp_posts() -> Array:
+	var out: Array = []
+	for part in ["Core", "Extension"]:
+		var root := get_node_or_null(part)
+		if root == null:
+			continue
+		for n in root.find_children("SP_Lamp_*", "Node3D", true, false):
+			if (String(n.name).begins_with("SP_Lamp_Residential") or String(n.name).begins_with("SP_Lamp_Commercial")) \
+					and n.get_parent() and not String(n.get_parent().name).begins_with("SP_Lamp_"):
+				out.append(n)
+	return out
+
+
+func _lamp_light_of(post: Node3D) -> Light3D:
 	var best: Light3D = null
-	var bd := 15.0
+	var bd := 3.5
 	for l in get_tree().get_nodes_in_group("veil_streetlight"):
 		if l is Light3D:
-			var d := Vector2(l.global_position.x - at.x, l.global_position.z - at.z).length()
+			var d := Vector2(l.global_position.x - post.global_position.x, l.global_position.z - post.global_position.z).length()
 			if d < bd:
 				bd = d
 				best = l
-	if best == null:
-		return
+	return best
+
+
+func _crush_lamp(at: Vector3) -> void:
 	var post: Node3D = null
-	var pd := 2.0
-	for n in find_children("*Lamp*", "Node3D", true, false):
-		if n is Light3D or n is MeshInstance3D or n is CollisionObject3D:
-			continue
-		var dd := Vector2(n.global_position.x - best.global_position.x, n.global_position.z - best.global_position.z).length()
-		if dd < pd:
-			pd = dd
+	var bd := 15.0
+	for n in _lamp_posts():
+		var d := Vector2(n.global_position.x - at.x, n.global_position.z - at.z).length()
+		if d < bd:
+			bd = d
 			post = n
+	var best: Light3D = _lamp_light_of(post) if post else null
+	if best == null and post == null:
+		enc_report["lamp_crushed"] = ""
+		return
 	enc_report["lamp_crushed"] = String(post.name) if post else String(best.name)
-	var spark_at := best.global_position
-	best.remove_from_group("veil_streetlight")
-	best.visible = false
+	enc_report["lamp_distance_m"] = bd
+	if post:
+		Game.world_state["colossus_lamp"] = str(get_path_to(post))
+	var spark_at: Vector3 = best.global_position if best else post.global_transform * Vector3(0, 5.75, 0)
+	if best:
+		best.remove_from_group("veil_streetlight")
+		# the impact runs through the post: the light stutters and flares, then dies for good
+		var e0: float = best.light_energy
+		var fl := create_tween()
+		for k in [[e0 * 2.6, 0.05], [0.0, 0.06], [e0 * 1.8, 0.05], [0.0, 0.09], [e0 * 3.2, 0.04]]:
+			fl.tween_property(best, "light_energy", float(k[0]), float(k[1]))
+		fl.tween_callback(func():
+			if is_instance_valid(best):
+				best.visible = false
+				best.light_energy = e0)
+		await fl.finished
+	Sfx.play("spark", spark_at, 6.0, 1.0)
 	var sp := CPUParticles3D.new()
 	sp.one_shot = true
 	sp.amount = 40
@@ -2537,6 +2581,7 @@ func _crush_lamp(at: Vector3) -> void:
 	flash.global_position = spark_at
 	get_tree().create_timer(0.12).timeout.connect(flash.queue_free)
 	Sfx.play("door_close", spark_at, 4.0, 0.5)
+	enc_report["lamp_light_off"] = best == null or not best.visible
 	if post and post != self:
 		var away := (post.global_position - at) * Vector3(1, 0, 1)
 		var axis := Vector3.UP.cross(away.normalized() if away.length() > 0.1 else Vector3.FORWARD).normalized()
@@ -2545,6 +2590,36 @@ func _crush_lamp(at: Vector3) -> void:
 		tw.tween_method(func(k: float):
 			if is_instance_valid(post):
 				post.global_basis = Basis(axis, k * 1.35) * b0.scaled(Vector3(1.0, lerpf(1.0, 0.55, k), 1.0)), 0.0, 1.0, 0.45)
+		Game.world_state["colossus_lamp_axis"] = [axis.x, axis.y, axis.z]
+		_lamp_post_down(post)
+		tw.finished.connect(func():
+			Sfx.play("door_close", post.global_position + Vector3(0, 0.3, 0), 6.0, 0.4)   # the post hits the road
+			enc_report["lamp_post_down"] = true)
+
+
+## A knocked-over post no longer stands in the way as an invisible pole: its upright collision is switched off.
+func _lamp_post_down(post: Node3D) -> void:
+	for c in post.find_children("*", "CollisionObject3D", true, false):
+		(c as CollisionObject3D).collision_layer = 0
+	if post is CollisionObject3D:
+		(post as CollisionObject3D).collision_layer = 0
+
+
+## After a load: the lamp the Colossus broke stays broken (light off, post on its side).
+func _restore_crushed_lamp() -> void:
+	var path := String(Game.world_state.get("colossus_lamp", ""))
+	if path == "":
+		return
+	var post := get_node_or_null(NodePath(path)) as Node3D
+	if post == null:
+		return
+	var l := _lamp_light_of(post)
+	if l:
+		l.remove_from_group("veil_streetlight")
+		l.visible = false
+	var a: Array = Game.world_state.get("colossus_lamp_axis", [1.0, 0.0, 0.0])
+	post.global_basis = Basis(Vector3(float(a[0]), float(a[1]), float(a[2])).normalized(), 1.35) * post.global_basis.scaled(Vector3(1.0, 0.55, 1.0))
+	_lamp_post_down(post)
 
 
 func _impact_dust(at: Vector3) -> void:
@@ -3316,8 +3391,8 @@ func _p3_reach_market() -> void:
 	_doors_powered = false
 	_market_blackout()
 	shut_it.prompt_text = "[E] Pull the Doors Shut"
-	npc_walk("Eddie", MARKET_EDDIE_POS, 1.4)           # around the vestibule wall, carts and baskets
-	npc_walk("Marcus", MARKET_MARCUS_POS, 1.4)
+	npc_walk("Eddie", MARKET_EDDIE_POS, 2.6)           # around the vestibule wall, carts and baskets (still running)
+	npc_walk("Marcus", MARKET_MARCUS_POS, 2.6)
 	for d in _auto_doors:
 		_glow(d[0], true, Color(0.7, 0.85, 1.0))
 	Dialogue.say("p3_market", false, true)
@@ -3333,10 +3408,77 @@ func _market_blackout() -> void:
 			(l as Light3D).visible = false
 
 
+## Market-local spots just inside each door leaf, where Eddie and Marcus take hold of the doors.
+const MARKET_DOOR_HELPERS := {"Eddie": Vector3(-0.8, 0.04, 1.0), "Marcus": Vector3(0.8, 0.04, 1.0)}
+var _securing := false
+var secure_report := {}                ## (tests) the entrance-securing scene: helpers, duration, control back
+
+
+## Securing the entrance: the view turns out through the glass to what is still out there, Eddie and Marcus run
+## to the two leaves and drag them shut with the player, the doors close, the tentacles pull back, control returns.
+## About six seconds; the camera only turns where the player stands (it never moves into a wall or a body).
 func _p3_shut_doors(_by: Node) -> void:
-	if not Game.has_flag("p3_in_market") or Game.has_flag("p3_doors_shut"):
+	if not Game.has_flag("p3_in_market") or Game.has_flag("p3_doors_shut") or _securing:
 		return
+	_securing = true
 	shut_it.prompt_text = ""
+	var t0 := Time.get_ticks_msec()
+	_encounter_running = true                          # (no menus, objectives or threats while it plays)
+	var was_look := player.look_enabled
+	player.controls_enabled = false
+	player.look_enabled = false
+	player.velocity = Vector3.ZERO
+	hud.allow_pause = false
+	var src := player.camera
+	var cam := Camera3D.new()
+	cam.name = "SecureShot"
+	add_child(cam)
+	cam.global_transform = src.global_transform
+	cam.fov = src.fov
+	cam.near = src.near
+	cam.far = src.far
+	cam.current = true
+	_cine = cam
+	var b0 := src.global_transform.basis.orthonormalized()
+	var out_pt := market.global_transform * Vector3(0, 1.4, -7.0)     # the forecourt, beyond the glass
+	var b1 := Transform3D(Basis(), cam.global_position).looking_at(out_pt, Vector3.UP).basis
+	var f0 := src.fov
+	var turn := create_tween()
+	turn.tween_method(func(k: float):
+		if is_instance_valid(cam):
+			var e := k * k * (3.0 - 2.0 * k)
+			cam.global_basis = Basis(b0.get_rotation_quaternion().slerp(b1.get_rotation_quaternion(), e))
+			cam.fov = lerpf(f0, 58.0, e), 0.0, 1.0, 0.9)
+	# the two of them run to the leaves (the route goes round the player and the vestibule furniture)
+	var helpers: Array = []
+	for who in MARKET_DOOR_HELPERS:
+		var a = animators.get(who)
+		if a and is_instance_valid(a.root) and a.root.visible:
+			if a.root.get_parent() != market:
+				a.root.reparent(market, true)
+			npc_walk(who, MARKET_DOOR_HELPERS[who], 3.2)
+			a.set_mood("scared")
+			helpers.append(who)
+	await turn.finished
+	# the danger outside, while they get there (at most 2.4 s)
+	var wait := 0.0
+	while wait < 2.4:
+		var there := true
+		for who in helpers:
+			var a = animators[who]
+			if a.root.position.distance_to(MARKET_DOOR_HELPERS[who]) > 0.6:
+				there = false
+		if there and wait > 1.2:
+			break
+		await get_tree().process_frame
+		wait += get_process_delta_time()
+	for who in helpers:
+		var a = animators[who]
+		a.walk_to([])
+		a.face_towards(market.global_transform * (MARKET_DOOR_HELPERS[who] * Vector3(1, 1, 0) + Vector3(0, 0, 0.2)))
+		a.hold_facing = true
+	secure_report["helpers"] = helpers.duplicate()
+	secure_report["helpers_at_doors"] = helpers.filter(func(w): return animators[w].root.position.distance_to(MARKET_DOOR_HELPERS[w]) < 0.8)
 	for d in _auto_doors:
 		_glow(d[0], false)
 		var tw := create_tween().set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
@@ -3349,6 +3491,29 @@ func _p3_shut_doors(_by: Node) -> void:
 		var ai = t.get_node_or_null("AI") if is_instance_valid(t) else null
 		if ai:
 			ai.set_process(false)
+	await get_tree().create_timer(1.7).timeout
+	Sfx.play("door_close", market.global_transform * Vector3(0, 1.2, 0.2), -6.0, 0.55)   # the latch
+	await get_tree().create_timer(0.8).timeout
+	var back := create_tween()
+	back.tween_method(func(k: float):
+		if is_instance_valid(cam):
+			var e := k * k * (3.0 - 2.0 * k)
+			cam.global_basis = Basis(b1.get_rotation_quaternion().slerp(b0.get_rotation_quaternion(), e))
+			cam.fov = lerpf(58.0, f0, e), 0.0, 1.0, 0.8)
+	await back.finished
+	for who in helpers:
+		animators[who].hold_facing = false
+	if _cine == cam:
+		_cine = null
+	cam.queue_free()
+	player.camera.current = true
+	player.controls_enabled = true
+	player.look_enabled = was_look
+	hud.allow_pause = true
+	_encounter_running = false
+	_securing = false
+	secure_report["seconds"] = (Time.get_ticks_msec() - t0) / 1000.0
+	secure_report["control_back"] = player.controls_enabled
 	Dialogue.say("p3_doors", false, true)
 	Game.set_flag("p3_doors_shut")
 	_start_phase4(false)            # Phase 4 continues the night inside (game/world/phase4.gd)
