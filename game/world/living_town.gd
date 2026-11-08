@@ -489,15 +489,23 @@ func _spawn_car(path: PackedVector3Array, speed: float, i: int) -> Dictionary:
 	return c
 
 
+## The point `s` metres along an evenly spaced path.
+func _at(path: PackedVector3Array, s: float) -> Vector3:
+	var seg := path[0].distance_to(path[1])
+	var total := (path.size() - 1) * seg
+	s = clampf(s, 0.0, total)
+	var k := mini(int(s / seg), path.size() - 2)
+	return path[k].lerp(path[k + 1], (s - k * seg) / seg)
+
+
 func _place_car(c: Dictionary) -> void:
 	var path: PackedVector3Array = c["path"]
 	var total := (path.size() - 1) * path[0].distance_to(path[1])
 	var s := clampf(float(c["s"]), 0.0, total - 0.01)
-	var seg := path[0].distance_to(path[1])
-	var k := int(s / seg)
-	var t := (s - k * seg) / seg
-	var p := path[k].lerp(path[mini(k + 1, path.size() - 1)], t)
-	var ahead := path[mini(k + 1, path.size() - 1)] - path[k]
+	var p := _at(path, s)
+	var ahead := _at(path, s + 2.2) - _at(path, s - 0.6)    # heading from a short look-ahead: smooth in the turns
+	if ahead.length() < 0.05:
+		ahead = path[path.size() - 1] - path[path.size() - 2]
 	var car: Node3D = c["node"]
 	var yaw := atan2(-ahead.x, -ahead.z)              # the car models' front is their -Z: it points where it goes
 	if c.has("swerve"):
@@ -511,24 +519,25 @@ func _traffic(delta: float) -> void:
 	# a new car now and then (before the Veil), one per lane at a time, entering out of view
 	_car_t -= delta
 	if not veil and _car_t <= 0.0 and cars.size() < 3:
-		_car_t = randf_range(6.0, 12.0)
+		_car_t = randf_range(5.0, 10.0)
 		var which := int(report["cars_spawned"]) % 3
-		var path: PackedVector3Array
-		match which:
-			0:
-				path = _lane(MAIN_X.x, MAIN_X.y, EAST_LANE)                 # through town, eastbound
-			1:
-				path = _lane(MAIN_X.y, MAIN_X.x, WEST_LANE)                 # westbound, past the supermarket
-			2:
-				path = _lane(60.0, MAIN_X.y, EAST_LANE)                     # out to the east edge of town
-		if path.size() > 2 and not _seen(path[0]) and not cars.any(func(c): return c["lane"] == which):
-			_spawn_car(path, randf_range(9.0, 12.0), which)
+		var drive := _drive()
+		var path: PackedVector3Array = drive.get("pts", PackedVector3Array())
+		if path.size() > 2 and not _seen(path[0]) and focus().distance_to(path[0]) > 45.0 \
+				and not cars.any(func(c): return (c["node"] as Node3D).global_position.distance_to(path[0]) < 25.0):
+			var c := _spawn_car(path, randf_range(9.0, 11.5), which)
+			if not c.is_empty():
+				c["limit"] = drive["limit"]
 	var keep: Array = []
 	for c in cars:
 		var car: Node3D = c["node"]
 		if not is_instance_valid(car):
 			continue
 		var want: float = float(c["speed"]) * (1.7 if veil and not c.has("scripted") else 1.0)
+		if c.has("limit"):
+			var lim: PackedFloat32Array = c["limit"]
+			var li := clampi(int(float(c["s"]) / 1.0), 0, lim.size() - 1)
+			want = minf(want, lim[li])                  # slows for the corners ahead
 		var gap := _clear_ahead(c, delta)
 		c["gap"] = gap
 		want *= clampf((gap - 5.0) / 8.0, 0.0, 1.0)  # slows from 13 m, stopped 5 m short; waits, never clips
@@ -589,6 +598,149 @@ func _drop_car(c: Dictionary) -> void:
 		_unregister(d)
 	if is_instance_valid(c["node"]):
 		(c["node"] as Node).queue_free()
+
+
+# ------------------------------------------------------------------ the street network
+## Junctions = the town's own intersection tiles; a street links two of them when they line up and the road surface
+## runs unbroken between them. Built once (a few hundred rays).
+var junctions: Array = []                 ## Vector3
+var links := {}                           ## index -> [index]
+const LANE := 1.8
+const JUNCTION_HALF := 7.0                ## a lane starts / ends this far from a junction's centre
+const TURN_SPEED := 5.0
+
+
+func _build_network() -> void:
+	junctions.clear()
+	links.clear()
+	for part in ["Core", "Extension"]:
+		var root := world.get_node_or_null(part)
+		if root == null:
+			continue
+		for n in root.find_children("RD_Intersection_*", "Node3D", true, false):
+			if n.get_parent() and String(n.get_parent().name).begins_with("RD_"):
+				continue
+			var p: Vector3 = (n as Node3D).global_position
+			if p.x < -130.0 or p.x > 210.0 or p.z < -130.0 or p.z > 60.0:
+				continue                              # (the town; not the farm roads far out)
+			if junctions.any(func(q): return (q as Vector3).distance_to(p) < 3.0):
+				continue
+			junctions.append(_ground(p))
+	for i in junctions.size():
+		links[i] = []
+	for i in junctions.size():
+		for j in junctions.size():
+			if i == j:
+				continue
+			var a: Vector3 = junctions[i]
+			var b: Vector3 = junctions[j]
+			var straight := absf(a.x - b.x) < 1.5 or absf(a.z - b.z) < 1.5
+			if not straight or a.distance_to(b) > 140.0:
+				continue
+			# nearest along that line only (no skipping over a junction in between)
+			var between := false
+			for k in junctions.size():
+				if k != i and k != j:
+					var q: Vector3 = junctions[k]
+					if (absf(q.x - a.x) < 1.5 and absf(a.x - b.x) < 1.5 or absf(q.z - a.z) < 1.5 and absf(a.z - b.z) < 1.5) \
+							and q.distance_to(a) < a.distance_to(b) and q.distance_to(b) < a.distance_to(b):
+						between = true
+			if between:
+				continue
+			var ok := true
+			var n := int(a.distance_to(b) / 3.0)
+			for k in range(1, n):
+				var d := (b - a).normalized()
+				var side := d.cross(Vector3.UP) * LANE
+				var m := a.lerp(b, float(k) / n)
+				if not _on_road(m + side) or not _on_road(m - side):
+					ok = false
+					break
+			if ok:
+				(links[i] as Array).append(j)
+	report["junctions"] = junctions.size()
+	report["links"] = links.values().reduce(func(acc, l): return acc + (l as Array).size(), 0)
+
+
+## A drive: from a junction, 3-5 streets, no U-turns. {"pts": 1 m spaced path in the right-hand lane with the
+## corners rounded, "limit": speed limit per metre (slow through the turns)}.
+func _drive() -> Dictionary:
+	if junctions.is_empty():
+		_build_network()
+	var starts: Array = range(junctions.size()).filter(func(i): return not (links[i] as Array).is_empty())
+	if starts.is_empty():
+		return {}
+	var cur: int = starts[randi() % starts.size()]
+	var prev := -1
+	var nodes: Array = [cur]
+	for step in randi_range(3, 5):
+		var options: Array = (links[cur] as Array).filter(func(j): return j != prev)
+		if options.is_empty():
+			break
+		var nxt: int = options[randi() % options.size()]
+		prev = cur
+		cur = nxt
+		nodes.append(cur)
+	if nodes.size() < 2:
+		return {}
+	var raw := PackedVector3Array()
+	var turn_at: Array = []                           # raw-path indices of corner arcs
+	for i in nodes.size() - 1:
+		var a: Vector3 = junctions[nodes[i]]
+		var b: Vector3 = junctions[nodes[i + 1]]
+		var d := (b - a)
+		d.y = 0.0
+		d = d.normalized()
+		var r := d.cross(Vector3.UP) * LANE           # right-hand lane
+		var p0 := a + d * JUNCTION_HALF + r
+		var p1 := b - d * JUNCTION_HALF + r
+		if i == 0:
+			raw.append(p0)
+		raw.append(p1)
+		if i + 1 < nodes.size() - 1:
+			var c: Vector3 = junctions[nodes[i + 2]]
+			var d2 := (c - b)
+			d2.y = 0.0
+			d2 = d2.normalized()
+			var r2 := d2.cross(Vector3.UP) * LANE
+			var q0 := b + d2 * JUNCTION_HALF + r2
+			if d.dot(d2) > 0.9:
+				raw.append(q0)                            # straight across
+			else:
+				var ctrl := b + r + r2                    # where the two lanes cross: a rounded corner through it
+				turn_at.append(raw.size())
+				for k in range(1, 8):
+					var t := k / 8.0
+					raw.append(p1.lerp(ctrl, t).lerp(ctrl.lerp(q0, t), t))
+				raw.append(q0)
+	# resample every metre, ground-snapped; a speed limit per metre (slow from 9 m before a corner to its end)
+	var cum: Array = [0.0]
+	for i in range(1, raw.size()):
+		cum.append(float(cum[i - 1]) + raw[i - 1].distance_to(raw[i]))
+	var corner_s: Array = turn_at.map(func(ix): return float(cum[maxi(int(ix) - 1, 0)]))
+	var pts := PackedVector3Array()
+	var k := 0
+	var sd := 0.0
+	var total: float = cum[cum.size() - 1]
+	while sd <= total:
+		while k < raw.size() - 2 and float(cum[k + 1]) < sd:
+			k += 1
+		var span: float = float(cum[k + 1]) - float(cum[k])
+		pts.append(raw[k].lerp(raw[k + 1], (sd - float(cum[k])) / span if span > 0.001 else 0.0))
+		sd += 1.0
+	for i in pts.size():
+		pts[i] = _ground(pts[i])
+	var limit := PackedFloat32Array()
+	limit.resize(pts.size())
+	for i in pts.size():
+		var v := 99.0
+		for cs in corner_s:
+			var dd: float = float(i) - float(cs)
+			if dd > -9.0 and dd < 10.0:
+				v = minf(v, TURN_SPEED + maxf(-dd - 3.0, 0.0) * 0.8)
+		limit[i] = v
+	report["turns"] = int(report.get("turns", 0)) + corner_s.size()
+	return {"pts": pts, "limit": limit, "nodes": nodes}
 
 
 # ------------------------------------------------------------------ the loop

@@ -86,28 +86,58 @@ func _run() -> void:
 	var walked: bool = lt.people.values().any(func(x): return x["anim"].is_walking() or int(x["i"]) > 0)
 	ok("people_walk_routes", walked)
 	# ---- the repair checks
+	# the street network and drives with turns
+	lt._build_network()
+	ok("T_network", int(lt.report.get("junctions", 0)) >= 6 and int(lt.report.get("links", 0)) >= 8, "%d junctions, %d links" % [int(lt.report.get("junctions", 0)), int(lt.report.get("links", 0))])
+	var turns := 0
+	var off_road := 0
+	var max_turn := 0.0
+	var lane_bad := 0
+	for k in 12:
+		var dv: Dictionary = lt._drive()
+		if dv.is_empty():
+			continue
+		var pts: PackedVector3Array = dv["pts"]
+		var nodes: Array = dv["nodes"]
+		if nodes.size() > 2:
+			turns += 1
+		for i in range(0, pts.size(), 3):
+			if not lt._on_road(pts[i]):
+				off_road += 1
+		for i in range(2, pts.size() - 2):
+			var d0 := pts[i] - pts[i - 2]
+			var d1 := pts[i + 2] - pts[i]
+			if d0.length() > 0.5 and d1.length() > 0.5:
+				max_turn = maxf(max_turn, rad_to_deg(Vector2(d0.x, d0.z).angle_to(Vector2(d1.x, d1.z))))
+		var a0: Vector3 = lt.junctions[nodes[0]]
+		var a1: Vector3 = lt.junctions[nodes[1]]
+		var dd := (a1 - a0) * Vector3(1, 0, 1)
+		var off := (pts[3] - a0).dot(dd.normalized().cross(Vector3.UP))
+		if absf(off - 1.8) > 0.4:
+			lane_bad += 1
+	ok("T_drives_turn", turns >= 6, "%d of 12 drives cross 2+ streets; %d corners" % [turns, int(lt.report.get("turns", 0))])
+	ok("T_drives_on_road", off_road == 0, "%d samples off the road" % off_road)
+	ok("T_smooth_heading", max_turn < 40.0, "max %.0f deg per 2 m" % max_turn)
+	ok("R3_right_hand_lanes", lane_bad == 0, "%d drives off the right-hand lane" % lane_bad)
+	await frames(60 * 12)
 	var fwd_ok := true
-	var lane_ok := true
 	for c in lt.cars:
 		var car: Node3D = c["node"]
 		var path: PackedVector3Array = c["path"]
-		var travel: Vector3 = (path[path.size() - 1] - path[0]).normalized()
-		if (-car.global_basis.z).dot(travel) < 0.98:
+		var here: Vector3 = lt._at(path, float(c["s"]) + 1.5) - lt._at(path, float(c["s"]) - 0.5)
+		if here.length() > 0.2 and (-car.global_basis.z).dot(here.normalized()) < 0.9:
 			fwd_ok = false
-		var right: Vector3 = travel.cross(Vector3.UP)          # right-hand traffic: the lane is on the travel's right
-		if (car.global_position - Vector3(car.global_position.x, car.global_position.y, lt.road_z)).dot(right) < 0.5:
-			lane_ok = false
-	ok("R1_cars_face_travel", lt.cars.size() > 0 and fwd_ok)
-	ok("R3_right_hand_lanes", lane_ok)
+	ok("R1_cars_face_travel", lt.cars.size() > 0 and fwd_ok, "%d cars" % lt.cars.size())
 	var drv: bool = lt.cars.all(func(c): return c.get("driver") != null and is_instance_valid(c["driver"]) and (c["driver"] as Node3D).get_parent().name == "Marker_Seat_Driver")
 	ok("R1_drivers_seated", drv)
 	# braking: the player's car parked in a lane stops the next car behind it, short of it
 	if not lt.cars.is_empty():
 		var c0: Dictionary = lt.cars[0]
 		var car0: Node3D = c0["node"]
-		var ahead: Vector3 = car0.global_position + (-car0.global_basis.z) * 14.0
+		var ahead: Vector3 = lt._at(c0["path"], float(c0["s"]) + 16.0)   # on its own route, round any corner
 		w.sedan.global_position = ahead
-		await frames(60 * 4)
+		w.sedan.global_basis = car0.global_basis
+		await frames(60 * 5)
 		var gap: float = car0.global_position.distance_to(ahead) if is_instance_valid(car0) else 99.0
 		ok("R3_brakes_for_car_ahead", is_instance_valid(car0) and gap > 4.0 and float(c0["v"]) < 0.5, "gap %.1f m, speed %.1f" % [gap, float(c0["v"])])
 	# pedestrians: the player's car on Frank's sidewalk -> his route goes round it, not through
