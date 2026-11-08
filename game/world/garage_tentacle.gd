@@ -95,12 +95,13 @@ func _reveal() -> void:
 	await _beat("A", "sweep")
 	Sfx.play("hurt", player.global_position, -10.0, 1.4)            # a gasp: it missed, just
 	world._shake(cam, 0.25, 0.05)
-	await p4._fp_face(cam, p4.ml(Vector3(19.8, 1.0, float(trio["B"]["root"].z))), 0.25)
+	await p4._fp_face(cam, p4.ml(Vector3(19.4, 0.5, float(trio["B"]["root"].z))), 0.25)
 	await _beat("B", "reach")
-	await p4._fp_face(cam, p4.ml(Vector3(19.6, 0.5, float(trio["C"]["root"].z) + 0.6)), 0.2)
+	await p4._fp_face(cam, p4.ml(Vector3(19.4, 0.45, float(trio["C"]["root"].z) - 0.4)), 0.2)
 	_beat("C", "lash")
 	await get_tree().create_timer(0.3).timeout
 	report["revealed"] = trio.size() == 3
+	report["through_gap"] = _through_gap()
 	report["clearance_hits"] = _clearance()
 	# control back (move + look), then the timer
 	p4._cam_held = null
@@ -141,8 +142,8 @@ func _escape() -> void:
 ## built on its bones (VeilTentaclePoser: bends only on the part inside, the part under / behind the door stays
 ## straight). Motion is in beats - a push, a pause, a sudden sweep, a pull back - never a constant wiggle.
 ##   A  floor  under the door, the original entry: slow push, a pause (sensing), a sudden left-right grab, back
-##   B  upper  root high outside, enters at the top of the gap and reaches DOWN at the player
-##   C  side   along the opening's edge, lashes ACROSS the opening
+##   B  left   under the door at the left of the gap, along the floor, rearing up and slamming down at the player
+##   C  right  under the door at the right edge (by the boxes), lashing across towards the middle
 var trio := {}                                         ## "A"/"B"/"C" -> {node, poser, root, dir, scale, slide, yaw, busy}
 var beat_log: Array = []                               ## (tests) the beats in the order they started
 var _beat_t := 0.0
@@ -158,16 +159,33 @@ func _door_span() -> Vector2:
 	return Vector2(ROOT.z - 1.4, ROOT.z + 1.4)
 
 
+## The real gap under the roll-up door right now (market frame): the door's lowest edge above the floor.
+func _gap_top() -> float:
+	var ld: Node3D = p4.its.get("loading_door")
+	if ld:
+		var b: AABB = (p4.market.global_transform.affine_inverse() * ld.global_transform) * Interactable.aabb_of(ld)
+		if b.size.y > 0.5:
+			return clampf(b.position.y, 0.25, 1.2)
+	return 0.5
+
+
 func _spawn_trio() -> void:
 	var span := _door_span()
 	var zc := (span.x + span.y) * 0.5
 	report["door_span"] = span
-	var gap_top := 0.8
+	var gap_top := _gap_top()
+	report["gap_top"] = gap_top
+	# all three come in UNDER the door, through the gap (as the player sees it from the bay): A in the middle, B along
+	# the floor at the left of the gap, C at the right edge by the boxes. Low enough to clear the door's bottom edge
+	# with their thickness; roots well outside, in the dark beyond the door.
+	var low := clampf(gap_top * 0.38, 0.12, 0.3)
+	var left := span.x + 0.45                          # (from the bay, looking at the door: -z is the left)
+	var right := span.y - 0.45
 	# [root (market frame, outside), aim (into the bay), scale]
 	var spec := {
-		"A": [Vector3(22.6, 0.28, zc), Vector3(-1.0, 0.03, 0.0), 0.75],
-		"B": [Vector3(21.9, 1.5, minf(zc + 0.8, span.y - 0.4)), Vector3(20.05, gap_top - 0.02, minf(zc + 0.8, span.y - 0.4)) - Vector3(21.9, 1.5, minf(zc + 0.8, span.y - 0.4)), 0.65],
-		"C": [Vector3(21.9, 0.45, span.x + 0.3), Vector3(-1.0, 0.02, 0.5), 0.65],
+		"A": [Vector3(22.6, low, zc), Vector3(-1.0, 0.02, 0.0), 0.75],
+		"B": [Vector3(22.4, low * 0.85, left), Vector3(-1.0, 0.02, 0.25), 0.66],
+		"C": [Vector3(22.4, low, right), Vector3(-1.0, 0.02, -0.3), 0.66],
 	}
 	for k in spec:
 		var t := (load(TENTACLE) as PackedScene).instantiate() as Node3D
@@ -184,9 +202,23 @@ func _spawn_trio() -> void:
 			(m as ShaderMaterial).set_shader_parameter("mist_level", -50.0)
 			(m as ShaderMaterial).set_shader_parameter("fade_height", 0.05)
 		var po := VeilTentaclePoser.attach(t)
+		if po:
+			po.straight = true                         # flat along its aim, under the door - not the rest pose's rear-up
+			po.apply()
 		trio[k] = {"node": t, "poser": po, "root": spec[k][0], "dir": (spec[k][1] as Vector3).normalized(),
-			"scale": float(spec[k][2]), "slide": -1.6, "yaw": 0.0, "busy": false}
+			"scale": float(spec[k][2]), "slide": -1.6, "yaw": 0.0, "busy": false, "fix": Basis()}
 		_apply(k)
+		# the model's chain is not along its own +Y (its root bone tilts it up into a rear): measure the straight
+		# chain's real axis in the model and turn the model so that axis lies along the aim
+		if po:
+			po.sk.force_update_all_bone_transforms()
+			var inv := t.global_transform.affine_inverse() * po.sk.global_transform
+			var a: Vector3 = inv * po.sk.get_bone_global_pose(po.bones[0]).origin
+			var b: Vector3 = inv * po.sk.get_bone_global_pose(po.bones[po.bones.size() - 1]).origin
+			var axis := (b - a).normalized()
+			if axis.length() > 0.5 and axis.dot(Vector3.UP) < 0.999:
+				trio[k]["fix"] = Basis(Quaternion(axis, Vector3.UP))
+			_apply(k)
 	report["tentacles"] = trio.size()
 
 
@@ -206,7 +238,7 @@ func _apply(k: String) -> void:
 	if not is_instance_valid(t):
 		return
 	var dir: Vector3 = (d["dir"] as Vector3).rotated(Vector3.UP, float(d["yaw"]))
-	t.transform = Transform3D(_aim(dir, float(d["scale"])), (d["root"] as Vector3) + dir * float(d["slide"]))
+	t.transform = Transform3D(_aim(dir, float(d["scale"])) * (d.get("fix", Basis()) as Basis), (d["root"] as Vector3) + dir * float(d["slide"]))
 
 
 ## Bend only the inside part (bones from `from` on): `lean` up / down (about the bone X), `curl` sideways.
@@ -256,16 +288,16 @@ func _beat(k: String, what: String, pace := 1.0) -> void:
 			Sfx.bank_at("te_strike", at, 0.0, 8.0)
 			await _move(k, 0.15, -0.45, -0.03, 0.32 * pace, Tween.TRANS_EXPO)
 			await _move(k, -0.35, -0.3, 0.06, 0.55 * pace)
-		"reach":                                          # B: in at the top of the gap and down at the player
+		"reach":                                          # B: along the floor from the left, rearing up at the player
 			Sfx.bank_at("te_strike", at, 0.0, 8.0)
-			await _move(k, 0.0, 0.0, 0.22, 0.25 * pace, Tween.TRANS_QUAD, Tween.EASE_OUT)
-			await _move(k, 0.0, 0.0, -0.08, 0.4 * pace, Tween.TRANS_EXPO)
-			await _move(k, -0.7, 0.0, 0.1, 0.7 * pace)
-		"lash":                                           # C: across the opening
+			await _move(k, 0.0, 0.1, 0.24, 0.3 * pace, Tween.TRANS_QUAD, Tween.EASE_OUT)
+			await _move(k, 0.15, 0.2, -0.04, 0.35 * pace, Tween.TRANS_EXPO)     # and slams down at them
+			await _move(k, -0.7, 0.0, 0.06, 0.7 * pace)
+		"lash":                                           # C: from the right edge (by the boxes) across towards the middle
 			Sfx.bank_at("te_strike", at, 0.0, 8.0)
-			await _move(k, 0.0, -0.35, 0.05, 0.22 * pace, Tween.TRANS_QUAD, Tween.EASE_OUT)
-			await _move(k, 0.0, 0.4, 0.02, 0.3 * pace, Tween.TRANS_EXPO)
-			await _move(k, -0.8, 0.1, 0.05, 0.65 * pace)
+			await _move(k, 0.0, 0.1, 0.05, 0.22 * pace, Tween.TRANS_QUAD, Tween.EASE_OUT)
+			await _move(k, 0.0, -0.35, 0.02, 0.3 * pace, Tween.TRANS_EXPO)
+			await _move(k, -0.8, -0.1, 0.05, 0.65 * pace)
 		"retract":
 			await _move(k, -2.6, 0.0, 0.0, 0.45, Tween.TRANS_EXPO, Tween.EASE_IN)
 	if trio.has(k):
@@ -285,6 +317,23 @@ func _trio_tick(dt: float) -> void:
 	var step: Array = order[_beat_next % order.size()]
 	_beat_next += 1
 	_beat(step[0], step[1], lerpf(1.0, 0.7, k))
+
+
+## Every bone joint crossing the door's plane (x 19.85 - 20.25) is below the door's bottom edge: they come in
+## UNDER the door, never through the panel or in front of it. Returns the worst clearance (m, > 0 = under).
+func _through_gap() -> float:
+	var top := _gap_top()
+	var worst := 99.0
+	for k in trio:
+		var po: VeilTentaclePoser = trio[k]["poser"]
+		if po == null:
+			continue
+		po.sk.force_update_all_bone_transforms()
+		for b in po.bones:
+			var l: Vector3 = p4.market.to_local(po.sk.global_transform * po.sk.get_bone_global_pose(b).origin)
+			if l.x > 19.85 and l.x < 20.25:
+				worst = minf(worst, top - l.y)
+	return worst
 
 
 func _free_trio() -> void:

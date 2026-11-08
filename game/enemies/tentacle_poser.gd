@@ -10,6 +10,7 @@ var bones: PackedInt32Array = []
 var curl: PackedFloat32Array = []
 var lean: PackedFloat32Array = []
 var weight := 1.0
+var straight := false                     ## true: bends start from a straight chain (the rest pose's own curl dropped)
 var _rest := {}
 var _written := {}
 var _clip := {}
@@ -62,11 +63,14 @@ func apply() -> void:
 		if weight >= 0.999:
 			clip = _rest[b]
 		_clip[b] = clip
-		var mine: Quaternion = (_rest[b] as Quaternion) * Quaternion(Vector3.BACK, curl[i]) * Quaternion(Vector3.RIGHT, lean[i])
+		var base_q: Quaternion = Quaternion.IDENTITY if straight else (_rest[b] as Quaternion)
+		var mine: Quaternion = base_q * Quaternion(Vector3.BACK, curl[i]) * Quaternion(Vector3.RIGHT, lean[i])
 		var q := clip.slerp(mine.normalized(), clampf(weight, 0.0, 1.0)).normalized()
 		sk.set_bone_pose_rotation(b, q)
 		if weight >= 0.999:
-			sk.set_bone_pose_position(b, sk.get_bone_rest(b).origin)
+			var o: Vector3 = sk.get_bone_rest(b).origin
+			# straight: each bone's offset laid along its parent's +Y (the model's own offsets carry its curl)
+			sk.set_bone_pose_position(b, Vector3(0, o.length(), 0) if straight and i > 0 else o)
 		_written[b] = q
 
 
