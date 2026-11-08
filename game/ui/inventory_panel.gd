@@ -61,7 +61,7 @@ var _bars_were_on := false
 
 func _ready() -> void:
 	add_to_group("veil_inventory_panel")
-	set_anchors_preset(Control.PRESET_FULL_RECT)
+	set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)   # offsets too: anchors alone kept a 0x0 rect (panel stuck top-left)
 	mouse_filter = Control.MOUSE_FILTER_STOP
 	visible = false
 	var dim := ColorRect.new()
@@ -176,6 +176,7 @@ func _ready() -> void:
 	bar_bg.add_child(_weight_bar)
 	var help := VeilUI.label("Click an item to select it  ·  click its button to use it  ·  click the picture to inspect", 12, VeilUI.MUTED)
 	help.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	help.custom_minimum_size = Vector2(PANEL - 40, 0)    # wraps at the panel width (at 1 px wide it made the panel grow)
 	help.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	col.add_child(help)
 	_build_inspect()
@@ -421,13 +422,14 @@ func _icon(id: String) -> Texture2D:
 	var env := WorldEnvironment.new()
 	var e := Environment.new()
 	e.ambient_light_source = Environment.AMBIENT_SOURCE_COLOR
-	e.ambient_light_color = Color(0.55, 0.56, 0.6)
+	e.ambient_light_color = Color(0.8, 0.8, 0.84)
+	e.ambient_light_energy = 1.0
 	e.background_mode = Environment.BG_CLEAR_COLOR
 	env.environment = e
 	vp.add_child(env)
 	var sun := DirectionalLight3D.new()
 	sun.rotation_degrees = Vector3(-45, 35, 0)
-	sun.light_energy = 1.1
+	sun.light_energy = 1.4
 	vp.add_child(sun)
 	var box := Interactable.aabb_of(model)
 	if box.size.length() < 0.001:
@@ -440,6 +442,12 @@ func _icon(id: String) -> Texture2D:
 	vp.add_child(cam)
 	cam.position = c + Vector3(0.55, 0.45, 1.0).normalized() * r / tan(deg_to_rad(15.0)) * 1.05
 	cam.look_at(c, Vector3.UP)
+	var fill := OmniLight3D.new()                     # a fill from the camera: no side of the item renders black
+	fill.light_energy = 1.2
+	fill.omni_range = cam.position.distance_to(c) * 3.0
+	fill.omni_attenuation = 0.5
+	vp.add_child(fill)
+	fill.position = cam.position
 	var tex := vp.get_texture()
 	_icons[id] = tex
 	_views[id] = vp
@@ -449,7 +457,7 @@ func _icon(id: String) -> Texture2D:
 # ------------------------------------------------------------------ inspect: the item large, slowly turning
 func _build_inspect() -> void:
 	_insp = Control.new()
-	_insp.set_anchors_preset(Control.PRESET_FULL_RECT)
+	_insp.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	_insp.mouse_filter = Control.MOUSE_FILTER_STOP
 	_insp.visible = false
 	add_child(_insp)
@@ -588,8 +596,12 @@ func open() -> void:
 		_bars_were_on = _hud.surv.visible and _hud.surv.modulate.a > 0.5
 		if _bars_were_on:
 			_hud.set_survival_visible(false)
+	var fl = _flashlight()
+	if fl and fl.get("_ui"):
+		fl._ui.visible = false                          # the battery bar never shows through the inventory (it comes back on close)
 	_fit()
 	_fit.call_deferred()                               # again once the new details have been laid out
+	_rerender_icons.call_deferred()
 
 
 func close() -> void:
@@ -634,3 +646,12 @@ func _unhandled_input(e: InputEvent) -> void:
 	else:
 		return
 	get_viewport().set_input_as_handled()
+
+
+## Icons render once; render them again on every open (a first render can land before the model's materials are
+## ready and come out black).
+func _rerender_icons() -> void:
+	for id in _views:
+		var vp = _views[id]
+		if is_instance_valid(vp):
+			(vp as SubViewport).render_target_update_mode = SubViewport.UPDATE_ONCE
