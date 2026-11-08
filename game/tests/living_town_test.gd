@@ -54,7 +54,7 @@ func _run() -> void:
 	p = w.player
 	p.controls_enabled = true
 	# ---- before the Veil
-	ok("people_spawned", lt.people.size() == 5 and lt.people.has("Frank") and lt.people.has("Officer") and lt.people.has("Joan"), str(lt.people.keys()))
+	ok("people_spawned", lt.people.size() <= 8 and lt.people.size() >= 7 and lt.people.has("Frank") and lt.people.has("Officer") and lt.people.has("Joan"), str(lt.people.keys()))
 	ok("road_found", lt.report.has("road_span"), "centre z %.1f %s" % [lt.road_z, str(lt.report.get("road_span", []))])
 	var space: PhysicsDirectSpaceState3D = w.get_world_3d().direct_space_state
 	var bad := []
@@ -85,6 +85,74 @@ func _run() -> void:
 	ok("traffic_runs_on_road", int(lt.report["cars_spawned"]) >= 1 and lt.cars.size() <= 3 and on_road, "spawned %d, now %d" % [int(lt.report["cars_spawned"]), lt.cars.size()])
 	var walked: bool = lt.people.values().any(func(x): return x["anim"].is_walking() or int(x["i"]) > 0)
 	ok("people_walk_routes", walked)
+	# ---- the repair checks
+	var fwd_ok := true
+	var lane_ok := true
+	for c in lt.cars:
+		var car: Node3D = c["node"]
+		var path: PackedVector3Array = c["path"]
+		var travel: Vector3 = (path[path.size() - 1] - path[0]).normalized()
+		if (-car.global_basis.z).dot(travel) < 0.98:
+			fwd_ok = false
+		var right: Vector3 = travel.cross(Vector3.UP)          # right-hand traffic: the lane is on the travel's right
+		if (car.global_position - Vector3(car.global_position.x, car.global_position.y, lt.road_z)).dot(right) < 0.5:
+			lane_ok = false
+	ok("R1_cars_face_travel", lt.cars.size() > 0 and fwd_ok)
+	ok("R3_right_hand_lanes", lane_ok)
+	var drv: bool = lt.cars.all(func(c): return c.get("driver") != null and is_instance_valid(c["driver"]) and (c["driver"] as Node3D).get_parent().name == "Marker_Seat_Driver")
+	ok("R1_drivers_seated", drv)
+	# braking: the player's car parked in a lane stops the next car behind it, short of it
+	if not lt.cars.is_empty():
+		var c0: Dictionary = lt.cars[0]
+		var car0: Node3D = c0["node"]
+		var ahead: Vector3 = car0.global_position + (-car0.global_basis.z) * 14.0
+		w.sedan.global_position = ahead
+		await frames(60 * 4)
+		var gap: float = car0.global_position.distance_to(ahead) if is_instance_valid(car0) else 99.0
+		ok("R3_brakes_for_car_ahead", is_instance_valid(car0) and gap > 4.0 and float(c0["v"]) < 0.5, "gap %.1f m, speed %.1f" % [gap, float(c0["v"])])
+	# pedestrians: the player's car on Frank's sidewalk -> his route goes round it, not through
+	var fp: Dictionary = lt.people["Frank"]
+	var mid: Vector3 = ((fp["route"][0] as Vector3) + (fp["route"][1] as Vector3)) * 0.5
+	w.sedan.global_transform = Transform3D(Basis(Vector3.UP, PI * 0.5), mid + Vector3(0, 0.1, 0))
+	await frames(10)
+	(fp["body"] as Node3D).global_position = fp["route"][0]
+	var went: bool = lt._walk_leg(fp, fp["route"][1], 1.15)
+	var through := false
+	var pts: Array = fp["anim"]._path.duplicate()
+	var prev: Vector3 = fp["route"][0]
+	var box := AABB(w.sedan.global_position - Vector3(1.2, 0, 2.6), Vector3(2.4, 2.0, 5.2))
+	for q2 in pts:
+		for k in 10:
+			var x: Vector3 = prev.lerp(q2, k / 10.0)
+			if box.has_point(Vector3(x.x, w.sedan.global_position.y + 0.5, x.z)) and Vector2(x.x - w.sedan.global_position.x, x.z - w.sedan.global_position.z).length() < 1.0:
+				through = true
+		prev = q2
+	ok("R4_walks_round_parked_car", not went or not through, "route %d points, went %s" % [pts.size(), str(went)])
+	# traffic while the player sits in the car (the body left far away)
+	w.sedan.global_position = Vector3(30.0, 0.2, lt.road_z + 12.0)
+	p.global_position = Vector3(49.0, 0.7, 508.0)
+	w.in_car = true
+	var cs0: int = int(lt.report["cars_spawned"])
+	await frames(60 * 14)
+	ok("R2_traffic_while_in_car", int(lt.report["cars_spawned"]) > cs0 or not lt.cars.is_empty(), "%d -> %d" % [cs0, int(lt.report["cars_spawned"])])
+	w.in_car = false
+	p.global_position = Vector3(30.0, 0.7, lt.road_z + 9.0)
+	# neighbours, talking, no look-alikes
+	ok("R5_neighbours", ["Res_Walker", "Res_Neighbour", "Res_Driveway"].filter(func(n): return lt.people.has(n)).size() >= 2, "spots %s" % str(lt.report.get("home_spots", -1)))
+	await wait_until(func(): return lt.can_talk("Officer"), 10.0)
+	ok("R6_talk_available", lt.can_talk("Frank") and lt.people["Frank"]["it"].get_prompt() != "" or lt.can_talk("Officer"))
+	lt._talk("Officer")
+	ok("R6_talk_says_line", int(lt.report.get("talks", 0)) >= 1)
+	var sig := {}
+	var dup := []
+	for nm in lt.people:
+		var b: Node3D = lt.people[nm]["body"]
+		var m: MeshInstance3D = b.find_children("*", "MeshInstance3D", true, false)[0] as MeshInstance3D
+		var key: String = "%s|%s|%.2f" % [m.mesh.resource_path, str(m.get_active_material(0).albedo_color if m.get_active_material(0) is StandardMaterial3D else ""), (b.get_child(0) as Node3D).scale.x]
+		if sig.has(key):
+			dup.append("%s=%s" % [nm, sig[key]])
+		sig[key] = nm
+	ok("R7_no_lookalikes", dup.is_empty(), str(dup))
 	ok("no_monsters_before_veil", w.find_children("LT_*", "", true, false).filter(func(n): return n.name.begins_with("LT_Skitter") or n.name.begins_with("LT_Hound")).is_empty())
 	# ---- the Veil: routines end, fear, people leave over time
 	game.flags["p3_stepped_out"] = true           # (the Colossus scene itself is the opening test's; here: already seen)
@@ -97,7 +165,7 @@ func _run() -> void:
 	ok("panic_flight", lt.people["Civilian_A"]["state"] in ["building", "inside"] and lt.people["Civilian_B"]["state"] in ["fog", "gone"], str(states))
 	# ---- 1. Frank (after the Colossus scene: stepped out, control back, outdoors)
 	game.flags["p3_stepped_out"] = true
-	await _put(w.game_shop.to_global(Vector3(-3.2, 0.3, -4.0)))
+	await _put(w.game_shop.to_global(Vector3(-3.2, 0.3, -1.6)))   # on the sidewalk outside the shop
 	var fr := await wait_until(func(): return game.has_flag("lt_frank_done"), 25.0)
 	ok("E1_frank_once", fr and lt.report["events"].count("frank") == 1, str(lt.report["events"]))
 	ok("E1_frank_taken", lt.people["Frank"]["state"] == "taken" and not lt.people["Frank"]["body"].visible)
@@ -124,10 +192,12 @@ func _run() -> void:
 	await frames(30)
 	pass #print("  dbg2 busy=%s story_busy=%s outdoors=%s near=%s pos=%s ev_t=%.1f vis=%s" % [lt._busy, lt._story_busy(), w._outdoors(), lt._player_near(Vector3(152.0, 0.2, -26.0), 38.0), str(p.global_position.snapped(Vector3.ONE)), lt._event_t, p.visible])
 	ok("E2_waits_for_story_scene", lt._story_busy() == false or not game.has_flag("lt_joan_done"))
-	await lt._joan()                                 # (here a chapter scene is running: the town would wait for it)
-	var jo: bool = game.has_flag("lt_joan_done")
+	if lt._busy == "":
+		lt._joan()                                   # (a chapter scene may hold the natural trigger back)
+	var jo := await wait_until(func(): return game.has_flag("lt_joan_done"), 30.0)
 	ok("E2_joan_once", jo and lt.report["events"].count("joan") == 1, "route %s" % str(lt.report.get("joan_route", -1)))
 	# ---- 5. the window (scene itself; finding a house in view needs the player there on a supply run)
+	await wait_until(func(): return lt._busy == "", 10.0)
 	await lt._window_scene(Vector3(0, 3.5, 0))
 	ok("E5_window_once", game.has_flag("lt_window_done") and lt.report["events"].count("window") == 1)
 	# ---- persistence: saved flags, nothing replays

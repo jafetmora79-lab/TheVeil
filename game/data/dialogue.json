@@ -6897,5 +6897,95 @@
     "time": 1.8
    }
   ]
+ },
+ "lt_talk_frank_pre": {
+  "lines": [
+   {
+    "speaker": "Frank",
+    "text": "Evening. Pretty quiet around here tonight.",
+    "time": 2.6
+   }
+  ]
+ },
+ "lt_talk_frank_post": {
+  "lines": [
+   {
+    "speaker": "Frank",
+    "text": "What the hell is happening? Where did everybody go?",
+    "time": 2.6
+   }
+  ]
+ },
+ "lt_talk_joan_pre": {
+  "lines": [
+   {
+    "speaker": "Joan",
+    "text": "Heading out this late? Most places are about to close.",
+    "time": 2.6
+   }
+  ]
+ },
+ "lt_talk_joan_post": {
+  "lines": [
+   {
+    "speaker": "Joan",
+    "text": "Get inside! Now!",
+    "time": 2.6
+   }
+  ]
+ },
+ "lt_talk_officer_pre": {
+  "lines": [
+   {
+    "speaker": "Officer",
+    "text": "Evening. Drive safe out there.",
+    "time": 2.6
+   }
+  ]
+ },
+ "lt_talk_officer_post": {
+  "lines": [
+   {
+    "speaker": "Officer",
+    "text": "Keep off the street. Get indoors and stay there.",
+    "time": 2.6
+   }
+  ]
+ },
+ "lt_talk_resident_pre": {
+  "lines": [
+   {
+    "speaker": "Neighbour",
+    "text": "Hey, neighbor. Nice night for a walk.",
+    "time": 2.6
+   }
+  ]
+ },
+ "lt_talk_resident_post": {
+  "lines": [
+   {
+    "speaker": "Neighbour",
+    "text": "Did you see that thing?",
+    "time": 2.6
+   }
+  ]
+ },
+ "lt_talk_civilian_pre": {
+  "lines": [
+   {
+    "speaker": "Passer-by",
+    "text": "Think we're getting rain tonight?",
+    "time": 2.6
+   }
+  ]
+ },
+ "lt_talk_civilian_post": {
+  "lines": [
+   {
+    "speaker": "Passer-by",
+    "text": "I can't find my car!",
+    "time": 2.6
+   }
+  ]
  }
 }
