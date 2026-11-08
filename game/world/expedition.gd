@@ -570,7 +570,16 @@ func _retire_old_supplies_spot() -> void:
 			(n as Interactable).prompt_text = ""
 
 
+## Chapter 5's "check the supplies" step, done at this crate (the one supplies spot in the shelter).
+func c5_check_pending() -> bool:
+	var c5 := _c5()
+	return c5 != null and Game.has_flag("c5_talked_both") and not Game.has_flag("c5_supplies_checked")
+
+
 func _use_supply_chest(_b: Node) -> void:
+	if c5_check_pending():
+		_c5()._check_supplies(null)
+		return
 	var p4 := _p4()
 	if p4 == null or shelter() != "supermarket":
 		return
@@ -586,7 +595,9 @@ func _supply_chest_marker() -> void:
 	var carrying := Game.inventory.any(func(i): return Game.shelter_resource(String(i)) in ["food", "water"])
 	var on: bool = shelter() == "supermarket" and carrying and in_store()
 	world.hud.world_diamond("supply_chest", supply_chest if on else null)
-	supply_chest.collision_layer = 8 if shelter() == "supermarket" else 0
+	var pending := c5_check_pending()
+	supply_chest.prompt_text = "[E] Check the Supplies" if pending else "[E] Shelter Supplies"
+	supply_chest.collision_layer = 8 if shelter() == "supermarket" or pending else 0
 
 
 # ------------------------------------------------------------------ the car (the protagonist's own sedan)
@@ -953,6 +964,28 @@ func in_house(p: Vector3, margin := 0.4) -> bool:
 			if lp.x > float(rc[0]) - margin and lp.x < float(rc[2]) + margin and lp.z > float(rc[1]) - margin and lp.z < float(rc[3]) + margin:
 				return true
 	return false
+
+
+## Inside the supermarket while it is the shelter (the vestibule included).
+func _in_shelter(p: Vector3) -> bool:
+	if shelter() != "supermarket" or world.market == null:
+		return false
+	var l: Vector3 = world.market.to_local(p)
+	return l.z > 0.4 and l.z < 17.6 and absf(l.x) < 20.0
+
+
+## At the doors with the player inside: a chase ends there (it does not follow into the shelter).
+func _guard_doors() -> void:
+	if shelter() != "supermarket" or world.market == null or not _in_shelter(_player().global_position):
+		return
+	for c in creatures:
+		var ai = c.get("ai")
+		var n: Node3D = c["node"]
+		if ai == null or not is_instance_valid(n):
+			continue
+		var l: Vector3 = world.market.to_local(n.global_position)
+		if l.z > -4.0 and String(ai.state) in ["CHASE", "SUSPICIOUS", "SEARCH"]:
+			_leave(c, "the player is inside the shelter")
 
 
 func _role_count(role: String) -> int:
@@ -1626,6 +1659,15 @@ func _prune() -> void:
 					c["ref_t"] = 0.0
 					if moving and not progressed and unseen and d > 10.0:
 						why = "stuck (no progress in 12 s)"
+		if why == "" and ai != null and _in_shelter(n.global_position):
+			# never inside the shelter: it turns back out of the doors; if out of sight in there, it is simply gone
+			if unseen:
+				why = "got into the shelter (removed unseen)"
+			elif String(ai.state) != "RETURN":
+				ai.state = "RETURN"
+				ai.home = world.market.global_transform * Vector3(0.0, 0.0, -8.0)
+				ai.leash = 999.0
+				report["turned_out_of_shelter"] = int(report.get("turned_out_of_shelter", 0)) + 1
 		if why != "":
 			report["despawned_unseen"] += 1
 			_dbg("REMOVED %s (%s): %s at %s, %.1f m from the player" % [c["kind"], c.get("role", "-"), why, _v(n.global_position), d])
@@ -1689,6 +1731,7 @@ func _process(delta: float) -> void:
 		if not Game.has_flag("ch9_supermarket_lost"):
 			quest.place()
 	_prune()
+	_guard_doors()
 	_supply_chest_marker()
 	if active():
 		if _warn_t <= 0.0 and level() >= 1 and _clock_running():

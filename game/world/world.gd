@@ -1670,6 +1670,7 @@ func _outdoors() -> bool:
 
 
 func _p3_tick(_delta: float) -> void:
+	_chase_music_tick()
 	if mist_ceiling:
 		var cam := get_viewport().get_camera_3d()
 		if cam:
@@ -3271,19 +3272,27 @@ func _chase_start() -> void:
 		_chase_music.volume_db = -10.0
 		add_child(_chase_music)
 		_chase_music.finished.connect(func():
-			if Game.has_flag("p3_fled_together") and not Game.has_flag("p3_in_market"):
+			if Game.has_flag("p3_fled_together") and not Game.has_flag("p4_breaker"):
 				_chase_music.play())
 		_chase_music.play()
 
 
+## The run is over at the doors: no more strikes. The chase music keeps going (the danger is still at the glass)
+## until the doors are barricaded and the lights are back on (the breaker, Phase 4): see _chase_music_tick().
 func _chase_end() -> void:
 	for t in _tentacles:
 		var ai = t.get_node_or_null("AI") if is_instance_valid(t) else null
 		if ai:
 			ai.set_process(false)                      # safe inside: no more strikes
-	if _chase_music and _chase_music.playing:
+
+
+func _chase_music_tick() -> void:
+	if _chase_music == null or not _chase_music.playing or _chase_music.has_meta("fading"):
+		return
+	if Game.has_flag("p4_breaker") and Game.has_flag("p3_doors_shut"):
+		_chase_music.set_meta("fading", true)
 		var tw := create_tween()
-		tw.tween_property(_chase_music, "volume_db", -40.0, 2.0)
+		tw.tween_property(_chase_music, "volume_db", -40.0, 3.0)
 		tw.tween_callback(_chase_music.stop)
 
 
@@ -3680,78 +3689,15 @@ func _market_blackout() -> void:
 			(l as Light3D).visible = false
 
 
-## Market-local spots just inside each door leaf, where Eddie and Marcus take hold of the doors.
-const MARKET_DOOR_HELPERS := {"Eddie": Vector3(-0.8, 0.04, 1.0), "Marcus": Vector3(0.8, 0.04, 1.0)}
-var _securing := false
-var secure_report := {}                ## (tests) the entrance-securing scene: helpers, duration, control back
+## Pulling the doors shut (the arrival scene already brought everyone in): the leaves slide closed, the tentacles
+## pull back, a line, and the night inside begins. No second cinematic.
+var secure_report := {}
 
 
-## Securing the entrance: the view turns out through the glass to what is still out there, Eddie and Marcus run
-## to the two leaves and drag them shut with the player, the doors close, the tentacles pull back, control returns.
-## About six seconds; the camera only turns where the player stands (it never moves into a wall or a body).
 func _p3_shut_doors(_by: Node) -> void:
-	if not Game.has_flag("p3_in_market") or Game.has_flag("p3_doors_shut") or _securing:
+	if not Game.has_flag("p3_in_market") or Game.has_flag("p3_doors_shut"):
 		return
-	_securing = true
 	shut_it.prompt_text = ""
-	var t0 := Time.get_ticks_msec()
-	var fr0 := Engine.get_process_frames()
-	_encounter_running = true                          # (no menus, objectives or threats while it plays)
-	var was_look := player.look_enabled
-	player.controls_enabled = false
-	player.look_enabled = false
-	player.velocity = Vector3.ZERO
-	hud.allow_pause = false
-	var src := player.camera
-	var cam := Camera3D.new()
-	cam.name = "SecureShot"
-	add_child(cam)
-	cam.global_transform = src.global_transform
-	cam.fov = src.fov
-	cam.near = src.near
-	cam.far = src.far
-	cam.current = true
-	_cine = cam
-	var b0 := src.global_transform.basis.orthonormalized()
-	var out_pt := market.global_transform * Vector3(0, 1.4, -7.0)     # the forecourt, beyond the glass
-	var b1 := Transform3D(Basis(), cam.global_position).looking_at(out_pt, Vector3.UP).basis
-	var f0 := src.fov
-	var turn := create_tween()
-	turn.tween_method(func(k: float):
-		if is_instance_valid(cam):
-			var e := k * k * (3.0 - 2.0 * k)
-			cam.global_basis = Basis(b0.get_rotation_quaternion().slerp(b1.get_rotation_quaternion(), e))
-			cam.fov = lerpf(f0, 58.0, e), 0.0, 1.0, 0.9)
-	# the two of them run to the leaves (the route goes round the player and the vestibule furniture)
-	var helpers: Array = []
-	for who in MARKET_DOOR_HELPERS:
-		var a = animators.get(who)
-		if a and is_instance_valid(a.root) and a.root.visible:
-			if a.root.get_parent() != market:
-				a.root.reparent(market, true)
-			npc_walk(who, MARKET_DOOR_HELPERS[who], 3.2)
-			a.set_mood("scared")
-			helpers.append(who)
-	await turn.finished
-	# the danger outside, while they get there (at most 2.4 s)
-	var wait := 0.0
-	while wait < 2.4:
-		var there := true
-		for who in helpers:
-			var a = animators[who]
-			if a.root.position.distance_to(MARKET_DOOR_HELPERS[who]) > 0.6:
-				there = false
-		if there and wait > 1.2:
-			break
-		await get_tree().process_frame
-		wait += get_process_delta_time()
-	for who in helpers:
-		var a = animators[who]
-		a.walk_to([])
-		a.face_towards(market.global_transform * (MARKET_DOOR_HELPERS[who] * Vector3(1, 1, 0) + Vector3(0, 0, 0.2)))
-		a.hold_facing = true
-	secure_report["helpers"] = helpers.duplicate()
-	secure_report["helpers_at_doors"] = helpers.filter(func(w): return animators[w].root.position.distance_to(MARKET_DOOR_HELPERS[w]) < 0.8)
 	for d in _auto_doors:
 		_glow(d[0], false)
 		var tw := create_tween().set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
@@ -3764,32 +3710,9 @@ func _p3_shut_doors(_by: Node) -> void:
 		var ai = t.get_node_or_null("AI") if is_instance_valid(t) else null
 		if ai:
 			ai.set_process(false)
-	await get_tree().create_timer(1.7).timeout
-	Sfx.play("door_close", market.global_transform * Vector3(0, 1.2, 0.2), -6.0, 0.55)   # the latch
-	await get_tree().create_timer(0.8).timeout
-	var back := create_tween()
-	back.tween_method(func(k: float):
-		if is_instance_valid(cam):
-			var e := k * k * (3.0 - 2.0 * k)
-			cam.global_basis = Basis(b1.get_rotation_quaternion().slerp(b0.get_rotation_quaternion(), e))
-			cam.fov = lerpf(58.0, f0, e), 0.0, 1.0, 0.8)
-	await back.finished
-	for who in helpers:
-		animators[who].hold_facing = false
-	if _cine == cam:
-		_cine = null
-	cam.queue_free()
-	player.camera.current = true
-	player.controls_enabled = true
-	player.look_enabled = was_look
-	hud.allow_pause = true
-	_encounter_running = false
-	_securing = false
-	secure_report["seconds"] = (Time.get_ticks_msec() - t0) / 1000.0
-	secure_report["frames"] = Engine.get_process_frames() - fr0
-	secure_report["control_back"] = player.controls_enabled
 	Dialogue.say("p3_doors", false, true)
 	Game.set_flag("p3_doors_shut")
+	secure_report["control_back"] = player.controls_enabled
 	_start_phase4(false)            # Phase 4 continues the night inside (game/world/phase4.gd)
 
 

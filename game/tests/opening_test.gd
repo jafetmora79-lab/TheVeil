@@ -919,9 +919,7 @@ func _run() -> void:
 	var no_ctrl: bool = not player.controls_enabled
 	await frames(60 * 7)
 	ok("p3_end", game.has_flag("p3_doors_shut") and leaf.position.distance_to(leaf0) < 0.05)
-	ok("p3_secure_scene", no_ctrl and world.secure_report.get("control_back", false) and player.controls_enabled and player.camera.current
-		and int(world.secure_report.get("frames", 9999)) < 60 * 7 and (world.secure_report.get("helpers_at_doors", []) as Array).size() >= 1,
-		str(world.secure_report))
+	ok("p3_doors_no_second_cinematic", player.controls_enabled and player.camera.current and world.get_node_or_null("SecureShot") == null)
 	await phase4_tests(game, ps)
 	world.save()
 	world.free()

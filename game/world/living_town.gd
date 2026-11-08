@@ -104,11 +104,17 @@ func _say(id: String) -> void:
 		Dialogue.say(id, false, false)
 
 
-func _snd(id: String, at: Vector3, db := 0.0) -> void:
+func _snd(id: String, at: Vector3, db := 0.0) -> AudioStreamPlayer3D:
 	if Sfx.bank(id):
-		Sfx.bank_at(id, at, db, 10.0)
-	else:
-		Sfx.play(id, at, db)
+		return Sfx.bank_at(id, at, db, 10.0)
+	return Sfx.play(id, at, db)
+
+
+## A looping sound (a *_LOOP / *_loop file) is stopped by the scene that started it - never left playing.
+func _stop(p) -> void:
+	if p != null and is_instance_valid(p):
+		(p as AudioStreamPlayer3D).stop()
+		(p as AudioStreamPlayer3D).queue_free()
 
 
 func _anim(n: Node) -> AnimationPlayer:
@@ -966,7 +972,7 @@ func _frank() -> void:
 	frank_report["frank_root_above_ground_m"] = body.global_position.y - _ground(feet).y
 	# --- pin: ~1.5 s, both moving
 	_fstate("pin")
-	_snd("ss_hold", chest, 0.0)
+	var hold_snd := _snd("ss_hold", chest, 0.0)
 	var lie := _lying(feet, d)
 	var t := 0.0
 	var next_scream := 0.5
@@ -983,12 +989,13 @@ func _frank() -> void:
 			Sfx.play("hurt", chest + Vector3.UP * 0.4, 2.0, 1.15)
 	# --- drag: it turns, grips his shoulders and runs into the mist; he trails feet-first behind it
 	_fstate("drag")
+	_stop(hold_snd)
 	_say("lt_eddie_frank")
 	var away := (pin - eye) * Vector3(1, 0, 1)
 	away = (away.normalized() + d * 0.4).normalized()
 	_face(sk, away)
 	_snd("ss_retreat", chest, 2.0)
-	_snd("sk_move_loop", chest, -2.0)
+	var move_snd := _snd("sk_move_loop", chest, -2.0)
 	var travelled := 0.0
 	var speed := 1.2
 	var head_gap := 0.55                               # its rear legs at his shoulders
@@ -1002,6 +1009,8 @@ func _frank() -> void:
 		span += dt
 		var lead := _ground(land + away * travelled)
 		sk.global_position = lead + Vector3.UP * 0.05
+		if move_snd and is_instance_valid(move_snd):
+			move_snd.global_position = lead + Vector3.UP * 0.4     # the scuttle goes with it
 		VeilCreatureLook.skitter_anim(sk, "scuttle", speed)
 		var head := lead - away * head_gap
 		var f := head - away * 1.75
@@ -1016,6 +1025,8 @@ func _frank() -> void:
 	frank_report["drag_attach_error_m"] = max_sep
 	# --- gone: out of sight / deep in the fog; only now are they removed
 	_fstate("gone")
+	_stop(move_snd)
+	frank_report["loops_stopped"] = not (is_instance_valid(move_snd) and move_snd.playing) and not (is_instance_valid(hold_snd) and hold_snd.playing)
 	body.visible = false
 	p["state"] = "taken"
 	_unregister(body)
@@ -1203,7 +1214,7 @@ func _joan() -> void:
 	h.global_position = _ground(trail[0])
 	_clip(h, "Run", 1.3)
 	_snd("hound_bark", h.global_position + Vector3.UP, 4.0)
-	_snd("hound_run_loop", h.global_position, -2.0)
+	var run_snd := _snd("hound_run_loop", h.global_position, -2.0)
 	var t := 0.0
 	while t < 12.0 and is_instance_valid(h) and is_instance_valid(jb):
 		await get_tree().process_frame
@@ -1221,6 +1232,7 @@ func _joan() -> void:
 	await get_tree().create_timer(1.0).timeout
 	_snd("ev_unknown", trees + Vector3.UP * 1.5, -4.0)
 	Sfx.play("hurt", trees + Vector3.UP * 1.5, -8.0, 1.6)
+	_stop(run_snd)
 	jb.visible = false
 	p["state"] = "gone"
 	_free_when_unseen(h, 20.0)
