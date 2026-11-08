@@ -12,6 +12,8 @@ const CROUCH := 1.3
 const ACCEL := 10.0
 const DECEL := 12.0
 const GRAVITY := 14.0
+const JUMP_SPEED := 4.6                ## about 0.75 m up with this gravity: over a low fence, a kerb, a fallen branch
+const JUMP_STAMINA := 6.0
 const EYE := 1.62
 const EYE_CROUCH := 1.05
 const HEIGHT := 1.76
@@ -147,11 +149,19 @@ func _physics_process(delta: float) -> void:
 	hv = hv.move_toward(target, (ACCEL if target.length() > 0.01 else DECEL) * delta * speed)
 	velocity.x = hv.x
 	velocity.z = hv.z
-	if is_on_floor():
+	# Space: a jump (on foot, with control, from the ground, standing up; a little stamina when survival is on)
+	var jump := controls_enabled and is_on_floor() and not crouching and InputMap.has_action("jump") 		and Input.is_action_just_pressed("jump") and (not survival_active or stamina >= JUMP_STAMINA)
+	if jump:
+		velocity.y = JUMP_SPEED
+		if survival_active:
+			stamina = maxf(stamina - JUMP_STAMINA, 0.0)
+			_regen_t = REGEN_DELAY
+			stamina_changed.emit(stamina, MAX_STAMINA)
+	elif is_on_floor():
 		velocity.y = -0.5
 	else:
 		velocity.y -= GRAVITY * delta
-	if is_on_floor() and hv.length() > 0.05 and get_floor_normal().y > 0.93:
+	if not jump and is_on_floor() and hv.length() > 0.05 and get_floor_normal().y > 0.93:
 		_step_up(hv, delta)                      # (flat ground only: stairs are ramps, a lift there only jolts)
 	move_and_slide()
 	_fall_guard(delta)

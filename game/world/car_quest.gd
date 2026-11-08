@@ -74,6 +74,13 @@ func setup(e: Node) -> void:
 	_streams["alarm"] = Sfx._make(0.5, func(t: float, _i: int) -> float: return sin(TAU * (880.0 if t < 0.25 else 660.0) * t) * 0.35, true)
 	_streams["thud"] = Sfx._make(0.3, func(t: float, i: int) -> float: return (Sfx._noise(i) * 0.4 + sin(TAU * 70.0 * t) * 0.7) * exp(-t * 16.0))
 	_build_ui()
+	_restore_fitted.call_deferred()
+
+
+func _restore_fitted() -> void:
+	for i in 3:
+		await get_tree().process_frame
+	fitted_props()                                     # a load: the parts already fitted are back in the car
 
 
 ## The quest state (saved with the game).
@@ -507,15 +514,16 @@ func _place_relay(c: Dictionary, truck: Node3D) -> void:
 	var hood := truck.find_child("Hood", true, false) as Node3D
 	if hood:
 		hood.rotation.x = deg_to_rad(52.0)              # up: someone was working on it
-	var relay := RELAY.instantiate() as Node3D
-	relay.name = "CQ_Relay"
-	truck.add_child(relay)
-	var lp: Array = c.get("relay_local", [0.45, 0.0, -1.9])
-	var top := _surface(truck, truck.global_transform * Vector3(lp[0], 2.0, lp[2]))
-	relay.position = Vector3(lp[0], (top - truck.global_position.y) + 0.001 if is_finite(top) else float(lp[1]), lp[2])
-	sites["starter_relay"] = {"root": truck, "relay": relay}
-	_anchor("starter_relay", truck, relay.position)
-	_step("relay/take", truck, relay.position + Vector3(0, 0.3, -0.2), Vector3(0.9, 0.8, 0.9), "[E] Take Starter Relay", _take_relay)
+	# the relay box low on the front bumper's face (in plain view, nothing over it), the relay inside
+	var front := -2.672
+	for mi in truck.find_children("*", "MeshInstance3D", true, false):
+		var ab: AABB = (truck.global_transform.affine_inverse() * (mi as MeshInstance3D).global_transform) * (mi as MeshInstance3D).get_aabb()
+		front = minf(front, ab.position.z)
+	var bx := _relay_box(truck, "CQ_RelayBox", Vector3(-0.45, 0.5, front - 0.012), true)
+	var relay: Node3D = bx["relay"]
+	sites["starter_relay"] = {"root": truck, "relay": relay, "box": bx}
+	_anchor("starter_relay", truck, (bx["root"] as Node3D).position)
+	_step("relay/take", truck, (bx["root"] as Node3D).position + Vector3(0, 0.05, -0.35), Vector3(0.8, 0.7, 0.8), "[E] Take Starter Relay", _take_relay)
 	if acquired("starter_relay"):
 		relay.visible = false
 	_on("relay/take", not acquired("starter_relay"))
@@ -538,10 +546,20 @@ func _take_relay() -> void:
 	busy = true
 	_on("relay/take", false)
 	var relay: Node3D = sites["starter_relay"]["relay"]
-	await _peek(relay.global_position, 0.7, 0.2)
+	var bx = sites["starter_relay"].get("box")
+	await _peek(relay.global_position, 0.55, 0.05, true)               # down on one knee at the bumper
+	if bx:
+		await _relay_lid(bx, true)
+	await get_tree().create_timer(0.3).timeout
+	var cam := (ex._player() as Node3D).get("camera") as Camera3D
+	var tw := create_tween().set_trans(Tween.TRANS_SINE)
+	tw.tween_property(relay, "global_position", cam.global_transform * Vector3(0.0, -0.12, -0.28), 0.5)
+	await tw.finished
 	_snd("click", relay.global_position, -4.0)
 	relay.visible = false
 	_acquire("starter_relay")
+	if bx:
+		await _relay_lid(bx, false)
 	await _peek_back()
 	busy = false
 
@@ -872,56 +890,271 @@ func _build_ui() -> void:
 
 
 # ------------------------------------------------------------------ fitting the parts at the player's car
-## A short, hands-on fitting at the car (hood, door, fuel cap) - the item is used up. Called by expedition._fit.
+## Hands-on fitting at the player's own car - the item is used up. Called by expedition._fit. The player walks to the
+## right place round the car and the part goes where it belongs, and stays there:
+##   fuel     - at the filler on the left rear quarter: the can tips, spout in the neck, and empties
+##   battery  - at the front: hood up, the battery set down in the engine bay's battery spot, clamps on
+##   fuse     - at the front: hood up, the under-hood fuse box's cover off, the fuse pressed in, cover back
+##   relay    - low at the front: crouched at the relay box on the bumper, lid up, the relay in, lid shut
+## (Car-local: the front is -Z, the driver's side -X.)
+const BAY_BATTERY := Vector3(0.42, 0.0, -1.85)
+const BAY_FUSE := Vector3(-0.48, 0.0, -1.7)
+const RELAY_BOX := Vector3(-0.5, 0.36, -2.44)          ## on the front bumper's face, left of centre
+const CAP := Vector3(-0.9, 0.86, 1.35)                 ## the filler on the left rear quarter
+
+
 func install(id: String) -> void:
 	var car: Node3D = world.sedan
 	var model := car.get("model") as Node3D
 	var hood := model.find_child("Hood", true, false) as Node3D if model else null
-	var at_front: Vector3 = car.global_transform * Vector3(0, 0.9, -1.7)
-	var at_door: Vector3 = car.global_transform * Vector3(-0.5, 0.8, -0.4)
-	var at_cap: Vector3 = car.global_transform * Vector3(-0.85, 0.85, 1.35)
 	match id:
-		"car_battery", "starter_relay":
+		"fuel_can":
+			await _fit_fuel(car)
+		"car_battery":
+			await _walk_player(car.global_transform * Vector3(BAY_BATTERY.x, 0.0, -3.2), car.global_transform * Vector3(BAY_BATTERY.x, 0.6, -1.8))
 			await _hood(hood, true)
-			await _peek(at_front, 0.6, 0.2)
-			var prop := (BATTERY if id == "car_battery" else RELAY).instantiate() as Node3D
-			car.add_child(prop)
-			prop.global_position = car.global_transform * (Vector3(0.38, 0.62, -1.75) if id == "car_battery" else Vector3(-0.35, 0.7, -1.6))
-			prop.global_rotation.y = car.global_rotation.y + PI * 0.5
-			_snd("thud" if id == "car_battery" else "click", prop.global_position, -6.0)
-			_say("Battery in. Positive... negative." if id == "car_battery" else "Relay seated.", 2.4)
-			await get_tree().create_timer(0.7).timeout
-			_snd("click", prop.global_position, -4.0)
+			var slot := _bay_point(car, BAY_BATTERY)
+			await _peek(slot + Vector3(0, 0.1, 0), 0.75, 0.05)
+			var bat := BATTERY.instantiate() as Node3D
+			bat.name = "CQ_Fitted_car_battery"
+			car.add_child(bat)
+			await _carry_in(bat, Transform3D(car.global_basis * Basis(Vector3.UP, PI * 0.5), slot), 0.7)
+			_snd("thud", slot, -6.0)
+			_say("Battery in. Positive... negative.", 2.4)
 			await get_tree().create_timer(0.6).timeout
-			if id == "car_battery":
-				_snd("click", prop.global_position, -4.0)
-				await get_tree().create_timer(0.5).timeout
+			_snd("click", slot + car.global_basis.x * 0.1, -4.0)
+			await get_tree().create_timer(0.5).timeout
+			_snd("click", slot - car.global_basis.x * 0.1, -4.0)
+			await get_tree().create_timer(0.4).timeout
 			await _peek_back()
 			await _hood(hood, false)
-			prop.queue_free()
 		"car_fuse":
-			await car.swing_door(true, 0.6)
-			await _peek(at_door, 0.5, 0.4)
-			_snd("click", at_door, -4.0)
+			await _walk_player(car.global_transform * Vector3(BAY_FUSE.x, 0.0, -3.2), car.global_transform * Vector3(BAY_FUSE.x, 0.6, -1.7))
+			await _hood(hood, true)
+			var box := _fuse_box(car)
+			await _peek(box.global_position + Vector3(0, 0.05, 0), 0.8, 0.05)
+			var cover := box.get_node_or_null("Cover") as Node3D
+			if cover:
+				_snd("click", box.global_position, -6.0)
+				var tw := create_tween()
+				tw.tween_property(cover, "rotation:y", -1.9, 0.35)
+				await tw.finished
+			var fuse := box.get_node_or_null("Fuse_Good") as Node3D
+			if fuse:
+				var into := fuse.global_transform
+				fuse.visible = true
+				var cam := (ex._player() as Node3D).get("camera") as Camera3D
+				fuse.global_transform = Transform3D(into.basis, cam.global_transform * Vector3(0.05, -0.18, -0.35))
+				var tf := create_tween().set_trans(Tween.TRANS_SINE)
+				tf.tween_property(fuse, "global_position", into.origin, 0.5)
+				await tf.finished
+			_snd("click", box.global_position, -3.0)
 			_say("Fuse in.", 1.8)
-			await get_tree().create_timer(0.6).timeout
+			await get_tree().create_timer(0.4).timeout
+			if cover:
+				var tc := create_tween()
+				tc.tween_property(cover, "rotation:y", 0.0, 0.3)
+				await tc.finished
 			await _peek_back()
-			await car.swing_door(false, 0.4)
-		"fuel_can":
-			await _peek(at_cap, 0.55, 0.1, true)
-			var can := GAS_CAN.instantiate() as Node3D
-			car.add_child(can)
-			can.global_position = at_cap + car.global_transform.basis.x * -0.25 + Vector3(0, -0.05, 0)
-			can.global_rotation = Vector3(0, car.global_rotation.y, deg_to_rad(60.0))
-			_snd("click", at_cap, -6.0)                  # the cap
-			Sfx.play("water_run", at_cap, -8.0, 0.8)
-			_say("Pouring it in...", 2.2)
-			await get_tree().create_timer(2.3).timeout
-			can.queue_free()
-			_snd("click", at_cap, -6.0)
+			await _hood(hood, false)
+		"starter_relay":
+			var bx := _relay_box(car, "CQ_Fitted_relay_box", RELAY_BOX, false)
+			await _walk_player(car.global_transform * Vector3(RELAY_BOX.x, 0.0, -3.2), bx["root"].global_position)
+			await _peek(bx["root"].global_position, 0.55, 0.05, true)        # down on one knee at the bumper
+			await _relay_lid(bx, true)
+			var relay: Node3D = bx["relay"]
+			var dest := relay.global_transform
+			relay.visible = true
+			var cam2 := (ex._player() as Node3D).get("camera") as Camera3D
+			relay.global_transform = Transform3D(dest.basis, cam2.global_transform * Vector3(0.0, -0.15, -0.3))
+			var tr := create_tween().set_trans(Tween.TRANS_SINE)
+			tr.tween_property(relay, "global_position", dest.origin, 0.55)
+			await tr.finished
+			_snd("click", dest.origin, -3.0)
+			_say("Relay seated.", 2.0)
+			await get_tree().create_timer(0.5).timeout
+			await _relay_lid(bx, false)
 			await _peek_back()
 		_:
 			await get_tree().create_timer(0.8).timeout
+	fitted_props()
+
+
+## The fuel: beside the filler, the can comes up, tips until the spout is in the neck, empties, comes away.
+func _fit_fuel(car: Node3D) -> void:
+	var cap: Vector3 = car.global_transform * CAP
+	var out := -car.global_basis.x                                    # the filler's side of the car
+	await _walk_player(cap + out * 0.75 - car.global_basis.z * 0.25 + Vector3(0, -cap.y, 0) + Vector3(0, car.global_position.y, 0), cap)
+	await _peek(cap, 0.45, 0.05)
+	_snd("click", cap, -6.0)                                          # the cap off
+	var can := GAS_CAN.instantiate() as Node3D
+	can.name = "CQ_PouringCan"
+	car.add_child(can)
+	# the can's spout (+X) points in at the car; tipping is a roll about its own Z
+	var face := Basis(Vector3.UP, car.global_rotation.y - PI * 0.5 + PI)
+	var tip_local := Vector3(0.165, 0.445, 0.0)
+	var place := func(tilt: float, lift: float) -> void:
+		var b := face * Basis(Vector3.FORWARD, -tilt)
+		var tip_to: Vector3 = cap + out * (0.05 + lift) + Vector3(0, lift * 0.5, 0)
+		can.global_transform = Transform3D(b, tip_to - b * tip_local)
+	place.call(0.0, 0.35)
+	var tw := create_tween().set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
+	tw.tween_method(func(k: float): place.call(lerpf(0.0, 0.95, k), lerpf(0.35, 0.0, k)), 0.0, 1.0, 0.8)
+	await tw.finished
+	Sfx.play("water_run", cap, -8.0, 0.8)
+	_say("Pouring it in...", 2.2)
+	var tp := create_tween()
+	tp.tween_method(func(k: float): place.call(lerpf(0.95, 1.35, k), 0.0), 0.0, 1.0, 2.0)   # tipped further as it empties
+	await tp.finished
+	var tb := create_tween().set_trans(Tween.TRANS_SINE)
+	tb.tween_method(func(k: float): place.call(lerpf(1.35, 0.0, k), lerpf(0.0, 0.4, k)), 0.0, 1.0, 0.6)
+	await tb.finished
+	can.queue_free()
+	_snd("click", cap, -6.0)                                          # the cap back on
+	await _peek_back()
+
+
+## The player walks (a short, steady walk, not a jump) to `to`, turning to face `look`.
+func _walk_player(to: Vector3, look: Vector3, speed := 1.6) -> void:
+	var p: Node3D = ex._player()
+	p.set("controls_enabled", false)
+	p.set("look_enabled", false)
+	p.set("velocity", Vector3.ZERO)
+	var g := _ground_y(to, p)
+	to.y = g if is_finite(g) else p.global_position.y
+	var from := p.global_position
+	var d := Vector2(to.x - from.x, to.z - from.z).length()
+	var yaw0: float = p.rotation.y
+	var dir := look - to
+	var yaw1 := atan2(-dir.x, -dir.z)
+	var secs := clampf(d / speed, 0.35, 3.5)
+	var tw := create_tween().set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
+	tw.tween_method(func(k: float):
+		if is_instance_valid(p):
+			p.global_position = from.lerp(to, k)
+			if p.has_method("set_yaw_pitch"):
+				p.set_yaw_pitch(lerp_angle(yaw0, yaw1, minf(k * 1.6, 1.0)), lerpf(0.0, -0.35, k)), 0.0, 1.0, secs)
+	await tw.finished
+
+
+func _ground_y(at: Vector3, p: Node3D) -> float:
+	var space: PhysicsDirectSpaceState3D = (world.get_world_3d() as World3D).direct_space_state
+	var ex_rid: Array[RID] = [p.get_rid(), (world.sedan as CollisionObject3D).get_rid()]
+	var h := space.intersect_ray(PhysicsRayQueryParameters3D.create(at + Vector3(0, 2.0, 0), at - Vector3(0, 3.0, 0), 1, ex_rid))
+	return (h["position"] as Vector3).y if h else NAN
+
+
+## A part in the player's hands (in front of the camera) carried to its place.
+func _carry_in(part: Node3D, dest: Transform3D, secs: float) -> void:
+	var cam := (ex._player() as Node3D).get("camera") as Camera3D
+	part.global_transform = Transform3D(dest.basis, cam.global_transform * Vector3(0.0, -0.32, -0.55))
+	var tw := create_tween().set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT)
+	tw.tween_property(part, "global_position", dest.origin, secs)
+	await tw.finished
+
+
+## The top of the engine bay (the car body's own mesh, under the hood) at car-local x/z: where a part rests.
+func _bay_point(car: Node3D, local: Vector3) -> Vector3:
+	var model := car.get("model") as Node3D
+	var body := model.find_child("Body", true, false) as MeshInstance3D if model else null
+	var y := 0.62
+	if body:
+		var inv := body.global_transform.affine_inverse() * car.global_transform
+		var p0: Vector3 = inv * Vector3(local.x, 2.0, local.z)
+		var p1: Vector3 = inv * Vector3(local.x, -1.0, local.z)
+		var faces := body.mesh.get_faces()
+		var best := -INF
+		for i in range(0, faces.size(), 3):
+			var hit = Geometry3D.segment_intersects_triangle(p0, p1, faces[i], faces[i + 1], faces[i + 2])
+			if hit != null and (hit as Vector3).y > best and (hit as Vector3).y < 0.86:   # below the closed hood's skin
+				best = (hit as Vector3).y
+		if best > -INF:
+			y = (car.global_transform.affine_inverse() * (body.global_transform * Vector3(0, best, 0))).y
+			y = best
+	return car.global_transform * Vector3(local.x, y + 0.005, local.z)
+
+
+## The under-hood fuse box (made once, kept): the wreck's own fuse panel model, lying face up in the bay.
+func _fuse_box(car: Node3D) -> Node3D:
+	var box := car.get_node_or_null("CQ_Fitted_fuse_box") as Node3D
+	if box:
+		return box
+	box = FUSE_PANEL.instantiate() as Node3D
+	box.name = "CQ_Fitted_fuse_box"
+	car.add_child(box)
+	var at := _bay_point(car, BAY_FUSE)
+	box.global_transform = Transform3D(car.global_basis * Basis(Vector3.RIGHT, -PI * 0.5) * Basis().scaled(Vector3.ONE * 1.6), at + Vector3(0, 0.035, 0))
+	var good := box.get_node_or_null("Fuse_Good") as Node3D
+	if good:
+		good.visible = ex.installed("car_fuse")
+	return box
+
+
+## A starter relay box (made in code from the relay's own materials): a dark box with a hinged lid, the relay
+## inside (drawn twice its tiny model size so it reads). `parent`-local position; its open face toward -Z.
+func _relay_box(parent: Node3D, nm: String, local: Vector3, filled: bool) -> Dictionary:
+	var root := parent.get_node_or_null(nm) as Node3D
+	if root == null:
+		root = Node3D.new()
+		root.name = nm
+		parent.add_child(root)
+		root.position = local
+		var mat := StandardMaterial3D.new()
+		mat.albedo_color = Color(0.09, 0.09, 0.1)
+		mat.roughness = 1.0
+		var shell := MeshInstance3D.new()
+		shell.name = "Shell"
+		var bm := BoxMesh.new()
+		bm.size = Vector3(0.24, 0.16, 0.1)
+		bm.material = mat
+		shell.mesh = bm
+		shell.position = Vector3(0, 0, 0.05)
+		root.add_child(shell)
+		var hinge := Node3D.new()
+		hinge.name = "LidHinge"
+		hinge.position = Vector3(0, 0.08, -0.005)
+		root.add_child(hinge)
+		var lid := MeshInstance3D.new()
+		lid.name = "Lid"
+		var lm := BoxMesh.new()
+		lm.size = Vector3(0.25, 0.17, 0.012)
+		lm.material = mat
+		lid.mesh = lm
+		lid.position = Vector3(0, -0.085, 0)
+		hinge.add_child(lid)
+		var relay := RELAY.instantiate() as Node3D
+		relay.name = "Relay"
+		relay.scale = Vector3.ONE * 2.0
+		root.add_child(relay)
+		relay.position = Vector3(0, -0.06, 0.04)
+		relay.visible = filled
+	return {"root": root, "hinge": root.get_node("LidHinge"), "relay": root.get_node("Relay")}
+
+
+func _relay_lid(bx: Dictionary, open: bool) -> void:
+	var h: Node3D = bx["hinge"]
+	_snd("creak" if open else "click", (bx["root"] as Node3D).global_position, -8.0)
+	var tw := create_tween().set_trans(Tween.TRANS_SINE)
+	tw.tween_property(h, "rotation:x", deg_to_rad(-100.0) if open else 0.0, 0.4)
+	await tw.finished
+
+
+## What has been fitted stays fitted, after the scene and after a load: the battery, the fuse in its box, the relay
+## in its box on the bumper.
+func fitted_props() -> void:
+	var car: Node3D = world.sedan
+	if car == null or ex == null:
+		return
+	if ex.installed("car_battery") and car.get_node_or_null("CQ_Fitted_car_battery") == null:
+		var bat := BATTERY.instantiate() as Node3D
+		bat.name = "CQ_Fitted_car_battery"
+		car.add_child(bat)
+		bat.global_transform = Transform3D(car.global_basis * Basis(Vector3.UP, PI * 0.5), _bay_point(car, BAY_BATTERY))
+	if ex.installed("car_fuse"):
+		_fuse_box(car)
+	if ex.installed("starter_relay"):
+		var bx := _relay_box(car, "CQ_Fitted_relay_box", RELAY_BOX, true)
+		(bx["relay"] as Node3D).visible = true
 
 
 func _hood(hood: Node3D, open: bool) -> void:

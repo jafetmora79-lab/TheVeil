@@ -243,7 +243,7 @@ func _opening() -> void:
 	player.look_enabled = true
 	hud.allow_pause = true
 	hud.set_objective(Game.current_goal(), Game.current_step().get("text", ""))
-	hud.set_hint("WASD move · Mouse look · Shift sprint · Ctrl crouch · E interact · Tab inventory · Esc pause")
+	hud.set_hint("WASD move · Mouse look · Shift sprint · Space jump · Ctrl crouch · E interact · Tab inventory · Esc pause")
 	Dialogue.say("wake_hint", true)
 	await get_tree().create_timer(9.0).timeout
 	if not in_car:

@@ -623,10 +623,12 @@ func _seat(n: String, body: Node3D, seat_def: Array, fol: Node) -> void:
 	body.collision_layer = 0
 	body.collision_mask = 0
 	body.reparent(seat, false)
-	# on the seat, facing the way the car drives: the car runs along its -Z, an NPC's model faces its +Z
-	body.global_transform = Transform3D(car.global_basis * Basis(Vector3.UP, PI), seat.global_position - Vector3(0, SEAT_DROP, 0))
+	# on the seat, facing the way the car drives (its -Z): measured on the body's own skeleton forward, so every
+	# rig sits facing the windscreen whatever way its model was built
+	body.global_transform = Transform3D(car.global_basis, seat.global_position - Vector3(0, SEAT_DROP, 0))
 	var an = world.animators.get(n)
 	if an:
+		face_forward(body, an, car)
 		an.walk_to([])
 		an.hold_facing = true                            # no turning round in the seat to look at the player
 		an.set_seated(true, 0.45)
@@ -1047,3 +1049,14 @@ func _process(delta: float) -> void:
 	_deliver_event(delta)
 	_companion_tick(delta)
 	_activities(delta)
+
+
+
+## Turn a seated body (about its own origin) so its skeleton's forward points along the car's driving direction.
+static func face_forward(body: Node3D, an: Node, car: Node3D) -> void:
+	var want := -car.global_basis.z
+	want.y = 0.0
+	var have: Vector3 = an.world_forward() if an and an.has_method("world_forward") else -body.global_basis.z
+	if want.length() < 0.01 or have.length() < 0.01:
+		return
+	body.global_rotate(Vector3.UP, have.normalized().signed_angle_to(want.normalized(), Vector3.UP))

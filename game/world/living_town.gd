@@ -513,8 +513,9 @@ func _add_driver(car: Node3D) -> Node3D:
 		(body as CollisionObject3D).collision_layer = 0
 		(body as CollisionObject3D).collision_mask = 0
 	body.reparent(seat, false)
-	body.global_transform = Transform3D(car.global_basis * Basis(Vector3.UP, PI), seat.global_position - Vector3(0, SEAT_DROP, 0))
+	body.global_transform = Transform3D(car.global_basis, seat.global_position - Vector3(0, SEAT_DROP, 0))
 	var an = world.animators[nm]
+	preload("res://game/world/survivors.gd").face_forward(body, an, car)   # the windscreen, whatever the rig
 	an.walk_to([])
 	an.hold_facing = true
 	an.set_seated(true, 0.45)
