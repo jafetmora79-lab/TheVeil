@@ -12,7 +12,7 @@ function render(){const q=$('search').value.trim().toLowerCase(),c=$('category')
 function categories(){const c=$('category').value;$('category').replaceChildren(new Option('All assets',''),new Option('Pack 02 — Greyhaven models','pack02'),new Option('Pack 03 — Residential models','pack03'),new Option('Pack 04 — Commercial buildings & fixtures','pack04'),new Option('Pack 05 — Vehicles & Transportation','pack05'),new Option('Pack 06 — Characters','pack06'),new Option('Pack 07 — Creatures','pack07'),new Option('Pack 08 — Inventory & Tools','pack08'),new Option('Pack 09 — Horror Atmosphere (static meshes only)','pack09'),new Option('All 3D models','models'),...[...new Set(files.map(cat))].sort().map(x=>new Option(x,x)));$('category').value=[...$('category').options].some(o=>o.value===c)?c:'';render()}
 function progress(text,error=false){$('loading').textContent=text;$('loading').style.color=error?'#ffb5a7':'#a7d4bf';}
 async function getBytes(url){const r=await fetch(url);if(!r.ok)throw Error(`HTTP ${r.status}: ${url}`);return r.arrayBuffer()}
-async function choose(p,localBytes){const ticket=++version;selected=p;animationControls.hidden=true;clearTimeout(previewTimer);viewer.removeAttribute('src');for(const id of ['viewer','texture','material','empty'])$(id).style.display='none';if(previewURL){URL.revokeObjectURL(previewURL);previewURL=null}$('download').hidden=true;$('detail').replaceChildren();const title=document.createElement('div');title.textContent=label(p);$('detail').append(title);render();progress('Loading asset…');try{if(/\.png$/i.test(p)){$('texture').src=raw(p);$('texture').alt=label(p);$('texture').style.display='block';return}if(/\.tres$/i.test(p)){const text=new TextDecoder().decode(await getBytes(raw(p)));if(ticket!==version)return;$('material').textContent=text;$('material').style.display='block';const m=text.match(/path="res:\/\/([^"\n]+\.png)"/i);if(m){$('texture').src=raw(m[1]);$('texture').alt=m[1];$('texture').style.display='block'}else progress('Material preset: no texture assigned.');return}
+async function choose(p,localBytes){const ticket=++version;selected=p;animationControls.hidden=true;if(viewer.pause){viewer.pause();viewer.animationName=undefined;}clearTimeout(previewTimer);viewer.removeAttribute('src');for(const id of ['viewer','texture','material','empty'])$(id).style.display='none';if(previewURL){URL.revokeObjectURL(previewURL);previewURL=null}$('download').hidden=true;$('detail').replaceChildren();const title=document.createElement('div');title.textContent=label(p);$('detail').append(title);render();progress('Loading asset…');try{if(/\.png$/i.test(p)){$('texture').src=raw(p);$('texture').alt=label(p);$('texture').style.display='block';return}if(/\.tres$/i.test(p)){const text=new TextDecoder().decode(await getBytes(raw(p)));if(ticket!==version)return;$('material').textContent=text;$('material').style.display='block';const m=text.match(/path="res:\/\/([^"\n]+\.png)"/i);if(m){$('texture').src=raw(m[1]);$('texture').alt=m[1];$('texture').style.display='block'}else progress('Material preset: no texture assigned.');return}
 await Promise.race([customElements.whenDefined('model-viewer'),new Promise((_,reject)=>setTimeout(()=>reject(Error('3D viewer library did not load. Check your connection or content blocker.')),20000))]);if(ticket!==version)return;
 let url=raw(p);if(/\.glb$/i.test(p)){progress('Preparing preview: embedding textures and hiding Godot collision shapes…');const result=await makeBrowserPreview(localBytes||await getBytes(url),url,getBytes);if(ticket!==version)return;previewURL=URL.createObjectURL(new Blob([result.bytes],{type:'model/gltf-binary'}));url=previewURL;$('download').href=url;$('download').download=p.split('/').at(-1).replace(/\.glb$/i,'_browser.glb');$('download').hidden=false;const note=document.createElement('p');note.textContent=`Browser preview: ${result.embedded} textures embedded, ${result.hidden} collision meshes hidden. Original asset unchanged.`;$('detail').append(note)}
 if(ticket!==version)return;viewer.alt=label(p);viewer.style.display='block';viewer.src=url;progress('Loading 3D preview…');previewTimer=setTimeout(()=>{if(ticket===version)progress('Model is taking longer than expected. Check your connection, or select it again.',true)},45000);
@@ -25,16 +25,36 @@ $('search').addEventListener('input',render);$('category').addEventListener('cha
 // Animation controls also work with local GLB files.
 const animationControls=document.createElement('div');
 const clipSelect=document.createElement('select'),playButton=document.createElement('button');
-clipSelect.setAttribute('aria-label','Animation');playButton.textContent='Pause animation';
+clipSelect.setAttribute('aria-label','Animation');
+playButton.textContent='Play animation';
 animationControls.append(clipSelect,playButton);animationControls.hidden=true;
 viewer.after(animationControls);
 viewer.addEventListener('load',()=>{
   const clips=viewer.availableAnimations||[];
   animationControls.hidden=!clips.length;
   clipSelect.replaceChildren(...clips.map(name=>new Option(name,name)));
-  if(clips.length){viewer.animationName=clips[0];viewer.play();playButton.textContent='Pause animation';}
+  playButton.textContent='Play animation';
 });
-clipSelect.onchange=()=>{viewer.animationName=clipSelect.value;viewer.play();playButton.textContent='Pause animation';};
-playButton.onclick=()=>{if(viewer.paused){viewer.play();playButton.textContent='Pause animation';}else{viewer.pause();playButton.textContent='Play animation';}};
+clipSelect.onchange=()=>{
+  viewer.pause();
+  viewer.animationName=clipSelect.value;
+  playButton.textContent='Play animation';
+};
+playButton.onclick=async()=>{
+  if(!viewer.paused){
+    viewer.pause();
+    playButton.textContent='Play animation';
+    return;
+  }
+  const ticket=version;
+  viewer.animationName=clipSelect.value;
+  await viewer.updateComplete;
+  if(ticket!==version)return;
+  viewer.play({repetitions:1});
+  playButton.textContent='Pause animation';
+};
+viewer.addEventListener('finished',()=>{
+  playButton.textContent='Replay animation';
+});
 
 $('category').value='';categories();$('category').value='pack02';render();const first=files.find(p=>pack02(p)&&model(p));if(first)choose(first);load();
