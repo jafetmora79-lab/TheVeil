@@ -1016,7 +1016,7 @@ func _on_market_entered() -> void:
 	_in_market = true
 	_clear_beacon("market")
 	if Game.has_flag("p3_mist"):
-		_p3_reach_market()
+		_p3_market_arrival()                      # (only once the run is on; it does nothing otherwise)
 		return
 	Dialogue.say("market_enter", true)
 	if not Game.has_flag("groceries_done"):
@@ -1682,6 +1682,8 @@ func _p3_tick(_delta: float) -> void:
 			_p3_back_inside()
 	elif _p3_shop_talked and not _p3_npcs_moved and _outdoors():
 		_p3_escape_tentacle()
+	elif Game.has_flag("p3_fled_together") and not Game.has_flag("p3_in_market") and _near_market_entrance():
+		_p3_market_arrival()                      # polled: it cannot be missed by a one-shot trigger
 
 
 func _atmo() -> Node:
@@ -3131,10 +3133,22 @@ func _p3_escape_tentacle() -> void:
 		if ai and ai.is_processing():
 			ai.set_process(false)
 			suspended.append(ai)
+	# the road tentacles are already up for the run (sunk ones come back up now, out of view): nothing emerges again
+	# once the chase starts, and none of them sinks and re-emerges during it
+	for tentacle in _tentacles:
+		var ai = tentacle.get_node_or_null("AI")
+		if ai:
+			ai.retract_after = 9999.0
+			if ai.state == "hidden":
+				ai.state = "search"
+				if tentacle.has_method("play"):
+					tentacle.play("Search", 0.0)
 	var shot := TENTACLE_ESCAPE_SHOT.new()
 	shot.name = "TentacleEscapeShot"
 	add_child(shot)
 	enc_report["tentacle_escape_shot"] = await shot.play(self)
+	enc_report["street_shot"] = shot.report
+	_street_tentacle_to_chase(shot)
 	shot.queue_free()
 	player.camera.make_current()
 	player.controls_enabled = was_controls
@@ -3145,6 +3159,33 @@ func _p3_escape_tentacle() -> void:
 			ai.set_process(true)
 	_encounter_running = false
 	_p3_flee_together()
+
+
+## The street tentacle stays where it came up and joins the run: its built pose blends back to its own clips, and
+## it gets the road tentacles' AI with a short grace (its scripted lash was the strike of this moment).
+func _street_tentacle_to_chase(shot: Node) -> void:
+	var t: Node3D = shot.get("tentacle")
+	if t == null or not is_instance_valid(t):
+		return
+	if t.has_method("play"):
+		t.play("Search", 0.0)
+	var poser = shot.get("poser")
+	if poser and is_instance_valid(poser):
+		var tw := create_tween()
+		tw.tween_property(poser, "weight", 0.0, 0.6)
+		tw.tween_callback(poser.queue_free)
+	var ai: Node = TENTACLE_AI.new()
+	ai.name = "AI"
+	t.add_child(ai)
+	ai.target = player
+	ai.retract_after = 9999.0
+	ai.state = "recover"
+	ai.set("_t", -1.6)                                # about 2.7 s before it can wind up again
+	ai.struck.connect(func(tn: Node3D, dmg: float):
+		player.damage(dmg, tn.global_position)
+		Sfx.play("tentacle_hiss", tn.global_position + Vector3(0, 1, 0), 0.0)
+		Dialogue.say("p3_hit", false, true))
+	_tentacles.append(t)
 
 
 func _p3_flee_together() -> void:
@@ -3398,8 +3439,8 @@ func _p3_move_npcs_to_market() -> void:
 			n.rotate_y(anim.world_forward().signed_angle_to(want.normalized(), Vector3.UP))
 
 
-func _p3_reach_market() -> void:
-	if _encounter_running or not Game.has_flag("p3_in_shop") or Game.has_flag("p3_in_market"):
+func _p3_reach_market(from_scene := false) -> void:
+	if (_encounter_running and not from_scene) or not Game.has_flag("p3_in_shop") or Game.has_flag("p3_in_market"):
 		return
 	if not _p3_npcs_moved:
 		_p3_move_npcs_to_market()
@@ -3409,6 +3450,8 @@ func _p3_reach_market() -> void:
 	_set_auto_doors(true)                       # the power dies with the doors open
 	_doors_powered = false
 	_market_blackout()
+	if from_scene:
+		return                                     # (the arrival scene goes on: lines, then the door objective)
 	shut_it.prompt_text = "[E] Pull the Doors Shut"
 	npc_walk("Eddie", MARKET_EDDIE_POS, 2.6)           # around the vestibule wall, carts and baskets (still running)
 	npc_walk("Marcus", MARKET_MARCUS_POS, 2.6)
@@ -3416,6 +3459,190 @@ func _p3_reach_market() -> void:
 		_glow(d[0], true, Color(0.7, 0.85, 1.0))
 	Dialogue.say("p3_market", false, true)
 	talk_shot(_dlg_time(["p3_market"]))
+
+
+## The run ends at the supermarket: within 7 m of its entrance, outdoors.
+func _near_market_entrance() -> bool:
+	var o := market.get_node("Doorways/Entrance_Outside") as Node3D
+	var l := market.to_local(player.global_position)
+	return player.global_position.distance_to(o.global_position) < 7.0 and l.z < 0.6
+
+
+## Arrival (once, the moment the run reaches the supermarket - or the player is already through the doors):
+##   frame the store and its open entrance -> Eddie runs ahead through the doorway, the player follows him in
+##   (the player's own movement, steered) -> inside, the view goes over the dead checkout lanes and the shelves ->
+##   Eddie: get the doors shut -> control back; THEN the door objective ("[E] Pull the Doors Shut").
+## Holding E (or the mouse button) for 0.8 s skips to the same end state. Its guard is a flag + a running bool:
+## no other trigger, door or interaction can start it twice or step past it.
+const ARRIVAL_PLAYER_PATH := [Vector3(0.0, 0.04, -1.6), Vector3(0.0, 0.04, 1.0), Vector3(0.2, 0.04, 4.1)]
+const ARRIVAL_EDDIE_PATH := Vector3(1.3, 0.04, 5.4)
+const ARRIVAL_MARCUS_PATH := Vector3(-1.4, 0.04, 5.6)
+var _arrival_running := false
+var arrival_report := {}
+
+
+func _arrival_skip_held(dt: float) -> bool:
+	var held := Input.is_action_pressed("interact") or Input.is_mouse_button_pressed(MOUSE_BUTTON_LEFT)
+	_arrival_hold = _arrival_hold + dt if held else 0.0
+	return _arrival_hold > 0.8 or arrival_skip_now
+var _arrival_hold := 0.0
+var arrival_skip_now := false                 ## (tests) skip the arrival as if E were held
+
+
+func _p3_market_arrival() -> void:
+	if _arrival_running or Game.has_flag("p3_in_market") or not Game.has_flag("p3_fled_together"):
+		return
+	if _encounter_running:
+		return                                     # the tick asks again next frame
+	_arrival_running = true
+	_encounter_running = true
+	var was_pause := hud.allow_pause
+	hud.allow_pause = false
+	player.controls_enabled = false
+	player.look_enabled = false
+	player.velocity = Vector3.ZERO
+	_arrival_hold = 0.0
+	arrival_report = {"started": true}
+	var skipped := false
+	_chase_end()                                  # the run is over at the doors: no strikes on a held player
+	var inside_already := market.to_local(player.global_position).z > 1.2
+	_set_auto_doors(true)                         # the entrance stands open (the power is about to go)
+	# Eddie and Marcus stop following: Eddie runs ahead and leads the way in, Marcus behind
+	_p3_npcs_moved = true
+	for f in _p3_followers:
+		if is_instance_valid(f):
+			f.stop()
+			f.queue_free()
+	_p3_followers.clear()
+	for n in [eddie, marcus]:
+		if n and is_instance_valid(n) and n.get_parent() != market:
+			n.reparent(market, true)
+	npc_walk("Eddie", ARRIVAL_EDDIE_PATH, 3.0)
+	if not inside_already:
+		# frame the store front and the open doors
+		var at := market.global_transform * Vector3(0, 1.6, 2.0)
+		await _arrival_turn_to(at, 0.7)
+		var t := 0.0
+		while t < 0.7 and not skipped:
+			await get_tree().process_frame
+			t += get_process_delta_time()
+			skipped = _arrival_skip_held(get_process_delta_time())
+		npc_walk("Marcus", ARRIVAL_MARCUS_PATH, 2.6)
+		# follow him in: the player's own walk, steered along the doorway's centre line, then round the vestibule
+		# wall into the hall (the same collision-checked route Eddie takes), the view on Eddie
+		var route: Array = [ARRIVAL_PLAYER_PATH[0], ARRIVAL_PLAYER_PATH[1]]
+		var inner: Array = npc_route(market, ARRIVAL_PLAYER_PATH[1], ARRIVAL_PLAYER_PATH[2], null, true)
+		route.append_array(inner if not inner.is_empty() else [ARRIVAL_PLAYER_PATH[2]])
+		arrival_report["route_points"] = route.size()
+		var npcs: Array = [eddie, marcus].filter(func(n): return n is PhysicsBody3D and is_instance_valid(n))
+		for n in npcs:
+			player.add_collision_exception_with(n)  # (following close behind them through a 2.4 m doorway)
+		var i := 0
+		if market.to_local(player.global_position).z > ARRIVAL_PLAYER_PATH[0].z:
+			i = 1
+		var leg_t := 0.0
+		var stuck_t := 0.0
+		var last := player.global_position
+		while i < route.size() and not skipped:
+			await get_tree().physics_frame
+			var dt := get_physics_process_delta_time()
+			skipped = _arrival_skip_held(dt)
+			var goal := market.global_transform * (route[i] as Vector3)
+			var to := (goal - player.global_position) * Vector3(1, 0, 1)
+			if to.length() < 0.35:
+				i += 1
+				leg_t = 0.0
+				continue
+			var yaw: float = player.rotation.y + _yaw_delta_to(to) * minf(dt * 6.0, 1.0)
+			var look_at: Vector3 = eddie.global_position + Vector3(0, 1.5, 0) if eddie else goal + Vector3(0, 1.5, 0)
+			var dy := look_at.y - player.camera.global_position.y
+			var pitch := clampf(atan2(dy, Vector2(look_at.x - player.global_position.x, look_at.z - player.global_position.z).length()), -0.3, 0.2)
+			player.set_yaw_pitch(yaw, lerpf(player.get("_pitch"), pitch, minf(dt * 4.0, 1.0)))
+			player.auto_input = Vector2(0, -1)
+			if not player.is_physics_processing():
+				arrival_report["physics_restored"] = int(arrival_report.get("physics_restored", 0)) + 1
+				player.set_physics_process(true)     # (this scene owns the player while it walks them in)
+			leg_t += dt
+			stuck_t = stuck_t + dt if player.global_position.distance_to(last) < 0.004 else 0.0
+			last = player.global_position
+			if stuck_t > 1.2 or leg_t > 6.0:
+				arrival_report["walk_blocked"] = true
+				arrival_report["blocked_at"] = market.to_local(player.global_position).snapped(Vector3.ONE * 0.01)
+				arrival_report["blocked_leg"] = i
+				skipped = true
+		player.auto_input = Vector2.ZERO
+		for n in npcs:
+			if is_instance_valid(n):
+				player.remove_collision_exception_with(n)
+		arrival_report["walked_in"] = not skipped
+	if skipped:
+		# the same end state: the player inside the doors, Eddie and Marcus at their marks
+		player.auto_input = Vector2.ZERO
+		Dialogue.skip()
+		var end := market.global_transform * (ARRIVAL_PLAYER_PATH[2] as Vector3)
+		player.global_position = end + Vector3(0, 0.05, 0)
+		player.velocity = Vector3.ZERO
+		if eddie:
+			place_survivor(eddie, ARRIVAL_EDDIE_PATH)
+		if marcus:
+			place_survivor(marcus, ARRIVAL_MARCUS_PATH)
+		arrival_report["skipped"] = true
+	# inside: the power dies (as before), the chase ends; the dead checkout lanes, then the aisles
+	_p3_reach_market(true)
+	if not skipped:
+		await _arrival_turn_to(market.global_transform * Vector3(-7.5, 1.0, 5.0), 1.1)
+		await get_tree().create_timer(0.5).timeout
+		await _arrival_turn_to(market.global_transform * Vector3(-1.0, 1.2, 12.0), 1.0)
+		Dialogue.say("p3_market", false, true)
+		await _arrival_wait_lines()
+		if eddie:
+			await _arrival_turn_to(eddie.global_position + Vector3(0, 1.55, 0), 0.6)
+	Dialogue.say("p3_secure_ask", false, true)
+	if not skipped:
+		await _arrival_wait_lines()
+	# control back, then the door objective
+	player.camera.current = true
+	player.controls_enabled = true
+	player.look_enabled = true
+	hud.allow_pause = was_pause
+	_encounter_running = false
+	_arrival_running = false
+	shut_it.prompt_text = "[E] Pull the Doors Shut"
+	for d in _auto_doors:
+		_glow(d[0], true, Color(0.7, 0.85, 1.0))
+	Game.refresh_objective()
+	arrival_report["done"] = true
+	arrival_report["control_back"] = player.controls_enabled
+	save()
+
+
+## The turn (radians, added to the player's yaw) that points the player's real facing along `dir` (flat).
+func _yaw_delta_to(dir: Vector3) -> float:
+	var f := -player.global_basis.z
+	f.y = 0.0
+	var d := Vector3(dir.x, 0.0, dir.z)
+	if f.length() < 0.001 or d.length() < 0.001:
+		return 0.0
+	return f.normalized().signed_angle_to(d.normalized(), Vector3.UP)
+
+
+func _arrival_turn_to(at: Vector3, secs: float) -> void:
+	var y0 := player.rotation.y
+	var p0: float = player.get("_pitch")
+	var d := at - player.camera.global_position
+	var y1 := y0 + _yaw_delta_to(d)
+	var p1 := clampf(atan2(d.y, Vector2(d.x, d.z).length()), -0.5, 0.5)
+	var tw := create_tween().set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
+	tw.tween_method(func(k: float): player.set_yaw_pitch(lerpf(y0, y1, k), lerpf(p0, p1, k)), 0.0, 1.0, secs)
+	await tw.finished
+
+
+func _arrival_wait_lines() -> void:
+	await get_tree().process_frame
+	while Dialogue.is_busy():
+		await get_tree().process_frame
+		if _arrival_skip_held(get_process_delta_time()):
+			Dialogue.skip()
 
 
 ## The main power is already gone when the group gets in: every store light is off (the street lamps outside stay

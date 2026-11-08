@@ -6838,5 +6838,23 @@
     "time": 2.4
    }
   ]
+ },
+ "p3_eddie_run": {
+  "lines": [
+   {
+    "speaker": "Eddie",
+    "text": "RUN! The supermarket - go, go!",
+    "time": 2.4
+   }
+  ]
+ },
+ "p3_secure_ask": {
+  "lines": [
+   {
+    "speaker": "Eddie",
+    "text": "The doors - we have to get them shut. Now!",
+    "time": 2.6
+   }
+  ]
  }
 }
