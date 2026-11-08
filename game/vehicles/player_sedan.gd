@@ -54,6 +54,7 @@ const SCRIPT_ACCEL := 1.6        # m/s^2 for scripted speed changes
 ## Scripted slowing down may be firmer than speeding up (the automatic parking brakes at up to 5 m/s^2, so a car
 ## caught at speed stops on the lot instead of rolling past it); other scripted drives keep the gentle rate.
 var script_decel := SCRIPT_ACCEL
+var script_accel := SCRIPT_ACCEL   ## (the automatic parking pulls away a little more briskly)
 const STEER_RATE := 1.3          # rad/s at the front wheels while scripted (a driver turning the wheel)
 var _wheels := {}
 var _wheel_base := {}
@@ -204,13 +205,34 @@ const STATIONS := [["", ""], ["LAST EXIT — ROCK", "res://game/audio/radio/last
 	["MIDNIGHT DRIVE — LO-FI", "res://game/audio/radio/midnight_drive_lofi.wav"]]
 var radio_station := 0
 var _radio: AudioStreamPlayer
+const NO_SIGNAL := "NO SIGNAL"
+static var _static_loop: AudioStreamWAV
+
+
+## Once the Veil is here (flag p3_mist, saved) no station comes in: the dial finds only static. Turning the radio
+## off and on again, or a load, never brings the old music back - the state follows the saved story flag.
+func radio_veiled() -> bool:
+	return Game.has_flag("p3_mist")
 
 
 func next_station() -> void:
-	radio_station = (radio_station + 1) % STATIONS.size()
+	if radio_veiled():
+		radio_station = 0 if radio_station > 0 else 1       # off <-> static
+	else:
+		radio_station = (radio_station + 1) % STATIONS.size()
 	Sfx.play("static", global_position + Vector3(0, 1, 0), -18.0, 1.6)   # the dial click / static
 	_radio_apply()
-	radio_changed.emit(STATIONS[radio_station][0])
+	radio_changed.emit(radio_label())
+
+
+func radio_label() -> String:
+	if radio_station <= 0:
+		return ""
+	return NO_SIGNAL if radio_veiled() else String(STATIONS[radio_station][0])
+
+
+func radio_playing_path() -> String:
+	return String(_radio.get_meta("path", "")) if _radio and _radio.playing else ""
 
 
 func _radio_apply() -> void:
@@ -219,7 +241,16 @@ func _radio_apply() -> void:
 		_radio.name = "CarRadio"
 		add_child(_radio)
 	var on := driven and radio_station > 0
-	if on:
+	if on and radio_veiled():
+		if not (_radio.playing and _radio.get_meta("path", "") == "static"):
+			if _static_loop == null:
+				_static_loop = Sfx._make(2.4, func(t, i): return Sfx._noise(i) * 0.3 * (0.7 + 0.3 * sin(t * 47.0)) \
+					* (0.35 if fmod(t * 1.3, 1.0) < 0.08 else 1.0), true)
+			_radio.stream = _static_loop
+			_radio.set_meta("path", "static")
+			_radio.volume_db = -16.0
+			_radio.play()
+	elif on:
 		var path: String = STATIONS[radio_station][1]
 		if not (_radio.playing and _radio.has_meta("path") and _radio.get_meta("path") == path):
 			_radio.stream = Sfx._looped(path, true)
@@ -244,6 +275,8 @@ func _unhandled_input(event: InputEvent) -> void:
 
 
 func _physics_process(delta: float) -> void:
+	if _radio and _radio.playing and radio_veiled() and _radio.get_meta("path", "") != "static":
+		_radio_apply()                                  # the Veil arrived with a station on: only static now
 	var throttle := 0.0
 	var brake := 0.0
 	var steer_in := 0.0
@@ -276,7 +309,7 @@ func _physics_process(delta: float) -> void:
 	if scripted:
 		var cmd: Vector2 = drive_script.call(delta)
 		var slowing := absf(cmd.x) < absf(speed) or signf(cmd.x) * signf(speed) < 0.0
-		speed = move_toward(speed, cmd.x, (script_decel if slowing else SCRIPT_ACCEL) * delta)
+		speed = move_toward(speed, cmd.x, (script_decel if slowing else script_accel) * delta)
 		steer = move_toward(steer, clampf(cmd.y, -MAX_STEER, MAX_STEER), STEER_RATE * delta)
 		throttle = 0.0
 		brake = 0.0
