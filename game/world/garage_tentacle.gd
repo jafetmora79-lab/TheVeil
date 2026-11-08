@@ -23,8 +23,7 @@ var world: Node
 var player: Node3D
 var running := false
 var closing := false
-var tentacle: Node3D
-var wiggle: VeilTentacleWiggle          ## the organic writhe on its bones (game/enemies/tentacle_wiggle.gd)
+var tentacle: VeilDoorwayTentacle      ## its own creature (game/enemies/doorway_tentacle.gd)
 var time_left := 0.0
 var report := {}
 
@@ -88,43 +87,32 @@ func _reveal() -> void:
 	p4._play("impact", p4.ml(Vector3(20.1, 0.9, 15.9)), 4.0)
 	world._shake(cam, 0.2, 0.03)
 	await get_tree().create_timer(0.3).timeout
-	# 2. the thrust: from outside, under the door, in a fifth of a second - hard acceleration, a dead stop
-	var ps := load(TENTACLE) as PackedScene
-	if ps:
-		tentacle = ps.instantiate() as Node3D
-		tentacle.name = "P4_GarageTentacle"
-		tentacle.set("autoplay", "")
-		p4.market.add_child(tentacle)
-		var aim := _aim_basis()
-		tentacle.transform = Transform3D(aim, ROOT + Vector3(2.2, 0, 0))      # out of sight, outside the door
-		if tentacle.has_method("emerge"):
-			tentacle.call("emerge")
-		if tentacle.has_method("play"):
-			tentacle.call("play", "Strike", 0.05)
-		wiggle = VeilTentacleWiggle.attach(tentacle)
-		_writhe(1.3, 5.0)                            # it comes in thrashing
-		var th := tentacle.create_tween()
-		th.tween_property(tentacle, "position", ROOT, 0.2).set_trans(Tween.TRANS_EXPO).set_ease(Tween.EASE_OUT)
+	# 2. the thrust: the doorway tentacle (game/enemies/doorway_tentacle.gd), its root buried outside the dock. The
+	#    tip shoots under the door and along the floor, then rears up into the player's line of sight; every segment
+	#    follows the same line through the gap
+	tentacle = VeilDoorwayTentacle.create(p4.market)
+	tentacle.name = "P4_GarageTentacle"
+	_aim_path(cam.global_position, (p4.ml(GAP_LOOK + Vector3(0, 0.5, 0)) - cam.global_position))
+	tentacle.writhe = 1.3
+	tentacle.writhe_hz = 5.0
 	p4._play("slither", p4.ml(GAP_LOOK), 6.0)
+	var th := create_tween()
+	th.tween_property(tentacle, "head", ROOT_TO_GAP + 0.6, 0.2).set_trans(Tween.TRANS_EXPO).set_ease(Tween.EASE_OUT)
+	th.tween_property(tentacle, "head", tentacle.path_length(), 0.5).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
 	world._shake(cam, 0.35, 0.05)
-	await p4._fp_face(cam, p4.ml(GAP_LOOK + Vector3(-1.2, 0.2, 0)), 0.18)    # the view snaps to it
-	# 3. a breath of stillness, then it lunges for the player and is jerked short at the end of its reach
-	await get_tree().create_timer(0.4).timeout
-	if tentacle and is_instance_valid(tentacle):
-		var to: Vector3 = p4.market.to_local(player.global_position) - ROOT
-		to.y = 0.0
-		var reach := clampf(to.length() - 1.4, 0.4, 2.0)
-		tentacle.transform.basis = _aim_basis()
-		_writhe(1.6, 6.0)                            # the lunge: a violent lash
-		var tg := tentacle.create_tween()
-		tg.tween_property(tentacle, "position", ROOT + to.normalized() * reach, 0.16).set_trans(Tween.TRANS_EXPO).set_ease(Tween.EASE_OUT)
-		tg.tween_property(tentacle, "position", ROOT + to.normalized() * reach * 0.55, 0.28).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
-		Sfx.play("hurt", player.global_position, -10.0, 1.4)            # a gasp: it missed, just
-		world._shake(cam, 0.3, 0.06)
-	await get_tree().create_timer(0.5).timeout
-	_writhe(0.9, 3.4)                                # then a fast, searching writhe while it waits
+	await p4._fp_face(cam, p4.ml(GAP_LOOK + Vector3(0, 0.5, 0)), 0.2)        # the view snaps to where it comes in
+	await th.finished
+	# 3. the scare beat: its tip right in front of the face, lashing
+	tentacle.writhe = 1.6
+	tentacle.writhe_hz = 6.0
+	Sfx.play("hurt", player.global_position, -10.0, 1.4)            # a gasp
+	world._shake(cam, 0.3, 0.06)
+	_measure_gaze(cam)
+	await get_tree().create_timer(0.6).timeout
+	tentacle.writhe = 1.0                            # then a fast, searching writhe while it waits
+	tentacle.writhe_hz = 3.6
 	report["revealed"] = tentacle != null
-	report["wiggle"] = wiggle != null
+	report["clearance_hits"] = _clearance()
 	# control back (move + look), then the timer
 	p4._cam_held = null
 	var fwd := -cam.global_basis.z
@@ -159,6 +147,63 @@ func _escape() -> void:
 		await _taken()
 
 
+## The body's line (market frame): root under the dock outside -> up to the gap -> under the door (0.32 m up, the gap
+## is 0.9 m) -> along the floor into the bay -> rising to `eye`'s height, ending 0.85 m short of it, straight in its
+## line of sight. The lateral position at the door follows the player but stays inside the door's width.
+const ROOT_TO_GAP := 1.75
+const GAP_Y := 0.32
+
+
+func _aim_path(eye_world: Vector3, view_world := Vector3.ZERO) -> void:
+	if tentacle == null or not is_instance_valid(tentacle):
+		return
+	var eye: Vector3 = p4.market.to_local(eye_world)
+	var zc := clampf(eye.z, ROOT.z - 0.7, ROOT.z + 0.7)
+	var gap := Vector3(20.05, GAP_Y, zc)
+	var inside := Vector3(19.55, GAP_Y + 0.02, lerpf(zc, eye.z, 0.35))
+	var to_eye := eye - inside
+	var stop := eye - to_eye.normalized() * 0.85
+	if view_world != Vector3.ZERO:
+		# right where the player is looking: 0.85 m out along the view (never below knee height)
+		var v: Vector3 = (p4.market.global_transform.basis.inverse() * view_world).normalized()
+		stop = eye + v * 0.85
+		stop.y = maxf(stop.y, 0.55)
+	var rise := inside.lerp(stop, 0.45)
+	rise.y = lerpf(inside.y, stop.y, 0.3)
+	tentacle.set_path([Vector3(21.7, -0.55, zc), Vector3(21.0, 0.15, zc), gap, inside, rise, stop])
+
+
+## At the scare beat: how close the tip is to the eye, and how far off the centre of view (degrees).
+func _measure_gaze(cam: Camera3D) -> void:
+	var tip: Vector3 = tentacle.tip_global()
+	var to := tip - cam.global_position
+	report["tip_to_eye_m"] = to.length()
+	report["tip_off_view_deg"] = rad_to_deg((-cam.global_basis.z).angle_to(to))
+
+
+## Solid things the exposed body would pass through at full reach (spheres on the joints, root side excluded).
+func _clearance() -> Array:
+	var hits := []
+	if tentacle == null:
+		return hits
+	var space: PhysicsDirectSpaceState3D = world.get_world_3d().direct_space_state
+	var q := PhysicsShapeQueryParameters3D.new()
+	var sph := SphereShape3D.new()
+	sph.radius = 0.09
+	q.shape = sph
+	q.collision_mask = 1
+	q.exclude = [player.get_rid()]
+	var js: PackedVector3Array = tentacle.joints()
+	for i in js.size():
+		var lp: Vector3 = js[i]
+		if lp.x > 20.3:
+			continue                                       # outside / under the dock
+		q.transform = Transform3D(Basis(), p4.market.to_global(lp))
+		for h in space.intersect_shape(q, 4):
+			hits.append("%d:%s" % [i, String((h["collider"] as Node).name)])
+	return hits
+
+
 ## On its side, pointing into the bay (+Y -> -X), swung towards the player (kept within the door opening's arc).
 func _aim_basis() -> Basis:
 	var to: Vector3 = p4.market.to_local(player.global_position) - ROOT
@@ -167,16 +212,18 @@ func _aim_basis() -> Basis:
 
 ## While the player runs: the tentacle keeps searching and turns after him; past half time it reaches.
 func _creep(dt: float) -> void:
-	if tentacle == null:
+	if tentacle == null or not is_instance_valid(tentacle):
 		return
-	var to: Vector3 = p4.market.to_local(player.global_position) - ROOT
-	var yaw := atan2(-to.z, -to.x)                     # in the floor plane, from -X
-	var want := Basis(Vector3.UP, clampf(yaw, -0.9, 0.9)) * Basis(Vector3(0, 0, 1), LIFT)
-	tentacle.transform.basis = tentacle.transform.basis.slerp(want, minf(dt * 1.5, 1.0))
-	if time_left < ESCAPE_S * 0.5 and not tentacle.has_meta("reaching") and tentacle.has_method("play"):
+	_creep_t -= dt
+	if _creep_t <= 0.0:
+		_creep_t = 0.2
+		var cam: Camera3D = player.get("camera")
+		_aim_path(cam.global_position, -cam.global_basis.z)   # it keeps its tip up in the player's face
+		tentacle.head = tentacle.path_length()
+	if time_left < ESCAPE_S * 0.5 and not tentacle.has_meta("reaching"):
 		tentacle.set_meta("reaching", true)
-		tentacle.call("play", "Reach")
-		_writhe(1.2, 4.2)                             # reaching: more frantic as time runs out
+		_writhe(1.3, 4.6)                             # more frantic as time runs out
+var _creep_t := 0.0
 
 
 ## Phase 4's loading handle was used: the door comes down.
@@ -187,17 +234,18 @@ func on_close_started() -> void:
 
 ## The writhe's strength and pace (eased by the modifier itself).
 func _writhe(strength: float, hz: float) -> void:
-	if wiggle and is_instance_valid(wiggle):
-		wiggle.intensity = strength
-		wiggle.speed = hz
+	if tentacle and is_instance_valid(tentacle):
+		tentacle.writhe = strength
+		tentacle.writhe_hz = hz
 
 
 func _survived() -> void:
 	_writhe(1.5, 6.5)                                  # thrashing as the door forces it out
-	if tentacle and tentacle.has_method("retract"):
-		tentacle.call("retract")                        # forced back out under the closing door
-		var tw := tentacle.create_tween()
-		tw.tween_property(tentacle, "position", ROOT + Vector3(2.4, 0, 0), 0.18).set_trans(Tween.TRANS_EXPO).set_ease(Tween.EASE_IN)
+	if tentacle and is_instance_valid(tentacle):
+		# back out the way it came: the tip is the last thing to go under the door
+		var tw := create_tween()
+		tw.tween_property(tentacle, "head", 0.0, 0.45).set_trans(Tween.TRANS_EXPO).set_ease(Tween.EASE_IN)
+		report["retracted"] = true
 	while not Game.has_flag("p4_loading_down"):
 		await get_tree().process_frame
 	p4._play("impact", p4.ml(Vector3(20.1, 0.9, 15.9)), 6.0)   # one heavy hit on the shut door
@@ -206,7 +254,6 @@ func _survived() -> void:
 	if tentacle:
 		tentacle.queue_free()
 	tentacle = null
-	wiggle = null
 	report["cleaned_up"] = true
 	await get_tree().create_timer(1.4).timeout         # silence
 	Dialogue.say("p4_garage_safe", false, true)
@@ -232,15 +279,9 @@ func _taken() -> void:
 	out_dir = out_dir.normalized()
 	# the tentacle lashes to his leg
 	if tentacle:
-		var to: Vector3 = p4.market.to_local(feet) - ROOT
-		tentacle.transform.basis = Basis(Vector3.UP, atan2(-to.z, -to.x)) * Basis(Vector3(0, 0, 1), LIFT)
-		if tentacle.has_method("play"):
-			tentacle.call("play", "Strike", 0.05)
 		_writhe(1.4, 5.5)
-		var reach := minf(to.length() - 3.6, 3.0)       # its tip at his ankle
-		if reach > 0.0:
-			var tw := tentacle.create_tween()
-			tw.tween_property(tentacle, "position", ROOT + Vector3(to.x, 0, to.z).normalized() * reach, 0.3)
+		_aim_path(feet + Vector3(0, 1.0, 0))           # (ends 0.85 m short of that: at the ankle)
+		tentacle.head = tentacle.path_length()
 	Sfx.play("hurt", feet, -2.0, 0.7)
 	await p4._fp_face(cam, feet + Vector3(0, 0.1, 0) - out_dir * 0.15, 0.3)   # looks down: it has his leg
 	await get_tree().create_timer(0.45).timeout
@@ -262,8 +303,9 @@ func _taken() -> void:
 		cam.global_position = start.lerp(gap, k * k) + Vector3(randf_range(-0.02, 0.02), randf_range(-0.015, 0.015), 0)
 		var back := Transform3D(Basis(), cam.global_position).looking_at(cam.global_position - out_dir * 2.0 + Vector3(0, 0.6, 0), Vector3.UP).basis
 		cam.global_basis = Basis(cam.global_basis.get_rotation_quaternion().slerp(back.get_rotation_quaternion(), minf(get_process_delta_time() * 4.0, 1.0)))
-		if tentacle:
-			tentacle.global_position = tentacle.global_position.lerp(cam.global_position + out_dir * 3.4 - Vector3(0, 0.0, 0), minf(get_process_delta_time() * 6.0, 1.0))
+		if tentacle and is_instance_valid(tentacle):
+			_aim_path(cam.global_position + Vector3(0, 0.6, 0))     # it keeps hold as it drags him to the gap
+			tentacle.head = tentacle.path_length()
 		await get_tree().process_frame
 	p4._play("slither", gap, 6.0)
 	var hud: Node = world.get("hud")
@@ -280,7 +322,6 @@ func _taken() -> void:
 	if tentacle and is_instance_valid(tentacle):
 		tentacle.queue_free()
 	tentacle = null
-	wiggle = null
 	p4._music_stop(0.0)
 	running = false
 	get_tree().paused = false

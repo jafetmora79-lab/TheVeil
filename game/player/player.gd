@@ -113,10 +113,17 @@ func _unhandled_input(event: InputEvent) -> void:
 		head.rotation.x = _pitch
 
 
+## Scripted walking for cinematics (controls held): the same movement, collision and head bob as the player's own
+## input. (0, -1) = forward at walking pace. Zero = none.
+var auto_input := Vector2.ZERO
+
+
 func _physics_process(delta: float) -> void:
 	var input := Vector2.ZERO
 	if controls_enabled:
 		input = Input.get_vector("move_left", "move_right", "move_forward", "move_back")
+	elif auto_input != Vector2.ZERO:
+		input = auto_input
 	# crouch (stand up only if there is head room)
 	var want_crouch := controls_enabled and Input.is_action_pressed("crouch")
 	if want_crouch != crouching:
@@ -158,7 +165,7 @@ func _physics_process(delta: float) -> void:
 	if moving and int(_bob_t / PI) != _last_step:
 		_last_step = int(_bob_t / PI)
 		pass                                        # (footsteps: the recorded walk / run loops below)
-	_footsteps(moving and visible and controls_enabled, sprinting, crouching, hv.length())
+	_footsteps(moving and visible and (controls_enabled or auto_input != Vector2.ZERO), sprinting, crouching, hv.length())
 	var amp := 0.028 if sprinting else 0.016
 	_step_smooth = move_toward(_step_smooth, 0.0, delta * 1.6)
 	head.position.y = _eye + sin(_bob_t * 2.0) * amp - _step_smooth
