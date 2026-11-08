@@ -96,7 +96,13 @@ func focus() -> Vector3:
 
 func _story_busy() -> bool:
 	return world.get("_encounter_running") == true or world.get("conversing") == true or world.get("_cine") != null \
-		or world.get_node_or_null("Struggle") != null or not world.player.visible and not world.in_car
+		or _struggling() or not world.player.visible and not world.in_car
+
+
+## A struggle actually under way (the controller node itself stays in the world once made).
+func _struggling() -> bool:
+	var s := world.get_node_or_null("Struggle")
+	return s != null and s.get("active") == true
 
 
 func _say(id: String) -> void:
