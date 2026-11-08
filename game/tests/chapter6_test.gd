@@ -273,8 +273,10 @@ func _run() -> void:
 	ok("c6_eddie_reach", await aim(c6.its["npc_Eddie"], [Z, -Z, X, -X], world.market, 1.4))
 	c6.its["npc_Eddie"].interact(world.player)
 	ok("c6_eddie_talk", await wait_talk(func(): return game.has_flag("ch6_eddie_talked")) and game.current_step().get("id", "") == "c6_prepare")
-	ok("c6_stash_reach", await aim(c5.its["stash"], [-Z, Z, X, -X], world.market, 1.0))
-	c5.its["stash"].interact(world.player)
+	# the supplies check is at the shelter supply crate (the old service-desk stash is gone)
+	var crate: Interactable = world.expedition.supply_chest
+	ok("c6_stash_reach", await aim(crate, [-Z, Z, X, -X, Z + X, Z - X, -Z + X, -Z - X], world.market, 1.3))
+	crate.interact(world.player)
 	await frames(5)
 	ok("c6_prepared", game.has_flag("ch6_eddie_ready") and world.hud.inv_panel.visible and game.inventory == inv0)
 	if world.hud.inv_panel.visible:

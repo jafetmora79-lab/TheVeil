@@ -576,9 +576,24 @@ func c5_check_pending() -> bool:
 	return c5 != null and Game.has_flag("c5_talked_both") and not Game.has_flag("c5_supplies_checked")
 
 
+## Chapter 6's "Prepare for the search" supplies check: the same crate (the old stash by the service desk is gone).
+func c6_check_pending() -> bool:
+	var c6 := _c6()
+	return c6 != null and Game.has_flag("ch6_eddie_talked") and not Game.has_flag("ch6_eddie_ready")
+
+
+func _c6() -> Node:
+	var c5 := _c5()
+	var c6 = c5.get("chapter6") if c5 else null
+	return c6 if c6 != null and is_instance_valid(c6) else null
+
+
 func _use_supply_chest(_b: Node) -> void:
 	if c5_check_pending():
 		_c5()._check_supplies(null)
+		return
+	if c6_check_pending():
+		_c6()._check_supplies(null)
 		return
 	var p4 := _p4()
 	if p4 == null or shelter() != "supermarket":
@@ -595,7 +610,7 @@ func _supply_chest_marker() -> void:
 	var carrying := Game.inventory.any(func(i): return Game.shelter_resource(String(i)) in ["food", "water"])
 	var on: bool = shelter() == "supermarket" and carrying and in_store()
 	world.hud.world_diamond("supply_chest", supply_chest if on else null)
-	var pending := c5_check_pending()
+	var pending := c5_check_pending() or c6_check_pending()
 	supply_chest.prompt_text = "[E] Check the Supplies" if pending else "[E] Shelter Supplies"
 	supply_chest.collision_layer = 8 if shelter() == "supermarket" or pending else 0
 

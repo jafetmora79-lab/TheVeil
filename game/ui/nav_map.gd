@@ -26,6 +26,12 @@ const PLACES := [["Home", "Residential/Houses/PLAYER_HOME", ""], ["Video Game Sh
 	["Farmhouses", Vector2(-100, -95), "ch11_started"], ["Maintenance Station", Vector2(-80, -28), "ch12_started"],
 	["Old District", Vector2(-125, 50), "ch13_started"]]
 const INK := Color(0.2, 0.18, 0.15)
+const LIGHT := Color(0.94, 0.91, 0.82)
+## The town seen from above (orthographic captures of the real 3D town, pixelated): one per view, drawn under
+## everything else. Without one the old paper sheet is drawn.
+const MAP_TEX := {"town": "res://game/ui/map/greyhaven_town.png", "north": "res://game/ui/map/greyhaven_north.png"}
+var _tex := {}
+var ink := INK                         ## the marking colour of the sheet being drawn (light over the aerial view)
 const PAPER := Color(0.66, 0.62, 0.51)
 const ROAD := Color(0.36, 0.34, 0.3)
 const AMBER := Color(0.85, 0.55, 0.12)
@@ -71,6 +77,10 @@ func setup(w: Node) -> void:
 	panel.mouse_filter = Control.MOUSE_FILTER_STOP
 	panel.visible = false
 	panel.draw.connect(_draw_map)
+	panel.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
+	for k in MAP_TEX:
+		if ResourceLoader.exists(MAP_TEX[k]):
+			_tex[k] = load(MAP_TEX[k])
 	panel.gui_input.connect(_on_map_input)
 	add_child(panel)
 	_btn_mark = VeilUI.button("MARK AS DESTINATION")
@@ -534,22 +544,28 @@ func _draw_map() -> void:
 	var r := _map_rect()
 	var font: Font = VeilUI.font()
 	panel.draw_rect(Rect2(Vector2.ZERO, vs), Color(0, 0, 0, 0.72))
-	panel.draw_rect(r.grow(10), PAPER.darkened(0.25))
-	panel.draw_rect(r, PAPER)
-	# worn paper: a few faint fold lines
-	panel.draw_line(Vector2(r.get_center().x, r.position.y), Vector2(r.get_center().x, r.end.y), PAPER.darkened(0.08), 2.0)
-	panel.draw_line(Vector2(r.position.x, r.get_center().y), Vector2(r.end.x, r.get_center().y), PAPER.darkened(0.08), 2.0)
+	var aerial: Texture2D = _tex.get(view)
+	ink = LIGHT if aerial else INK
 	var v: Rect2 = VIEWS[view]
 	var clip := func(rr: Rect2) -> bool: return v.intersects(rr)
-	for rr in _roads:
+	if aerial:
+		panel.draw_rect(r.grow(10), Color(0.08, 0.09, 0.08))
+		panel.draw_texture_rect(aerial, r, false)
+	else:
+		panel.draw_rect(r.grow(10), PAPER.darkened(0.25))
+		panel.draw_rect(r, PAPER)
+		# worn paper: a few faint fold lines
+		panel.draw_line(Vector2(r.get_center().x, r.position.y), Vector2(r.get_center().x, r.end.y), PAPER.darkened(0.08), 2.0)
+		panel.draw_line(Vector2(r.position.x, r.get_center().y), Vector2(r.end.x, r.get_center().y), PAPER.darkened(0.08), 2.0)
+	for rr in ([] if aerial else _roads):
 		if clip.call(rr):
 			var a := _to_map(r, (rr as Rect2).position)
 			var b := _to_map(r, (rr as Rect2).end)
 			panel.draw_rect(Rect2(a, b - a).intersection(r), ROAD)
-	for j in _junctions:
+	for j in ([] if aerial else _junctions):
 		if v.has_point(j):
 			panel.draw_circle(_to_map(r, j), 3.0, ROAD.darkened(0.45))
-	if Game.has_flag("ch10_started") and view == "town":
+	if Game.has_flag("ch10_started") and view == "town" and not aerial:
 		for road in WEST_ROADS:
 			var pts := []
 			for q in road:
@@ -564,10 +580,11 @@ func _draw_map() -> void:
 		var b := _to_map(r, rr.end)
 		var box := Rect2(a, b - a).intersection(r)
 		box = box.grow_individual(-box.size.x * 0.12, -box.size.y * 0.12, -box.size.x * 0.12, -box.size.y * 0.12)
-		panel.draw_rect(box, PAPER.darkened(0.22))
-		panel.draw_rect(box, INK, false, 1.2)
+		if not aerial:
+			panel.draw_rect(box, PAPER.darkened(0.22))
+			panel.draw_rect(box, ink, false, 1.2)
 		if String(bl[1]) != "":
-			_label(font, labels, String(bl[1]), box.get_center() + Vector2(0, -box.size.y * 0.5 - 6), INK, 13)
+			_label(font, labels, String(bl[1]), box.get_center() + Vector2(0, -box.size.y * 0.5 - 6), ink, 13)
 	# houses and their state
 	for z in houses:
 		var rr: Rect2 = houses[z]["rect"]
@@ -576,47 +593,48 @@ func _draw_map() -> void:
 		var c := _to_map(r, rr.get_center())
 		var hs := clampf(minf(r.size.x / 70.0, 11.0), 6.0, 11.0)     # one small, consistent house footprint
 		var box := Rect2(c - Vector2(hs, hs) * 0.5, Vector2(hs, hs))
-		var col := INK if accessible(z) else INK.lerp(PAPER, 0.45)
-		panel.draw_rect(box, PAPER.darkened(0.12))
+		var col := ink if accessible(z) else ink.lerp(PAPER if not aerial else Color(0.3, 0.3, 0.3), 0.45)
+		panel.draw_rect(box, Color(0, 0, 0, 0.45) if aerial else PAPER.darkened(0.12))
 		panel.draw_rect(box, col, false, 1.0)
 		match status(z):
 			"looted":
-				panel.draw_polyline(PackedVector2Array([c + Vector2(-5, 0), c + Vector2(-1, 4), c + Vector2(6, -5)]), Color(0.15, 0.4, 0.18), 2.5)
+				panel.draw_polyline(PackedVector2Array([c + Vector2(-5, 0), c + Vector2(-1, 4), c + Vector2(6, -5)]), Color(0.45, 0.85, 0.45) if aerial else Color(0.15, 0.4, 0.18), 2.5)
 			"no_way_in":
-				panel.draw_line(c + Vector2(-5, -5), c + Vector2(5, 5), Color(0.5, 0.15, 0.1), 2.5)
-				panel.draw_line(c + Vector2(-5, 5), c + Vector2(5, -5), Color(0.5, 0.15, 0.1), 2.5)
+				var xc := Color(0.95, 0.35, 0.28) if aerial else Color(0.5, 0.15, 0.1)
+				panel.draw_line(c + Vector2(-5, -5), c + Vector2(5, 5), xc, 2.5)
+				panel.draw_line(c + Vector2(-5, 5), c + Vector2(5, -5), xc, 2.5)
 			"empty":
-				panel.draw_line(c + Vector2(-5, 0), c + Vector2(5, 0), INK, 2.0)
+				panel.draw_line(c + Vector2(-5, 0), c + Vector2(5, 0), ink, 2.0)
 		if returned(z):
 			panel.draw_circle(box.position + Vector2(box.size.x, 0), 3.5, AMBER)
 		if z == _hover or z == selected:
-			panel.draw_rect(box.grow(3), AMBER if z == selected else INK, false, 2.0)
+			panel.draw_rect(box.grow(3), AMBER if z == selected else ink, false, 2.0)
 		if String(Game.world_state.get("map_dest", "")) == z:
 			_diamond(c + Vector2(0, -12), 6.0, AMBER)
 	for st in STREETS:
 		if String(st[2]) == view and v.has_point(st[1]):
-			_label(font, labels, String(st[0]), _to_map(r, st[1]) + Vector2(0, -4), ROAD.darkened(0.55), 11)
+			_label(font, labels, String(st[0]), _to_map(r, st[1]) + Vector2(0, -4), Color(0.85, 0.85, 0.8) if aerial else ROAD.darkened(0.55), 11)
 	# car-part leads (amber, "?")
 	for l in part_leads():
 		var lp: Vector3 = l[2]
 		if v.has_point(Vector2(lp.x, lp.z)):
 			var lm := _to_map(r, Vector2(lp.x, lp.z))
 			panel.draw_circle(lm, 7.0, AMBER if String(l[0]) == selected or String(Game.world_state.get("map_dest", "")) == String(l[0]) else AMBER.darkened(0.35))
-			panel.draw_string(font, lm + Vector2(-4, 5), "?", HORIZONTAL_ALIGNMENT_LEFT, -1, 13, INK)
-			_label(font, labels, String(l[1]), lm + Vector2(0, -10), AMBER.darkened(0.5), 11)
+			panel.draw_string(font, lm + Vector2(-4, 5), "?", HORIZONTAL_ALIGNMENT_LEFT, -1, 13, ink)
+			_label(font, labels, String(l[1]), lm + Vector2(0, -10), AMBER if aerial else AMBER.darkened(0.5), 11)
 	# landmarks found so far
 	for pl in places():
 		var at: Vector2 = pl[1]
 		if v.grow(-2).has_point(at) and String(pl[0]) not in ["Supermarket", "Video Game Shop"]:
 			var m := _to_map(r, at)
-			panel.draw_rect(Rect2(m - Vector2(3, 3), Vector2(6, 6)), INK)
-			_label(font, labels, String(pl[0]), m + Vector2(6, -6), INK, 12)
+			panel.draw_rect(Rect2(m - Vector2(3, 3), Vector2(6, 6)), ink)
+			_label(font, labels, String(pl[0]), m + Vector2(6, -6), ink, 12)
 	# the shelter, the story objective, the player
 	var sh := shelter()
 	if not sh.is_empty() and v.has_point(Vector2(sh[0].x, sh[0].z)):
 		var sp := _to_map(r, Vector2(sh[0].x, sh[0].z))
 		panel.draw_circle(sp, 6.0, Color(0.2, 0.42, 0.25))
-		_label(font, labels, String(sh[1]), sp + Vector2(8, 12), Color(0.15, 0.32, 0.18), 12)
+		_label(font, labels, String(sh[1]), sp + Vector2(8, 12), Color(0.55, 0.9, 0.6) if aerial else Color(0.15, 0.32, 0.18), 12)
 	var t: Variant = world.hud._mk_target
 	var tp: Variant = (t as Node3D).global_position if t is Node3D and is_instance_valid(t) else (t if t is Vector3 else null)
 	if tp != null and v.has_point(Vector2(tp.x, tp.z)):
@@ -627,14 +645,16 @@ func _draw_map() -> void:
 	if v.has_point(Vector2(pp.x, pp.z)):
 		var me := _to_map(r, Vector2(pp.x, pp.z))
 		panel.draw_colored_polygon(PackedVector2Array([me + Vector2(cos(ang), sin(ang)) * 10.0, me + Vector2(cos(ang + 2.5), sin(ang + 2.5)) * 6.0,
-			me + Vector2(cos(ang - 2.5), sin(ang - 2.5)) * 6.0]), Color(0.06, 0.08, 0.1))
+			me + Vector2(cos(ang - 2.5), sin(ang - 2.5)) * 6.0]), Color(1, 1, 1) if aerial else Color(0.06, 0.08, 0.1))
+		if aerial:
+			panel.draw_circle(me, 13.0, Color(1, 1, 1, 0.9), false, 2.0)
 	else:
 		# off this sheet: an arrow on its edge toward the player
 		var dir := (Vector2(pp.x, pp.z) - v.get_center()).normalized()
 		var e := r.get_center() + dir * minf(r.size.x * 0.48 / maxf(absf(dir.x), 0.01), r.size.y * 0.48 / maxf(absf(dir.y), 0.01))
 		panel.draw_colored_polygon(PackedVector2Array([e + dir * 9.0, e + dir.orthogonal() * 6.0, e - dir.orthogonal() * 6.0]), Color(0.06, 0.08, 0.1))
-		_label(font, labels, "YOU", e - dir * 14.0 + Vector2(-10, 4), INK, 12)
-	panel.draw_string(font, r.position + Vector2(12, 22), "GREYHAVEN" + ("  -  MAPLE AVE" if view == "north" else ""), HORIZONTAL_ALIGNMENT_LEFT, -1, 18, INK)
+		_label(font, labels, "YOU", e - dir * 14.0 + Vector2(-10, 4), ink, 12)
+	panel.draw_string(font, r.position + Vector2(12, 22), "GREYHAVEN" + ("  -  MAPLE AVE" if view == "north" else ""), HORIZONTAL_ALIGNMENT_LEFT, -1, 18, ink)
 	# the selected house and the key, under the sheet
 	var info := ""
 	if selected.begins_with("part:"):
@@ -654,6 +674,8 @@ func _label(font: Font, used: Array, txt: String, at: Vector2, col: Color, sz: i
 		if (u as Rect2).intersects(box):
 			return                                   # never on top of another label
 	used.append(box)
+	if ink == LIGHT:
+		panel.draw_string_outline(font, box.position + Vector2(0, sz), txt, HORIZONTAL_ALIGNMENT_LEFT, -1, sz, 4, Color(0, 0, 0, 0.9))
 	panel.draw_string(font, box.position + Vector2(0, sz), txt, HORIZONTAL_ALIGNMENT_LEFT, -1, sz, col)
 
 
