@@ -794,7 +794,11 @@ func _run() -> void:
 	ok("p3_objective_back", game.current_step().get("id", "") == "p3_back", game.current_step().get("text", ""))
 	ok("survival_on", player.survival_active and world.hud.surv.visible)
 	ok("p3_tentacles", world._tentacles.size() == 3 and world._tentacles[0].has_node("AI"))
-	# stamina: sprinting drains, resting recovers
+	# stamina: sprinting drains, resting recovers (after Frank's street scene, which plays as control comes back)
+	for i in 60 * 40:
+		if world.living._busy == "" and player.controls_enabled and world.get("_cine") == null:
+			break
+		await frames(1)
 	player.global_position = m_out + (m_out - m_in).normalized() * 3.0
 	player.set_yaw_pitch(atan2(-(m_in - m_out).x, -(m_in - m_out).z) + PI, 0.0)
 	Input.action_press("move_forward")
@@ -912,7 +916,13 @@ func _run() -> void:
 		prev = wp
 	ok("npc_route_around_obstacles", clear, str(nroute))
 	ok("p3_in_market", game.has_flag("p3_in_market") and leaf.position.distance_to(leaf0) > 1.0 and game.current_step().get("id", "") == "mist_doors")
-	await frames(60 * 10)                        # the arrival conversation (talk camera) ends first
+	# the arrival scene (walk in, the dead lanes, the lines - about half a minute) hands control back first
+	for i in 60 * 45:
+		if not world._arrival_running and player.controls_enabled:
+			break
+		await frames(1)
+	await frames(30)
+	ok("p3_arrival_control_back", not world._arrival_running and player.controls_enabled and world.arrival_report.get("done", false))
 	var shut = world.interactables["market/doors_shut"]
 	ok("p3_doors_reach", await aim_at(player, shut, mk.global_transform.basis.z, 1.6))
 	shut.interact(player)
