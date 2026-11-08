@@ -938,9 +938,142 @@ func _hound_burst() -> void:
 			staff.set_open(false, true)
 	await get_tree().create_timer(1.1).timeout
 	await hud.fade_to(0.0, 0.7)
+	await _sarah_bite()                                # the Hound comes for Sarah: bite, rescue, barricade
 	_hold(false)
 	_refresh_prompts()
 	_guide()
+
+
+# ------------------------------------------------------------------ the bite and the rescue (once)
+## The same Hound, still inside the breach, goes for Sarah (her canonical injury: she is the one hurt in the
+## attack). A: it lunges, its jaws close on her forearm, she goes down, it pulls and shakes, its head kept on the
+## arm every frame. B: the protagonist runs to her (first person, the real body walks). C: CLICK RAPIDLY - the
+## shared struggle bar; success: a kick, the Hound recoils and backs out through the breach; failure: it tears
+## free and goes the same way - she is hurt as the chapter has her, nobody dies. D: the pallet stack
+## is pushed across the doorway (the existing barricade, its own sounds). Flags: ch8_sarah_bitten (once).
+const BITE_SARAH_AT := Vector3(7.2, 0.04, 13.4)       ## where she is when it comes back in (between it and the store)
+const RESCUE_STAND := Vector3(5.6, 0.04, 12.6)        ## the protagonist's spot beside her
+var bite_report := {}
+
+
+func _arm_point(body: Node3D) -> Vector3:
+	var a = world.animators.get("Sarah")
+	if a and a.skel:
+		for bn in ["LowerArm.R", "lowerarm_r", "RightForeArm", "Forearm_R", "LowerArm_R", "forearm.R"]:
+			var i: int = a.skel.find_bone(bn)
+			if i >= 0:
+				return a.skel.global_transform * a.skel.get_bone_global_pose(i).origin
+	return body.global_position + Vector3(0, 0.55, 0)
+
+
+func _hound_head(h: Node3D) -> Vector3:
+	var sk := h.find_children("*", "Skeleton3D", true, false)
+	if not sk.is_empty():
+		var s := sk[0] as Skeleton3D
+		for bn in ["Jaw", "Head", "head", "Mouth", "Snout"]:
+			var i := s.find_bone(bn)
+			if i >= 0:
+				return s.global_transform * s.get_bone_global_pose(i).origin
+	return h.global_transform * Vector3(0, 0.6, 0.9)
+
+
+func _sarah_bite() -> void:
+	if Game.has_flag("ch8_sarah_bitten") or sarah == null or hound == null or not is_instance_valid(hound):
+		return
+	var h := hound
+	bite_report = {"started": true}
+	# Sarah is up, between the Hound and the rest of the store (not on her crate yet)
+	_injured_box.visible = false
+	_set_collision(_injured_box, false)
+	var sa = world.animators.get("Sarah")
+	if sarah.get_parent() != market:
+		c5._reparent(sarah, market)
+	world.place_survivor(sarah, BITE_SARAH_AT)
+	if sa:
+		sa.set_seated(false)
+		sa.set_mood("scared")
+		sa.face_towards(h.global_position)
+	await _turn_to(ml(BITE_SARAH_AT + Vector3(0, 1.0, 0)), 0.4)
+	# A. the lunge: straight at her, jaws onto her forearm
+	_hplay(h, "Run", 6.0)
+	_bark(h.global_position + Vector3(0, 1.0, 0))
+	var to := (sarah.global_position - h.global_position) * Vector3(1, 0, 1)
+	h.global_rotation.y = atan2(to.x, to.z)
+	var lunge_to := sarah.global_position - to.normalized() * 0.95
+	var tl := create_tween()
+	tl.tween_property(h, "global_position", Vector3(lunge_to.x, h.global_position.y, lunge_to.z), 0.32).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_IN)
+	await tl.finished
+	_hplay(h, "Attack_Bite", 0.0)
+	p4._play("impact", sarah.global_position + Vector3(0, 0.8, 0), 0.0)
+	Sfx.play("hurt", sarah.global_position + Vector3(0, 1.5, 0), 4.0, 1.45)   # her scream
+	Dialogue.say("c8_sarah_bitten", false, true)
+	if sa:
+		sa.set_seated(true, 0.06)                        # down on the floor
+	Game.set_flag("ch8_sarah_bitten")
+	# the bite held: its head kept on her arm (the body follows the head), a pull and a shake
+	var holding := [true]
+	var shake := func() -> void:
+		var tt := 0.0
+		while holding[0] and is_instance_valid(h):
+			await get_tree().process_frame
+			tt += get_process_delta_time()
+			var arm := _arm_point(sarah)
+			var head := _hound_head(h)
+			h.global_position += Vector3(arm.x - head.x, 0, arm.z - head.z) * 0.6
+			h.global_rotation.y = atan2(to.x, to.z) + sin(tt * 17.0) * 0.16
+			bite_report["jaw_to_arm_m"] = Vector2(arm.x - head.x, arm.z - head.z).length()
+	shake.call()
+	_snd_loop_hold(h)
+	await get_tree().create_timer(0.9).timeout
+	# B. the protagonist runs to her (the real body moves; the camera is the player's)
+	Dialogue.say("c8_rescue_go", false, true)
+	await _fp_move(RESCUE_STAND, 0.55)
+	await _turn_to(_hound_head(h), 0.25)
+	# C. the click struggle (the shared struggle bar and input)
+	var sg = world.get_node_or_null("Struggle")
+	if sg == null:
+		sg = load("res://game/encounters/struggle.gd").new()
+		sg.name = "Struggle"
+		world.add_child(sg)
+		sg.setup(world)
+	var won: bool = await sg.rescue("CLICK RAPIDLY  -  GET THE HOUND OFF!", "LEFT CLICK, AGAIN AND AGAIN", 8.0)
+	bite_report["won"] = won
+	holding[0] = false
+	# the kick (or it tears free): it recoils, then backs out through the breach - seen going, never vanishing
+	_hplay(h, "Hit_React", 0.0)
+	p4._play("impact", h.global_position + Vector3(0, 0.6, 0), 2.0 if won else -2.0)
+	world._shake(get_viewport().get_camera_3d(), 0.25, 0.04)
+	if won:
+		Sfx.bank_at("hound_yelp", h.global_position + Vector3.UP * 0.6, 2.0, 8.0)
+	else:
+		Sfx.play("hurt", sarah.global_position + Vector3(0, 1.4, 0), 2.0, 1.3)
+		Game.set_flag("ch8_rescue_slow")                # (recorded; her injury state itself is the chapter's own)
+	var back := create_tween()
+	back.tween_property(h, "global_position", h.global_position - to.normalized() * 1.2, 0.35).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
+	await back.finished
+	_hplay(h, "Run", 4.0)
+	h.global_rotation.y = atan2(-to.x, -to.z)
+	await _hound_run(h, [HOUND_GUARD], 4.0)              # back into the breach, facing out: it waits there
+	_hplay(h, "Alert", 0.0)
+	Dialogue.say("c8_rescue_won" if won else "c8_rescue_lost", false, true)
+	# D. the barricade: across the doorway with the pallet stack (the existing push), the Hound beaten back
+	await get_tree().create_timer(0.6).timeout
+	bite_report["barricade"] = true
+	_hold(false)
+	await _push_secure(null)
+	_hold(true)
+	# Sarah on her crate, hurt, as the chapter goes on
+	if sa:
+		sa.set_seated(false)
+	_injured_box.visible = true
+	_set_collision(_injured_box, true)
+	_place_npcs()
+	bite_report["done"] = true
+
+
+func _snd_loop_hold(h: Node3D) -> void:
+	Sfx.bank_at("hs_grip", h.global_position + Vector3.UP * 0.6, 0.0, 8.0)
+	Sfx.bank_at("hound_snarl", h.global_position + Vector3.UP * 0.6, 2.0, 8.0)
 
 
 func _kill_temp() -> void:

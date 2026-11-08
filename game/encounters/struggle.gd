@@ -73,7 +73,62 @@ func _exit_tree() -> void:
 		Sfx.struggle_end(false)                   # a scene change mid-struggle: nothing keeps playing
 
 
+## Rescue mode: the same bar, prompt, click input and decay, for pulling a creature off SOMEONE ELSE (a story
+## scene owns the creature and the camera). Awaitable: true = done in time. `PER_CLICK` / `DECAY` as for the
+## player's own struggles, with a fair window; nothing is posed or thrown here.
+const RESCUE_PER_CLICK := 0.1           ## a fair rescue: ~2 clicks a second fill it in about 7 s
+const RESCUE_DECAY := 0.06
+var _rescue := false
+var _rescue_won := false
+var rescue_clicks := 0                  ## (tests)
+
+
+func rescue(title: String, hint: String, seconds: float, hold_id := "hs_hold") -> bool:
+	if active:
+		return false
+	_rescue = true
+	_rescue_won = false
+	rescue_clicks = 0
+	active = true
+	_prog = 0.0
+	_t = seconds
+	_title.text = title
+	_hint.text = hint
+	_ui.visible = true
+	_loop.stream = Sfx.bank(hold_id)
+	_loop.pitch_scale = 1.0
+	_loop.play()
+	_grip.stream = Sfx.bank("pl_grip")
+	_grip.play()
+	while active:
+		await get_tree().process_frame
+	return _rescue_won
+
+
+var rescue_peak := 0.0                  ## (tests)
+
+
+func _rescue_tick(delta: float) -> void:
+	rescue_peak = maxf(rescue_peak, _prog)
+	var full := _prog >= 1.0                  # (checked before this frame's decay: a full bar wins)
+	_t -= delta
+	_effort_t -= delta
+	_prog = maxf(_prog - RESCUE_DECAY * delta, 0.0)
+	_bar.size.x = 260.0 * _prog
+	_loop.pitch_scale = lerpf(1.0, 1.06, _prog)
+	if full or _t <= 0.0:
+		_rescue_won = full
+		active = false
+		_rescue = false
+		_ui.visible = false
+		_loop.stop()
+		_grip.stop()
+
+
 func _process(delta: float) -> void:
+	if _rescue:
+		_rescue_tick(delta)
+		return
 	_cool = maxf(_cool - delta, 0.0)
 	_since += delta
 	if _relax > 0.0:
@@ -87,6 +142,7 @@ func _process(delta: float) -> void:
 	if _ai == null or not is_instance_valid(_ai) or not is_instance_valid(_ai.body) or player.get("health") <= 0.0:
 		_finish(false, true)                       # the creature is gone or the player died: let go cleanly
 		return
+	var full := _prog >= 1.0                  # (a bar filled by a click this frame wins before it decays)
 	_t -= delta
 	_age += delta
 	_effort_t -= delta
@@ -99,7 +155,7 @@ func _process(delta: float) -> void:
 			_hiss_t = randf_range(0.9, 1.7)
 			_one("ss_hiss", -4.0)
 	_pose(delta)
-	if _prog >= 1.0:
+	if full or _prog >= 1.0:
 		_finish(true)
 	elif _t <= 0.0:
 		_finish(false)
@@ -107,7 +163,8 @@ func _process(delta: float) -> void:
 
 func _input(e: InputEvent) -> void:
 	if active and e is InputEventMouseButton and e.pressed and e.button_index == MOUSE_BUTTON_LEFT:
-		_prog = minf(_prog + PER_CLICK, 1.0)          # a press, never a held button (no echo for mouse buttons)
+		_prog = minf(_prog + (RESCUE_PER_CLICK if _rescue else PER_CLICK), 1.0)   # a press, never a held button
+		rescue_clicks += 1
 		if _effort_t <= 0.0:
 			_effort_t = 0.22
 			_one("pl_effort", -6.0)

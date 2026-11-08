@@ -6987,5 +6987,51 @@
     "time": 2.6
    }
   ]
+ },
+ "c8_sarah_bitten": {
+  "lines": [
+   {
+    "speaker": "Sarah",
+    "text": "AAH! It's got my arm - get it OFF me!",
+    "time": 2.4
+   }
+  ]
+ },
+ "c8_rescue_go": {
+  "lines": [
+   {
+    "speaker": "",
+    "text": "Sarah!",
+    "time": 1.0
+   }
+  ]
+ },
+ "c8_rescue_won": {
+  "lines": [
+   {
+    "speaker": "",
+    "text": "Get back! GET BACK!",
+    "time": 1.6
+   },
+   {
+    "speaker": "Eddie",
+    "text": "The pallets - block the door!",
+    "time": 2.0
+   }
+  ]
+ },
+ "c8_rescue_lost": {
+  "lines": [
+   {
+    "speaker": "Sarah",
+    "text": "My arm - oh God, my arm...",
+    "time": 2.2
+   },
+   {
+    "speaker": "Eddie",
+    "text": "The pallets - block the door, now!",
+    "time": 2.0
+   }
+  ]
  }
 }
