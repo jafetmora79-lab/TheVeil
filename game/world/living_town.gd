@@ -1351,3 +1351,58 @@ func _window_scene(at: Vector3) -> void:
 	lamp.queue_free()
 	report["window_at"] = at
 	_end("window")
+
+
+## A cinematic is about to be shot from `cam` looking along `dirs` (world directions): anyone standing in front of it
+## within `radius` (Frank on the shop sidewalk, a neighbour) is moved out of the frame - beside / behind the camera,
+## on safe ground - and stops where they are. Returns the names moved (tests).
+func clear_shot(cam_pos: Vector3, dirs: Array, radius := 16.0) -> Array:
+	var moved: Array = []
+	for nm in people:
+		var p: Dictionary = people[nm]
+		var b = p.get("body")
+		if not is_instance_valid(b) or not (b as Node3D).visible:
+			continue
+		var at: Vector3 = (b as Node3D).global_position
+		var to := (at - cam_pos) * Vector3(1, 0, 1)
+		if to.length() > radius or to.length() < 0.01:
+			continue
+		var in_view := false
+		for d in dirs:
+			var f: Vector3 = (d as Vector3) * Vector3(1, 0, 1)
+			if f.length() > 0.01 and f.normalized().dot(to.normalized()) > cos(deg_to_rad(55.0)):
+				in_view = true
+		if not in_view:
+			continue
+		var fwd: Vector3 = ((dirs[0] as Vector3) * Vector3(1, 0, 1)).normalized()
+		var side := fwd.cross(Vector3.UP).normalized() * (1.0 if fwd.cross(Vector3.UP).dot(to) >= 0.0 else -1.0)
+		var spot := Vector3.INF
+		for c in [cam_pos - fwd * 3.0 + side * 2.5, cam_pos - fwd * 4.5 - side * 2.5, cam_pos - fwd * 6.0, cam_pos + side * 5.0 - fwd * 2.0]:
+			var s := safe_point(_ground(c))
+			if s.is_finite():
+				spot = s
+				break
+		if not spot.is_finite():
+			(b as Node3D).visible = false                # nowhere safe behind: out of sight for the shot
+			p["hidden_for_shot"] = true
+		else:
+			if p.get("anim"):
+				p["anim"].walk_to([], 1.0)               # stop where it stands (no walking back into the shot)
+			(b as Node3D).global_position = spot
+			if p.get("anim") and p["anim"].has_method("face_towards"):
+				p["anim"].face_towards(cam_pos + fwd * 10.0)
+		if String(p.get("state", "")) == "routine":
+			p["state"] = "shot"                          # out of the routine until the shot is over
+		moved.append(nm)
+	report["shot_cleared"] = moved
+	return moved
+
+
+func restore_after_shot() -> void:
+	for nm in people:
+		if String(people[nm].get("state", "")) == "shot":
+			people[nm]["state"] = "routine"
+		if people[nm].get("hidden_for_shot", false):
+			people[nm].erase("hidden_for_shot")
+			if is_instance_valid(people[nm]["body"]):
+				(people[nm]["body"] as Node3D).visible = true

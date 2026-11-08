@@ -1626,7 +1626,7 @@ func _talk_eddie(_by: Node) -> void:
 ##   cross to the supermarket -> shut the jammed doors -> end of the build.
 var atmos: Node
 var _tentacles: Array = []
-const STOMP_QUICKEN := 1.45                     ## the Colossus foot's descent: a heavy, fast fall (the rest unchanged)
+const STOMP_QUICKEN := 2.3                      ## the Colossus foot's descent: a heavy, fast fall (the rest unchanged)
 var _doors_powered := true
 var _p3_shop_talked := false
 var _p3_npcs_moved := false
@@ -2104,6 +2104,8 @@ func _colossus_encounter() -> void:
 	cam.fov = player.camera.fov
 	cam.far = 700.0
 	cam.current = true
+	if living and living.has_method("clear_shot"):
+		living.clear_shot(cam.global_position, [-cam.global_basis.z, L - cam.global_position])   # nobody stands in the shot
 	# --- the creature: placed so its front-left foot lands exactly on L
 	var c := (load(COLOSSUS_PATH) as PackedScene).instantiate() as Node3D
 	c.name = "Colossus_Encounter"
@@ -2222,6 +2224,10 @@ func _colossus_encounter() -> void:
 	ap.speed_scale = SPEED * STOMP_QUICKEN
 	var feet_watch := _feet_watch_setup(ap, sk, anim)
 	feet_watch["ground"] = L.y
+	var lamp_post := _lamp_near(L)
+	var lamp_l: Light3D = _lamp_light_of(lamp_post) if lamp_post else null
+	var lamp_head_y: float = (lamp_l.global_position.y if lamp_l else lamp_post.global_position.y + 5.75) if lamp_post else -INF
+	var lamp_hit := lamp_post == null
 	ap.seek(fposmod(t_c - span, anim.length), true)
 	var elapsed := 0.0
 	var dur := span / (SPEED * STOMP_QUICKEN)                     # the descent ~12% quicker, the pose still lands on t_c
@@ -2231,6 +2237,13 @@ func _colossus_encounter() -> void:
 		var k := clampf(elapsed / dur, 0.0, 1.0)
 		c.global_position = walk_from.lerp(contact_pos, k) + Vector3.UP * DROP * (1.0 - k * k)
 		_feet_watch_tick(feet_watch, sk, cam)
+		if not lamp_hit:
+			sk.force_update_all_bone_transforms()
+			if _min_tip_y(sk, foot) <= lamp_head_y + 0.2:
+				lamp_hit = true                                    # the leg strikes the lamp on its way down
+				enc_report["lamp_hit_height_m"] = lamp_head_y - ground
+				enc_report["lamp_hit_k"] = k
+				_crush_lamp(L, true)
 	enc_report["walkin_touchdowns"] = feet_watch["events"]
 	enc_report["leg_drop_m"] = DROP
 	# touchdowns the camera could see before the real step (the hero contact itself, at L, is not one of them)
@@ -2256,7 +2269,8 @@ func _colossus_encounter() -> void:
 	ap.speed_scale = 0.0                                          # planted: the weight comes down on it
 	_enc_sounds.append(Sfx.play("colossus_step", L + Vector3(0, 1, 0), 6.0, 0.7))
 	_impact_dust(L)
-	_crush_lamp(L)
+	if not lamp_hit:
+		_crush_lamp(L)                                # (no head reached on the way down: it goes at the footfall)
 	_shake(cam, 0.35, 0.05)
 	_npc_fright(L)
 	for l in get_tree().get_nodes_in_group("veil_streetlight"):
@@ -2360,6 +2374,8 @@ func _colossus_encounter() -> void:
 	player.controls_enabled = true
 	hud.allow_pause = true
 	_encounter_running = false
+	if living and living.has_method("restore_after_shot"):
+		living.restore_after_shot()
 	# --- Stage 7: survival begins
 	player.set_survival(true)
 	hud.set_survival_visible(true)
@@ -2557,7 +2573,8 @@ func _lamp_light_of(post: Node3D) -> Light3D:
 	return best
 
 
-func _crush_lamp(at: Vector3) -> void:
+## The lamp post the footfall `at` takes down (nearest within 15 m), or null.
+func _lamp_near(at: Vector3) -> Node3D:
 	var post: Node3D = null
 	var bd := 15.0
 	for n in _lamp_posts():
@@ -2565,6 +2582,13 @@ func _crush_lamp(at: Vector3) -> void:
 		if d < bd:
 			bd = d
 			post = n
+	return post
+
+
+## `on_contact`: the leg is striking it right now - the light goes at once (one bright pop), no stutter first.
+func _crush_lamp(at: Vector3, on_contact := false) -> void:
+	var post: Node3D = _lamp_near(at)
+	var bd := Vector2(post.global_position.x - at.x, post.global_position.z - at.z).length() if post else 15.0
 	var best: Light3D = _lamp_light_of(post) if post else null
 	if best == null and post == null:
 		enc_report["lamp_crushed"] = ""
@@ -2579,7 +2603,8 @@ func _crush_lamp(at: Vector3) -> void:
 		# the impact runs through the post: the light stutters and flares, then dies for good
 		var e0: float = best.light_energy
 		var fl := create_tween()
-		for k in [[e0 * 2.6, 0.05], [0.0, 0.06], [e0 * 1.8, 0.05], [0.0, 0.09], [e0 * 3.2, 0.04]]:
+		var steps: Array = [[e0 * 3.2, 0.03]] if on_contact else [[e0 * 2.6, 0.05], [0.0, 0.06], [e0 * 1.8, 0.05], [0.0, 0.09], [e0 * 3.2, 0.04]]
+		for k in steps:
 			fl.tween_property(best, "light_energy", float(k[0]), float(k[1]))
 		fl.tween_callback(func():
 			if is_instance_valid(best):

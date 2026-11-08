@@ -790,6 +790,9 @@ func _run() -> void:
 	ok("colossus_lamp_broken", String(r.get("lamp_crushed", "")) != "" and r.get("lamp_light_off", false) and r.get("lamp_post_down", false)
 		and String(game.world_state.get("colossus_lamp", "")) != "", "lamp %s at %.1f m, off %s, down %s" % [r.get("lamp_crushed", ""),
 		float(r.get("lamp_distance_m", -1.0)), str(r.get("lamp_light_off", false)), str(r.get("lamp_post_down", false))])
+	ok("colossus_lamp_hit_by_leg", float(r.get("lamp_hit_k", 2.0)) < 0.999 and float(r.get("lamp_hit_height_m", -1.0)) > 2.0,
+		"hit at %.0f%% of the fall, %.1f m up" % [float(r.get("lamp_hit_k", 2.0)) * 100.0, float(r.get("lamp_hit_height_m", -1.0))])
+	ok("colossus_shot_cleared", world.living.report.has("shot_cleared"), str(world.living.report.get("shot_cleared", "?")))
 	ok("encounter_control_restored", not world._encounter_running and player.controls_enabled and player.camera.current)
 	ok("p3_objective_back", game.current_step().get("id", "") == "p3_back", game.current_step().get("text", ""))
 	ok("survival_on", player.survival_active and world.hud.surv.visible)
