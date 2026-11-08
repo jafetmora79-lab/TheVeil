@@ -6744,5 +6744,99 @@
     "time": 4.2
    }
   ]
+ },
+ "gun_sarah_intro": {
+  "lines": [
+   {
+    "speaker": "Sarah",
+    "text": "Wait. Before you go back out there.",
+    "time": 2.2
+   },
+   {
+    "speaker": "Sarah",
+    "text": "This was in the manager's desk. Six rounds.",
+    "time": 2.6
+   },
+   {
+    "speaker": "Sarah",
+    "text": "I patch people up. I'd rather not have to patch you.",
+    "time": 3.0
+   },
+   {
+    "speaker": "",
+    "text": "...Thanks.",
+    "time": 1.4
+   }
+  ]
+ },
+ "gun_sarah_skip": {
+  "lines": [
+   {
+    "speaker": "Sarah",
+    "text": "Then don't waste them.",
+    "time": 2.0
+   }
+  ]
+ },
+ "gun_sarah_done": {
+  "lines": [
+   {
+    "speaker": "Sarah",
+    "text": "Good. Keep it put away until you need it.",
+    "time": 2.6
+   },
+   {
+    "speaker": "Sarah",
+    "text": "And remember - every shot is noise.",
+    "time": 2.4
+   }
+  ]
+ },
+ "gun_marcus_intro": {
+  "lines": [
+   {
+    "speaker": "Marcus",
+    "text": "Hold on. You're not going out there with nothing.",
+    "time": 2.6
+   },
+   {
+    "speaker": "Marcus",
+    "text": "Manager kept this in his desk. Six rounds.",
+    "time": 2.6
+   },
+   {
+    "speaker": "Marcus",
+    "text": "It won't kill what's out there. It might buy you a few seconds.",
+    "time": 3.2
+   },
+   {
+    "speaker": "",
+    "text": "...Thanks.",
+    "time": 1.4
+   }
+  ]
+ },
+ "gun_marcus_skip": {
+  "lines": [
+   {
+    "speaker": "Marcus",
+    "text": "Then make every round count.",
+    "time": 2.0
+   }
+  ]
+ },
+ "gun_marcus_done": {
+  "lines": [
+   {
+    "speaker": "Marcus",
+    "text": "That'll do. Keep it holstered till you need it.",
+    "time": 2.6
+   },
+   {
+    "speaker": "Marcus",
+    "text": "Every shot's a dinner bell out there.",
+    "time": 2.4
+   }
+  ]
  }
 }
