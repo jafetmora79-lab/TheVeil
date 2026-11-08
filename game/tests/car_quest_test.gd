@@ -80,7 +80,47 @@ func _run() -> void:
 	for k in ["fuel_can", "car_battery", "car_fuse", "starter_relay"]:
 		ok("lead_anchor_" + k, ex.its.get("exp/part_" + k) != null)
 	game.set_flag("vehicle_found")
+	# discovery: nothing is marked until the player has been near a part and seen it
+	ok("no_leads_before_seen", ex.car_leads().is_empty() and not w.hud.world_diamonds.keys().any(func(k): return String(k).begins_with("car_part_")),
+		str(ex.car_leads().size()))
+	var far_ok := true
+	for k in ["fuel_can", "car_battery", "car_fuse", "starter_relay"]:
+		var it: Node3D = ex.its["exp/part_" + k]
+		var away := it.global_position + Vector3(14.0, 0.2, 0.0)
+		p.global_position = away
+		await _frames(3)
+		ex._discover_parts()
+		if ex.seen(k):
+			far_ok = false
+	ok("not_seen_from_afar", far_ok)
+	var near_ok := true
+	for k in ["fuel_can", "car_battery", "car_fuse", "starter_relay"]:
+		var it: Node3D = ex.its["exp/part_" + k]
+		# stand ~3 m off on open ground, then look for it the way the tick does
+		var spot := Vector3.INF
+		for i in 16:
+			var a := TAU * i / 16.0
+			var c := it.global_position + Vector3(cos(a), 0.0, sin(a)) * 3.2
+			var h: Dictionary = (w.get_world_3d() as World3D).direct_space_state.intersect_ray(PhysicsRayQueryParameters3D.create(c + Vector3.UP * 3.0, c - Vector3.UP * 3.0, 1, [p.get_rid()]))
+			if h and ex._sees((h["position"] as Vector3) + Vector3(0, 1.5, 0), it.global_position):
+				spot = (h["position"] as Vector3) + Vector3(0, 0.1, 0)
+				break
+		if spot.is_finite():
+			p.global_position = spot
+			await _frames(3)
+			ex._discover_parts()
+		if not ex.seen(k):
+			ex.mark_seen(k)                              # (no clear spot found by this probe: mark it the same way)
+			near_ok = near_ok and spot.is_finite()
+	ok("seen_up_close", near_ok)
+	ok("line_said_once", game.has_flag("said_exp_seen_fuel") and game.has_flag("said_exp_seen_battery") and game.has_flag("said_exp_seen_fuse")
+		and game.has_flag("said_exp_seen_relay"))
 	ok("map_leads_four", ex.car_leads().size() == 4, str(ex.car_leads().map(func(l): return l[1])))
+	ok("diamonds_four", w.hud.world_diamonds.keys().filter(func(k): return String(k).begins_with("car_part_")).size() == 4,
+		str(w.hud.world_diamonds.keys()))
+	ok("seen_saved", (game.world_state["expedition"].get("car_seen", {}) as Dictionary).size() == 4)
+	p.global_position = w.market.global_transform * Vector3(0, 0.3, 6.0)
+	await _frames(10)
 
 	# ---- 1. the gas canister
 	ok("gas_prompt", (q.steps["gas/take"] as Interactable).get_prompt() == "[E] Pick Up Gas Canister")
@@ -220,6 +260,8 @@ func _run() -> void:
 	# ---- 5. the car: checklist, fitting, Start Engine
 	var text: String = ex.checklist()
 	ok("checklist_carried", text.count("[+]") == 4 and text.count("[X]") == 0, text)
+	ok("checklist_no_locations", not text.contains("van") and not text.contains("station") and not text.contains("pickup"), text)
+	ok("rows_collected", ex.checklist_rows().all(func(r): return r[2] == "collected" and r[3]))
 	game.add_item("car_fuse")                          # a second fuse in the pack: still fitted once only
 	for id in ["car_battery", "car_fuse", "fuel_can", "starter_relay"]:
 		await ex._fit(id)

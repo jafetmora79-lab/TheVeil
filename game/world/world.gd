@@ -50,6 +50,7 @@ var sedan: PlayerSedan
 var hud: VeilHUD
 var in_car := false
 var fog_zones: Node
+var world_edge: Node
 var drive_time := 0.0
 var _park_t := 0.0
 var _ending := false
@@ -139,6 +140,11 @@ func _ready() -> void:
 	add_child(fz)
 	fz.setup.call_deferred(self)
 	fog_zones = fz
+	var edge = load("res://game/world/world_edge.gd").new()         # far past the town: the Veil takes you
+	edge.name = "WorldEdge"
+	add_child(edge)
+	edge.setup.call_deferred(self)
+	world_edge = edge
 	var sm = load("res://game/world/store_markers.gd").new()       # [E] over the store's real interactions
 	sm.name = "StoreMarkers"
 	add_child(sm)
@@ -4116,6 +4122,8 @@ func save_checkpoint(checkpoint: String) -> void:
 
 
 func save(path := "") -> void:
+	if path == "" and world_edge and world_edge.get("state") != "idle":
+		return                                       # never a checkpoint out at the world's edge (retry = back in town)
 	var positions := {}
 	for speaker in animators:
 		var body := (animators[speaker] as NpcAnimator).root as VeilSurvivorBody

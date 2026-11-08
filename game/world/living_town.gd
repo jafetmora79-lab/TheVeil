@@ -186,8 +186,45 @@ func _person(nm: String, model: String, face: String, at: Vector3, tint := Color
 	return body
 
 
+## Every house's footprint (the protagonist's home first), grown a little: no townsperson stands or walks in one.
+## (Roofs have no collision, so "under a roof" alone let a spot inside the home pass for outdoors.)
+var _house_rects: Array = []
+
+
+func house_rects() -> Array:
+	if _house_rects.is_empty():
+		var nodes: Array = []
+		var h = world.get("home")
+		if h is Node3D:
+			nodes.append(h)
+		var hn := world.get_node_or_null("Residential/Houses")
+		if hn:
+			nodes.append_array(hn.get_children())
+		for n in nodes:
+			if not (n is Node3D) or not (n as Node3D).visible:
+				continue
+			var a: AABB = (n as Node3D).global_transform * Interactable.aabb_of(n as Node3D)
+			if a.size.x > 3.0 and a.size.z > 3.0 and a.size.x < 40.0 and a.size.z < 40.0:
+				_house_rects.append(Rect2(a.position.x, a.position.z, a.size.x, a.size.z).grow(0.6))
+	return _house_rects
+
+
+func in_house(p: Vector3) -> bool:
+	var v := Vector2(p.x, p.z)
+	return house_rects().any(func(r): return (r as Rect2).has_point(v))
+
+
+## A straight walk from a to b that would cut through a house (sampled every half metre).
+func _through_house(a: Vector3, b: Vector3) -> bool:
+	var n := maxi(1, ceili(a.distance_to(b) / 0.5))
+	for i in n + 1:
+		if in_house(a.lerp(b, float(i) / n)):
+			return true
+	return false
+
+
 ## The nearest spot to `p` a person can stand on: not on the road, nothing solid there (a parked car, a bin, a
-## wall). Tries the spot itself, then rings round it out to 2.5 m. INF = none.
+## wall), never inside a house. Tries the spot itself, then rings round it out to 2.5 m. INF = none.
 func safe_point(p: Vector3) -> Vector3:
 	var q := PhysicsShapeQueryParameters3D.new()
 	var cap := CapsuleShape3D.new()
@@ -200,7 +237,7 @@ func safe_point(p: Vector3) -> Vector3:
 		for k in (1 if r == 0.0 else 8):
 			var a := TAU * k / 8.0
 			var c: Vector3 = _ground(p + Vector3(cos(a), 0, sin(a)) * r)
-			if _on_road(c):
+			if _on_road(c) or in_house(c):
 				continue
 			q.transform = Transform3D(Basis(), c + Vector3.UP * 0.95)
 			var clear := true
@@ -224,6 +261,11 @@ func _walk_leg(p: Dictionary, to: Vector3, speed: float) -> bool:
 		if not _segment_clear(body.global_position, goal):
 			return false
 		path = [goal]
+	var from: Vector3 = body.global_position
+	for wp in path:
+		if _through_house(from, wp):
+			return false                                # never through a house (doors, the home): they stay put
+		from = wp
 	p["anim"].walk_to(path, speed)
 	return true
 
@@ -324,6 +366,8 @@ func _spawn_neighbours() -> void:
 			if not _space().intersect_ray(PhysicsRayQueryParameters3D.create(g + Vector3.UP, g + Vector3.UP * 12.0, 1)).is_empty():
 				continue
 			var s := safe_point(g)
+			if s.is_finite() and s.distance_to(world.player.global_position) < 3.0:
+				continue                            # never on the player's own start spot
 			if s.is_finite() and s.distance_to(g) < 0.3 and not [Vector3(1.5, 0, 0), Vector3(-1.5, 0, 0), Vector3(0, 0, 1.5), Vector3(0, 0, -1.5)].any(func(o): return _on_road(s + o)):
 				spots.append(s)                     # (a clear metre and a half from any kerb)
 	report["home_spots"] = spots.size()
@@ -336,6 +380,8 @@ func _spawn_neighbours() -> void:
 			if near.is_finite() and (s.distance_to(near) < dmin or s.distance_to(near) > dmax or not _segment_clear(near, s)):
 				continue
 			if used.any(func(u): return (u as Vector3).distance_to(s) < 3.0):
+				continue
+			if near.is_finite() and _through_house(near, s):
 				continue
 			used.append(s)
 			return s
@@ -360,6 +406,8 @@ func _spawn_neighbours() -> void:
 	var c0: Vector3 = pick.call(Vector3.INF, 0.0, 0.0)
 	if c0.is_finite():
 		var c1: Vector3 = safe_point(parked + (c0 - parked).normalized() * 2.2) if parked.is_finite() else pick.call(c0, 6.0, 12.0)
+		if c1.is_finite() and _through_house(c0, c1):
+			c1 = pick.call(c0, 6.0, 12.0)
 		if c1.is_finite():
 			_person("Res_Driveway", CASHIER, "T_Face_Cashier.png", c0, Color(0.95, 0.85, 0.7))
 			people["Res_Driveway"]["route"] = [c0, c1]

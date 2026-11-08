@@ -37,15 +37,17 @@ func is_open() -> bool:
 	return _open
 
 
-func ask(title: String, options: Array, player: Node = null) -> int:
+func ask(title: String, options: Array, player: Node = null, rows: Array = []) -> int:
 	for c in _box.get_children():
 		if c != _title:
 			c.queue_free()
 	_title.text = title
 	_title.visible = title != ""
+	if not rows.is_empty():
+		_box.add_child(_checklist(rows))
 	for i in options.size():
 		var b := VeilUI.button("%d.  %s" % [i + 1, options[i]])
-		b.custom_minimum_size = Vector2(460, 44)
+		b.custom_minimum_size = Vector2(380, 36) if not rows.is_empty() else Vector2(460, 44)
 		b.pressed.connect(pick.bind(i))
 		_box.add_child(b)
 	_player = player
@@ -83,3 +85,49 @@ func _unhandled_input(e: InputEvent) -> void:
 		if n >= 0 and n < _box.get_child_count() - 1:
 			get_viewport().set_input_as_handled()
 			pick(n)
+
+
+## A compact checklist (the car repair): rows [done: bool, name, status, carried: bool] or a String (a note).
+## Box, name and status line up in fixed columns; long text wraps inside the panel.
+const CHECK_W := 380
+
+
+func _checklist(rows: Array) -> Control:
+	var v := VBoxContainer.new()
+	v.name = "Checklist"
+	v.add_theme_constant_override("separation", 4)
+	v.custom_minimum_size = Vector2(CHECK_W, 0)
+	var done_c := Color(0.55, 0.78, 0.5)
+	var carry_c := Color(0.9, 0.72, 0.3)
+	for r in rows:
+		if r is String:
+			var n := VeilUI.label(r, 12, VeilUI.MUTED)
+			n.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+			n.custom_minimum_size = Vector2(CHECK_W, 0)
+			v.add_child(n)
+			continue
+		var done: bool = r[0]
+		var carried: bool = r.size() > 3 and bool(r[3])
+		var h := HBoxContainer.new()
+		h.add_theme_constant_override("separation", 10)
+		var box := Panel.new()
+		box.custom_minimum_size = Vector2(14, 14)
+		box.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+		var sb := StyleBoxFlat.new()
+		sb.bg_color = done_c if done else (carry_c.darkened(0.45) if carried else Color(0, 0, 0, 0))
+		sb.border_color = done_c if done else (carry_c if carried else VeilUI.MUTED.darkened(0.3))
+		sb.set_border_width_all(2)
+		box.add_theme_stylebox_override("panel", sb)
+		h.add_child(box)
+		var name_l := VeilUI.label(String(r[1]), 15, VeilUI.TEXT if not done else done_c)
+		name_l.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+		name_l.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		name_l.custom_minimum_size = Vector2(200, 0)
+		h.add_child(name_l)
+		var st_l := VeilUI.label(String(r[2]).to_upper(), 12, done_c if done else (carry_c if carried else VeilUI.MUTED.darkened(0.25)))
+		st_l.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
+		st_l.custom_minimum_size = Vector2(110, 0)
+		st_l.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+		h.add_child(st_l)
+		v.add_child(h)
+	return v
