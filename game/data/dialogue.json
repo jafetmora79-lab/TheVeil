@@ -7033,5 +7033,14 @@
     "time": 2.0
    }
   ]
+ },
+ "shop_staff_only": {
+  "lines": [
+   {
+    "speaker": "",
+    "text": "Staff only. Better not.",
+    "time": 1.8
+   }
+  ]
  }
 }
