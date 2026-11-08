@@ -146,6 +146,7 @@ func _ready() -> void:
 	_apply_view_ranges()
 	_setup_night()
 	_restore_crushed_lamp.call_deferred()
+	_setup_stock_door.call_deferred()
 	living = VeilLivingTown.new()                  # Greyhaven before / as the Veil arrives (game/world/living_town.gd)
 	living.name = "LivingTown"
 	add_child(living)
@@ -2896,7 +2897,27 @@ func _stock_door(open: bool, seconds := 0.45) -> void:
 	tw.tween_property(leaf, "transform", t, seconds)
 	Sfx.play("door_open" if open else "door_close", leaf.global_position, -4.0)
 	await tw.finished
+	if stock_door_it and is_instance_valid(stock_door_it):
+		stock_door_it.is_open = open                 # the door's own [E] state follows the scene's moves
+		stock_door_it._store()
 	seated_report["door_open" if open else "door_closed"] = true
+
+
+## The stock-room door is an ordinary door the player can open and close: staff only before the Colossus, always
+## usable from then on - quitting during the shop scene (the group shut in the stock room) never strands anyone.
+var stock_door_it: Interactable
+
+
+func _setup_stock_door() -> void:
+	var leaf := game_shop.find_child("INT_Door_StockRoom", true, false) as Node3D
+	if leaf == null or stock_door_it != null:
+		return
+	if not leaf.has_meta("closed_xf"):
+		leaf.set_meta("closed_xf", leaf.transform)
+	stock_door_it = Interactable.attach(leaf, {"kind": "hinge", "label": "Stock Room Door", "open_deg": -95.0,
+		"hinge_axis": Vector3.UP, "state_key": "shop/stock_door"})
+	stock_door_it.lock_check = func() -> String:
+		return "" if Game.has_flag("p3_stepped_out") else "shop_staff_only"
 
 
 func _shop_seated_talk() -> void:
