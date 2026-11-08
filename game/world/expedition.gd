@@ -284,11 +284,14 @@ func _story_doors() -> Array:
 	return out
 
 
-## While the shelter menu is on offer every story door shows that menu instead (Interactable.redirect).
+## While the shelter menu is on offer every story door shows that menu instead (Interactable.redirect); during a
+## supply run they are the trip's own doors ("Secure the Doors" inside, "Open the Doors" outside), never the story's.
 func _door_redirect(_d: Interactable) -> Interactable:
 	var e: Interactable = its.get("exit")
-	if e and e.prompt_text != "" and not active():
+	if e and e.prompt_text != "":
 		return e
+	if active():
+		return its.get("outside")
 	return null
 
 

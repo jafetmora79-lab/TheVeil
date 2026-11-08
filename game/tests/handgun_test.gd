@@ -58,8 +58,14 @@ func _run() -> void:
 	var fl = root.get_tree().get_first_node_in_group("veil_flashlight")
 
 	# ---- pickup, drawn into view
-	ok("pickup_in_office", sa.pickup != null and is_instance_valid(sa.pickup))
-	(sa.pickup.get_node("Interact") as Interactable).interact(world.player)
+	# (Sarah hands it over now; the practice is skipped here - final_repairs_test covers it)
+	ok("pickup_in_office", sa.pickup == null and sa.handover_pending(), sa.presenter())
+	sa.handover(world.phase4.choice)
+	for i in 60 * 30:
+		if world.phase4.choice.is_open():
+			break
+		await process_frame
+	world.phase4.choice.pick(1)
 	await frames(30)
 	ok("pickup_six_loaded", sa.has_gun() and sa.mag() == 6 and sa.reserve() == 0 and sa.drawn())
 	ok("gun_in_view", sa.view_shown() and sa._equip >= 1.0 and sa._view.position.distance_to(sa.REST) < 0.05, str(sa._view.position if sa._view else null))

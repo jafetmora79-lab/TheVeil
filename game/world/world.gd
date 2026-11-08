@@ -2053,6 +2053,25 @@ func _colossus_encounter() -> void:
 	var P := player.global_position
 	var ground := P.y
 	var L := P + n * 15.0 + side * 1.6                 # across the street, well clear of the storefront
+	# the foot comes down right beside a street lamp when one stands in that part of the street (13.5-16.5 m out,
+	# within 25 degrees of straight ahead): the leg itself strikes it (see _crush_lamp)
+	var best_post: Node3D = null
+	var bd := INF
+	for post in _lamp_posts():
+		var to := ((post as Node3D).global_position - P) * Vector3(1, 0, 1)
+		var dist := to.length()
+		if dist < 13.5 or dist > 16.5 or rad_to_deg(to.normalized().angle_to(n)) > 25.0:
+			continue
+		var dd := Vector2((post as Node3D).global_position.x - L.x, (post as Node3D).global_position.z - L.z).length()
+		if dd < bd:
+			bd = dd
+			best_post = post
+	if best_post:
+		var bp := best_post.global_position
+		var back := (L - bp) * Vector3(1, 0, 1)
+		back = back.normalized() if back.length() > 0.1 else -n
+		L = bp + back * 1.3                            # the claws land against the post's foot
+		enc_report["foot_by_lamp"] = String(best_post.name)
 	L.y = ground
 	# --- Stage 1: something enormous moving (sound first), controls held
 	player.controls_enabled = false
@@ -3423,6 +3442,7 @@ func _p3_shut_doors(_by: Node) -> void:
 	_securing = true
 	shut_it.prompt_text = ""
 	var t0 := Time.get_ticks_msec()
+	var fr0 := Engine.get_process_frames()
 	_encounter_running = true                          # (no menus, objectives or threats while it plays)
 	var was_look := player.look_enabled
 	player.controls_enabled = false
@@ -3513,6 +3533,7 @@ func _p3_shut_doors(_by: Node) -> void:
 	_encounter_running = false
 	_securing = false
 	secure_report["seconds"] = (Time.get_ticks_msec() - t0) / 1000.0
+	secure_report["frames"] = Engine.get_process_frames() - fr0
 	secure_report["control_back"] = player.controls_enabled
 	Dialogue.say("p3_doors", false, true)
 	Game.set_flag("p3_doors_shut")
