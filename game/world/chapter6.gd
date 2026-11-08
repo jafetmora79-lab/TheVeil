@@ -187,7 +187,8 @@ func _apply(restoring: bool) -> void:
 	else:
 		c5._reparent(eddie, market)
 		world.place_survivor(eddie, EDDIE_SHELTER)
-		world.animators["Eddie"].face_towards(c5.ml(c5.STASH))
+		var crate_n = world.expedition.supply_chest if world.get("expedition") and world.expedition.get("supply_chest") else null
+		world.animators["Eddie"].face_towards((crate_n as Node3D).global_position if crate_n else c5.ml(c5.STASH))
 	if marcus:
 		c5._reparent(marcus, market)
 		world.place_survivor(marcus, MARCUS_WATCH)
@@ -232,7 +233,7 @@ func _refresh_prompts() -> void:
 		its["npc_Marcus"].prompt_text = "[E] Talk" if talk else ""
 	if its.has("npc_Eddie"):
 		its["npc_Eddie"].prompt_text = "[E] Talk" if Game.has_flag("ch6_marcus_briefing_complete") and not Game.has_flag("ch6_eddie_talked") else ""
-	c5.its["stash"].prompt_text = "[E] Check the Supplies" if Game.has_flag("ch6_eddie_talked") and not Game.has_flag("ch6_eddie_ready") else ""
+	c5.its["stash"].prompt_text = ""                    # (the supplies check is at the shelter supply crate)
 	c5.its["exit"].prompt_text = Interactable.key_hint() + "OPEN DOOR" if Game.has_flag("ch6_eddie_ready") and String(st().get("eddie", "")) != "following" \
 		and not Game.has_flag("ch6_returned_to_supermarket") else ""
 
@@ -263,7 +264,8 @@ func _update_marker() -> void:
 		t = eddie
 		label = "EDDIE"
 	elif not Game.has_flag("ch6_eddie_ready"):
-		t = c5.ml(c5.STASH + Vector3(0, 0.3, 0))
+		var crate = world.expedition.supply_chest if world.get("expedition") and world.expedition.get("supply_chest") else null
+		t = (crate as Node3D).global_position + Vector3(0, 0.9, 0) if crate else c5.ml(c5.STASH + Vector3(0, 0.3, 0))
 		label = "SUPPLIES"
 	elif not Game.has_flag("ch6_eddie_following"):
 		t = c5.ml(c5._door_spot())
@@ -328,7 +330,8 @@ func _check_supplies(_b: Node) -> void:
 		return
 	if not hud.inv_panel.visible:
 		hud.toggle_inventory()
-	Sfx.play("pickup", c5.ml(c5.STASH), -12.0, 0.7)
+	var crate = world.expedition.supply_chest if world.get("expedition") and world.expedition.get("supply_chest") else null
+	Sfx.play("pickup", (crate as Node3D).global_position if crate else c5.ml(c5.STASH), -12.0, 0.7)
 	Game.set_flag("ch6_eddie_ready")                  # Eddie is ready to follow once the supplies are checked
 	_refresh_prompts()
 
