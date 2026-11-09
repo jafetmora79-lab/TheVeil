@@ -7132,5 +7132,35 @@
     "time": 2.4
    }
   ]
+ },
+ "pay_first_market": {
+  "draft": true,
+  "lines": [
+   {
+    "speaker": "Cashier",
+    "text": "Whoa, hon! You gotta pay for those first. Register's right here.",
+    "time": 3.4
+   }
+  ]
+ },
+ "pay_first_shop": {
+  "draft": true,
+  "lines": [
+   {
+    "speaker": "Eddie",
+    "text": "Hey, hey! That's not a rental, man. Pay at the counter first.",
+    "time": 3.4
+   }
+  ]
+ },
+ "market_paid_some": {
+  "draft": true,
+  "lines": [
+   {
+    "speaker": "Cashier",
+    "text": "Rung those up for you. Soup, water and snacks are still on your list, hon.",
+    "time": 3.8
+   }
+  ]
  }
 }
