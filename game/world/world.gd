@@ -150,7 +150,7 @@ func _ready() -> void:
 	add_child(edge)
 	edge.setup.call_deferred(self)
 	world_edge = edge
-	load("res://game/tools/trailer_mode.gd").ensure(get_tree())     # (only with --trailer: capture tools)
+	load("res://game/trailer/trailer_mode.gd").ensure(get_tree())     # (only with --trailer: capture tools)
 	var td = load("res://game/world/town_destruction.gd").new()     # after the two hours: houses broken
 	td.name = "TownDestruction"
 	add_child(td)

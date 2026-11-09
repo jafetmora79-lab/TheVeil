@@ -88,12 +88,20 @@ func _ready() -> void:
 	var b_quit := VeilUI.button("Quit")
 	b_quit.pressed.connect(func(): get_tree().quit())
 	b_quit.visible = OS.get_name() != "Web"
-	for b in [b_new, b_cont, b_set, b_quit]:
+	var buttons: Array = [b_new, b_cont, b_set, b_quit]
+	var trailer_script = load("res://game/trailer/trailer_mode.gd")
+	if trailer_script.wanted():
+		# trailer mode (TheVeil_TrailerMode.bat): the trailer straight from here - start recording, then click it (or T)
+		trailer_script.ensure(get_tree())
+		var b_tr := VeilUI.button("PLAY TRAILER")
+		b_tr.pressed.connect(func(): load("res://game/trailer/trailer_director.gd").start(get_tree()))
+		buttons.push_front(b_tr)
+	for b in buttons:
 		b.custom_minimum_size = Vector2(MENU_W, 34)     # one width for the column: long labels fit inside it
 		b.clip_text = true
 		_flat(b)
 		menu.add_child(b)
-	b_new.grab_focus()
+	(buttons[0] as Button).grab_focus()
 	settings = SettingsPanel.new()
 	settings.visible = false
 	settings.closed.connect(func():

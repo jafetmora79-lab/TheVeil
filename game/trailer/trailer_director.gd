@@ -55,7 +55,7 @@ static func start(tree: SceneTree) -> void:
 		Game.flags[f] = true
 	Game.no_save = true
 	Game.set_meta("trailer_run", true)
-	var d = (load("res://game/tools/trailer_director.gd") as GDScript).new()
+	var d = (load("res://game/trailer/trailer_director.gd") as GDScript).new()
 	d.name = "TrailerDirector"
 	tree.root.add_child(d)
 	tree.change_scene_to_file("res://game/scenes/World.tscn")
@@ -105,13 +105,10 @@ func run() -> void:
 	for i in 90:
 		await get_tree().process_frame
 	_setup()
-	await _seg_ordinary()
-	await _seg_falling()
-	await _seg_shape()
-	await _seg_run()
-	await _seg_survive()
-	await _seg_morning()
-	await _seg_end()
+	for seg in [_seg_ordinary, _seg_falling, _seg_shape, _seg_run, _seg_survive, _seg_morning, _seg_end]:
+		if aborted or not is_instance_valid(world):
+			break
+		await seg.call()
 	_finish()
 
 
