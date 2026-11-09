@@ -113,10 +113,6 @@ func _ready() -> void:
 	loading.position.y -= 60
 	loading.visible = false
 	add_child(loading)
-	var v := VeilUI.label("Phase 1 build · first playable opening", 13, Color(0.35, 0.38, 0.4))
-	v.set_anchors_preset(Control.PRESET_BOTTOM_LEFT)
-	v.position += Vector2(16, -30)
-	add_child(v)
 
 
 func _new_game() -> void:
