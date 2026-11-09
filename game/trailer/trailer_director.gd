@@ -44,6 +44,7 @@ const CLEARANCE := 0.2
 var _next_name := ""
 var _next_fov := 48.0
 var _watched: Array = []
+var _focus_lock := Vector3.INF
 var _black: ColorRect
 var _card: Label
 var _title: Label
@@ -136,6 +137,11 @@ func _setup() -> void:
 		for n in get_tree().root.find_children("*", "CanvasLayer", true, false):
 			if n != self and n != tm:
 				(n as CanvasLayer).visible = false
+	if tm:
+		for k in ["_help", "_status"]:
+			var l = tm.get(k)
+			if l is CanvasItem:
+				(l as CanvasItem).visible = false
 	_preset(P_EVENING, true)
 
 
@@ -147,15 +153,19 @@ func _seg_ordinary() -> void:
 	var radio := _sound3d(RADIO, car, -6.0, 22.0)
 	# the car along the main street and into the supermarket lot: seen from the lot's sidewalk, eye height, the
 	# car coming on front-left three-quarters and turning in left to right (the camera pans with it, < 35 deg)
-	var path := [Vector3(-26, 0.12, -1.8), Vector3(8, 0.12, -1.8), Vector3(16, 0.12, -6.5), Vector3(19, 0.12, -16.0)]
+	var path := [Vector3(-14, 0.12, -1.8), Vector3(27.5, 0.12, -1.8), Vector3(32.0, 0.12, -6.0), Vector3(32.0, 0.12, -14.0)]
+	var driver := _driver(car)
+	report["car_path_hits"] = _car_path_hits(car, path)
 	_drive(car, path, 6.0)
 	_fade(0.0, 1.2)
 	_cfg("1_car_arrival", 46.0)
-	await _shot(Vector3(28.5, 1.55, -21.5), Vector3(28.0, 1.55, -21.0), Vector3(0, 0.8, -2), Vector3(19, 0.6, -15), 6.0,
-		func(): return car.global_position.lerp(Vector3(19, 0.7, -16), 0.25) + Vector3(0, 0.7, 0))
+	await _shot(Vector3(38.5, 1.55, -15.5), Vector3(38.2, 1.55, -15.2), Vector3(0, 0.8, -2), Vector3(32, 0.6, -13), 6.0,
+		func(): return car.global_position.lerp(Vector3(32, 0.7, -14), 0.2) + Vector3(0, 0.7, 0))
 	if radio:
 		var tw := create_tween()
 		tw.tween_property(radio, "volume_db", -40.0, 2.0)
+	if is_instance_valid(driver):
+		driver.visible = false
 	# groceries: a slow track along the cans, 0.9 m off the shelf at 1.35 m, angled 20 deg onto the goods
 	var aisle := _shelf("Merch_can_", world.market)
 	if not aisle.is_empty():
@@ -178,12 +188,11 @@ func _seg_ordinary() -> void:
 		var till: Vector3 = world.market.to_global(Vector3(-4.1, 1.0, 4.0))
 		if world.animators.has("Cashier"):
 			world.animators["Cashier"].look_target = _mark(till + Vector3(0, -0.05, 0))
-		var best := Vector3.ZERO
-		for sgn in [1.0, -1.0]:
-			var cp: Vector3 = head + _yaw(fw, 35.0 * sgn) * 2.3 + Vector3(0, -0.1, 0)
-			if best == Vector3.ZERO or cp.distance_to(till) < best.distance_to(till):
-				best = cp
-		var focus := head.lerp(till, 0.4)
+		var best := _vantage(ch, head, fw, [35.0, -35.0, 30.0, -30.0, 40.0, -40.0, 20.0, -20.0], [2.3, 2.0, 1.7], -0.1)
+		report["clerk_seen"] = best != Vector3.INF
+		if best == Vector3.INF:
+			best = head + fw * 1.8
+		var focus := head.lerp(till, 0.3)
 		_cfg("3_clerk", 44.0)
 		await _shot(best, best + (focus - best).normalized() * 0.3, focus, focus + Vector3(0, -0.03, 0), 2.6)
 	else:
@@ -214,6 +223,94 @@ func _seg_ordinary() -> void:
 	await _eddie_shot(3.0, false)
 
 
+## The protagonist at the wheel (the game's own model, seated on the car's driver marker, facing the windscreen).
+func _driver(car: Node3D) -> Node3D:
+	var seat := car.find_child("Marker_Seat_Driver", true, false) as Node3D
+	if seat == null or not world.has_method("_spawn_npc"):
+		return null
+	var body: Node3D = world._spawn_npc(load(world.PROTAG_PATH), load(world.PROTAG_FACE_PATH), world, seat.global_position, 0.0, "Trailer_Driver")
+	if body is CollisionObject3D:
+		(body as CollisionObject3D).collision_layer = 0
+		(body as CollisionObject3D).collision_mask = 0
+	body.reparent(seat, false)
+	body.global_transform = Transform3D(car.global_basis, seat.global_position - Vector3(0, 0.51, 0))
+	var an = world.animators["Trailer_Driver"]
+	preload("res://game/world/survivors.gd").face_forward(body, an, car)
+	an.walk_to([])
+	an.hold_facing = true
+	an.set_seated(true, 0.45)
+	_spawned.append(body)
+	report["driver"] = true
+	return body
+
+
+## The car's own collision swept along the drive (lifted off the road a little, so kerbs and the ground don't count):
+## anything solid it would pass through.
+func _car_path_hits(car: Node3D, path: Array) -> Array:
+	var hits: Array = []
+	var space: PhysicsDirectSpaceState3D = world.get_world_3d().direct_space_state
+	var ex: Array[RID] = []
+	for co in car.find_children("*", "CollisionObject3D", true, false):
+		ex.append((co as CollisionObject3D).get_rid())
+	if car is CollisionObject3D:
+		ex.append((car as CollisionObject3D).get_rid())
+	var shapes := car.find_children("*", "CollisionShape3D", true, false)
+	var inv := car.global_transform.affine_inverse()
+	var lengths: Array = [0.0]
+	for i in range(1, path.size()):
+		lengths.append(float(lengths[-1]) + (path[i] as Vector3).distance_to(path[i - 1]))
+	var total: float = lengths[-1]
+	for k in 80:
+		var sd := total * k / 79.0
+		var i := 1
+		while i < path.size() - 1 and float(lengths[i]) < sd:
+			i += 1
+		var u := (sd - float(lengths[i - 1])) / maxf(float(lengths[i]) - float(lengths[i - 1]), 0.01)
+		var at: Vector3 = (path[i - 1] as Vector3).lerp(path[i], clampf(u, 0.0, 1.0)) + Vector3(0, 0.3, 0)
+		var d: Vector3 = (path[i] as Vector3) - (path[i - 1] as Vector3)
+		var xf := Transform3D(Basis(Vector3.UP, atan2(-d.x, -d.z)), at)
+		for cs in shapes:
+			if (cs as CollisionShape3D).shape == null or (cs as CollisionShape3D).disabled:
+				continue
+			var q := PhysicsShapeQueryParameters3D.new()
+			q.shape = (cs as CollisionShape3D).shape
+			q.transform = xf * (inv * (cs as CollisionShape3D).global_transform)
+			q.collision_mask = 1
+			q.exclude = ex
+			for h in space.intersect_shape(q, 4):
+				var co = h.get("collider")
+				var nm := str(co.get_path()) if co is Node else "?"
+				if not hits.has(nm):
+					hits.append(nm)
+	return hits
+
+
+## A camera spot looking at `subject` (an actor; `aim` its head): around its facing `fwd` at the given angles and
+## distances, the first that is clear of the set and sees the head and chest with nothing solid in between.
+## Vector3.INF when none does.
+func _vantage(subject: Node3D, aim: Vector3, fwd: Vector3, angles: Array, dists: Array, dy: float) -> Vector3:
+	var space: PhysicsDirectSpaceState3D = world.get_world_3d().direct_space_state
+	var ex: Array[RID] = []
+	for co in subject.find_children("*", "CollisionObject3D", true, false):
+		ex.append((co as CollisionObject3D).get_rid())
+	if subject is CollisionObject3D:
+		ex.append((subject as CollisionObject3D).get_rid())
+	for d in dists:
+		for a in angles:
+			var cp: Vector3 = aim + _yaw(fwd, float(a)) * float(d) + Vector3(0, dy, 0)
+			if not _path_clear(cp, cp):
+				continue
+			var seen := true
+			for t in [aim, aim + Vector3(0, -0.45, 0)]:
+				var q := PhysicsRayQueryParameters3D.create(cp, t, 1)
+				q.exclude = ex
+				if not space.intersect_ray(q).is_empty():
+					seen = false
+			if seen:
+				return cp
+	return Vector3.INF
+
+
 ## The horizontal angle of view for a vertical fov (16:9).
 func _next_fov_h(vfov: float) -> float:
 	return rad_to_deg(2.0 * atan(tan(deg_to_rad(vfov) * 0.5) * 16.0 / 9.0))
@@ -237,19 +334,27 @@ func _eddie_shot(secs: float, close: bool) -> void:
 	var h := _eddie_head()
 	var f := _eddie_fwd()
 	var an = world.animators.get("Eddie")
-	var cdir := _yaw(f, 35.0)
 	var dist := 1.5 if close else 2.3
-	var p0 := h + cdir * (dist + 0.25) + Vector3(0, -0.12, 0)
-	var p1 := h + cdir * dist + Vector3(0, -0.12, 0)
+	var p1 := _vantage(world.eddie, h, f, [35.0, -35.0, 30.0, -30.0, 40.0, -40.0, 25.0, -25.0], [dist, dist - 0.3, dist + 0.4], -0.12)
+	report["eddie_seen_" + ("close" if close else "mid")] = p1 != Vector3.INF
+	if p1 == Vector3.INF:
+		p1 = h + _yaw(f, 35.0) * dist + Vector3(0, -0.12, 0)
+	var cdir := ((p1 - h) * Vector3(1, 0, 1)).normalized()
+	var p0 := p1 + cdir * 0.25
+	if not _path_clear(p0, p1):
+		p0 = p1
 	var focus := h + Vector3(0, -0.15 if not close else -0.05, 0)
 	if an:
-		var gaze := _mark(h + _yaw(f, 15.0) * 2.2 + Vector3(0, -0.05, 0))     # the player, 20 deg off the lens
+		an.walk_to([])
+		an.hold_facing = true                                              # the body stays put; only the head moves
+		var lens_side := signf(f.cross(cdir).y)
+		var gaze := _mark(h + _yaw(f, (35.0 - 20.0) * lens_side) * 2.2 + Vector3(0, -0.05, 0))   # 20 deg off the lens
 		an.look_target = gaze
 		if close:
 			var door: Vector3 = (world.game_shop.get_node("Doorways/Entrance_Outside") as Node3D).global_position
 			var side := signf(f.cross(door - h).y)
 			if side == 0.0:
-				side = -1.0
+				side = -lens_side
 			var win := h + _yaw(f, 55.0 * side) * 5.0                       # 55 deg: the window side
 			get_tree().create_timer(0.5).timeout.connect(func():               # the eyes (a small flick) ...
 				if is_instance_valid(gaze):
@@ -282,6 +387,7 @@ func _seg_falling() -> void:
 	world._stutter_lights(world.game_shop)
 	var eye := _eddie_head()
 	eye.y = world.game_shop.global_position.y + 1.65
+	world.eddie.visible = false                                     # (we are him: his own head is not in the way)
 	var step := ((door - eye) * Vector3(1, 0, 1)).normalized() * minf(0.8, maxf(0.0, eye.distance_to(door) - 2.2))
 	var l0 := door + out * 5.0 + street * 14.0 + Vector3(0, 0.3, 0)
 	var l1 := door + out * 5.0 + street * 20.0 + Vector3(0, 0.9, 0)
@@ -296,11 +402,18 @@ func _seg_shape() -> void:
 	var low := Vector3(62.0, 0.9, 1.5)
 	var dist := 103.5
 	var gap := low + Vector3(0, dist * tan(deg_to_rad(10.0)), dist)
-	var col := _spawn(COLOSSUS, Vector3(96.0, 0.0, 105.0)) as Node3D
+	# its walk carries it (scale) x (anim speed) m/s - measured off the Walk_Heavy cycle; any faster and it skates
+	var cscale := 3.5
+	var cspeed := 1.5
+	var pace := cscale * cspeed
+	var x0 := 62.0 + pace * 1.9
+	_focus_lock = Vector3(400, 0, 400)                         # the town's walk-ons stay away from this shot
+	_clear_extras(low, gap)
+	var col := _spawn(COLOSSUS, Vector3(x0, 0.0, 105.0)) as Node3D
 	if col:
 		var model := col.get_node_or_null("Model") as Node3D
 		if model:
-			model.scale = Vector3.ONE * 6.0
+			model.scale = Vector3.ONE * cscale
 		VeilCreatureLook.apply_colossus(col, 0.0)
 		_mats_ok(col, "colossus")
 		col.rotation.y = -PI * 0.5                          # heading -x: left to right for a camera looking +z
@@ -308,19 +421,38 @@ func _seg_shape() -> void:
 		if ap and ap.has_animation("Walk_Heavy"):
 			ap.get_animation("Walk_Heavy").loop_mode = Animation.LOOP_LINEAR
 			ap.play("Walk_Heavy")
-			ap.speed_scale = 0.8
+			ap.speed_scale = cspeed
 		var tw := create_tween()
-		tw.tween_property(col, "global_position", Vector3(30.0, 0.0, 105.0), 4.0)
+		tw.tween_property(col, "global_position", Vector3(x0 - pace * 4.0, 0.0, 105.0), 4.0)
 		_watch(col, "colossus_visible", true)
 		_step_sync(col, 3.6)
 	_mist_wall(Vector3(62.0, 0.0, 86.0), Vector3(0, 0, -1), 1, 0.3)    # a thin veil in front of it
 	_cfg("8_colossus", 62.0)
 	await _shot(low, low + Vector3(0, 0.05, 0.3), gap, gap + Vector3(-3, 0, 0), 3.6)
 	_watched.clear()
+	_focus_lock = Vector3.INF
 	_fade(1.0, 0.0)                                          # hard cut
 	if is_instance_valid(col):
 		col.queue_free()
 	await _hold(0.7)
+
+
+## Town walk-ons (people, cars of the living town) inside the view between the camera and `to` are hidden for it.
+func _clear_extras(from: Vector3, to: Vector3) -> void:
+	var dir := ((to - from) * Vector3(1, 0, 1)).normalized()
+	var hidden := 0
+	for k in world.animators:
+		if String(k) in ["Eddie", "Marcus", "Cashier", "Trailer_Driver"]:
+			continue
+		var an = world.animators[k]
+		if an == null or not is_instance_valid(an) or an.root == null:
+			continue
+		var p: Vector3 = (an.root as Node3D).global_position
+		var v := (p - from) * Vector3(1, 0, 1)
+		if v.dot(dir) > 0.0 and v.length() < 160.0 and absf(v.cross(dir).y) < v.dot(dir) * 0.9:
+			(an.root as Node3D).visible = false
+			hidden += 1
+	report["extras_hidden"] = hidden
 
 
 ## The Colossus's footfalls on the sound track: a step each time a foot comes down (it stops going down) - read
@@ -373,6 +505,8 @@ func _seg_run() -> void:
 	var r := ((md - sd) * Vector3(1, 0, 1)).normalized()          # the run
 	var f := Vector3(r.z, 0, -r.x)                                 # a camera looking this way sees the run left to right
 	var lane := -f                                                 # Marcus a lane over (no two bodies in one place)
+	var out := (((world.game_shop.get_node("Doorways/Entrance_Outside") as Node3D).global_position
+		- (world.game_shop.get_node("Doorways/Entrance_Inside") as Node3D).global_position) * Vector3(1, 0, 1)).normalized()
 	var runners: Array = []
 	for nm in ["Eddie", "Marcus"]:
 		var body = world.get(nm.to_lower())
@@ -381,13 +515,14 @@ func _seg_run() -> void:
 			if b.get_parent() != world:
 				b.reparent(world, true)
 			b.visible = true
-			var off: Vector3 = lane * (1.1 if nm == "Marcus" else 0.0) - r * (1.3 if nm == "Marcus" else 0.0)
-			b.global_position = sd + off
-			b.global_rotation.y = atan2(r.x, r.z)
+			var marc: bool = nm == "Marcus"
+			b.global_position = sd + out * (-0.3 if marc else 0.7)          # Marcus still in the doorway, Eddie just out
+			b.global_rotation.y = atan2(out.x, out.z)
+			var off: Vector3 = lane * (1.1 if marc else 0.0)
 			world.animators[nm].hold_facing = false
 			world.animators[nm].set_mood("scared")
 			world.animators[nm].look_target = null
-			world.animators[nm].walk_to([sd + off + r * 6.0, md + off - r * 1.0], 4.6 if nm == "Eddie" else 4.4)   # a real run
+			world.animators[nm].walk_to([sd + out * 2.5 + off, md + off - r * 1.0], 4.0 if marc else 4.2)   # a real run
 			runners.append(b)
 	_preset(P_APPROACH, true)
 	_fade(0.0, 0.0)
@@ -407,12 +542,12 @@ func _seg_run() -> void:
 	var M: Transform3D = world.market.global_transform
 	for i in runners.size():
 		var b := runners[i] as Node3D
-		var x := -0.7 - 1.0 * i
-		b.global_position = M * Vector3(x, 0.04, -1.6 - 0.9 * i)
+		var x := 0.3 - 0.6 * i
+		b.global_position = M * Vector3(x, 0.04, -1.8 - 1.3 * i)
 		b.global_rotation.y = world.market.global_rotation.y
 		var nm := "Eddie" if i == 0 else "Marcus"
 		world.animators[nm].walk_to([M * Vector3(x, 0.04, 2.0), M * Vector3(x - 0.4, 0.04, 8.5)], 4.2)
-	var inside: Vector3 = M * Vector3(1.0, 1.5, 3.5)
+	var inside: Vector3 = M * Vector3(1.3, 1.5, 4.0)
 	var doors: Vector3 = M * Vector3(0, 1.1, 0.0)
 	world._doors_powered = true
 	world._auto_open = false
@@ -564,6 +699,12 @@ func _seg_survive() -> void:
 		VeilCreatureLook.apply_skitter(sk, sk.global_position.y)
 		_mats_ok(sk, "skitter")
 		VeilCreatureLook.skitter_anim(sk, "scuttle", 8.0)
+		var rim := OmniLight3D.new()
+		rim.light_color = Color(0.62, 0.72, 0.85)
+		rim.light_energy = 1.4
+		rim.omni_range = 2.6
+		sk.add_child(rim)
+		rim.position = Vector3(0.0, 1.0, 0.0)
 		var d2 := M.basis * Vector3(1, 0, 0)
 		sk.rotation.y = atan2(d2.x, d2.z)
 		var ts := create_tween()
@@ -594,6 +735,14 @@ func _seg_survive() -> void:
 		_watch(h, "hound_visible", true)
 		get_tree().create_timer(1.4).timeout.connect(func():
 			report["hound_seen_before_hit"] = report.get("hound_visible", 0.0)
+			if is_instance_valid(h):
+				var into := M.basis * Vector3(0, 0, 1)                      # facing the doors, into the store
+				var tr := create_tween().set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
+				tr.tween_property(h, "rotation:y", atan2(into.x, into.z), 0.3)
+				if ap and ap.has_animation("Attack_Bite"):
+					ap.get_animation("Attack_Bite").loop_mode = Animation.LOOP_LINEAR
+					ap.play("Attack_Bite", 0.15)
+				report["hound_faces_door"] = true
 			Sfx.play("door_close", M * Vector3(0, 1.2, 0), 6.0, 0.45)
 			Sfx.bank_at("hound_bark", M * Vector3(0, 1.2, -1), 2.0, 14.0)
 			_shake(0.4, 0.05))
@@ -697,7 +846,13 @@ func _seg_morning() -> void:
 	Game.flags["p3_two_hours_later"] = true                 # (no_save: nothing of this is kept)
 	var td = world.get("town_destruction")
 	if td and not td.applied:
-		td.apply()
+		var hn := world.get_node_or_null("Residential/Houses")
+		var avoid: Array = td._avoid_points()
+		for id in ["HOUSE_14", "PLAYER_HOME"]:
+			var hh := hn.get_node_or_null(id) as Node3D if hn else null
+			if hh and hh.get_node_or_null("Destroyed") == null and td.TARGETS.has(id):
+				td.report[id] = td._swap(hh, String(td.TARGETS[id]), avoid)
+				report["wrecked_" + id] = true
 	_preset(P_MORNING, true)
 	world.living.focus_override = Vector3(25, 0, -91)
 	_fade(0.0, 1.4)
@@ -801,7 +956,7 @@ func _shot(a: Vector3, b: Vector3, la: Vector3, lb: Vector3, secs: float, follow
 		var look: Vector3 = follow.call() if follow.is_valid() else la.lerp(lb, k)
 		if (look - p).length() > 0.05:
 			cam.global_transform = Transform3D(Basis.looking_at(look - p, Vector3.UP), p)
-		world.living.focus_override = p
+		world.living.focus_override = p if not _focus_lock.is_finite() else _focus_lock
 		_watch_tick()
 		await get_tree().process_frame
 		t += get_process_delta_time()
