@@ -6,8 +6,9 @@ This is for the next Claude session (or person) continuing the asset packs. Read
 
 ## 1. Repository
 
-* **Repo and branch:** `jafetmora79-lab/TheVeil`. All work is on branch **`claude/practical-cray-hi2y54`**, which has
-  not been merged. Keep developing there unless the owner says otherwise.
+* **Repo and branch:** `jafetmora79-lab/TheVeil`. The default branch **`claude/practical-cray-hi2y54`** holds
+  everything (all claude/codex/cline branches were merged into it on 2026-11-09). **Start with `CLAUDE.md` at the
+  repository root**: the current working guide, tests, build steps and what needs the owner's eyes.
 * **Asset root:** `THE_VEIL_ASSETS_V2/`. Godot paths use `res://THE_VEIL_ASSETS_V2/...`, so the repo root is meant to be
   (or sit inside) a Godot 4.x project root.
 * **Engine:** Godot 4 (validated on **4.3 stable**), **Compatibility renderer** (OpenGL). Every pack must stay
