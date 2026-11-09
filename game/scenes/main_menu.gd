@@ -75,6 +75,8 @@ func _ready() -> void:
 	menu.add_child(sp)
 	var b_new := VeilUI.button("New Game")
 	b_new.pressed.connect(_new_game)
+	var b_preview := VeilUI.button("Watch Preview")
+	b_preview.pressed.connect(func(): _start_cinematic("preview"))
 	var b_cont := VeilUI.button("Continue")
 	b_cont.disabled = not Game.has_save()
 	if Game.has_save():
@@ -88,7 +90,7 @@ func _ready() -> void:
 	var b_quit := VeilUI.button("Quit")
 	b_quit.pressed.connect(func(): get_tree().quit())
 	b_quit.visible = OS.get_name() != "Web"
-	for b in [b_new, b_cont, b_set, b_quit]:
+	for b in [b_new, b_cont, b_preview, b_set, b_quit]:
 		b.custom_minimum_size = Vector2(MENU_W, 34)     # one width for the column: long labels fit inside it
 		b.clip_text = true
 		_flat(b)
@@ -149,7 +151,16 @@ func _start() -> void:
 	loading.visible = true
 	await get_tree().process_frame
 	await get_tree().process_frame
-	get_tree().change_scene_to_file("res://game/scenes/World.tscn")
+	_start_cinematic("intro")
+
+
+func _start_cinematic(mode: String) -> void:
+	var scene := load("res://game/cinematics/Cinematic.tscn") as PackedScene
+	var cinematic := scene.instantiate()
+	cinematic.mode = mode
+	get_tree().root.add_child(cinematic)
+	get_tree().current_scene = cinematic
+	queue_free()
 
 
 ## The name prompt in the menu's own look: pixel font, dark panel with the accent edge, menu-style buttons.
