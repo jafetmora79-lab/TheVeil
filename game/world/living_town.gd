@@ -90,7 +90,12 @@ func _player_near(p: Vector3, d: float) -> bool:
 
 
 ## Where the player is: the car while driving or seated in it (their body is left where they got in), else the body.
+var focus_override := Vector3.INF             ## (the intro cinematic: the town lives round its camera)
+
+
 func focus() -> Vector3:
+	if focus_override.is_finite():
+		return focus_override
 	return world.sedan.global_position if world.in_car and world.sedan else world.player.global_position
 
 
