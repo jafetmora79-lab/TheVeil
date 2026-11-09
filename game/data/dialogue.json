@@ -7092,5 +7092,45 @@
     "time": 2.8
    }
   ]
+ },
+ "p3_doors_dead": {
+  "source": "Colossus: the supermarket's doors died",
+  "lines": [
+   {
+    "speaker": "",
+    "text": "The doors - they're dead! They won't open!",
+    "time": 2.4
+   }
+  ]
+ },
+ "p3_eddie_over_here": {
+  "source": "Colossus: Eddie at the game shop",
+  "lines": [
+   {
+    "speaker": "Eddie",
+    "text": "FINN! Over here - the shop, NOW!",
+    "time": 2.6
+   }
+  ]
+ },
+ "p4_bed_hint": {
+  "source": "Phase 4: making the night's bed",
+  "lines": [
+   {
+    "speaker": "",
+    "text": "If we're sleeping here, I need something to lie on. There's cardboard by the office - and a blanket.",
+    "time": 3.6
+   }
+  ]
+ },
+ "p4_bed_gathered": {
+  "source": "Phase 4: making the night's bed",
+  "lines": [
+   {
+    "speaker": "",
+    "text": "That'll do. The office floor, then.",
+    "time": 2.4
+   }
+  ]
  }
 }

@@ -430,6 +430,7 @@ var game_shop: Node3D
 var eddie: Node3D
 var eddie_face: Node
 var cashier: Node3D
+var _clerk_out := false                       ## the Veil hit with the player in the supermarket: the clerk comes out too
 const CASHIER_AT := Vector3(-4.85, 0.04, 4.0)     ## market-local: behind lane 4's register (x -4.1), between the lanes
 
 
@@ -442,7 +443,7 @@ func _cashier_state() -> void:
 	if Game.has_flag("groceries_done") or Game.has_flag("p3_mist"):
 		it.prompt_text = ""
 	if Game.has_flag("p3_mist"):
-		if cashier:
+		if cashier and not _clerk_out:
 			cashier.visible = false
 		it.collision_layer = 0
 		it.set_deferred("monitorable", false)
@@ -1724,9 +1725,13 @@ func _p3_start_mist() -> void:
 	hud.chapter_start(3)
 	hud.set_hint("")
 	_clear_beacon("market")
-	if cashier:
+	_clerk_out = cashier != null and market.to_local(player.global_position).z > -0.4 and market.to_local(player.global_position).z < 18.0
+	if cashier and not _clerk_out:
 		cashier.visible = false                 # people are going missing
 	_cashier_state()
+	if _clerk_out and animators.has("Cashier"):
+		animators["Cashier"].set_mood("scared")      # the clerk heads for the doors with the player
+		npc_walk("Cashier", market.to_local((market.get_node("Doorways/Entrance_Inside") as Node3D).global_position) + Vector3(1.2, 0, 0.8), 2.2)
 	for k in animators:
 		animators[k].set_mood("scared")
 	_atmo().apply_preset(night_preset("approach"))
@@ -2076,15 +2081,31 @@ func _colossus_encounter() -> void:
 	var P := player.global_position
 	var ground := P.y
 	var L := P + n * 15.0 + side * 1.6                 # across the street, well clear of the storefront
+	# leaving the supermarket last, the way back to Eddie is across the street to the game shop: the foot comes
+	# down beside that way (50 degrees off it, 9+ m clear), never on it, and the creature walks away from it
+	var shop_door: Vector3 = (game_shop.get_node("Doorways/Entrance_Outside") as Node3D).global_position
+	var route := (shop_door - P) * Vector3(1, 0, 1)
+	var route_dir := route.normalized() if route.length() > 0.5 else n
+	var off_route := _enc_store == market and route.length() > 6.0
+	if off_route:
+		var best_l := Vector3.INF
+		for sg in [1.0, -1.0]:
+			var cand: Vector3 = P + route_dir.rotated(Vector3.UP, sg * deg_to_rad(50.0)) * 15.0
+			if not best_l.is_finite() or (cand - P).normalized().dot(n) > (best_l - P).normalized().dot(n):
+				best_l = cand
+		L = best_l
+	var aim := ((L - P) * Vector3(1, 0, 1)).normalized()
 	# the foot comes down right beside a street lamp when one stands in that part of the street (13.5-16.5 m out,
-	# within 25 degrees of straight ahead): the leg itself strikes it (see _crush_lamp)
+	# within 25 degrees of where it lands): the leg itself strikes it (see _crush_lamp)
 	var best_post: Node3D = null
 	var bd := INF
 	for post in _lamp_posts():
 		var to := ((post as Node3D).global_position - P) * Vector3(1, 0, 1)
 		var dist := to.length()
-		if dist < 13.5 or dist > 16.5 or rad_to_deg(to.normalized().angle_to(n)) > 25.0:
+		if dist < 13.5 or dist > 16.5 or rad_to_deg(to.normalized().angle_to(aim)) > 25.0:
 			continue
+		if off_route and absf(route_dir.cross(Vector3.UP).dot(to)) < 9.0:
+			continue                                   # (a lamp on the way to the shop: not that one)
 		var dd := Vector2((post as Node3D).global_position.x - L.x, (post as Node3D).global_position.z - L.z).length()
 		if dd < bd:
 			bd = dd
@@ -2096,6 +2117,10 @@ func _colossus_encounter() -> void:
 		L = bp + back * 1.3                            # the claws land against the post's foot
 		enc_report["foot_by_lamp"] = String(best_post.name)
 	L.y = ground
+	enc_report["route_clearance_m"] = absf(route_dir.cross(Vector3.UP).dot((L - P) * Vector3(1, 0, 1))) if off_route else -1.0
+	if _enc_store == market:
+		_market_doors_die()
+		_clerk_beside(P, n, L)
 	# --- Stage 1: something enormous moving (sound first), controls held
 	player.controls_enabled = false
 	player.velocity = Vector3.ZERO
@@ -2124,6 +2149,10 @@ func _colossus_encounter() -> void:
 	model.scale = Vector3.ONE * COLOSSUS_SCALE
 	enc_report["veil_surfaces"] = VeilCreatureLook.apply_colossus(c, ground)   # dark, textured, sinks into the mist
 	var walk_dir := side
+	if off_route:
+		walk_dir = route_dir.cross(Vector3.UP).normalized()
+		if walk_dir.dot(L - P) < 0.0:
+			walk_dir = -walk_dir                                  # it walks on away from the way to the shop
 	c.rotation.y = atan2(walk_dir.x, walk_dir.z)                 # the model faces +Z
 	c.global_position = L
 	var ap := c.get_node(String(c.get_meta("animation_player", "Model/AnimationPlayer"))) as AnimationPlayer
@@ -2133,6 +2162,7 @@ func _colossus_encounter() -> void:
 	var anim := ap.get_animation("Walk_Heavy")
 	anim.loop_mode = Animation.LOOP_LINEAR
 	ap.play("Walk_Heavy", 0.0)
+	enc_report["leg_blockers"] = preload("res://game/enemies/colossus_leg_blockers.gd").attach(c, sk, ground) != null   # solid legs in the street
 	# contact frame = the end of the front-left foot's swing, measured on its claw tips (the foot bone is the wrist,
 	# 2.4 m up the leg; the old "lowest bone" pick landed mid-stance, so the foot never really came down on cue)
 	var t_c := _swing_end(ap, sk, foot, anim)
@@ -2275,6 +2305,7 @@ func _colossus_encounter() -> void:
 	ap.speed_scale = 0.0                                          # planted: the weight comes down on it
 	_enc_sounds.append(Sfx.play("colossus_step", L + Vector3(0, 1, 0), 6.0, 0.7))
 	_impact_dust(L)
+	_clerk_flees(L)
 	if not lamp_hit:
 		_crush_lamp(L)                                # (no head reached on the way down: it goes at the footfall)
 	_shake(cam, 0.35, 0.05)
@@ -2385,11 +2416,75 @@ func _colossus_encounter() -> void:
 	# --- Stage 7: survival begins
 	player.set_survival(true)
 	hud.set_survival_visible(true)
-	hud.title_card("GET BACK INSIDE THE STORE", 2.2)
-	Dialogue.say("p3_colossus", false, true)
-	_p3_spawn_tentacles()
-	_beacon("store_back", door_out + Vector3(0, 2.4, 0), Color(0.75, 0.85, 1.0))
+	if _enc_store == market:
+		# the supermarket's doors are dead behind him: Eddie is at the game shop's, calling him over
+		hud.title_card("GET TO THE GAME SHOP", 2.2)
+		Dialogue.say("p3_doors_dead", false, true)
+		if eddie and animators.has("Eddie"):
+			npc_walk("Eddie", game_shop.to_local((game_shop.get_node("Doorways/Entrance_Inside") as Node3D).global_position), 3.2)
+		get_tree().create_timer(2.4).timeout.connect(func(): Dialogue.say("p3_eddie_over_here", false, false))
+		_p3_spawn_tentacles()
+		_beacon("store_back", shop_door + Vector3(0, 2.4, 0), Color(0.75, 0.85, 1.0))
+	else:
+		hud.title_card("GET BACK INSIDE THE STORE", 2.2)
+		Dialogue.say("p3_colossus", false, true)
+		_p3_spawn_tentacles()
+		_beacon("store_back", door_out + Vector3(0, 2.4, 0), Color(0.75, 0.85, 1.0))
 	save()
+
+
+## The Veil's power cut catches the supermarket's automatic doors: they slide shut behind the player and stay dead
+## (saved: p3_market_doors_dead; they are forced open when the group comes back after the two hours).
+func _market_doors_die() -> void:
+	Game.set_flag("p3_market_doors_dead")
+	_auto_open = false
+	for d in _auto_doors:
+		var tw := create_tween().set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN)
+		tw.tween_property(d[0], "transform", d[1], 0.45)
+	Sfx.play("door_close", market.global_transform * Vector3(0, 1.2, 0.2), 0.0, 0.6)
+	_doors_powered = false
+
+
+## The clerk came out of the store behind the player: he stands just beside them on the pavement (not in the shot's
+## centre), frozen like them, until the foot comes down.
+func _clerk_beside(P: Vector3, n: Vector3, L: Vector3) -> void:
+	if not _clerk_out or cashier == null or not is_instance_valid(cashier):
+		return
+	if cashier.get_parent() != self:
+		cashier.reparent(self, true)
+	var side := n.cross(Vector3.UP).normalized()
+	if side.dot(L - P) > 0.0:
+		side = -side                                   # on the side away from where it lands
+	cashier.global_position = P + side * 2.2 - n * 0.4
+	cashier.visible = true
+	if animators.has("Cashier"):
+		animators["Cashier"].walk_to([])
+		animators["Cashier"].face_towards(L)
+	enc_report["clerk_out"] = true
+
+
+## At the footfall the clerk breaks and runs: along the storefronts, away from the foot and the way to the shop,
+## then out of sight (gone - "people are going missing").
+func _clerk_flees(L: Vector3) -> void:
+	if not _clerk_out or cashier == null or not is_instance_valid(cashier) or not animators.has("Cashier"):
+		return
+	var a = animators["Cashier"]
+	var away := (cashier.global_position - L) * Vector3(1, 0, 1)
+	away = away.normalized() if away.length() > 0.1 else Vector3.RIGHT
+	Sfx.play("hurt", cashier.global_position + Vector3(0, 1.6, 0), -2.0, 1.4)     # a cry
+	a.walk_to([cashier.global_position + away * 6.0, cashier.global_position + away * 40.0], 4.6)
+	enc_report["clerk_fled"] = true
+	_clerk_out = false
+	for i in 200:
+		await get_tree().create_timer(0.1).timeout
+		if not is_instance_valid(cashier):
+			return
+		var cam := get_viewport().get_camera_3d()
+		if i > 40 and (cam == null or not cam.is_position_in_frustum(cashier.global_position + Vector3(0, 1, 0))):
+			break
+	if is_instance_valid(cashier):
+		cashier.visible = false
+		a.walk_to([])
 
 
 func _shop_regroup(cam: Camera3D, me: Node3D, P: Vector3, n: Vector3, side: Vector3) -> void:
@@ -3581,6 +3676,9 @@ func _p3_market_arrival() -> void:
 	var skipped := false
 	_chase_end()                                  # the run is over at the doors: no strikes on a held player
 	var inside_already := market.to_local(player.global_position).z > 1.2
+	if not _doors_powered:
+		Sfx.play("door_open", market.global_transform * Vector3(0, 1.2, 0.2), 2.0, 0.55)   # dead: Eddie forces them apart
+		_doors_powered = true
 	_set_auto_doors(true)                         # the entrance stands open (the power is about to go)
 	# Eddie and Marcus stop following: Eddie runs ahead and leads the way in, Marcus behind
 	_p3_npcs_moved = true
@@ -3592,7 +3690,7 @@ func _p3_market_arrival() -> void:
 	for n in [eddie, marcus]:
 		if n and is_instance_valid(n) and n.get_parent() != market:
 			n.reparent(market, true)
-	npc_walk("Eddie", ARRIVAL_EDDIE_PATH, 3.0)
+	npc_walk("Eddie", ARRIVAL_EDDIE_PATH, 3.6)     # (running: the fear does not stop at the doors)
 	if not inside_already:
 		# frame the store front and the open doors
 		var at := market.global_transform * Vector3(0, 1.6, 2.0)
@@ -3602,7 +3700,7 @@ func _p3_market_arrival() -> void:
 			await get_tree().process_frame
 			t += get_process_delta_time()
 			skipped = _arrival_skip_held(get_process_delta_time())
-		npc_walk("Marcus", ARRIVAL_MARCUS_PATH, 2.6)
+		npc_walk("Marcus", ARRIVAL_MARCUS_PATH, 3.3)
 		# follow him in: the player's own walk, steered along the doorway's centre line, then round the vestibule
 		# wall into the hall (the same collision-checked route Eddie takes), the view on Eddie
 		var route: Array = [ARRIVAL_PLAYER_PATH[0], ARRIVAL_PLAYER_PATH[1]]
@@ -3634,6 +3732,7 @@ func _p3_market_arrival() -> void:
 			var pitch := clampf(atan2(dy, Vector2(look_at.x - player.global_position.x, look_at.z - player.global_position.z).length()), -0.3, 0.2)
 			player.set_yaw_pitch(yaw, lerpf(player.get("_pitch"), pitch, minf(dt * 4.0, 1.0)))
 			player.auto_input = Vector2(0, -1)
+			player.auto_sprint = true                  # still running, all the way in
 			if not player.is_physics_processing():
 				arrival_report["physics_restored"] = int(arrival_report.get("physics_restored", 0)) + 1
 				player.set_physics_process(true)     # (this scene owns the player while it walks them in)
@@ -3646,6 +3745,7 @@ func _p3_market_arrival() -> void:
 				arrival_report["blocked_leg"] = i
 				skipped = true
 		player.auto_input = Vector2.ZERO
+		player.auto_sprint = false
 		for n in npcs:
 			if is_instance_valid(n):
 				player.remove_collision_exception_with(n)
@@ -3781,6 +3881,8 @@ func _p3_restore() -> void:
 	if Game.has_flag("p3_in_shop"):
 		_p3_shop_talked = true
 		_p3_move_npcs_to_market()
+	if Game.has_flag("p3_market_doors_dead") and not Game.has_flag("p3_in_market"):
+		_doors_powered = false                     # dead since the Veil (forced open on the way back in)
 	if Game.has_flag("p3_in_market") and not Game.has_flag("p3_doors_shut"):
 		_doors_powered = true
 		_set_auto_doors(true)

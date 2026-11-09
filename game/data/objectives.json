@@ -140,6 +140,18 @@
    "text": "Stay quiet"
   },
   {
+   "id": "p4_bedding",
+   "flag": "p4_bed_gathered",
+   "goal": "act1_night",
+   "text": "Find something to sleep on"
+  },
+  {
+   "id": "p4_make_bed",
+   "flag": "p4_bed_made",
+   "goal": "act1_night",
+   "text": "Make a bed in the back office"
+  },
+  {
    "id": "p4_rest",
    "flag": "p4_slept",
    "goal": "act1_night",
