@@ -1,0 +1,83 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>THE VEIL — Cinematics Preview</title>
+<script type="module" src="https://ajax.googleapis.com/ajax/libs/model-viewer/4.1.0/model-viewer.min.js"></script>
+<style>
+:root{color-scheme:dark;background:#090c0e;color:#e6e6df;font:16px system-ui,sans-serif}
+*{box-sizing:border-box}body{margin:0}header{display:flex;align-items:center;justify-content:space-between;gap:14px;padding:15px 24px;background:#12191d;border-bottom:1px solid #3a4549}header strong{letter-spacing:.18em}a{color:#a7d4bf}
+main{max-width:1160px;margin:22px auto;padding:0 18px}.intro{color:#aeb9b6;margin:0 0 16px;line-height:1.45}
+.controls{display:flex;gap:10px;flex-wrap:wrap;margin:0 0 12px}button{background:#1b242b;border:1px solid #52605e;border-radius:4px;color:#f3eee3;padding:11px 18px;font:inherit;cursor:pointer}button:hover,button:focus-visible{border-color:#a7d4bf;background:#293832}button:disabled{opacity:.5;cursor:wait}
+.frame{position:relative;aspect-ratio:16/9;overflow:hidden;background:#0b1114;border:1px solid #3a4549;border-radius:5px;isolation:isolate}
+model-viewer{width:100%;height:100%;background:radial-gradient(ellipse at 52% 45%,#424c4d 0,#29343a 40%,#0c1217 100%);--progress-bar-color:#a7d4bf;filter:contrast(1.13) saturate(.76)}
+.mist{position:absolute;inset:-15%;pointer-events:none;background:radial-gradient(ellipse 48% 34% at 35% 75%,#b5c3c255,transparent),radial-gradient(ellipse 44% 24% at 70% 70%,#aab9b83b,transparent);filter:blur(30px);mix-blend-mode:screen;animation:drift 11s ease-in-out infinite alternate;opacity:.5}
+.mist.thick{opacity:.9}@keyframes drift{to{transform:translate(12%, -5%) scale(1.12)}}
+.vignette{position:absolute;inset:0;pointer-events:none;box-shadow:inset 0 0 110px 42px #050808df;background:linear-gradient(0deg,#080b0ee6,transparent 45%)}
+.words{position:absolute;left:6%;bottom:8%;right:5%;pointer-events:none;text-shadow:2px 3px 0 #050708,0 0 15px #050708}.words h1{font:700 clamp(28px,5.2vw,64px) ui-monospace,monospace;line-height:1.06;letter-spacing:.08em;margin:0 0 12px}.words p{font:clamp(14px,2vw,23px) ui-monospace,monospace;margin:0;color:#d0d6cd}
+.curtain{position:absolute;inset:0;background:#050708;opacity:1;pointer-events:none;transition:opacity .7s ease}.frame.shown .curtain{opacity:0}.stamp{position:absolute;top:5%;left:6%;font:14px ui-monospace,monospace;letter-spacing:.16em;color:#d2d3c2;pointer-events:none}
+#status{min-height:24px;color:#bec8c1;margin:10px 2px}small{display:block;color:#9ca8aa;line-height:1.45}
+@media(max-width:620px){header{padding:12px}header strong{font-size:14px}.frame{aspect-ratio:4/3}.words{bottom:10%}.vignette{box-shadow:inset 0 0 65px 16px #050808df}}
+@media(prefers-reduced-motion:reduce){.mist{animation:none}.curtain{transition:none}}
+</style>
+</head>
+<body>
+<header><strong>THE VEIL / CINEMATICS</strong><a href="index.html">Back to 3D asset gallery</a></header>
+<main>
+<p class="intro">Watch the opening and a short story preview using the game's existing 3D models. This browser version recreates the beats and text; the Godot build has the actual town staging, camera moves, and lighting.</p>
+<div class="controls"><button id="intro">Play opening</button><button id="preview">Play game preview</button><button id="pause" disabled>Pause</button><button id="mute" disabled>Sound: on</button></div>
+<div class="frame" id="frame"><model-viewer id="model" alt="The Veil game model" camera-controls interaction-prompt="none" shadow-intensity="0" exposure=".75" environment-image="neutral" loading="eager"></model-viewer><div class="mist" id="mist"></div><div class="vignette"></div><div class="stamp">GREYHAVEN · WORK IN PROGRESS</div><div class="words"><h1 id="title">THE VEIL</h1><p id="subtitle">Choose a cinematic above.</p></div><div class="curtain"></div></div>
+<p id="status" role="status" aria-live="polite">Ready.</p>
+<small>Browser preview of the real models, not captured game footage. Music and creature sounds come from the repository. The actual first-person intro starts after this exterior shot.</small>
+</main>
+<script src="preview-glb.js"></script>
+<script>
+const ROOT='https://raw.githubusercontent.com/jafetmora79-lab/TheVeil/codex%2Fcinematic-intro-preview/';
+const HOME='THE_VEIL_ASSETS_V2/03_Residential/House_Variants/RES_PlayerHome.glb';
+const SHOP='THE_VEIL_ASSETS_V2/04_Commercial/Video_Game_Store/COM_GameShop.glb';
+const MARKET='THE_VEIL_ASSETS_V2/04_Commercial/Supermarket/COM_Supermarket.glb';
+const HOUND='THE_VEIL_ASSETS_V2/07_Creatures/Hounds/CRT_Hound.glb';
+const SKITTER='THE_VEIL_ASSETS_V2/07_Creatures/Skitter/CRT_Skitter.glb';
+const COLOSSUS='THE_VEIL_ASSETS_V2/07_Creatures/Colossus/CRT_Colossus.glb';
+const paths={intro:[
+ {model:HOME,time:4,title:'GREYHAVEN',sub:'FRIDAY · 6:42 PM',orbit:85},
+ {model:HOME,time:4.2,title:'THE VEIL',sub:'It was an ordinary evening.',orbit:115},
+ {model:HOME,time:2.2,title:'',sub:'And then you woke up.',orbit:135}],
+ preview:[
+ {model:SHOP,time:4,title:'AN ORDINARY NIGHT',sub:'One last stop before heading home.',orbit:65},
+ {model:SHOP,time:4,title:'THEN THE TOWN WENT QUIET',sub:'Greyhaven is disappearing.',orbit:95},
+ {model:MARKET,time:4.2,title:'FIND SHELTER',sub:'Keep the others close.',orbit:55},
+ {model:HOUND,time:3.8,title:'STAY OUT OF SIGHT',sub:'Something moves beyond the streetlights.',orbit:35,sound:'game/audio/encounters/hound_head_shake.wav'},
+ {model:SKITTER,time:3.8,title:'SURVIVE THE NIGHT',sub:'Scavenge. Return. Hold on.',orbit:45,sound:'game/audio/encounters/skitter_hiss.wav'},
+ {model:COLOSSUS,time:4.2,title:'THE MIST HAS A SHAPE',sub:'And it remembers you.',orbit:65,sound:'game/audio/music/colossus_appearance.wav'},
+ {model:SHOP,time:5,title:'THE VEIL',sub:'A survival horror game set in Greyhaven.',orbit:90}]};
+const $=id=>document.getElementById(id),viewer=$('model'),frame=$('frame');
+const audio=new Audio(),cue=new Audio();audio.loop=true;audio.volume=.28;cue.volume=.4;
+let token=0,playing=false,paused=false,muted=false,sequence=[],index=-1,timer=0,activeURL=null,orbitStart=0,raf=0;
+const raw=p=>ROOT+p.split('/').map(encodeURIComponent).join('/');
+async function bytes(url){const r=await fetch(url);if(!r.ok)throw Error('Model HTTP '+r.status);return r.arrayBuffer()}
+function stop(){clearTimeout(timer);cancelAnimationFrame(raf);token++;playing=false;paused=false;audio.pause();cue.pause();viewer.removeAttribute('src');if(activeURL){URL.revokeObjectURL(activeURL);activeURL=null}frame.classList.remove('shown');$('pause').disabled=true;$('mute').disabled=true}
+function orbit(now){if(!playing||paused)return;const a=sequence[index]?.orbit||60;viewer.cameraOrbit=`${a+(now-orbitStart)*.002}deg 72deg auto`;raf=requestAnimationFrame(orbit)}
+async function next(myToken){if(myToken!==token||!playing)return;index++;if(index>=sequence.length){stop();$('status').textContent='Finished. Select a cinematic to watch again.';return}
+ const shot=sequence[index];frame.classList.remove('shown');$('title').textContent=shot.title;$('subtitle').textContent=shot.sub;$('mist').classList.toggle('thick',sequence===paths.preview&&index>0);
+ $('status').textContent=`Loading shot ${index+1} of ${sequence.length}…`;
+ try{if(viewer.dataset.path!==shot.model){viewer.removeAttribute('src');if(activeURL){URL.revokeObjectURL(activeURL);activeURL=null}
+   const source=raw(shot.model),result=await makeBrowserPreview(await bytes(source),source,bytes);if(myToken!==token)return;
+   activeURL=URL.createObjectURL(new Blob([result.bytes],{type:'model/gltf-binary'}));viewer.dataset.path=shot.model;viewer.src=activeURL;
+   await Promise.race([new Promise((resolve,reject)=>{viewer.addEventListener('load',resolve,{once:true});viewer.addEventListener('error',()=>reject(Error('3D model failed to display')),{once:true})}),new Promise((_,reject)=>setTimeout(()=>reject(Error('Model took too long to load')),30000))]);}
+   if(myToken!==token)return;
+   viewer.cameraOrbit=`${shot.orbit}deg 72deg auto`;orbitStart=performance.now();cancelAnimationFrame(raf);raf=requestAnimationFrame(orbit);
+   if(shot.sound&&!muted){cue.src=raw(shot.sound);cue.currentTime=0;cue.play().catch(()=>{})}
+   frame.classList.add('shown');$('status').textContent=`Playing ${index+1} of ${sequence.length} · ${shot.title||'Opening'}`;
+   timer=setTimeout(()=>next(myToken),shot.time*1000);
+ }catch(e){if(myToken===token){$('status').textContent='Cannot load this shot: '+e.message;stop()}}}
+function play(which){stop();viewer.dataset.path='';sequence=paths[which];index=-1;playing=true;const myToken=token;
+ audio.src=raw('game/audio/music/menu_exploration_smooth.wav');audio.muted=muted;cue.muted=muted;audio.play().catch(()=>{});
+ $('pause').disabled=false;$('mute').disabled=false;$('pause').textContent='Pause';next(myToken)}
+$('intro').onclick=()=>play('intro');$('preview').onclick=()=>play('preview');
+$('pause').onclick=()=>{paused=!paused;$('pause').textContent=paused?'Resume':'Pause';if(paused){clearTimeout(timer);cancelAnimationFrame(raf);audio.pause();cue.pause()}else{audio.play().catch(()=>{});orbitStart=performance.now();raf=requestAnimationFrame(orbit);timer=setTimeout(()=>next(token),sequence[index].time*1000)}};
+$('mute').onclick=()=>{muted=!muted;audio.muted=muted;cue.muted=muted;$('mute').textContent='Sound: '+(muted?'off':'on')};
+</script>
+</body>
+</html>
