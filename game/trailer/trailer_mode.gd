@@ -40,12 +40,13 @@ static func wanted() -> bool:
 static func ensure(tree: SceneTree) -> void:
 	if not wanted() or tree.root.get_node_or_null("TrailerMode") != null:
 		return
-	var t = (load("res://game/tools/trailer_mode.gd") as GDScript).new()
+	var t = (load("res://game/trailer/trailer_mode.gd") as GDScript).new()
 	t.name = "TrailerMode"
 	tree.root.add_child.call_deferred(t)
 
 
 func _ready() -> void:
+	print("THE VEIL: trailer mode on (T or F12 plays the trailer)")
 	layer = 100
 	process_mode = Node.PROCESS_MODE_ALWAYS
 	_help = Label.new()
@@ -54,7 +55,7 @@ func _ready() -> void:
 	_help.add_theme_color_override("font_color", Color(1, 1, 1))
 	_help.add_theme_color_override("font_outline_color", Color(0, 0, 0))
 	_help.add_theme_constant_override("outline_size", 4)
-	_help.text = "TRAILER MODE\nF12 PLAY THE TRAILER (start recording first)\nF1 help  F9 clean screen  F8 free camera  F4 slow motion  F11 jump\n" \
+	_help.text = "TRAILER MODE\nT or F12: PLAY THE TRAILER (start recording first)\nF1 help  F9 clean screen  F8 free camera  F4 slow motion  F11 jump\n" \
 		+ "Free camera: WASD / mouse, Q E down up, Shift fast, wheel speed\n1-9 shot slot  F5 add keyframe  F6 play  F7 clear  - + length"
 	add_child(_help)
 	_status = Label.new()
@@ -96,7 +97,7 @@ func _input(e: InputEvent) -> void:
 				_save_shots()
 			KEY_F11:
 				_jump_menu()
-			KEY_F12:
+			KEY_F12, KEY_T:
 				_play_trailer()
 			KEY_MINUS, KEY_KP_SUBTRACT:
 				_shot()["secs"] = maxf(1.0, float(_shot()["secs"]) - 1.0)
@@ -328,4 +329,4 @@ func _play_trailer() -> void:
 		set_free_cam(false)
 	if clean:
 		set_clean(false)
-	load("res://game/tools/trailer_director.gd").start(get_tree())
+	load("res://game/trailer/trailer_director.gd").start(get_tree())

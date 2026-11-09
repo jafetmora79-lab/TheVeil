@@ -32,7 +32,7 @@ func _run() -> void:
 	root.get_node("Dialogue").auto_confirm = true
 	game.set_meta("trailer_test", true)
 	var save_t := FileAccess.get_modified_time(game.SAVE_PATH) if FileAccess.file_exists(game.SAVE_PATH) else -1
-	load("res://game/tools/trailer_director.gd").start(self)
+	load("res://game/trailer/trailer_director.gd").start(self)
 	await until(func(): return root.get_node_or_null("TrailerDirector") != null, 5.0)
 	var d: Node = root.get_node_or_null("TrailerDirector")
 	ok("director_running", d != null)
@@ -50,7 +50,7 @@ func _run() -> void:
 		d.queue_free()
 	await process_frame
 	# Esc stops it
-	load("res://game/tools/trailer_director.gd").start(self)
+	load("res://game/trailer/trailer_director.gd").start(self)
 	await until(func(): return root.get_node_or_null("TrailerDirector") != null and root.get_node("TrailerDirector").get("cam") != null, 20.0)
 	var d2: Node = root.get_node_or_null("TrailerDirector")
 	await until(func(): return int(d2.report["shots"]) >= 2, 30.0)

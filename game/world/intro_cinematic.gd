@@ -254,7 +254,7 @@ func _note_on_fridge() -> void:
 
 ## The game shop's own game shelf (its merchandise): [centre, along the shelf, out of the shelf into the room].
 func _game_shelf() -> Array:
-	return load("res://game/tools/trailer_director.gd").shelf_of(world.get("shop_merch"), "game_", world.game_shop)
+	return load("res://game/trailer/trailer_director.gd").shelf_of(world.get("shop_merch"), "game_", world.game_shop)
 
 
 ## The Veil itself, far off: three vast curtains of the game's mist (the mist-boundary shader), one behind the other,

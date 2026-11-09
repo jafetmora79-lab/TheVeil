@@ -77,7 +77,7 @@ func _run() -> void:
 	ok("continue_has_no_intro", true)
 	await until(func(): return w.player.controls_enabled, 40.0)
 	# ---- trailer tools
-	var tm = (load("res://game/tools/trailer_mode.gd") as GDScript).new()
+	var tm = (load("res://game/trailer/trailer_mode.gd") as GDScript).new()
 	tm.name = "TrailerMode"
 	root.add_child(tm)
 	await frames(3)
