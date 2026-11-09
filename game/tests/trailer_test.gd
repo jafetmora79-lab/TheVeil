@@ -63,6 +63,12 @@ func _run() -> void:
 	ok("hound_seen_before_hit", float(r.get("hound_seen_before_hit", 0.0)) >= 0.3, "%.2f s" % float(r.get("hound_seen_before_hit", 0.0)))
 	ok("runners_apart", r.get("runners_apart", false))
 	ok("crack_before_tentacle", r.get("tentacle_after_crack", false))
+	ok("car_drive_clear", (r.get("car_path_hits", ["?"]) as Array).is_empty(), str(r.get("car_path_hits")))
+	ok("car_has_driver", r.get("driver", false))
+	ok("actors_in_view", r.get("clerk_seen", false) and r.get("eddie_seen_mid", false) and r.get("eddie_seen_close", false),
+		"clerk %s eddie %s/%s" % [r.get("clerk_seen"), r.get("eddie_seen_mid"), r.get("eddie_seen_close")])
+	ok("hound_turns_to_doors", r.get("hound_faces_door", false))
+	ok("only_filmed_houses_wrecked", r.get("wrecked_HOUSE_14", false) and r.get("wrecked_PLAYER_HOME", false))
 	await until(func(): return not game.has_meta("trailer_run"), 10.0)
 	ok("save_untouched", (FileAccess.get_modified_time(game.SAVE_PATH) if FileAccess.file_exists(game.SAVE_PATH) else -1) == save_t)
 	ok("saving_back_on", not game.no_save)
