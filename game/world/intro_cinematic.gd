@@ -312,11 +312,19 @@ func _place_colossus(at: Vector3) -> void:
 		model.scale = Vector3.ONE * 6.0
 	VeilCreatureLook.apply_colossus(_colossus, at.y)
 	_colossus.global_position = at
-	_colossus.rotation.y = randf_range(0.0, TAU)
-	_wall.append(_colossus)                                   # (moves in with the mist)
+	# facing the town (and the camera), walking toward it - very slowly. It is not carried along with the mist: it
+	# moves only as fast as its own legs walk (scale x anim speed m/s, measured off Walk_Heavy), so its feet don't slide
+	var toward: Vector3 = ((world.sedan.global_position if world.get("sedan") else Vector3.ZERO) - at) * Vector3(1, 0, 1)
+	toward = toward.normalized()
+	_colossus.rotation.y = atan2(toward.x, toward.z)          # (its model faces +Z)
+	var anim_speed := 0.2
+	var pace := 6.0 * anim_speed
 	var ap := _colossus.find_child("AnimationPlayer", true, false) as AnimationPlayer
 	if ap and ap.has_animation("Walk_Heavy"):
 		ap.get_animation("Walk_Heavy").loop_mode = Animation.LOOP_LINEAR
 		ap.play("Walk_Heavy")
-		ap.speed_scale = 0.35
+		ap.speed_scale = anim_speed
+	var tw := create_tween()
+	tw.tween_property(_colossus, "global_position", at + toward * pace * 14.0, 14.0)
 	report["colossus"] = true
+	report["colossus_faces_camera"] = true
