@@ -1,0 +1,9 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>THE VEIL — Damaged houses</title>
+<style>
+html,body{margin:0;height:100%;overflow:hidden;background:#121619;color:#e7e3d8;font:14px system-ui}#view{position:fixed;inset:0}#panel{position:fixed;top:12px;left:12px;z-index:2;width:min(340px,calc(100vw - 24px));box-sizing:border-box;padding:15px;background:#151b20e9;border:1px solid #53605d;border-radius:7px;box-shadow:0 5px 22px #0009}h1{font-size:17px;letter-spacing:.09em;margin:0 0 8px}p{line-height:1.45;margin:8px 0}select,button{width:100%;background:#232d31;color:#fff;border:1px solid #76827c;border-radius:4px;font:inherit;padding:10px}button{cursor:pointer}#status{color:#c9b778;min-height:2em}label{display:block;margin:9px 0}input{accent-color:#c9b778}#help{font-size:12px;color:#bbb}#credit{font-size:11px;color:#aaa}#view canvas{display:block}
+</style>
+<script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"}}</script></head>
+<body><div id="view"></div><div id="panel"><h1>THE VEIL · BROKEN HOUSES</h1><p>Nine damaged house models appear in-game after the two-hour skip. Choose one to inspect its actual 3D geometry.</p><select id="house" aria-label="Damaged house"></select><label><input type="checkbox" id="roof" checked> Show roof and exterior</label><button id="reset">Reset camera</button><p id="status" role="status">Loading…</p><p id="help">Drag to rotate · scroll or pinch to zoom · right-drag to pan. This is a model preview; damage, lighting, creatures, and scene changes in-game can differ.</p><p id="credit">Models from the game’s town-destruction commit. No new house art generated.</p></div>
+<script type="module" src="damaged-houses.js"></script></body></html>
