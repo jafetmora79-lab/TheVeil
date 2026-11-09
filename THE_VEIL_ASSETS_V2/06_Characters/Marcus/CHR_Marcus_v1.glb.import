@@ -3,12 +3,13 @@
 importer="scene"
 importer_version=1
 type="PackedScene"
-path="res://.godot/imported/CHR_Marcus_v1.glb-4f13cca4c8765ace0f48db0a7b4dd6c9.scn"
+uid="uid://b0sbskndvtldk"
+path="res://.godot/imported/CHR_Marcus_v1.glb-31ca7adb65e2bd933924d6d79ce771b9.scn"
 
 [deps]
 
 source_file="res://THE_VEIL_ASSETS_V2/06_Characters/Marcus/CHR_Marcus_v1.glb"
-dest_files=["res://.godot/imported/CHR_Marcus_v1.glb-4f13cca4c8765ace0f48db0a7b4dd6c9.scn"]
+dest_files=["res://.godot/imported/CHR_Marcus_v1.glb-31ca7adb65e2bd933924d6d79ce771b9.scn"]
 
 [params]
 
@@ -16,6 +17,7 @@ nodes/root_type=""
 nodes/root_name=""
 nodes/apply_root_scale=true
 nodes/root_scale=1.0
+nodes/import_as_skeleton_bones=false
 meshes/ensure_tangents=false
 meshes/generate_lods=false
 meshes/create_shadow_meshes=true
@@ -24,6 +26,10 @@ meshes/lightmap_texel_size=0.2
 meshes/force_disable_compression=false
 skins/use_named_skins=true
 animation/import=false
+animation/fps=30
+animation/trimming=false
+animation/remove_immutable_tracks=true
+animation/import_rest_as_RESET=false
 import_script/path=""
 _subresources={
 "materials": {

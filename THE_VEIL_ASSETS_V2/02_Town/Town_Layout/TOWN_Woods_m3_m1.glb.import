@@ -3,6 +3,7 @@
 importer="scene"
 importer_version=1
 type="PackedScene"
+uid="uid://dugmcwsiqm6dk"
 path="res://.godot/imported/TOWN_Woods_m3_m1.glb-8c7b8f5cb80518171d3678d514c3f140.scn"
 
 [deps]
@@ -16,6 +17,7 @@ nodes/root_type=""
 nodes/root_name=""
 nodes/apply_root_scale=true
 nodes/root_scale=1.0
+nodes/import_as_skeleton_bones=false
 meshes/ensure_tangents=false
 meshes/generate_lods=false
 meshes/create_shadow_meshes=true
@@ -24,28 +26,40 @@ meshes/lightmap_texel_size=0.2
 meshes/force_disable_compression=false
 skins/use_named_skins=true
 animation/import=false
+animation/fps=30
+animation/trimming=false
+animation/remove_immutable_tracks=true
+animation/import_rest_as_RESET=false
 import_script/path=""
 _subresources={
 "materials": {
-"M_Grnd_TreeBark": {
+"M_Grnd_DeadVegetation": {
 "use_external/enabled": true,
-"use_external/path": "res://THE_VEIL_ASSETS_V2/Materials_Godot/Ground/M_Grnd_TreeBark.tres"
+"use_external/path": "res://THE_VEIL_ASSETS_V2/Materials_Godot/Ground/M_Grnd_DeadVegetation.tres"
 },
 "M_Grnd_HedgeFoliage": {
 "use_external/enabled": true,
 "use_external/path": "res://THE_VEIL_ASSETS_V2/Materials_Godot/Ground/M_Grnd_HedgeFoliage.tres"
 },
-"M_Grnd_DeadVegetation": {
+"M_Grnd_LeavesFallen": {
 "use_external/enabled": true,
-"use_external/path": "res://THE_VEIL_ASSETS_V2/Materials_Godot/Ground/M_Grnd_DeadVegetation.tres"
+"use_external/path": "res://THE_VEIL_ASSETS_V2/Materials_Godot/Ground/M_Grnd_LeavesFallen.tres"
 },
-"M_Town_Ivy": {
+"M_Grnd_Mud": {
 "use_external/enabled": true,
-"use_external/path": "res://THE_VEIL_ASSETS_V2/02_Town/Materials/M_Town_Ivy.tres"
+"use_external/path": "res://THE_VEIL_ASSETS_V2/Materials_Godot/Ground/M_Grnd_Mud.tres"
 },
-"M_Town_PineNeedles": {
+"M_Grnd_Soil": {
 "use_external/enabled": true,
-"use_external/path": "res://THE_VEIL_ASSETS_V2/02_Town/Materials/M_Town_PineNeedles.tres"
+"use_external/path": "res://THE_VEIL_ASSETS_V2/Materials_Godot/Ground/M_Grnd_Soil.tres"
+},
+"M_Grnd_TreeBark": {
+"use_external/enabled": true,
+"use_external/path": "res://THE_VEIL_ASSETS_V2/Materials_Godot/Ground/M_Grnd_TreeBark.tres"
+},
+"M_Hor_FoliageDead": {
+"use_external/enabled": true,
+"use_external/path": "res://THE_VEIL_ASSETS_V2/Materials_Godot/Horror/M_Hor_FoliageDead.tres"
 },
 "M_Hor_WoodDarkened": {
 "use_external/enabled": true,
@@ -55,29 +69,21 @@ _subresources={
 "use_external/enabled": true,
 "use_external/path": "res://THE_VEIL_ASSETS_V2/02_Town/Materials/M_Town_GrassCards.tres"
 },
-"M_Hor_FoliageDead": {
+"M_Town_Ivy": {
 "use_external/enabled": true,
-"use_external/path": "res://THE_VEIL_ASSETS_V2/Materials_Godot/Horror/M_Hor_FoliageDead.tres"
+"use_external/path": "res://THE_VEIL_ASSETS_V2/02_Town/Materials/M_Town_Ivy.tres"
 },
-"M_Grnd_LeavesFallen": {
+"M_Town_PineNeedles": {
 "use_external/enabled": true,
-"use_external/path": "res://THE_VEIL_ASSETS_V2/Materials_Godot/Ground/M_Grnd_LeavesFallen.tres"
-},
-"M_Town_StumpTop": {
-"use_external/enabled": true,
-"use_external/path": "res://THE_VEIL_ASSETS_V2/02_Town/Materials/M_Town_StumpTop.tres"
+"use_external/path": "res://THE_VEIL_ASSETS_V2/02_Town/Materials/M_Town_PineNeedles.tres"
 },
 "M_Town_Rock": {
 "use_external/enabled": true,
 "use_external/path": "res://THE_VEIL_ASSETS_V2/02_Town/Materials/M_Town_Rock.tres"
 },
-"M_Grnd_Soil": {
+"M_Town_StumpTop": {
 "use_external/enabled": true,
-"use_external/path": "res://THE_VEIL_ASSETS_V2/Materials_Godot/Ground/M_Grnd_Soil.tres"
-},
-"M_Grnd_Mud": {
-"use_external/enabled": true,
-"use_external/path": "res://THE_VEIL_ASSETS_V2/Materials_Godot/Ground/M_Grnd_Mud.tres"
+"use_external/path": "res://THE_VEIL_ASSETS_V2/02_Town/Materials/M_Town_StumpTop.tres"
 }
 }
 }
