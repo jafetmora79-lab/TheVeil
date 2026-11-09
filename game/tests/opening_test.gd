@@ -240,11 +240,32 @@ func phase4_tests(game, ps: PackedScene) -> void:
 	p4._run_threat()
 	await frames(5)
 	ok("p4_threat_once", p4.threat_runs == 1)
-	# sleep in the office
+	# the night's bed: the bedding from the piles by the office, laid out on the office floor
+	ok("p4_no_bed_yet", not p4.bed_made() and p4.rest.interactable.prompt_text == "")
+	for k in ["bed_card", "bed_soft"]:
+		var bit: Interactable = p4.its[k]
+		ok("p4_" + k + "_reach", await aim_any(player, bit, mk, [Z, -Z, X, -X], 1.3))
+		bit.interact(player)
+		await frames(20)
+	ok("p4_bedding_gathered", game.has_flag("p4_bed_gathered") and game.current_step().get("id", "") == "p4_make_bed", game.current_step().get("id", ""))
 	var od: Interactable = p4.its["INT_Door_Office"]
 	ok("p4_office_door_reach", await aim_any(player, od, mk, [-Z], 1.3))
 	od.interact(player)
 	await frames(40)
+	var mb: Interactable = p4.its["bed_make"]
+	ok("p4_make_bed_reach", await aim_any(player, mb, mk, [X, -X, Z, -Z], 1.2))
+	mb.interact(player)
+	ok("p4_bed_made", await wait_until(func(): return game.has_flag("p4_bed_made") and player.controls_enabled, 60 * 6))
+	var bedq := PhysicsShapeQueryParameters3D.new()
+	var bbx := BoxShape3D.new()
+	bbx.size = Vector3(p4.BED_LEN - 0.1, 0.3, p4.BED_W - 0.1)
+	bedq.shape = bbx
+	bedq.collision_mask = 1
+	bedq.exclude = [player.get_rid()]
+	bedq.transform = Transform3D(mk.global_basis, mk.global_transform * (p4.BEDROLL + Vector3(0, 0.3, 0)))
+	var bed_hits: Array = world.get_world_3d().direct_space_state.intersect_shape(bedq, 4).map(func(h): return String((h["collider"] as Node).name))
+	ok("p4_bed_on_clear_floor", bed_hits.is_empty(), str(bed_hits))
+	ok("p4_companion_beds", await wait_until(func(): return mk.get_node_or_null("P4_Bed_Eddie") != null and mk.get_node_or_null("P4_Bed_Marcus") != null, 60 * 3))
 	var rp: Interactable = p4.rest.interactable
 	ok("p4_rest_reach", await aim_any(player, rp, mk, [X, -X], 1.2))
 	rp.interact(player)
@@ -758,7 +779,7 @@ func _run() -> void:
 	# ---- Phase 3: the Veil arrives while the player is still inside the supermarket (last errand done)
 	await frames(20)
 	ok("p3_mist_starts_inside", game.has_flag("p3_mist") and game.has_flag("phase2_done") and world.atmos != null and not world._outdoors())
-	ok("p3_cashier_gone", not world.cashier.visible)
+	ok("p3_clerk_heads_out", world._clerk_out and world.cashier.visible)       # he comes out with the player
 	ok("chapter3_title_mist", game.has_flag("chapter_card_3") and world.hud.chapter_l.text == game.chapter_label(3) and game.chapter_number() == 3,
 		"%d %s" % [game.chapter_number(), world.hud.chapter_l.text])
 	ok("p3_marcus_before_colossus", world.marcus != null and world.marcus.is_visible_in_tree() and world.marcus.get_parent() == world.game_shop)
@@ -852,7 +873,11 @@ func _run() -> void:
 	ok("p3_marcus_in_shop", world.marcus != null and world.marcus.get_parent() == gs and world.faces.has("Marcus") and world.faces["Marcus"]._mat != null,
 		"marcus=%s parent=%s faces=%s" % [world.marcus, world.marcus.get_parent().name if world.marcus else "-", world.faces.keys()])
 	ok("p3_npcs_scared", world.animators["Eddie"].mood == "scared" and world.animators["Marcus"].mood == "scared")
-	ok("p3_eddie_walks_to_door", world.eddie.position.distance_to(Vector3(-2.2, 0.04, 1.3)) < 0.3, str(world.eddie.position))
+	var shop_in: Vector3 = gs.to_local((gs.get_node("Doorways/Entrance_Inside") as Node3D).global_position)
+	ok("p3_eddie_walks_to_door", Vector2(world.eddie.position.x - shop_in.x, world.eddie.position.z - shop_in.z).length() < 1.2, str(world.eddie.position))
+	ok("p3_market_doors_dead", game.has_flag("p3_market_doors_dead") and world.enc_report.get("clerk_fled", false)
+		and not world.cashier.visible and float(world.enc_report.get("route_clearance_m", -1.0)) >= 8.5,
+		"clearance %.1f m" % float(world.enc_report.get("route_clearance_m", -1.0)))
 	player.global_position = s_in + gs.global_transform.basis.z * 1.5
 	await frames(20)
 	ok("p3_in_shop", game.has_flag("p3_in_shop"))

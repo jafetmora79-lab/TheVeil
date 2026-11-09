@@ -41,7 +41,18 @@ const BACKDOOR_HANDLE := Vector3(8.0, 1.05, 17.0)          # covers the ajar lea
 const LOADING_PALLET := [Vector3(17.9, 0.04, 16.8), Vector3(19.52, 0.04, 15.9), PI * 0.5]
 const BACK_PALLET := [Vector3(10.4, 0.04, 15.9), Vector3(8.0, 0.04, 16.917), 0.0]
 const BACKDOOR_OUTSIDE_Z := 17.613                                 # rear exit leaf outer face
-const BEDROLL := Vector3(-18.4, 0.04, 15.75)              # office floor, between the drawers and the desk
+const BEDROLL := Vector3(-17.95, 0.04, 15.35)             # office floor, the clear patch between the drawers and the desk
+## The night's bed is made, not found: flattened cardboard and a blanket + pillow taken from the piles by the office,
+## laid out on the office floor ("[E] Make a Bed"), then "[E] Sleep". Eddie and Marcus fetch theirs from the same
+## piles and lay them in clear spots outside the office. Saved: p4_bed_card, p4_bed_soft, p4_bed_made.
+const BED_PILE_CARD := Vector3(-15.6, 0.04, 12.6)
+const BED_PILE_SOFT := Vector3(-17.0, 0.04, 12.6)
+const BED_LEN := 1.6
+const BED_W := 0.8
+const CARDBOARD_MAT := "res://THE_VEIL_ASSETS_V2/Materials_Godot/Furniture/M_Furn_Cardboard.tres"
+const CARD_STACK := "res://THE_VEIL_ASSETS_V2/03_Residential/Furniture/RES_CardboardBox_Stack.glb"
+const COMPANION_BEDS := {"Eddie": [Vector3(-14.5, 0.04, 16.0), Vector3(-15.5, 0.04, 16.0), Vector3(-14.0, 0.04, 12.9)],
+	"Marcus": [Vector3(-16.0, 0.04, 15.6), Vector3(-13.5, 0.04, 13.2), Vector3(-15.2, 0.04, 13.7)]}
 const EDDIE_POS := Vector3(6.2, 0.04, 4.05)
 const MARCUS_POS := Vector3(-2.0, 0.04, 6.9)
 const LOADING_GAP := 0.9                                   # metres the roll-up door is left open
@@ -276,22 +287,249 @@ func _setup_rest() -> void:
 	bed.name = "P4_Bedroll"
 	market.add_child(bed)
 	bed.position = BEDROLL
-	var bl := BLANKET.instantiate() as Node3D
-	bl.scale = Vector3(1.6, 1.0, 2.6)                  # unfolded into a makeshift bedroll
-	bed.add_child(bl)
-	var pl := PILLOW.instantiate() as Node3D
-	pl.position = Vector3(-0.55, 0.0, 0.0)
-	bed.add_child(pl)
+	bed.rotation.y = PI * 0.5                          # its length along the office's clear patch
+	var made := _bedroll(bed, "Made")
+	made.visible = bed_made()
 	rest = REST_SCRIPT.new()
 	rest.name = "RestPoint"
 	rest.shelter_id = "supermarket_office"
 	rest.prompt = "[E] Sleep"
 	bed.add_child(rest)
-	rest.setup(Vector3(1.6, 0.6, 1.0), choice, hud, player)
-	rest.can_rest = func() -> bool: return Game.has_flag("p4_threat_done")
+	rest.setup(Vector3(1.0, 0.6, BED_LEN), choice, hud, player)
+	rest.can_rest = func() -> bool: return Game.has_flag("p4_threat_done") and bed_made()
 	rest.refused.connect(func(_id): Dialogue.say("p4_not_tired", false, true))
 	rest.slept.connect(_on_slept)
 	bed.visible = Game.has_flag("p4_threat_done")
+	# the bedding piles outside the office, and the spot the bed is made
+	var card := Node3D.new()
+	card.name = "P4_BedPile_Card"
+	market.add_child(card)
+	card.position = BED_PILE_CARD
+	if ResourceLoader.exists(CARD_STACK):
+		card.add_child((load(CARD_STACK) as PackedScene).instantiate())
+	its["bed_card"] = Interactable.attach(card, {"kind": "custom", "label": "Cardboard", "prompt_text": "[E] Take Flattened Cardboard"})
+	its["bed_card"].used.connect(func(_b): _take_bedding("card"))
+	var soft := Node3D.new()
+	soft.name = "P4_BedPile_Soft"
+	market.add_child(soft)
+	soft.position = BED_PILE_SOFT
+	soft.add_child(BLANKET.instantiate())
+	var pil := PILLOW.instantiate() as Node3D
+	pil.position = Vector3(0.0, 0.12, 0.05)
+	soft.add_child(pil)
+	its["bed_soft"] = Interactable.attach(soft, {"kind": "custom", "label": "Blanket", "prompt_text": "[E] Take Blanket and Pillow"})
+	its["bed_soft"].used.connect(func(_b): _take_bedding("soft"))
+	var mk := Node3D.new()
+	mk.name = "P4_MakeBed"
+	bed.add_child(mk)
+	mk.position = Vector3(0, 0.3, 0)
+	its["bed_make"] = Interactable.attach(mk, {"kind": "custom", "label": "Bed", "prompt_text": ""})
+	var cs := its["bed_make"].get_child(0) as CollisionShape3D
+	if cs and cs.shape is BoxShape3D:
+		(cs.shape as BoxShape3D).size = Vector3(BED_W + 0.3, 0.6, BED_LEN)
+	its["bed_make"].used.connect(func(_b): _make_bed())
+	_bed_state()
+
+
+func bed_made() -> bool:
+	return Game.has_flag("p4_bed_made") or Game.has_flag("p4_slept")
+
+
+## A makeshift bed: two sheets of flattened cardboard, a blanket over most of it, a pillow at the head (local -Z).
+func _bedroll(parent: Node3D, nm: String) -> Node3D:
+	var root := Node3D.new()
+	root.name = nm
+	parent.add_child(root)
+	var cmat: Material = load(CARDBOARD_MAT) if ResourceLoader.exists(CARDBOARD_MAT) else null
+	for k in 2:
+		var sheet := MeshInstance3D.new()
+		sheet.name = "Card_%d" % k
+		var bm := BoxMesh.new()
+		bm.size = Vector3(BED_W, 0.012, BED_LEN * 0.5 + 0.02)
+		bm.material = cmat
+		sheet.mesh = bm
+		sheet.position = Vector3(0.02 * (1 - 2 * k), 0.006, (k - 0.5) * BED_LEN * 0.5)
+		sheet.rotation.y = 0.03 * (1 - 2 * k)
+		root.add_child(sheet)
+	var bl := MeshInstance3D.new()
+	bl.name = "Blanket"
+	var bb := BoxMesh.new()
+	bb.size = Vector3(BED_W - 0.06, 0.03, BED_LEN * 0.72)
+	bb.material = _blanket_mat()
+	bl.mesh = bb
+	bl.position = Vector3(0.0, 0.027, BED_LEN * 0.14)
+	root.add_child(bl)
+	var pil := PILLOW.instantiate() as Node3D
+	pil.name = "Pillow"
+	pil.position = Vector3(0.0, 0.012, -BED_LEN * 0.36)
+	root.add_child(pil)
+	return root
+
+
+func _blanket_mat() -> Material:
+	var b := BLANKET.instantiate()
+	var mat: Material = null
+	for mi in b.find_children("*", "MeshInstance3D", true, false):
+		var m: Mesh = (mi as MeshInstance3D).mesh
+		if m and m.get_surface_count() > 0:
+			mat = m.surface_get_material(0)
+			break
+	b.free()
+	return mat
+
+
+func _take_bedding(which: String) -> void:
+	var it: Interactable = its["bed_card" if which == "card" else "bed_soft"]
+	if not Game.has_flag("p4_threat_done") or Game.has_flag("p4_bed_" + which):
+		return
+	Game.set_flag("p4_bed_" + which)
+	Sfx.play("pickup", (it as Node3D).global_position, -6.0, 0.9)
+	_bed_state()
+	if Game.has_flag("p4_bed_card") and Game.has_flag("p4_bed_soft"):
+		Game.set_flag("p4_bed_gathered")
+		Dialogue.say("p4_bed_gathered", false, true)
+	_rest_beacon()
+
+
+## [E] Make a Bed: down on the office floor, the cardboard laid out sheet by sheet, the blanket shaken out over it,
+## the pillow dropped at the head. Then the bed is there to sleep in.
+func _make_bed() -> void:
+	if bed_made() or not (Game.has_flag("p4_bed_card") and Game.has_flag("p4_bed_soft")) or _bed_busy:
+		return
+	_bed_busy = true
+	its["bed_make"].prompt_text = ""
+	player.set("controls_enabled", false)
+	player.set("look_enabled", false)
+	player.set("velocity", Vector3.ZERO)
+	var bed := rest.get_parent() as Node3D
+	var made := bed.get_node("Made") as Node3D
+	var to: Vector3 = bed.global_position
+	var eye: Vector3 = player.camera.global_position
+	var v := (to - eye).normalized()
+	player.set_yaw_pitch(atan2(-v.x, -v.z), clampf(asin(clampf(v.y, -1.0, 1.0)), -1.1, 0.2))
+	made.visible = true
+	var parts: Array = [made.get_node("Card_0"), made.get_node("Card_1"), made.get_node("Blanket"), made.get_node("Pillow")]
+	for p in parts:
+		(p as Node3D).visible = false
+	for i in parts.size():
+		var n: Node3D = parts[i]
+		var end := n.position
+		n.position = end + Vector3(0, 0.55, 0.15)
+		n.visible = true
+		if n.name == "Blanket":
+			n.scale = Vector3(1.0, 1.0, 0.25)             # folded, then shaken out
+		var tw := create_tween().set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT)
+		tw.tween_property(n, "position", end, 0.45)
+		if n.name == "Blanket":
+			tw.parallel().tween_property(n, "scale", Vector3.ONE, 0.55)
+		Sfx.play("pickup", n.global_position, -10.0, 0.6 + 0.1 * i)
+		await tw.finished
+	Game.set_flag("p4_bed_made")
+	_bed_busy = false
+	player.set("controls_enabled", true)
+	player.set("look_enabled", true)
+	_bed_state()
+	_rest_beacon()
+	_companion_beds(false)
+
+
+var _bed_busy := false
+
+
+## What shows: the piles until taken, the make-bed prompt once both are in hand, then the bed and [E] Sleep.
+func _bed_state() -> void:
+	var threat := Game.has_flag("p4_threat_done")
+	if Game.has_flag("p4_slept"):
+		for f in ["p4_bed_card", "p4_bed_soft", "p4_bed_gathered", "p4_bed_made"]:
+			Game.flags[f] = true                         # (older saves: they slept, so the bed was made)
+	for k in ["card", "soft"]:
+		var it: Interactable = its.get("bed_" + k)
+		if it == null:
+			continue
+		var taken := Game.has_flag("p4_bed_" + k)
+		(it as Node3D).visible = threat and not taken
+		it.prompt_text = "" if taken or not threat else ("[E] Take Flattened Cardboard" if k == "card" else "[E] Take Blanket and Pillow")
+		it.collision_layer = 8 if threat and not taken else 0
+	var ready := threat and Game.has_flag("p4_bed_card") and Game.has_flag("p4_bed_soft") and not bed_made()
+	if its.has("bed_make"):
+		its["bed_make"].prompt_text = "[E] Make a Bed" if ready else ""
+		its["bed_make"].collision_layer = 8 if ready else 0
+	if rest:
+		var made := (rest.get_parent() as Node3D).get_node_or_null("Made") as Node3D
+		if made:
+			made.visible = bed_made()
+		rest.interactable.prompt_text = "[E] Sleep" if bed_made() and not Game.has_flag("p4_slept") else ""
+		rest.interactable.collision_layer = 8 if bed_made() else 0
+	if bed_made():
+		_companion_beds(true)
+
+
+## Where the night's objective points: the bedding piles, then the office floor, then the bed.
+func _rest_beacon() -> void:
+	if not Game.has_flag("p4_threat_done") or Game.has_flag("p4_slept"):
+		return
+	if not Game.has_flag("p4_bed_card"):
+		world._beacon("p4_rest", ml(BED_PILE_CARD + Vector3(0, 1.4, 0)), Color(0.8, 0.85, 1.0))
+	elif not Game.has_flag("p4_bed_soft"):
+		world._beacon("p4_rest", ml(BED_PILE_SOFT + Vector3(0, 1.4, 0)), Color(0.8, 0.85, 1.0))
+	else:
+		world._beacon("p4_rest", ml(BEDROLL + Vector3(0, 1.4, 0)), Color(0.8, 0.85, 1.0))
+
+
+## Eddie and Marcus make theirs: each walks to the piles, then to a clear spot outside the office, where his bed
+## is laid (instant: after a load, the beds are simply there).
+func _companion_beds(instant: bool) -> void:
+	for nm in COMPANION_BEDS:
+		if market.get_node_or_null("P4_Bed_" + nm) != null:
+			continue
+		var spot: Vector3 = _clear_bed_spot(COMPANION_BEDS[nm])
+		if not spot.is_finite():
+			continue
+		var holder := Node3D.new()
+		holder.name = "P4_Bed_" + nm
+		market.add_child(holder)
+		holder.position = spot
+		holder.rotation.y = PI * 0.5
+		var bedr := _bedroll(holder, "Made")
+		bedr.visible = instant
+		if not instant and world.animators.has(nm):
+			_lay_companion_bed(nm, spot, bedr)
+		else:
+			bedr.visible = true
+
+
+func _lay_companion_bed(nm: String, spot: Vector3, bedr: Node3D) -> void:
+	world.npc_walk(nm, BED_PILE_CARD + Vector3(0.6, 0, -0.6), 1.6)
+	var a = world.animators[nm]
+	var t := 0.0
+	while t < 9.0 and a.is_walking():
+		await get_tree().process_frame
+		t += get_process_delta_time()
+	await get_tree().create_timer(0.6).timeout              # (picking it up)
+	world.npc_walk(nm, spot + Vector3(0.0, 0, 0.9), 1.4)
+	t = 0.0
+	while t < 12.0 and a.is_walking():
+		await get_tree().process_frame
+		t += get_process_delta_time()
+	if is_instance_valid(bedr):
+		bedr.visible = true
+		Sfx.play("pickup", bedr.global_position, -12.0, 0.7)
+
+
+## The first candidate with a clear bed-sized patch of floor (nothing solid there but the floor itself).
+func _clear_bed_spot(cands: Array) -> Vector3:
+	var space: PhysicsDirectSpaceState3D = (world.get_world_3d() as World3D).direct_space_state
+	var q := PhysicsShapeQueryParameters3D.new()
+	var bx := BoxShape3D.new()
+	bx.size = Vector3(BED_LEN, 0.35, BED_W)
+	q.shape = bx
+	q.collision_mask = 1
+	q.exclude = [player.get_rid()]
+	for c in cands:
+		q.transform = Transform3D(market.global_basis, ml(c + Vector3(0, 0.3, 0)))
+		if space.intersect_shape(q, 1).is_empty():
+			return c
+	return Vector3.INF
 
 
 # ------------------------------------------------------------------ state from flags (fresh start and loads)
@@ -317,7 +555,7 @@ func _apply() -> void:
 			its[k].prompt_text = "" if Game.has_flag("p4_talk_done") else "[E] Talk"
 	if rest:
 		rest.get_parent().visible = Game.has_flag("p4_threat_done")
-		rest.interactable.prompt_text = "" if Game.has_flag("p4_slept") else "[E] Sleep"
+		_bed_state()
 	# the flashlight on the service desk: the game's ordinary pickup diamond until it is taken (no white glow / light)
 	if its.has("flashlight"):
 		var fl_on: bool = not Game.has_flag("p4_flashlight") and not (its["flashlight"] as Interactable).taken
@@ -530,8 +768,9 @@ func _run_threat() -> void:
 		Game.set_flag("p4_threat_done")
 		_threat_running = false
 		_apply()
-		Dialogue.say("p4_rest_hint", false, true)
-		world._beacon("p4_rest", ml(BEDROLL + Vector3(0, 1.4, 0)), Color(0.8, 0.85, 1.0))
+		Dialogue.say("p4_bed_hint", false, true)
+		_bed_state()
+		_rest_beacon()
 		return
 	if Game.has_flag("p4_choice_noah"):
 		await _hound_charge()
@@ -544,8 +783,9 @@ func _run_threat() -> void:
 		Game.set_flag("p4_threat_done")
 		_threat_running = false
 		_apply()
-		Dialogue.say("p4_rest_hint", false, true)
-		world._beacon("p4_rest", ml(BEDROLL + Vector3(0, 1.4, 0)), Color(0.8, 0.85, 1.0))
+		Dialogue.say("p4_bed_hint", false, true)
+		_bed_state()
+		_rest_beacon()
 		return
 	# 1. scraping along the outside wall, lights stutter
 	_play("scrape", ml(Vector3(-12.0, 1.2, -1.0)), 2.0)
@@ -573,8 +813,9 @@ func _run_threat() -> void:
 	Game.set_flag("p4_threat_done")
 	_threat_running = false
 	_apply()
-	Dialogue.say("p4_rest_hint", false, true)
-	world._beacon("p4_rest", ml(BEDROLL + Vector3(0, 1.4, 0)), Color(0.8, 0.85, 1.0))
+	Dialogue.say("p4_bed_hint", false, true)
+	_bed_state()
+	_rest_beacon()
 
 
 ## ACCEPT: first person throughout. The protagonist and Marcus step out of the front doors; a moment of quiet; a

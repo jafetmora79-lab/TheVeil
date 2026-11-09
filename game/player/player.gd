@@ -48,6 +48,7 @@ var capsule: CapsuleShape3D
 var controls_enabled := true
 var look_enabled := true
 var crouching := false
+var auto_sprint := false                ## a scene walking the player (auto_input) has them run
 var _pitch := 0.0
 var _bob_t := 0.0
 var _eye := EYE
@@ -133,7 +134,8 @@ func _physics_process(delta: float) -> void:
 			crouching = want_crouch
 			capsule.height = HEIGHT_CROUCH if crouching else HEIGHT
 			shape.position.y = capsule.height / 2.0
-	var sprinting := controls_enabled and Input.is_action_pressed("sprint") and not crouching and input.y < 0.0
+	var sprinting := (controls_enabled and Input.is_action_pressed("sprint") or auto_sprint and auto_input != Vector2.ZERO) \
+		and not crouching and input.y < 0.0
 	if survival_active and (_exhausted or stamina <= 0.5):
 		sprinting = false
 	var speed := CROUCH if crouching else (SPRINT if sprinting else WALK)

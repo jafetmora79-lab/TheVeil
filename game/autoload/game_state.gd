@@ -259,6 +259,9 @@ func load_checkpoint(checkpoint: String) -> bool:
 		return false
 	player_name = clean_player_name(String(d.get("player_name", player_name)))
 	flags = d.get("flags", {})
+	if flags.has("p4_slept"):
+		for bf in ["p4_bed_card", "p4_bed_soft", "p4_bed_gathered", "p4_bed_made"]:
+			flags[bf] = true                             # (saves from before the night's bed was made by hand)
 	inventory = d.get("inventory", [])
 	world_state = d.get("world_state", {})
 	player_state = d.get("player", {})
