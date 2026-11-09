@@ -132,6 +132,10 @@ func _swap(h: Node3D, kind: String, avoid: Array) -> Dictionary:
 	body.collision_layer = 1
 	body.collision_mask = 0
 	h.add_child(body)
+	for gi in d.find_children("*", "GeometryInstance3D", true, false):
+		var gn := String(gi.name)
+		if gn.begins_with("Interior") or gn.begins_with("Furnishing") or gn.begins_with("Stain") or gn.begins_with("Claw"):
+			(gi as GeometryInstance3D).visibility_range_end = 70.0            # (inside / small: only drawn near)
 	var dropped := 0
 	var meshes := 0
 	for mi in d.find_children("*", "MeshInstance3D", true, false):

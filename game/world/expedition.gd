@@ -928,9 +928,9 @@ var quest: Node                          ## VeilCarQuest
 # ------------------------------------------------------------------ danger, encounters, warnings
 func _followers() -> Array:
 	var out := []
-	for n in world.find_children("*", "Node", true, false):
-		if n is VeilCompanionFollow and (n as VeilCompanionFollow).active and (n as VeilCompanionFollow).npc \
-				and (n as VeilCompanionFollow).npc.is_visible_in_tree():
+	for n in get_tree().get_nodes_in_group("veil_companion_follow"):
+		if n is VeilCompanionFollow and world.is_ancestor_of(n) and (n as VeilCompanionFollow).active \
+				and (n as VeilCompanionFollow).npc and (n as VeilCompanionFollow).npc.is_visible_in_tree():
 			out.append(n)
 	return out
 
@@ -1832,6 +1832,7 @@ func _open_houses() -> void:
 		add_child(sh)
 		if sh.setup(world, h, sp, specs):
 			houses[z] = sh
+			_near_only(h, 45.0)
 		else:
 			sh.queue_free()
 	houses["_done"] = null
@@ -1942,3 +1943,17 @@ func _play(id: String, at: Vector3, db := 0.0, unit := 14.0) -> void:
 	p.global_position = at
 	p.finished.connect(p.queue_free)
 	p.play()
+
+
+
+## The furniture, fittings and finds inside an explorable house are only drawn near it (the walls hide them anyway):
+## two dozen furnished houses otherwise added ~1,100 draw calls to every frame after the first night.
+static func _near_only(h: Node3D, metres: float) -> void:
+	for g in h.find_children("*", "GeometryInstance3D", true, false):
+		var nm := String(g.name)
+		if nm.contains("Exterior") or nm.begins_with("INT_Door") or nm.begins_with("INT_GarageDoor") or nm.contains("Roof"):
+			continue
+		var gi := g as GeometryInstance3D
+		if gi.visibility_range_end <= 0.0 or gi.visibility_range_end > metres:
+			gi.visibility_range_end = metres
+			gi.visibility_range_end_margin = 4.0

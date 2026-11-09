@@ -488,6 +488,8 @@ func _light_budget_all() -> void:
 
 
 func _on_node_added(n: Node) -> void:
+	if n.has_meta("veil_creature") and is_ancestor_of(n):
+		n.add_to_group("veil_creature")                # (the sidearm's aim: a group, not a walk of the whole world)
 	if n is Light3D and is_ancestor_of(n):
 		_light_budget.call_deferred(n)            # after the spawner has set its range
 
