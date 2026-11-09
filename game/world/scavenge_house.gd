@@ -91,7 +91,9 @@ func _process(_d: float) -> void:
 		if it.taken:
 			continue
 		var c: Interactable = _loot_container[id]
-		it.collision_layer = 8 if c.is_open else 0      # nothing to grab through a closed door or drawer
+		var want := 8 if c.is_open else 0               # nothing to grab through a closed door or drawer
+		if it.collision_layer != want:
+			it.collision_layer = want
 	_tip_t -= _d
 	if ok and _tip_t <= 0.0 and not Game.has_flag("scav_container_tip"):
 		_tip_t = 0.5

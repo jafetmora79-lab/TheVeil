@@ -244,7 +244,9 @@ func _target(cam: Camera3D) -> Node3D:
 	var space: PhysicsDirectSpaceState3D = world.get_world_3d().direct_space_state
 	var best: Node3D = null
 	var best_d := INF
-	for n in world.find_children("*", "Node3D", true, false):
+	for n in get_tree().get_nodes_in_group("veil_creature"):
+		if not (n is Node3D) or not world.is_ancestor_of(n):
+			continue
 		if not n.has_meta("veil_creature") or String(n.get_meta("veil_creature")) == "Colossus" or not (n as Node3D).is_visible_in_tree():
 			continue
 		var c: Vector3 = (n as Node3D).global_position + Vector3(0, 0.6, 0)

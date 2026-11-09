@@ -311,3 +311,8 @@ func _floor(p: Vector3) -> Vector3:
 	var q := PhysicsRayQueryParameters3D.create(p + Vector3(0, 0.8, 0), p + Vector3(0, -2.5, 0), 1)
 	var hit := space.intersect_ray(q)
 	return (hit["position"] as Vector3) if hit else p
+
+
+
+func _enter_tree() -> void:
+	add_to_group("veil_companion_follow")            # (expedition._followers: a group lookup, not a tree walk)
