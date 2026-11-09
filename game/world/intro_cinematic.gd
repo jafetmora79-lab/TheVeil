@@ -254,29 +254,7 @@ func _note_on_fridge() -> void:
 
 ## The game shop's own game shelf (its merchandise): [centre, along the shelf, out of the shelf into the room].
 func _game_shelf() -> Array:
-	var pts: Array = []
-	for mm in world.find_children("Merch_game_*", "MultiMeshInstance3D", true, false):
-		var mmi := mm as MultiMeshInstance3D
-		if mmi.multimesh == null:
-			continue
-		for i in mmi.multimesh.instance_count:
-			pts.append(mmi.global_transform * mmi.multimesh.get_instance_transform(i).origin)
-	if pts.size() < 4:
-		return []
-	var c := Vector3.ZERO
-	for p in pts:
-		c += p
-	c /= pts.size()
-	var far: Vector3 = pts[0]
-	for p in pts:
-		if (p as Vector3).distance_to(c) > far.distance_to(c):
-			far = p
-	var along := ((far - c) * Vector3(1, 0, 1)).normalized()
-	var nrm := along.cross(Vector3.UP).normalized()
-	var room: Vector3 = world.game_shop.global_transform * Vector3(0, 1.5, 5.0)
-	if nrm.dot(room - c) < 0.0:
-		nrm = -nrm
-	return [c, along, nrm]
+	return load("res://game/tools/trailer_director.gd").shelf_of(world.get("shop_merch"), "game_", world.game_shop)
 
 
 ## The Veil itself, far off: three vast curtains of the game's mist (the mist-boundary shader), one behind the other,
