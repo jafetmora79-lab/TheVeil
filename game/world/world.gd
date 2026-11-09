@@ -53,6 +53,9 @@ var fog_zones: Node
 var world_edge: Node
 var town_destruction: Node
 var road_home: Node
+var intro: Node
+var intro_report := {}                        ## (tests) what the intro showed
+var force_intro := false                      ## (tests) headless runs skip the intro unless asked for it
 var drive_time := 0.0
 var _park_t := 0.0
 var _ending := false
@@ -147,6 +150,7 @@ func _ready() -> void:
 	add_child(edge)
 	edge.setup.call_deferred(self)
 	world_edge = edge
+	load("res://game/tools/trailer_mode.gd").ensure(get_tree())     # (only with --trailer: capture tools)
 	var td = load("res://game/world/town_destruction.gd").new()     # after the two hours: houses broken
 	td.name = "TownDestruction"
 	add_child(td)
@@ -237,6 +241,15 @@ func _opening() -> void:
 	player.set_yaw_pitch(sp.global_rotation.y, 0.0)
 	hud.allow_pause = false
 	Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
+	if not Game.has_flag("intro_seen") and (DisplayServer.get_name() != "headless" or force_intro):
+		await get_tree().process_frame
+		intro = load("res://game/world/intro_cinematic.gd").new()   # the town before it all (hold E / Esc: skip)
+		intro.name = "Intro"
+		add_child(intro)
+		await intro.play(self)
+		intro_report = intro.report.duplicate()
+		intro.queue_free()
+		player.set_yaw_pitch(sp.global_rotation.y, 0.0)
 	player.play_wake_up(4.6, false)
 	await get_tree().create_timer(1.0).timeout
 	hud.chapter_start(1, 2.8)                     # CHAPTER 1 (upper screen) with the time card below it
