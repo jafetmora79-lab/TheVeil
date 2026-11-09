@@ -4410,6 +4410,89 @@ func _restore_survivor_story() -> void:
 	if Game.has_flag("p3_doors_shut"):
 		_start_phase4(true)
 	_restoring_survivors = false
+	_chapter_start_hook()
+
+
+# ------------------------------------------------------------------ a chapter started from the chapter list
+## game/chapters/chapter_select.gd builds the state; the save restore above puts nearly everything in place. A
+## chapter that begins in the middle of the opening (2-5) still needs where the player (and, for 4, Eddie and
+## Marcus) stand at that moment. Consumed once: a later load is an ordinary one.
+var chapter_start_report := {}
+
+
+func _chapter_start_hook() -> void:
+	var n := int(Game.world_state.get("chapter_start", 0))
+	if n == 0:
+		return
+	Game.world_state.erase("chapter_start")
+	chapter_start_report = {"chapter": n}
+	match n:
+		2:      # by the car in the supermarket lot, facing the store
+			var md: Vector3 = (market.get_node("Doorways/Entrance_Outside") as Node3D).global_position
+			for off in [Vector3(-1.7, 0, 0.6), Vector3(1.7, 0, 0.6), Vector3(0, 0, 3.6), Vector3(-1.7, 0, -1.2), Vector3(0, 0, -3.6)]:
+				var at: Vector3 = sedan.global_transform * off
+				at.y = sedan.global_position.y
+				if _stand_clear(at):
+					_put_player(at, md)
+					chapter_start_report["player_clear"] = true
+					break
+		3:      # in the game shop, at Eddie's counter, the game just bought
+			_put_player(game_shop.to_global(SHOP_TALK["Protagonist"]), eddie.global_position if eddie else game_shop.global_position)
+			chapter_start_report["player_clear"] = true
+		4:      # two hours later, at the game shop's door with Eddie and Marcus: out, and across to the supermarket
+			var din: Vector3 = (game_shop.get_node("Doorways/Entrance_Inside") as Node3D).global_position
+			var dout: Vector3 = (game_shop.get_node("Doorways/Entrance_Outside") as Node3D).global_position
+			for pair in [[eddie, Vector3(-1.4, 0.04, 1.3)], [marcus, Vector3(-2.3, 0.04, 2.1)]]:
+				var nb: Node3D = pair[0]
+				if nb == null:
+					continue
+				nb.reparent(game_shop, true)
+				nb.remove_meta("shelter_home")
+				nb.remove_meta("shelter_feet")
+				place_survivor(nb, pair[1])
+				var an = nb.get_node_or_null("Animator")
+				if an:
+					an.walk_to([])
+					an.set_mood("scared")
+			_p3_shop_talked = true
+			_p3_npcs_moved = false
+			var inward := ((din - dout) * Vector3(1, 0, 1)).normalized()
+			_put_player(din + inward * 0.9, dout)
+			chapter_start_report["player_clear"] = true
+		5:      # just inside the supermarket, the doors shut behind them
+			var mi: Vector3 = (market.get_node("Doorways/Entrance_Inside") as Node3D).global_position
+			var mo: Vector3 = (market.get_node("Doorways/Entrance_Outside") as Node3D).global_position
+			var into := ((mi - mo) * Vector3(1, 0, 1)).normalized()
+			_put_player(mi + into * 1.6, mi + into * 6.0)
+			chapter_start_report["player_clear"] = true
+	if n >= 2:
+		chapter_start_report["done"] = true
+		save()
+
+
+func _put_player(at: Vector3, look: Vector3) -> void:
+	player.global_position = at + Vector3(0, 0.05, 0)
+	player.velocity = Vector3.ZERO
+	var d := (look - at) * Vector3(1, 0, 1)
+	if d.length() > 0.05:
+		d = d.normalized()
+		player.set_yaw_pitch(atan2(-d.x, -d.z), 0.0)          # the player looks along its -Z
+
+
+## Room for a person here (nothing solid from the knees to the head).
+func _stand_clear(at: Vector3) -> bool:
+	var space := get_world_3d().direct_space_state
+	var q := PhysicsShapeQueryParameters3D.new()
+	var sh := SphereShape3D.new()
+	sh.radius = 0.38
+	q.shape = sh
+	q.collision_mask = 1
+	q.exclude = [player.get_rid()]
+	for y in [0.6, 1.2, 1.7]:
+		q.transform = Transform3D(Basis(), at + Vector3(0, y, 0))
+		if not space.intersect_shape(q, 1).is_empty():
+			return false
+	return true
 
 
 # ------------------------------------------------------------------ Phase 4 hook (the chapter lives in phase4.gd)
