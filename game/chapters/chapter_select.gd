@@ -56,6 +56,11 @@ static func _read(path: String) -> Dictionary:
 ## Build the state for chapter `n` in Game (and write it to the save slot). The world then loads from it.
 static func prepare(game: Node, n: int) -> void:
 	n = clampi(n, 1, COUNT)
+	# saving must be on: every step below writes the state and reads it back - with saving off (left so by an
+	# interrupted trailer run) the read-back would load the player's OLD save instead of the chapter
+	game.no_save = false
+	if game.has_meta("trailer_run"):
+		game.remove_meta("trailer_run")
 	var who := String(game.get("player_name"))
 	if n == 1:
 		game.new_game(who)                                   # the whole opening, the intro first
@@ -78,14 +83,21 @@ static func prepare(game: Node, n: int) -> void:
 		game.player_state = {"in_vehicle": false, "pos": [34.7, 0.3, -18.5], "yaw": 0.0, "health": 100.0}   # placed by the hook
 	game.player_name = who
 	game.flags["intro_seen"] = true
+	# every one-time scene of the chapters before this one has been seen: their chapter cards, the arrival zoom over
+	# the supermarket - they never play again in a later chapter (this chapter's own card still shows)
+	for f in ["arrival_shot", "auto_parked", "reached_town", "parked", "entered_car", "left_house"]:
+		game.flags[f] = true
+	for k in range(1, n):
+		game.flags["chapter_card_%d" % k] = true
+	game.flags.erase("chapter_card_%d" % n)
 	if not game.has_item("car_keys"):
 		game.inventory.append("car_keys")                    # the car needs them; nothing in the story takes them away
 	if (game.vehicle_state as Dictionary).get("pos", []).is_empty():
 		game.vehicle_state = CAR_PARKED.duplicate(true)
 	game.world_state["chapter_start"] = n
-	game.save_game()
-	game.load_game()
-	game.load_requested = true
+	if game.save_game():
+		game.load_game()
+	game.load_requested = true                                # (the state is in memory either way)
 
 
 ## From a menu: the state, then the world.

@@ -4427,7 +4427,8 @@ func _chapter_start_hook() -> void:
 	Game.world_state.erase("chapter_start")
 	chapter_start_report = {"chapter": n}
 	match n:
-		2:      # by the car in the supermarket lot, facing the store
+		2:      # by the car in the supermarket lot, facing the store (its card: the arrival zoom that shows it has passed)
+			hud.chapter_start(2, 2.6)
 			var md: Vector3 = (market.get_node("Doorways/Entrance_Outside") as Node3D).global_position
 			for off in [Vector3(-1.7, 0, 0.6), Vector3(1.7, 0, 0.6), Vector3(0, 0, 3.6), Vector3(-1.7, 0, -1.2), Vector3(0, 0, -3.6)]:
 				var at: Vector3 = sedan.global_transform * off
@@ -4467,6 +4468,7 @@ func _chapter_start_hook() -> void:
 			chapter_start_report["player_clear"] = true
 	if n >= 2:
 		chapter_start_report["done"] = true
+		chapter_start_report["start_pos"] = player.global_position
 		save()
 
 
