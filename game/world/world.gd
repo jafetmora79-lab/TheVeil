@@ -623,7 +623,7 @@ func _setup_town() -> void:
 			hud.set_hint(""))
 	# stocked shelves: separate product meshes (MultiMesh), only the pick groups are interactive
 	market_merch = _merch(market, "supermarket", "market")
-	market_merch.taken.connect(func(_g, _i): _grocery_hint())
+	market_merch.taken.connect(func(_g, i): _grocery_hint(); _note_unpaid("market", i))
 	for id in GROCERIES:
 		if not Game.has_item(id) and not Game.has_flag("groceries_done"):
 			market_merch.set_glow(id, _glow_mat())
@@ -649,6 +649,7 @@ func _setup_town() -> void:
 	_area("Trigger_ShopInside", game_shop.global_transform * Vector3(0, 1.2, 3.0), Vector3(9, 2.4, 3), 2,
 		func(b): if b == player: Dialogue.say("shop_enter", true), game_shop.global_transform.basis)
 	shop_merch = _merch(game_shop, "video_game_store", "shop")
+	shop_merch.taken.connect(func(_g, i): _note_unpaid("shop", i))
 	shop_merch.taken.connect(func(g, _i): if g == "horror_game":
 		Dialogue.say("game_pick", false, true)
 		shop_merch.set_glow("horror_game", null))
@@ -1603,12 +1604,18 @@ func _grocery_hint() -> void:
 
 
 func _checkout(_by: Node) -> void:
-	if Game.has_flag("groceries_done"):
-		return
 	var need := ["canned_food", "water_bottle", "energy_snack"]
-	if not need.all(func(i): return Game.has_item(i)):
-		converse(["market_need_items"], [cashier])
+	if Game.has_flag("groceries_done") or not need.all(func(i): return Game.has_item(i)):
+		if not unpaid("market").is_empty():                    # extras (or a second cola) rung up on their own
+			_paid("market")
+			Sfx.play("pickup", market.global_transform * Vector3(-4.1, 1.1, 4.0))
+			if cashier:
+				_glow(cashier, false)
+			converse(["market_paid_some" if not Game.has_flag("groceries_done") else "market_checkout"], [cashier])
+		elif not Game.has_flag("groceries_done"):
+			converse(["market_need_items"], [cashier])
 		return
+	_paid("market")
 	for i in need + EXTRAS:
 		Game.remove_item(i)
 	Game.add_item("groceries")
@@ -1624,6 +1631,85 @@ func _checkout(_by: Node) -> void:
 	Game.set_flag("groceries_done")
 
 
+# ------------------------------------------------------------------ pay before you leave (before the Veil)
+## Anything taken off a store's shelves before the Veil drops has to be paid for: walking out through the door with it
+## the cashier (or Eddie) calls the player back and they step back inside. After the Veil nobody is minding a till.
+var pay_report := {"stopped": 0}
+var _pay_cool := 0.0
+
+
+func _note_unpaid(store: String, item: String) -> void:
+	if Game.has_flag("p3_mist"):
+		return
+	var all: Dictionary = Game.world_state.get("unpaid", {})
+	var list: Array = all.get(store, [])
+	list.append(item)
+	all[store] = list
+	Game.world_state["unpaid"] = all
+
+
+## What the player is still carrying out of `store` ("market" / "shop") without having paid.
+func unpaid(store: String) -> Array:
+	if Game.has_flag("p3_mist"):
+		return []
+	var list: Array = (Game.world_state.get("unpaid", {}) as Dictionary).get(store, [])
+	return list.filter(func(i): return Game.has_item(String(i)))
+
+
+func _paid(store: String) -> void:
+	var all: Dictionary = Game.world_state.get("unpaid", {})
+	all.erase(store)
+	Game.world_state["unpaid"] = all
+
+
+func _pay_guard(delta: float) -> void:
+	_pay_cool -= delta
+	if _pay_cool > 0.0 or player == null or not player.visible or in_car or Game.has_flag("p3_mist") or _cine:
+		return
+	for store in ["market", "shop"]:
+		var st: Node3D = market if store == "market" else game_shop
+		if st == null or unpaid(store).is_empty():
+			continue
+		var o: Vector3 = (st.get_node("Doorways/Entrance_Outside") as Node3D).global_position
+		var i: Vector3 = (st.get_node("Doorways/Entrance_Inside") as Node3D).global_position
+		var ax := (o - i) * Vector3(1, 0, 1)
+		var ln := ax.length()
+		if ln < 0.05:
+			continue
+		ax /= ln
+		var rel := (player.global_position - i) * Vector3(1, 0, 1)
+		var s := rel.dot(ax) / ln                               # 0 at the inside marker, 1 at the outside one
+		var side := absf(rel.dot(Vector3(ax.z, 0, -ax.x)))
+		if s > 0.5 and s < 3.0 and side < 3.0:
+			_stop_unpaid(store, i, ax)
+			return
+
+
+## Called back: the clerk / Eddie speaks up, the player steps back in (turned toward the till) - a beat, no punishment.
+func _stop_unpaid(store: String, inside: Vector3, out_dir: Vector3) -> void:
+	_pay_cool = 2.5
+	pay_report["stopped"] = int(pay_report["stopped"]) + 1
+	pay_report["last"] = store
+	var who: Node3D = cashier if store == "market" else eddie
+	Dialogue.say("pay_first_market" if store == "market" else "pay_first_shop", false, true)
+	if who:
+		_glow(who, true, Color(0.55, 0.9, 0.6))
+		if animators.has("Cashier" if store == "market" else "Eddie"):
+			animators["Cashier" if store == "market" else "Eddie"].face_towards(player.global_position)
+	var back := inside - out_dir * 0.4
+	back.y = player.global_position.y
+	player.set("controls_enabled", false)
+	player.velocity = Vector3.ZERO
+	var tw := create_tween().set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT)
+	tw.tween_property(player, "global_position", back, 0.45)
+	var to_till: Vector3 = (who.global_position - back) if who else -out_dir
+	to_till.y = 0.0
+	if to_till.length() > 0.05:
+		to_till = to_till.normalized()
+		player.set_yaw_pitch(atan2(-to_till.x, -to_till.z), 0.0)     # (the player looks along its -Z)
+	tw.tween_callback(func(): player.set("controls_enabled", true))
+
+
 func _talk_eddie(_by: Node) -> void:
 	if Game.has_flag("p3_mist"):
 		converse(["p3_eddie_go" if Game.has_flag("p3_in_shop") else "p3_eddie_hurry"], [eddie])
@@ -1635,6 +1721,8 @@ func _talk_eddie(_by: Node) -> void:
 		await converse(["eddie_buy"], [eddie])
 		if talk_report["blocked"] == refused:      # not when a wall / window was in the way
 			Game.set_flag("game_bought")
+			_paid("shop")
+			_glow(eddie, false)
 	else:
 		converse(["eddie_hello"], [eddie])
 
@@ -4107,6 +4195,7 @@ var _exit_requested := false
 
 func _physics_process(delta: float) -> void:
 	talk_watchdog()
+	_pay_guard(delta)
 	_p3_tick(delta)
 	_arrival_ease()
 	if _exit_requested:
