@@ -53,8 +53,17 @@ func _run() -> void:
 	ok("intact_before_skip", not td.applied and intact)
 	# ---- 2. the skip
 	game.set_flag("p3_two_hours_later")
-	await frames(60)
-	ok("applied_after_skip", td.applied)
+	# spread over frames: the game never stalls (was ~25 s in one frame: the convex hulls for the rubble)
+	var longest := 0
+	for i in 900:
+		var t0 := Time.get_ticks_msec()
+		await process_frame
+		longest = maxi(longest, Time.get_ticks_msec() - t0)
+		if td.applied and not td.applying:
+			break
+	ok("applied_after_skip", td.applied and not td.applying)
+	ok("no_long_stall", longest < 500, "longest frame %d ms" % longest)
+	await frames(10)
 	var swapped: Array = []
 	var bad: Array = []
 	for id in T:

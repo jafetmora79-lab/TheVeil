@@ -51,7 +51,7 @@ func setup(w: Node) -> void:
 	for i in 2:
 		await get_tree().process_frame
 	if after_skip():
-		apply()
+		apply_spread()
 
 
 func _process(delta: float) -> void:
@@ -62,9 +62,35 @@ func _process(delta: float) -> void:
 		if _t <= 0.0:
 			_t = 0.5
 			if after_skip():
-				apply()
+				apply_spread()
 		return
 	_skitter_tick(delta)
+
+
+## The same as apply(), a house per frame (the game keeps running; the time skip's fade covers it). `applying` is
+## true until the last house is done.
+var applying := false
+
+
+func apply_spread() -> void:
+	if applied:
+		return
+	applied = true
+	applying = true
+	var hn := world.get_node_or_null("Residential/Houses")
+	if hn == null:
+		applying = false
+		return
+	var avoid := _avoid_points()
+	for id in TARGETS:
+		var h := hn.get_node_or_null(String(id)) as Node3D
+		if h == null or h.get_node_or_null("Destroyed") != null:
+			continue
+		report[id] = _swap(h, String(TARGETS[id]), avoid)
+		await get_tree().process_frame
+		if not is_instance_valid(world):
+			return
+	applying = false
 
 
 func apply() -> void:
@@ -154,8 +180,11 @@ func _swap(h: Node3D, kind: String, avoid: Array) -> Dictionary:
 				dropped += 1
 				continue
 			var cs := CollisionShape3D.new()
-			cs.shape = m3.mesh.create_convex_shape(true, true)
-			cs.transform = h.global_transform.affine_inverse() * m3.global_transform
+			var ab: AABB = m3.mesh.get_aabb()
+			var bx := BoxShape3D.new()
+			bx.size = Vector3(maxf(ab.size.x, 0.05), maxf(ab.size.y, 0.05), maxf(ab.size.z, 0.05))
+			cs.shape = bx
+			cs.transform = h.global_transform.affine_inverse() * m3.global_transform * Transform3D(Basis(), ab.get_center())
 			body.add_child(cs)
 			continue
 		var tm: Shape3D = null if kind == "home" else m3.mesh.create_trimesh_shape()   # (the home: its own collision)
