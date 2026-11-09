@@ -38,13 +38,14 @@ const MIST_NOISE := "res://THE_VEIL_ASSETS_V2/09_Horror_Atmosphere/Textures/T_Ve
 var world: Node
 var cam: Camera3D
 var aborted := false
-var report := {"shots": 0, "segments": [], "shot_names": [], "clip": [], "clip_fixed": [], "clip_hits": {}, "creature_mats": {}}
+var report := {"shots": 0, "segments": [], "shot_names": [], "clip": [], "clip_fixed": [], "clip_hits": {}, "creature_mats": {}, "lens_props": {}}
 var _last_hit := ""
 const CLEARANCE := 0.2
 var _next_name := ""
 var _next_fov := 48.0
 var _watched: Array = []
 var _focus_lock := Vector3.INF
+var _props: Array = []
 var _black: ColorRect
 var _card: Label
 var _title: Label
@@ -143,6 +144,11 @@ func _setup() -> void:
 			if l is CanvasItem:
 				(l as CanvasItem).visible = false
 	_preset(P_EVENING, true)
+	# the game's own town destruction (all 36 houses, collision for every piece of rubble: seconds of work) must never
+	# start during the trailer - only the two filmed houses are swapped, for the look (see _seg_morning)
+	var td = world.get("town_destruction")
+	if td:
+		td.applied = true
 
 
 # ------------------------------------------------------------------ 1 ordinary
@@ -206,7 +212,7 @@ func _seg_ordinary() -> void:
 		var al2: Vector3 = gs[1]
 		var nr2: Vector3 = gs[2]
 		var y1: float = world.game_shop.global_position.y
-		var feat := c2 + al2 * 0.8
+		var feat := c2 + al2 * minf(0.8, (float(gs[3]) if gs.size() > 3 else 1.0) * 0.6)
 		var gd := _aisle_d(Vector3(c2.x, y1 + 1.45, c2.z), nr2, al2, -1.8, -0.5, [1.3, 1.2, 1.1, 1.0, 0.9, 0.8])
 		var s0 := Vector3(c2.x, y1 + 1.45, c2.z) + nr2 * gd - al2 * 1.8
 		var s1 := Vector3(c2.x, y1 + 1.42, c2.z) + nr2 * (gd - 0.08) - al2 * 0.5
@@ -622,11 +628,12 @@ func _seg_survive() -> void:
 		var c: Vector3 = shelf[0]
 		var al: Vector3 = shelf[1]
 		var nr: Vector3 = shelf[2]
+		var hl: float = float(shelf[3]) if shelf.size() > 3 else 1.3
 		var p0 := Vector3(c.x, y0 + 1.6, c.z) + nr * _aisle_d(Vector3(c.x, y0 + 1.6, c.z), nr, al, -0.4, 0.2, [1.8, 1.6, 1.4, 1.2, 1.0, 0.85, 0.7]) - al * 0.4
 		var tgt := Vector3(c.x, y0 + 1.05, c.z)
 		_card_show("Find supplies.", 2.2)
 		_cfg("11_dark_shelves", 48.0)
-		await _shot(p0, p0 + al * 0.6, tgt - al * 1.3, tgt + al * 1.0, 3.4)
+		await _shot(p0, p0 + al * 0.6, tgt - al * minf(1.3, hl * 0.6), tgt + al * minf(1.0, hl * 0.6), 3.4)
 	else:
 		_skip("dark_shelf")
 	await _hold(0.3)
@@ -749,6 +756,7 @@ func _seg_survive() -> void:
 	_cfg("15_hound", 50.0)
 	await _shot(M * Vector3(1.2, 1.45, 4.0), M * Vector3(1.0, 1.45, 3.6), M * Vector3(-6.0, 1.0, -0.5), M * Vector3(-1.0, 1.0, -0.5), 2.8)
 	_watched.clear()
+	_preload_wrecks()
 	# the bed they made on the office floor: 1.25 m up, looking down ~17 deg, a slow half-metre push
 	var bed_at: Vector3 = M * Vector3(-17.95, 0.04, 15.35)
 	var bed_yaw: float = world.market.global_rotation.y + PI * 0.5
@@ -800,6 +808,60 @@ func _aisle_d(c: Vector3, nr: Vector3, al: Vector3, a_off: float, b_off: float, 
 	return float(ds[0])
 
 
+func _preload_wrecks() -> void:
+	var td = world.get("town_destruction")
+	var hn := world.get_node_or_null("Residential/Houses")
+	if td == null or hn == null:
+		return
+	for id in ["HOUSE_14", "PLAYER_HOME"]:
+		var hh := hn.get_node_or_null(id) as Node3D
+		if hh and td.TARGETS.has(id):
+			var path: String = td.DIR + "%s__%s.glb" % [String(hh.scene_file_path).get_file().get_basename(), String(td.TARGETS[id])]
+			if ResourceLoader.exists(path):
+				ResourceLoader.load_threaded_request(path)
+
+
+## The wrecked version of a house, for the camera only: the intact shell hidden, the game's wrecked model in its
+## place with the house's own materials (the game's swap also builds collision for every piece of rubble - seconds
+## of work the trailer doesn't need).
+func _wreck_look(h: Node3D, kind: String, td: Node) -> bool:
+	var variant := String(h.scene_file_path).get_file().get_basename()
+	var path: String = td.DIR + "%s__%s.glb" % [variant, kind]
+	if not ResourceLoader.exists(path):
+		return false
+	var mats := {}
+	for mi in h.find_children("*", "MeshInstance3D", true, false):
+		var m: Mesh = (mi as MeshInstance3D).mesh
+		if m == null:
+			continue
+		for i in m.get_surface_count():
+			var mt := m.surface_get_material(i)
+			if mt and not mats.has(String(mt.resource_name)):
+				mats[String(mt.resource_name)] = mt
+	if kind == "home":
+		var ext := h.find_child("*_Exterior", true, false) as Node3D
+		if ext:
+			ext.visible = false
+	else:
+		var house := h.get_node_or_null("House") as Node3D
+		if house:
+			house.visible = false
+		if kind in td.OWN_FURNITURE:
+			var fu := h.get_node_or_null("Furnishing") as Node3D
+			if fu:
+				fu.visible = false
+	var d := (load(path) as PackedScene).instantiate() as Node3D
+	d.name = "Destroyed"
+	h.add_child(d)
+	for mi in d.find_children("*", "MeshInstance3D", true, false):
+		var m3 := mi as MeshInstance3D
+		for i in m3.mesh.get_surface_count():
+			var mt := m3.mesh.surface_get_material(i)
+			if mt and mats.has(String(mt.resource_name)):
+				m3.set_surface_override_material(i, mats[String(mt.resource_name)])
+	return true
+
+
 ## A building's extent in its own space (its meshes together).
 func _local_box(n: Node3D) -> AABB:
 	var box := AABB()
@@ -843,17 +905,18 @@ func _bedroll(at: Vector3, yaw: float) -> void:
 # ------------------------------------------------------------------ 6 the morning after
 func _seg_morning() -> void:
 	(report["segments"] as Array).append("morning")
-	Game.flags["p3_two_hours_later"] = true                 # (no_save: nothing of this is kept)
 	var td = world.get("town_destruction")
-	if td and not td.applied:
+	if td:
 		var hn := world.get_node_or_null("Residential/Houses")
-		var avoid: Array = td._avoid_points()
 		for id in ["HOUSE_14", "PLAYER_HOME"]:
 			var hh := hn.get_node_or_null(id) as Node3D if hn else null
 			if hh and hh.get_node_or_null("Destroyed") == null and td.TARGETS.has(id):
-				td.report[id] = td._swap(hh, String(td.TARGETS[id]), avoid)
-				report["wrecked_" + id] = true
-	_preset(P_MORNING, true)
+				report["wrecked_" + id] = _wreck_look(hh, String(td.TARGETS[id]), td)
+	# the morning mist, thinned for the camera (the game's roadway mist washes a still shot out to white)
+	if ResourceLoader.exists(P_MORNING) and world.has_method("_atmo"):
+		var mp: Resource = (load(P_MORNING) as Resource).duplicate()
+		mp.set("fog_density", 0.012)
+		world._atmo().apply_preset(mp, true)
 	world.living.focus_override = Vector3(25, 0, -91)
 	_fade(0.0, 1.4)
 	var hs: Node3D = world.get_node_or_null("Residential/Houses/HOUSE_14")
@@ -948,6 +1011,7 @@ func _shot(a: Vector3, b: Vector3, la: Vector3, lb: Vector3, secs: float, follow
 		(report["clip_fixed" if fixed else "clip"] as Array).append(nm)
 		(report["clip_hits"] as Dictionary)[nm] = _last_hit
 	(report["shot_names"] as Array).append(nm)
+	var hidden_props := _clear_lens(a, b, la, lb, nm)
 	var t := 0.0
 	while t < secs and not aborted:
 		var k := t / secs
@@ -960,6 +1024,54 @@ func _shot(a: Vector3, b: Vector3, la: Vector3, lb: Vector3, secs: float, follow
 		_watch_tick()
 		await get_tree().process_frame
 		t += get_process_delta_time()
+	for n in hidden_props:
+		if is_instance_valid(n):
+			(n as Node3D).visible = true
+
+
+## Small things right in front of the lens along a shot (a lamp globe, a sign, a shelf post: no collision, so the
+## clearance sweep doesn't catch them) are hidden for that shot. Actors and creatures are never touched.
+func _clear_lens(a: Vector3, b: Vector3, la: Vector3, lb: Vector3, nm: String) -> Array:
+	if _props.is_empty():
+		for mi in world.find_children("*", "MeshInstance3D", true, false):
+			_props.append(mi)
+	var out: Array = []
+	var mid := a.lerp(b, 0.5)
+	var pts: Array = []
+	for k in 5:
+		var u := k / 4.0
+		var p := a.lerp(b, u)
+		var dv := (la.lerp(lb, u) - p).normalized()
+		for dd in [0.0, 0.35, 0.7, 1.05]:
+			pts.append(p + dv * dd)
+	for mi in _props:
+		if not is_instance_valid(mi) or not (mi as MeshInstance3D).is_visible_in_tree() or (mi as MeshInstance3D).mesh == null:
+			continue
+		var g := mi as MeshInstance3D
+		if g.global_position.distance_to(mid) > 25.0:
+			continue
+		var box: AABB = g.global_transform * g.mesh.get_aabb()
+		if box.get_longest_axis_size() > 3.0:
+			continue
+		var actor := false
+		var up: Node = g
+		while up and up.get_parent() != world and up.get_parent() != null:
+			up = up.get_parent()
+			if up is VeilSurvivorBody or up.is_in_group("veil_creature"):
+				actor = true
+				break
+		if actor or _spawned.has(up):
+			continue
+		var grown := box.grow(0.12)
+		for q in pts:
+			if grown.has_point(q):
+				g.visible = false
+				out.append(g)
+				if not report["lens_props"].has(nm):
+					report["lens_props"][nm] = []
+				(report["lens_props"][nm] as Array).append(String(g.name))
+				break
+	return out
 
 
 ## True when a 20 cm sphere fits everywhere along a -> b (the world's static and solid geometry, layer 1; the
@@ -1151,7 +1263,23 @@ func _drive(car: Node3D, path: Array, secs: float) -> void:
 
 func _shelf(prefix: String, inside: Node3D) -> Array:
 	var merch = world.get("shop_merch") if inside == world.game_shop else world.get("market_merch")
-	return shelf_of(merch, prefix.trim_prefix("Merch_"), inside, true)
+	var sh := shelf_of(merch, prefix.trim_prefix("Merch_"), inside, true)
+	if sh.is_empty():
+		return sh
+	# which side are the goods actually seen from? from the aisle side the line to them is open; from the back of
+	# the gondola a panel is in the way (the camera would film a blank board)
+	var space: PhysicsDirectSpaceState3D = world.get_world_3d().direct_space_state
+	var c: Vector3 = sh[0]
+	var open := func(n: Vector3) -> bool:
+		var q := PhysicsRayQueryParameters3D.create(c + n * 1.6, c + n * 0.5, 1)
+		return space.intersect_ray(q).is_empty()
+	var fwd_ok: bool = open.call(sh[2])
+	report["shelf_" + prefix] = "ok" if fwd_ok else "flipped"
+	if not fwd_ok and open.call(-(sh[2] as Vector3)):
+		sh[2] = -(sh[2] as Vector3)
+	elif not fwd_ok:
+		report["shelf_" + prefix] = "blocked"
+	return sh
 
 
 ## A shelf's merchandise: [centre, along it, out into the aisle] - from the store's own layout data (the positions
@@ -1208,7 +1336,10 @@ static func shelf_of(merch: Node, variant_prefix: String, store: Node3D, one_fac
 			nrm = -nrm
 	elif nrm.dot(room - c) < 0.0:
 		nrm = -nrm
-	return [c, along, nrm]
+	var half := 0.0
+	for p in pts:
+		half = maxf(half, absf(((p as Vector3) - c).dot(along)))
+	return [c, along, nrm, half]
 
 
 ## Of a spread of merchandise (several shelves): the one shelf face the first item is on - the items in line with

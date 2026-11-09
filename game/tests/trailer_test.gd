@@ -68,7 +68,12 @@ func _run() -> void:
 	ok("actors_in_view", r.get("clerk_seen", false) and r.get("eddie_seen_mid", false) and r.get("eddie_seen_close", false),
 		"clerk %s eddie %s/%s" % [r.get("clerk_seen"), r.get("eddie_seen_mid"), r.get("eddie_seen_close")])
 	ok("hound_turns_to_doors", r.get("hound_faces_door", false))
+	ok("shelves_seen_from_the_aisle", not r.values().has("blocked"),
+		"cans %s, games %s, boxes %s" % [r.get("shelf_Merch_can_"), r.get("shelf_Merch_game_"), r.get("shelf_Merch_box_")])
 	ok("only_filmed_houses_wrecked", r.get("wrecked_HOUSE_14", false) and r.get("wrecked_PLAYER_HOME", false))
+	var wtd = d.world.get("town_destruction") if is_instance_valid(d.world) else null
+	ok("full_destruction_never_ran", wtd == null or (wtd.report as Dictionary).is_empty(), "%d houses swapped by the game" % ((wtd.report as Dictionary).size() if wtd else 0))
+	ok("time_skip_flag_untouched", not game.has_flag("p3_two_hours_later"))
 	await until(func(): return not game.has_meta("trailer_run"), 10.0)
 	ok("save_untouched", (FileAccess.get_modified_time(game.SAVE_PATH) if FileAccess.file_exists(game.SAVE_PATH) else -1) == save_t)
 	ok("saving_back_on", not game.no_save)
