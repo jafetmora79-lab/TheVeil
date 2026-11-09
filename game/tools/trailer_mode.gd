@@ -11,6 +11,7 @@ class_name VeilTrailerMode
 ##   F6   play the slot (smooth through its keyframes)      F7 clear the slot      - / + shot length (seconds)
 ##   F4   slow motion: 1x -> 0.5x -> 0.25x -> 1x
 ##   F11  jump to a point of the story (the opening, or the start of a chapter)
+##   F12  play the trailer ("The Change", about 1:40): start your recorder first; Esc stops it
 ## Shots are saved in user://trailer_shots.json.
 
 const SHOTS_PATH := "user://trailer_shots.json"
@@ -53,7 +54,7 @@ func _ready() -> void:
 	_help.add_theme_color_override("font_color", Color(1, 1, 1))
 	_help.add_theme_color_override("font_outline_color", Color(0, 0, 0))
 	_help.add_theme_constant_override("outline_size", 4)
-	_help.text = "TRAILER MODE\nF1 help  F9 clean screen  F8 free camera  F4 slow motion  F11 jump\n" \
+	_help.text = "TRAILER MODE\nF12 PLAY THE TRAILER (start recording first)\nF1 help  F9 clean screen  F8 free camera  F4 slow motion  F11 jump\n" \
 		+ "Free camera: WASD / mouse, Q E down up, Shift fast, wheel speed\n1-9 shot slot  F5 add keyframe  F6 play  F7 clear  - + length"
 	add_child(_help)
 	_status = Label.new()
@@ -95,6 +96,8 @@ func _input(e: InputEvent) -> void:
 				_save_shots()
 			KEY_F11:
 				_jump_menu()
+			KEY_F12:
+				_play_trailer()
 			KEY_MINUS, KEY_KP_SUBTRACT:
 				_shot()["secs"] = maxf(1.0, float(_shot()["secs"]) - 1.0)
 				_save_shots()
@@ -282,7 +285,7 @@ func _jump_menu() -> void:
 	var panel := VeilChoicePanel.new()
 	add_child(panel)
 	_menu_open = true
-	var opts: Array = ["The opening (new game, with the intro)"]
+	var opts: Array = ["Play the trailer (start recording first)", "The opening (new game, with the intro)"]
 	for c in CHAPTERS:
 		if ResourceLoader.exists("res://game/tools/dev_chapter%d.gd" % c):
 			opts.append("Chapter %d" % c)
@@ -293,6 +296,9 @@ func _jump_menu() -> void:
 	_menu_open = false
 	if i < 0 or i >= opts.size() - 1:
 		return
+	if i == 0:
+		_play_trailer()
+		return
 	if free_cam:
 		set_free_cam(false)
 	if clean:
@@ -300,7 +306,7 @@ func _jump_menu() -> void:
 	Engine.time_scale = 1.0
 	get_tree().paused = false
 	Game.new_game()
-	if i > 0:
+	if i > 1:
 		var ch := int(String(opts[i]).split(" ")[1])
 		(load("res://game/tools/dev_chapter%d.gd" % ch)).prepare(Game)
 		Game.flags["intro_seen"] = true
@@ -313,3 +319,13 @@ func _update_status() -> void:
 	var s := "slot %d: %d keys, %.0f s" % [slot, (_shot()["keys"] as Array).size(), float(_shot()["secs"])]
 	_status.text = "%s   cam %s   speed %.1f   time %.2fx%s" % [s, "FREE" if free_cam else "game", speed, Engine.time_scale,
 		"   CLEAN" if clean else ""]
+
+
+func _play_trailer() -> void:
+	if get_tree().root.get_node_or_null("TrailerDirector") != null:
+		return
+	if free_cam:
+		set_free_cam(false)
+	if clean:
+		set_clean(false)
+	load("res://game/tools/trailer_director.gd").start(get_tree())

@@ -236,6 +236,8 @@ func _apply_view_ranges() -> void:
 
 # ------------------------------------------------------------------ opening sequence
 func _opening() -> void:
+	if Game.has_meta("trailer_run"):
+		return                                       # the trailer takes the world over (no wake-up, no saves)
 	var sp := home.get_node("Markers/Spawn_WakeUp") as Node3D
 	player.global_position = sp.global_position
 	player.set_yaw_pitch(sp.global_rotation.y, 0.0)

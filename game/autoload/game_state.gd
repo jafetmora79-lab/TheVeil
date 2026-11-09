@@ -270,7 +270,12 @@ func load_checkpoint(checkpoint: String) -> bool:
 	return true
 
 
+var no_save := false                             ## the trailer plays the world: nothing of it is ever written
+
+
 func save_game(path := SAVE_PATH) -> bool:
+	if no_save:
+		return false
 	var d := {"version": SAVE_VERSION, "chapter": chapter_number(), "chapter_name": chapter_name(chapter_number()), "flags": flags, "inventory": inventory, "world_state": world_state,
 		"player": player_state, "vehicle": vehicle_state, "play_time": play_time,
 		"player_name": player_name, "saved_at": Time.get_datetime_string_from_system()}
