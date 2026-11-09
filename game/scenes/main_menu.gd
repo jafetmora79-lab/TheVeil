@@ -1,5 +1,6 @@
 extends Control
-## THE VEIL - main menu: New Game, Continue (only with a valid save), Settings, Quit.
+## THE VEIL - main menu: New Game, Continue (only with a valid save), Chapters (once the game has been finished),
+## Settings, Quit.
 
 var menu: VBoxContainer
 const MENU_W := 520.0
@@ -7,6 +8,10 @@ var settings: SettingsPanel
 var loading: Label
 var name_dialog: ConfirmationDialog
 var name_input: LineEdit
+var chapters: VBoxContainer
+var chapter_confirm: ConfirmationDialog
+var _pending_chapter := 0
+const CHAPTER_SELECT := preload("res://game/chapters/chapter_select.gd")
 
 
 func _ready() -> void:
@@ -89,6 +94,11 @@ func _ready() -> void:
 	b_quit.pressed.connect(func(): get_tree().quit())
 	b_quit.visible = OS.get_name() != "Web"
 	var buttons: Array = [b_new, b_cont, b_set, b_quit]
+	if CHAPTER_SELECT.unlocked():
+		var b_ch := VeilUI.button("Chapters")
+		b_ch.name = "ChaptersButton"
+		b_ch.pressed.connect(_show_chapters)
+		buttons.insert(2, b_ch)
 	var trailer_script = load("res://game/trailer/trailer_mode.gd")
 	if trailer_script.wanted():
 		# trailer mode (TheVeil_TrailerMode.bat): the trailer straight from here - start recording, then click it (or T)
@@ -102,6 +112,7 @@ func _ready() -> void:
 		_flat(b)
 		menu.add_child(b)
 	(buttons[0] as Button).grab_focus()
+	_build_chapters(left)
 	settings = SettingsPanel.new()
 	settings.visible = false
 	settings.closed.connect(func():
@@ -140,6 +151,75 @@ func _new_game() -> void:
 	name_input.text = ""
 	name_dialog.popup_centered(Vector2i(330, 140))
 	name_input.grab_focus()
+
+
+# ------------------------------------------------------------------ chapter select
+func _build_chapters(parent: Control) -> void:
+	chapters = VBoxContainer.new()
+	chapters.name = "ChapterList"
+	chapters.set_anchors_preset(Control.PRESET_FULL_RECT)
+	chapters.add_theme_constant_override("separation", 6)
+	chapters.visible = false
+	parent.add_child(chapters)
+	var head := VeilUI.label("CHAPTERS", 22)
+	head.horizontal_alignment = HORIZONTAL_ALIGNMENT_LEFT
+	chapters.add_child(head)
+	var scroll := ScrollContainer.new()
+	scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
+	chapters.add_child(scroll)
+	var col := VBoxContainer.new()
+	col.add_theme_constant_override("separation", 4)
+	scroll.add_child(col)
+	for n in range(1, CHAPTER_SELECT.COUNT + 1):
+		var b := VeilUI.button(Game.chapter_name(n))
+		b.name = "Chapter%d" % n
+		b.custom_minimum_size = Vector2(MENU_W, 30)
+		b.clip_text = true
+		_flat(b)
+		b.pressed.connect(_pick_chapter.bind(n))
+		col.add_child(b)
+	var back := VeilUI.button("Back")
+	back.custom_minimum_size = Vector2(MENU_W, 32)
+	_flat(back)
+	back.pressed.connect(func():
+		chapters.visible = false
+		menu.visible = true)
+	chapters.add_child(back)
+
+
+func _show_chapters() -> void:
+	menu.visible = false
+	chapters.visible = true
+	var first := chapters.find_child("Chapter1", true, false) as Button
+	if first:
+		first.grab_focus()
+
+
+func _pick_chapter(n: int) -> void:
+	_pending_chapter = n
+	if not Game.has_save():
+		_start_chapter()
+		return
+	if not is_instance_valid(chapter_confirm):
+		chapter_confirm = ConfirmationDialog.new()
+		chapter_confirm.title = "Start Chapter"
+		chapter_confirm.ok_button_text = "Start"
+		_style_dialog(chapter_confirm)
+		chapter_confirm.confirmed.connect(_start_chapter)
+		add_child(chapter_confirm)
+	chapter_confirm.dialog_text = "Start %s?\nThis replaces your current save." % Game.chapter_name(n)
+	chapter_confirm.popup_centered(Vector2i(420, 150))
+
+
+func _start_chapter() -> void:
+	if Game.has_save() and Game.load_game():
+		pass                                               # (keeps the player's name for the new run)
+	chapters.visible = false
+	loading.visible = true
+	await get_tree().process_frame
+	await get_tree().process_frame
+	CHAPTER_SELECT.start(get_tree(), _pending_chapter)
 
 
 func _continue() -> void:
