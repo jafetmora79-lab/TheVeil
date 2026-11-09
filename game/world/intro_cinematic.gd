@@ -23,6 +23,7 @@ var report := {"shots": 0}
 var _radio: AudioStreamPlayer
 var _hold := 0.0
 var _colossus: Node3D
+var _wall: Array = []                 ## the mist curtains of the last shot
 
 const RADIO := "res://game/audio/radio/midnight_drive_lofi.wav"
 const COLOSSUS := "res://THE_VEIL_ASSETS_V2/07_Creatures/Godot_Scenes/CRT_Colossus.tscn"
@@ -61,7 +62,6 @@ func play(w: Node) -> void:
 	cam.current = true
 	_shot_living(true)
 	hud.fade_to(0.0, 1.6)
-	var lights := world.get_tree().get_nodes_in_group("veil_streetlight")
 	world.get_tree().create_timer(1.8).timeout.connect(func():
 		if not skipped and is_instance_valid(world):
 			hud.location_caption("GREYHAVEN\nFriday, 6:40 PM", 3.2))
@@ -71,12 +71,16 @@ func play(w: Node) -> void:
 	_fade_radio(4.0)
 	# 4-6: three quiet wrong notes
 	await _shot(Vector3(184, 1.7, 86), Vector3(184, 1.7, 96), Vector3(184, 1.2, 150), Vector3(184, 1.2, 150), 4.0)
-	var lamp := _lamp_near(Vector3(30, 0, 0), lights)
-	if lamp:
-		var lp: Vector3 = lamp.global_position
-		var from := lp + Vector3(5.5, -3.6, 5.5)
-		_flicker(lamp)
-		await _shot(from, from + Vector3(-0.6, 0.1, -0.4), lp, lp, 3.4)
+	var shelf := _game_shelf()
+	if not shelf.is_empty():
+		var c: Vector3 = shelf[0]
+		var along: Vector3 = shelf[1]
+		var nrm: Vector3 = shelf[2]
+		world.get_tree().create_timer(1.6).timeout.connect(func():
+			if not skipped and world.has_method("_stutter_lights"):
+				world._stutter_lights(world.game_shop))     # the shop's lights stutter, once
+		await _shot(c + nrm * 1.7 - along * 1.3 + Vector3(0, 0.15, 0), c + nrm * 1.45 + along * 1.1 + Vector3(0, 0.05, 0),
+			c - along * 0.7, c + along * 0.8, 4.4)
 	var yard := Vector3(60, 0.5, 476)
 	world.get_tree().create_timer(0.6).timeout.connect(func(): if not skipped: Sfx.bank_at("hound_bark", yard + Vector3(-6, 1, 6), -4.0, 20.0))
 	world.get_tree().create_timer(1.4).timeout.connect(func(): if not skipped: Sfx.bank_at("hound_bark", yard + Vector3(-6, 1, 6), -6.0, 20.0))
@@ -95,13 +99,20 @@ func play(w: Node) -> void:
 		var low: Vector3 = car.global_transform * Vector3(1.8, 1.0, 5.5)
 		var dir := (Vector3(30, 0, -20) - car.global_position) * Vector3(1, 0, 1)
 		dir = dir.normalized()
-		var far := car.global_position + dir * 230.0
-		_place_colossus(far)
+		var wall_at := car.global_position + dir * 190.0
+		_build_veil_wall(wall_at, dir)
+		_place_colossus(car.global_position + dir * 215.0)      # just inside the wall: a shape, barely there
 		await _shot(low, low + Vector3(0, 0.6, 0), car.global_position + Vector3(0, 0.8, 0), car.global_position + Vector3(0, 0.8, 0), 2.6)
-		await _shot(low + Vector3(0, 0.6, 0), car.global_position + Vector3(0, 24, 0) - dir * 6.0, car.global_position + Vector3(0, 0.8, 0),
-			far + Vector3(0, 30, 0), 6.0)
 		if not skipped:
-			Sfx.play("colossus_call", far + Vector3(0, 20, 0), -2.0, 0.6)
+			Sfx.play_music(Sfx.MUSIC_COLOSSUS, false, -4.0, 1.5)    # the ominous turn, as the camera rises
+			Sfx.play("veil_rumble", car.global_position + dir * 60.0 + Vector3(0, 10, 0), 0.0)
+		await _shot(low + Vector3(0, 0.6, 0), car.global_position + Vector3(0, 24, 0) - dir * 6.0, car.global_position + Vector3(0, 0.8, 0),
+			wall_at + Vector3(0, 28, 0), 6.0)
+		_creep_wall(dir, 34.0, 7.0)                             # it keeps coming
+		await _shot(car.global_position + Vector3(0, 24, 0) - dir * 6.0, car.global_position + Vector3(0, 21, 0) - dir * 10.0,
+			wall_at + Vector3(0, 28, 0), wall_at + Vector3(0, 24, 0) - dir * 30.0, 4.5)
+		if not skipped:
+			Sfx.play("colossus_call", wall_at + Vector3(0, 30, 0), -1.0, 0.55)
 	if not skipped:
 		hud.title_card("THE VEIL", 2.6)
 		await _wait(3.4)
@@ -110,7 +121,12 @@ func play(w: Node) -> void:
 
 func _end() -> void:
 	var hud: Node = world.hud
+	Sfx.stop_music(1.2)
 	await hud.fade_to(1.0, 0.6)
+	for wl in _wall:
+		if is_instance_valid(wl):
+			wl.queue_free()
+	_wall.clear()
 	_shot_living(false)
 	if _radio:
 		_radio.queue_free()
@@ -209,30 +225,97 @@ func _keys() -> Node3D:
 	return null
 
 
-## The errands, on a note stuck to the fridge door (it stays there).
+## The errands, on a note stuck to the outside of the fridge door (it stays there, and swings with the door).
 func _note_on_fridge() -> void:
 	var fridge := world.home.find_child("Fridge_Retro_01", true, false) as Node3D if world.get("home") else null
-	if fridge == null or fridge.get_node_or_null("IntroNote"):
+	var door := fridge.find_child("INT_ApplianceDoor_Fridge", true, false) as Node3D if fridge else null
+	if door == null or door.get_node_or_null("IntroNote"):
 		return
 	var note := MeshInstance3D.new()
 	note.name = "IntroNote"
 	var q := QuadMesh.new()
-	q.size = Vector2(0.16, 0.16)
+	q.size = Vector2(0.15, 0.15)
 	var m := StandardMaterial3D.new()
 	m.albedo_color = Color(0.95, 0.88, 0.45)
 	q.material = m
 	note.mesh = q
-	fridge.add_child(note)
-	var ab := Interactable.aabb_of(fridge)
-	note.position = Vector3(ab.get_center().x + 0.12, 1.45, ab.end.z + 0.006)
+	door.add_child(note)
+	note.position = Vector3(0.5, 1.32, 0.104)                  # door-local: its outer face is +Z (0.1)
+	note.rotation.z = deg_to_rad(-4.0)
 	var txt := Label3D.new()
 	txt.text = "groceries\n+ pick up\nthe game"
 	txt.font_size = 18
-	txt.pixel_size = 0.0018
+	txt.pixel_size = 0.0017
 	txt.modulate = Color(0.15, 0.12, 0.1)
 	txt.outline_size = 0
 	txt.position = Vector3(0, 0, 0.002)
 	note.add_child(txt)
+
+
+## The game shop's own game shelf (its merchandise): [centre, along the shelf, out of the shelf into the room].
+func _game_shelf() -> Array:
+	var pts: Array = []
+	for mm in world.find_children("Merch_game_*", "MultiMeshInstance3D", true, false):
+		var mmi := mm as MultiMeshInstance3D
+		if mmi.multimesh == null:
+			continue
+		for i in mmi.multimesh.instance_count:
+			pts.append(mmi.global_transform * mmi.multimesh.get_instance_transform(i).origin)
+	if pts.size() < 4:
+		return []
+	var c := Vector3.ZERO
+	for p in pts:
+		c += p
+	c /= pts.size()
+	var far: Vector3 = pts[0]
+	for p in pts:
+		if (p as Vector3).distance_to(c) > far.distance_to(c):
+			far = p
+	var along := ((far - c) * Vector3(1, 0, 1)).normalized()
+	var nrm := along.cross(Vector3.UP).normalized()
+	var room: Vector3 = world.game_shop.global_transform * Vector3(0, 1.5, 5.0)
+	if nrm.dot(room - c) < 0.0:
+		nrm = -nrm
+	return [c, along, nrm]
+
+
+## The Veil itself, far off: three vast curtains of the game's mist (the mist-boundary shader), one behind the other,
+## dense at the ground and thinning upward; the Colossus walks between the first and the second.
+func _build_veil_wall(at: Vector3, dir: Vector3) -> void:
+	var sh := load("res://THE_VEIL_ASSETS_V2/09_Horror_Atmosphere/Fog/veil_mist_boundary.gdshader") as Shader
+	var noise := load("res://THE_VEIL_ASSETS_V2/09_Horror_Atmosphere/Textures/T_Veil_MistNoise.png") as Texture2D
+	if sh == null:
+		return
+	var face := Basis.looking_at(dir, Vector3.UP)              # its face toward the town (and the camera)
+	var layers := [[0.0, 0.55, 140.0], [35.0, 0.78, 170.0], [80.0, 0.95, 200.0]]
+	for L in layers:
+		var mi := MeshInstance3D.new()
+		mi.name = "Intro_VeilWall"
+		var qm := QuadMesh.new()
+		qm.size = Vector2(900.0, float(L[2]))
+		var mat := ShaderMaterial.new()
+		mat.shader = sh
+		mat.set_shader_parameter("noise_tex", noise)
+		mat.set_shader_parameter("curtain_height", float(L[2]))
+		mat.set_shader_parameter("density", float(L[1]))
+		mat.set_shader_parameter("base_color", Color(0.36, 0.38, 0.42))
+		mat.set_shader_parameter("edge_color", Color(0.16, 0.17, 0.22))
+		mat.set_shader_parameter("rise_speed", 0.05)
+		qm.material = mat
+		mi.mesh = qm
+		mi.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+		world.add_child(mi)
+		mi.global_transform = Transform3D(face, at + dir * float(L[0]) + Vector3(0, float(L[2]) * 0.5 - 2.0, 0))
+		_wall.append(mi)
+	report["veil_wall"] = layers.size()
+
+
+## The wall (and what walks in it) rolls toward the town.
+func _creep_wall(dir: Vector3, metres: float, secs: float) -> void:
+	for n in _wall:
+		if is_instance_valid(n):
+			var tw := create_tween().set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN)
+			tw.tween_property(n, "global_position", (n as Node3D).global_position - dir * metres, secs)
 
 
 ## Far off in the haze, the Colossus: a dark shape shifting for a few seconds (it walks, slowly).
@@ -252,6 +335,7 @@ func _place_colossus(at: Vector3) -> void:
 	VeilCreatureLook.apply_colossus(_colossus, at.y)
 	_colossus.global_position = at
 	_colossus.rotation.y = randf_range(0.0, TAU)
+	_wall.append(_colossus)                                   # (moves in with the mist)
 	var ap := _colossus.find_child("AnimationPlayer", true, false) as AnimationPlayer
 	if ap and ap.has_animation("Walk_Heavy"):
 		ap.get_animation("Walk_Heavy").loop_mode = Animation.LOOP_LINEAR
