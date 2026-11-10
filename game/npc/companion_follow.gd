@@ -282,15 +282,33 @@ func recover_behind(dist := 2.4) -> void:
 		var feet_y := leader.global_position.y
 		var side := back.cross(Vector3.UP).normalized()
 		var placed := false
-		for cand in [want, leader.global_position + back * 1.2, leader.global_position + side * 1.2,
-				leader.global_position - side * 1.2, leader.global_position]:
+		# never onto a spot another companion already stands on: indoors "behind the player" is often a wall, and the
+		# whole group used to land on the same few spots (overlapping, glitched)
+		var cands: Array = [want, want + side * 0.9, want - side * 0.9, leader.global_position + back * 1.2,
+			leader.global_position + back * 1.2 + side * 0.9, leader.global_position + back * 1.2 - side * 0.9,
+			leader.global_position + side * 1.2, leader.global_position - side * 1.2,
+			leader.global_position + side * 2.0, leader.global_position - side * 2.0, leader.global_position]
+		for cand in cands:
 			var safe := body.nearest_safe(Vector3((cand as Vector3).x, feet_y, (cand as Vector3).z))
-			if safe.is_finite() and body.place_at(safe):
+			if safe.is_finite() and not _taken(safe) and body.place_at(safe):
 				placed = true
 				break
 		if not placed:
 			body.place_at(_floor(want))
 	trail = [npc.global_position]
+
+
+## Another companion (or the player) is standing here already.
+func _taken(p: Vector3) -> bool:
+	if Vector2(p.x - leader.global_position.x, p.z - leader.global_position.z).length() < 0.7:
+		return true
+	for f in get_tree().get_nodes_in_group("veil_companion_follow"):
+		if f == self or not is_instance_valid(f) or f.get("npc") == null or not (f.npc as Node3D).is_inside_tree():
+			continue
+		var q: Vector3 = (f.npc as Node3D).global_position
+		if Vector2(p.x - q.x, p.z - q.z).length() < 0.75:
+			return true
+	return false
 
 
 func _nearest_index(p: Vector3) -> int:

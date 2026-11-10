@@ -533,17 +533,9 @@ func _note_tick(delta: float) -> void:
 func _read_tick(delta: float, item: String, found: String, read: String) -> void:
 	if not Game.has_flag(found) or Game.has_flag(read):
 		return
+	# (the inventory pauses the game, so the panel itself measures how long the note was on screen)
 	var inv = hud.get("inv_panel")
-	var showing := false
-	if inv and inv.visible:
-		var ids: Array = inv.get("_ids")
-		var sel: int = inv.get("_sel")
-		showing = sel >= 0 and sel < ids.size() and ids[sel] == item
-	var key := "_t_" + item
-	var t: float = float(_busy.get(key, 0.0))
-	t = t + delta if showing else 0.0
-	_busy[key] = t
-	if t > 1.2:
+	if inv and inv.has_method("seen_for") and inv.seen_for(item) > 1.2:
 		Game.set_flag(read)
 		if hud.has_method("set_hint"):
 			hud.set_hint("")

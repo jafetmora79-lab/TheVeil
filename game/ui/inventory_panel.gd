@@ -561,9 +561,29 @@ func is_inspecting() -> bool:
 	return _insp != null and _insp.visible
 
 
+## How long each item has been looked at in one go in this panel (the longest stretch, real time). The game is
+## paused while the inventory is open, so the story's own timers can't measure a note being read: they ask here.
+var viewed := {}
+var _view_item := ""
+var _view_t := 0.0
+
+
+func seen_for(item: String) -> float:
+	return float(viewed.get(item, 0.0))
+
+
 func _process(delta: float) -> void:
 	if visible and is_inspecting() and _insp_pivot:
 		_insp_pivot.rotate_y(delta * 0.6)              # a slow turn (about 10 s per revolution)
+	var on := ""
+	if visible and _sel >= 0 and _sel < _ids.size():
+		on = String(_ids[_sel])
+	if on != _view_item:
+		_view_item = on
+		_view_t = 0.0
+	if on != "":
+		_view_t += delta
+		viewed[on] = maxf(float(viewed.get(on, 0.0)), _view_t)
 
 
 # ------------------------------------------------------------------ open / close / keyboard

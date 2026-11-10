@@ -376,13 +376,8 @@ func _note_tick(delta: float) -> void:
 		return
 	var inv = hud.get("inv_panel")
 	if not Game.has_flag("ch7_note_read"):
-		var showing := false
-		if inv and inv.visible:
-			var ids: Array = inv.get("_ids")
-			var sel: int = inv.get("_sel")
-			showing = sel >= 0 and sel < ids.size() and ids[sel] == "noahs_note"
-		_note_view_t = _note_view_t + delta if showing else 0.0
-		if _note_view_t > 1.2:
+		# (the inventory pauses the game, so the panel itself measures how long the note was on screen)
+		if inv and inv.has_method("seen_for") and inv.seen_for("noahs_note") > 1.2:
 			Game.set_flag("ch7_note_read")
 	elif not (inv and inv.visible) and not _busy.get("note", false) and not Dialogue.is_busy():
 		_after_note()
