@@ -2,7 +2,7 @@ extends SceneTree
 ## THE VEIL - every house the player can enter (the survivor's house, the cottage and the explorable houses):
 ## no holes in the floors (except stairwells), and every doorway can be walked through once its door is opened.
 ## Uses each house's own room / door data (meta "veil_house"). Headless.
-const DEV := preload("res://game/tools/dev_chapter7.gd")
+const DEV := preload("res://game/chapters/setups/dev_chapter7.gd")
 var fails := 0
 var w: Node
 var h: Node3D

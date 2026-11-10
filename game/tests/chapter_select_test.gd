@@ -68,6 +68,20 @@ func _run() -> void:
 	ok("locked_without_completion", had_endings or not CS.unlocked())
 	CS.unlock_all()
 	ok("unlock_all", CS.unlocked())
+	# the set-ups must be in the exported game: never under a folder Godot skips (a .gdignore anywhere above them -
+	# game/tools has one, which is how they went missing from the build and the old save loaded instead)
+	var hidden: Array = []
+	for k in range(5, 16):
+		var path: String = CS.SETUPS % k
+		var dir := path.get_base_dir()
+		while dir != "res://" and dir != "res:":
+			if FileAccess.file_exists(dir + "/.gdignore"):
+				hidden.append(path)
+				break
+			dir = dir.get_base_dir()
+		if not ResourceLoader.exists(path):
+			hidden.append(path + " (missing)")
+	ok("setups_exported", hidden.is_empty(), str(hidden))
 	# the menu shows the list
 	change_scene_to_file("res://game/scenes/MainMenu.tscn")
 	await frames(10)

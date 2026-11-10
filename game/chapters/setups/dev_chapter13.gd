@@ -1,11 +1,11 @@
 extends SceneTree
 ## DEVELOPER-ONLY entry point for displayed CHAPTER 14 "Into the Veil" (chapter13.gd; game/tools is excluded from
-## exports).   godot --path . --script res://game/tools/dev_chapter13.gd
+## exports).   godot --path . --script res://game/chapters/setups/dev_chapter13.gd
 ## Fabricates "The Truth Beneath Greyhaven complete" on top of its dev state: the group at the mill-worker house,
 ## the records and the map recovered, the supplies left (or taken with took_supplies = true), Marcus alive (or lost
 ## with marcus_lost = true). Overwrites user://veil_save.json (dev only; checkpoints use separate files).
 
-const DEV12 := preload("res://game/tools/dev_chapter12.gd")
+const DEV12 := preload("res://game/chapters/setups/dev_chapter12.gd")
 
 
 static func prepare(game: Node, marcus_lost := false, took_supplies := false) -> void:

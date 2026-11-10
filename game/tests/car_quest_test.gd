@@ -5,7 +5,7 @@ extends SceneTree
 ##   (appears out of view, really walks to the car alarm, comes home again, a grab is the BREAK FREE struggle and it
 ##   recovers, never removed); a save + load mid-quest keeps every step; the checklist, fitting each part (items used
 ##   up, never twice), Start Engine, and the car drivable.
-const DEV := preload("res://game/tools/dev_chapter7.gd")
+const DEV := preload("res://game/chapters/setups/dev_chapter7.gd")
 
 var fails := 0
 var w: Node

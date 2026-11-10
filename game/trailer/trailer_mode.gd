@@ -288,7 +288,7 @@ func _jump_menu() -> void:
 	_menu_open = true
 	var opts: Array = ["Play the trailer (start recording first)", "The opening (new game, with the intro)"]
 	for c in CHAPTERS:
-		if ResourceLoader.exists("res://game/tools/dev_chapter%d.gd" % c):
+		if ResourceLoader.exists("res://game/chapters/setups/dev_chapter%d.gd" % c):
 			opts.append("Chapter %d" % c)
 	opts.append("Cancel")
 	Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
@@ -309,7 +309,7 @@ func _jump_menu() -> void:
 	Game.new_game()
 	if i > 1:
 		var ch := int(String(opts[i]).split(" ")[1])
-		(load("res://game/tools/dev_chapter%d.gd" % ch)).prepare(Game)
+		(load("res://game/chapters/setups/dev_chapter%d.gd" % ch)).prepare(Game)
 		Game.flags["intro_seen"] = true
 	get_tree().change_scene_to_file("res://game/scenes/World.tscn")
 

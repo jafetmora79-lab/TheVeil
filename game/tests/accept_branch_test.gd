@@ -3,7 +3,7 @@ extends SceneTree
 ##   godot --headless --path . --fixed-fps 60 --script res://game/tests/accept_branch_test.gd
 ## Starts from the Chapter 5 dev state with the night not yet played (overwrites user://veil_save.json).
 
-const DEV5 := preload("res://game/tools/dev_chapter5.gd")
+const DEV5 := preload("res://game/chapters/setups/dev_chapter5.gd")
 var fails := 0
 var skitter_seen := false
 

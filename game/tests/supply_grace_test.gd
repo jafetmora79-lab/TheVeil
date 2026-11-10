@@ -1,6 +1,6 @@
 extends SceneTree
 ## THE VEIL - the supermarket's two-night starting stores and the companions at its glass doors (headless).
-const DEV := preload("res://game/tools/dev_chapter7.gd")
+const DEV := preload("res://game/chapters/setups/dev_chapter7.gd")
 var fails := 0
 
 

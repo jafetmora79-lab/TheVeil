@@ -5,7 +5,7 @@ extends SceneTree
 ##   3. a trip with Eddie: give him items (capacity respected), he searches a real container, back at the shelter his
 ##      pack goes into the stores exactly once (totals match), the pack is empty after
 ##   4. a save and a load keep packs and the stores
-const DEV := preload("res://game/tools/dev_chapter7.gd")
+const DEV := preload("res://game/chapters/setups/dev_chapter7.gd")
 
 var w: Node
 var fails := 0

@@ -3,7 +3,7 @@ extends SceneTree
 ## up in plausible, visible places and stay after a load), riders face the windscreen, Space jumps. Headless.
 ##   godot --headless --path . --fixed-fps 60 --script res://game/tests/car_repair_anim_test.gd
 
-const DEV := preload("res://game/tools/dev_chapter7.gd")
+const DEV := preload("res://game/chapters/setups/dev_chapter7.gd")
 var fails := 0
 var w: Node
 

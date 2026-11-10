@@ -1,14 +1,14 @@
 extends SceneTree
 ## THE VEIL - displayed CHAPTER 15 "The Last Shelter" (chapter14.gd) automated playthrough (headless):
 ##   godot --headless --path . --fixed-fps 60 --script res://game/tests/chapter14_test.gd
-## From the developer entry (game/tools/dev_chapter14.gd: Chapter 14 complete, the evidence secured, Eddie hurt).
+## From the developer entry (game/chapters/setups/dev_chapter14.gd: Chapter 14 complete, the evidence secured, Eddie hurt).
 ## Wake, the window, the meeting; treat Eddie and pack; the emergency run (a find, the Hound from the fog, back
 ## inside); barricade the front door and the window (not the back); the back way; a talk; the siege: the window
 ## braced, the Hounds at the back door, the table shoved in time; the Shellcrawler at the front; out the back on foot,
 ## Marcus left behind at the fence; the field; the shelter gone. Loads; the failed rescue and going back for Marcus
 ## from their checkpoints; the roster without Marcus.
 
-const DEV := preload("res://game/tools/dev_chapter14.gd")
+const DEV := preload("res://game/chapters/setups/dev_chapter14.gd")
 
 var fails := 0
 var world: Node

@@ -1,7 +1,7 @@
 extends SceneTree
 ## THE VEIL - opening guidance, the fall safeguard, the maintenance-station sign, the underground fog and the
 ## underground tunnels' enclosure (headless).
-const DEV13 := preload("res://game/tools/dev_chapter13.gd")
+const DEV13 := preload("res://game/chapters/setups/dev_chapter13.gd")
 var fails := 0
 var game: Node
 var w: Node

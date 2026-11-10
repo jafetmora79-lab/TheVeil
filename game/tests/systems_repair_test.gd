@@ -7,7 +7,7 @@ extends SceneTree
 ##   K car: fuel by distance, a knock wears it, empty / wrecked = undrivable, state survives save
 ##   L parking: the automatic parking from four approaches - on tarmac the whole way, in the stall, time taken
 ##   O props: boxes / cartons in the store that float above whatever is under them
-const DEV := preload("res://game/tools/dev_chapter7.gd")
+const DEV := preload("res://game/chapters/setups/dev_chapter7.gd")
 
 var w: Node
 var fails := 0

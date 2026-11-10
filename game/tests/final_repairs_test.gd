@@ -8,7 +8,7 @@ extends SceneTree
 ## checkout bags on the floor), park (automatic parking time and end position from three approaches).
 ## These are code / geometry checks: they do not show how anything LOOKS on screen.
 
-const DEV7 := preload("res://game/tools/dev_chapter7.gd")
+const DEV7 := preload("res://game/chapters/setups/dev_chapter7.gd")
 var fails := 0
 var world: Node
 var game: Node

@@ -3,9 +3,9 @@ extends SceneTree
 ## still be finished (headless):
 ##   godot --headless --path . --fixed-fps 60 --script res://game/tests/qa_softlock_test.gd
 
-const DEV13 := preload("res://game/tools/dev_chapter13.gd")
-const DEV14 := preload("res://game/tools/dev_chapter14.gd")
-const DEV15 := preload("res://game/tools/dev_chapter15.gd")
+const DEV13 := preload("res://game/chapters/setups/dev_chapter13.gd")
+const DEV14 := preload("res://game/chapters/setups/dev_chapter14.gd")
+const DEV15 := preload("res://game/chapters/setups/dev_chapter15.gd")
 var fails := 0
 var world: Node
 var game: Node

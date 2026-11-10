@@ -5,7 +5,7 @@ extends SceneTree
 ## during a cinematic, the way back to the shelter, the shelter moving with the story (never a fallen one), and the
 ## map on M (opens, holds the player still, closes and gives control back).
 
-const DEV := preload("res://game/tools/dev_chapter7.gd")
+const DEV := preload("res://game/chapters/setups/dev_chapter7.gd")
 var fails := 0
 
 

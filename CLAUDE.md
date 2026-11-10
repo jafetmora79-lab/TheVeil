@@ -38,7 +38,7 @@ is in `docs/HANDOFF.md`; story and art direction are in `docs/THE_VEIL_MASTER_CO
 | `game/trailer/` | Trailer mode (`--trailer`: F1 help, F8 free camera, F11 jump menu, T or F12 plays the trailer) and the auto-trailer "The Change" (`trailer_director.gd`) |
 | `game/chapters/chapter_select.gd` | Main menu > Chapters: start at any chapter (unlocked by an ending, or by `user://veil_chapters.json` `{"all_chapters": true}`) |
 | `game/cinematics/` | Codex's menu "Watch Preview" cinematic |
-| `game/tools/dev_chapterN.gd` | The state at the end of chapter N (used by chapter select for 6-16 and by the chapter tests). **Exported**: chapter select needs them |
+| `game/chapters/setups/dev_chapterN.gd` | The state at the end of chapter N (used by chapter select for 6-16 and by the chapter tests). **Exported**: chapter select needs them |
 | `game/tests/*.gd` | Headless tests (see below) |
 
 ## Running tests (headless)
@@ -81,7 +81,7 @@ Notes:
    `CHANGELOG.txt` (the exe is the unchanged 4.3 template; take it from the current ZIP).
 3. Zip the `TheVeil/` folder and replace `docs/download/TheVeil_Windows.zip`.
 
-The export filter skips `game/tools/build_*`, `game/tools/*.py` and `game/tests/*`. It keeps `game/tools/dev_chapter*.gd`.
+The export filter skips `game/tools/build_*`, `game/tools/*.py` and `game/tests/*`. It keeps `game/chapters/setups/dev_chapter*.gd`.
 - A new `class_name` needs an `--import` first, or it won't resolve. Loading scripts by path avoids that.
 
 ## Recent work (2026-11-08/09), and what still needs the owner's eyes
@@ -108,6 +108,13 @@ The export filter skips `game/tools/build_*`, `game/tools/*.py` and `game/tests/
     scripts kept the ported versions.
 
 ## Gotchas
+
+- **`game/tools/` has a `.gdignore`**: Godot skips it entirely, so nothing in it is exported, but headless tests on
+  the source tree still see it. Anything the game itself needs must live elsewhere. The chapter set-ups moved to
+  `game/chapters/setups/` for this reason: in the build they were missing, and chapter select loaded the old save.
+  `chapter_select_test` checks this (`setups_exported`). To be sure a build has a file, grep the `.pck` for its path.
+- Most `chapterN_test.gd` (and other tests built on the chapter set-ups) **overwrite `user://veil_save.json`**,
+  which is the owner's real save on their PC. Back it up first, or run only on a machine without a real save.
 
 - The headless dummy renderer returns zero for `MultiMesh` instance transforms. Store shelf positions come from the
   layout data instead (`store_merch._layout()`; see `trailer_director.shelf_of`).

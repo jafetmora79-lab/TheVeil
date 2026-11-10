@@ -1,8 +1,8 @@
 extends SceneTree
 ## Run with --headless --fixed-fps 60 --script res://game/tests/shelter_systems_test.gd.
-const DEV5 := preload("res://game/tools/dev_chapter5.gd")
-const DEV6 := preload("res://game/tools/dev_chapter6.gd")
-const DEV7 := preload("res://game/tools/dev_chapter7.gd")
+const DEV5 := preload("res://game/chapters/setups/dev_chapter5.gd")
+const DEV6 := preload("res://game/chapters/setups/dev_chapter6.gd")
+const DEV7 := preload("res://game/chapters/setups/dev_chapter7.gd")
 var failures := 0
 
 func _initialize() -> void:

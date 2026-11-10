@@ -3,7 +3,7 @@ extends SceneTree
 ##   godot ... -s res://game/tests/relaunch_test.gd -- setup   : a Chapter 7 game with known state, saved, quit
 ##   godot ... -s res://game/tests/relaunch_test.gd -- check   : Continue (load + world), compare, save again, quit
 ## The expected state is written to user://relaunch_expect.json by "setup".
-const DEV := preload("res://game/tools/dev_chapter7.gd")
+const DEV := preload("res://game/chapters/setups/dev_chapter7.gd")
 const EXPECT := "user://relaunch_expect.json"
 
 var fails := 0

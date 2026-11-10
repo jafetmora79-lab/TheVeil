@@ -1,11 +1,11 @@
 extends SceneTree
 ## DEVELOPER-ONLY entry point for displayed CHAPTER 16 "What Remains" (chapter15.gd; game/tools is excluded from
-## exports).   godot --path . --script res://game/tools/dev_chapter15.gd
+## exports).   godot --path . --script res://game/chapters/setups/dev_chapter15.gd
 ## Fabricates "The Last Shelter complete" on top of its dev state: the group in the field after the shelter fell,
 ## Sarah saved at the door; at the fence the player went back for Marcus - or left him (left_marcus = true); Marcus
 ## alive (or lost in Chapter 10 with marcus_lost = true). Overwrites user://veil_save.json (dev only).
 
-const DEV14 := preload("res://game/tools/dev_chapter14.gd")
+const DEV14 := preload("res://game/chapters/setups/dev_chapter14.gd")
 
 
 static func prepare(game: Node, marcus_lost := false, left_marcus := false) -> void:

@@ -2,7 +2,7 @@ extends SceneTree
 ## THE VEIL - the town map (Part 9): Eddie hands it over once; a house selected as the search destination (its
 ## own marker, the story's untouched); X at a house with no way in; a check after a supply is taken inside; the
 ## revisit hint once; "supplies may have returned" only after a real refill; saved (headless).
-const DEV := preload("res://game/tools/dev_chapter7.gd")
+const DEV := preload("res://game/chapters/setups/dev_chapter7.gd")
 var fails := 0
 var game: Node
 var w: Node

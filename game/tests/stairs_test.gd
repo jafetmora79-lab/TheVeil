@@ -3,7 +3,7 @@ extends SceneTree
 ## up (middle, hugging each side), sprinting up, down, sprinting down, stopping halfway and going on, turning back
 ## halfway. A case passes when the player reaches the other landing (within 0.5 m, on that floor) in 8 s.
 ## Prints one line per case that fails and a summary. Headless: run with --fixed-fps 60.
-const DEV := preload("res://game/tools/dev_chapter7.gd")
+const DEV := preload("res://game/chapters/setups/dev_chapter7.gd")
 const DATA := "res://game/data/house_stairs.json"
 
 var w: Node

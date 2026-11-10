@@ -1,10 +1,10 @@
 extends SceneTree
 ## DEVELOPER-ONLY Chapter 6 entry point (game/tools is excluded from exports).
-##   godot --path . --script res://game/tools/dev_chapter6.gd
+##   godot --path . --script res://game/chapters/setups/dev_chapter6.gd
 ## Fabricates "Chapter 5 complete + slept" on top of the Chapter 5 dev state and loads the world (overwrites
 ## user://veil_save.json). Use a real playthrough for real saves.
 
-const DEV5 := preload("res://game/tools/dev_chapter5.gd")
+const DEV5 := preload("res://game/chapters/setups/dev_chapter5.gd")
 const C5_FLAGS := ["c5_started", "c5_eddie_talked", "c5_marcus_talked", "c5_talked_both", "c5_supplies_checked", "c5_prepared",
 	"c5_house_reached", "c5_got_food", "c5_got_batteries", "c5_got_medical", "c5_supplies_done", "c5_found_said", "c5_street_said",
 	"c5_radio_used", "c5_radio_done", "c5_return_said", "c5_survivor_left", "c5_returned", "c5_reported", "c5_complete", "c5_rested"]

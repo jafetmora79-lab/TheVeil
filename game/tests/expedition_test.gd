@@ -7,11 +7,11 @@ extends SceneTree
 ## rule, the car repair, and that none of it advances the story.
 ## THE VEIL - Chapter 7 "A Trace of Noah" automated playthrough (headless):
 ##   godot --headless --path . --fixed-fps 60 --script res://game/tests/chapter7_test.gd
-## Starts from the developer entry (game/tools/dev_chapter7.gd = Chapter 6 complete and slept). The player WALKS
+## Starts from the developer entry (game/chapters/setups/dev_chapter7.gd = Chapter 6 complete and slept). The player WALKS
 ## every route (physics), opens the real front doors both ways, reads the note in the inventory screen, and both
 ## of Marcus's choices are played; Marcus's follow is checked every frame for jumps and wall crossings.
 
-const DEV := preload("res://game/tools/dev_chapter7.gd")
+const DEV := preload("res://game/chapters/setups/dev_chapter7.gd")
 var ex: Node
 
 var fails := 0

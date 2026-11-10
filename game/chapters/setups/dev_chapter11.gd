@@ -1,11 +1,11 @@
 extends SceneTree
 ## DEVELOPER-ONLY entry point for displayed CHAPTER 12 "The Farm Road" (chapter11.gd; game/tools is excluded from
-## exports).   godot --path . --script res://game/tools/dev_chapter11.gd
+## exports).   godot --path . --script res://game/chapters/setups/dev_chapter11.gd
 ## Fabricates "No Safe Road complete" on top of its dev state: the group in the mill-worker house after the rest,
 ## Sarah helped on the road, Marcus alive (or lost with marcus_lost = true). Overwrites user://veil_save.json
 ## (dev only; the game's own chapter checkpoints use separate files).
 
-const DEV10 := preload("res://game/tools/dev_chapter10.gd")
+const DEV10 := preload("res://game/chapters/setups/dev_chapter10.gd")
 
 
 static func prepare(game: Node, marcus_lost := false) -> void:

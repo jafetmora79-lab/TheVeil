@@ -1,13 +1,13 @@
 extends SceneTree
 ## THE VEIL - displayed CHAPTER 11 "No Safe Road" (chapter10.gd) automated playthrough (headless):
 ##   godot --headless --path . --fixed-fps 60 --script res://game/tests/chapter10_test.gd
-## From the developer entry (game/tools/dev_chapter10.gd: the group at the rendezvous after the evacuation). The
+## From the developer entry (game/chapters/setups/dev_chapter10.gd: the group at the rendezvous after the evacuation). The
 ## player walks the whole way (physics): the talk with Eddie (talk camera, E continue, hold-E skip), the abandoned
 ## sedan, the roadblock (it cannot be walked through, at three points across the road), the side route and the
 ## gate, the follower, Sarah's choice (skip stops at the choice; both answers), the mill-worker house, the rest,
 ## the window, the completion, the separate checkpoints, loads, and the roster without Marcus.
 
-const DEV := preload("res://game/tools/dev_chapter10.gd")
+const DEV := preload("res://game/chapters/setups/dev_chapter10.gd")
 
 var fails := 0
 var world: Node
