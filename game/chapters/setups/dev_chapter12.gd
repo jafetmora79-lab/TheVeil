@@ -1,11 +1,11 @@
 extends SceneTree
 ## DEVELOPER-ONLY entry point for displayed CHAPTER 13 "The Truth Beneath Greyhaven" (chapter12.gd; game/tools is
-## excluded from exports).   godot --path . --script res://game/tools/dev_chapter12.gd
+## excluded from exports).   godot --path . --script res://game/chapters/setups/dev_chapter12.gd
 ## Fabricates "The Farm Road complete" on top of its dev state: the group in the field below the farmhouses after
 ## the escape, both of Noah's notes found and read, Marcus alive (or lost with marcus_lost = true). Overwrites
 ## user://veil_save.json (dev only; the game's own chapter checkpoints use separate files).
 
-const DEV11 := preload("res://game/tools/dev_chapter11.gd")
+const DEV11 := preload("res://game/chapters/setups/dev_chapter11.gd")
 
 
 static func prepare(game: Node, marcus_lost := false) -> void:

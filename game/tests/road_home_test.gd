@@ -3,7 +3,7 @@ extends SceneTree
 ## 10-20 m off while driving it (at most two), and car parts are only taken on a supply run. Headless, short.
 ##   godot --headless --path . --fixed-fps 60 --script res://game/tests/road_home_test.gd
 
-const DEV := preload("res://game/tools/dev_chapter7.gd")
+const DEV := preload("res://game/chapters/setups/dev_chapter7.gd")
 var fails := 0
 var w: Node
 

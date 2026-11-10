@@ -2,7 +2,7 @@ extends SceneTree
 ## THE VEIL - the loading-door tentacle: fail it, RETRY, three times over (real scene reloads, as in the game), then
 ## save / load once more. Passes when every retry brings back a working world (player in control, the encounter
 ## ready again) and nothing errors. Headless, --fixed-fps 60.
-const DEV := preload("res://game/tools/dev_chapter7.gd")
+const DEV := preload("res://game/chapters/setups/dev_chapter7.gd")
 
 var fails := 0
 

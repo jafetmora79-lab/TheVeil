@@ -1,12 +1,12 @@
 extends SceneTree
 ## THE VEIL - displayed CHAPTER 13 "The Truth Beneath Greyhaven" (chapter12.gd) automated playthrough (headless):
 ##   godot --headless --path . --fixed-fps 60 --script res://game/tests/chapter12_test.gd
-## From the developer entry (game/tools/dev_chapter12.gd: The Farm Road complete). The player walks (physics) from the
+## From the developer entry (game/chapters/setups/dev_chapter12.gd: The Farm Road complete). The player walks (physics) from the
 ## mill-worker house to the maintenance station and through it: the fuse, the power, the ramp, the tunnels, the
 ## sealed chamber, the records, the Skitter chase (sprinting), the access door, the sound below, the supply choice,
 ## the walk back, the map. Then: loads (no duplicated records, no replayed encounter), and the roster without Marcus.
 
-const DEV := preload("res://game/tools/dev_chapter12.gd")
+const DEV := preload("res://game/chapters/setups/dev_chapter12.gd")
 
 var fails := 0
 var world: Node

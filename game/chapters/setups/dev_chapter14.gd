@@ -1,11 +1,11 @@
 extends SceneTree
 ## DEVELOPER-ONLY entry point for displayed CHAPTER 15 "The Last Shelter" (chapter14.gd; game/tools is excluded from
-## exports).   godot --path . --script res://game/tools/dev_chapter14.gd
+## exports).   godot --path . --script res://game/chapters/setups/dev_chapter14.gd
 ## Fabricates "Into the Veil complete" on top of its dev state: back at the mill-worker house, Eddie went along and the
 ## evidence was secured (Eddie injured, trust down) - or he was helped (choice = "help"); Marcus alive (or lost with
 ## marcus_lost = true). Overwrites user://veil_save.json (dev only; checkpoints use separate files).
 
-const DEV13 := preload("res://game/tools/dev_chapter13.gd")
+const DEV13 := preload("res://game/chapters/setups/dev_chapter13.gd")
 
 
 static func prepare(game: Node, marcus_lost := false, choice := "evidence") -> void:

@@ -1,14 +1,14 @@
 extends SceneTree
 ## THE VEIL - displayed CHAPTER 16 "What Remains" (chapter15.gd), the finale, automated playthrough (headless):
 ##   godot --headless --path . --fixed-fps 60 --script res://game/tests/chapter15_test.gd
-## From the developer entry (game/tools/dev_chapter15.gd: Chapter 15 complete, Sarah saved, Marcus brought back at the
+## From the developer entry (game/chapters/setups/dev_chapter15.gd: Chapter 15 complete, Sarah saved, Marcus brought back at the
 ## fence). The refuge (supplies, a talk, the plan); the road and its finds; the Colossus reveal and the crossing (a
 ## detection and its retry, then cover to cover); the district; the passage, the rubble, the doorway, the ancient
 ## passage, the great chamber, the records, the controls under falling stone; the decision. Ending A played; then B
 ## and C from the pre-decision checkpoint; the epilogues, the credits, the menu, the save left before the decision.
 ## Then the epilogue for other rosters (Marcus left at the fence; Marcus lost in Chapter 10).
 
-const DEV := preload("res://game/tools/dev_chapter15.gd")
+const DEV := preload("res://game/chapters/setups/dev_chapter15.gd")
 
 var fails := 0
 var world: Node

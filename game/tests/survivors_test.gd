@@ -6,7 +6,7 @@ extends SceneTree
 ## back, abandonment, the dead never reappearing, activities that wait for cinematics and walk (no jumps),
 ## and save/load of all of it.
 
-const DEV := preload("res://game/tools/dev_chapter7.gd")
+const DEV := preload("res://game/chapters/setups/dev_chapter7.gd")
 var fails := 0
 var world: Node
 var game: Node

@@ -5,7 +5,7 @@ extends SceneTree
 ## it, (4) the danger rises every five minutes. Headless, short.
 ##   godot --headless --path . --fixed-fps 60 --script res://game/tests/four_fixes_test.gd
 
-const DEV := preload("res://game/tools/dev_chapter7.gd")
+const DEV := preload("res://game/chapters/setups/dev_chapter7.gd")
 var fails := 0
 
 

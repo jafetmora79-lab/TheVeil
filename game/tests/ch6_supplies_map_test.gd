@@ -4,7 +4,7 @@ extends SceneTree
 ## for looting. Headless, short.
 ##   godot --headless --path . --fixed-fps 60 --script res://game/tests/ch6_supplies_map_test.gd
 
-const DEV := preload("res://game/tools/dev_chapter6.gd")
+const DEV := preload("res://game/chapters/setups/dev_chapter6.gd")
 const MAPLE := ["EXT_HOUSE_04", "EXT_HOUSE_37", "EXT_HOUSE_31", "EXT_HOUSE_25", "EXT_HOUSE_36", "EXT_HOUSE_03", "EXT_HOUSE_16"]
 var fails := 0
 

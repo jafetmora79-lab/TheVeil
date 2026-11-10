@@ -1,14 +1,14 @@
 extends SceneTree
 ## THE VEIL - displayed CHAPTER 14 "Into the Veil" (chapter13.gd) automated playthrough (headless):
 ##   godot --headless --path . --fixed-fps 60 --script res://game/tests/chapter13_test.gd
-## From the developer entry (game/tools/dev_chapter13.gd: Chapter 13 complete). The player walks (physics) the road
+## From the developer entry (game/chapters/setups/dev_chapter13.gd: Chapter 13 complete). The player walks (physics) the road
 ## to the district (the sign seen twice), stands in a dense mist zone and recovers in clear air (Mist Exposure),
 ## passes the street Skitter, opens the checkpoint gate, runs from the Shellcrawler (sprinting) into the passage,
 ## hears the voice, opens the ancient entrance, makes the decision (the evidence), crawls out, escapes the district,
 ## returns, sees the night scene. Then: loads (no duplicates, no replays), the other decision from its checkpoint,
 ## and the roster without Marcus.
 
-const DEV := preload("res://game/tools/dev_chapter13.gd")
+const DEV := preload("res://game/chapters/setups/dev_chapter13.gd")
 
 var fails := 0
 var world: Node

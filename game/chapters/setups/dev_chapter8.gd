@@ -1,10 +1,10 @@
 extends SceneTree
 ## DEVELOPER-ONLY Chapter 8 entry point (game/tools is excluded from exports).
-##   godot --path . --script res://game/tools/dev_chapter8.gd
+##   godot --path . --script res://game/chapters/setups/dev_chapter8.gd
 ## Fabricates "Chapter 7 complete + slept" on top of the Chapter 7 dev state (Ruth and Sarah invited, the backpack
 ## and the note found, Marcus trusted) and loads the world (overwrites user://veil_save.json).
 
-const DEV7 := preload("res://game/tools/dev_chapter7.gd")
+const DEV7 := preload("res://game/chapters/setups/dev_chapter7.gd")
 
 
 static func prepare(game: Node, painkillers := true) -> void:

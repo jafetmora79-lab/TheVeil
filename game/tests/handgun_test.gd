@@ -3,7 +3,7 @@ extends SceneTree
 ##   godot --headless --path . --fixed-fps 60 --script res://game/tests/handgun_test.gd
 ## From the Chapter 8 developer entry (the supermarket is the shelter, the supply rule is on).
 
-const DEV := preload("res://game/tools/dev_chapter7.gd")
+const DEV := preload("res://game/chapters/setups/dev_chapter7.gd")
 var fails := 0
 var world: Node
 var game: Node

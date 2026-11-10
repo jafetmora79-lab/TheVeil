@@ -1,12 +1,12 @@
 extends SceneTree
 ## THE VEIL - Chapter 5 "The First Search" automated playthrough (headless):
 ##   godot --headless --path . --fixed-fps 60 --script res://game/tests/chapter5_test.gd
-## Starts from the developer entry (game/tools/dev_chapter5.gd = a finished Chapter 4 state), then plays the
+## Starts from the developer entry (game/chapters/setups/dev_chapter5.gd = a finished Chapter 4 state), then plays the
 ## chapter with the real interaction / pickup / dialogue / save systems. The player WALKS the route (physics,
 ## collisions) and Eddie's companion follow is checked every frame for jumps and wall crossings.
 ## The Chapter 4 -> 5 hand-over itself is covered by opening_test.gd (c5_starts_after_ch4).
 
-const DEV := preload("res://game/tools/dev_chapter5.gd")
+const DEV := preload("res://game/chapters/setups/dev_chapter5.gd")
 
 var fails := 0
 var world: Node

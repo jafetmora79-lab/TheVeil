@@ -1,12 +1,12 @@
 extends SceneTree
 ## THE VEIL - Chapter 8 "Something at the Doors" automated playthrough (headless):
 ##   godot --headless --path . --fixed-fps 60 --script res://game/tests/chapter8_test.gd
-## Starts from the developer entry (game/tools/dev_chapter8.gd = Chapter 7 complete and slept). Checks the global
+## Starts from the developer entry (game/chapters/setups/dev_chapter8.gd = Chapter 7 complete and slept). Checks the global
 ## conversation camera on Eddie (zoom in at the protagonist's eye, framing, E / click continue, hold-E skip that
 ## still applies the story flag, zoom out, control back), then plays the chapter: barricade, materials, repair,
 ## power, the attack (one scripted death), securing the doorway, both medical outcomes, the aftermath, loads.
 
-const DEV := preload("res://game/tools/dev_chapter8.gd")
+const DEV := preload("res://game/chapters/setups/dev_chapter8.gd")
 
 var fails := 0
 var world: Node

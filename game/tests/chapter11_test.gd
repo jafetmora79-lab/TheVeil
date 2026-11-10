@@ -1,12 +1,12 @@
 extends SceneTree
 ## THE VEIL - displayed CHAPTER 12 "The Farm Road" (chapter11.gd) automated playthrough (headless):
 ##   godot --headless --path . --fixed-fps 60 --script res://game/tests/chapter11_test.gd
-## From the developer entry (game/tools/dev_chapter11.gd: the group in the mill-worker house after No Safe Road).
+## From the developer entry (game/chapters/setups/dev_chapter11.gd: the group in the mill-worker house after No Safe Road).
 ## The player walks the farm road (physics), reads the campsite note and Noah's message in the inventory, sees the
 ## shape in the field (controlled view, FOV back afterwards), searches the farmhouse, survives the encounter (the
 ## Hound AI, never a killing bite), sees the distant light; loads at the way points; the roster without Marcus.
 
-const DEV := preload("res://game/tools/dev_chapter11.gd")
+const DEV := preload("res://game/chapters/setups/dev_chapter11.gd")
 
 var fails := 0
 var world: Node

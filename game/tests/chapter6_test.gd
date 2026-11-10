@@ -1,12 +1,12 @@
 extends SceneTree
 ## THE VEIL - Chapter 6 "Voices in the Mist" automated playthrough (headless):
 ##   godot --headless --path . --fixed-fps 60 --script res://game/tests/chapter6_test.gd
-## Starts from the developer entry (game/tools/dev_chapter6.gd = Chapter 5 complete and slept), then plays the
+## Starts from the developer entry (game/chapters/setups/dev_chapter6.gd = Chapter 5 complete and slept), then plays the
 ## chapter with the real interaction / dialogue / save systems: the player WALKS every route (physics, collisions),
 ## Eddie's follow is checked every frame, the Hound's detection / chase / bite / loss run on the real AI.
 ## Main run: invite Ruth + Sarah, investigate the voice. Then, from saves: directions / leave, and the retreat branch.
 
-const DEV := preload("res://game/tools/dev_chapter6.gd")
+const DEV := preload("res://game/chapters/setups/dev_chapter6.gd")
 
 var fails := 0
 var world: Node

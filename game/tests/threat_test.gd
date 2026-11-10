@@ -6,8 +6,8 @@ extends SceneTree
 ##   -- ch5                         F: a scavenging trip in Chapter 5, first engagement on foot
 ## An ENGAGEMENT counts only when a creature is chasing the player, on the ground near the player's level, within
 ## 16 m, with a clear line between them (reachable and visible), and its collision is on.
-const DEV7 := preload("res://game/tools/dev_chapter7.gd")
-const DEV5 := preload("res://game/tools/dev_chapter5.gd")
+const DEV7 := preload("res://game/chapters/setups/dev_chapter7.gd")
+const DEV5 := preload("res://game/chapters/setups/dev_chapter5.gd")
 
 var fails := 0
 var w: Node

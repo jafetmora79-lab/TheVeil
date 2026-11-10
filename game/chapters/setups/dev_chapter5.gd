@@ -1,7 +1,7 @@
 extends SceneTree
 ## DEVELOPER-ONLY Chapter 5 entry point (game/tools is excluded from exports).
 ## Starts the game at the Chapter 5 morning without playing Chapters 1-4:
-##   godot --path . --script res://game/tools/dev_chapter5.gd
+##   godot --path . --script res://game/chapters/setups/dev_chapter5.gd
 ## It fabricates a "Chapter 4 finished" state (every objective flag before Chapter 5, the Act I story flags,
 ## flashlight + batteries, the player on the office bedroll) and loads the world from it. Use a normal
 ## playthrough for real saves; this overwrites user://veil_save.json.

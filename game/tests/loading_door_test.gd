@@ -3,7 +3,7 @@ extends SceneTree
 ## barricade, cleanup. Headless, one run; how it LOOKS is for the playtest.
 ##   godot --headless --path . --fixed-fps 60 --script res://game/tests/loading_door_test.gd
 
-const DEV := preload("res://game/tools/dev_chapter7.gd")
+const DEV := preload("res://game/chapters/setups/dev_chapter7.gd")
 var fails := 0
 
 

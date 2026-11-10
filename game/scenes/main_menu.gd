@@ -213,8 +213,9 @@ func _pick_chapter(n: int) -> void:
 		_style_dialog(chapter_confirm)
 		chapter_confirm.confirmed.connect(_start_chapter)
 		add_child(chapter_confirm)
-	chapter_confirm.dialog_text = "Start %s?\nThis replaces your current save." % Game.chapter_name(n)
-	chapter_confirm.popup_centered(Vector2i(420, 150))
+	chapter_confirm.dialog_text = "Start %s?\n\nThis REPLACES your saved game\n(%s).\nAre you sure? This can't be undone." % [
+		Game.chapter_name(n), Game.saved_chapter_name()]
+	chapter_confirm.popup_centered(Vector2i(460, 200))
 
 
 func _start_chapter() -> void:
@@ -224,7 +225,15 @@ func _start_chapter() -> void:
 	loading.visible = true
 	await get_tree().process_frame
 	await get_tree().process_frame
-	CHAPTER_SELECT.start(get_tree(), _pending_chapter)
+	if not CHAPTER_SELECT.start(get_tree(), _pending_chapter):
+		loading.visible = false                            # it could not be built: nothing changed, say so
+		chapters.visible = true
+		var err := AcceptDialog.new()
+		err.name = "ChapterError"
+		err.title = "Chapter"
+		err.dialog_text = "%s couldn't be started.\nYour saved game was not changed." % Game.chapter_name(_pending_chapter)
+		add_child(err)
+		err.popup_centered(Vector2i(420, 140))
 
 
 func _continue() -> void:

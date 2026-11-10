@@ -3,11 +3,11 @@ extends SceneTree
 ##   godot --headless --path . --fixed-fps 60 --script res://game/tests/chapter9_test.gd
 ## Also checks the central chapter numbering (game/data/chapters.json): sequential, unique, the right chapter for
 ## every transition flag, completion labels, save and main-menu labels, an old save without the new fields.
-## Then plays the chapter from the developer entry (game/tools/dev_chapter9.gd): Marcus's talk (talk camera), the
+## Then plays the chapter from the developer entry (game/chapters/setups/dev_chapter9.gd): Marcus's talk (talk camera), the
 ## preparation (real units from the communal stock, a depleted stock, the flashlight check), the warning, the fall,
 ## the escape on foot through the staff door and the rear exit, Marcus's moment both ways, the rendezvous, loads.
 
-const DEV := preload("res://game/tools/dev_chapter9.gd")
+const DEV := preload("res://game/chapters/setups/dev_chapter9.gd")
 
 var fails := 0
 var world: Node
@@ -217,9 +217,9 @@ func numbering() -> void:
 	await frames(3)
 	var cont: Button = null
 	for b in menu.find_children("*", "Button", true, false):
-		if String((b as Button).text).begins_with("Continue"):
+		if String((b as Button).text).to_lower().begins_with("continue"):     # (the menu shows its labels in capitals)
 			cont = b
-	ok("num_menu_continue_label", cont != null and cont.text == "Continue  -  Chapter 8: A Trace of Noah", cont.text if cont else "-")
+	ok("num_menu_continue_label", cont != null and cont.text.to_lower() == "continue  -  chapter 8: a trace of noah", cont.text if cont else "-")
 	menu.free()
 
 

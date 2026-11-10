@@ -3,7 +3,7 @@ extends SceneTree
 ## struggle. ~2.5 clicks a second must win; no clicks must lose.
 ##   godot --headless --path . --fixed-fps 60 --script res://game/tests/click_struggle_test.gd
 
-const DEV := preload("res://game/tools/dev_chapter7.gd")
+const DEV := preload("res://game/chapters/setups/dev_chapter7.gd")
 var fails := 0
 var w: Node
 

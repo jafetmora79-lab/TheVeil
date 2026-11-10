@@ -1,11 +1,11 @@
 extends SceneTree
 ## DEVELOPER-ONLY entry point for displayed CHAPTER 11 "No Safe Road" (chapter10.gd; game/tools is excluded from
-## exports).   godot --path . --script res://game/tools/dev_chapter10.gd
+## exports).   godot --path . --script res://game/chapters/setups/dev_chapter10.gd
 ## Fabricates "The Fall of the Supermarket complete" on top of its dev state: the group at the rendezvous (Ruth and
 ## Sarah's yard), the supplies carried out of the store, Marcus saved (or lost with marcus_lost = true).
 ## Overwrites user://veil_save.json (dev only; the game's own chapter checkpoints use separate files).
 
-const DEV9 := preload("res://game/tools/dev_chapter9.gd")
+const DEV9 := preload("res://game/chapters/setups/dev_chapter9.gd")
 
 
 static func prepare(game: Node, marcus_lost := false, sarah := "stable") -> void:

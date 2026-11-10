@@ -636,7 +636,7 @@ arrives inside the game shop (the owner's case).
   * Sleeping sets `ch8_rested` only. Chapter 9 is not started.
   * Ruth and Sarah (if not invited in Chapter 6) and the Chapter 5 survivor (if not helped) arrive at the
     shelter during the night before Chapter 8, so the approved script plays in every branch (`st().ruth_sarah_arrived`).
-  * Dev entry: `game/tools/dev_chapter8.gd`. Test: `game/tests/chapter8_test.gd`.
+  * Dev entry: `game/chapters/setups/dev_chapter8.gd`. Test: `game/tests/chapter8_test.gd`.
 
 ### 9.16 Chapter numbering and Chapter 10 "The Fall of the Supermarket" (branch `claude/chapter9-supermarket-fall`)
 * **Displayed chapter numbers** come from one place, `game/data/chapters.json`, via `Game.chapter_number()`,
@@ -685,7 +685,7 @@ arrives inside the game shop (the owner's case).
   * The store is lost as a shelter: no rest, supplies closed, and the communal stock left behind is recorded as
     `abandoned_stock`.
   * The next chapter is not started.
-  * Dev entry: `game/tools/dev_chapter9.gd`. Test: `game/tests/chapter9_test.gd` (also the numbering, save and menu
+  * Dev entry: `game/chapters/setups/dev_chapter9.gd`. Test: `game/tests/chapter9_test.gd` (also the numbering, save and menu
     labels).
 
 ### 9.17 Chapter 11 "No Safe Road" (branch `claude/chapter10-no-safe-road`; code `chapter10.gd`, flags `ch10_*`)
@@ -714,7 +714,7 @@ arrives inside the game shop (the owner's case).
     never `user://veil_save.json`. `Game.load_checkpoint(name)` reads one.
   * Note: the game's existing autosave on every story flag (`world._on_flag`, used by the death retry) still writes
     the main slot during normal play. That behaviour predates this chapter and is unchanged.
-* **Dev entry and test:** `game/tools/dev_chapter10.gd`; `game/tests/chapter10_test.gd`.
+* **Dev entry and test:** `game/chapters/setups/dev_chapter10.gd`; `game/tests/chapter10_test.gd`.
 
 ### 9.18 Chapter 12 "The Farm Road" (branch `claude/chapter11-farm-road`; code `chapter11.gd`, flags `ch11_*`)
 * **Numbering:** displayed as **CHAPTER 12** (the prompt's "Chapter 11" is No Safe Road under the corrected
@@ -745,7 +745,7 @@ arrives inside the game shop (the owner's case).
 * **Without Marcus:** his lines go to the protagonist, Ruth or Sarah as written in the prompt.
 * **Known:** the farmhouse stairs are narrow (0.95 m). Walking up their middle works; about 25 cm off-centre the
   player catches on the stringer. Same for the upstairs hall beside the stairwell rail.
-* **Dev entry and test:** `game/tools/dev_chapter11.gd`; `game/tests/chapter11_test.gd`.
+* **Dev entry and test:** `game/chapters/setups/dev_chapter11.gd`; `game/tests/chapter11_test.gd`.
 
 ### 9.19 Audio, vehicle and survival integration (branch `claude/audio-vehicle-survival-integration`)
 Written without running Godot: nothing below has been seen working yet.

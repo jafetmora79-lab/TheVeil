@@ -3,7 +3,7 @@ extends SceneTree
 ## Short and headless (numbers / flags / control only; how it looks is for the playtest).
 ##   godot --headless --path . --fixed-fps 60 --script res://game/tests/sarah_rescue_test.gd
 
-const DEV := preload("res://game/tools/dev_chapter8.gd")
+const DEV := preload("res://game/chapters/setups/dev_chapter8.gd")
 var fails := 0
 var w: Node
 var game: Node

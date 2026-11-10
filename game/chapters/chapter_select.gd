@@ -12,7 +12,7 @@ extends RefCounted
 ##   - the survivors where they belong (the world's own save restore puts them there; Chapters 2-5, which begin in
 ##     the middle of the opening, get the last placements from the world's chapter-start hook - see
 ##     world.gd _chapter_start_hook).
-## Chapters 6-16 reuse the chapter set-ups the chapter tests are built on (game/tools/dev_chapterN.gd, N = n - 1).
+## Chapters 6-16 reuse the chapter set-ups the chapter tests are built on (game/chapters/setups/dev_chapterN.gd, N = n - 1).
 ## Starting a chapter replaces the save slot, as New Game does.
 
 const UNLOCK_PATH := "user://veil_chapters.json"
@@ -53,9 +53,19 @@ static func _read(path: String) -> Dictionary:
 	return d if d is Dictionary else {}
 
 
+## Where the chapter set-ups live (exported with the game: NOT game/tools, which Godot skips - it has a .gdignore).
+const SETUPS := "res://game/chapters/setups/dev_chapter%d.gd"
+
+
 ## Build the state for chapter `n` in Game (and write it to the save slot). The world then loads from it.
-static func prepare(game: Node, n: int) -> void:
+## False when the chapter could not be built: then the player's own save is put back exactly as it was and nothing
+## else changes (never a silent fall-back onto the old save).
+static func prepare(game: Node, n: int) -> bool:
 	n = clampi(n, 1, COUNT)
+	if n >= 6 and not ResourceLoader.exists(SETUPS % (n - 1)):
+		push_error("Chapter select: the set-up for chapter %d is missing (%s)" % [n, SETUPS % (n - 1)])
+		return false
+	var old_save: Variant = FileAccess.get_file_as_string(game.SAVE_PATH) if FileAccess.file_exists(game.SAVE_PATH) else null
 	# saving must be on: every step below writes the state and reads it back - with saving off (left so by an
 	# interrupted trailer run) the read-back would load the player's OLD save instead of the chapter
 	game.no_save = false
@@ -65,9 +75,9 @@ static func prepare(game: Node, n: int) -> void:
 	if n == 1:
 		game.new_game(who)                                   # the whole opening, the intro first
 		game.load_requested = false
-		return
+		return true
 	if n >= 6:
-		load("res://game/tools/dev_chapter%d.gd" % (n - 1)).prepare(game)
+		load(SETUPS % (n - 1)).prepare(game)
 	else:
 		game.new_game(who)
 		for o in game.objectives:
@@ -95,14 +105,26 @@ static func prepare(game: Node, n: int) -> void:
 	if (game.vehicle_state as Dictionary).get("pos", []).is_empty():
 		game.vehicle_state = CAR_PARKED.duplicate(true)
 	game.world_state["chapter_start"] = n
-	if game.save_game():
-		game.load_game()
-	game.load_requested = true                                # (the state is in memory either way)
+	game.play_time = 0.0
+	var built: bool = game.save_game() and game.load_game() and int(game.world_state.get("chapter_start", 0)) == n 		and float(game.play_time) < 1.0
+	if not built:                                             # a step failed: the player's save back, untouched
+		push_error("Chapter select: chapter %d could not be written - the save was left as it was" % n)
+		if old_save != null:
+			var f := FileAccess.open(game.SAVE_PATH, FileAccess.WRITE)
+			if f:
+				f.store_string(String(old_save))
+				f.close()
+			game.load_game()
+		return false
+	game.load_requested = true
+	return true
 
 
 ## From a menu: the state, then the world.
-static func start(tree: SceneTree, n: int) -> void:
+static func start(tree: SceneTree, n: int) -> bool:
 	tree.paused = false
 	Engine.time_scale = 1.0
-	prepare(tree.root.get_node("Game"), n)
+	if not prepare(tree.root.get_node("Game"), n):
+		return false
 	tree.change_scene_to_file("res://game/scenes/World.tscn")
+	return true

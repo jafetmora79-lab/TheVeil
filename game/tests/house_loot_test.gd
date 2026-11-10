@@ -1,7 +1,7 @@
 extends SceneTree
 ## THE VEIL - the explorable houses beyond the cottage: opened with the supply rule, supplies inside containers,
 ## refilled each new day (never ammo), nothing duplicated through save/load (headless).
-const DEV := preload("res://game/tools/dev_chapter7.gd")
+const DEV := preload("res://game/chapters/setups/dev_chapter7.gd")
 var fails := 0
 var game: Node
 var w: Node

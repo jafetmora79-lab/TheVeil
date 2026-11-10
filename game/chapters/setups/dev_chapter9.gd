@@ -1,11 +1,11 @@
 extends SceneTree
 ## DEVELOPER-ONLY entry point for displayed CHAPTER 10 "The Fall of the Supermarket" (chapter9.gd; game/tools is
-## excluded from exports).   godot --path . --script res://game/tools/dev_chapter9.gd
+## excluded from exports).   godot --path . --script res://game/chapters/setups/dev_chapter9.gd
 ## Fabricates "the previous chapter (Something at the Doors) complete + slept" on top of its dev state: Sarah
 ## treated, the barricade broken, partial power; Marcus's trust from p4_choice_noah + marcus_trust_search (2) unless
 ## `trust` says otherwise. Overwrites user://veil_save.json.
 
-const DEV8 := preload("res://game/tools/dev_chapter8.gd")
+const DEV8 := preload("res://game/chapters/setups/dev_chapter8.gd")
 
 
 static func prepare(game: Node, trust := 2, stock := {"food": 3, "water": 1, "medical": 2, "batteries": 0}) -> void:
