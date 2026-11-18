@@ -2,19 +2,19 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://cwg2cdfq6bsw5"
-path="res://.godot/imported/CHR_Sarah_PS2_T_Sarah_Boots.png-7cb256a825c32d73f3ed38994cd75744.ctex"
+uid="uid://b6ocvl7qxcw2k"
+path="res://.godot/imported/CHR_Sarah_PS2_T_Sarah_Body_P2.png-a7b13bb393f106e5470f2888634a8a87.ctex"
 metadata={
 "vram_texture": false
 }
 generator_parameters={
-"md5": "b709c5b396aeec2f756d505bc7e7dfde"
+"md5": "7d6689e278dfcf211c9ca392fb02ea93"
 }
 
 [deps]
 
-source_file="res://game/creatures/sarah_ps2/CHR_Sarah_PS2_T_Sarah_Boots.png"
-dest_files=["res://.godot/imported/CHR_Sarah_PS2_T_Sarah_Boots.png-7cb256a825c32d73f3ed38994cd75744.ctex"]
+source_file="res://game/creatures/sarah_ps2/CHR_Sarah_PS2_T_Sarah_Body_P2.png"
+dest_files=["res://.godot/imported/CHR_Sarah_PS2_T_Sarah_Body_P2.png-a7b13bb393f106e5470f2888634a8a87.ctex"]
 
 [params]
 
