@@ -26,3 +26,11 @@ Tools: `refine/tools/preview_lineup.py`, `preview_closeup.py` (Blender 5.2, `ble
 - Not reproduced here, still unchecked: Cottage B, the ranch window shelf, the fridge facing, basement-stair floors (all need a walk-through).
 - Houses are single baked meshes inside THE_VEIL_ASSETS_V2 (must not change), so any fix would be a runtime patch in game/ like `VeilStairAssist`.
   No defect was found worth patching, so no house/door files were changed.
+
+## Skitter / Hound / menu - checked in the real game
+- `roof_skitter_handoff_test` (headless, real World scene, both win and lose outcomes): all 26 checks PASS, including feet_on_surfaces,
+  crawls_on_visible_roof, fast_rush, hiss_faces_lens, clear_zigzag_left, ends_hidden_behind_house. Ground contact, a collision copy of the visible roof,
+  hiss, leap and zigzag retreat already exist (`game/encounters/roof_skitter.gd`).
+- Hound (`game/enemies/hound_ai.gd`): floor ray snap, smoothed turning, stride-matched clip speed, wall steering, wedge recovery already exist.
+  Nothing measurable was broken, so no behaviour was changed. Not judged: how the Hound looks in motion (needs a play-through).
+- Main menu (`before_menu.png`): already the Game Haven shop in rain and mist with a compact left menu and pixel title - what the brief asked for. Unchanged.
