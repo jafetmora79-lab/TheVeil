@@ -250,7 +250,7 @@ func _run() -> void:
 		await _frames(150)
 		var endp: Vector3 = w.park_paths()["reverse"][-1]
 		var err := Vector2(car.global_position.x - endp.x, car.global_position.z - endp.z).length()
-		ok("L_park_" + String(a[0]).replace(" ", "_").replace(",", ""), err < 0.6 and (String(a[0]).begins_with("west") or w.park_report.get("placed", false) == false) and off == 0,
+		ok("L_park_" + String(a[0]).replace(" ", "_").replace(",", ""), err < 0.6 and (String(a[0]).contains("west") or w.park_report.get("placed", false) == false) and off == 0,
 			"%.1f s, %d frames off tarmac, end %.2f m from the stall, faded=%s report=%s" % [frames / 60.0, off, err, str(w.park_report.get("placed", false)), str(w.park_report)])
 		if w.in_car:
 			w.exit_car()

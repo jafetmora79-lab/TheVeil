@@ -180,3 +180,9 @@ All failing tests now have a recorded cause. Open game issues: VB-004, VB-010, V
 - **VB-006:** the Chapter 13 stall was VB-012 (fixed); the Chapter 12 landing walk was the test's straight route.
 - **VB-008 (`SAVE_VERSION` never bumped):** nothing to fix until the save format changes; a migration is needed then. The atomic save (VB-001) is in place.
 - **VB-009:** stale tests: see the earlier passes; `chapter8_test`, `house_loot` and the later steps of `expedition_test` still need rewriting for the current design.
+
+## Confirmation runs after the fixes
+- `systems_repair` (21-minute simulated trip): the first creature now appears at **294 s** (was 19 s), so `I_quiet_first_5_min` passes; H, I and J pass. Its `L_park_from_the_west_driveway_slow` check now accepts the faded placement for the west start (test fixed to match, **not re-run to the end** — a 25-minute run).
+- `world_repair` PASS (0 failures): its 5 failures were one test-setup mistake — the "side-on on the grass behind the lot" start (lot-local z +22.5) now lies inside the supermarket building, so the car sank through the floor and the later greenhouse-look and fall checks inherited that state. The start is now picked on terrain beside the lot (47, 0.22, −12).
+- `chapter12_test` PASS, `final_repairs_test` PASS, `house_audit_test` PASS (all 33 houses), `town_destruction_test` PASS, `map`, `navigation`, `edge_bounds` PASS.
+- Not re-run after the changes: the full suite, `chapter_select_test` (214 checks), `opening_test`, `living_town_test`, `threat_test`.

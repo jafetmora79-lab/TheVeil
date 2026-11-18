@@ -58,7 +58,16 @@ func _run() -> void:
 	w.enter_car()
 	await frames(40)
 	var lot: Transform3D = w._park_lot_xf()
-	w.sedan.global_transform = Transform3D(Basis(Vector3.UP, 1.1), lot * Vector3(-6.0, 0.0, 22.5) + Vector3(0, w.sedan.global_position.y - (lot * Vector3.ZERO).y, 0))
+	# a spot on open ground beside the lot, side-on (it used to be z +22.5, which now lies inside the supermarket building)
+	var side := Vector3.INF
+	for cand in [Vector3(-6.0, 0.0, -6.0), Vector3(-14.0, 0.0, -6.0), Vector3(-6.0, 0.0, -10.0), Vector3(-16.0, 0.0, 6.0)]:
+		var cw: Vector3 = lot * cand
+		var sg = w.get_world_3d().direct_space_state.intersect_ray(PhysicsRayQueryParameters3D.create(cw + Vector3(0, 8, 0), cw - Vector3(0, 8, 0), 1, [w.sedan.get_rid()]))
+		if sg and String((sg["collider"] as Node).get_path()).contains("Terrain"):
+			side = Vector3(cw.x, (sg["position"] as Vector3).y + 0.12, cw.z)
+			break
+	print("  side-on start: ", side)
+	w.sedan.global_transform = Transform3D(Basis(Vector3.UP, 1.1), side if side.is_finite() else lot * Vector3(-6.0, 0.0, -6.0) + Vector3(0, 0.15, 0))
 	await frames(10)
 	var paths: Dictionary = w.park_paths()
 	await w._auto_park()
