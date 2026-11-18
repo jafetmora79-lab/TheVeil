@@ -25,6 +25,15 @@ func _ready() -> void:
 		Game.settings["head_bob"] = on
 		Game.save_settings())
 	v.add_child(hb)
+	# the PS1 look (game/autoload/retro_filter.gd): Off / Light / Classic, applied at once
+	var rf := OptionButton.new()
+	for m in ["Retro filter: Off", "Retro filter: Light", "Retro filter: Classic"]:
+		rf.add_item(m)
+	rf.selected = clampi(int(Game.settings.get("retro_filter", 1)), 0, 2)
+	rf.item_selected.connect(func(i: int):
+		Game.settings["retro_filter"] = i
+		Game.save_settings())
+	v.add_child(rf)
 	var back := VeilUI.button("Back")
 	back.pressed.connect(func():
 		Game.save_settings()
