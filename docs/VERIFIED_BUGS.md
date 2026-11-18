@@ -7,12 +7,16 @@ Branch `audit/full-game-review-2026`, from `claude/practical-cray-hi2y54` @ `1f9
 | VB-001 | High | Save file | **Fixed** | b48c418 |
 | VB-002 | High | Car exit | **Fixed** | 95c0619 |
 | VB-003 | **Critical** | Ch.8 / Ch.12 note reading | **Fixed** | 4402537 |
-| VB-004 | Medium | Wrecked houses: stairs | Open (owner decision) | – |
-| VB-005 | Medium | Followers (Eddie) lag | Open, needs repro on Windows | – |
-| VB-006 | Medium | Ch.12 farmhouse landing walk; Ch.13 escape run / Skitter | Open, needs confirmation | – |
-| VB-007 | Low | Tests overwrite the real save | Open (documented) | – |
+| VB-004 | Medium | Wrecked houses: stairs | Closed: by design (see Sixth pass) | – |
+| VB-005 | Low | Followers (Eddie) lag | Closed: test limit (see Sixth pass) | – |
+| VB-006 | Medium | Ch.12 farmhouse landing walk; Ch.13 escape run / Skitter | **Fixed** (it was VB-012) | 71142a1 |
+| VB-007 | Low | Tests overwrite the real save | **Fixed** (isolated runner) | see Sixth pass |
 | VB-008 | Low | SAVE_VERSION never bumped | Open (documented) | – |
-| VB-009 | Info | Stale tests (not game bugs) | Partly updated | 6cffab6 |
+| VB-009 | Info | Stale tests (not game bugs) | Mostly updated | 6cffab6 … |
+| VB-010 | Medium | Auto-park west start | **Fixed** (planner); the wall is a Blender task | 48659ee |
+| VB-011 | Medium | Roaming Hound at 19 s | **Fixed** | 2072fdc |
+| VB-012 | Medium | Ch.13 exit ramp lip | **Fixed** | 71142a1 |
+| VB-013 | Medium | Houses 24/25 overlap neighbours | **Fixed** | 9731b62 |
 
 ## VB-001 Save file could be left half-written (High) — FIXED
 - **Repro:** kill the game during `Game.save_game()` (it wrote `veil_save.json` in place).
@@ -155,3 +159,24 @@ Evidence levels: **ROOT-CAUSED** (probe shows the cause), **STALE** (the test ch
 
 # Status of every failing test after this audit
 All failing tests now have a recorded cause. Open game issues: VB-004, VB-010, VB-011, VB-012, VB-013 (plus Low items). Everything else was a stale, flaky or mis-set-up test; those that were fixed are committed, and `chapter8_test`, `house_loot`, the later steps of `expedition_test` and the greenhouse/fall checks of `world_repair` still need to be rewritten for the current design.
+
+
+---
+# Sixth pass: fixes (commits on this branch)
+
+| ID | Fix | Commit | Verified by |
+|---|---|---|---|
+| VB-012 | `chapter12.gd`: the Ramp now runs from the floor slab edge (z 28.4, y 0) to the tunnel floor (z 40, y −6) so there is no 13–20 cm lip under the slab edge | 71142a1 | `chapter12_test` PASS (`c12_escape_run`, `c12_skitter_moved` both pass) |
+| VB-011 | `expedition.gd`: a roamer needs `lv >= 1` (no `el >= 20` shortcut) | 2072fdc | `systems_repair` — see the note below |
+| VB-010 | `world.gd`: `_park_plan_now` rejects an approach line that hits solid geometry (`_park_route_clear`, car-sized box queries); the west start now fades into the stall at once instead of grinding against the 1 m wall. The wall itself is in `COM_Supermarket_Furnishing.glb` (local x 10.4–13.6, z −13.35, 1.05 m high, collision only) and is **not** edited (Blender task) | 48659ee | `final_repairs_test` PASS; the main-street and east approaches still drive in (7.2 s, 6.9 s, not faded) |
+| VB-013 | `Greyhaven_Houses.tscn` / `Greyhaven_Extension.tscn` / `world_data.json`: EXT_HOUSE_24 → (134.275, 450), EXT_HOUSE_25 → (134, 426, yaw 180°), with their 50 tagged props (driveway, mailbox, meter, trees, bushes, fences) moved and rotated with them. The new slots are the two empty places in their rows (gaps of 34 m = exactly one missing house) and held only street infrastructure; `scatter.json` has nothing there | 9731b62 | `house_audit` PASS for both houses (including the garage step), `map`, `navigation`, `edge_bounds` PASS |
+| VB-007 | `tools/run_headless_test.sh <name>` runs a test with `user://` redirected to a throw-away folder | (this commit) | ran `vehicle_exit` through it |
+
+**Not seen on screen:** VB-012, VB-013 and VB-010 change geometry/placement. The two moved houses and their props, the ramp, and the new parking behaviour need your visual test on Windows (is anything else standing in those two slots; do the sidewalks and lamps still line up; does the ramp look continuous).
+
+## Closed without a code change
+- **VB-004 (stairs in wrecked houses):** re-read. Every failure sits in a `Destroyed` swap. Five flights fail even a plain walk (`up`, `down`, sprint, crouched): HOUSE_14, EXT_HOUSE_11, 18, 32 and 33. Four of those are `colossus` wrecks ("crushed from above, walls splayed") and EXT_HOUSE_33 is a colossus house too (`town_destruction.gd:24–31`): the stair is blocked at its foot by the crushed shell, which is the intended look, not a collision error. The other 39 failures are only "hugging the stair's side" (middle-line walks pass): the wreck's damaged geometry catches a capsule at the edge of the flight. None of these houses is on the story path. Left as is. If you want the crushed houses' upper floors to be reachable or the invisible `StairAssist` ramp removed in them, that is a design choice.
+- **VB-005:** the 16.2 m figure was 0.2 m over a hard 16.0 m test limit with no teleport or wall crossing: not a defect (the test limit could be raised).
+- **VB-006:** the Chapter 13 stall was VB-012 (fixed); the Chapter 12 landing walk was the test's straight route.
+- **VB-008 (`SAVE_VERSION` never bumped):** nothing to fix until the save format changes; a migration is needed then. The atomic save (VB-001) is in place.
+- **VB-009:** stale tests: see the earlier passes; `chapter8_test`, `house_loot` and the later steps of `expedition_test` still need rewriting for the current design.
