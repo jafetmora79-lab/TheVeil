@@ -884,11 +884,11 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 99, 0, 444)
 metadata/tag = "EXT_HOUSE_23"
 
 [node name="RD_Driveway_3x8m_024" parent="Lots" instance=ExtResource("13_RD_Driveway_3x8m")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 79, 0, 444)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 129.3535, 0, 444)
 metadata/tag = "EXT_HOUSE_24"
 
 [node name="RD_Driveway_3x8m_025" parent="Lots" instance=ExtResource("13_RD_Driveway_3x8m")]
-transform = Transform3D(0, 0, 1, 0, 1, 0, -1, 0, 0, 206, 0, 417)
+transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 131, 0, 432)
 metadata/tag = "EXT_HOUSE_25"
 
 [node name="RD_Driveway_3x8m_026" parent="Lots" instance=ExtResource("13_RD_Driveway_3x8m")]
@@ -2484,195 +2484,195 @@ transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 93.036, 0.15, 463.6)
 metadata/tag = "EXT_HOUSE_23"
 
 [node name="SP_Mailbox_Residential_024" parent="StreetProps" instance=ExtResource("21_SP_Mailbox_Residential")]
-transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 76.7, 0.15, 444.5)
+transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 127.0535, 0.15, 444.5)
 metadata/tag = "EXT_HOUSE_24"
 
 [node name="UT_WaterMeter_024" parent="StreetProps" instance=ExtResource("32_UT_WaterMeter")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 81.4, 0.15, 444.6)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 131.7535, 0.15, 444.6)
 metadata/tag = "EXT_HOUSE_24"
 
 [node name="VG_Tree_DeciduousSmall_013" parent="Vegetation" instance=ExtResource("36_VG_Tree_DeciduousSmall")]
-transform = Transform3D(-0.98697, 0, -0.16093, 0, 1, 0, 0.16093, 0, -0.98697, 87.643, 0.15, 447.2)
+transform = Transform3D(-0.98697, 0, -0.16093, 0, 1, 0, 0.16093, 0, -0.98697, 137.9965, 0.15, 447.2)
 metadata/tag = "EXT_HOUSE_24"
 
 [node name="VG_Bush_023" parent="Vegetation" instance=ExtResource("33_VG_Bush")]
-transform = Transform3D(-0.54646, 0, -0.83748, 0, 1, 0, 0.83748, 0, -0.54646, 85.2993, 0.15, 448.9)
+transform = Transform3D(-0.54646, 0, -0.83748, 0, 1, 0, 0.83748, 0, -0.54646, 135.6528, 0.15, 448.9)
 metadata/tag = "EXT_HOUSE_24"
 
 [node name="VG_FlowerPatch_004" parent="Vegetation" instance=ExtResource("34_VG_FlowerPatch")]
-transform = Transform3D(0.46555, 0, -0.88502, 0, 1, 0, 0.88502, 0, 0.46555, 83.0779, 0.15, 448.9)
+transform = Transform3D(0.46555, 0, -0.88502, 0, 1, 0, 0.88502, 0, 0.46555, 133.4314, 0.15, 448.9)
 metadata/tag = "EXT_HOUSE_24"
 
 [node name="FN_Picket_2.5m_031" parent="Fences" instance=ExtResource("4_FN_Picket_2.5m")]
-transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 90.893, 0.15, 444.25)
+transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 141.2465, 0.15, 444.25)
 metadata/tag = "EXT_HOUSE_24"
 
 [node name="FN_Picket_2.5m_032" parent="Fences" instance=ExtResource("4_FN_Picket_2.5m")]
-transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 88.393, 0.15, 444.25)
+transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 138.7465, 0.15, 444.25)
 metadata/tag = "EXT_HOUSE_24"
 
 [node name="FN_Picket_2.5m_033" parent="Fences" instance=ExtResource("4_FN_Picket_2.5m")]
-transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 85.893, 0.15, 444.25)
+transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 136.2465, 0.15, 444.25)
 metadata/tag = "EXT_HOUSE_24"
 
 [node name="FN_GardenGate_1.25m_009" parent="Interactive" instance=ExtResource("2_FN_GardenGate_1.25m")]
-transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 83.393, 0.15, 444.25)
+transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 133.7465, 0.15, 444.25)
 metadata/tag = "EXT_HOUSE_24"
 
 [node name="FN_Post_Picket_033" parent="Fences" instance=ExtResource("6_FN_Post_Picket")]
-transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 82.143, 0.15, 444.25)
+transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 132.4965, 0.15, 444.25)
 metadata/tag = "EXT_HOUSE_24"
 
 [node name="FN_Post_Picket_034" parent="Fences" instance=ExtResource("6_FN_Post_Picket")]
-transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 82.143, 0.15, 444.25)
+transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 132.4965, 0.15, 444.25)
 metadata/tag = "EXT_HOUSE_24"
 
 [node name="FN_Post_Picket_035" parent="Fences" instance=ExtResource("6_FN_Post_Picket")]
-transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 77.25, 0.15, 444.25)
+transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 127.6035, 0.15, 444.25)
 metadata/tag = "EXT_HOUSE_24"
 
 [node name="FN_Picket_2.5m_034" parent="Fences" instance=ExtResource("4_FN_Picket_2.5m")]
-transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 77.25, 0.15, 444.25)
+transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 127.6035, 0.15, 444.25)
 metadata/tag = "EXT_HOUSE_24"
 
 [node name="FN_Post_Picket_036" parent="Fences" instance=ExtResource("6_FN_Post_Picket")]
-transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 74.75, 0.15, 444.25)
+transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 125.1035, 0.15, 444.25)
 metadata/tag = "EXT_HOUSE_24"
 
 [node name="FN_Privacy_2.5m_085" parent="Fences" instance=ExtResource("8_FN_Privacy_2.5m")]
-transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 90.893, 0.15, 463.6)
+transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 141.2465, 0.15, 463.6)
 metadata/tag = "EXT_HOUSE_24"
 
 [node name="FN_Privacy_2.5m_086" parent="Fences" instance=ExtResource("8_FN_Privacy_2.5m")]
-transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 88.393, 0.15, 463.6)
+transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 138.7465, 0.15, 463.6)
 metadata/tag = "EXT_HOUSE_24"
 
 [node name="FN_Privacy_2.5m_087" parent="Fences" instance=ExtResource("8_FN_Privacy_2.5m")]
-transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 85.893, 0.15, 463.6)
+transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 136.2465, 0.15, 463.6)
 metadata/tag = "EXT_HOUSE_24"
 
 [node name="FN_Privacy_2.5m_088" parent="Fences" instance=ExtResource("8_FN_Privacy_2.5m")]
-transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 83.393, 0.15, 463.6)
+transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 133.7465, 0.15, 463.6)
 metadata/tag = "EXT_HOUSE_24"
 
 [node name="FN_Privacy_2.5m_089" parent="Fences" instance=ExtResource("8_FN_Privacy_2.5m")]
-transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 80.893, 0.15, 463.6)
+transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 131.2465, 0.15, 463.6)
 metadata/tag = "EXT_HOUSE_24"
 
 [node name="FN_Privacy_2.5m_090" parent="Fences" instance=ExtResource("8_FN_Privacy_2.5m")]
-transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 78.393, 0.15, 463.6)
+transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 128.7465, 0.15, 463.6)
 metadata/tag = "EXT_HOUSE_24"
 
 [node name="FN_Post_Privacy_015" parent="Fences" instance=ExtResource("7_FN_Post_Privacy")]
-transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 75.893, 0.15, 463.6)
+transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 126.2465, 0.15, 463.6)
 metadata/tag = "EXT_HOUSE_24"
 
 [node name="SP_Mailbox_Residential_025" parent="StreetProps" instance=ExtResource("21_SP_Mailbox_Residential")]
-transform = Transform3D(0, 0, -1, 0, 1, 0, 1, 0, 0, 206.5, 0.15, 414.7)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 128.7, 0.15, 431.5)
 metadata/tag = "EXT_HOUSE_25"
 
 [node name="UT_WaterMeter_025" parent="StreetProps" instance=ExtResource("32_UT_WaterMeter")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 206.6, 0.15, 419.4)
+transform = Transform3D(0, 0, 1, 0, 1, 0, -1, 0, 0, 133.4, 0.15, 431.4)
 metadata/tag = "EXT_HOUSE_25"
 
 [node name="VG_Tree_DeciduousSmall_014" parent="Vegetation" instance=ExtResource("36_VG_Tree_DeciduousSmall")]
-transform = Transform3D(-0.66556, 0, 0.74635, 0, 1, 0, -0.74635, 0, -0.66556, 209.2, 0.15, 428.5)
+transform = Transform3D(-0.74635, 0, -0.66556, 0, 1, 0, 0.66556, 0, -0.74635, 142.5, 0.15, 428.8)
 metadata/tag = "EXT_HOUSE_25"
 
 [node name="VG_Bush_024" parent="Vegetation" instance=ExtResource("33_VG_Bush")]
-transform = Transform3D(-0.99731, 0, 0.07331, 0, 1, 0, -0.07331, 0, -0.99731, 210.9, 0.15, 427.6215)
+transform = Transform3D(-0.07331, 0, -0.99731, 0, 1, 0, 0.99731, 0, -0.07331, 141.6215, 0.15, 427.1)
 metadata/tag = "EXT_HOUSE_25"
 
 [node name="VG_Bush_025" parent="Vegetation" instance=ExtResource("33_VG_Bush")]
-transform = Transform3D(0.89272, 0, -0.4506, 0, 1, 0, 0.4506, 0, 0.89272, 210.9, 0.15, 426.2183)
+transform = Transform3D(0.4506, 0, 0.89272, 0, 1, 0, -0.89272, 0, 0.4506, 140.2183, 0.15, 427.1)
 metadata/tag = "EXT_HOUSE_25"
 
 [node name="FN_Picket_2.5m_035" parent="Fences" instance=ExtResource("4_FN_Picket_2.5m")]
-transform = Transform3D(0, 0, 1, 0, 1, 0, -1, 0, 0, 206.25, 0.15, 431.75)
+transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 145.75, 0.15, 431.75)
 metadata/tag = "EXT_HOUSE_25"
 
 [node name="FN_GardenGate_1.25m_010" parent="Interactive" instance=ExtResource("2_FN_GardenGate_1.25m")]
-transform = Transform3D(0, 0, 1, 0, 1, 0, -1, 0, 0, 206.25, 0.15, 429.25)
+transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 143.25, 0.15, 431.75)
 metadata/tag = "EXT_HOUSE_25"
 
 [node name="FN_Post_Picket_037" parent="Fences" instance=ExtResource("6_FN_Post_Picket")]
-transform = Transform3D(0, 0, 1, 0, 1, 0, -1, 0, 0, 206.25, 0.15, 428)
+transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 142, 0.15, 431.75)
 metadata/tag = "EXT_HOUSE_25"
 
 [node name="FN_Picket_2.5m_036" parent="Fences" instance=ExtResource("4_FN_Picket_2.5m")]
-transform = Transform3D(0, 0, 1, 0, 1, 0, -1, 0, 0, 206.25, 0.15, 428)
+transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 142, 0.15, 431.75)
 metadata/tag = "EXT_HOUSE_25"
 
 [node name="FN_Picket_2.5m_037" parent="Fences" instance=ExtResource("4_FN_Picket_2.5m")]
-transform = Transform3D(0, 0, 1, 0, 1, 0, -1, 0, 0, 206.25, 0.15, 425.5)
+transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 139.5, 0.15, 431.75)
 metadata/tag = "EXT_HOUSE_25"
 
 [node name="FN_Picket_2.5m_038" parent="Fences" instance=ExtResource("4_FN_Picket_2.5m")]
-transform = Transform3D(0, 0, 1, 0, 1, 0, -1, 0, 0, 206.25, 0.15, 423)
+transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 137, 0.15, 431.75)
 metadata/tag = "EXT_HOUSE_25"
 
 [node name="FN_Post_Picket_038" parent="Fences" instance=ExtResource("6_FN_Post_Picket")]
-transform = Transform3D(0, 0, 1, 0, 1, 0, -1, 0, 0, 206.25, 0.15, 420.5)
+transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 134.5, 0.15, 431.75)
 metadata/tag = "EXT_HOUSE_25"
 
 [node name="FN_Post_Picket_039" parent="Fences" instance=ExtResource("6_FN_Post_Picket")]
-transform = Transform3D(0, 0, 1, 0, 1, 0, -1, 0, 0, 206.25, 0.15, 415.25)
+transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 129.25, 0.15, 431.75)
 metadata/tag = "EXT_HOUSE_25"
 
 [node name="FN_Picket_2.5m_039" parent="Fences" instance=ExtResource("4_FN_Picket_2.5m")]
-transform = Transform3D(0, 0, 1, 0, 1, 0, -1, 0, 0, 206.25, 0.15, 415.25)
+transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 129.25, 0.15, 431.75)
 metadata/tag = "EXT_HOUSE_25"
 
 [node name="FN_Picket_2.5m_040" parent="Fences" instance=ExtResource("4_FN_Picket_2.5m")]
-transform = Transform3D(0, 0, 1, 0, 1, 0, -1, 0, 0, 206.25, 0.15, 412.75)
+transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 126.75, 0.15, 431.75)
 metadata/tag = "EXT_HOUSE_25"
 
 [node name="FN_Picket_2.5m_041" parent="Fences" instance=ExtResource("4_FN_Picket_2.5m")]
-transform = Transform3D(0, 0, 1, 0, 1, 0, -1, 0, 0, 206.25, 0.15, 410.25)
+transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 124.25, 0.15, 431.75)
 metadata/tag = "EXT_HOUSE_25"
 
 [node name="FN_Post_Picket_040" parent="Fences" instance=ExtResource("6_FN_Post_Picket")]
-transform = Transform3D(0, 0, 1, 0, 1, 0, -1, 0, 0, 206.25, 0.15, 407.75)
+transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 121.75, 0.15, 431.75)
 metadata/tag = "EXT_HOUSE_25"
 
 [node name="FN_Privacy_2.5m_091" parent="Fences" instance=ExtResource("8_FN_Privacy_2.5m")]
-transform = Transform3D(0, 0, 1, 0, 1, 0, -1, 0, 0, 225.6, 0.15, 431.75)
+transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 145.75, 0.15, 412.4)
 metadata/tag = "EXT_HOUSE_25"
 
 [node name="FN_Privacy_2.5m_092" parent="Fences" instance=ExtResource("8_FN_Privacy_2.5m")]
-transform = Transform3D(0, 0, 1, 0, 1, 0, -1, 0, 0, 225.6, 0.15, 429.25)
+transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 143.25, 0.15, 412.4)
 metadata/tag = "EXT_HOUSE_25"
 
 [node name="FN_Privacy_2.5m_093" parent="Fences" instance=ExtResource("8_FN_Privacy_2.5m")]
-transform = Transform3D(0, 0, 1, 0, 1, 0, -1, 0, 0, 225.6, 0.15, 426.75)
+transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 140.75, 0.15, 412.4)
 metadata/tag = "EXT_HOUSE_25"
 
 [node name="FN_Privacy_2.5m_094" parent="Fences" instance=ExtResource("8_FN_Privacy_2.5m")]
-transform = Transform3D(0, 0, 1, 0, 1, 0, -1, 0, 0, 225.6, 0.15, 424.25)
+transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 138.25, 0.15, 412.4)
 metadata/tag = "EXT_HOUSE_25"
 
 [node name="FN_Privacy_2.5m_095" parent="Fences" instance=ExtResource("8_FN_Privacy_2.5m")]
-transform = Transform3D(0, 0, 1, 0, 1, 0, -1, 0, 0, 225.6, 0.15, 421.75)
+transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 135.75, 0.15, 412.4)
 metadata/tag = "EXT_HOUSE_25"
 
 [node name="FN_Privacy_2.5m_096" parent="Fences" instance=ExtResource("8_FN_Privacy_2.5m")]
-transform = Transform3D(0, 0, 1, 0, 1, 0, -1, 0, 0, 225.6, 0.15, 419.25)
+transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 133.25, 0.15, 412.4)
 metadata/tag = "EXT_HOUSE_25"
 
 [node name="FN_Privacy_2.5m_097" parent="Fences" instance=ExtResource("8_FN_Privacy_2.5m")]
-transform = Transform3D(0, 0, 1, 0, 1, 0, -1, 0, 0, 225.6, 0.15, 416.75)
+transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 130.75, 0.15, 412.4)
 metadata/tag = "EXT_HOUSE_25"
 
 [node name="FN_Privacy_2.5m_098" parent="Fences" instance=ExtResource("8_FN_Privacy_2.5m")]
-transform = Transform3D(0, 0, 1, 0, 1, 0, -1, 0, 0, 225.6, 0.15, 414.25)
+transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 128.25, 0.15, 412.4)
 metadata/tag = "EXT_HOUSE_25"
 
 [node name="FN_Privacy_2.5m_099" parent="Fences" instance=ExtResource("8_FN_Privacy_2.5m")]
-transform = Transform3D(0, 0, 1, 0, 1, 0, -1, 0, 0, 225.6, 0.15, 411.75)
+transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 125.75, 0.15, 412.4)
 metadata/tag = "EXT_HOUSE_25"
 
 [node name="FN_Post_Privacy_016" parent="Fences" instance=ExtResource("7_FN_Post_Privacy")]
-transform = Transform3D(0, 0, 1, 0, 1, 0, -1, 0, 0, 225.6, 0.15, 409.25)
+transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 123.25, 0.15, 412.4)
 metadata/tag = "EXT_HOUSE_25"
 
 [node name="SP_Mailbox_Residential_026" parent="StreetProps" instance=ExtResource("21_SP_Mailbox_Residential")]

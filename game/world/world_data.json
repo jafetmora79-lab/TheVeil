@@ -922,7 +922,7 @@
    "zone": "EXT_HOUSE_24",
    "variant": "RES_House_Cottage_B_Mirror",
    "origin": [
-    83.921,
+    134.275,
     0.15,
     450.0
    ],
@@ -932,11 +932,11 @@
    "zone": "EXT_HOUSE_25",
    "variant": "RES_House_Ranch_Mirror",
    "origin": [
-    212.0,
+    134.0,
     0.15,
-    420.0
+    426.0
    ],
-   "yaw": 1.570796
+   "yaw": -3.141593
   },
   {
    "zone": "EXT_HOUSE_26",

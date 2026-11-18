@@ -47,8 +47,11 @@ func run() -> void:
 	hud.free()
 	menu.name_input.text = "Jafet"
 	menu.name_dialog.confirmed.emit()
-	for i in 6: await process_frame
-	check("confirmed_name_starts_world", current_scene != null and current_scene.scene_file_path == "res://game/scenes/World.tscn" and g.player_name == "Jafet")
+	for i in 300:                                          # (a new game now opens with the intro cinematic, which then loads the world)
+		await process_frame
+		if current_scene != null and current_scene.scene_file_path == "res://game/cinematics/Cinematic.tscn":
+			break
+	check("confirmed_name_starts_world", current_scene != null and current_scene.scene_file_path == "res://game/cinematics/Cinematic.tscn" and str(current_scene.get("mode")) == "intro" and g.player_name == "Jafet")
 	check("new_game_resets_story_only", not g.has_flag("washed_face"))
 	menu.free()
 	print("RESULT ", failures, " failures")

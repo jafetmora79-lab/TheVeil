@@ -96,6 +96,9 @@ func _boot(dev) -> void:
 	for i in 200:
 		await physics_frame
 	ex = w.expedition
+	# the shipped tuning is calm (danger steps at 5/10/15/20 minutes); this test checks the director's behaviour at each level,
+	# so it runs on the fast 45/90/150/240 s steps it was written for
+	ex.cfg["danger_thresholds_s"] = [45, 90, 150, 240]
 	p = w.player
 	p.survival_active = true
 	p.controls_enabled = true

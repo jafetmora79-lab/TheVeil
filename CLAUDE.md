@@ -66,6 +66,7 @@ Notes:
   at load. Ignore them.
 - `chapter_select_test` can segfault *after* `RESULT` while the engine shuts down (many worlds loaded). That's a
   teardown quirk; the result line is what counts.
+- **Run tests through `tools/run_headless_test.sh <name>`** (set `GODOT=` to the binary): it points `user://` at a throw-away folder so the owner's real save is never touched, and several runs can go at once.
 - Tests write to the same `user://` folder as the game. `chapter_select_test` backs up and restores the save; most
   chapter tests overwrite `user://veil_save.json`.
 - On a Linux web sandbox, get Godot with:

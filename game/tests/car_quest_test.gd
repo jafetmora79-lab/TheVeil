@@ -256,6 +256,7 @@ func _run() -> void:
 				e2.pressed = true
 				st._input(e2)
 				await _frames(4)
+			await _frames(30)                                  # the creature is shoved back first (0.25 s tween), then recoils
 			ok("struggle_won_recover", ai.state == "RECOVER" and is_instance_valid(ai.body), ai.state)
 			await _frames(60 * 4)
 			ok("crab_hunts_again", ai.state in ["CHASE", "SEARCH", "SUSPICIOUS"] and is_instance_valid(ai.body), ai.state)
@@ -268,13 +269,13 @@ func _run() -> void:
 	ok("checklist_carried", text.count("[+]") == 4 and text.count("[X]") == 0, text)
 	ok("checklist_no_locations", not text.contains("van") and not text.contains("station") and not text.contains("pickup"), text)
 	ok("rows_collected", ex.checklist_rows().all(func(r): return r[2] == "collected" and r[3]))
-	game.add_item("car_fuse")                          # a second fuse in the pack: still fitted once only
+	game.add_item("car_fuse")                          # (the pack holds one of each part: a second fuse is not added)
 	for id in ["car_battery", "car_fuse", "fuel_can", "starter_relay"]:
 		await ex._fit(id)
 		await _frames(5)
 		ok("fit_" + id, ex.installed(id))
 	await ex._fit("car_fuse")
-	ok("fit_once", game.inventory.count("car_fuse") == 1 and game.inventory.count("car_battery") == 0
+	ok("fit_once", game.inventory.count("car_fuse") == 0 and game.inventory.count("car_battery") == 0
 		and game.inventory.count("fuel_can") == 0 and game.inventory.count("starter_relay") == 0, str(game.inventory))
 	text = ex.checklist()
 	ok("checklist_installed", text.count("[X]") == 4, text)

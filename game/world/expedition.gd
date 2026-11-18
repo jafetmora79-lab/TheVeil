@@ -1237,7 +1237,7 @@ func _direct(lv: int) -> void:
 				_next_hunt = el + _lvv("encounter_cooldown_s", lv, [60, 50, 40, 30, 22])
 			else:
 				_next_hunt = el + 3.0                     # no good spot this second: try again shortly
-	elif live < cap and el >= _next_roam and _role_count("roamer") == 0 and (lv >= 1 or el >= 20.0):
+	elif live < cap and el >= _next_roam and _role_count("roamer") == 0 and lv >= 1:     # (nothing roams in the quiet first stretch: distant sounds only)
 		if _spawn_creature("hound" if lv <= 1 else _pick_kind(lv), "roamer", tgt):   # (HIGH on: Skitters, then Crabs too)
 			_next_roam = el + _lvv("roam_cooldown_s", lv, [70, 55, 45, 40, 35])
 		else:

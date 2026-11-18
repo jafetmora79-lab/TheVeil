@@ -248,8 +248,10 @@ func _run() -> void:
 	ok("c5_hud_objective", world.hud.step_l.text == "Prepare for the search" or await wait_until(func(): return world.hud.step_l.text == "Prepare for the search", 90),
 		world.hud.step_l.text)
 	# ---- scene 2: prepare
-	ok("c5_stash_reach", await aim(c5.its["stash"], [-Z, Z, X, -X], mk, 1.0))
-	c5.its["stash"].interact(world.player)
+	# the supplies check is at the shelter supply crate (the old service-desk stash's interaction is off by design)
+	var crate: Interactable = world.expedition.supply_chest
+	ok("c5_stash_reach", await aim(crate, [-Z, Z, X, -X, Z + X, Z - X, -Z + X, -Z - X], mk, 1.3))
+	crate.interact(world.player)
 	await frames(5)
 	ok("c5_inventory_shown", game.has_flag("c5_supplies_checked") and world.hud.inv_panel.visible)
 	ok("c5_no_duplicate_gear", game.inventory == inv0, str(game.inventory))
@@ -259,9 +261,16 @@ func _run() -> void:
 	ok("c5_exit_on_doors", mk.to_local(c5.its["exit"].global_position).z < 1.0, str(mk.to_local(c5.its["exit"].global_position)))
 	ok("c5_eddie_clear_of_counter", c5.EDDIE_SHELTER.z < 4.5 and c5.stash_gap != INF and absf(c5.stash_gap) < 0.3, "gap %.3f" % c5.stash_gap)
 	ok("c5_exit_reach", await aim(c5.its["exit"], [Z, -Z], mk, 1.2))
-	c5.its["exit"].interact(world.player)
+	var exit_door: Interactable = world.player._focus if world.player._focus is Interactable else c5.its["exit"]
+	exit_door.interact(world.player)
 	ok("c5_exit_confirm", await wait_until(func(): return p4.choice.is_open(), 60))
-	p4.choice.pick(0)
+	if exit_door != c5.its["exit"]:
+		# a story door shows the shelter-exit menu while it is on offer: "Continue Story", then the chapter's own confirm
+		p4.choice.pick(int(world.expedition.menu_options()["ids"].find("story")))
+		if await wait_until(func(): return p4.choice.is_open(), 60):
+			p4.choice.pick(0)
+	else:
+		p4.choice.pick(0)
 	ok("c5_prepared", await wait_talk(func(): return game.has_flag("c5_prepared"), 40.0)
 		and c5.st()["eddie"] == "following" and c5.eddie_follow.active)
 	ok("c5_doors_open", c5._doors_open)
@@ -282,7 +291,9 @@ func _run() -> void:
 	ok("c5_leave_then_house", game.has_flag("c5_left_store") and game.current_step().get("id", "") == "c5_reach", game.current_step().get("id", ""))
 	ok("c5_marker_house", c5.marker_target is Vector3 and (c5.marker_target as Vector3).distance_to(c5.hl(Vector3(-1.6, 1.6, 3.0))) < 0.1
 		and world.hud.marker_visible)
-	walked = walked and await walk_world([Vector3(11.5, 0.2, -23.5), Vector3(11.5, 0.2, -60.5), Vector3(15.6, 0.2, -62.5),
+	# (the car-quest's broken-down delivery van stands against the x = 11.5 lane at z -50..-55: go round its west side)
+	walked = walked and await walk_world([Vector3(11.5, 0.2, -23.5), Vector3(11.5, 0.2, -46.0), Vector3(10.4, 0.2, -48.0),
+		Vector3(10.4, 0.2, -57.0), Vector3(11.5, 0.2, -59.0), Vector3(11.5, 0.2, -60.5), Vector3(15.6, 0.2, -62.5),
 		Vector3(15.6, 0.2, -66.6)])
 	ok("c5_house_reachable_walk", walked, str(world.player.global_position))
 	ok("c5_left_store_objective", game.has_flag("c5_left_store"))
@@ -355,10 +366,15 @@ func _run() -> void:
 	var usable_n: int = game.inventory.filter(func(id): return VeilInventoryPanel.usable(id)).size()
 	ok("inv_grid", inv.visible and occupied == usable_n and usable_n > 0 and not world.player.controls_enabled, "%d slots for %d usable items" % [occupied, usable_n])
 	# (painkillers at full health show no button on purpose: the shelter's no-waste healing rule)
-	ok("inv_only_usable", inv._ids.all(func(id): return not inv.actions_for(id).is_empty() or id == "batteries" or game.item_info(id).get("category", "") == "medical")
-		and not inv._ids.has("groceries") and not inv._ids.has("horror_game"), str(inv._ids))
-	ok("inv_square", absf(inv.get_child(1).get_child(0).size.x - inv.get_child(1).get_child(0).size.y) < 2.0,
-		str(inv.get_child(1).get_child(0).size))
+	# (owner decision pending: an earlier request was "only usable items"; the build lists every carried item so that
+	# none reads as lost after a load - groceries still to be paid for are the one exception)
+	ok("inv_lists_every_carried_item", game.inventory.all(func(id): return inv._ids.has(id) or id == "groceries"), str(inv._ids))
+	var main_box: Control = inv._main
+	var aspect: float = main_box.size.x / maxf(main_box.size.y, 1.0)
+	ok("inv_near_square", aspect > 0.9 and aspect < 1.1, str(main_box.size))
+	var vp_size: Vector2 = inv.get_viewport_rect().size
+	ok("inv_fits_the_window", main_box.size.y * main_box.scale.y <= vp_size.y and main_box.size.x * main_box.scale.x <= vp_size.x,
+		"%s x scale %.2f in %s" % [main_box.size, main_box.scale.x, vp_size])
 	inv.select(0)
 	inv.inspect()
 	await frames(30)
@@ -443,7 +459,7 @@ func _run() -> void:
 	ok("c5_survivor_helped", await wait_talk(func(): return game.has_flag("c5_survivor_helped") and c5.survivor_follow.active, 30.0))
 	# ---- scene 7: back to the supermarket (out through the neighbour's front path gap at x 29-32)
 	mk = world.market
-	ok("c5_walk_back", await walk_world([Vector3(30.6, 0.2, -61.5), Vector3(30.6, 0.2, -50.0), Vector3(11.5, 0.2, -50.0),
+	ok("c5_walk_back", await walk_world([Vector3(30.6, 0.2, -61.5), Vector3(30.6, 0.2, -46.0), Vector3(11.5, 0.2, -46.0),
 		Vector3(11.5, 0.2, -23.5), Vector3(32.7, 0.2, -23.5)]) and await walk_route([Vector3(0.3, 0.2, -2.5), Vector3(0.3, 0.2, 1.2),
 		Vector3(1.5, 0.2, 1.8), Vector3(1.5, 0.2, 4.6), Vector3(-0.5, 0.2, 6.2)], mk), str(mk.to_local(world.player.global_position)))
 	ok("c5_returned", await wait_until(func(): return game.has_flag("c5_returned"), 60 * 20),

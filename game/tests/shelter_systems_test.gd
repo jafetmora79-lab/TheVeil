@@ -118,7 +118,7 @@ func check_supplies(world: Node, game: Node) -> void:
 	world.phase4._open_supplies()
 	await frames(2)
 	var choices = world.phase4.choice
-	check("storage_panel_shows_actual_totals", choices.is_open() and "Food 0" in choices._title.text)
+	check("storage_panel_shows_actual_totals", choices.is_open() and "Food: 0" in choices._title.text)
 	var choices_buttons: Array = choices._box.get_children()
 	for i in range(1, choices_buttons.size()):
 		if "Deposit one Painkillers" in choices_buttons[i].text:

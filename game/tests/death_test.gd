@@ -20,6 +20,7 @@ func _initialize() -> void:
 
 
 func _one(game, outdoors: bool) -> void:
+	paused = false                                 # (the previous run ends with the death panel open, which pauses the tree)
 	game.new_game()
 	for f in ["fridge_checked", "has_keys", "left_house", "entered_car", "reached_town", "parked", "groceries_done", "game_bought", "p3_mist", "phase2_done"]:
 		game.flags[f] = true
