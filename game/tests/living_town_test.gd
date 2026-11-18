@@ -163,6 +163,7 @@ func _run() -> void:
 	p.global_position = Vector3(49.0, 0.7, 508.0)
 	w.in_car = true
 	var cs0: int = int(lt.report["cars_spawned"])
+	lt._car_t = 0.0                                    # (the next car is otherwise due 5-10 s from now at random: no flaky 14 s window)
 	await frames(60 * 14)
 	ok("R2_traffic_while_in_car", int(lt.report["cars_spawned"]) > cs0 or not lt.cars.is_empty(), "%d -> %d" % [cs0, int(lt.report["cars_spawned"])])
 	w.in_car = false
