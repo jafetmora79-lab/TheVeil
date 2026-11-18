@@ -1240,9 +1240,29 @@ func _park_plan_now() -> Dictionary:
 	var first := -1.0 if h.x <= 0.0 else 1.0
 	for side in [first, -first]:
 		var plan := _park_plan(side, Vector2(lp.x, lp.z), h, v)
-		if not plan.is_empty():
+		if not plan.is_empty() and _park_route_clear(plan["approach"]):
 			return plan
 	return {}
+
+
+## The approach polyline is free of solid geometry (a low wall, a prop, a post in the lot) for a car-sized box: the
+## planner only knows the tarmac, so a plan through something solid would grind against it and then fall back to the fade.
+func _park_route_clear(path: Array) -> bool:
+	var space := get_world_3d().direct_space_state
+	var box := BoxShape3D.new()
+	box.size = Vector3(1.9, 0.5, 1.9)
+	var q := PhysicsShapeQueryParameters3D.new()
+	q.shape = box
+	q.collision_mask = 1
+	q.exclude = [sedan.get_rid()]
+	for i in range(0, path.size(), 2):
+		var pt: Vector3 = path[i]
+		var g := space.intersect_ray(PhysicsRayQueryParameters3D.create(pt + Vector3(0, 3, 0), pt - Vector3(0, 3, 0), 1, [sedan.get_rid()]))
+		var y: float = (g["position"] as Vector3).y if g else pt.y
+		q.transform = Transform3D(Basis(), Vector3(pt.x, y + 0.25 + 0.45, pt.z))       # (above the tarmac, wheel-high and up)
+		if not space.intersect_shape(q, 1).is_empty():
+			return false
+	return true
 
 
 ## Pure-pursuit tracker on a polyline. dir = +1 forward / -1 reverse. Returns Vector2(target speed, steer angle).
