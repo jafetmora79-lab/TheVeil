@@ -1,0 +1,37 @@
+[remap]
+
+importer="texture"
+type="CompressedTexture2D"
+uid="uid://dhann2ukp7cdc"
+path="res://.godot/imported/CHR_Sarah_PS2_T_Sarah_Face_Painted.png-a4849bac291b5bf8c346215f1ee0da35.ctex"
+metadata={
+"vram_texture": false
+}
+generator_parameters={
+"md5": "3814fab9c88e1339c8e3bf460472b4c4"
+}
+
+[deps]
+
+source_file="res://game/creatures/sarah_ps2/CHR_Sarah_PS2_T_Sarah_Face_Painted.png"
+dest_files=["res://.godot/imported/CHR_Sarah_PS2_T_Sarah_Face_Painted.png-a4849bac291b5bf8c346215f1ee0da35.ctex"]
+
+[params]
+
+compress/mode=0
+compress/high_quality=false
+compress/lossy_quality=0.7
+compress/hdr_compression=1
+compress/normal_map=0
+compress/channel_pack=0
+mipmaps/generate=true
+mipmaps/limit=-1
+roughness/mode=0
+roughness/src_normal=""
+process/fix_alpha_border=true
+process/premult_alpha=false
+process/normal_map_invert_y=false
+process/hdr_as_srgb=false
+process/hdr_clamp_exposure=false
+process/size_limit=0
+detect_3d/compress_to=1

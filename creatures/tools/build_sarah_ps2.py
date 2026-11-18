@@ -77,6 +77,15 @@ _best.co.y -= .014
 for _v in _hv:
     if _v != _best and (_v.co - _best.co).length < .022:
         _v.co.y -= .005
+# clean-up so the exported normals are sane (degenerate faces gave NaN normals = white blotches in Godot)
+bmh2 = bmesh.new()
+bmh2.from_mesh(head.data)
+bmesh.ops.remove_doubles(bmh2, verts=list(bmh2.verts), dist=1e-5)
+bmesh.ops.dissolve_degenerate(bmh2, dist=1e-5, edges=list(bmh2.edges))
+bmesh.ops.recalc_face_normals(bmh2, faces=list(bmh2.faces))
+bmh2.to_mesh(head.data)
+bmh2.free()
+head.data.update()
 print("HEAD simplified tris", sum(len(p.vertices) - 2 for p in head.data.polygons), "from", sum(len(p.vertices) - 2 for p in head_orig.data.polygons))
 
 
@@ -155,6 +164,26 @@ bmesh.ops.delete(bm, geom=[f for f, t in zip(bm.faces, tags) if t not in ("hand"
 bm.to_mesh(body.data)
 bm.free()
 body.name = "Skin_Body"
+
+# the basemesh body has NO usable UVs (all loops sit at 0,0): give the cut-out clothing real, non-overlapping unwraps
+def unwrap(ob):
+    if not ob.data.uv_layers:
+        ob.data.uv_layers.new(name="UVMap")
+    bpy.context.view_layer.objects.active = ob
+    ob.select_set(True)
+    bpy.ops.object.mode_set(mode='EDIT')
+    bpy.ops.mesh.select_all(action='SELECT')
+    bpy.ops.uv.smart_project(angle_limit=math.radians(66), island_margin=0.012)
+    bpy.ops.object.mode_set(mode='OBJECT')
+    ob.select_set(False)
+
+
+for _ob in (shirt, pants, boots, body):
+    unwrap(_ob)
+for _ob, (ou, sc) in ((shirt, (0.0, .5)), (pants, (.5, .5))):                 # shirt in the left half of the cloth atlas, trousers in the right half
+    _uv = _ob.data.uv_layers.active.data
+    for _l in _uv:
+        _l.uv = (ou + _l.uv[0] * sc * .97 + .005, _l.uv[1] * .86 + .005)
 
 shirt_pts = np.array([v.co[:] for v in shirt.data.vertices])
 pants_pts = np.array([v.co[:] for v in pants.data.vertices])
@@ -520,6 +549,10 @@ raw = raster(head, np.zeros((SIZE, SIZE, 3), dtype=np.float32), face_fn)
 # early-PS2 blockiness like the reference sheet: paint at 128x128 detail and show it enlarged with nearest filtering
 small = raw.reshape(128, 4, 128, 4, 3).mean(axis=(1, 3))
 face = np.kron(small, np.ones((4, 4, 1), dtype=np.float32))
+def noise(p, s=1.0):
+    return math.sin(p.x * 83 * s + 1.3) * math.sin(p.y * 71 * s + .4) * math.sin(p.z * 97 * s + 2.1)
+
+
 skin_t = raster(body, np.tile(SKIN, (128, 128, 1)).astype(np.float32), lambda p, n, t: SKIN * (.92 + .08 * noise(p, 2)))
 NAVY, NAVY_D, TROU, CREAM = hexs("#1d2a46"), hexs("#131b30"), hexs("#161b27"), hexs("#b9b49c")
 
@@ -559,8 +592,8 @@ def pants_fn(p, n, tag):
 cloth_tex = np.zeros((128, 128, 3), dtype=np.float32)
 raster(shirt, cloth_tex, shirt_fn, face_tags=shirt_tags)
 raster(pants, cloth_tex, pants_fn)
-for yy in range(16):
-    for xx in range(16):
+for yy in range(112, 128):
+    for xx in range(112, 128):
         cloth_tex[yy, xx] = NAVY * (1.0 + .05 * (1 if (xx + yy) % 2 else -1))
 leather_t = np.zeros((64, 64, 3), dtype=np.float32)
 for yy in range(64):
@@ -614,7 +647,7 @@ for ob, m in ((head, M_face), (body, M_skin), (shirt, M_cloth), (pants, M_cloth)
 uvl = gear_c.data.uv_layers.active.data
 for p in gear_c.data.polygons:
     for li in p.loop_indices:
-        uvl[li].uv = (.01 + uvl[li].uv[0] * .1, .01 + uvl[li].uv[1] * .1)
+        uvl[li].uv = (.89 + uvl[li].uv[0] * .1, .89 + uvl[li].uv[1] * .1)
 
 # ================================================================================================================ rig + weights
 bpy.ops.object.select_all(action='DESELECT')
