@@ -1,0 +1,7 @@
+Human Basemeshes
+Author: pistachio (OpenGameArt.org, posted 2019-05-05)
+Source: https://opengameart.org/content/human-basemeshes
+License: CC0 1.0 (public domain dedication) - no attribution required; credit kept here anyway.
+File: Human Basemeshes.zip (225 KB) -> extracted/Human Basemeshes.blend
+Author's note: male (1152 tris) and female (1158 tris) low-poly meshes, rigged, UV'd; "topology not completely optimized for animation".
+Downloaded 2026-11-18 into this folder at the user's request. Untrusted download: the .blend file was only opened as data.

@@ -1,0 +1,7 @@
+Human and Furry Base Meshes - DaemonBase
+Author: DaemonOutcast (OpenGameArt.org, posted 2024-08-05)
+Source: https://opengameart.org/content/human-and-furry-base-meshes-daemonbase
+License: CC0 1.0 (public domain dedication) - no attribution required; credit kept here anyway.
+File: daemonbases.zip (672.4 KB) -> extracted/ fem.blend, femcanine.blend, masc.blend, masccanine.blend
+Author's note: built with cel shading and retro PS1-PS2 aesthetics in mind from Polygon Runaway's lowpoly basemesh and VideroBoy's basemesh; head and body are detached.
+Downloaded 2026-11-18 into this folder at the user's request. Untrusted download: the .blend files were only opened as data.
