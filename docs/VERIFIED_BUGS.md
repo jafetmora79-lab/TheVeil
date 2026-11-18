@@ -117,3 +117,23 @@ Evidence levels: **ROOT-CAUSED** (probe shows the cause), **STALE** (the test ch
 - **`house_loot`:** `houses_opened` expects 6 houses but 21 are open — `scavenge_houses.json` grew on 2026-11-08 ("seven more lootable Maple Ave houses", commit 4536afb) after the test was written; `refilled_one_container` and `load_keeps_day` read a fixed container of `HOUSE_15` and the half-restock rule/loot layout. **Stale by data change, not edited** (needs the loot spec).
 - **`living_town R3_brakes_for_car_ahead`:** a second flaky check (1 in 8 runs: gap 3.6 m against `> 4.0`). The traffic AI can stop closer than 4 m centre-to-centre behind a car parked ahead at the top of its random speed range. Marginal; not changed.
 - **Not investigated at all:** `chapter6 c6_eddie_lag` (VB-005), `chapter11 c11_walk_upstairs`, `chapter12 c12_escape_run/c12_skitter_moved` (VB-006), `house_audit` EXT_HOUSE_24/25 door spacing, `chapter8` (3), `death` (7, indoor-pause artifact per earlier probe).
+
+---
+# Fourth pass: the previously undiagnosed failures
+
+## VB-012 Chapter 13 exit ramp: a 13 cm lip stops the player at the top (Medium) — ROOT-CAUSED, open, needs a geometry decision
+- **Test:** `chapter12_test c12_escape_run` (and `c12_skitter_moved`'s companion state).
+- **Probe (temporary, reverted):** the player sprints up `C12_Facility/Ramp` and stops dead at (0.22, −0.31, 28.68 relative to the facility origin), velocity 0, controls on, on the floor, for 2 s. A forward ray finds the vertical face of `C12_Facility/Slab` 0.36 m ahead (normal (0, 0, 1)); the ramp surface there is about 0.13 m below the slab top (y 0).
+- **Cause:** `player.gd:166` only calls `_step_up` when `get_floor_normal().y > 0.93` ("flat ground only: stairs are ramps"). This ramp is about 26.6° (normal.y ≈ 0.894), so the step-up is never tried and the capsule is held by the 13 cm lip where the ramp meets the slab. `VeilSurvivorBody.step_landing` itself would succeed there (probe: rise 0.31 m, STEP is 0.35), so the geometry is the problem, not the step code.
+- **Impact:** the player cannot walk out of the underground onto the slab at the end of the Skitter chase. A jump clears it (if the stamina rule allows; the probe shows stamina is 0.4 / 100 after the 40 m sprint, and a survival jump costs stamina, so an exhausted player may not be able to jump). Not confirmed on screen; the physics is the same engine as the game.
+- **Not changed:** the fix is geometry (raise the ramp top 0.13 m / extend it under the slab, then check the bottom end does not get a new lip) or allowing a step-up on a slope when a low vertical face blocks; both change how the area plays. See `game/world/chapter12.gd:354` (`_box(fac, "Ramp", …)`).
+- **Also in that run:** `skitter_max_step` was 0.34 m per frame against the test's 0.25 limit (the Skitter's fastest bound, about 20 m/s); not judged a defect.
+
+## Stale tests, now explained (no game bug found)
+- **`chapter8_test c8_control_back / c8_hound_guards / c8_doorway_blocked`:** since 92eda07 (2026-11-07, "the Hound bites Sarah, a click rescue, then the barricade") the attack scene is longer: control returns after **1162 frames (19 s)**, not within the test's 360; the current objective is `c8_help` (help the injured survivor), not `c8_secure`; the Hound has already been driven off (`c8.hound` null, `hound_spawns` 1) and the doorway blocker is not up yet (layer 0). The test describes the old flow. It needs rewriting for the bite → click rescue → help → barricade order; not done.
+- **`chapter6_test c6_eddie_lag`:** the maximum lag is 16.2 m against a hard 16.0 m limit — 0.2 m over, with `c6_eddie_no_teleport` and `c6_eddie_no_wall_crossing` passing. Marginal; no defect shown (VB-005 is downgraded to Low).
+- **`chapter11_test c11_walk_upstairs`:** the walker reaches the top landing (local y 3.60, floor normal up) and is stopped by a wall face 0.3 m ahead on its straight route to the next waypoint (probe), while moves sideways (±x) are free. The landing is not a dead end; the test's route is straight where the layout turns. Not a progression block (the later upstairs steps pass).
+
+## Still not diagnosed
+- **`house_audit`:** `EXT_HOUSE_24` (Cottage) and `EXT_HOUSE_25` (Ranch), both lootable Maple Ave houses added 2026-11-08, have 7 doors that the test cannot walk through in either direction (21 other houses pass; `holes 0`); `INT_Door_GarageKitchen` in house 25 has a 0.58 m floor step (0.60 → 0.02). Not found whether the doors are really blocked or the test's door-centre sampling misses on these two. **Worth a look because these houses are scavenged.**
+- **`death_test` (7 `*_false`):** classified earlier as an indoor-pause artifact of the test; not re-probed in this pass.

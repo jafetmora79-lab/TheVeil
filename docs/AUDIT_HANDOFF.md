@@ -25,3 +25,6 @@
 
 ## Third pass (see the last section of `docs/VERIFIED_BUGS.md`)
 Most remaining failures were stale or flaky tests and are fixed in the tests. New open game finding: **VB-011** (a Hound roams from 19 s into every trip, against the documented calm tuning). Still undiagnosed: Eddie lag (VB-005), Ch.12/13 stalls (VB-006), `house_audit` doors, `chapter8`, `death`, the rest of `expedition_test`, `house_loot` (stale by data).
+
+## Fourth pass
+New: **VB-012** (Chapter 13 exit ramp has a 13 cm lip the player cannot step over because step-up is disabled on slopes; root-caused by probe, not changed). Explained as stale: `chapter8_test` (the attack flow was redesigned), `chapter6_test` Eddie lag (0.2 m over a hard limit), `chapter11_test` walk upstairs (route). Still open: `house_audit` doors in the two lootable houses EXT_HOUSE_24/25; `death_test` not re-probed.
