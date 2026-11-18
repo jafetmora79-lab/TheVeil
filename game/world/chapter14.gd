@@ -22,7 +22,7 @@ const CHAPTER := 15
 const A := "res://THE_VEIL_ASSETS_V2/"
 const SKITTER_PATH := "res://game/creatures/skitter/CRT_Skitter_v2.tscn"
 const HOUND_PATH := "res://game/creatures/hound/CRT_Hound_v2.tscn"
-const CRAB_PATH := "res://THE_VEIL_ASSETS_V2/07_Creatures/Godot_Scenes/CRT_Shellcrawler.tscn"
+const CRAB_PATH := "res://game/creatures/shellcrawler/CRT_Shellcrawler_v2.tscn"
 const HOUND_AI := preload("res://game/enemies/hound_ai.gd")
 # ---- the mill-worker house (house-local; floor y 0.61): living room x -3..3, z 3.2..8.4; kitchen behind it
 const BED := Vector3(1.4, 0.61, 6.0)                   # where the protagonist slept (No Safe Road's rest spot)
