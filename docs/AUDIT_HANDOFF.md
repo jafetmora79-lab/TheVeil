@@ -28,3 +28,6 @@ Most remaining failures were stale or flaky tests and are fixed in the tests. Ne
 
 ## Fourth pass
 New: **VB-012** (Chapter 13 exit ramp has a 13 cm lip the player cannot step over because step-up is disabled on slopes; root-caused by probe, not changed). Explained as stale: `chapter8_test` (the attack flow was redesigned), `chapter6_test` Eddie lag (0.2 m over a hard limit), `chapter11_test` walk upstairs (route). Still open: `house_audit` doors in the two lootable houses EXT_HOUSE_24/25; `death_test` not re-probed.
+
+## Fifth pass
+`death_test` fixed (stale: the tree stayed paused from the previous run's death panel; now PASS). **VB-013:** `EXT_HOUSE_24` and `EXT_HOUSE_25` overlap `EXT_HOUSE_29` / `EXT_HOUSE_06` (centres 8.5 m / 6.3 m apart; the only pairs under 10 m), so the neighbours' wreck collision blocks 7 doors in the two lootable houses. Every failing test now has a recorded cause.

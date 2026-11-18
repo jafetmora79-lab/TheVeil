@@ -137,3 +137,21 @@ Evidence levels: **ROOT-CAUSED** (probe shows the cause), **STALE** (the test ch
 ## Still not diagnosed
 - **`house_audit`:** `EXT_HOUSE_24` (Cottage) and `EXT_HOUSE_25` (Ranch), both lootable Maple Ave houses added 2026-11-08, have 7 doors that the test cannot walk through in either direction (21 other houses pass; `holes 0`); `INT_Door_GarageKitchen` in house 25 has a 0.58 m floor step (0.60 → 0.02). Not found whether the doors are really blocked or the test's door-centre sampling misses on these two. **Worth a look because these houses are scavenged.**
 - **`death_test` (7 `*_false`):** classified earlier as an indoor-pause artifact of the test; not re-probed in this pass.
+
+---
+# Fifth pass: the last two
+
+## `death_test` — test artifact, game fine (now PASS, 0 failures)
+- The outdoor run ends with the death panel open (`death_panel_true` PASS). That panel is a `ChoicePanel`, which sets `get_tree().paused = true` (`choice_panel.gd:61`). The test then freed the world and started the indoor run **with the tree still paused**: probe `paused=true` before the teleport, report `{started: true}` forever, and the first collapse tween (pausable) never finished.
+- Fix in the test only: `paused = false` at the start of each run. Both runs now pass: indoors it cuts to the exterior vignette, 9 s, camera smooth, creatures placed, panel opens, audio unmuffled.
+- Not a game defect. (If a player could ever *enter* a death while a choice panel or the inventory is open, the death sequence would hang for the same reason; `Dialogue.clear()` and `hud.inv_panel.close()` at its start suggest that case is handled, but I did not test an open choice panel.)
+
+## VB-013 EXT_HOUSE_24 and EXT_HOUSE_25 overlap their neighbours' lots (Medium) — ROOT-CAUSED, open, needs a layout decision
+- **Evidence (data):** from `world_data.json`, `EXT_HOUSE_24` at (83.92, 450) is **8.5 m** from `EXT_HOUSE_29` at (80.0, 457.5); `EXT_HOUSE_25` at (212, 420) is **6.3 m** from `EXT_HOUSE_06` at (214.0, 426). These are the **only two house pairs closer than 10 m** among the 40 exterior houses; houses are about 9 × 11 m. Both pairs use the same cottage/ranch footprints.
+- **Evidence (probe):** the `house_audit` door failures in 24 and 25 are the player pressed against *another house's* colliders inside the house: in 24 the collider is `EXT_HOUSE_29/DestroyedCol` (the wreck's collision, 8 shapes of 8.4 × 7.4 × 11 m centred on house 29, yaw 90°) plus 24's own furnishing; in 25 it is `EXT_HOUSE_06/DestroyedCol` and `EXT_HOUSE_06/Furnishing/…_Col`. Houses 29 and 06 are town-destruction targets (`town_destruction.gd:22–31`), so after the swap their trimesh wreck collision fills part of the lootable house's rooms.
+- **Effect:** 7 doors across the two houses cannot be walked through (in both directions, three offsets each) in the test state (Chapter 8 start). In play: parts of these two lootable Maple Ave houses are likely unreachable or blocked by invisible wreck collision after the destruction. They are scavenge houses (`scavenge_houses.json`). Not played on screen.
+- **Not changed:** the fix is moving two houses (or their neighbours) in `world_data.json` and, for 24 and 25, checking their lot, road and loot positions; that is a layout change for the owner. Related to VB-004 (the same `DestroyedCol` collision class).
+- **Correction:** the earlier statement in VB-004 that the failing wrecks do not touch scavenge houses was based on name matching and is **wrong for these two**: wreck 29 and wreck 06 overlap the scavenge houses 24 and 25.
+
+# Status of every failing test after this audit
+All failing tests now have a recorded cause. Open game issues: VB-004, VB-010, VB-011, VB-012, VB-013 (plus Low items). Everything else was a stale, flaky or mis-set-up test; those that were fixed are committed, and `chapter8_test`, `house_loot`, the later steps of `expedition_test` and the greenhouse/fall checks of `world_repair` still need to be rewritten for the current design.
