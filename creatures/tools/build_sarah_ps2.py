@@ -354,24 +354,64 @@ def to_image(name, tex):
 
 ez = (EL.z + ER.z) / 2
 print("EYES (painted) at", tuple(round(c, 3) for c in EL), tuple(round(c, 3) for c in ER))
-SKIN, HAIR_C = hexs("#cf8661"), hexs("#7b4a30")
-SHADE = hexs("#7a3f2c")
-# --- clean UVs: the front of the face is ONE orthographic projection filling the left 70 % of the 256x256 atlas; sides/back/underside share the right 30 %
-hxmin, hxmax = hb[:, 0].min(), hb[:, 0].max()
+SKIN, HAIR_C = hexs("#c08e70"), hexs("#6e4228")
+SHADE = hexs("#946450")
+# --- UV layout: the front of the face is ONE orthographic projection filling the left 70 % of the atlas; sides/back/underside share the right 30 %
 hzmin, hzmax = hb[:, 2].min(), hb[:, 2].max()
 hymin, hymax = hb[:, 1].min(), hb[:, 1].max()
+# ---------------------------------------------------------------------------------------------------- head UV layout v2 (painter friendly)
+# atlas (v=0 bottom): FRONT of the face u 0.00-0.62 full height, with the brow-to-chin part getting 80 % of the height and the forehead/crown the top 20 %;
+# right column: LEFT side+ear (u .64-.82, v .50-1), RIGHT side+ear (u .82-1.0 mirrored, v .50-1), BACK of the head (u .64-.88, v 0-.50), TOP/UNDERSIDE (u .88-1, v 0-.50)
+def classify_uv(poly):
+    n = poly.normal
+    if n.y < -.45:
+        return "front"
+    if abs(n.x) > .5:
+        return "left" if poly.center.x < 0 else "right"
+    if n.y > .30:
+        return "back"
+    if abs(n.z) > .5:
+        return "top" if n.z > 0 else "under"
+    return "front" if n.y < -.15 else ("left" if poly.center.x < 0 else "right")
+
+
+face_polys = [pl for pl in head.data.polygons if classify_uv(pl) == "front"]
+fx = np.array([head.data.vertices[i].co.x for pl in face_polys for i in pl.vertices])
+hxmin, hxmax = float(fx.min()), float(fx.max())
+FZ_BROW = ez + .047
 huv = head.data.uv_layers.active if head.data.uv_layers else head.data.uv_layers.new(name="UVMap")
+head["uv_front"] = [hxmin, hxmax, float(hzmin), float(FZ_BROW), float(hzmax)]
+head["uv_layout"] = "front u0-.62 | left u.64-.82 v.5-1 | right u.82-1 v.5-1 (mirrored) | back u.64-.88 v0-.5 | top/under u.88-1 v0-.5"
+
+
+def front_uv(x, z):
+    v = .80 * (z - hzmin) / (FZ_BROW - hzmin) if z <= FZ_BROW else .80 + .20 * (z - FZ_BROW) / (hzmax - FZ_BROW)
+    return (min(.62, max(0.0, (x - hxmin) / (hxmax - hxmin) * .62)), min(1.0, max(0.0, v)))
+
+
 for poly in head.data.polygons:
-    front = poly.normal.y < -.25
+    kind = classify_uv(poly)
     for li in poly.loop_indices:
         co = head.data.vertices[head.data.loops[li].vertex_index].co
-        if front:
-            huv.data[li].uv = ((co.x - hxmin) / (hxmax - hxmin) * .70, (co.z - hzmin) / (hzmax - hzmin))
+        t = (co.y - hymin) / (hymax - hymin)
+        zz = (co.z - hzmin) / (hzmax - hzmin)
+        if kind == "front":
+            uvv = front_uv(co.x, co.z)
+        elif kind == "left":
+            uvv = (.64 + (1 - t) * .18, .50 + zz * .50)
+        elif kind == "right":
+            uvv = (1.0 - (1 - t) * .18, .50 + zz * .50)
+        elif kind == "back":
+            uvv = (.64 + (co.x - hb[:, 0].min()) / (hb[:, 0].max() - hb[:, 0].min()) * .24, zz * .50)
         else:
-            huv.data[li].uv = (.72 + (co.y - hymin) / (hymax - hymin) * .26, (co.z - hzmin) / (hzmax - hzmin))
+            uvv = (.88 + (co.x - hb[:, 0].min()) / (hb[:, 0].max() - hb[:, 0].min()) * .12, (t * .5) if kind == "under" else (.5 - t * .5) * 1.0)
+        huv.data[li].uv = uvv
+    head.data.polygons[poly.index].material_index = 0
 
 
 def sm(e0, e1, x):
+    if abs(e1 - e0) < 1e-9:
+        return 1.0 if x >= e1 else 0.0
     t = max(0.0, min(1.0, (x - e0) / (e1 - e0)))
     return t * t * (3 - 2 * t)
 
@@ -380,89 +420,106 @@ def ell(x, z, cx, cz, rx, rz):
     return ((x - cx) / rx) ** 2 + ((z - cz) / rz) ** 2
 
 
-BAYER = np.array([[0, 8, 2, 10], [12, 4, 14, 6], [3, 11, 1, 9], [15, 7, 13, 5]]) / 16.0
+def mix(col, c2, a):
+    return col + (np.asarray(c2, dtype=np.float32) - col) * max(0.0, min(1.0, a))
 
 
-def dither(col, px, py, levels=11):
-    q = (np.clip(col, 0, 1) * (levels - 1))
-    f = q - np.floor(q)
-    return (np.floor(q) + (f > BAYER[py % 4, px % 4] * .9)) / (levels - 1)
+def soft(v, edge=.25):
+    """1 inside a normalised shape (v<1), fading over `edge`"""
+    return 1.0 - sm(1.0 - edge, 1.0 + edge, v)
 
 
-LIPC, LIPD = hexs("#8a4f4c"), hexs("#5a2c2e")
-EYE_W, IRIS, BROW = hexs("#bdb6a4"), hexs("#1f1612"), hexs("#4a2a1c")
 face_cx = (hxmin + hxmax) / 2
+BROW_C, LASH_C, IRIS_C, IRIS_L, LIMB_C = hexs("#4a2b1c"), hexs("#2a1810"), hexs("#6b4a35"), hexs("#8f6a4b"), hexs("#2b1d14")
+SCLERA, LIP_U, LIP_L, LIP_H, MOUTH_C, NOSTRIL = hexs("#cdc3b4"), hexs("#94574f"), hexs("#a56b5e"), hexs("#b88475"), hexs("#4a2620"), hexs("#3a2018")
 
 
 def face_fn(p, n, tag):
     up = (p.z - hzmin) / (hzmax - hzmin)
     back = (p.y - hymin) / (hymax - hymin)
     if up > .8 or (up > .45 and back > .5):
-        return HAIR_C * (.78 + .22 * math.sin(p.x * 90 + p.z * 30))
+        return HAIR_C * (.80 + .2 * math.sin(p.x * 90 + p.z * 30))
     x, z = p.x - face_cx, p.z
     col = SKIN.copy()
-    # painted light and shadow (light from the upper left), not sculpted relief
-    col = col * (1.05 - .10 * sm(.0, .075, x) + .06 * sm(-.075, 0, -x)) + (SHADE - col) * .16 * sm(.0, .08, x)
-    col = col * (1 - .22 * sm(.45, 0.0, up))
-    col = col + (SHADE - col) * .38 * math.exp(-ell(abs(x), z, .050, ez - .032, .022, .022))
-    col = col * (1 - .20 * sm(.060, .085, abs(x)))
-    col = col * (1 - .16 * math.exp(-ell(x, z, 0, ez + .036, .05, .012)))
-    col = col + hexs("#b8452a") * .30 * math.exp(-ell(abs(x), z, .040, ez - .030, .028, .022))       # flushed cheeks
+    # ---- soft painted light and shadow
+    col = mix(col, SHADE, .22 * sm(.0, .085, x) + .10 * sm(.04, .085, abs(x)))                # one side of the face falls into shadow, temples darken
+    col = mix(col, hexs("#d8a888"), .20 * sm(ez + .01, ez + .06, z) * (1 - sm(.0, .07, abs(x))))   # lit forehead
+    col = mix(col, SHADE, .35 * sm(.40, .0, up))                                              # jaw and under-chin
+    col = mix(col, hexs("#b07458"), .20 * math.exp(-ell(abs(x), z, .045, ez - .034, .030, .022)))    # warm cheeks
+    col = mix(col, SHADE, .16 * math.exp(-ell(x, z, 0, ez + .034, .055, .012)))               # brow-ridge shadow
+    # ---- eyes
     for ex in (EL.x - face_cx, ER.x - face_cx):
         dx, dz = x - ex, z - ez
         sgn = 1 if ex > 0 else -1
-        socket = ell(dx, dz, 0, .004, .030, .016)
-        if socket < 1:
-            col = col + (SHADE - col) * .35 * (1 - sm(.1, 1.0, socket))
-        under = ell(dx, dz, 0, -.014, .022, .006)
-        if under < 1:
-            col = col * (.86 + .14 * under)
-        top = .0050 * (1 - (dx / .0150) ** 2) + .0004
-        bot = -.0036 * (1 - (dx / .0150) ** 2)
-        if abs(dx) < .0150 and bot < dz < top:
-            col = EYE_W * (.82 + .18 * sm(bot, top, dz)) * (.75 + .25 * (1 - abs(dx) / .024))
-            ir = ell(dx, dz, .001 * -sgn, .0004, .0050, .0050)
-            if ir < 1:
-                col = IRIS * (.8 + .3 * (dz < 0))
-                if ir < .22:
-                    col = hexs("#050505")
-                if ell(dx, dz, -.0018, .0026, .0014, .0014) < 1:
-                    col = hexs("#d8d2c4")
-            if dz > top - .0042:
-                col = col * .55
-        if abs(dz - (top + .0008)) < .0018 and abs(dx) < .0170:
-            col = hexs("#1b0f0c")
-        if abs(dz - (bot - .001)) < .0008 and abs(dx) < .014:
-            col = col * .55
-        by = ez + .020 + .0045 * (1 - ((dx + .004 * sgn) / .036) ** 2) + .004 * (sgn * dx) / .036
-        thick = .0058 * (1.0 - .5 * abs(dx) / .040)
-        if abs(dx) < .040 and abs(x) > .010 and abs(z - by) < thick:
-            col = BROW * (.8 + .4 * math.sin(p.x * 400))
-    if ez - .052 < z < ez - .002:
-        w = .005 + .012 * sm(ez - .002, ez - .045, z)
-        if w * .6 < x < w * 1.9:
-            col = col + (SHADE - col) * .55
-        if abs(x + .002) < .0016 and z > ez - .040:
-            col = col * 1.10
-    if abs(abs(x) - .0085) < .0028 and abs(z - (ez - .046)) < .0016:
-        col = hexs("#4a261a")
-    if .006 < abs(x) < .018 and abs(z - (ez - .053)) < .0028:
-        col = col * .75
-    lz = ez - .072
-    if abs(x) < .021 and abs(z - lz) < .0016 + .0012 * (1 - abs(x) / .021):
-        col = hexs("#4a2218")                                                                    # the mouth is only a painted line
-    if abs(x) < .016 and -.0075 < z - (lz - .0045) < .0012 and z < lz - .002:
-        col = col * 1.06 + hexs("#6a2a20") * .08                                                 # a slightly warmer lower lip
-    if abs(x) < .024 and abs(z - (lz - .014)) < .004:
-        col = col + (SHADE - col) * .22                                                          # chin shadow
-    if (int(p.x * 700) * 7 + int(p.z * 700) * 13) % 53 == 0 and abs(x) < .06 and ez - .05 < z < ez - .005:
-        col = col * .86
+        W = .0160
+        top = .0060 * max(0.0, 1 - (dx / W) ** 2) + .0004 + .0010 * sgn * dx / W * -1
+        bot = -.0044 * max(0.0, 1 - (dx / W) ** 2)
+        col = mix(col, SHADE, .20 * (1 - sm(.3, 1.2, ell(dx, dz, 0, .006, .031, .020))))        # soft socket shadow
+        col = mix(col, hexs("#8a5f55"), .12 * (1 - sm(.2, 1.0, ell(dx, dz, 0, -.0125, .024, .006))))   # tired under-eye
+        crease = abs(dz - (top + .0048 + .0012 * (1 - abs(dx) / W)))
+        if abs(dx) < W * 1.15:
+            col = mix(col, SHADE, .28 * (1 - sm(.0, .0016, crease)))                           # upper-lid crease
+        if abs(dx) < W and bot < dz < top:
+            e = (1 - abs(dx) / W)
+            c = mix(SCLERA * (.82 + .18 * e), SHADE, .28 * sm(top - .004, top, dz))             # sclera, shaded under the lid
+            ir = ell(dx, dz, 0, .0006, .0063, .0063)
+            if ir < 1.0:
+                ang = math.atan2(dz - .0006, dx)
+                iris = mix(IRIS_C, IRIS_L, .55 * sm(0.0, 1.0, -(dz - .0006) / .0063))           # lighter at the bottom of the iris
+                iris = mix(iris, LIMB_C, .75 * sm(.55, 1.0, ir))                                 # dark limbal ring
+                iris = iris * (1 + .08 * math.sin(ang * 9))
+                c = mix(c, iris, soft(ir, .12))
+                if ir < .20:
+                    c = hexs("#0c0907")
+                if ell(dx, dz, -.0026, .0035, .0016, .0014) < 1:
+                    c = hexs("#ebe4d6")                                                          # catch-light
+            col = c
+        if abs(dx) < W * 1.02:
+            lash = abs(dz - (top + .0003)) - (.0013 + .0007 * max(0, -sgn * dx) / W)           # heavy upper line, thicker at the outer corner
+            col = mix(col, LASH_C, .95 * (1 - sm(-.0003, .0008, lash)))
+            col = mix(col, hexs("#6e4a3e"), .45 * (1 - sm(.0, .0009, abs(dz - (bot - .0004)))) * (1 - sm(.7, 1.0, abs(dx) / W)))   # lower lid line
+        # eyebrow: arched, tapered, soft edge
+        t = (abs(dx + .002 * sgn) + (0 if sgn * dx > -.012 else 0))
+        if -.008 < sgn * (dx + .006 * -sgn) < .046 and True:
+            u = (sgn * dx + .008) / .054
+            by = ez + .0188 + .0068 * math.sin(math.pi * min(1.0, max(0.0, u))) ** 1.0 - .003 * u
+            th = .0056 * (1 - .70 * abs(u - .35)) + .0008
+            if 0 <= u <= 1:
+                col = mix(col, BROW_C, .92 * (1 - sm(th * .6, th * 1.2, abs(z - by))) * (.9 + .1 * math.sin(p.x * 500)))
+    # ---- nose: painted shading, a hint of projection only
+    nz0, nz1 = ez - .003, ez - .043
+    if nz1 < z < nz0:
+        wid = .0085 + .004 * sm(nz0, nz1, z)
+        col = mix(col, SHADE, .24 * math.exp(-((abs(x) - wid) / .0035) ** 2) * sm(nz0 - .004, nz0 - .02, z) * (1 + .4 * (x > 0)))   # sides of the bridge
+        col = mix(col, hexs("#dcb090"), .18 * math.exp(-(x / .0045) ** 2) * sm(nz1, nz1 + .02, z))                                    # bridge / tip highlight
+    col = mix(col, hexs("#a8654e"), .30 * (1 - sm(.4, 1.2, ell(abs(x), z, .0105, ez - .0445, .0072, .0045))))                             # nose wings
+    col = mix(col, NOSTRIL, .9 * (1 - sm(.6, 1.0, ell(abs(x), z, .0068, ez - .0495, .0034, .0019))))                                   # nostrils
+    col = mix(col, SHADE, .22 * (1 - sm(.5, 1.2, ell(x, z, 0, ez - .0555, .018, .0042))))                                                # under-nose shadow
+    # ---- mouth: painted flat shapes, no relief
+    lz = ez - .0715
+    hw = .0205
+    if abs(x) < hw * 1.1:
+        e = max(0.0, 1 - (x / hw) ** 2)
+        bow = .0010 * math.exp(-(x / .004) ** 2)
+        up_top, lo_bot = lz + .0066 * e - bow, lz - .0088 * e
+        if lo_bot < z < up_top + .0012:
+            if z >= lz:
+                col = mix(col, LIP_U * (.93 + .12 * sm(lz, up_top, z)), .96)
+            else:
+                col = mix(col, LIP_L, .96)
+                col = mix(col, LIP_H, .55 * math.exp(-((x / .009) ** 2) - ((z - (lz - .0045)) / .0025) ** 2))      # soft highlight on the lower lip
+        col = mix(col, MOUTH_C, .95 * (1 - sm(.0003, .0012, abs(z - lz + .0004 * (1 - e)))) * (1 - sm(.85, 1.05, abs(x) / hw)))   # the mouth line
+        col = mix(col, SHADE, .35 * (1 - sm(.0, .004, abs(abs(x) - hw * .96))) * (1 - sm(.0, .004, abs(z - lz))))                    # corners
+    col = mix(col, SHADE, .20 * (1 - sm(.5, 1.2, ell(x, z, 0, lz - .0165, .016, .0042))))                                               # under the lower lip
+    col = mix(col, SHADE, .18 * (1 - sm(.4, 1.1, ell(abs(x), z, .042, lz + .006, .008, .016))))                                          # smile lines
     return col
 
 
-face = raster(head, np.zeros((256, 256, 3), dtype=np.float32), face_fn)
-for _ in range(2):                                           # soft, low-res painted look (the references are bilinear-soft)
-    face = (face + np.roll(face, 1, 0) + np.roll(face, -1, 0) + np.roll(face, 1, 1) + np.roll(face, -1, 1)) / 5.0
+SIZE = 512
+raw = raster(head, np.zeros((SIZE, SIZE, 3), dtype=np.float32), face_fn)
+# early-PS2 blockiness like the reference sheet: paint at 128x128 detail and show it enlarged with nearest filtering
+small = raw.reshape(128, 4, 128, 4, 3).mean(axis=(1, 3))
+face = np.kron(small, np.ones((4, 4, 1), dtype=np.float32))
 skin_t = raster(body, np.tile(SKIN, (128, 128, 1)).astype(np.float32), lambda p, n, t: SKIN * (.92 + .08 * noise(p, 2)))
 NAVY, NAVY_D, TROU, CREAM = hexs("#1d2a46"), hexs("#131b30"), hexs("#161b27"), hexs("#b9b49c")
 
@@ -546,7 +603,7 @@ def mk(name, tex, rough=1.0, interp='Closest'):
     return m
 
 
-M_face, M_skin = mk("Sarah_Face", face, 1.0, "Linear"), mk("Sarah_Skin", skin_t)
+M_face, M_skin = mk("Sarah_Face", face, 1.0, "Closest"), mk("Sarah_Skin", skin_t)
 M_cloth, M_leather, M_boot = mk("Sarah_Cloth", cloth_tex), mk("Sarah_Leather", leather_t), mk("Sarah_Boots", boot_t)
 M_hair, M_hairs = mk("Sarah_Hair", hair_cap_t), mk("Sarah_HairStrands", hair_t)
 for ob, m in ((head, M_face), (body, M_skin), (shirt, M_cloth), (pants, M_cloth), (gear_l, M_leather), (gear_c, M_cloth), (boots, M_boot), (hair_cap, M_hair), (hair_str, M_hairs)):
@@ -662,4 +719,5 @@ for ob in (sbody, head, shair):
     md.object = rig
 print("SKELETON bones", len(arm_d.bones), "tris total", sum(tris(o) for o in (sbody, head, shair)))
 bpy.ops.wm.save_as_mainfile(filepath=os.path.abspath(OUT_BLEND))
-print("PHASE2 saved")
+bpy.ops.export_scene.gltf(filepath=os.path.abspath(OUT_GLB), export_format="GLB", export_animations=False, export_skins=True, export_yup=True, export_apply=False)
+print("PHASE2 saved + GLB")

@@ -62,24 +62,29 @@ g = np.zeros((N, N, 4), dtype=np.float32)
 g[...] = (.12, .12, .14, 1)
 for poly in polys:
     cu = sum(p[0] for p in poly) / len(poly)
-    tint = (.20, .30, .55, 1) if cu < .71 else (.25, .45, .30, 1)         # blue = front of the face, green = sides / ears / back / underside
+    cv = sum(p[1] for p in poly) / len(poly)
+    if cu < .63:
+        tint = (.20, .30, .55, 1)                                            # blue: FRONT of the face
+    elif cv >= .5:
+        tint = (.25, .50, .30, 1) if cu < .82 else (.20, .50, .50, 1)       # green: LEFT side+ear, teal: RIGHT side+ear
+    else:
+        tint = (.60, .40, .20, 1) if cu < .88 else (.45, .30, .55, 1)       # orange: BACK of head, purple: top/underside
     for k in range(1, len(poly) - 1):
         fill_tri(g, (poly[0], poly[k], poly[k + 1]), tint)
 for poly in polys:
     for i in range(len(poly)):
         line(g, poly[i], poly[(i + 1) % len(poly)], (.95, .95, .95, 1), 2)
-vs = np.array([v.co[:] for v in me.vertices])
-xmin, xmax, zmin, zmax = vs[:, 0].min(), vs[:, 0].max(), vs[:, 2].min(), vs[:, 2].max()
-ez = 1.534
+xmin, xmax, zmin, zbrow, zmax = head["uv_front"]
 cx = (xmin + xmax) / 2
+ez = 1.534
 
 
 def U(x):
-    return (x - xmin) / (xmax - xmin) * .70
+    return (x - xmin) / (xmax - xmin) * .62
 
 
 def V(z):
-    return (z - zmin) / (zmax - zmin)
+    return .80 * (z - zmin) / (zbrow - zmin) if z <= zbrow else .80 + .20 * (z - zbrow) / (zmax - zbrow)
 
 
 def mark(x, z, col, r=7):
@@ -95,4 +100,4 @@ mark(cx - .0335, ez + .0188 + .006, (.9, .4, .1, 1)); mark(cx + .0335, ez + .018
 mark(cx, ez - .043, (1, .3, .3, 1))                                               # red: nose tip
 mark(cx, ez - .0715, (1, .3, 1, 1))                                               # magenta: mouth line
 save(g, OUT_G)
-print("EXPORTED", OUT_T, OUT_G, "front face region u 0.00-0.70, side/back region u 0.72-0.98, v 0=bottom (chin/neck) 1=top (crown)")
+print("EXPORTED", OUT_T, OUT_G, head["uv_layout"])
