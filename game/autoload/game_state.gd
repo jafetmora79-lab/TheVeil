@@ -227,17 +227,20 @@ func record_shelter_night(transition: String, roster: Array, rates: Dictionary, 
 
 # ------------------------------------------------------------------ save / load
 func has_save() -> bool:
-	if not FileAccess.file_exists(SAVE_PATH):
-		return false
 	var d: Variant = _read_save()
 	return d is Dictionary and d.get("version", 0) == SAVE_VERSION
 
 
+## The player's save: the main file, or - when it is missing or unreadable (a crash or power cut in the middle of an
+## old-style in-place write) - the previous good save kept beside it as veil_save.json.bak (audit VB-001).
 func _read_save() -> Variant:
-	var f := FileAccess.open(SAVE_PATH, FileAccess.READ)
-	if f == null:
-		return null
-	return JSON.parse_string(f.get_as_text())
+	for p in [SAVE_PATH, SAVE_PATH + ".bak"]:
+		if not FileAccess.file_exists(p):
+			continue
+		var d: Variant = JSON.parse_string(FileAccess.get_file_as_string(p))
+		if d is Dictionary:
+			return d
+	return null
 
 
 ## The world fills player_state / vehicle_state before calling this.
@@ -281,11 +284,22 @@ func save_game(path := SAVE_PATH) -> bool:
 		"player_name": player_name, "saved_at": Time.get_datetime_string_from_system()}
 	if path != SAVE_PATH:
 		DirAccess.make_dir_recursive_absolute(path.get_base_dir())
-	var f := FileAccess.open(path, FileAccess.WRITE)
+	# Atomic (audit VB-001): the whole file is written beside the save and checked before it replaces anything; the last
+	# good save is kept as .bak. A crash mid-write can no longer leave the player's only save truncated.
+	var text := JSON.stringify(d, "\t")
+	var tmp := path + ".tmp"
+	var f := FileAccess.open(tmp, FileAccess.WRITE)
 	if f == null:
 		return false
-	f.store_string(JSON.stringify(d, "\t"))
-	return true
+	f.store_string(text)
+	f.close()
+	if FileAccess.get_file_as_string(tmp).length() != text.length():       # a full disk leaves a short file
+		DirAccess.remove_absolute(ProjectSettings.globalize_path(tmp))
+		return false
+	var g := ProjectSettings.globalize_path(path)
+	if FileAccess.file_exists(path):
+		DirAccess.copy_absolute(g, g + ".bak")
+	return DirAccess.rename_absolute(g + ".tmp", g) == OK
 
 
 func load_game() -> bool:
