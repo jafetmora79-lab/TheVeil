@@ -87,3 +87,33 @@ Evidence levels: **ROOT-CAUSED** (probe shows the cause), **STALE** (the test ch
 ## Diagnosed in a second pass — both STALE tests, now updated (the game is fine)
 - **`handgun food_restocks`:** the test waited for `exp/cache_lot_food_d1`, but `expedition._spawn_caches` deliberately restocks only about half the spots each new day (`(idx + day) % 2 == 1` is skipped) and `lot_food` (index 0) is skipped on day 1. Probe: day 1 spawned `street_water`, `road_water`, `west_water`, `lot2_food`, `west2_water`, `east_water`, `road2_water` (`_d1`). Food does restock. The test now accepts any food spot. Passes.
 - **`supply_grace companion_opens_doors`:** `world.companion_at_market_doors` returns early while `expedition.doors_held()` (probe: true, with the player in the store and no story departure) — the deliberate rule from commit 96919b1 (2026-11-07): "shelter time: a companion never opens the exit on its own". The test now asserts that rule, and that a companion does open the doors on a story outing (`story_departure = true`). Passes.
+
+---
+# Third pass: the rest of the failing tests (each probed or read against the code; fixes are to tests only unless stated)
+
+## Fixed in the tests — the game was right (stale or flaky tests)
+| Test | Cause | Evidence |
+|---|---|---|
+| `car_quest fit_once` | The pack holds one of each part (`Game.add_item` ignores a duplicate unless it is a shelter resource); the "second fuse" was never added. Count after the fit is 0 | read `game_state.gd:176`; test PASS after |
+| `car_quest struggle_won_recover` | `struggle._release` waits 0.25 s (shove tween) before `ai.recoil()`; the test checked the same frame | test PASS after a 30-frame wait |
+| `survivors sv_eddie_carries` | A companion's pack is filled by `_give` and deposited into the shelter stores (`survivors.deposit_pack`), not into the player's pack; the test never gave Eddie anything | PASS after giving a water bottle and checking the stores |
+| `threat A_danger_critical`, `D_tentacle_emerged` | Calm tuning (commit 8abadde): danger steps are 5/10/15/20 min (`danger_thresholds_s`), tentacle only from CRITICAL; the test assumed 45/90/150/240 s | with the fast steps set in the test, the whole threat test PASSes (director works) |
+| `shelter_systems storage_panel_shows_actual_totals` | text is now `Food: 0 / N` | PASS |
+| `living_town R2_traffic_while_in_car` | **Flaky**: the next car is due 5–10 s at random, the test waited a fixed 14 s | failed 1 in 3 before; 3 of 4 runs pass after zeroing the timer. See residual below |
+| `systems_repair H_*`, `I_encounters_happen`, `J_struggle_available` | The handgun hand-over (`sidearm.handover_pending`) pre-empts the leave menu on the first exit; the trip never started, so no creatures | marking the hand-over done: H, I_encounters, J pass |
+| `systems_repair J_creature_released` | After 2.5 s the creature has already shaken it off (SUSPICIOUS/CHASE) | accepted states widened |
+| `player_name confirmed_name_starts_world` | A new game now opens the intro cinematic (`Cinematic.tscn`, mode `intro`), not World directly | PASS. The signal-11 at the end is the known shutdown crash after the result line |
+| `expedition_test` | Same hand-over cause: the menu now opens. Option labels differ from the test's expectations (`Continue Story - Talk to Marcus`, `Go Scavenging`, `Sleep / End Day`, `Stay Inside`) and later steps depend on them | **partly**: `exp_menu_opens` passes, 4 later checks still fail and the test still times out |
+
+## New: VB-011 A roaming Hound appears 19 s into every trip, against the documented calm tuning (Medium) — OPEN, owner decision
+- **Evidence:** `systems_repair I_quiet_first_5_min`: first appearances over a 21-minute simulated trip were hound **19 s**, skitter 617 s, crab 901 s. The data file's own note (commit 8abadde) says "0–5 min quiet (distant sounds only); 5–10 rare roaming Hound".
+- **Cause:** `expedition.gd:1240` spawns a roamer when `(lv >= 1 or el >= 20.0)`; `_reset_director` sets `_next_roam = maxf(20.0, …)` — a hard-coded 20 s that survived the retune.
+- **Not changed:** it sets difficulty. `threat_test` (fast steps) relies on early encounters. Fix would be to start roamers at the first threshold.
+
+## Still open after investigation
+- **VB-010 parking (extended):** `world_repair park_from_anywhere` → `gh_look_starts/done/once`, `fall_recovered (nan)`. The probe shows the test's side-on start point (lot x −6, z 22.5) is **inside the supermarket building collision** (the ground ray hits `COM_Supermarket_Col` at y 0.16); the sedan sinks below it (y −0.76) and falls (about −28 m). The `gh_look_*` checks need `world.in_car` false and the player visible; these are probably a cascade of the same state, **not confirmed**. Unproven whether a real car can reach that spot.
+- **VB-010 minor:** `_fade_park` computes `lift = car.y − ground.y` at the *start*; if the car was ever under the ground, the car is placed under the stall's ground as well (no clamp). Harmless in normal play; not changed.
+- **`audit_npc_placement ch10_Sarah_not_in_solid`:** Sarah's capsule overlaps `/root/World/Commercial/SUPERMARKET/C8_FrontSeat/RES_CardboardBox_Closed/…_Col` (layer 1) at (30.42, 0.19, −33.43) at the Chapter 10 start. A story prop's box collision vs the NPC. Cosmetic (she stands inside a box); whether the real chapter-9→10 flow places her there is not tested.
+- **`house_loot`:** `houses_opened` expects 6 houses but 21 are open — `scavenge_houses.json` grew on 2026-11-08 ("seven more lootable Maple Ave houses", commit 4536afb) after the test was written; `refilled_one_container` and `load_keeps_day` read a fixed container of `HOUSE_15` and the half-restock rule/loot layout. **Stale by data change, not edited** (needs the loot spec).
+- **`living_town R3_brakes_for_car_ahead`:** a second flaky check (1 in 8 runs: gap 3.6 m against `> 4.0`). The traffic AI can stop closer than 4 m centre-to-centre behind a car parked ahead at the top of its random speed range. Marginal; not changed.
+- **Not investigated at all:** `chapter6 c6_eddie_lag` (VB-005), `chapter11 c11_walk_upstairs`, `chapter12 c12_escape_run/c12_skitter_moved` (VB-006), `house_audit` EXT_HOUSE_24/25 door spacing, `chapter8` (3), `death` (7, indoor-pause artifact per earlier probe).

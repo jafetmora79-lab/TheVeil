@@ -22,3 +22,6 @@
 - **Pass:** ch6_supplies_map 12, intro_trailer 19, trailer 26, anim_running (floor error 0.001 m, rig slide 0.0002 m, loop 0.0007 rad).
 - **Fail, NOT investigated:** living_town 32/1, player_name 16/1 (exit 134, an engine abort: unknown whether a real crash or the known shutdown quirk).
 - Whole-suite note: every failing test not named in `docs/VERIFIED_BUGS.md` as a confirmed bug is **unclassified** (stale test vs game bug unknown). Missing coverage here is not a confirmed defect.
+
+## Third pass (see the last section of `docs/VERIFIED_BUGS.md`)
+Most remaining failures were stale or flaky tests and are fixed in the tests. New open game finding: **VB-011** (a Hound roams from 19 s into every trip, against the documented calm tuning). Still undiagnosed: Eddie lag (VB-005), Ch.12/13 stalls (VB-006), `house_audit` doors, `chapter8`, `death`, the rest of `expedition_test`, `house_loot` (stale by data).
