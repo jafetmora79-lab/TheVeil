@@ -184,17 +184,27 @@ func exit_spot(space: PhysicsDirectSpaceState3D, player_rid: RID) -> Variant:
 	clearance.exclude = [player_rid]
 	# both doors first, then along the sides, then behind and in front: a car that stopped against a wall or between
 	# two others (out of fuel, it cannot be moved) must never hold the player inside
-	for off in [Vector3(-1.6, 0, -0.3), Vector3(1.6, 0, -0.3), Vector3(-1.6, 0, 1.1), Vector3(1.6, 0, 1.1),
-			Vector3(-2.2, 0, -0.3), Vector3(2.2, 0, -0.3), Vector3(0, 0, 3.1), Vector3(0, 0, -3.1)]:
-		var p: Vector3 = global_transform * off
+	var try_spot := func(p: Vector3) -> Variant:
 		var ray := PhysicsRayQueryParameters3D.create(p + Vector3.UP * 0.6, p - Vector3.UP * 0.55, 1, [player_rid])
 		var ground := space.intersect_ray(ray)
 		if ground.is_empty() or ground.normal.y < cos(deg_to_rad(46.0)):
-			continue
+			return null
 		var feet: Vector3 = ground.position + Vector3.UP * 0.03
 		clearance.transform = Transform3D(Basis(), feet + Vector3.UP * capsule.height * 0.5)
-		if space.intersect_shape(clearance, 1).is_empty():
-			return feet
+		return feet if space.intersect_shape(clearance, 1).is_empty() else null
+	for off in [Vector3(-1.6, 0, -0.3), Vector3(1.6, 0, -0.3), Vector3(-1.6, 0, 1.1), Vector3(1.6, 0, 1.1),
+			Vector3(-2.2, 0, -0.3), Vector3(2.2, 0, -0.3), Vector3(0, 0, 3.1), Vector3(0, 0, -3.1)]:
+		var spot: Variant = try_spot.call(global_transform * off)
+		if spot != null:
+			return spot
+	# last resort (audit VB-003): every usual spot is blocked - widen the search in rings round the car, nearest first,
+	# so the player is never left without a way out
+	for r in [3.8, 4.6, 5.6, 7.0, 9.0]:
+		for k in 16:
+			var a := TAU * float(k) / 16.0
+			var spot: Variant = try_spot.call(global_position + Vector3(cos(a), 0, sin(a)) * r)
+			if spot != null:
+				return spot
 	return null
 
 
