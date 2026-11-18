@@ -287,12 +287,14 @@ func _run() -> void:
 	ok("sv_companion_kept_up", lag < 6.0, "lag %.1f" % lag)
 	game.add_item("water_bottle")
 	ok("sv_walk_in", await walk_route([Vector3(0.3, 0.2, -3.5), Vector3(0.3, 0.2, 1.0), Vector3(1.5, 0.2, 1.8), Vector3(1.5, 0.2, 4.6)], world.market))
-	var cans: int = game.inventory.count("canned_food")
+	ok("sv_give_to_eddie", sv._give("Eddie", "water_bottle") and not game.has_item("water_bottle") and "water_bottle" in sv.pack("Eddie"))
+	var water0: int = int(game.shelter_stock().get("water", 0))
 	var te: int = sv.trust("Eddie")
 	ex.secure()
 	await frames(30)
 	ok("sv_companion_released", sv.follow == null and sv.st()["companion"] == "" and not world.animators["Eddie"].root.get_node("SV_Follow").active)
-	ok("sv_eddie_carries", game.inventory.count("canned_food") == cans + 1)
+	# (what a companion carried goes straight into the shelter stores: survivors.deposit_pack, since 2026-11-07)
+	ok("sv_eddie_carries", int(game.shelter_stock().get("water", 0)) == water0 + 1 and sv.pack("Eddie").is_empty(), "water %d -> %d" % [water0, int(game.shelter_stock().get("water", 0))])
 	ok("sv_trip_not_abandoned", sv.trust("Eddie") >= te and not ("abandoned" in sv.memory("Eddie")))
 
 	# ---- leaving a companion behind costs trust (once); they get home without a visible jump
