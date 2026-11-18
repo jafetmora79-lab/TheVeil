@@ -56,7 +56,8 @@ nt.nodes["Principled BSDF"].inputs["Roughness"].default_value = 1
 g.data.materials.append(gm)
 cam = bpy.data.cameras.new("c")
 cam.type = 'ORTHO'
-cam.ortho_scale = 4.2
+cam.ortho_scale = float(a[4]) if len(a) > 4 else 4.2
+CAMZ = float(a[5]) if len(a) > 5 else 0.85
 co = bpy.data.objects.new("c", cam)
 sc.collection.objects.link(co)
 sc.camera = co
@@ -103,7 +104,7 @@ for idx, (name, speed, oclip, nclip, oscale, t) in enumerate(frames):
         arm.location = (0, y, 0)
         if clip:
             pose(arm, acts, clip, t, scl)
-        co.location = (12, y - 0.1, 0.85)
+        co.location = (60 if len(a) > 4 else 12, y - 0.1, CAMZ)
         p = os.path.join(tmp, "f.png")
         sc.render.filepath = p
         bpy.ops.render.render(write_still=True)

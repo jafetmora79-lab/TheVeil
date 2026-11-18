@@ -11,7 +11,7 @@ class_name VeilDeathSequence
 ## inside a building. Creatures are temporary children of this node and are freed with it. No flags, inventory or
 ## saves are touched; RETRY loads the most recent save.
 
-const COLOSSUS := "res://THE_VEIL_ASSETS_V2/07_Creatures/Godot_Scenes/CRT_Colossus.tscn"
+const COLOSSUS := "res://game/creatures/colossus/CRT_Colossus_v2.tscn"
 const HOUND := "res://THE_VEIL_ASSETS_V2/07_Creatures/Godot_Scenes/CRT_Hound.tscn"
 const COLOSSUS_SCALE := 6.0
 const STANCE_RATE := 1.0                 ## Walk_Heavy: a planted foot slides 1 m per animation second (scale 1)
