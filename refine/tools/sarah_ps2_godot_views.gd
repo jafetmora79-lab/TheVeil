@@ -16,7 +16,7 @@ func _initialize() -> void:
 	root.add_child(sun)
 	var holder := Node3D.new()
 	root.add_child(holder)
-	var m: Node3D = (load("res://game/creatures/sarah_ps2/CHR_Sarah_PS2.glb") as PackedScene).instantiate()
+	var m: Node3D = (load(OS.get_cmdline_user_args()[0] if OS.get_cmdline_user_args().size() > 0 else "res://game/creatures/sarah_ps2/CHR_Sarah_PS2.glb") as PackedScene).instantiate()
 	holder.add_child(m)
 	for mi in m.find_children("*", "MeshInstance3D", true, false):
 		var mesh: Mesh = (mi as MeshInstance3D).mesh
