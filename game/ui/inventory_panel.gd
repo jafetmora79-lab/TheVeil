@@ -561,7 +561,24 @@ func is_inspecting() -> bool:
 	return _insp != null and _insp.visible
 
 
+## Longest continuous time (s) each item has been the selected item on screen. The inventory pauses the world, so a
+## chapter cannot count "read for a moment" with its own _process (audit VB-005): it reads this instead.
+var viewed := {}
+var _view_id := ""
+var _view_t := 0.0
+
+
 func _process(delta: float) -> void:
+	if visible and _sel >= 0 and _sel < _ids.size():
+		var vid: String = _ids[_sel]
+		if vid != _view_id:
+			_view_id = vid
+			_view_t = 0.0
+		_view_t += delta
+		viewed[vid] = maxf(float(viewed.get(vid, 0.0)), _view_t)
+	else:
+		_view_id = ""
+		_view_t = 0.0
 	if visible and is_inspecting() and _insp_pivot:
 		_insp_pivot.rotate_y(delta * 0.6)              # a slow turn (about 10 s per revolution)
 

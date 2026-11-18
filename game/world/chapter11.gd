@@ -534,15 +534,8 @@ func _read_tick(delta: float, item: String, found: String, read: String) -> void
 	if not Game.has_flag(found) or Game.has_flag(read):
 		return
 	var inv = hud.get("inv_panel")
-	var showing := false
-	if inv and inv.visible:
-		var ids: Array = inv.get("_ids")
-		var sel: int = inv.get("_sel")
-		showing = sel >= 0 and sel < ids.size() and ids[sel] == item
-	var key := "_t_" + item
-	var t: float = float(_busy.get(key, 0.0))
-	t = t + delta if showing else 0.0
-	_busy[key] = t
+	# the inventory pauses the world (this _process stops while it is open): it keeps the viewing time itself
+	var t: float = float((inv.get("viewed") as Dictionary).get(item, 0.0)) if inv else 0.0
 	if t > 1.2:
 		Game.set_flag(read)
 		if hud.has_method("set_hint"):
