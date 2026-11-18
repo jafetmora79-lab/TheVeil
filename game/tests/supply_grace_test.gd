@@ -37,7 +37,12 @@ func _run() -> void:
 		c5._set_doors(false)
 	var o: Vector3 = (w.market.get_node("Doorways/Entrance_Outside") as Node3D).global_position
 	w.companion_at_market_doors(o + Vector3(0.3, 0, 0.3))
-	ok("companion_opens_doors", c5._doors_open or w._auto_open)
+	# shelter time (the player is in the store, no story departure): a companion never opens the exit on its own
+	ok("companion_never_opens_exit_in_shelter_time", w.expedition.doors_held() and not (c5._doors_open or w._auto_open))
+	w.expedition.story_departure = true                  # a story outing: the doors are the trip's doors again
+	w.companion_at_market_doors(o + Vector3(0.3, 0, 0.3))
+	ok("companion_opens_doors_on_story_outing", c5._doors_open or w._auto_open)
+	w.expedition.story_departure = false
 	# rest until tomorrow (between story nights): supplies eaten, a new day, nothing in the story moves
 	game.world_state["shelter_stock"] = {"food": 2 * n, "water": 2 * n, "medical": 0, "batteries": 0}
 	var rest: VeilRestPoint = w.phase4.rest

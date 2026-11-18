@@ -158,7 +158,8 @@ func _run() -> void:
 	h["test_new_day"] = {}
 	game.world_state["shelter_nights"] = h
 	await frames(10)
-	var new_food: Array = ex.its.keys().filter(func(k): return String(k).begins_with("exp/cache_lot_food_d"))
+	# (each new day only about half the spots restock - see expedition._spawn_caches - so any food spot counts, not one fixed id)
+	var new_food: Array = ex.its.keys().filter(func(k): return String(k).begins_with("exp/cache_") and "food_d" in String(k))
 	ok("food_restocks", not new_food.is_empty() and is_instance_valid(ex.its[new_food[0]]) and not ex.its[new_food[0]].taken)
 	ok("ammo_not_restocked", ex.its.keys().filter(func(k): return String(k).begins_with("exp/cache_ammo") and "_d" in String(k)).is_empty()
 		and ex.its[ak].taken and sa.reserve() == r_before)

@@ -75,8 +75,6 @@ Evidence levels: **ROOT-CAUSED** (probe shows the cause), **STALE** (the test ch
 ## Unresolved (assertion read, cause not found)
 | Test | Assertion | Read |
 |---|---|---|
-| `handgun food_restocks` | a fresh `exp/cache_lot_food_d*` item appears after a new shelter night | may be a changed restock rule or a real restock bug; not diagnosed |
-| `supply_grace companion_opens_doors` | `companion_at_market_doors` makes the doors open | not diagnosed (a real door-opening regression would show here) |
 | `survivors sv_eddie_carries` | Eddie hands back a canned food on securing | not diagnosed |
 | `threat A_danger_critical` (UNEASY, not level 3 after 3 min), `D_tentacle_emerged` | threat level and tentacle emergence | tuned values may have moved since the test; not diagnosed |
 | `living_town R2_traffic_while_in_car` | cars spawn while the player sits in the car | 3 → 3 after 14 s; not diagnosed |
@@ -85,3 +83,7 @@ Evidence levels: **ROOT-CAUSED** (probe shows the cause), **STALE** (the test ch
 | `world_repair gh_look_*`, `fall_recovered (nan)` | greenhouse look scene; fall recovery | not diagnosed (`nan` position suggests a test setup problem) |
 | `systems_repair H_*, I_*, J_*` | leave menu, quiet first 5 min, encounters, struggle controller | likely the shelter-exit-menu and threat-timing redesign, not confirmed |
 | `living_town`, `audit_npc_placement ch10_Sarah_not_in_solid` | see above | not diagnosed |
+
+## Diagnosed in a second pass — both STALE tests, now updated (the game is fine)
+- **`handgun food_restocks`:** the test waited for `exp/cache_lot_food_d1`, but `expedition._spawn_caches` deliberately restocks only about half the spots each new day (`(idx + day) % 2 == 1` is skipped) and `lot_food` (index 0) is skipped on day 1. Probe: day 1 spawned `street_water`, `road_water`, `west_water`, `lot2_food`, `west2_water`, `east_water`, `road2_water` (`_d1`). Food does restock. The test now accepts any food spot. Passes.
+- **`supply_grace companion_opens_doors`:** `world.companion_at_market_doors` returns early while `expedition.doors_held()` (probe: true, with the player in the store and no story departure) — the deliberate rule from commit 96919b1 (2026-11-07): "shelter time: a companion never opens the exit on its own". The test now asserts that rule, and that a companion does open the doors on a story outing (`story_departure = true`). Passes.
