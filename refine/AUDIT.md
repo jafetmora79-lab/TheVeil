@@ -17,3 +17,12 @@ Note: `CLAUDE.md` says the owner does all visual testing and prefers no renders;
 - before_cast.png, before_creatures.png: lineups (read-only import of the library GLBs).
 - before_sarah_head_*.png: close-up of an unapproved cast model.
 Tools: `refine/tools/preview_lineup.py`, `preview_closeup.py` (Blender 5.2, `blender -b -P ... -- args`).
+
+## Houses and doors - in-game check (Godot 4.3, the game's own Greyhaven_Houses.tscn)
+- `refine/previews/houses_exterior.png` (survey of every house in the game scene) and `cut_twostorey_b.png` (cutaway of the two-storey B,
+  the house in the owner's old audit pictures): fronts, roofs, shutters, doors, steps and interiors are intact; the upper hall shows
+  no open floor hole; stairs sit inside a railed well. The owner's `House Audit pictures` (hole between floors, narrow stairs, ...)
+  come from the older `greyhaven-residential-reconstruction` viewer branch and are not reproduced in the current game scene.
+- Not reproduced here, still unchecked: Cottage B, the ranch window shelf, the fridge facing, basement-stair floors (all need a walk-through).
+- Houses are single baked meshes inside THE_VEIL_ASSETS_V2 (must not change), so any fix would be a runtime patch in game/ like `VeilStairAssist`.
+  No defect was found worth patching, so no house/door files were changed.
