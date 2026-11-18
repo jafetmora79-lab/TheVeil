@@ -82,6 +82,10 @@ func setup(p_body: CharacterBody3D, p_player: CharacterBody3D, points: Array) ->
 	patrol = points
 	home = points[0] if points.size() > 0 else body.global_position
 	anim = body.get_node_or_null(String(body.get_meta("animation_player", "Model/AnimationPlayer"))) as AnimationPlayer
+	if anim and anim.has_animation("Trot"):
+		_remastered = true                                    # CRT_Hound_v2: authored gait/bite clips (game/creatures/hound); the glb has no loop flags
+		for n in ["Idle", "Walk", "Trot", "Run"]:
+			anim.get_animation(n).loop_mode = Animation.LOOP_LINEAR
 	body.collision_layer = 1
 	body.collision_mask = 1
 	# the scene's long body box + forward head box swing into fences when the Hound turns and wedge it there;
@@ -137,6 +141,7 @@ var _pose_bank := 0.0
 var _pose_pitch := 0.0
 var _pose_drop := 0.0
 var _prev_yaw := 0.0
+var _remastered := false           ## CRT_Hound_v2: the clips carry the body motion, so only the turn-bank layer stays
 
 func _pose(delta: float) -> void:
 	if _model == null:
@@ -150,6 +155,9 @@ func _pose(delta: float) -> void:
 	var bite := state == "CHASE" and _anim_cur.contains("Attack")
 	var k := 1.0 - exp(-8.0 * delta)
 	_pose_bank = lerpf(_pose_bank, clampf(-yaw_rate * 0.05, -0.11, 0.11) * clampf(speed / 3.0, 0.25, 1.0), k)
+	if _remastered:
+		bite = false
+		speed = 0.0
 	_pose_pitch = lerpf(_pose_pitch, (0.09 if bite else clampf(speed / 8.0, 0.0, 1.0) * 0.06), k)
 	_pose_drop = lerpf(_pose_drop, 0.07 if bite else 0.0, k)
 	_model.rotation.z = _pose_bank
@@ -512,7 +520,10 @@ func _face(d: Vector3) -> void:
 
 
 func _play(clip: String, speed := 0.0) -> void:
-	var real := String(clip_map.get(clip, clip))
+	var eff := clip
+	if _remastered and clip_map.is_empty() and speed > 0.05 and ((clip == "Run" and speed < 3.3) or (clip == "Walk" and speed > 1.8)):
+		eff = "Trot"                                          # the uneven trot between a stalk and a gallop
+	var real := String(clip_map.get(eff, eff))
 	if anim == null or not anim.has_animation(real):
 		return
 	if _anim_cur != real:
@@ -520,6 +531,8 @@ func _play(clip: String, speed := 0.0) -> void:
 		_anim_cur = real
 	if native.has(real):
 		anim.speed_scale = clampf(speed / float(native[real]), 0.5, clip_cap) if speed > 0.05 else 1.0
+	elif eff == "Trot":
+		anim.speed_scale = speed / maxf(float(body.get_meta("trot_speed_mps", 2.4)) * body.scale.x, 0.1)
 	elif clip == "Walk":
 		anim.speed_scale = speed / maxf(float(body.get_meta("walk_speed_mps", 0.9)) * body.scale.x, 0.1)
 	elif clip == "Run":

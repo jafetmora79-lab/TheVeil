@@ -19,7 +19,7 @@ class_name VeilChapter11
 
 const STATE := "ch11"
 const CHAPTER := 12                                    # displayed number (game/data/chapters.json)
-const HOUND_PATH := "res://THE_VEIL_ASSETS_V2/07_Creatures/Godot_Scenes/CRT_Hound.tscn"
+const HOUND_PATH := "res://game/creatures/hound/CRT_Hound_v2.tscn"
 const HOUND_AI := preload("res://game/enemies/hound_ai.gd")
 const PICKUP_TRUCK := preload("res://THE_VEIL_ASSETS_V2/05_Vehicles/Abandoned_Variants/VEH_Pickup_Abandoned.glb")
 const PICKET := preload("res://THE_VEIL_ASSETS_V2/02_Town/Fences/FN_Picket_2.5m.glb")

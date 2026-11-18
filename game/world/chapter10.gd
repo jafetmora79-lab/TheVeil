@@ -26,7 +26,7 @@ const BARRIER := preload("res://THE_VEIL_ASSETS_V2/02_Town/Street_Props/SP_RoadB
 const CONE := preload("res://THE_VEIL_ASSETS_V2/02_Town/Street_Props/SP_TrafficCone.glb")
 const CHAINLINK := preload("res://THE_VEIL_ASSETS_V2/02_Town/Fences/FN_ChainLink_2.5m.glb")
 const GATE := preload("res://THE_VEIL_ASSETS_V2/02_Town/Fences/FN_FenceGate_Privacy_1.25m.glb")
-const HOUND_PATH := "res://THE_VEIL_ASSETS_V2/07_Creatures/Godot_Scenes/CRT_Hound.tscn"
+const HOUND_PATH := "res://game/creatures/hound/CRT_Hound_v2.tscn"
 
 # ---- world (collision-mapped: the main road z -6..6; a low roadside building along z -7 from x -49 to -13 with a
 # 1 m gap at x -28; the south wall along z 7 from x -54 to -32; a building block x -43..-21, z -21..-35; open
