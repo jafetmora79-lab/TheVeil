@@ -130,9 +130,37 @@ func reset_to_patrol(far_from: Vector3) -> void:
 	_unseen = 0.0
 
 
+## Visual-only weight (the collision body is untouched): the Model child leans into a turn, drops its nose a little at a run, and
+## sinks onto its forelegs just before a bite, all smoothed so nothing snaps. Magnitudes are small enough that the paws stay on the ground.
+var _model: Node3D
+var _pose_bank := 0.0
+var _pose_pitch := 0.0
+var _pose_drop := 0.0
+var _prev_yaw := 0.0
+
+func _pose(delta: float) -> void:
+	if _model == null:
+		_model = body.get_node_or_null("Model") as Node3D
+		_prev_yaw = body.rotation.y
+		if _model == null:
+			return
+	var yaw_rate := wrapf(body.rotation.y - _prev_yaw, -PI, PI) / maxf(delta, 0.001)      ## + = turning left
+	_prev_yaw = body.rotation.y
+	var speed := Vector2(body.velocity.x, body.velocity.z).length()
+	var bite := state == "CHASE" and _anim_cur.contains("Attack")
+	var k := 1.0 - exp(-8.0 * delta)
+	_pose_bank = lerpf(_pose_bank, clampf(-yaw_rate * 0.05, -0.11, 0.11) * clampf(speed / 3.0, 0.25, 1.0), k)
+	_pose_pitch = lerpf(_pose_pitch, (0.09 if bite else clampf(speed / 8.0, 0.0, 1.0) * 0.06), k)
+	_pose_drop = lerpf(_pose_drop, 0.07 if bite else 0.0, k)
+	_model.rotation.z = _pose_bank
+	_model.rotation.x = _pose_pitch
+	_model.position.y = -_pose_drop
+
+
 func _physics_process(delta: float) -> void:
 	if body == null or player == null or not body.is_inside_tree():
 		return
+	_pose(delta)
 	if hold:
 		body.velocity = Vector3.ZERO
 		return
