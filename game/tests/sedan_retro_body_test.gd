@@ -20,11 +20,6 @@ func _run() -> void:
 	var car = load("res://game/vehicles/player_sedan.gd").new()
 	world.add_child(car)
 	await physics_frame
-	if not car.RETRO_BODY:                              # switched off: the imported materials stay
-		ok("retro_off_keeps_original_materials", car.retro_surfaces == 0)
-		print("RESULT %s fails=%d" % ["PASS" if fails == 0 else "FAIL", fails])
-		quit(1 if fails > 0 else 0)
-		return
 	ok("body_surfaces_replaced", car.retro_surfaces >= 1, str(car.retro_surfaces))
 	var shaded := 0
 	var glass_kept := 0
