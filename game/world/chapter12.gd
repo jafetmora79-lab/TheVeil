@@ -350,8 +350,11 @@ func _build_facility() -> void:
 	# --- the ramp down (z 28..40, y 0 -> -6)
 	_wx(-1.15, 28.0, 40.0, -6.0, 9.2)
 	_wx(1.15, 28.0, 40.0, -6.0, 9.2)
-	var ang := atan2(6.0, 12.0)
-	_box(fac, "Ramp", L(Vector3(0, -3.0 - 0.15 / cos(ang), 34.0)), Vector3(2.2, 0.3, sqrt(180.0)), "concrete", true, Basis(Vector3.RIGHT, ang))
+	# (its top surface runs from the floor slab's edge at z 28.4, y 0, to the tunnel floor at z 40, y -6: no lip at either end;
+	#  it used to start at z 28 and left a 13-20 cm step under the slab edge that the player could not climb on a slope)
+	var ramp_run := 40.0 - 28.4
+	var ang := atan2(6.0, ramp_run)
+	_box(fac, "Ramp", L(Vector3(0, -3.0 - 0.15 / cos(ang), (28.4 + 40.0) * 0.5)), Vector3(2.2, 0.3, sqrt(36.0 + ramp_run * ramp_run)), "concrete", true, Basis(Vector3.RIGHT, ang))
 	_slab(-1.3, 1.3, 28.2, 40.2, 3.35)
 	_wz(40.0, -1.2, 1.2, -3.4, 6.6)
 	# --- the tunnels (y -6..-3.4) and the sealed chamber (y -6..-2.4)
