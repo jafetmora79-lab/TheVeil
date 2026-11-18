@@ -13,8 +13,8 @@ signal radio_changed(station: String)
 const SEDAN_SCENE := preload("res://THE_VEIL_ASSETS_V2/05_Vehicles/Godot_Scenes/Protagonist_Sedan.tscn")
 ## The first use of the Ultimate Retro Shader Collection (addons/ursc): the body's one material (M_Veh_Atlas) is drawn
 ## with its standard_opaque shader (vertex snapping, affine texture mapping, nearest filtering). Set false to go back
-## to the imported material. NEEDS A VISUAL TEST (the glass and lights keep their own materials).
-const RETRO_BODY := true
+## to the imported material. Tried and switched OFF (owner: the wheels lose their roundness, the body looks worse, the rear lamps lose their glow).
+const RETRO_BODY := false
 const RETRO_SHADER := preload("res://addons/ursc/spatial/standard/standard_opaque.gdshader")
 var retro_surfaces := 0                       ## tests: how many surfaces got the retro material
 const TOP_SPEED := 15.3          # m/s (55 km/h) - an older everyday sedan on 25 mph town streets
