@@ -11,12 +11,6 @@ signal speed_changed(kmh: float)
 signal radio_changed(station: String)
 
 const SEDAN_SCENE := preload("res://THE_VEIL_ASSETS_V2/05_Vehicles/Godot_Scenes/Protagonist_Sedan.tscn")
-## The first use of the Ultimate Retro Shader Collection (addons/ursc): the body's one material (M_Veh_Atlas) is drawn
-## with its standard_opaque shader (vertex snapping, affine texture mapping, nearest filtering). Set false to go back
-## to the imported material. Tried and switched OFF (owner: the wheels lose their roundness, the body looks worse, the rear lamps lose their glow).
-const RETRO_BODY := false
-const RETRO_SHADER := preload("res://addons/ursc/spatial/standard/standard_opaque.gdshader")
-var retro_surfaces := 0                       ## tests: how many surfaces got the retro material
 const TOP_SPEED := 15.3          # m/s (55 km/h) - an older everyday sedan on 25 mph town streets
 const REVERSE_SPEED := 4.5
 const ACCEL := 4.2
@@ -76,26 +70,6 @@ var _phase := 0.0
 var entry_area: Interactable
 
 
-func _apply_retro_body() -> void:
-	var sm := ShaderMaterial.new()
-	sm.shader = RETRO_SHADER
-	sm.set_shader_parameter("cull_distance_override", 1024.0)        # (never culled: the parked car is seen from far away)
-	var tex_set := false
-	for mi in model.find_children("*", "MeshInstance3D", true, false):
-		var m: Mesh = (mi as MeshInstance3D).mesh
-		if m == null:
-			continue
-		for i in m.get_surface_count():
-			var base := m.surface_get_material(i) as BaseMaterial3D
-			if base == null or String(base.resource_name) != "M_Veh_Atlas":
-				continue
-			if not tex_set:
-				sm.set_shader_parameter("albedo_texture", base.albedo_texture)
-				tex_set = true
-			(mi as MeshInstance3D).set_surface_override_material(i, sm)
-			retro_surfaces += 1
-
-
 func _ready() -> void:
 	collision_layer = 4
 	collision_mask = 1 | 64                       # 64: parking wheel stops (the car meets them; people step over)
@@ -106,8 +80,6 @@ func _ready() -> void:
 	car.name = "Car"
 	add_child(car)
 	model = car.get_node("Model")
-	if RETRO_BODY:
-		_apply_retro_body()
 	driver_cam = car.get_node("DriverCamera")
 	_setup_mirrors()
 	driver_cam.far = 700.0
