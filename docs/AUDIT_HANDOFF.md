@@ -16,6 +16,7 @@
 ## Second half of the suite (collected later; the run was still going, so `living_town` onward is not recorded)
 - **Pass:** town_destruction 17, pay_first 9, car_repair_anim 12, road_home 9, easter_egg 35, roof_skitter_handoff 26, frank_skitter 9, colossus_market_last 14, colossus_shot 3, click_struggle 4, supplies_sidearm 13, scavenge_companion 18, sarah_rescue 16, four_fixes 12, tentacle_entrance 21, cinematic (no checks).
 - **Fail, NOT investigated (stale test vs game unknown):** car_quest 71/2, handgun 26/1, supply_grace 7/1, systems_repair 17/6, world_repair 20/5, final_repairs 44/1.
+- **Follow-up:** see the "Follow-up: investigation of the failing tests" section of `docs/VERIFIED_BUGS.md` (VB-010 root-caused; one stale test confirmed; the rest unresolved).
 
 ## Suite finished (final tail)
 - **Pass:** ch6_supplies_map 12, intro_trailer 19, trailer 26, anim_running (floor error 0.001 m, rig slide 0.0002 m, loop 0.0007 rad).

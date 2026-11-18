@@ -55,3 +55,33 @@ Investigated with probes before classification:
 - `expedition_test` — written for the pre-menu shelter exit; watchdog.
 - `house_audit` (EXT_HOUSE_24/25 door spacing), `house_loot` (houses_opened, refill, load_keeps_day), `threat` (A_danger_critical, D_tentacle_emerged), `shelter_systems` (storage panel totals), `survivors` (`sv_eddie_carries`) — **not investigated**; unknown whether test or game.
 - `audit_npc_placement_test` (new): chapters 3–16, one failure, `ch10_Sarah_not_in_solid` at (30.4, 0.19, −33.4): a survivor capsule intersects solid geometry at the Ch.10 start. Not diagnosed; probably the "NPC inside furniture" class.
+
+---
+# Follow-up: investigation of the failing tests
+
+Evidence levels: **ROOT-CAUSED** (probe shows the cause), **STALE** (the test checks something the code no longer does that way; read from code), **UNRESOLVED** (not diagnosed).
+
+## VB-010 Auto-park from the west driveway is blocked by supermarket furnishing collision (Medium) — ROOT-CAUSED, open
+- **Tests:** `final_repairs P_park_west_slow`, `world_repair park_from_anywhere`, `systems_repair L_park_from_the_west_driveway_slow`. **They fail identically on the pre-audit code (1f9d5b8)**: not caused by this audit's changes.
+- **Probe (temporary print in `world._auto_park`, reverted):** the sedan accelerates to 7 m/s then stops dead at about (16.9, 0.11, −14.2) with 22.7 m of the approach path left. `get_slide_collision` shows it pressed against `/root/World/Commercial/SUPERMARKET/Furnishing/COM_Supermarket_Furnishing/COM_Supermarket_Furnishing_Col` at (19.35, 1.06, −13.57), normal (−1, 0, 0).
+- **Effect:** after 1.5 s without movement `_auto_park` gives up (`ok:false`) and falls back to the fade-and-place path, so the player is not softlocked: they get a fade instead of the driven manoeuvre. Whether a *player-driven* car hits the same collision on that route is **not tested**.
+- **Cause (not proven):** a furnishing collision shape in `COM_Supermarket_Furnishing.glb` stands on the planned approach line. Last touched 2026-11-07. Needs a look at that collision body in the editor/Blender (a prop box or an over-large hull?) — see Blender plan. Not changed here.
+
+## Stale tests (the game is fine; the test is out of date)
+- `shelter_systems storage_panel_shows_actual_totals` — STALE. It expects `"Food 0"`; `phase4._open_supplies` now writes `"Food: %d / %d …"` (phase4.gd:1435).
+- `chapter8_test` (3), `death_test` (7), `expedition_test` (18) — STALE/test artifact, as listed above.
+- `player_name confirmed_name_starts_world` (exit 134) — UNRESOLVED: the check asserts the scene switches to `World.tscn` after the name dialog; headless scene change plus engine abort at shutdown. Likely a teardown quirk, **not confirmed**.
+
+## Unresolved (assertion read, cause not found)
+| Test | Assertion | Read |
+|---|---|---|
+| `handgun food_restocks` | a fresh `exp/cache_lot_food_d*` item appears after a new shelter night | may be a changed restock rule or a real restock bug; not diagnosed |
+| `supply_grace companion_opens_doors` | `companion_at_market_doors` makes the doors open | not diagnosed (a real door-opening regression would show here) |
+| `survivors sv_eddie_carries` | Eddie hands back a canned food on securing | not diagnosed |
+| `threat A_danger_critical` (UNEASY, not level 3 after 3 min), `D_tentacle_emerged` | threat level and tentacle emergence | tuned values may have moved since the test; not diagnosed |
+| `living_town R2_traffic_while_in_car` | cars spawn while the player sits in the car | 3 → 3 after 14 s; not diagnosed |
+| `car_quest fit_once` | a spare fuse stays in the pack after a repeat fit | inventory ended with no fuse at all; possible small real bug; not diagnosed |
+| `car_quest struggle_won_recover` | Crab AI enters RECOVER after the struggle is won | ended in CHASE; not diagnosed |
+| `world_repair gh_look_*`, `fall_recovered (nan)` | greenhouse look scene; fall recovery | not diagnosed (`nan` position suggests a test setup problem) |
+| `systems_repair H_*, I_*, J_*` | leave menu, quiet first 5 min, encounters, struggle controller | likely the shelter-exit-menu and threat-timing redesign, not confirmed |
+| `living_town`, `audit_npc_placement ch10_Sarah_not_in_solid` | see above | not diagnosed |
