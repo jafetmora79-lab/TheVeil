@@ -21,7 +21,7 @@ class_name VeilChapter13
 const STATE := "ch13"
 const CHAPTER := 14
 const A := "res://THE_VEIL_ASSETS_V2/"
-const SKITTER_PATH := "res://THE_VEIL_ASSETS_V2/07_Creatures/Godot_Scenes/CRT_Skitter.tscn"
+const SKITTER_PATH := "res://game/creatures/skitter/CRT_Skitter_v2.tscn"
 const CRAB_PATH := "res://THE_VEIL_ASSETS_V2/07_Creatures/Godot_Scenes/CRT_Shellcrawler.tscn"
 # ---- the district: district-local frame (x across, z away from the road), origin where the old road enters it
 const D_ORIGIN := Vector3(-125.0, 0.0, 30.0)

@@ -10,7 +10,7 @@ class_name VeilRoadHome
 ## Nothing is saved: the wrecks come from the flag, the Skitters are momentary.
 
 const FLAG := "p3_two_hours_later"
-const SKITTER := "res://THE_VEIL_ASSETS_V2/07_Creatures/Godot_Scenes/CRT_Skitter.tscn"
+const SKITTER := "res://game/creatures/skitter/CRT_Skitter_v2.tscn"
 const RATTLE := "res://game/encounters/skitter_rattle.wav"
 const WRECKS := ["res://THE_VEIL_ASSETS_V2/05_Vehicles/Abandoned_Variants/VEH_Sedan_Damaged.glb",
 	"res://THE_VEIL_ASSETS_V2/05_Vehicles/Abandoned_Variants/VEH_Pickup_Abandoned.glb",

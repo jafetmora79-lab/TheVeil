@@ -520,7 +520,7 @@ func _skitters_done() -> bool:
 ## Two Skitters crouch around the car (survival expansion): the backpack cannot be reached while they are there.
 ## A parked car back down the road has an alarm: set it off and they scuttle to the noise and away into the fog.
 ## Getting too close first is answered by a lunge (a non-lethal bite and a shove): the encounter stays recoverable.
-const SKITTER_PATH := "res://THE_VEIL_ASSETS_V2/07_Creatures/Godot_Scenes/CRT_Skitter.tscn"
+const SKITTER_PATH := "res://game/creatures/skitter/CRT_Skitter_v2.tscn"
 const ALARM_CAR := preload("res://THE_VEIL_ASSETS_V2/05_Vehicles/Traffic_Variants/VEH_Sedan_Traffic_Beige.glb")
 const ALARM_POS := Vector3(-40.0, 0.15, 4.0)
 const SKITTER_SPOTS := [Vector3(-56.0, 0.15, 2.2), Vector3(-60.0, 0.15, 1.8)]

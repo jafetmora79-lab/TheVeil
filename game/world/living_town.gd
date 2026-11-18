@@ -20,7 +20,7 @@ const POLICE := "res://THE_VEIL_ASSETS_V2/06_Characters/Police/CHR_Police_Office
 const FACES := "res://THE_VEIL_ASSETS_V2/06_Characters/Facial/Faces/"
 const CARS := ["res://THE_VEIL_ASSETS_V2/05_Vehicles/Traffic_Variants/VEH_Sedan_Traffic_Beige.glb",
 	"res://THE_VEIL_ASSETS_V2/05_Vehicles/Traffic_Variants/VEH_Sedan_Traffic_Green.glb"]
-const SKITTER := "res://THE_VEIL_ASSETS_V2/07_Creatures/Godot_Scenes/CRT_Skitter.tscn"
+const SKITTER := "res://game/creatures/skitter/CRT_Skitter_v2.tscn"
 const HOUND := "res://THE_VEIL_ASSETS_V2/07_Creatures/Godot_Scenes/CRT_Hound.tscn"
 const ACTIVE_RANGE := 110.0               ## people and cars only move while the player is this close to town
 const MAIN_X := Vector2(-110.0, 200.0)    ## the main street's extent (x) used by traffic

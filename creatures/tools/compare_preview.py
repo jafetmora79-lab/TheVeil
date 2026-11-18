@@ -78,7 +78,7 @@ def pose(arm, acts, clip, t, scale):
     arm.animation_data.action = act
     f0, f1 = act.frame_range
     n = f1 - f0
-    loop = clip in ("Idle", "Walk", "Trot", "Run")
+    loop = clip in ("Idle", "Walk", "Trot", "Run", "Idle_Twitch", "Crawl", "Scuttle_Fast")
     fr = t * FPS * scale
     fr = (fr % (n + (1 if loop and arm is new_arm else 0))) if loop else min(fr, n)
     f = f0 + fr

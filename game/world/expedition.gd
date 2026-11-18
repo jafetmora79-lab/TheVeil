@@ -20,7 +20,7 @@ class_name VeilExpedition
 
 const CFG := "res://game/data/expedition.json"
 const HOUND_PATH := "res://THE_VEIL_ASSETS_V2/07_Creatures/Godot_Scenes/CRT_Hound.tscn"
-const SKITTER_PATH := "res://THE_VEIL_ASSETS_V2/07_Creatures/Godot_Scenes/CRT_Skitter.tscn"
+const SKITTER_PATH := "res://game/creatures/skitter/CRT_Skitter_v2.tscn"
 const HOUND_AI := preload("res://game/enemies/hound_ai.gd")
 const CRAB_PATH := "res://THE_VEIL_ASSETS_V2/07_Creatures/Godot_Scenes/CRT_Shellcrawler.tscn"
 const STRUGGLE := preload("res://game/encounters/struggle.gd")

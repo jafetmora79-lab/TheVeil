@@ -2,7 +2,7 @@ extends Node
 
 const HOUSE_ID:= "HOUSE_03"            ## the ranch house in the row behind the supermarket (same model as Codex's first pick)
 const SEEN:= "egg_roof_skitter_seen"
-const MODEL:= preload("res://THE_VEIL_ASSETS_V2/07_Creatures/Godot_Scenes/CRT_Skitter.tscn")
+const MODEL:= preload("res://game/creatures/skitter/CRT_Skitter_v2.tscn")
 const SOUND:= preload("res://game/encounters/skitter_rattle.wav")
 const CLICKS:= 10
 const STRUGGLE_S:= 4.0

@@ -822,7 +822,7 @@ func _run_threat() -> void:
 ## Skitter (Pack 07, dark creature look) comes out of the fog at a sprint; the protagonist turns, runs back in with
 ## Marcus, turns and the doors slide shut; it slams into the shut leaves (impact, doors and view shake), recoils,
 ## shakes itself, turns left and scuttles off into the fog. Once (flag p4_hound_charged, kept for old saves).
-const SKITTER_PATH := "res://THE_VEIL_ASSETS_V2/07_Creatures/Godot_Scenes/CRT_Skitter.tscn"
+const SKITTER_PATH := "res://game/creatures/skitter/CRT_Skitter_v2.tscn"
 const EYE := 1.62
 var charge_report := {}
 

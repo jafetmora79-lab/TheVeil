@@ -20,7 +20,7 @@ class_name VeilChapter14
 const STATE := "ch14"
 const CHAPTER := 15
 const A := "res://THE_VEIL_ASSETS_V2/"
-const SKITTER_PATH := "res://THE_VEIL_ASSETS_V2/07_Creatures/Godot_Scenes/CRT_Skitter.tscn"
+const SKITTER_PATH := "res://game/creatures/skitter/CRT_Skitter_v2.tscn"
 const HOUND_PATH := "res://game/creatures/hound/CRT_Hound_v2.tscn"
 const CRAB_PATH := "res://THE_VEIL_ASSETS_V2/07_Creatures/Godot_Scenes/CRT_Shellcrawler.tscn"
 const HOUND_AI := preload("res://game/enemies/hound_ai.gd")
