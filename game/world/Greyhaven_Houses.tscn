@@ -271,12 +271,12 @@ metadata/zone_id = "EXT_HOUSE_23"
 metadata/variant = "RES_House_TwoStorey"
 
 [node name="EXT_HOUSE_24" parent="Houses" instance=ExtResource("11_RES_House_Cottage_B_Mirror")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 83.9215, 0.15, 450)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 134.275, 0.15, 450)
 metadata/zone_id = "EXT_HOUSE_24"
 metadata/variant = "RES_House_Cottage_B_Mirror"
 
 [node name="EXT_HOUSE_25" parent="Houses" instance=ExtResource("1_RES_House_Ranch_Mirror")]
-transform = Transform3D(0, 0, 1, 0, 1, 0, -1, 0, 0, 212, 0.15, 420)
+transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 134, 0.15, 426)
 metadata/zone_id = "EXT_HOUSE_25"
 metadata/variant = "RES_House_Ranch_Mirror"
 
