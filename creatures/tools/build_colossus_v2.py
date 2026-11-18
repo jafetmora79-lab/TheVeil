@@ -10,7 +10,7 @@ import bpy, sys, os, math, random
 from mathutils import Matrix, Vector, Quaternion
 
 OUT_GLB, OUT_BLEND = sys.argv[sys.argv.index("--") + 1], sys.argv[sys.argv.index("--") + 2]
-SRC = "THE_VEIL_ASSETS_V2/07_Creatures/Colossus/CRT_Colossus.glb"
+SRC = os.environ.get("COLOSSUS_SRC", "THE_VEIL_ASSETS_V2/07_Creatures/Colossus/CRT_Colossus.glb")
 random.seed(3)
 bpy.ops.wm.read_factory_settings(use_empty=True)
 bpy.ops.import_scene.gltf(filepath=os.path.abspath(SRC))
@@ -27,33 +27,34 @@ for act in list(bpy.data.actions):
     bpy.data.actions.remove(act)
 
 # ---- surface: grime / wear as vertex colour (dark under the belly and at the toes, paler horn and claw tips)
-me = mesh.data
-col = me.color_attributes.new("Col", 'BYTE_COLOR', 'POINT')
-for i, v in enumerate(me.vertices):
-    g = .84 + .16 * random.random()
-    if v.co.z < 2.5:
-        g *= .7 + .3 * (v.co.z / 2.5)
-    if v.co.z < 8.0 and abs(v.co.x) < 2.2:
-        g *= .82
-    col.data[i].color = (g, g, g, 1)
-for mat in me.materials:
-    if not mat or not mat.use_nodes:
-        continue
-    nt = mat.node_tree
-    bsdf = nt.nodes.get("Principled BSDF")
-    if not bsdf:
-        continue
-    link = bsdf.inputs["Base Color"].links[0] if bsdf.inputs["Base Color"].links else None
-    ca = nt.nodes.new("ShaderNodeVertexColor")
-    ca.layer_name = "Col"
-    mix = nt.nodes.new("ShaderNodeMix")
-    mix.data_type = 'RGBA'
-    mix.blend_type = 'MULTIPLY'
-    mix.inputs[0].default_value = 1.0
-    if link:
-        nt.links.new(link.from_socket, mix.inputs[6])
-    nt.links.new(ca.outputs["Color"], mix.inputs[7])
-    nt.links.new(mix.outputs[2], bsdf.inputs["Base Color"])
+if not os.environ.get("COLOSSUS_NO_GRIME"):
+    me = mesh.data
+    col = me.color_attributes.new("Col", 'BYTE_COLOR', 'POINT')
+    for i, v in enumerate(me.vertices):
+        g = .84 + .16 * random.random()
+        if v.co.z < 2.5:
+            g *= .7 + .3 * (v.co.z / 2.5)
+        if v.co.z < 8.0 and abs(v.co.x) < 2.2:
+            g *= .82
+        col.data[i].color = (g, g, g, 1)
+    for mat in me.materials:
+        if not mat or not mat.use_nodes:
+            continue
+        nt = mat.node_tree
+        bsdf = nt.nodes.get("Principled BSDF")
+        if not bsdf:
+            continue
+        link = bsdf.inputs["Base Color"].links[0] if bsdf.inputs["Base Color"].links else None
+        ca = nt.nodes.new("ShaderNodeVertexColor")
+        ca.layer_name = "Col"
+        mix = nt.nodes.new("ShaderNodeMix")
+        mix.data_type = 'RGBA'
+        mix.blend_type = 'MULTIPLY'
+        mix.inputs[0].default_value = 1.0
+        if link:
+            nt.links.new(link.from_socket, mix.inputs[6])
+        nt.links.new(ca.outputs["Color"], mix.inputs[7])
+        nt.links.new(mix.outputs[2], bsdf.inputs["Base Color"])
 
 # ---- rig data
 bpy.context.view_layer.objects.active = arm

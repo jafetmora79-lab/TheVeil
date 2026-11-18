@@ -20,3 +20,11 @@ Blender sources: `creatures/source/*.blend`. Reproducible builds: `creatures/too
   does not meet that, so that one scene keeps the original clip (see commit message). Fixing it means either a flatter stance or relaxing `_swing_end`.
 - `cinematics/cinematic.gd` (menu "Watch Preview") loads the old Hound/Skitter/Colossus GLBs directly.
 - Shellcrawler travel direction (sideways = toward the body's left) was inferred from the game's `face_offset`, not verified in play.
+
+## Colossus v3 - a new creature modelled from scratch (supersedes the v2 mesh)
+`creatures/tools/build_colossus_new.py` models it in Blender (primitives -> voxel-remeshed organic mass + separate bone/tentacle/claw parts, three 128 px pixel textures + a sparse
+crack emission map, weights by nearest bone segment) on the ORIGINAL skeleton, so every clip, cinematic and collider still fits; `build_colossus_v2.py` (with `COLOSSUS_SRC` /
+`COLOSSUS_NO_GRIME`) then bakes the same clips onto it. Game: `game/creatures/colossus/CRT_Colossus_v3.tscn` (intro cinematic, chapter 15, death sequence, trailer; world.gd's first street
+encounter still uses the original). Preview: `creatures/previews/colossus_v2_vs_v3.mp4`, `creatures/colossus_v3_turnaround.png`.
+Honest notes: ~10.7k tris (was 8.5k); thin tentacles can look flat at some frames (nearest-bone skinning); the game's Colossus shader hides everything above ~10-17 m world height in the street
+scenes, so in those shots only the legs and claws show - the new body reads in the cinematics that reveal it.

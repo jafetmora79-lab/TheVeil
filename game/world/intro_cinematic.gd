@@ -26,7 +26,7 @@ var _colossus: Node3D
 var _wall: Array = []                 ## the mist curtains of the last shot
 
 const RADIO := "res://game/audio/radio/midnight_drive_lofi.wav"
-const COLOSSUS := "res://game/creatures/colossus/CRT_Colossus_v2.tscn"
+const COLOSSUS := "res://game/creatures/colossus/CRT_Colossus_v3.tscn"
 
 
 func play(w: Node) -> void:
