@@ -29,3 +29,9 @@ Eyebrows (not started): the brow texture is carried by existing vertices, so sub
 ## Waiting for approval
 1. Make the mouth cut and the cavity (in this experimental copy only)?
 2. Then brows (fear / anger / worry) with the same vertex method?
+
+## ChatGPT expression images (added)
+The five returned images (`chatgpt_kit/returned/`, resized to 1000 px) line up with the base face to within 0-2 px (measured), so they can be used directly.
+- As decal patches (`meshy_face_paint_chatgpt.py`, `comparison_gpt_patches.png`): the mouths look good, but the decals read as pasted again: they are flat-shaded squares laid over a differently faceted surface, so lit squares show around the patch. This is a limit of the decal method, not of the images.
+- **As a swapped face texture (`protagonist_face_texture_swap.py`, `comparison_texture_swap.png`): clearly better.** The 240 front skin triangles of the face get a second material whose UVs are a plain front projection (the texture is exactly the 1000 px face image). Same triangles, same shading, nothing pasted on: the open mouths, closed eyes with lashes and the scared face all sit inside the face. Cost: one extra material (one draw call) and one small texture per expression (a 512 px version is enough).
+Next, if approved: combine with the geometric blink and a jaw shape key, build the second material into the GLB, check in Godot 4.3 Compatibility.
