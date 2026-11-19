@@ -1,0 +1,507 @@
+{
+ "pack": "THE VEIL - Pack 09 Horror Atmosphere",
+ "glbs": [
+  {
+   "name": "CORR_WallStain_Dark",
+   "folder": "Corruption",
+   "glb": "09_Horror_Atmosphere/Corruption/CORR_WallStain_Dark.glb",
+   "triangles": 2,
+   "kind": "static",
+   "materials": [
+    "M_Hor_StainOrganicDark"
+   ],
+   "description": "Dark organic wall stain overlay (Pack 01 stain texture on a wall quad).",
+   "status": "new",
+   "reused": [
+    "Pack 01 Hor_StainOrganicDark"
+   ]
+  },
+  {
+   "name": "CORR_WallStreaks_Dark",
+   "folder": "Corruption",
+   "glb": "09_Horror_Atmosphere/Corruption/CORR_WallStreaks_Dark.glb",
+   "triangles": 2,
+   "kind": "static",
+   "materials": [
+    "M_Veil_WallStreaks"
+   ],
+   "description": "Dark streaks running down a facade from the roof line.",
+   "status": "new",
+   "reused": []
+  },
+  {
+   "name": "CORR_Residue_Strange",
+   "folder": "Corruption",
+   "glb": "09_Horror_Atmosphere/Corruption/CORR_Residue_Strange.glb",
+   "triangles": 2,
+   "kind": "static",
+   "materials": [
+    "M_Hor_ResidueStrange"
+   ],
+   "description": "Pale viscous residue smear (Pack 01 texture on a wall quad).",
+   "status": "new",
+   "reused": [
+    "Pack 01 Hor_ResidueStrange"
+   ]
+  },
+  {
+   "name": "CORR_Ground_Discoloration",
+   "folder": "Corruption",
+   "glb": "09_Horror_Atmosphere/Corruption/CORR_Ground_Discoloration.glb",
+   "triangles": 2,
+   "kind": "static",
+   "materials": [
+    "M_Veil_GroundBlight"
+   ],
+   "description": "Unnatural drained/ashen ground patch with dark veins.",
+   "status": "new",
+   "reused": []
+  },
+  {
+   "name": "CORR_Asphalt_Cracks_A",
+   "folder": "Corruption",
+   "glb": "09_Horror_Atmosphere/Corruption/CORR_Asphalt_Cracks_A.glb",
+   "triangles": 2,
+   "kind": "static",
+   "materials": [
+    "M_Veil_AsphaltCracks_A"
+   ],
+   "description": "Cracked asphalt overlay, variation A (cracks + potholes).",
+   "status": "new",
+   "reused": []
+  },
+  {
+   "name": "CORR_Asphalt_Cracks_B",
+   "folder": "Corruption",
+   "glb": "09_Horror_Atmosphere/Corruption/CORR_Asphalt_Cracks_B.glb",
+   "triangles": 2,
+   "kind": "static",
+   "materials": [
+    "M_Veil_AsphaltCracks_B"
+   ],
+   "description": "Cracked asphalt overlay, variation B.",
+   "status": "new",
+   "reused": []
+  },
+  {
+   "name": "CORR_Marking_Damaged",
+   "folder": "Corruption",
+   "glb": "09_Horror_Atmosphere/Corruption/CORR_Marking_Damaged.glb",
+   "triangles": 2,
+   "kind": "static",
+   "materials": [
+    "M_Veil_MarkingDamaged"
+   ],
+   "description": "Chipped, grimy road centre-line segments.",
+   "status": "new",
+   "reused": []
+  },
+  {
+   "name": "CORR_Marking_Distorted",
+   "folder": "Corruption",
+   "glb": "09_Horror_Atmosphere/Corruption/CORR_Marking_Distorted.glb",
+   "triangles": 2,
+   "kind": "static",
+   "materials": [
+    "M_Veil_MarkingDistorted"
+   ],
+   "description": "Road arrow smeared into a slow S - subtly wrong.",
+   "status": "new",
+   "reused": []
+  },
+  {
+   "name": "CORR_Window_Discoloration",
+   "folder": "Corruption",
+   "glb": "09_Horror_Atmosphere/Corruption/CORR_Window_Discoloration.glb",
+   "triangles": 2,
+   "kind": "static",
+   "materials": [
+    "M_Veil_WindowStain"
+   ],
+   "description": "Seeping damp discoloration overlay for window panes.",
+   "status": "new",
+   "reused": []
+  },
+  {
+   "name": "CORR_Organic_Growth",
+   "folder": "Corruption",
+   "glb": "09_Horror_Atmosphere/Corruption/CORR_Organic_Growth.glb",
+   "triangles": 720,
+   "kind": "static",
+   "materials": [
+    "M_Veil_Growth"
+   ],
+   "description": "Clustered dark organic growths for wall bases, kerbs and corners.",
+   "status": "new",
+   "reused": []
+  },
+  {
+   "name": "CORR_Organic_Growth_Small",
+   "folder": "Corruption",
+   "glb": "09_Horror_Atmosphere/Corruption/CORR_Organic_Growth_Small.glb",
+   "triangles": 320,
+   "kind": "static",
+   "materials": [
+    "M_Veil_Growth"
+   ],
+   "description": "Small cluster of dark organic growths.",
+   "status": "new",
+   "reused": []
+  },
+  {
+   "name": "CORR_Dead_Shrub",
+   "folder": "Corruption",
+   "glb": "09_Horror_Atmosphere/Corruption/CORR_Dead_Shrub.glb",
+   "triangles": 266,
+   "kind": "static",
+   "materials": [
+    "M_Grnd_TreeBark",
+    "M_Hor_FoliageDead"
+   ],
+   "description": "Dead shrub: bare twisted branches with a few curled dead-leaf cards (Pack 01 bark + dead foliage).",
+   "status": "new",
+   "reused": [
+    "Pack 01 Grnd_TreeBark",
+    "Hor_FoliageDead"
+   ]
+  },
+  {
+   "name": "CORR_Corrupted_Vegetation",
+   "folder": "Corruption",
+   "glb": "09_Horror_Atmosphere/Corruption/CORR_Corrupted_Vegetation.glb",
+   "triangles": 992,
+   "kind": "static",
+   "materials": [
+    "M_Grnd_TreeBark",
+    "M_Veil_Growth"
+   ],
+   "description": "Corrupted shrub: corkscrewed branches knotted with dark growths at the joints and base.",
+   "status": "new",
+   "reused": []
+  },
+  {
+   "name": "CORR_Withered_Grass",
+   "folder": "Corruption",
+   "glb": "09_Horror_Atmosphere/Corruption/CORR_Withered_Grass.glb",
+   "triangles": 8,
+   "kind": "static",
+   "materials": [
+    "M_Veil_WitheredGrass"
+   ],
+   "description": "Withered grass clump (crossed cutout cards).",
+   "status": "new",
+   "reused": []
+  },
+  {
+   "name": "CORR_Withered_Grass_Patch",
+   "folder": "Corruption",
+   "glb": "09_Horror_Atmosphere/Corruption/CORR_Withered_Grass_Patch.glb",
+   "triangles": 18,
+   "kind": "static",
+   "materials": [
+    "M_Veil_WitheredGrass"
+   ],
+   "description": "Wider patch of withered grass cards.",
+   "status": "new",
+   "reused": []
+  },
+  {
+   "name": "SUP_ImpossibleShadow_Wall",
+   "folder": "Supernatural_Details",
+   "glb": "09_Horror_Atmosphere/Supernatural_Details/SUP_ImpossibleShadow_Wall.glb",
+   "triangles": 2,
+   "kind": "static",
+   "materials": [
+    "M_Veil_ImpossibleShadow"
+   ],
+   "description": "A tall soft shadow on a wall with nothing to cast it (abstract shape, unshaded).",
+   "status": "new",
+   "reused": []
+  },
+  {
+   "name": "SUP_ImpossibleShadow_Ground",
+   "folder": "Supernatural_Details",
+   "glb": "09_Horror_Atmosphere/Supernatural_Details/SUP_ImpossibleShadow_Ground.glb",
+   "triangles": 2,
+   "kind": "static",
+   "materials": [
+    "M_Veil_ImpossibleShadow"
+   ],
+   "description": "A long shadow stretched across the ground from nowhere.",
+   "status": "new",
+   "reused": []
+  },
+  {
+   "name": "SUP_Markings_Wall",
+   "folder": "Supernatural_Details",
+   "glb": "09_Horror_Atmosphere/Supernatural_Details/SUP_Markings_Wall.glb",
+   "triangles": 2,
+   "kind": "static",
+   "materials": [
+    "M_Veil_Symbols"
+   ],
+   "description": "Abstract scratched/painted marks on a wall (no defined meaning).",
+   "status": "new",
+   "reused": []
+  },
+  {
+   "name": "SUP_Markings_Pavement",
+   "folder": "Supernatural_Details",
+   "glb": "09_Horror_Atmosphere/Supernatural_Details/SUP_Markings_Pavement.glb",
+   "triangles": 2,
+   "kind": "static",
+   "materials": [
+    "M_Veil_Symbols"
+   ],
+   "description": "The same abstract marks on pavement.",
+   "status": "new",
+   "reused": []
+  },
+  {
+   "name": "SUP_WrongReflection_Pane",
+   "folder": "Supernatural_Details",
+   "glb": "09_Horror_Atmosphere/Supernatural_Details/SUP_WrongReflection_Pane.glb",
+   "triangles": 2,
+   "kind": "shader-driven",
+   "materials": [
+    "M_Veil_WrongReflection"
+   ],
+   "description": "Window/mirror pane whose reflection drifts and smears (shader in Godot; plain dirty glass in the browser).",
+   "status": "new",
+   "reused": []
+  },
+  {
+   "name": "SUP_ColdLightShaft",
+   "folder": "Supernatural_Details",
+   "glb": "09_Horror_Atmosphere/Supernatural_Details/SUP_ColdLightShaft.glb",
+   "triangles": 2,
+   "kind": "static",
+   "materials": [
+    "M_Veil_ColdLightShaft"
+   ],
+   "description": "Cold light card that leaks from a doorway (pair with ColdLightLeak.tscn).",
+   "status": "new",
+   "reused": []
+  },
+  {
+   "name": "LGT_FluorescentFixture",
+   "folder": "Lighting",
+   "glb": "09_Horror_Atmosphere/Lighting/LGT_FluorescentFixture.glb",
+   "triangles": 104,
+   "kind": "static",
+   "materials": [
+    "M_Inv_Atlas",
+    "M_Veil_FluorescentGlow"
+   ],
+   "description": "Ceiling fluorescent fixture with emissive tubes (pair with FluorescentFlicker.tscn).",
+   "status": "new",
+   "reused": []
+  },
+  {
+   "name": "ABN_ShoppingCart_Overturned",
+   "folder": "Abandoned_Props",
+   "glb": "09_Horror_Atmosphere/Abandoned_Props/ABN_ShoppingCart_Overturned.glb",
+   "triangles": 536,
+   "kind": "static",
+   "materials": [
+    "M_Inv_Atlas"
+   ],
+   "description": "Overturned shopping cart: wire basket, handle bar, castors (Pack 08 atlas material).",
+   "status": "new",
+   "reused": [
+    "Pack 08 M_Inv_Atlas"
+   ]
+  },
+  {
+   "name": "ABN_GroceryBags_Spilled",
+   "folder": "Abandoned_Props",
+   "glb": "09_Horror_Atmosphere/Abandoned_Props/ABN_GroceryBags_Spilled.glb",
+   "triangles": 192,
+   "kind": "static",
+   "materials": [
+    "M_Inv_Atlas"
+   ],
+   "description": "Two paper grocery bags, one tipped over, cans and a snack rolled out (Pack 08 labels).",
+   "status": "new",
+   "reused": [
+    "Pack 08 M_Inv_Atlas"
+   ]
+  },
+  {
+   "name": "ABN_ScatteredPapers",
+   "folder": "Abandoned_Props",
+   "glb": "09_Horror_Atmosphere/Abandoned_Props/ABN_ScatteredPapers.glb",
+   "triangles": 108,
+   "kind": "static",
+   "materials": [
+    "M_Inv_Atlas"
+   ],
+   "description": "Loose papers, flyers and newspaper pages scattered on the ground (Pack 08 decals).",
+   "status": "new",
+   "reused": [
+    "Pack 08 M_Inv_Atlas"
+   ]
+  },
+  {
+   "name": "ABN_BrokenWindowPanel",
+   "folder": "Abandoned_Props",
+   "glb": "09_Horror_Atmosphere/Abandoned_Props/ABN_BrokenWindowPanel.glb",
+   "triangles": 164,
+   "kind": "static",
+   "materials": [
+    "M_Inv_Atlas"
+   ],
+   "description": "Fallen window sash with mostly smashed panes and shards on the floor.",
+   "status": "new",
+   "reused": [
+    "Pack 08 M_Inv_Atlas"
+   ]
+  },
+  {
+   "name": "ABN_FallenBicycle",
+   "folder": "Abandoned_Props",
+   "glb": "09_Horror_Atmosphere/Abandoned_Props/ABN_FallenBicycle.glb",
+   "triangles": 550,
+   "kind": "static",
+   "materials": [
+    "M_Inv_Atlas"
+   ],
+   "description": "Bicycle dropped on its side: two spoked wheels, blue frame, saddle, handlebars.",
+   "status": "new",
+   "reused": [
+    "Pack 08 M_Inv_Atlas"
+   ]
+  }
+ ],
+ "textures": {
+  "T_Veil_MistNoise": {
+   "file": "09_Horror_Atmosphere/Textures/T_Veil_MistNoise.png",
+   "size": "64x64"
+  },
+  "T_Veil_FogCard": {
+   "file": "09_Horror_Atmosphere/Textures/T_Veil_FogCard.png",
+   "size": "64x64"
+  },
+  "T_Veil_WallStreaks": {
+   "file": "09_Horror_Atmosphere/Textures/T_Veil_WallStreaks.png",
+   "size": "64x128"
+  },
+  "T_Veil_GroundBlight": {
+   "file": "09_Horror_Atmosphere/Textures/T_Veil_GroundBlight.png",
+   "size": "128x128"
+  },
+  "T_Veil_AsphaltCracks_A": {
+   "file": "09_Horror_Atmosphere/Textures/T_Veil_AsphaltCracks_A.png",
+   "size": "128x128"
+  },
+  "T_Veil_AsphaltCracks_B": {
+   "file": "09_Horror_Atmosphere/Textures/T_Veil_AsphaltCracks_B.png",
+   "size": "128x128"
+  },
+  "T_Veil_MarkingDamaged": {
+   "file": "09_Horror_Atmosphere/Textures/T_Veil_MarkingDamaged.png",
+   "size": "32x128"
+  },
+  "T_Veil_MarkingDistorted": {
+   "file": "09_Horror_Atmosphere/Textures/T_Veil_MarkingDistorted.png",
+   "size": "64x128"
+  },
+  "T_Veil_WindowStain": {
+   "file": "09_Horror_Atmosphere/Textures/T_Veil_WindowStain.png",
+   "size": "64x64"
+  },
+  "T_Veil_Growth": {
+   "file": "09_Horror_Atmosphere/Textures/T_Veil_Growth.png",
+   "size": "64x64"
+  },
+  "T_Veil_WitheredGrass": {
+   "file": "09_Horror_Atmosphere/Textures/T_Veil_WitheredGrass.png",
+   "size": "64x32"
+  },
+  "T_Veil_Symbols": {
+   "file": "09_Horror_Atmosphere/Textures/T_Veil_Symbols.png",
+   "size": "64x64"
+  },
+  "T_Veil_Shadow": {
+   "file": "09_Horror_Atmosphere/Textures/T_Veil_Shadow.png",
+   "size": "64x128"
+  },
+  "T_Veil_Condensation": {
+   "file": "09_Horror_Atmosphere/Textures/T_Veil_Condensation.png",
+   "size": "64x64"
+  },
+  "T_Veil_Leaves": {
+   "file": "09_Horror_Atmosphere/Textures/T_Veil_Leaves.png",
+   "size": "64x16"
+  },
+  "T_Veil_Rain": {
+   "file": "09_Horror_Atmosphere/Textures/T_Veil_Rain.png",
+   "size": "4x32"
+  },
+  "T_Veil_Spark": {
+   "file": "09_Horror_Atmosphere/Textures/T_Veil_Spark.png",
+   "size": "8x8"
+  },
+  "T_Veil_Dust": {
+   "file": "09_Horror_Atmosphere/Textures/T_Veil_Dust.png",
+   "size": "8x8"
+  },
+  "T_Veil_Drip": {
+   "file": "09_Horror_Atmosphere/Textures/T_Veil_Drip.png",
+   "size": "8x8"
+  },
+  "T_Veil_LightShaft": {
+   "file": "09_Horror_Atmosphere/Textures/T_Veil_LightShaft.png",
+   "size": "16x64"
+  },
+  "T_Veil_Fluorescent": {
+   "file": "09_Horror_Atmosphere/Textures/T_Veil_Fluorescent.png",
+   "size": "16x16"
+  }
+ },
+ "scenes": [
+  "09_Horror_Atmosphere/Fog/VeilMist.tscn",
+  "09_Horror_Atmosphere/Fog/VeilFogPatch.tscn",
+  "09_Horror_Atmosphere/Fog/VeilMistBoundary.tscn",
+  "09_Horror_Atmosphere/Lighting/FlickerStreetlight.tscn",
+  "09_Horror_Atmosphere/Lighting/DimStreetlight.tscn",
+  "09_Horror_Atmosphere/Lighting/FluorescentFlicker.tscn",
+  "09_Horror_Atmosphere/Supernatural_Details/ColdLightLeak.tscn",
+  "09_Horror_Atmosphere/Environmental_Effects/DustMotes.tscn",
+  "09_Horror_Atmosphere/Environmental_Effects/DriftingLeaves.tscn",
+  "09_Horror_Atmosphere/Environmental_Effects/LightRain.tscn",
+  "09_Horror_Atmosphere/Environmental_Effects/DrippingWater.tscn",
+  "09_Horror_Atmosphere/Environmental_Effects/ElectricalSparks.tscn",
+  "09_Horror_Atmosphere/Environmental_Effects/DistantMist.tscn",
+  "09_Horror_Atmosphere/Environmental_Effects/WindowCondensation.tscn",
+  "09_Horror_Atmosphere/Environmental_Effects/Puddles_Dripping.tscn",
+  "09_Horror_Atmosphere/Abandoned_Props/ABN_FallenStreetSign.tscn",
+  "09_Horror_Atmosphere/Abandoned_Props/ABN_DamagedStreetlight.tscn",
+  "09_Horror_Atmosphere/Abandoned_Props/ABN_EmptyBarricade.tscn",
+  "09_Horror_Atmosphere/Abandoned_Props/ABN_RoadCones_Abandoned.tscn",
+  "09_Horror_Atmosphere/Abandoned_Props/ABN_BrokenElectricalBox.tscn",
+  "09_Horror_Atmosphere/Abandoned_Props/ABN_DisplacedFurniture.tscn",
+  "09_Horror_Atmosphere/Abandoned_Props/ABN_PersonalBelongings.tscn"
+ ],
+ "presets": [
+  "STATE_NORMAL",
+  "STATE_UNEASY",
+  "STATE_VEIL_APPROACHING",
+  "STATE_VEIL_ACTIVE",
+  "STATE_CORRUPTED",
+  "LGT_Ordinary_Evening",
+  "LGT_Night_Residential",
+  "LGT_Empty_Supermarket",
+  "LGT_Dark_Video_Game_Shop",
+  "LGT_Abandoned_House",
+  "LGT_Mist_Roadway",
+  "LGT_Corrupted_Neighborhood",
+  "LGT_Deep_Veil"
+ ],
+ "reused_materials": [
+  "Pack 01 M_Hor_StainOrganicDark",
+  "Pack 01 M_Hor_ResidueStrange",
+  "Pack 01 M_Hor_FoliageDead",
+  "Pack 01 M_Grnd_TreeBark"
+ ]
+}

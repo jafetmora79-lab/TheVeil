@@ -1,0 +1,43 @@
+[remap]
+
+importer="scene"
+importer_version=1
+type="PackedScene"
+uid="uid://b1x5fumla17ca"
+path="res://.godot/imported/FN_RetainingWall_2.5m.glb-0faebc62a2c92ad1d4f178df7ca4d2b9.scn"
+
+[deps]
+
+source_file="res://THE_VEIL_ASSETS_V2/02_Town/Fences/FN_RetainingWall_2.5m.glb"
+dest_files=["res://.godot/imported/FN_RetainingWall_2.5m.glb-0faebc62a2c92ad1d4f178df7ca4d2b9.scn"]
+
+[params]
+
+nodes/root_type=""
+nodes/root_name=""
+nodes/apply_root_scale=true
+nodes/root_scale=1.0
+nodes/import_as_skeleton_bones=false
+meshes/ensure_tangents=false
+meshes/generate_lods=false
+meshes/create_shadow_meshes=true
+meshes/light_baking=1
+meshes/lightmap_texel_size=0.2
+meshes/force_disable_compression=false
+skins/use_named_skins=true
+animation/import=false
+animation/fps=30
+animation/trimming=false
+animation/remove_immutable_tracks=true
+animation/import_rest_as_RESET=false
+import_script/path=""
+_subresources={
+"materials": {
+"M_Arch_ConcreteFoundation": {
+"use_external/enabled": true,
+"use_external/path": "res://THE_VEIL_ASSETS_V2/Materials_Godot/Architecture/M_Arch_ConcreteFoundation.tres"
+}
+}
+}
+gltf/naming_version=1
+gltf/embedded_image_handling=1

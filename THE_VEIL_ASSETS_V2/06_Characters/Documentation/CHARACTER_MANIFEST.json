@@ -1,0 +1,951 @@
+{
+ "pack": "THE VEIL - Pack 06 Greyhaven Characters",
+ "models": [
+  {
+   "name": "CHR_Protagonist_v1",
+   "character": "Protagonist",
+   "title": "The protagonist (player character, name TBD) (rev 1 backup; superseded by the style-rev-4 model)",
+   "role": "Ordinary man in his early-to-mid 30s who lives alone; wakes Friday 6:42 PM, goes for groceries and a horror game.",
+   "glb": "06_Characters/Protagonist/CHR_Protagonist_v1.glb",
+   "texture": "06_Characters/Textures/T_Chr_Protagonist.png",
+   "texture_size": "256x256",
+   "material": "06_Characters/Materials/M_Chr_Protagonist.tres",
+   "height_m": 1.78,
+   "rigged": true,
+   "skeleton": "VEIL_Humanoid (23 bones)",
+   "revision": 1,
+   "triangles": 1064,
+   "vertices": 1029,
+   "bones": 23,
+   "bounds_min": [
+    -0.682,
+    0.0,
+    -0.115
+   ],
+   "bounds_max": [
+    0.682,
+    1.786,
+    0.216
+   ],
+   "sockets": [
+    "LeftHand_ItemSocket",
+    "RightHand_ItemSocket",
+    "Head_EyeLevel"
+   ]
+  },
+  {
+   "name": "CHR_Protagonist_FP_Arms_v1",
+   "character": "Protagonist",
+   "title": "The protagonist (player character, name TBD) - first-person arms (rev 1 backup; superseded by the style-rev-4 model)",
+   "role": "first-person view model",
+   "glb": "06_Characters/Protagonist/CHR_Protagonist_FP_Arms_v1.glb",
+   "texture": "06_Characters/Textures/T_Chr_Protagonist.png",
+   "texture_size": "256x256",
+   "material": "06_Characters/Materials/M_Chr_Protagonist.tres",
+   "height_m": null,
+   "rigged": true,
+   "skeleton": "VEIL_FP_Arms (9 bones)",
+   "triangles": 252,
+   "vertices": 310,
+   "bones": 9,
+   "bounds_min": [
+    -0.303,
+    -0.459,
+    -0.605
+   ],
+   "bounds_max": [
+    0.298,
+    -0.213,
+    0.181
+   ],
+   "sockets": [
+    "LeftHand_ItemSocket",
+    "RightHand_ItemSocket"
+   ]
+  },
+  {
+   "name": "CHR_Eddie_v1",
+   "character": "Eddie",
+   "title": "Eddie - game-shop clerk (34) (superseded by the hand-made reference CHR_Eddie)",
+   "role": "Sarcastic, witty, loyal clerk at Greyhaven's independent video game shop.",
+   "glb": "06_Characters/Commercial_NPCs/CHR_Eddie_v1.glb",
+   "texture": "06_Characters/Textures/T_Chr_Eddie.png",
+   "texture_size": "256x256",
+   "material": "06_Characters/Materials/M_Chr_Eddie.tres",
+   "height_m": 1.74,
+   "rigged": true,
+   "skeleton": "VEIL_Humanoid (23 bones)",
+   "revision": 1,
+   "triangles": 1112,
+   "vertices": 1125,
+   "bones": 23,
+   "bounds_min": [
+    -0.603,
+    0.0,
+    -0.115
+   ],
+   "bounds_max": [
+    0.603,
+    1.778,
+    0.268
+   ],
+   "sockets": [
+    "LeftHand_ItemSocket",
+    "RightHand_ItemSocket"
+   ]
+  },
+  {
+   "name": "CHR_Marcus_v1",
+   "character": "Marcus",
+   "title": "Marcus - Noah's father (43) (rev 1 backup; superseded by the style-rev-4 model)",
+   "role": "Protective, impulsive father searching for his missing son Noah; exhausted and worried.",
+   "glb": "06_Characters/Marcus/CHR_Marcus_v1.glb",
+   "texture": "06_Characters/Textures/T_Chr_Marcus.png",
+   "texture_size": "256x256",
+   "material": "06_Characters/Materials/M_Chr_Marcus.tres",
+   "height_m": 1.83,
+   "rigged": true,
+   "skeleton": "VEIL_Humanoid (23 bones)",
+   "revision": 1,
+   "triangles": 1086,
+   "vertices": 1073,
+   "bones": 23,
+   "bounds_min": [
+    -0.731,
+    0.0,
+    -0.147
+   ],
+   "bounds_max": [
+    0.731,
+    1.815,
+    0.224
+   ],
+   "sockets": [
+    "LeftHand_ItemSocket",
+    "RightHand_ItemSocket"
+   ]
+  },
+  {
+   "name": "CHR_Ruth_v1",
+   "character": "Ruth",
+   "title": "Ruth - retired librarian (68) (rev 1 backup; superseded by the style-rev-4 model)",
+   "role": "Quiet, observant longtime resident with knowledge of Greyhaven's history.",
+   "glb": "06_Characters/Civilians/CHR_Ruth_v1.glb",
+   "texture": "06_Characters/Textures/T_Chr_Ruth.png",
+   "texture_size": "256x256",
+   "material": "06_Characters/Materials/M_Chr_Ruth.tres",
+   "height_m": 1.6,
+   "rigged": true,
+   "skeleton": "VEIL_Humanoid (23 bones)",
+   "revision": 1,
+   "triangles": 1206,
+   "vertices": 1246,
+   "bones": 23,
+   "bounds_min": [
+    -0.505,
+    0.0,
+    -0.15
+   ],
+   "bounds_max": [
+    0.505,
+    1.598,
+    0.285
+   ],
+   "sockets": [
+    "LeftHand_ItemSocket",
+    "RightHand_ItemSocket"
+   ]
+  },
+  {
+   "name": "CHR_Sarah_v1",
+   "character": "Sarah",
+   "title": "Sarah - paramedic (rev 1 backup; superseded by the style-rev-4 model)",
+   "role": "Practical, skeptical emergency medical worker.",
+   "glb": "06_Characters/Civilians/CHR_Sarah_v1.glb",
+   "texture": "06_Characters/Textures/T_Chr_Sarah.png",
+   "texture_size": "256x256",
+   "material": "06_Characters/Materials/M_Chr_Sarah.tres",
+   "height_m": 1.68,
+   "rigged": true,
+   "skeleton": "VEIL_Humanoid (23 bones)",
+   "revision": 1,
+   "triangles": 1143,
+   "vertices": 1107,
+   "bones": 23,
+   "bounds_min": [
+    -0.646,
+    0.0,
+    -0.206
+   ],
+   "bounds_max": [
+    0.646,
+    1.67,
+    0.189
+   ],
+   "sockets": [
+    "LeftHand_ItemSocket",
+    "RightHand_ItemSocket"
+   ]
+  },
+  {
+   "name": "CHR_Frank_v1",
+   "character": "Frank",
+   "title": "Frank - security guard (rev 1 backup; superseded by the style-rev-4 model)",
+   "role": "Serious, overconfident middle-aged security guard; not a tactical commando.",
+   "glb": "06_Characters/Commercial_NPCs/CHR_Frank_v1.glb",
+   "texture": "06_Characters/Textures/T_Chr_Frank.png",
+   "texture_size": "256x256",
+   "material": "06_Characters/Materials/M_Chr_Frank.tres",
+   "height_m": 1.76,
+   "rigged": true,
+   "skeleton": "VEIL_Humanoid (23 bones)",
+   "revision": 1,
+   "triangles": 1114,
+   "vertices": 1107,
+   "bones": 23,
+   "bounds_min": [
+    -0.745,
+    0.0,
+    -0.179
+   ],
+   "bounds_max": [
+    0.745,
+    1.735,
+    0.236
+   ],
+   "sockets": [
+    "LeftHand_ItemSocket",
+    "RightHand_ItemSocket"
+   ]
+  },
+  {
+   "name": "CHR_Lena_v1",
+   "character": "Lena",
+   "title": "Lena - student investigator (rev 1 backup; superseded by the style-rev-4 model)",
+   "role": "Curious, determined, analytical student looking into Greyhaven's disappearances.",
+   "glb": "06_Characters/Civilians/CHR_Lena_v1.glb",
+   "texture": "06_Characters/Textures/T_Chr_Lena.png",
+   "texture_size": "256x256",
+   "material": "06_Characters/Materials/M_Chr_Lena.tres",
+   "height_m": 1.65,
+   "rigged": true,
+   "skeleton": "VEIL_Humanoid (23 bones)",
+   "revision": 1,
+   "triangles": 1082,
+   "vertices": 994,
+   "bones": 23,
+   "bounds_min": [
+    -0.63,
+    0.0,
+    -0.162
+   ],
+   "bounds_max": [
+    0.63,
+    1.645,
+    0.198
+   ],
+   "sockets": [
+    "LeftHand_ItemSocket",
+    "RightHand_ItemSocket"
+   ]
+  },
+  {
+   "name": "CHR_Police_Officer_v1",
+   "character": "Police_Officer",
+   "title": "Greyhaven police officer (Officer Hayes candidate - identity TBD) (rev 1 backup; superseded by the style-rev-4 model)",
+   "role": "Generic Greyhaven officer; can be assigned to Officer Hayes once the story fixes his/her identity.",
+   "glb": "06_Characters/Police/CHR_Police_Officer_v1.glb",
+   "texture": "06_Characters/Textures/T_Chr_Police_Officer.png",
+   "texture_size": "256x256",
+   "material": "06_Characters/Materials/M_Chr_Police_Officer.tres",
+   "height_m": 1.72,
+   "rigged": true,
+   "skeleton": "VEIL_Humanoid (23 bones)",
+   "revision": 1,
+   "triangles": 1290,
+   "vertices": 1289,
+   "bones": 23,
+   "bounds_min": [
+    -0.643,
+    0.0,
+    -0.182
+   ],
+   "bounds_max": [
+    0.643,
+    1.749,
+    0.194
+   ],
+   "sockets": [
+    "LeftHand_ItemSocket",
+    "RightHand_ItemSocket"
+   ]
+  },
+  {
+   "name": "CHR_Eddie_v2",
+   "character": "Eddie_v2",
+   "title": "Eddie - game-shop clerk (34) - rev 2",
+   "role": "Sarcastic, witty, loyal clerk at Greyhaven's independent video game shop.",
+   "glb": "06_Characters/Commercial_NPCs/CHR_Eddie_v2.glb",
+   "texture": "06_Characters/Textures/T_Chr_Eddie_v2.png",
+   "texture_size": "256x256",
+   "material": "06_Characters/Materials/M_Chr_Eddie_v2.tres",
+   "height_m": 1.8,
+   "rigged": true,
+   "skeleton": "VEIL_Humanoid (23 bones)",
+   "revision": 2,
+   "triangles": 2162,
+   "vertices": 2320,
+   "bones": 23,
+   "bounds_min": [
+    -0.494,
+    0.0,
+    -0.161
+   ],
+   "bounds_max": [
+    0.491,
+    1.803,
+    0.361
+   ],
+   "sockets": [
+    "LeftHand_ItemSocket",
+    "RightHand_ItemSocket"
+   ]
+  },
+  {
+   "name": "CHR_Marcus_v2",
+   "character": "Marcus_v2",
+   "title": "Marcus - Noah's father (43) - rev 2",
+   "role": "Protective, impulsive father searching for his missing son Noah; exhausted and worried.",
+   "glb": "06_Characters/Marcus/CHR_Marcus_v2.glb",
+   "texture": "06_Characters/Textures/T_Chr_Marcus_v2.png",
+   "texture_size": "256x256",
+   "material": "06_Characters/Materials/M_Chr_Marcus_v2.tres",
+   "height_m": 1.82,
+   "rigged": true,
+   "skeleton": "VEIL_Humanoid (23 bones)",
+   "revision": 2,
+   "triangles": 1988,
+   "vertices": 1972,
+   "bones": 23,
+   "bounds_min": [
+    -0.791,
+    0.0,
+    -0.207
+   ],
+   "bounds_max": [
+    0.79,
+    1.817,
+    0.322
+   ],
+   "sockets": [
+    "LeftHand_ItemSocket",
+    "RightHand_ItemSocket"
+   ]
+  },
+  {
+   "name": "CHR_Eddie_v3",
+   "character": "Eddie_v3",
+   "title": "Eddie - game-shop clerk (34) - rev 3 (sculpted)",
+   "role": "Sarcastic, witty, loyal clerk at Greyhaven's independent video game shop.",
+   "glb": "06_Characters/Commercial_NPCs/CHR_Eddie_v3.glb",
+   "texture": "06_Characters/Textures/T_Chr_Eddie_v3.png",
+   "texture_size": "256x256",
+   "material": "06_Characters/Materials/M_Chr_Eddie_v3.tres",
+   "height_m": 1.8,
+   "rigged": true,
+   "skeleton": "VEIL_Humanoid (23 bones)",
+   "revision": 3,
+   "triangles": 7588,
+   "vertices": 22764,
+   "bones": 23,
+   "bounds_min": [
+    -0.424,
+    -0.002,
+    -0.183
+   ],
+   "bounds_max": [
+    0.438,
+    1.795,
+    0.27
+   ],
+   "sockets": [
+    "LeftHand_ItemSocket",
+    "RightHand_ItemSocket"
+   ],
+   "charts": {
+    "skin/any": 1713,
+    "hoodie/arm_R": 466,
+    "sole/any": 234,
+    "shoe_Right/leg_R": 70,
+    "jeans/leg_R": 464,
+    "hoodie/body": 1091,
+    "hair/head": 1194,
+    "face/head": 393,
+    "tee/body": 34,
+    "jeans/body": 10,
+    "jeans/leg_L": 706,
+    "shoe_Left/leg_L": 96,
+    "hoodie/arm_L": 629,
+    "brow/any": 96,
+    "glasses/any": 392
+   }
+  },
+  {
+   "name": "CHR_Marcus_v3",
+   "character": "Marcus_v3",
+   "title": "Marcus - Noah's father (43) - rev 3 (sculpted)",
+   "role": "Protective, impulsive father searching for his missing son Noah; exhausted and worried.",
+   "glb": "06_Characters/Marcus/CHR_Marcus_v3.glb",
+   "texture": "06_Characters/Textures/T_Chr_Marcus_v3.png",
+   "texture_size": "256x256",
+   "material": "06_Characters/Materials/M_Chr_Marcus_v3.tres",
+   "height_m": 1.76,
+   "rigged": true,
+   "skeleton": "VEIL_Humanoid (23 bones)",
+   "revision": 3,
+   "triangles": 7090,
+   "vertices": 21270,
+   "bones": 23,
+   "bounds_min": [
+    -0.622,
+    -0.001,
+    -0.215
+   ],
+   "bounds_max": [
+    0.626,
+    1.753,
+    0.262
+   ],
+   "sockets": [
+    "LeftHand_ItemSocket",
+    "RightHand_ItemSocket"
+   ],
+   "charts": {
+    "skin/any": 1783,
+    "jacket/arm_R": 696,
+    "jacket/body": 1576,
+    "sole/any": 182,
+    "trousers/leg_R": 304,
+    "shoe_Right/leg_R": 96,
+    "face/head": 479,
+    "hair/head": 514,
+    "flannel/body": 50,
+    "trousers/leg_L": 380,
+    "trousers/body": 2,
+    "shoe_Left/leg_L": 114,
+    "jacket/arm_L": 818,
+    "brow/any": 96
+   }
+  }
+ ],
+ "style_models": [
+  {
+   "name": "CHR_Eddie",
+   "character": "Eddie",
+   "glb": "06_Characters/Commercial_NPCs/CHR_Eddie.glb",
+   "source": "hand-made in Blender by the project owner (Source_Blend/Eddie.blend)",
+   "role": "art-direction reference for every Pack 06 character",
+   "triangles": 2740,
+   "height_m": 1.818,
+   "materials": 11,
+   "bones": 22,
+   "sockets": [
+    "Socket_Head",
+    "Socket_Back",
+    "Socket_LeftHand",
+    "Socket_RightHand"
+   ]
+  },
+  {
+   "name": "CHR_Marcus",
+   "character": "Marcus",
+   "glb": "06_Characters/Marcus/CHR_Marcus.glb",
+   "source": "Source_Scripts/chr_style_from_eddie.py",
+   "status": "approved",
+   "triangles": 2716,
+   "height_m": 1.76,
+   "materials": 11,
+   "bones": 22
+  },
+  {
+   "name": "CHR_Protagonist",
+   "character": "Protagonist",
+   "glb": "06_Characters/Protagonist/CHR_Protagonist.glb",
+   "source": "Source_Scripts/chr_style_cast.py",
+   "status": "style rev 4",
+   "triangles": 2706,
+   "parts": {
+    "Protagonist_Body": 1752,
+    "Protagonist_Hair": 360,
+    "Protagonist_Head": 346,
+    "Protagonist_Shoes": 248
+   },
+   "height_m": 1.78,
+   "materials": 11,
+   "bones": 22,
+   "textures": {
+    "T_Protagonist_Top": [
+     64,
+     64,
+     4
+    ],
+    "T_Protagonist_TopCuff": [
+     32,
+     32,
+     3
+    ],
+    "T_Protagonist_Shirt": [
+     64,
+     64,
+     2
+    ],
+    "T_Protagonist_Pants": [
+     64,
+     64,
+     3
+    ],
+    "T_Protagonist_PantsHem": [
+     32,
+     32,
+     3
+    ],
+    "T_Protagonist_Skin": [
+     32,
+     32,
+     2
+    ],
+    "T_Protagonist_Sole": [
+     32,
+     32,
+     1
+    ],
+    "T_Protagonist_Badge": [
+     32,
+     16,
+     1
+    ],
+    "T_Protagonist_Hair": [
+     64,
+     64,
+     4
+    ],
+    "T_Protagonist_Head": [
+     128,
+     64,
+     12
+    ],
+    "T_Protagonist_Shoes": [
+     64,
+     64,
+     8
+    ]
+   }
+  },
+  {
+   "name": "CHR_Protagonist_FP_Arms",
+   "character": "Protagonist",
+   "glb": "06_Characters/Protagonist/CHR_Protagonist_FP_Arms.glb",
+   "source": "Source_Scripts/chr_style_cast.py",
+   "status": "style rev 4",
+   "role": "first-person arms (sleeve + hand triangles of the full model, same rig)",
+   "bones": 22
+  },
+  {
+   "name": "CHR_Ruth",
+   "character": "Ruth",
+   "glb": "06_Characters/Civilians/CHR_Ruth.glb",
+   "source": "Source_Scripts/chr_style_cast.py",
+   "status": "style rev 4",
+   "triangles": 2780,
+   "parts": {
+    "Ruth_Body": 1762,
+    "Ruth_Hair": 360,
+    "Ruth_Head": 346,
+    "Ruth_Shoes": 248,
+    "Ruth_HairExtras": 64
+   },
+   "height_m": 1.6,
+   "materials": 11,
+   "bones": 22,
+   "textures": {
+    "T_Ruth_Top": [
+     64,
+     64,
+     3
+    ],
+    "T_Ruth_TopCuff": [
+     32,
+     32,
+     3
+    ],
+    "T_Ruth_Shirt": [
+     64,
+     64,
+     3
+    ],
+    "T_Ruth_Pants": [
+     64,
+     64,
+     3
+    ],
+    "T_Ruth_PantsHem": [
+     32,
+     32,
+     3
+    ],
+    "T_Ruth_Skin": [
+     32,
+     32,
+     2
+    ],
+    "T_Ruth_Sole": [
+     32,
+     32,
+     1
+    ],
+    "T_Ruth_Badge": [
+     32,
+     16,
+     3
+    ],
+    "T_Ruth_Hair": [
+     64,
+     64,
+     4
+    ],
+    "T_Ruth_Head": [
+     128,
+     64,
+     13
+    ],
+    "T_Ruth_Shoes": [
+     64,
+     64,
+     6
+    ]
+   }
+  },
+  {
+   "name": "CHR_Sarah",
+   "character": "Sarah",
+   "glb": "06_Characters/Civilians/CHR_Sarah.glb",
+   "source": "Source_Scripts/chr_style_cast.py",
+   "status": "style rev 4",
+   "triangles": 2964,
+   "parts": {
+    "Sarah_Body": 1762,
+    "Sarah_Hair": 360,
+    "Sarah_Head": 346,
+    "Sarah_Shoes": 248,
+    "Sarah_HairExtras": 56,
+    "Sarah_GearExtras": 192
+   },
+   "height_m": 1.68,
+   "materials": 12,
+   "bones": 22,
+   "textures": {
+    "T_Sarah_Top": [
+     64,
+     64,
+     2
+    ],
+    "T_Sarah_TopCuff": [
+     32,
+     32,
+     3
+    ],
+    "T_Sarah_Shirt": [
+     64,
+     64,
+     4
+    ],
+    "T_Sarah_Pants": [
+     64,
+     64,
+     2
+    ],
+    "T_Sarah_PantsHem": [
+     32,
+     32,
+     3
+    ],
+    "T_Sarah_Skin": [
+     32,
+     32,
+     2
+    ],
+    "T_Sarah_Sole": [
+     32,
+     32,
+     1
+    ],
+    "T_Sarah_Badge": [
+     32,
+     16,
+     2
+    ],
+    "T_Sarah_Hair": [
+     64,
+     64,
+     4
+    ],
+    "T_Sarah_Head": [
+     128,
+     64,
+     12
+    ],
+    "T_Sarah_Shoes": [
+     64,
+     64,
+     7
+    ],
+    "T_Sarah_Gear": [
+     32,
+     32,
+     16
+    ]
+   }
+  },
+  {
+   "name": "CHR_Frank",
+   "character": "Frank",
+   "glb": "06_Characters/Commercial_NPCs/CHR_Frank.glb",
+   "source": "Source_Scripts/chr_style_cast.py",
+   "status": "style rev 4",
+   "triangles": 2944,
+   "parts": {
+    "Frank_Body": 1762,
+    "Frank_Hair": 360,
+    "Frank_Head": 346,
+    "Frank_Shoes": 248,
+    "Frank_GearExtras": 228
+   },
+   "height_m": 1.76,
+   "materials": 12,
+   "bones": 22,
+   "textures": {
+    "T_Frank_Top": [
+     64,
+     64,
+     2
+    ],
+    "T_Frank_TopCuff": [
+     32,
+     32,
+     3
+    ],
+    "T_Frank_Shirt": [
+     64,
+     64,
+     5
+    ],
+    "T_Frank_Pants": [
+     64,
+     64,
+     2
+    ],
+    "T_Frank_PantsHem": [
+     32,
+     32,
+     3
+    ],
+    "T_Frank_Skin": [
+     32,
+     32,
+     2
+    ],
+    "T_Frank_Sole": [
+     32,
+     32,
+     1
+    ],
+    "T_Frank_Badge": [
+     32,
+     16,
+     3
+    ],
+    "T_Frank_Hair": [
+     64,
+     64,
+     4
+    ],
+    "T_Frank_Head": [
+     128,
+     64,
+     11
+    ],
+    "T_Frank_Shoes": [
+     64,
+     64,
+     7
+    ],
+    "T_Frank_Gear": [
+     32,
+     32,
+     16
+    ]
+   }
+  },
+  {
+   "name": "CHR_Lena",
+   "character": "Lena",
+   "glb": "06_Characters/Civilians/CHR_Lena.glb",
+   "source": "Source_Scripts/chr_style_cast.py",
+   "status": "style rev 4",
+   "triangles": 2752,
+   "parts": {
+    "Lena_Body": 1762,
+    "Lena_Hair": 360,
+    "Lena_Head": 346,
+    "Lena_Shoes": 248,
+    "Lena_GearExtras": 36
+   },
+   "height_m": 1.65,
+   "materials": 12,
+   "bones": 22,
+   "textures": {
+    "T_Lena_Top": [
+     64,
+     64,
+     4
+    ],
+    "T_Lena_TopCuff": [
+     32,
+     32,
+     3
+    ],
+    "T_Lena_Shirt": [
+     64,
+     64,
+     4
+    ],
+    "T_Lena_Pants": [
+     64,
+     64,
+     3
+    ],
+    "T_Lena_PantsHem": [
+     32,
+     32,
+     3
+    ],
+    "T_Lena_Skin": [
+     32,
+     32,
+     2
+    ],
+    "T_Lena_Sole": [
+     32,
+     32,
+     1
+    ],
+    "T_Lena_Badge": [
+     32,
+     16,
+     3
+    ],
+    "T_Lena_Hair": [
+     64,
+     64,
+     4
+    ],
+    "T_Lena_Head": [
+     128,
+     64,
+     12
+    ],
+    "T_Lena_Shoes": [
+     64,
+     64,
+     7
+    ],
+    "T_Lena_Gear": [
+     32,
+     32,
+     16
+    ]
+   }
+  },
+  {
+   "name": "CHR_Police_Officer",
+   "character": "Police_Officer",
+   "glb": "06_Characters/Police/CHR_Police_Officer.glb",
+   "source": "Source_Scripts/chr_style_cast.py",
+   "status": "style rev 4",
+   "triangles": 3154,
+   "parts": {
+    "Police_Officer_Body": 1762,
+    "Police_Officer_Hair": 360,
+    "Police_Officer_Head": 346,
+    "Police_Officer_Shoes": 248,
+    "Police_Officer_HairExtras": 64,
+    "Police_Officer_GearExtras": 374
+   },
+   "height_m": 1.765,
+   "materials": 12,
+   "bones": 22,
+   "textures": {
+    "T_Police_Officer_Top": [
+     64,
+     64,
+     2
+    ],
+    "T_Police_Officer_TopCuff": [
+     32,
+     32,
+     3
+    ],
+    "T_Police_Officer_Shirt": [
+     64,
+     64,
+     5
+    ],
+    "T_Police_Officer_Pants": [
+     64,
+     64,
+     2
+    ],
+    "T_Police_Officer_PantsHem": [
+     32,
+     32,
+     3
+    ],
+    "T_Police_Officer_Skin": [
+     32,
+     32,
+     2
+    ],
+    "T_Police_Officer_Sole": [
+     32,
+     32,
+     1
+    ],
+    "T_Police_Officer_Badge": [
+     32,
+     16,
+     4
+    ],
+    "T_Police_Officer_Hair": [
+     64,
+     64,
+     3
+    ],
+    "T_Police_Officer_Head": [
+     128,
+     64,
+     11
+    ],
+    "T_Police_Officer_Shoes": [
+     64,
+     64,
+     7
+    ],
+    "T_Police_Officer_Gear": [
+     32,
+     32,
+     16
+    ]
+   }
+  }
+ ]
+}

@@ -1,0 +1,134 @@
+{
+ "_comment": "THE VEIL - survivor trust / health / morale tuning (game/world/survivors.gd). Trust and morale are 0..100. A flag's effect is applied once (the flag itself can only be set once); runtime awards carry a key and are applied once per key (no farming).",
+ "start_trust": 50,
+ "start_morale": 50,
+ "flag_effects": {
+  "ch8_sarah_treated": {
+   "trust": {
+    "Sarah": 5,
+    "Ruth": 3
+   },
+   "memory": {
+    "Sarah": "treated"
+   }
+  },
+  "ch8_sarah_untreated": {
+   "morale": -5
+  },
+  "ch8_temp_survivor_died": {
+   "morale": -10,
+   "memory": {
+    "Sarah": "saw_death"
+   }
+  },
+  "ch9_marcus_saved": {
+   "trust": {
+    "Marcus": 10
+   },
+   "morale": 5,
+   "memory": {
+    "Marcus": "rescued"
+   }
+  },
+  "ch9_marcus_lost": {
+   "morale": -15,
+   "trust": {
+    "Sarah": -3
+   },
+   "memory": {
+    "Sarah": "saw_death",
+    "Eddie": "lost_marcus"
+   }
+  },
+  "ch10_choice_help": {
+   "trust": {
+    "Sarah": 5,
+    "Ruth": 3
+   },
+   "memory": {
+    "Sarah": "helped_on_road"
+   }
+  },
+  "ch10_choice_push": {
+   "trust": {
+    "Sarah": -5
+   },
+   "memory": {
+    "Sarah": "pushed_on"
+   }
+  },
+  "noah_clue_backpack": {
+   "trust": {
+    "Marcus": 5
+   },
+   "morale": 5
+  },
+  "noah_clue_campsite": {
+   "trust": {
+    "Marcus": 5
+   },
+   "morale": 3
+  },
+  "noah_clue_farmhouse": {
+   "trust": {
+    "Marcus": 5
+   },
+   "morale": 5
+  },
+  "ch8_entrance_secured": {
+   "trust": {
+    "Eddie": 3,
+    "Ruth": 3
+   },
+   "morale": 3
+  },
+  "vehicle_repaired": {
+   "trust": {
+    "Eddie": 3
+   },
+   "morale": 5
+  },
+  "ch12_supplies_taken": {
+   "morale": 3,
+   "memory": {
+    "Eddie": "risked_supplies"
+   }
+  },
+  "ch12_left_now": {
+   "trust": {
+    "Eddie": 2
+   }
+  },
+  "ch12_door_secured": {
+   "trust": {
+    "Eddie": 3
+   },
+   "memory": {
+    "Eddie": "tunnels"
+   }
+  }
+ },
+ "awards": {
+  "supplies_brought": {
+   "Ruth": 3,
+   "Eddie": 1
+  },
+  "treated": 5,
+  "abandoned": -15,
+  "trip_together": 2,
+  "empty_trip_morale": -4,
+  "good_trip_morale": 4,
+  "safe_night_morale": 3,
+  "short_night_morale": -8,
+  "ignored": -5
+ },
+ "night_flags": [
+  "p4_slept",
+  "c5_rested",
+  "ch6_rested",
+  "ch7_rested",
+  "ch8_rested"
+ ],
+ "remark_cooldown_s": 120,
+ "abandon_distance": 35
+}

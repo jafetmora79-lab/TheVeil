@@ -1,0 +1,17 @@
+[gd_scene load_steps=3 format=3]
+
+[ext_resource type="PackedScene" path="res://THE_VEIL_ASSETS_V2/03_Residential/Residential_Scenes/Greyhaven_Town_With_Houses.tscn" id="1_Greyhaven_Town_With_"]
+[ext_resource type="PackedScene" path="res://THE_VEIL_ASSETS_V2/05_Vehicles/Godot_Scenes/Protagonist_Sedan.tscn" id="2_Protagonist_Sedan"]
+
+[node name="Greyhaven_Opening_Driveway" type="Node3D"]
+
+
+[node name="Town" parent="." instance=ExtResource("1_Greyhaven_Town_With_")]
+
+
+[node name="ProtagonistSedan" parent="." instance=ExtResource("2_Protagonist_Sedan")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 31, 0.15, -94.2)
+
+[node name="Camera" type="Camera3D" parent="."]
+transform = Transform3D(0.819152, 0, 0.573576, 0, 1, 0, -0.573576, 0, 0.819152, 35.5, 1.7, -101)
+current = true

@@ -1,0 +1,447 @@
+{
+  "textures": [
+    {
+      "name": "T_Town_SignAtlas",
+      "file": "02_Town/Textures/T_Town_SignAtlas.png",
+      "resolution": "256x256",
+      "alpha": false,
+      "description": "Sign faces: stop, yield, speed limit, parking, bus stop, dead end, labels, 10 street-name blades."
+    },
+    {
+      "name": "T_Town_PaintRed",
+      "file": "02_Town/Textures/T_Town_PaintRed.png",
+      "resolution": "32x32",
+      "alpha": false,
+      "description": "Hydrant / mailbox-flag red paint on metal."
+    },
+    {
+      "name": "T_Town_PaintOrange",
+      "file": "02_Town/Textures/T_Town_PaintOrange.png",
+      "resolution": "32x32",
+      "alpha": false,
+      "description": "Traffic-cone / barrier orange."
+    },
+    {
+      "name": "T_Town_PaintNavy",
+      "file": "02_Town/Textures/T_Town_PaintNavy.png",
+      "resolution": "32x32",
+      "alpha": false,
+      "description": "Navy blue painted metal (newspaper box, phone)."
+    },
+    {
+      "name": "T_Town_PaintBlack",
+      "file": "02_Town/Textures/T_Town_PaintBlack.png",
+      "resolution": "32x32",
+      "alpha": false,
+      "description": "Black painted metal (lamp posts, railings, signal backplates)."
+    },
+    {
+      "name": "T_Town_PaintYellow",
+      "file": "02_Town/Textures/T_Town_PaintYellow.png",
+      "resolution": "32x32",
+      "alpha": false,
+      "description": "Safety yellow paint (signal heads, bollards)."
+    },
+    {
+      "name": "T_Town_PaintGreen",
+      "file": "02_Town/Textures/T_Town_PaintGreen.png",
+      "resolution": "32x32",
+      "alpha": false,
+      "description": "Dark green municipal paint (dumpster, bins)."
+    },
+    {
+      "name": "T_Town_PaintWhite",
+      "file": "02_Town/Textures/T_Town_PaintWhite.png",
+      "resolution": "32x32",
+      "alpha": false,
+      "description": "White painted metal (cone bands, poles)."
+    },
+    {
+      "name": "T_Town_HazardStripe",
+      "file": "02_Town/Textures/T_Town_HazardStripe.png",
+      "resolution": "64x64",
+      "alpha": false,
+      "description": "Yellow/black diagonal hazard stripes (barriers)."
+    },
+    {
+      "name": "T_Town_ChainLink",
+      "file": "02_Town/Textures/T_Town_ChainLink.png",
+      "resolution": "32x32",
+      "alpha": true,
+      "description": "Chain-link wire diamonds, alpha cutout, 25 cm stylised mesh."
+    },
+    {
+      "name": "T_Town_Puddle",
+      "file": "02_Town/Textures/T_Town_Puddle.png",
+      "resolution": "64x64",
+      "alpha": true,
+      "description": "Puddle decal with sky reflection and wet rim."
+    },
+    {
+      "name": "T_Town_ManholeCover",
+      "file": "02_Town/Textures/T_Town_ManholeCover.png",
+      "resolution": "64x64",
+      "alpha": false,
+      "description": "Round sewer cover (0..1 UV over a 1 m disc)."
+    },
+    {
+      "name": "T_Town_DrainGrate",
+      "file": "02_Town/Textures/T_Town_DrainGrate.png",
+      "resolution": "64x64",
+      "alpha": false,
+      "description": "Rectangular slotted drain grate (0..1 UV)."
+    },
+    {
+      "name": "T_Town_UtilityCover",
+      "file": "02_Town/Textures/T_Town_UtilityCover.png",
+      "resolution": "64x64",
+      "alpha": false,
+      "description": "Square diamond-plate utility access cover (0..1 UV)."
+    },
+    {
+      "name": "T_Town_PineNeedles",
+      "file": "02_Town/Textures/T_Town_PineNeedles.png",
+      "resolution": "128x128",
+      "alpha": false,
+      "description": "Layered pine needle tufts for conifer canopies."
+    },
+    {
+      "name": "T_Town_GrassCards",
+      "file": "02_Town/Textures/T_Town_GrassCards.png",
+      "resolution": "128x64",
+      "alpha": true,
+      "description": "Two cutout cells: tall grass (left), weeds (right)."
+    },
+    {
+      "name": "T_Town_FlowerBed",
+      "file": "02_Town/Textures/T_Town_FlowerBed.png",
+      "resolution": "64x64",
+      "alpha": false,
+      "description": "Soil with leafy clumps and muted flowers."
+    },
+    {
+      "name": "T_Town_Ivy",
+      "file": "02_Town/Textures/T_Town_Ivy.png",
+      "resolution": "64x64",
+      "alpha": true,
+      "description": "Tileable ivy cutout with vines."
+    },
+    {
+      "name": "T_Town_Rock",
+      "file": "02_Town/Textures/T_Town_Rock.png",
+      "resolution": "64x64",
+      "alpha": false,
+      "description": "Weathered rock plates with lichen."
+    },
+    {
+      "name": "T_Town_PoleWood",
+      "file": "02_Town/Textures/T_Town_PoleWood.png",
+      "resolution": "64x64",
+      "alpha": false,
+      "description": "Creosoted utility-pole wood, vertical checks and staples."
+    },
+    {
+      "name": "T_Town_StumpTop",
+      "file": "02_Town/Textures/T_Town_StumpTop.png",
+      "resolution": "64x64",
+      "alpha": false,
+      "description": "Tree-stump cut face with growth rings (0..1 UV)."
+    },
+    {
+      "name": "T_Town_VentGrille",
+      "file": "02_Town/Textures/T_Town_VentGrille.png",
+      "resolution": "32x32",
+      "alpha": false,
+      "description": "Louvred metal grille (AC units, vents, cabinets)."
+    },
+    {
+      "name": "T_Town_LampGlow",
+      "file": "02_Town/Textures/T_Town_LampGlow.png",
+      "resolution": "32x32",
+      "alpha": false,
+      "description": "Warm frosted lamp glass (used with emission)."
+    }
+  ],
+  "sign_atlas_rects": {
+    "stop": {
+      "px": [
+        0,
+        0,
+        64,
+        64
+      ],
+      "uv": [
+        0.0,
+        0.0,
+        0.25,
+        0.25
+      ]
+    },
+    "yield": {
+      "px": [
+        64,
+        0,
+        64,
+        64
+      ],
+      "uv": [
+        0.25,
+        0.0,
+        0.5,
+        0.25
+      ]
+    },
+    "speed25": {
+      "px": [
+        128,
+        0,
+        52,
+        64
+      ],
+      "uv": [
+        0.5,
+        0.0,
+        0.703125,
+        0.25
+      ]
+    },
+    "parking": {
+      "px": [
+        180,
+        0,
+        48,
+        64
+      ],
+      "uv": [
+        0.703125,
+        0.0,
+        0.890625,
+        0.25
+      ]
+    },
+    "bus": {
+      "px": [
+        0,
+        64,
+        48,
+        64
+      ],
+      "uv": [
+        0.0,
+        0.25,
+        0.1875,
+        0.5
+      ]
+    },
+    "deadend": {
+      "px": [
+        48,
+        64,
+        64,
+        64
+      ],
+      "uv": [
+        0.1875,
+        0.25,
+        0.4375,
+        0.5
+      ]
+    },
+    "phone": {
+      "px": [
+        112,
+        64,
+        64,
+        16
+      ],
+      "uv": [
+        0.4375,
+        0.25,
+        0.6875,
+        0.3125
+      ]
+    },
+    "gazette": {
+      "px": [
+        112,
+        80,
+        64,
+        16
+      ],
+      "uv": [
+        0.4375,
+        0.3125,
+        0.6875,
+        0.375
+      ]
+    },
+    "noparking": {
+      "px": [
+        176,
+        64,
+        48,
+        64
+      ],
+      "uv": [
+        0.6875,
+        0.25,
+        0.875,
+        0.5
+      ]
+    },
+    "oneway": {
+      "px": [
+        112,
+        96,
+        64,
+        24
+      ],
+      "uv": [
+        0.4375,
+        0.375,
+        0.6875,
+        0.46875
+      ]
+    },
+    "blade_ELM_ST": {
+      "px": [
+        0,
+        128,
+        128,
+        16
+      ],
+      "uv": [
+        0.0,
+        0.5,
+        0.5,
+        0.5625
+      ]
+    },
+    "blade_MAPLE_AVE": {
+      "px": [
+        128,
+        128,
+        128,
+        16
+      ],
+      "uv": [
+        0.5,
+        0.5,
+        1.0,
+        0.5625
+      ]
+    },
+    "blade_OAK_ST": {
+      "px": [
+        0,
+        144,
+        128,
+        16
+      ],
+      "uv": [
+        0.0,
+        0.5625,
+        0.5,
+        0.625
+      ]
+    },
+    "blade_BIRCH_LN": {
+      "px": [
+        128,
+        144,
+        128,
+        16
+      ],
+      "uv": [
+        0.5,
+        0.5625,
+        1.0,
+        0.625
+      ]
+    },
+    "blade_CEDAR_ST": {
+      "px": [
+        0,
+        160,
+        128,
+        16
+      ],
+      "uv": [
+        0.0,
+        0.625,
+        0.5,
+        0.6875
+      ]
+    },
+    "blade_MAIN_ST": {
+      "px": [
+        128,
+        160,
+        128,
+        16
+      ],
+      "uv": [
+        0.5,
+        0.625,
+        1.0,
+        0.6875
+      ]
+    },
+    "blade_QUARRY_RD": {
+      "px": [
+        0,
+        176,
+        128,
+        16
+      ],
+      "uv": [
+        0.0,
+        0.6875,
+        0.5,
+        0.75
+      ]
+    },
+    "blade_MILL_RD": {
+      "px": [
+        128,
+        176,
+        128,
+        16
+      ],
+      "uv": [
+        0.5,
+        0.6875,
+        1.0,
+        0.75
+      ]
+    },
+    "blade_ROUTE_9": {
+      "px": [
+        0,
+        192,
+        128,
+        16
+      ],
+      "uv": [
+        0.0,
+        0.75,
+        0.5,
+        0.8125
+      ]
+    },
+    "blade_PINE_ST": {
+      "px": [
+        128,
+        192,
+        128,
+        16
+      ],
+      "uv": [
+        0.5,
+        0.75,
+        1.0,
+        0.8125
+      ]
+    }
+  }
+}

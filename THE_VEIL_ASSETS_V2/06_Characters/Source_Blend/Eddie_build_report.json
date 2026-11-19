@@ -1,0 +1,48 @@
+{
+ "triangles": 2740,
+ "parts": {
+  "Eddie_Body": 1786,
+  "Eddie_Head": 346,
+  "Eddie_Hair": 360,
+  "Eddie_Shoes": 248
+ },
+ "materials": [
+  "Eddie_Badge",
+  "Eddie_Hair",
+  "Eddie_Head",
+  "Eddie_Hoodie",
+  "Eddie_HoodieRib",
+  "Eddie_Jeans",
+  "Eddie_JeansCuff",
+  "Eddie_Shirt",
+  "Eddie_Shoes",
+  "Eddie_Skin",
+  "Eddie_Sole"
+ ],
+ "bones": [
+  "Hips",
+  "Spine",
+  "Chest",
+  "UpperChest",
+  "Neck",
+  "Head",
+  "RightShoulder",
+  "RightUpperArm",
+  "RightLowerArm",
+  "RightHand",
+  "RightUpperLeg",
+  "RightLowerLeg",
+  "RightFoot",
+  "RightToes",
+  "LeftShoulder",
+  "LeftUpperArm",
+  "LeftLowerArm",
+  "LeftHand",
+  "LeftUpperLeg",
+  "LeftLowerLeg",
+  "LeftFoot",
+  "LeftToes"
+ ],
+ "empty_material_slots": 0,
+ "height_m": 1.818
+}

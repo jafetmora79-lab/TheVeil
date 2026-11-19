@@ -1,0 +1,108 @@
+[gd_scene load_steps=13 format=3]
+
+[ext_resource type="Texture2D" path="res://THE_VEIL_ASSETS_V2/01_Textures/Furniture/T_Furn_PlasticDirty.png" id="t1"]
+
+[sub_resource type="StandardMaterial3D" id="m_red"]
+albedo_color = Color(0.62, 0.08, 0.06, 1)
+roughness = 0.95
+texture_filter = 2
+albedo_texture = ExtResource("t1")
+uv1_scale = Vector3(1, 1, 1)
+
+[sub_resource type="StandardMaterial3D" id="m_black"]
+albedo_color = Color(0.05, 0.05, 0.05, 1)
+roughness = 0.95
+texture_filter = 2
+
+[sub_resource type="StandardMaterial3D" id="m_dark"]
+albedo_color = Color(0.35, 0.05, 0.04, 1)
+roughness = 0.95
+texture_filter = 2
+albedo_texture = ExtResource("t1")
+uv1_scale = Vector3(1, 1, 1)
+
+[sub_resource type="BoxMesh" id="mesh0"]
+size = Vector3(0.3, 0.33, 0.16)
+material = SubResource("m_red")
+
+[sub_resource type="BoxMesh" id="mesh1"]
+size = Vector3(0.31, 0.05, 0.1)
+material = SubResource("m_dark")
+
+[sub_resource type="BoxMesh" id="mesh2"]
+size = Vector3(0.2, 0.035, 0.045)
+material = SubResource("m_red")
+
+[sub_resource type="BoxMesh" id="mesh3"]
+size = Vector3(0.03, 0.06, 0.04)
+material = SubResource("m_red")
+
+[sub_resource type="BoxMesh" id="mesh4"]
+size = Vector3(0.03, 0.06, 0.04)
+material = SubResource("m_red")
+
+[sub_resource type="CylinderMesh" id="mesh5"]
+top_radius = 0.028
+bottom_radius = 0.028
+height = 0.04
+radial_segments = 8
+rings = 1
+material = SubResource("m_red")
+
+[sub_resource type="CylinderMesh" id="mesh6"]
+top_radius = 0.032
+bottom_radius = 0.032
+height = 0.035
+radial_segments = 8
+rings = 1
+material = SubResource("m_black")
+
+[sub_resource type="CylinderMesh" id="mesh7"]
+top_radius = 0.011
+bottom_radius = 0.011
+height = 0.09
+radial_segments = 8
+rings = 1
+material = SubResource("m_black")
+
+[node name="GasCanister" type="Node3D"]
+
+[node name="Body" type="MeshInstance3D" parent="."]
+mesh = SubResource("mesh0")
+position = Vector3(0, 0.165, 0)
+rotation_degrees = Vector3(0, 0, 0)
+
+[node name="Recess" type="MeshInstance3D" parent="."]
+mesh = SubResource("mesh1")
+position = Vector3(0, 0.29, 0)
+rotation_degrees = Vector3(0, 0, 0)
+
+[node name="HandleBar" type="MeshInstance3D" parent="."]
+mesh = SubResource("mesh2")
+position = Vector3(-0.02, 0.385, 0)
+rotation_degrees = Vector3(0, 0, 0)
+
+[node name="HandlePostA" type="MeshInstance3D" parent="."]
+mesh = SubResource("mesh3")
+position = Vector3(-0.11, 0.35, 0)
+rotation_degrees = Vector3(0, 0, 0)
+
+[node name="HandlePostB" type="MeshInstance3D" parent="."]
+mesh = SubResource("mesh4")
+position = Vector3(0.07, 0.35, 0)
+rotation_degrees = Vector3(0, 0, 0)
+
+[node name="Neck" type="MeshInstance3D" parent="."]
+mesh = SubResource("mesh5")
+position = Vector3(0.12, 0.345, 0)
+rotation_degrees = Vector3(0, 0, -35)
+
+[node name="Cap" type="MeshInstance3D" parent="."]
+mesh = SubResource("mesh6")
+position = Vector3(0.135, 0.37, 0)
+rotation_degrees = Vector3(0, 0, -35)
+
+[node name="Spout" type="MeshInstance3D" parent="."]
+mesh = SubResource("mesh7")
+position = Vector3(0.165, 0.4, 0)
+rotation_degrees = Vector3(0, 0, -50)

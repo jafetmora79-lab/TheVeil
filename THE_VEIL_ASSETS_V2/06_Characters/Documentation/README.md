@@ -1,0 +1,271 @@
+# THE VEIL - Pack 06: Greyhaven Characters
+
+Eight rigged, pixel-textured, low-poly story characters, plus first-person arms for the player.
+
+* **Generated:** `Source_Scripts/build_characters.py`; the output is deterministic.
+* **Validated:** `Source_Scripts/validate_characters.py`.
+* **Results:** see `VALIDATION_REPORT.md`.
+* **Dimensions and triangle counts:** see `CHARACTER_MANIFEST.json`.
+
+Nothing in this pack was rendered or visually inspected. The validator checks files, skinning and engine behaviour only.
+
+## Roster
+
+The roster follows `docs/THE_VEIL_MASTER_CONTEXT.md`. Named story characters were used instead of anonymous NPCs, following the bible's own priority list.
+
+| Model | Story character | Replaces requested slot |
+|---|---|---|
+| `Protagonist/CHR_Protagonist.glb` + `CHR_Protagonist_FP_Arms.glb` | Player character (name TBD) | Protagonist |
+| `Marcus/CHR_Marcus.glb` | Marcus, 43, Noah's father | Marcus |
+| `Commercial_NPCs/CHR_Eddie.glb` | Eddie, 34, game-shop clerk (hand-made reference; generated rev 1 = `CHR_Eddie_v1.glb`) | Store clerk |
+| `Commercial_NPCs/CHR_Frank.glb` | Frank, security guard | Adult male resident |
+| `Civilians/CHR_Ruth.glb` | Ruth, 68, retired librarian | Older resident |
+| `Civilians/CHR_Lena.glb` | Lena, student investigator | Adult female resident |
+| `Civilians/CHR_Sarah.glb` | Sarah, paramedic | Supermarket employee (a named cast member was prioritised) |
+| `Police/CHR_Police_Officer.glb` | Greyhaven officer; candidate for **Officer Hayes**, whose identity is TBD | Police officer |
+
+**Noah is not built.** The bible says not to model him until his age and appearance are confirmed.
+
+**Looks are design proposals.** They follow the bible's DESIGN PROPOSAL notes: the protagonist's gray jacket and dark jeans, Eddie's slouch, messy hair and worn hoodie, and so on. Faces, colours and small accessories are this pack's proposals, not new canon.
+
+## Facial expressions, eyes and talking (texture-swap faces)
+
+The approved heads have no blend shapes or facial bones. Every feature is painted into one 128x64 head texture, in the
+same layout on every character. So faces are animated by **swapping two small pixel windows** of that texture at
+runtime. The approved GLBs, meshes, UVs, textures, rigs and clothing are untouched.
+
+* **Atlases:** `Facial/Faces/T_Face_<Name>.png`, one per approved character (Eddie, Marcus, Protagonist, Ruth, Sarah,
+  Frank, Lena, Police_Officer). Each holds:
+  * 80 brow and eye cells: 10 expressions x 8 eye actions (none, blink, look left/right/up/down, widen, narrow);
+  * 50 mouth cells: 10 expressions x 5 visemes (rest, slight, wide, round, teeth).
+
+  The cells are built by `Source_Scripts/chr_faces.py` from each character's **own** approved pixels:
+  * brows, lids, whites, irises and lip lines are lifted off;
+  * the gap is refilled from the surrounding skin and stubble, keeping the dither pattern;
+  * the features are re-placed with small changes: brows raised, lowered, tilted or uneven; lids lowered or raised;
+    irises shifted; mouth corners and openings changed.
+
+  Glasses, moustaches, freckles, folds and age spots stay fixed on top. The neutral cells are the approved pixels,
+  checked to match exactly.
+* **Expressions:** neutral, happy, angry, scared, shocked, sad, suspicious, confused, determined, pain.
+* **Shader:** `Facial/veil_face.gdshader`. It draws the approved head texture and fetches the two windows from the
+  atlas. It uses nearest texel fetches, works with the Compatibility renderer, and keeps the original roughness and
+  specular.
+* **Controller:** `Facial/veil_face.gd` (`VeilFace`). Add it as a child of a character instance and set `face_atlas`.
+  ```gdscript
+  face.set_expression("scared")      # brows/eyes first, mouth 0.06 s later; set_expression(name, true) = instant
+  face.start_talking("angry")        # idle / angry / scared / happy / whisper - mouth shapes keep the current expression
+  face.stop_talking()                # back to the resting mouth
+  face.say(2.0, "whisper")           # talk for 2 s, then stop
+  face.blink(); face.look("left", 1.0); face.widen_eyes(); face.narrow_eyes()
+  ```
+  Expression, eye action and talking are independent layers. Blinking runs on its own timer (`auto_blink`), so the face
+  can be scared and talking and blinking at the same time. Neutral is the default.
+* **Demo:** `Facial/Face_Demo.tscn` (approved Marcus, a face close-up) cycles every expression, talking style and eye
+  action.
+
+What was tested (Godot 4.3, Compatibility renderer, fresh project, no screenshots):
+
+* **Install:** the shader material goes on and the head stays skinned. The imported atlases and head textures are
+  bit-exact with the source PNGs.
+* **Expressions:** all 10 switch exactly, and a transition moves the eyes before the mouth.
+* **Talking:** it cycles visemes while keeping the expression, stops back to rest, and `say()` stops by itself.
+* **Eyes:** blinking works, also while talking; looking in 4 directions, widen and narrow work.
+* **Body:** it still poses while the face talks.
+* **Coverage:** all 8 characters ran neutral, scared, angry, talking and blinking.
+
+The rendered look has not been seen. Only the atlases were inspected, as textures.
+
+## Art-direction reference: the hand-made Eddie (current standard)
+
+`Commercial_NPCs/CHR_Eddie.glb` is the project owner's hand-made Eddie, built in Blender. The source is in
+`Source_Blend/Eddie.blend` with `Eddie_build_report.json`; that folder is ignored by Godot. **Every character in this pack
+follows it from now on.** The earlier generated Eddie is kept as the backup `CHR_Eddie_v1.glb`, alongside v2 and v3.
+
+What the reference defines:
+
+* **Construction:**
+  * a layered clothing body (hoodie, rib cuffs and hem, shirt panel, jeans, jean cuffs, badge, skin only where it
+    shows);
+  * separate head, hair and shoe meshes;
+  * about 2.7k triangles in total.
+* **Rig:** 22 bones with Godot humanoid names, plus `Socket_Head`, `Socket_Back` and `Socket_Left/RightHand`. It rests
+  in an A-pose. Godot imports the sockets as extra bones.
+* **Textures:**
+  * one small texture per material (32–128 px), with 2–20 colours each;
+  * cloth tiles (repeat UVs), so pixel size stays even;
+  * one-off details (face 128x64, shirt print, badge) are clamped;
+  * nearest filtering;
+  * a muted palette of the character's own.
+* **Materials:** double-sided, roughness 0.92, low specular.
+
+### Marcus (approved, built from the reference)
+
+`Marcus/CHR_Marcus.glb` comes from `Source_Scripts/chr_style_from_eddie.py` (approved; the generated rev 1 is `CHR_Marcus_v1.glb`). Marcus is derived from the reference
+Eddie, so the construction and rig are exactly the same; every texture is new and painted in the reference manner.
+
+* **Geometry:** every vertex is moved by a blend of per-bone deformations, using its own skin weights, so seams stay
+  joined. The changes:
+  * broader torso and shoulders, a slight gut, thicker neck, arms and legs, a heavier jaw;
+  * the hood folded down into a jacket collar;
+  * hair cut short (re-weighted to the head only);
+  * the drawstrings removed;
+  * height 1.76 m.
+
+  Joints and inverse bind matrices are recomputed, and normals follow the deformation.
+* **Textures** (same sizes and UV layouts as Eddie):
+  * weathered canvas work jacket with corduroy cuffs and a chest-pocket flap;
+  * red plaid flannel shirt with buttons;
+  * olive work pants;
+  * brown work boots with laces;
+  * salt-and-pepper short hair;
+  * a worried, tired face: raised inner brows, forehead creases, heavy lids, eye bags, broad nose, downturned mouth and
+    heavier stubble.
+* **Numbers:** 2,716 triangles (Body 1,762, Hair 360, Head 346, Shoes 248) and 11 materials.
+
+Checks:
+
+* Khronos glTF validator: 0 errors. The 4 skinned-mesh warnings also appear on the reference.
+* The rig is exactly consistent in the bind pose (error about 1e-7).
+* The hair covers the whole scalp.
+* Godot 4.3 imports it; in the Compatibility renderer it loads, poses and renders with the same skeleton as the
+  reference.
+* In an extreme test pose the worst edge stretch is 0.90, against 0.64 for the reference. It sits at the back of the
+  folded collar.
+
+The look has only been checked as textures, not as a rendered model.
+
+### The rest of the cast (style rev 4, built from the reference)
+
+`Source_Scripts/chr_style_cast.py` builds the protagonist, Ruth, Sarah, Frank, Lena and the police officer in exactly the
+Marcus way. Each one starts from the reference Eddie, so construction, rig and sockets are the same, and every texture is
+new and painted in the reference manner.
+
+* **Body:** a per-bone reshape. The women get narrower shoulders, a waist taper, wider hips, a bust and a softer jaw;
+  Frank is stockier.
+* **Hair:** cropped or kept at length; Ruth gets a bun, Sarah a ponytail, the officer a small bun.
+* **Collar:** the hood is folded into a jacket collar on everyone.
+* **Gear:** small low-poly pieces rigid to one bone: belts, radios, pouches, cuff case, flashlight, keys, the police
+  cap, Lena's messenger bag and strap.
+* **First-person arms:** `Protagonist/CHR_Protagonist_FP_Arms.glb` holds his sleeve and hand triangles on the same rig.
+
+| Model | Height | Triangles | Parts |
+|---|---|---|---|
+| `CHR_Protagonist` | 1.78 m | 2706 | Body 1752, Hair 360, Head 346, Shoes 248 |
+| `CHR_Ruth` | 1.6 m | 2780 | Body 1762, Hair 360, Head 346, Shoes 248, HairExtras 64 |
+| `CHR_Sarah` | 1.68 m | 2964 | Body 1762, Hair 360, Head 346, Shoes 248, HairExtras 56, GearExtras 192 |
+| `CHR_Frank` | 1.76 m | 2944 | Body 1762, Hair 360, Head 346, Shoes 248, GearExtras 228 |
+| `CHR_Lena` | 1.65 m | 2752 | Body 1762, Hair 360, Head 346, Shoes 248, GearExtras 36 |
+| `CHR_Police_Officer` | 1.765 m | 3154 | Officer_Body 1762, Officer_Hair 360, Officer_Head 346, Officer_Shoes 248, Officer_HairExtras 64, Officer_GearExtras 374 |
+
+Every previous version is kept as a `_v1` backup (`CHR_Protagonist_v1`, `CHR_Protagonist_FP_Arms_v1`, `CHR_Marcus_v1`,
+`CHR_Ruth_v1`, `CHR_Sarah_v1`, `CHR_Frank_v1`, `CHR_Lena_v1`, `CHR_Police_Officer_v1`); v2 and v3 are unchanged. The
+generated roster now writes those `_v1` names, so a rebuild cannot overwrite the new models.
+
+Checks:
+
+* Khronos glTF validator: 0 errors on every model. The only warning is the standard skinned-mesh one, which the
+  reference also has.
+* The rig is exactly consistent (about 1e-7) and the hair covers the whole scalp.
+* In an extreme test pose the worst stretch is 0.76–0.91, at the folded collar (reference 0.64).
+* Godot 4.3, clean import in a fresh project: every model loads, poses and renders in the Compatibility renderer with
+  the reference skeleton. The lineup scene loads all 22 characters.
+
+The look has been checked only as textures, not as rendered models.
+
+## Rev 3: sculpted Eddie and Marcus (new construction method, awaiting approval)
+
+* **Models:** `Commercial_NPCs/CHR_Eddie_v3.glb` and `Marcus/CHR_Marcus_v3.glb`. They are built by `chr_sculpt*.py`,
+  not by the primitive-assembly generator.
+* **Method:** each character is a skeleton plus hand-placed organic volumes, smoothly blended into one continuous
+  surface (signed-distance sculpting). That surface is converted to a mesh (marching cubes) and reduced to low-poly
+  (quadric decimation), with denser budgets for the face and hands.
+* **Construction:** clothing is volume over the body, so there is no hidden interior geometry. The face, nose,
+  cheeks, jaw, ears, eye sockets and mouth line are sculpted; the eyebrows and glasses are explicit meshes.
+* **Skinning:** bone-heat diffusion within anatomical groups.
+* **Textures:** 256×256 pixel atlas painted per chart. The face is front-projected, and the eyes and mouth are
+  painted exactly where the sculpt carved them.
+* **Budget:** about 7.1–7.6 k triangles each, one material, the same 23-bone skeleton and socket conventions.
+* **Build dependencies:** scikit-image, scipy, pyfqmr (`pip install scikit-image scipy pyfqmr`). Blender is not
+  required.
+* **Validation:** automated checks pass (`VALIDATION_REPORT.md`). The warnings are localized armpit and hip-crease
+  stretch under extreme 70° test poses. 99% of edges stay within 1.6×, but a few crease edges reach 4–10×. These
+  need hand weight-painting before animation.
+* **Visual inspection:** none. Only the texture atlases were looked at, so the visual result is unverified and
+  needs your review in the gallery.
+* **Backups:** rev 1 and rev 2 models are kept unchanged as backups.
+
+## Rev 2 art-direction pass: Eddie and Marcus (awaiting approval)
+
+`Commercial_NPCs/CHR_Eddie_v2.glb` and `Marcus/CHR_Marcus_v2.glb` are the redesigned examples for the quirky
+indie-horror direction. The v1 models stay untouched until the redesign is approved; a rebuild reproduces them
+byte-identically. The same shared generator built both versions. The v2 features are switched on per character
+in `chr_roster.ROSTER_V2` and implemented in `chr_body_v2.py`:
+
+* **Proportions:** oversized heads (about 0.28–0.31 m), with the body re-proportioned below the neck so the
+  total height stays correct. Per-character leg ratio, neck length, slouch and head lean.
+* **Sculpted heads:**
+  * 16 segments, packed toward the face so it gets twice the texels.
+  * Controls for jaw, chin length and width, cheeks, brow, forehead slope and back of the head.
+  * Geometric eyebrows with per-side shapes (raised quizzical brow or worried pinch).
+  * Ears that stick out, with lobes and asymmetric height and angle.
+  * Large, varied noses (bulb, droop, hook, bridge).
+  * Painted eyes and mouths, bigger and more expressive (smirk with a tooth, worried frown, eye bags).
+* **Arms:** shoulders, deltoids, biceps, elbows, forearm bulge and wrists, not pipes. Sleeve cuffs have real
+  volume.
+* **Hands:** chunky stylised hands with a palm, four two-segment fingers of different lengths and a two-segment
+  thumb, curled per character.
+* **Clothing:**
+  * Jackets and hoodies are volume shells over the torso, with an open front, flared hem with thickness,
+    closed shoulders and a raised collar.
+  * The shirt underneath follows the torso.
+* **Trousers and shoes:** trouser silhouettes (baggy or straight) with thick hems. Chunky shoes and boots with
+  separate soles, turned-out toes.
+
+| | Eddie v2 | Marcus v2 |
+|---|---|---|
+| Silhouette | lanky, sloped shoulders, slouch | broad wall of a man, short legs, hunched |
+| Clothes | oversized open mustard hoodie, baggy jeans, huge duck-footed sneakers | open canvas work jacket with raised collar, navy flannel, straight work pants, heavy boots |
+| Head | tall egg head, long jutting chin, big droopy nose, stick-out ears (one higher), lopsided hair swoop | wide square head, slab jaw, potato nose, heavy brow |
+| Face | thick glasses, one quizzical raised brow, smirk | eyebrows pinched up with worry, bagged eyes, stubble |
+| Hands | relaxed | big, half-closed |
+| Triangles | 2,162 | 1,988 |
+
+Both versions use the same 23-bone skeleton, a 256×256 palette-locked atlas and one material. Both pass the
+full validator (`VALIDATION_REPORT.md`). Marcus's short, thick neck stretches up to 1.96× in the 60° head-turn
+test, which is within the 3.0 limit. Nothing was rendered or visually inspected.
+
+## Conventions
+
+* **Space:** metres, +Y up, characters face **+Z**, origin between the feet.
+* **Rest pose:** a relaxed A-pose. Every bone's rest rotation is identity.
+* **Shared skeleton** (`Shared_Rigs/VEIL_Humanoid_Skeleton.json`): 23 bones named after Godot's `SkeletonProfileHumanoid`, so Godot's retargeting maps them automatically:
+  * Root, Hips, Spine, Chest, UpperChest, Neck, Head
+  * Left/Right: Shoulder, UpperArm, LowerArm, Hand, UpperLeg, LowerLeg, Foot, Toes
+* **Item sockets:** `LeftHand_ItemSocket` and `RightHand_ItemSocket` sit in front of each palm. The protagonist also has `Head_EyeLevel`. Godot 4.3 imports these as extra, unweighted bones, so attach items with a `BoneAttachment3D` that names them.
+* **First-person arms** (`CHR_Protagonist_FP_Arms.glb`) are modelled in camera space:
+  * Origin is the camera; parent the arms under the player's `Camera3D`. They look down −Z, the same as Godot.
+  * 9 bones: Root plus both arm chains with the same names. The right hand rests in a grip pose with its socket ready for held items.
+* **Skinning:** up to 4 weights per vertex, normalised. Joints blend across neighbouring bones, and hands, head and shoes are rigid.
+* **Textures and materials:**
+  * One 256×256 atlas per character (`Textures/T_Chr_*.png`), drawn only from Greyhaven palette colours: the Pack 01 ramps plus a small set of skin, hair, lip and reflective-tape ramps.
+  * Every character uses the same atlas layout.
+  * The atlas is **embedded** in the GLB, so the browser gallery and other tools show it.
+  * The `.glb.import` remaps the material to `Materials/M_Chr_*.tres` (nearest filtering, no metal or specular effects), so Godot uses the shared pipeline material.
+* **Budget:** about 1.1–1.3 k triangles per character (252 for the first-person arms), one material, one draw call. This suits integrated graphics and Android.
+
+## Godot
+
+* Instance the GLB, or `Shared_Rigs/Characters_Lineup.tscn` to see all of them.
+* The import creates a `Skeleton3D` (23 bones plus sockets) and a skinned `MeshInstance3D`.
+* For a `CharacterBody3D`, use a capsule about 0.35 m in radius, with height matching the character (1.60–1.83 m).
+* No animations are included. Retarget Godot or Mixamo-style humanoid animation through the bone map, or author clips on this skeleton.
+
+## Known limitations
+
+* **Nothing has been visually inspected.** Proportions, faces and silhouettes are only checked numerically (height, orientation, deformation).
+* **No animations, facial rig or finger bones.** Hands are mitten-style: palm, two-segment fingers and a thumb, all weighted to the hand bone.
+* **Hidden geometry:** clothing and accessories are part of each body mesh, so the trousers under Ruth's skirt and the ends of the limb tubes inside the torso are a few centimetres of hidden geometry.
+* **Sockets import as bones** in Godot 4.3, not as `BoneAttachment3D` nodes.
+* **Story conflict:** the bible says the wake-up time is 6:42 PM, but Pack 03's alarm-clock texture shows 6:47. Pack 03 was not changed; this needs a decision.
+* **Officer Hayes:** the officer's identity (gender, age, face) is unconfirmed. Treat the model as a generic officer until the story fixes it.

@@ -1,0 +1,284 @@
+[gd_scene load_steps=3 format=3]
+
+[ext_resource type="PackedScene" path="res://THE_VEIL_ASSETS_V2/03_Residential/House_Variants/RES_PlayerHome.glb" id="1_house"]
+[ext_resource type="PackedScene" path="res://THE_VEIL_ASSETS_V2/03_Residential/House_Variants/RES_PlayerHome_Furnishing.glb" id="2_furnishing"]
+
+[node name="RES_PlayerHome" type="Node3D"]
+metadata/veil_house = {
+"name": "RES_PlayerHome",
+"design": "PlayerHome",
+"colorway": "A",
+"mirrored": false,
+"title": "The protagonist's home",
+"rooms": [{
+"id": "LIV",
+"type": "living",
+"level": 0,
+"rect": [-6.5, 2.2, -1.0, 6.6],
+"floor_y": 0.6
+}, {
+"id": "BED",
+"type": "bedroom",
+"level": 0,
+"rect": [-1.0, 4.6, 2.8, 8.4],
+"floor_y": 0.6
+}, {
+"id": "KIT",
+"type": "kitchen",
+"level": 0,
+"rect": [-6.5, 6.6, -2.6, 11.6],
+"floor_y": 0.6
+}, {
+"id": "HALL",
+"type": "hall",
+"level": 0,
+"rect": [-2.6, 6.6, -1.0, 11.6],
+"floor_y": 0.6
+}, {
+"id": "HALL2",
+"type": "hall",
+"level": 0,
+"rect": [-1.0, 8.4, 2.8, 9.5],
+"floor_y": 0.6
+}, {
+"id": "BATH",
+"type": "bathroom",
+"level": 0,
+"rect": [-1.0, 9.5, 1.4, 11.6],
+"floor_y": 0.6
+}, {
+"id": "LAU",
+"type": "laundry",
+"level": 0,
+"rect": [1.4, 9.5, 2.8, 11.6],
+"floor_y": 0.6
+}, {
+"id": "GAR",
+"type": "garage",
+"level": 0,
+"rect": [2.8, 4.5, 6.5, 11.6],
+"floor_y": 0.02
+}],
+"doors": [{
+"name": "INT_Door_Front",
+"kind": "door",
+"rooms": ["OUT", "LIV"],
+"exterior": true,
+"center": [-2.6, 0.6, 2.2]
+}, {
+"name": "INT_Door_Back",
+"kind": "door",
+"rooms": ["OUT", "LAU"],
+"exterior": true,
+"center": [2.1, 0.6, 11.6]
+}, {
+"name": "INT_GarageDoor_Garage",
+"kind": "garage",
+"rooms": ["OUT", "GAR"],
+"exterior": true,
+"center": [4.65, 0.0, 4.5]
+}, {
+"name": "INT_Arch_LivKit",
+"kind": "arch",
+"rooms": ["KIT", "LIV"],
+"exterior": false,
+"center": [-4.5, 0.6, 6.6]
+}, {
+"name": "INT_Arch_LivHall",
+"kind": "arch",
+"rooms": ["HALL", "LIV"],
+"exterior": false,
+"center": [-1.8, 0.6, 6.6]
+}, {
+"name": "INT_Door_Bedroom",
+"kind": "door",
+"rooms": ["HALL", "BED"],
+"exterior": false,
+"center": [-1.0, 0.6, 7.5]
+}, {
+"name": "INT_Arch_Halls",
+"kind": "arch",
+"rooms": ["HALL2", "HALL"],
+"exterior": false,
+"center": [-1.0, 0.6, 8.95]
+}, {
+"name": "INT_Door_Bathroom",
+"kind": "door",
+"rooms": ["BATH", "HALL2"],
+"exterior": false,
+"center": [0.2, 0.6, 9.5]
+}, {
+"name": "INT_Door_Laundry",
+"kind": "door",
+"rooms": ["LAU", "HALL2"],
+"exterior": false,
+"center": [2.1, 0.6, 9.5]
+}, {
+"name": "INT_Door_GarageDoorInside",
+"kind": "door",
+"rooms": ["GAR", "LAU"],
+"exterior": false,
+"center": [2.8, 0.6, 10.6]
+}],
+"stairs": 0,
+"windows": 8,
+"lights": ["LIV", "BED", "KIT", "HALL", "HALL2", "BATH", "LAU", "GAR"],
+"furniture_pieces": 51
+}
+metadata/veil_interactables = [{
+"node": "INT_Door_Front",
+"pos": [-2.11, 0.61, 2.27],
+"veil_interact": "hinge",
+"axis": "y",
+"open_deg": 95.0,
+"width": 0.98,
+"height": 2.13
+}, {
+"node": "INT_WindowSash_window_03",
+"pos": [-6.5, 1.5, 3.85],
+"veil_interact": "slide",
+"axis": "y",
+"distance": 0.54
+}, {
+"node": "INT_WindowSash_window_04",
+"pos": [1.55, 1.5, 4.6],
+"veil_interact": "slide",
+"axis": "y",
+"distance": 0.54
+}, {
+"node": "INT_WindowSash_window_05",
+"pos": [-5.1, 1.7, 11.6],
+"veil_interact": "slide",
+"axis": "y",
+"distance": 0.39
+}, {
+"node": "INT_WindowSash_window_06",
+"pos": [-6.5, 1.5, 7.95],
+"veil_interact": "slide",
+"axis": "y",
+"distance": 0.54
+}, {
+"node": "INT_WindowSash_window_07",
+"pos": [-2.1, 1.75, 11.6],
+"veil_interact": "slide",
+"axis": "y",
+"distance": 0.34
+}, {
+"node": "INT_WindowSash_window_08",
+"pos": [-0.1, 1.95, 11.6],
+"veil_interact": "slide",
+"axis": "y",
+"distance": 0.24
+}, {
+"node": "INT_Door_Back",
+"pos": [1.71, 0.61, 11.53],
+"veil_interact": "hinge",
+"axis": "y",
+"open_deg": 95.0,
+"width": 0.78,
+"height": 2.08
+}, {
+"node": "INT_GarageDoor_Garage",
+"pos": [5.95, 0.02, 4.42],
+"veil_interact": "slide",
+"axis": "y",
+"distance": 2.05,
+"note": "sectional: raise along Y"
+}, {
+"node": "INT_WindowSash_window_11",
+"pos": [6.5, 1.57, 8.4],
+"veil_interact": "slide",
+"axis": "y",
+"distance": 0.19
+}, {
+"node": "INT_Door_Bedroom",
+"pos": [-0.97, 0.61, 7.94],
+"veil_interact": "hinge",
+"axis": "y",
+"open_deg": -95.0,
+"width": 0.88,
+"height": 2.08
+}, {
+"node": "INT_Door_Bathroom",
+"pos": [-0.19, 0.61, 9.53],
+"veil_interact": "hinge",
+"axis": "y",
+"open_deg": -95.0,
+"width": 0.78,
+"height": 2.08
+}, {
+"node": "INT_Door_Laundry",
+"pos": [1.71, 0.61, 9.53],
+"veil_interact": "hinge",
+"axis": "y",
+"open_deg": -95.0,
+"width": 0.78,
+"height": 2.08
+}, {
+"node": "INT_Door_GarageDoorInside",
+"pos": [2.83, 0.61, 11.015],
+"veil_interact": "hinge",
+"axis": "y",
+"open_deg": -95.0,
+"width": 0.83,
+"height": 2.08
+}, {
+"node": "INT_LightSwitch_LIV",
+"pos": [-1.88, 1.8, 2.305],
+"veil_interact": "switch",
+"room": "LIV"
+}, {
+"node": "INT_LightSwitch_LIV_Toggle",
+"pos": [-1.88, 1.8, 2.317],
+"veil_interact": "toggle",
+"axis": "x",
+"open_deg": 25
+}, {
+"node": "INT_LightSwitch_LAU",
+"pos": [1.48, 1.8, 11.495],
+"veil_interact": "switch",
+"room": "LAU"
+}, {
+"node": "INT_LightSwitch_LAU_Toggle",
+"pos": [1.48, 1.8, 11.483],
+"veil_interact": "toggle",
+"axis": "x",
+"open_deg": 25
+}, {
+"node": "INT_LightSwitch_BED",
+"pos": [-0.935, 1.8, 6.83],
+"veil_interact": "switch",
+"room": "BED"
+}, {
+"node": "INT_LightSwitch_BED_Toggle",
+"pos": [-0.923, 1.8, 6.83],
+"veil_interact": "toggle",
+"axis": "x",
+"open_deg": 25
+}, {
+"node": "INT_LightSwitch_HALL",
+"pos": [-1.065, 1.8, 9.645],
+"veil_interact": "switch",
+"room": "HALL"
+}, {
+"node": "INT_LightSwitch_HALL_Toggle",
+"pos": [-1.077, 1.8, 9.645],
+"veil_interact": "toggle",
+"axis": "x",
+"open_deg": 25
+}, {
+"node": "INT_LightSwitch_HALL2",
+"pos": [-0.42, 1.8, 9.435],
+"veil_interact": "switch",
+"room": "HALL2"
+}, {
+"node": "INT_LightSwitch_HALL2_Toggle",
+"pos": [-0.42, 1.8, 9.423],
+"veil_interact": "toggle",
+"axis": "x",
+"open_deg": 25
+}]
+
+[node name="House" parent="." instance=ExtResource("1_house")]
+
+[node name="Furnishing" parent="." instance=ExtResource("2_furnishing")]

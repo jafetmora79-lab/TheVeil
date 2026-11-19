@@ -1,0 +1,210 @@
+# THE VEIL - the playable opening (Phase 1), town errands (Phase 2) and the Veil's arrival (Phase 3)
+
+Friday, 6:42 PM:
+
+1. You wake up from a nap in your bedroom.
+2. You find the fridge almost empty.
+3. You grab the car keys.
+4. You leave the house and get into your old sedan.
+5. You drive through Greyhaven and park at the supermarket.
+6. **Phase 2 - errands, in either order** (the bible leaves the stop order open):
+   * **Supermarket:** the automatic doors part as you walk up. Take a can of soup, a snack bar and a bottle of water
+     off the aisle shelves (HUD counts 0-3), then pay at the lane-4 register by the doors.
+   * **Game shop (across Main St):** open the entrance door, take a horror game from the New Releases rack and pay
+     Eddie at the counter. Eddie talks with the VeilFace mouth / expression system.
+   * When you park, the view turns and zooms onto the supermarket ("GREYHAVEN MARKET"), and a pulsing light marks its
+     entrance until you go in.
+   * Inside, the HUD shows a shopping list with aisle numbers, the three items glow softly, and a visible cashier at
+     lane 4 takes the money.
+7. **Phase 3 - the Veil arrives (WORKING DRAFT):** step outside with both errands done and the fog rolls in (Pack 09
+   atmosphere). Then:
+   * the cashier is gone;
+   * the view locks onto the Colossus walking far off behind the supermarket;
+   * mist tentacles rise in Main St; touching one knocks you back;
+   * the sedan won't start;
+   * Eddie calls you into the game shop, where Marcus is looking for his son;
+   * you cross back to the supermarket, where Eddie and Marcus meet you;
+   * pull the jammed doors shut: end of the current build.
+
+The player now steps up curbs and sills automatically (up to 0.35 m). The Pack 02 parking-lot curb in front of the
+supermarket used to block the entrance.
+
+There are no monsters and no mist: the town is still ordinary.
+
+**Placeholders (not canon):** the cashier is a generic model (`CHR_Cashier`; the bible names no cashier), the horror
+game has no title, the whole Phase 3 sequence and its lines are working draft, the Colossus is scaled 2.2x for the
+far-off glimpse, and every Eddie / Cashier / Marcus line is marked `"draft": true` in `game/data/dialogue.json`. Eddie's
+body is animated procedurally because no animation clips exist yet (see below).
+
+* **Engine:** Godot 4.3, Compatibility renderer (OpenGL 3 / WebGL 2).
+* **Project root:** the repository root (`project.godot`), so every asset keeps its `res://THE_VEIL_ASSETS_V2/...` path.
+* **Windows download:** `docs/download/TheVeil_Windows.zip` (unzip, run `TheVeil.exe`). Rebuild with `godot --headless --path . --export-release "Windows Desktop" build/windows/TheVeil.exe` (needs the 4.3 `windows_release_x86_64.exe` template).
+* **Browser build:** `docs/play/` → <https://jafetmora79-lab.github.io/TheVeil/play/>. The asset gallery stays at
+  `/TheVeil/`.
+
+## Run
+
+* **Editor:** open the repository folder in Godot 4.3 and press Play (main scene `res://game/scenes/MainMenu.tscn`).
+  The first import takes about a minute.
+* **Headless automated playthrough:** wake-up, drive, parking, both errands and the end card, with the real controllers and fixed 60 Hz physics:
+
+  ```bash
+  godot --headless --path . --fixed-fps 60 --script res://game/tests/opening_test.gd -- 50
+  ```
+
+  The last argument is the autopilot cruise speed in km/h.
+* **Compatibility-renderer smoke run:** draw-call counts, no screenshots:
+
+  ```bash
+  xvfb-run godot --path . --rendering-driver opengl3 --script res://game/tests/render_smoke.gd
+  ```
+
+* **Regenerate the extended town:** this needs only numpy and Pillow. It writes `game/world/*` and does not modify
+  `THE_VEIL_ASSETS_V2/`:
+
+  ```bash
+  python3 game/tools/build_world.py
+  ```
+
+* **Whole-map geometry check:** surface coverage / cracks, houses on the ground, route on the road:
+
+  ```bash
+  python3 game/tools/check_world.py
+  ```
+
+* **Web export:** uses the "Web" preset in `export_presets.cfg` (no-threads template, so it works on GitHub Pages
+  without special headers), then copy the result to `docs/play/`:
+
+  ```bash
+  godot --headless --path . --export-release "Web" build/web/index.html
+  ```
+
+* **Browser self-test:** `play/index.html?autotest` runs the story interactions inside the exported build and
+  logs `[Autotest] ...` to the browser console.
+
+## Controls
+
+| On foot | | In the car | |
+|---|---|---|---|
+| W A S D | move | W | accelerate |
+| Mouse | look | S | brake, then reverse |
+| Shift | sprint | A / D | steer |
+| Ctrl (or C) | crouch | Space | handbrake |
+| E | interact | E | get out (when nearly stopped) |
+| Tab (or I) | inventory | Mouse | look around the cabin |
+| Esc (or P) | pause / release the mouse | | |
+
+In the browser, click the game to capture the mouse. Esc releases it, and the browser handles that itself. F10
+prints the player state to the console (a developer aid).
+
+## What is where
+
+| Path | Purpose |
+|---|---|
+| `game/autoload/game_state.gd` (`Game`) | flags, objectives, inventory, interaction states, save / load (`user://veil_save.json`), settings (`user://veil_settings.cfg`), input map |
+| `game/autoload/dialogue.gd` (`Dialogue`) | subtitles / protagonist observations. Data: `game/data/dialogue.json` (supports future `choices` for branching NPC dialogue) |
+| `game/autoload/sfx.gd` (`Sfx`) | small original sound set synthesised at start-up (footsteps, doors, pickup, fridge hum, evening ambience); the engine hum is in the sedan |
+| `game/data/objectives.json`, `items.json` | the opening's objective chain; item definitions with the future categories (tools, flashlight, radio, medical, notes, puzzle items, weapons) |
+| `game/player/player.gd` | first-person controller (CharacterBody3D): walk 2.4 m/s, sprint 4.3, crouch 1.3; gravity, ramps / stairs, head bob, interaction raycast, wake-up camera |
+| `game/interaction/interactable.gd` | one reusable component: hinge, slide, pickup, light toggle, observe, custom (vehicle) |
+| `game/vehicles/player_sedan.gd` | the Pack 05 sedan with an arcade driving model (top speed 55 km/h), wheel spin / steer, steering wheel, driver door, first-person camera, procedural engine sound |
+| `game/world/world.gd` | wires the assets into gameplay: Player_Home interaction metadata, observations, fridge contents, triggers, car entry / exit, parking, autosave / restore, distance culling |
+| `game/world/scatter.gd` | woods and undergrowth as MultiMesh, with trunk collision |
+| `game/ui/` | HUD (prompt, objectives, subtitles, fades, title card, inventory, pause, end card), settings panel, shared look |
+| `game/scenes/MainMenu.tscn`, `World.tscn` | main menu (New Game / Continue / Settings / Quit) and the whole connected town |
+| `game/world/Greyhaven_Core.tscn` | game copy of the Pack 02 town: same placements, minus the old ground, the woods and the debug zone labels |
+| `game/world/Greyhaven_Extension.tscn`, `Greyhaven_Houses.tscn`, `generated/` | the extension and the re-fitted houses (from `game/tools/build_world.py`) |
+| `game/world/world_data.json`, `scatter.json` | spawn / route / destination data and the woods scatter |
+
+## Greyhaven, extended
+
+In the Pack 02 layout the protagonist's house on Maple Ave was only about 200 m of road from the supermarket, about
+15 s of driving. Greyhaven was therefore extended with the **existing generators used as libraries** (Pack 02
+`town_layout.py`, Pack 03 `placement.py` / `build_residential.lot_connections`):
+
+* **Route 9** continues as a county road from the town's south-east edge through the woods (two gentle bends, utility
+  poles with street lights) to a T junction with a bus stop. It continues south to a closed future exit.
+* **Harlow Ln** runs west into a new subdivision with **Aspen Ct** (a cul-de-sac) and **Fern Ct**, about 60 new
+  Pack 03 houses with driveways, walkways, mailboxes, fences, yard trees and street lamps.
+* The **protagonist's house** (`Player_Home.tscn`, furnished, unchanged) now stands on Fern Ct. Its lot reproduces
+  the old Maple Ave lot exactly (same width, driveway offset, house shift and orientation), so the Pack 03 sedan
+  marker, walkway and garage apron still fit. The generator asserts this.
+* The old Maple Ave lot holds an ordinary neighbour's house (Pack 03 Ranch B).
+* **Ground and woods** are regenerated for the whole, larger map. The ground is cut around every road, sidewalk and
+  lot, so nothing sits under grass. A crack filler patches the two slivers where 30 m curve modules met the 0.5 m
+  ground grid.
+* **Fix:** the Pack 02 fence generator puts a post every 1.25 m across each driveway gap, so every driveway had 3-4
+  posts standing in it. The extension uses a corrected fence run, and 34 such posts are removed from the game copy of
+  the core town. `THE_VEIL_ASSETS_V2/` is untouched.
+
+**The route** runs from the driveway on Fern Ct to the supermarket parking lot: Fern Ct, Harlow Ln, Route 9 (county
+road), Route 9 (town edge), Main St (commercial district, past the game shop), then the supermarket lot. It is
+**1,069 m** of continuous road with no detours or loops.
+
+| Drive (real vehicle controller, autopilot along the road, fixed 60 Hz) | Measured time |
+|---|---|
+| Flat out (cruise above the car's 55 km/h top speed, slowing for bends) | 76.7 s |
+| Normal: 50 km/h cruise | 82.4 s |
+| Relaxed: 40 km/h cruise | 99.4 s |
+
+## First destination
+
+The story bible (section 2.1) makes the supermarket the opening's destination: "Get some groceries". The Pack 04
+supermarket (signage, building, parking lot) is in the core town. The milestone completes when the car stands still
+for 1 s inside the parking lot, and the end card shows the drive time. The game shop is directly across Main St, and
+the protagonist mentions it (bible: he also wants a horror game) without leaving the scope of Phase 1.
+
+## NPC animation (procedural, `game/npc/npc_animator.gd`)
+
+Every NPC is spawned through `world.gd` `_spawn_npc()` and gets an `NpcAnimator` alongside its VeilFace. Motions are
+defined in skeleton space and use the character's real forward, measured from its feet, so they do not depend on
+bone-axis conventions. It provides:
+
+* **Rest pose:** arms down at the sides with a slight elbow bend, replacing the reference A-pose.
+* **Idle:** breathing, weight shift, arm sway and occasional glances.
+* **Look-at:** the head and neck track the camera. The body turns to face you when you are close or the NPC is
+  talking to you.
+* **Talking:** hand gestures and nods on every line of that speaker.
+* **`set_mood("scared")`:** hunched, faster breathing, arms drawn in. Used from the mist onwards.
+* **`walk_to(points)`:** a walk cycle along parent-local waypoints. Eddie walks to the shop door when the car dies,
+  both head for the back after the shop talk, and they step up to the supermarket doors.
+
+## Gameplay, environment and cinematic pass (stores, night, the first encounter)
+
+* **Stores:**
+  * Products are separate meshes on empty modular shelves: one MultiMesh per variant per store. The supermarket has
+    3,998 products, the game shop 1,405. The generator is `THE_VEIL_ASSETS_V2/04_Commercial/Source_Scripts/com_merch.py`.
+  * Only pick groups are interactive, and taking one removes exactly one item:
+    * soup (aisle 1);
+    * the snack bar (lane-4 candy rack);
+    * water and cola (glass-door drinks coolers: `[E] Open Fridge`, interior light);
+    * chocolate;
+    * the **HOLLOW HILL** horror game (New Releases rack).
+* **Night:**
+  * dark sky and dim ambient light;
+  * a light on every lamp post;
+  * stronger storefront lights;
+  * sedan headlights.
+  These run through the Pack 09 atmosphere controller with game-side presets.
+* **3D store signs:** GREYHAVEN MARKET and GAME HAVEN have real extruded pixel letters that glow at night.
+* **Arrival shot:** plays while you drive past the supermarket. The car eases down to about 17 km/h, you keep
+  steering, and the view turns to the store and sign.
+* **Text:** every HUD and menu text uses the VeilPixel font (`game/tools/make_pixel_font.py`): white, with a black
+  outline and no anti-aliasing.
+* **Trees:** the woods no longer vanish on the drive (chunked MultiMeshes, see HANDOFF 9.13).
+* **Phase 3 (WORKING DRAFT):**
+  * Your last errand ends inside the store and the Veil rolls in.
+  * Step outside and the **Colossus encounter** plays:
+    * a gigantic leg slams down about 8.5 m in front of you;
+    * cut to the protagonist's frightened face;
+    * the camera follows his gaze up the leg into the mist ceiling (the body stays hidden, about 54 m up);
+    * the legs move on.
+  * Control returns with **GET BACK INSIDE THE STORE**, and health and stamina appear.
+  * Mist tentacles search, wind up, strike (damage lands on the contact frame) and retract.
+  * If your health runs out, you wake up back inside the store with 60 HP.
+* **Conversations:** important ones (buying the game, the shop scene, arriving at the supermarket) frame the speaker
+  with a subtle camera move and hold you until they end.
+* **Survival values** are placeholders (`player.gd`):
+  * health 100;
+  * stamina drain 24/s while sprinting, regeneration 16/s after 0.9 s;
+  * tentacle hit 22.

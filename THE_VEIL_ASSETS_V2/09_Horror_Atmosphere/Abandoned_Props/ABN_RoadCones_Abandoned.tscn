@@ -1,0 +1,15 @@
+[gd_scene load_steps=2 format=3]
+
+[ext_resource type="PackedScene" path="res://THE_VEIL_ASSETS_V2/02_Town/Street_Props/SP_TrafficCone.glb" id="1_SP_TrafficCone"]
+
+[node name="ABN_RoadCones_Abandoned" type="Node3D"]
+metadata/reuses = "SP_TrafficCone.glb"
+
+[node name="Cone0" parent="." instance=ExtResource("1_SP_TrafficCone")]
+transform = Transform3D(0, -0.866, 0.5, 1, 0, 0, 0, 0.5, 0.866, 0, 0.17, 0)
+
+[node name="Cone1" parent="." instance=ExtResource("1_SP_TrafficCone")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.9, 0, 0.4)
+
+[node name="Cone2" parent="." instance=ExtResource("1_SP_TrafficCone")]
+transform = Transform3D(0, -0.342, -0.9397, 1, 0, 0, 0, -0.9397, 0.342, 1.5, 0.17, -0.3)

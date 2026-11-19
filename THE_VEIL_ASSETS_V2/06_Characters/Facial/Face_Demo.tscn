@@ -1,0 +1,25 @@
+[gd_scene load_steps=5 format=3]
+
+[ext_resource type="PackedScene" path="res://THE_VEIL_ASSETS_V2/06_Characters/Marcus/CHR_Marcus.glb" id="1_marcus"]
+[ext_resource type="Script" path="res://THE_VEIL_ASSETS_V2/06_Characters/Facial/veil_face.gd" id="2_face"]
+[ext_resource type="Script" path="res://THE_VEIL_ASSETS_V2/06_Characters/Facial/face_demo.gd" id="3_demo"]
+[ext_resource type="Texture2D" path="res://THE_VEIL_ASSETS_V2/06_Characters/Facial/Faces/T_Face_Marcus.png" id="4_atlas"]
+
+[node name="Face_Demo" type="Node3D" node_paths=PackedStringArray("face")]
+script = ExtResource("3_demo")
+face = NodePath("Marcus/VeilFace")
+
+[node name="Marcus" parent="." instance=ExtResource("1_marcus")]
+
+[node name="VeilFace" type="Node" parent="Marcus"]
+script = ExtResource("2_face")
+face_atlas = ExtResource("4_atlas")
+
+[node name="Camera" type="Camera3D" parent="."]
+transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 0, 1.6, -0.75)
+fov = 35.0
+current = true
+
+[node name="Key" type="DirectionalLight3D" parent="."]
+transform = Transform3D(-0.866, 0.25, -0.433, 0, 0.866, 0.5, 0.5, 0.433, -0.75, 0, 3, -2)
+light_energy = 1.1

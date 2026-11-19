@@ -1,0 +1,13 @@
+newmtl M_Furn_Cardboard
+Ka 0 0 0
+Kd 1 1 1
+Ks 0 0 0
+illum 1
+map_Kd ../../../01_Textures/Furniture/T_Furn_Cardboard.png
+
+newmtl M_Res_DetailAtlas
+Ka 0 0 0
+Kd 1 1 1
+Ks 0 0 0
+illum 1
+map_Kd ../../Textures/T_Res_DetailAtlas.png

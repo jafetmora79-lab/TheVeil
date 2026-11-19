@@ -1,0 +1,135 @@
+{
+ "_comment": "THE VEIL - the one place that numbers the story chapters (displayed numbers). A chapter has begun once ANY of its `start` flags is set; the current chapter is the highest one begun, so existing saves get the right number from their flags without any migration. Internal ids (flags, objective ids, chapterN.gd file names) are NOT renumbered: `impl` names the code that plays each chapter.",
+ "chapters": [
+  {
+   "n": 1,
+   "title": "An Ordinary Evening",
+   "start": [],
+   "impl": "world.gd: waking at home 6:42 PM, the kitchen, the keys, the drive"
+  },
+  {
+   "n": 2,
+   "title": "One Last Stop",
+   "start": [
+    "arrival_shot",
+    "groceries_done",
+    "game_bought"
+   ],
+   "impl": "world.gd: arriving in town (arrival zoom), the supermarket and the video game store errands"
+  },
+  {
+   "n": 3,
+   "title": "The Veil Arrives",
+   "start": [
+    "p3_mist"
+   ],
+   "impl": "world.gd Phase 3: the mist, the Colossus, back into the game shop, 2 HOURS LATER"
+  },
+  {
+   "n": 4,
+   "title": "The Last Open Door",
+   "start": [
+    "p3_fled_together",
+    "p3_in_market"
+   ],
+   "impl": "world.gd Phase 3: leaving the game shop together, the run to the supermarket, the doors"
+  },
+  {
+   "n": 5,
+   "title": "Lock-In",
+   "start": [
+    "p3_doors_shut"
+   ],
+   "impl": "phase4.gd: the first night in the supermarket"
+  },
+  {
+   "n": 6,
+   "title": "The First Search",
+   "start": [
+    "p4_slept",
+    "c5_started"
+   ],
+   "impl": "chapter5.gd"
+  },
+  {
+   "n": 7,
+   "title": "Voices in the Mist",
+   "start": [
+    "ch6_started"
+   ],
+   "impl": "chapter6.gd"
+  },
+  {
+   "n": 8,
+   "title": "A Trace of Noah",
+   "start": [
+    "ch7_started"
+   ],
+   "impl": "chapter7.gd"
+  },
+  {
+   "n": 9,
+   "title": "Something at the Doors",
+   "start": [
+    "ch8_started"
+   ],
+   "impl": "chapter8.gd"
+  },
+  {
+   "n": 10,
+   "title": "The Fall of the Supermarket",
+   "start": [
+    "ch9_started"
+   ],
+   "impl": "chapter9.gd"
+  },
+  {
+   "n": 11,
+   "title": "No Safe Road",
+   "start": [
+    "ch10_started"
+   ],
+   "impl": "chapter10.gd"
+  },
+  {
+   "n": 12,
+   "title": "The Farm Road",
+   "start": [
+    "ch11_started"
+   ],
+   "impl": "chapter11.gd"
+  },
+  {
+   "n": 13,
+   "title": "The Truth Beneath Greyhaven",
+   "start": [
+    "ch12_started"
+   ],
+   "impl": "chapter12.gd"
+  },
+  {
+   "n": 14,
+   "title": "Into the Veil",
+   "start": [
+    "ch13_started"
+   ],
+   "impl": "chapter13.gd"
+  },
+  {
+   "n": 15,
+   "title": "The Last Shelter",
+   "start": [
+    "ch14_started"
+   ],
+   "impl": "chapter14.gd"
+  },
+  {
+   "n": 16,
+   "title": "What Remains",
+   "start": [
+    "ch15_started"
+   ],
+   "impl": "chapter15.gd"
+  }
+ ]
+}

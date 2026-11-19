@@ -1,0 +1,149 @@
+extends RefCounted
+## THE VEIL - chapter select: start a new playthrough at the beginning of any chapter (1-16, the displayed numbers
+## of game/data/chapters.json). Unlocked once the game has been finished (an ending recorded in
+## user://veil_endings.json) or by user://veil_chapters.json {"all_chapters": true}.
+##
+## A chapter start is a complete "everything before this chapter is done" state, never a half-built one:
+##   - every objective flag before the chapter's first step, the story flags the game sets on the way;
+##   - what the player would carry by then (the car keys from Chapter 2 on: the car needs them; groceries and the
+##     game once bought; flashlight, batteries, hammer... from the chapter set-ups);
+##   - the car where the story left it: parked in the supermarket stall the auto-park uses (it stays there,
+##     dead since the Veil, until the player repairs it - an optional side quest);
+##   - the survivors where they belong (the world's own save restore puts them there; Chapters 2-5, which begin in
+##     the middle of the opening, get the last placements from the world's chapter-start hook - see
+##     world.gd _chapter_start_hook).
+## Chapters 6-16 reuse the chapter set-ups the chapter tests are built on (game/chapters/setups/dev_chapterN.gd, N = n - 1).
+## Starting a chapter replaces the save slot, as New Game does.
+
+const UNLOCK_PATH := "user://veil_chapters.json"
+const ENDINGS_PATH := "user://veil_endings.json"
+const COUNT := 16
+## the car at rest in the auto-park stall in front of the supermarket (world.gd: PARK_STALL_X -3.7, PARK_FINAL_Z
+## 16.6 in the lot module's frame), backed in: its nose (its -Z) to the aisle
+const CAR_PARKED := {"pos": [34.7, 0.3, -22.6], "yaw": PI, "fuel": 1.0, "condition": 1.0}
+## the first objective of Chapters 2-5 (everything before it is done)
+const FIRST_STEP := {2: "buy_groceries", 3: "go_home", 4: "mist_market", 5: "p4_flashlight"}
+const EXTRA_FLAGS := {
+	2: ["arrival_shot", "auto_parked"],
+	3: ["arrival_shot", "auto_parked"],
+	4: ["arrival_shot", "auto_parked", "phase2_done", "p3_mist", "p3_market_doors_dead", "p3_two_hours_later"],
+	5: ["arrival_shot", "auto_parked", "phase2_done", "p3_mist", "p3_market_doors_dead", "p3_two_hours_later",
+		"p3_fled_together"],
+}
+
+
+static func unlocked() -> bool:
+	var u := _read(UNLOCK_PATH)
+	if u.get("all_chapters", false):
+		return true
+	return not (_read(ENDINGS_PATH).get("endings", []) as Array).is_empty()
+
+
+static func unlock_all() -> void:
+	var f := FileAccess.open(UNLOCK_PATH, FileAccess.WRITE)
+	if f:
+		f.store_string(JSON.stringify({"all_chapters": true}, " "))
+		f.close()
+
+
+static func _read(path: String) -> Dictionary:
+	if not FileAccess.file_exists(path):
+		return {}
+	var d: Variant = JSON.parse_string(FileAccess.get_file_as_string(path))
+	return d if d is Dictionary else {}
+
+
+## Where the chapter set-ups live (exported with the game: NOT game/tools, which Godot skips - it has a .gdignore).
+const SETUPS := "res://game/chapters/setups/dev_chapter%d.gd"
+
+
+## Build the state for chapter `n` in Game (and write it to the save slot). The world then loads from it.
+## False when the chapter could not be built: then the player's own save is put back exactly as it was and nothing
+## else changes (never a silent fall-back onto the old save).
+static func prepare(game: Node, n: int) -> bool:
+	n = clampi(n, 1, COUNT)
+	if n >= 6 and not ResourceLoader.exists(SETUPS % (n - 1)):
+		push_error("Chapter select: the set-up for chapter %d is missing (%s)" % [n, SETUPS % (n - 1)])
+		return false
+	var old_save: Variant = FileAccess.get_file_as_string(game.SAVE_PATH) if FileAccess.file_exists(game.SAVE_PATH) else null
+	# saving must be on: every step below writes the state and reads it back - with saving off (left so by an
+	# interrupted trailer run) the read-back would load the player's OLD save instead of the chapter
+	game.no_save = false
+	if game.has_meta("trailer_run"):
+		game.remove_meta("trailer_run")
+	var who := String(game.get("player_name"))
+	if n == 1:
+		game.new_game(who)                                   # the whole opening, the intro first
+		game.load_requested = false
+		return true
+	if n >= 6:
+		load(SETUPS % (n - 1)).prepare(game)
+	else:
+		game.new_game(who)
+		for o in game.objectives:
+			if String(o["id"]) == FIRST_STEP[n]:
+				break
+			game.flags[o["flag"]] = true
+		for f in EXTRA_FLAGS[n]:
+			game.flags[f] = true
+		var inv: Array = []
+		if n >= 3:
+			inv = ["groceries", "horror_game"]
+		game.inventory = inv
+		game.player_state = {"in_vehicle": false, "pos": [34.7, 0.3, -18.5], "yaw": 0.0, "health": 100.0}   # placed by the hook
+	game.player_name = who
+	game.flags["intro_seen"] = true
+	# every one-time scene of the chapters before this one has been seen: their chapter cards, the arrival zoom over
+	# the supermarket - they never play again in a later chapter (this chapter's own card still shows)
+	for f in ["arrival_shot", "auto_parked", "reached_town", "parked", "entered_car", "left_house"]:
+		game.flags[f] = true
+	for k in range(1, n):
+		game.flags["chapter_card_%d" % k] = true
+	game.flags.erase("chapter_card_%d" % n)
+	# what the player would already carry (and know) by this chapter - a start is "everything before it is done"
+	_carry_over(game, n)
+	if not game.has_item("car_keys"):
+		game.inventory.append("car_keys")                    # the car needs them; nothing in the story takes them away
+	if (game.vehicle_state as Dictionary).get("pos", []).is_empty():
+		game.vehicle_state = CAR_PARKED.duplicate(true)
+	game.world_state["chapter_start"] = n
+	game.play_time = 0.0
+	var built: bool = game.save_game() and game.load_game() and int(game.world_state.get("chapter_start", 0)) == n 		and float(game.play_time) < 1.0
+	if not built:                                             # a step failed: the player's save back, untouched
+		push_error("Chapter select: chapter %d could not be written - the save was left as it was" % n)
+		if old_save != null:
+			var f := FileAccess.open(game.SAVE_PATH, FileAccess.WRITE)
+			if f:
+				f.store_string(String(old_save))
+				f.close()
+			game.load_game()
+		return false
+	game.load_requested = true
+	return true
+
+
+## Things the story hands over in the middle of a chapter, which a chapter start must therefore already include:
+##   - the old town map (Eddie gives it in a quiet moment in the shelter, from Chapter 7 on; on M);
+##   - the manager's handgun with its six rounds (handed over before the first trip out of the supermarket, in Chapter
+##     8): from Chapter 9 on it is in the pack. Starting there with nothing and no handover left to trigger (the
+##     handover is only offered while the supermarket still stands) left the player unarmed for the rest of the game.
+static func _carry_over(game: Node, n: int) -> void:
+	if n >= 7:
+		game.flags["map_acquired"] = true
+		game.flags["map_tutorial_done"] = true
+	if n >= 9:
+		if not game.has_item("handgun"):
+			game.inventory.append("handgun")
+		var sa: Dictionary = game.world_state.get("sidearm", {})
+		if not bool(sa.get("given", false)):
+			game.world_state["sidearm"] = {"mag": 6, "reserve": 6, "given": true, "drawn": false, "tutorial": "skipped", "from": "Marcus"}
+
+
+## From a menu: the state, then the world.
+static func start(tree: SceneTree, n: int) -> bool:
+	tree.paused = false
+	Engine.time_scale = 1.0
+	if not prepare(tree.root.get_node("Game"), n):
+		return false
+	tree.change_scene_to_file("res://game/scenes/World.tscn")
+	return true

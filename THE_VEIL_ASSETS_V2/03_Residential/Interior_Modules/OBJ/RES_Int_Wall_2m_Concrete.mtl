@@ -1,0 +1,6 @@
+newmtl M_Com_StorageConcrete
+Ka 0 0 0
+Kd 1 1 1
+Ks 0 0 0
+illum 1
+map_Kd ../../../01_Textures/Commercial/T_Com_StorageConcrete.png

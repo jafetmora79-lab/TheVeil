@@ -1,0 +1,10 @@
+[gd_resource type="StandardMaterial3D" format=3]
+
+[resource]
+resource_name = "M_Town_ZoneMarkerHero"
+transparency = 1
+shading_mode = 0
+cull_mode = 2
+albedo_color = Color(0.35, 0.8, 0.95, 0.25)
+metallic_specular = 0.4
+roughness = 1

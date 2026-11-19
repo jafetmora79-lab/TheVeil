@@ -1,0 +1,48 @@
+{
+  "model": "07_Creatures/Hounds/CRT_Hound.glb",
+  "fps_baked": 30.0,
+  "clips": [
+    {
+      "name": "Idle",
+      "duration_s": 3.0,
+      "loop": true,
+      "keys": 91
+    },
+    {
+      "name": "Walk",
+      "duration_s": 1.2,
+      "loop": true,
+      "keys": 37
+    },
+    {
+      "name": "Run",
+      "duration_s": 0.45,
+      "loop": true,
+      "keys": 15
+    },
+    {
+      "name": "Alert",
+      "duration_s": 1.4,
+      "loop": false,
+      "keys": 43
+    },
+    {
+      "name": "Attack_Bite",
+      "duration_s": 1.3,
+      "loop": false,
+      "keys": 40
+    },
+    {
+      "name": "Hit_React",
+      "duration_s": 0.8,
+      "loop": false,
+      "keys": 25
+    },
+    {
+      "name": "Death",
+      "duration_s": 1.8,
+      "loop": false,
+      "keys": 55
+    }
+  ]
+}

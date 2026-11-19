@@ -1,0 +1,56 @@
+[gd_scene load_steps=6 format=3]
+
+[ext_resource type="Texture2D" path="res://THE_VEIL_ASSETS_V2/09_Horror_Atmosphere/Textures/T_Veil_Spark.png" id="1_T_Veil_Spark"]
+[ext_resource type="Script" path="res://THE_VEIL_ASSETS_V2/09_Horror_Atmosphere/Lighting/veil_flicker.gd" id="2_veil_flicker"]
+
+[sub_resource type="Gradient" id="Gradient_1"]
+offsets = PackedFloat32Array(0, 0.2, 0.8, 1)
+colors = PackedColorArray(1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0)
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_2"]
+transparency = 1
+shading_mode = 0
+vertex_color_use_as_albedo = true
+albedo_color = Color(1, 1, 1, 1)
+albedo_texture = ExtResource("1_T_Veil_Spark")
+texture_filter = 0
+billboard_mode = 3
+billboard_keep_scale = true
+disable_receive_shadows = true
+blend_mode = 1
+
+[sub_resource type="QuadMesh" id="QuadMesh_3"]
+material = SubResource("StandardMaterial3D_2")
+size = Vector2(1, 1)
+
+[node name="ElectricalSparks" type="Node3D"]
+
+
+[node name="Particles" type="CPUParticles3D" parent="."]
+amount = 28
+lifetime = 0.6
+preprocess = 0.6
+mesh = SubResource("QuadMesh_3")
+emission_shape = 3
+emission_box_extents = Vector3(0.05, 0.05, 0.05)
+explosiveness = 0.85
+direction = Vector3(0, 0.5, 1)
+spread = 55.0
+gravity = Vector3(0, -9.8, 0)
+initial_velocity_min = 1.5
+initial_velocity_max = 4.0
+scale_amount_min = 0.02
+scale_amount_max = 0.045
+color_ramp = SubResource("Gradient_1")
+cast_shadow = 0
+
+[node name="SparkLight" type="OmniLight3D" parent="."]
+light_color = Color(0.7, 0.85, 1, 1)
+light_energy = 1.2
+omni_range = 3.5
+shadow_enabled = false
+
+[node name="Flicker" type="Node" parent="SparkLight"]
+script = ExtResource("2_veil_flicker")
+mode = 2
+seed = 9
