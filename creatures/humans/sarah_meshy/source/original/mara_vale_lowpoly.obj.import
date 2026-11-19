@@ -1,0 +1,22 @@
+[remap]
+
+importer="wavefront_obj"
+importer_version=1
+type="Mesh"
+uid="uid://pvrwar56sxba"
+path="res://.godot/imported/mara_vale_lowpoly.obj-f14fe7fd97253cbe1c421af3bb68e9e2.mesh"
+
+[deps]
+
+files=["res://.godot/imported/mara_vale_lowpoly.obj-f14fe7fd97253cbe1c421af3bb68e9e2.mesh"]
+
+source_file="res://creatures/humans/sarah_meshy/source/original/mara_vale_lowpoly.obj"
+dest_files=["res://.godot/imported/mara_vale_lowpoly.obj-f14fe7fd97253cbe1c421af3bb68e9e2.mesh", "res://.godot/imported/mara_vale_lowpoly.obj-f14fe7fd97253cbe1c421af3bb68e9e2.mesh"]
+
+[params]
+
+generate_tangents=true
+scale_mesh=Vector3(1, 1, 1)
+offset_mesh=Vector3(0, 0, 0)
+optimize_mesh=true
+force_disable_mesh_compression=false
