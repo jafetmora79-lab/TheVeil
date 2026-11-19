@@ -40,11 +40,9 @@ hull = (np.array(bg) > 0) | holes
 hull &= region
 hull_img = Image.fromarray((hull * 255).astype(np.uint8))
 
-# ---- the eyes: the white of the eye (bright, unsaturated) left and right of the face centre, in the 512 frame
-w = (lum(B) > 190) & ((B.max(2) - B.min(2)) < 60)
-box = np.zeros(w.shape, bool)
-box[130:320, 120:400] = True
-w &= box & hull
+# ---- the eyes: the dark pupils inside the face hull (hair is outside the hull), left and right of the face centre, in the 512 frame; whites as a fallback
+box = np.zeros(hull.shape, bool)
+box[200:310, 110:410] = True
 
 
 def blob_centre(mask, x0, x1):
@@ -52,20 +50,27 @@ def blob_centre(mask, x0, x1):
     return (float(xs.mean()) + x0, float(ys.mean())) if len(xs) > 8 else None
 
 
-cx0 = 256.0
-L = blob_centre(w, 100, 256)
-R = blob_centre(w, 256, 420)
+dark = (lum(B) < 55) & box & hull
+L = blob_centre(dark, 100, 256)
+R = blob_centre(dark, 256, 420)
 if L is None or R is None:
-    # fall back to the dark pupils
-    d = (lum(B) < 45) & box & hull
-    L = L or blob_centre(d, 100, 256)
-    R = R or blob_centre(d, 256, 420)
+    w = (lum(B) > 190) & ((B.max(2) - B.min(2)) < 60) & box & hull
+    L = L or blob_centre(w, 100, 256)
+    R = R or blob_centre(w, 256, 420)
 print("EYES", slug, L, R)
 info = {"res512": 512, "skin": [float(c) for c in skin_col], "eyes512": [L, R], "eyes1000": [[L[0] * 1000 / 512, L[1] * 1000 / 512], [R[0] * 1000 / 512, R[1] * 1000 / 512]]}
 json.dump(info, open(os.path.join(tex_dir, "face_info.json"), "w"), indent=1)
 hull_img.resize((1000, 1000), Image.NEAREST).save(os.path.join(tex_dir, "face_mask.png"))
 
 # ---- expression textures
+# only the features change: a soft box over the eyes and brows, a soft box over the mouth (an edit anywhere else, such as a redrawn hair edge,
+# would show as an outline on the model)
+ey = (L[1] + R[1]) / 2.0
+fm = Image.new("L", (512, 512), 0)
+dr = ImageDraw.Draw(fm)
+dr.rectangle((L[0] - 62, ey - 80, R[0] + 62, ey + 52), fill=255)
+dr.rectangle(((L[0] + R[0]) / 2 - 95, ey + 80, (L[0] + R[0]) / 2 + 95, ey + 205), fill=255)
+FEATURES = np.array(fm.filter(ImageFilter.GaussianBlur(10))).astype(np.float32) / 255.0
 mask_skin = skin & (np.linalg.norm(B - skin_col, axis=2) < 40)
 Image.fromarray(B.astype(np.uint8)).save(os.path.join(out_dir, "face_neutral.png"))
 for name in NAMES:
@@ -77,7 +82,8 @@ for name in NAMES:
     d = np.array(Image.fromarray(np.clip(d, 0, 255).astype(np.uint8)).filter(ImageFilter.GaussianBlur(2))).astype(np.float32)
     al = np.clip((d - 40.0) / 40.0, 0, 1)
     al = np.array(Image.fromarray((al * 255).astype(np.uint8)).filter(ImageFilter.MaxFilter(5)).filter(ImageFilter.GaussianBlur(3))).astype(np.float32)[..., None] / 255.0
-    al = al * (np.array(hull_img.filter(ImageFilter.MinFilter(15))).astype(np.float32)[..., None] / 255.0)             # only inside the face
+    al = al * (np.array(hull_img.filter(ImageFilter.MinFilter(45))).astype(np.float32)[..., None] / 255.0)             # only inside the face
+    al = al * FEATURES[..., None]                                                                                     # and only around the eyes, brows and mouth
     out = B * (1 - al) + A2 * al
     Image.fromarray(out.astype(np.uint8)).save(os.path.join(out_dir, "face_%s.png" % name))
     print("TEX", slug, name, "offset", off.round(1), "changed pixels %.1f%%" % (100 * float((al[..., 0] > 0.3).mean())))

@@ -1,7 +1,7 @@
 extends SceneTree
 ## EXPERIMENT check (headless): every NPC that has face-texture expressions loads with its second material and swaps textures.
 ##   godot --headless --path . --script res://game/tests/npc_face_tex_test.gd
-const SLUGS := ["police_officer", "eddie", "plaid_shirt", "bearded_man", "police_cap"]
+const SLUGS := ["police_officer", "eddie", "plaid_shirt", "bearded_man", "police_cap", "elderly_woman", "police_redhair", "store_clerk", "teen_blue_jacket"]
 var fails := 0
 
 

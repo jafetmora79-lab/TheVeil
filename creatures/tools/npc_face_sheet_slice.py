@@ -20,16 +20,20 @@ if S.size != (1536, 1024):
 
 
 def sil(a):
-    """registration image: the gradient magnitude of the luminance inside the central face region (nose, jaw, brow edges), windowed. The
-    silhouette of the hair is not used: ChatGPT redraws hair shapes slightly differently, the facial landmarks are what must line up."""
-    lum = a[..., 0] * 0.299 + a[..., 1] * 0.587 + a[..., 2] * 0.114
-    gy, gx = np.gradient(lum)
-    g = np.hypot(gx, gy)
-    win = np.zeros((512, 512), np.float32)
-    win[90:470, 110:410] = 1.0
-    ys, xs = np.mgrid[0:512, 0:512]
-    taper = np.exp(-(((xs - 260) / 170.0) ** 2 + ((ys - 280) / 190.0) ** 2))
-    return g * win * taper
+    """registration image: the face hull (skin-coloured region with the eyes, brows and mouth closed into it), smoothed. The skin colour is
+    measured on the cheeks of the image itself. Hair shapes are redrawn slightly differently by ChatGPT and expression edits change edges, but
+    the outline of the face skin stays put, so it is the most reliable thing to line up."""
+    from PIL import ImageFilter, ImageDraw
+    img = a
+    cheeks = np.concatenate([img[270:350, 120:200].reshape(-1, 3), img[270:350, 320:400].reshape(-1, 3)])
+    col = np.median(cheeks, axis=0)
+    skin = np.linalg.norm(img - col, axis=2) < 55
+    reg = np.zeros(skin.shape, bool)
+    reg[40:500, 70:450] = True
+    skin &= reg
+    m = Image.fromarray((skin * 255).astype(np.uint8)).filter(ImageFilter.MaxFilter(25)).filter(ImageFilter.MinFilter(25))
+    m = m.filter(ImageFilter.GaussianBlur(4))
+    return np.array(m).astype(np.float32) / 255.0
 
 
 def phase_shift(a, b):
@@ -38,8 +42,13 @@ def phase_shift(a, b):
     r = fa * np.conj(fb)
     r /= np.abs(r) + 1e-9
     c = np.real(np.fft.ifft2(r))
-    iy, ix = np.unravel_index(np.argmax(c), c.shape)
     h, w = a.shape
+    # a placement can only be a small shift: look for the peak within +-40 px (a wrong far-away peak once moved a whole face off its template)
+    lim = np.zeros_like(c)
+    for sy in range(-40, 41):
+        lim[sy % h, np.arange(-40, 41) % w] = c[sy % h, np.arange(-40, 41) % w]
+    c = lim
+    iy, ix = np.unravel_index(np.argmax(c), c.shape)
     dy = iy if iy <= h // 2 else iy - h
     dx = ix if ix <= w // 2 else ix - w
     return dx, dy, float(c.max())
@@ -72,6 +81,11 @@ for k, name in enumerate(NAMES):
 S_MED = float(np.median([f[1] for f in fits]))
 DX_MED = int(np.median([f[2] for f in fits]))
 DY_MED = int(np.median([f[3] for f in fits]))
+ov = os.path.join(out, "placement_override.json")
+if os.path.exists(ov):                                   # a fit that was checked by eye and found wrong can be overridden
+    o = json.load(open(ov))
+    S_MED, DX_MED, DY_MED = float(o["scale"]), int(o["dx"]), int(o["dy"])
+    print("SLICE", slug, "using placement_override.json")
 print("SLICE", slug, "sheet placement: scale %.2f dx %d dy %d" % (S_MED, DX_MED, DY_MED))
 for k, name in enumerate(NAMES):
     c2 = scaled(cells[name], S_MED)
