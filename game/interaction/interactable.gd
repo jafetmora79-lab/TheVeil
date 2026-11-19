@@ -29,6 +29,11 @@ signal used(by: Node)
 @export var state_key := ""
 ## custom prompt override (custom kind)
 @export var prompt_text := ""
+## Seconds the player must HOLD the interact key (a progress ring fills). 0 = a plain press. Heavy pickups set it
+## themselves (see _ready); the player's input handler does the holding, interact() itself is always instant.
+@export var hold_time := 0.0
+
+const HEAVY_WEIGHT := 2.5
 
 var is_open := false
 var taken := false
@@ -43,6 +48,8 @@ func _ready() -> void:
 	monitorable = true
 	if kind == "pickup":
 		add_to_group("veil_pickup")
+		if hold_time <= 0.0 and item_id != "" and float(Game.item_info(item_id).get("weight", 0.0)) >= HEAVY_WEIGHT:
+			hold_time = 0.7                             # a heavy load (fuel, boards, groceries) takes a moment to lift
 	if kind == "hinge":
 		add_to_group("veil_door")                   # companions open these on their way
 	if target:
@@ -83,7 +90,7 @@ func own_prompt() -> String:
 		"hinge", "slide":
 			return key_hint() + "%s %s" % ["Close" if is_open else "Open", label]
 		"pickup":
-			return prompt_text if prompt_text != "" else key_hint() + "TAKE " + display_name().to_upper()
+			return prompt_text if prompt_text != "" else key_hint() + ("HOLD  " if hold_time > 0.0 else "") + "TAKE " + display_name().to_upper()
 		"toggle":
 			return key_hint() + label
 		"observe":
@@ -111,17 +118,65 @@ var _hl: ShaderMaterial
 const HL_SHADER := preload("res://game/interaction/pickup_highlight.gdshader")
 
 
+## Everything else the player can use (doors, drawers, switches, things to examine) gets the same rim, cooler and
+## dimmer, so every interactable lights up the moment it is under the crosshair. Meshes that already carry another
+## overlay (a quest glow) get it back when the rim goes. Objects bigger than MAX_OUTLINE metres (a whole building,
+## a vehicle) and characters are left alone.
+const MAX_OUTLINE := 3.2
+var _hl_soft: ShaderMaterial
+var _outlined: Dictionary = {}           ## GeometryInstance3D -> the overlay it had before the rim
+var _outline_ok := -1                    ## -1 unknown, 0 skip, 1 fine (for non-pickups, decided once)
+
+
+func _outline_root() -> Node3D:
+	if target != null:
+		return target
+	if kind == "pickup" or kind == "custom":
+		return null
+	var p := get_parent() as Node3D
+	if p == null or p is CharacterBody3D or p.is_in_group("veil_creature"):
+		return null
+	return p
+
+
 func set_focus(on: bool) -> void:
-	if kind != "pickup" or target == null:
+	var root_node := _outline_root()
+	if root_node == null:
 		return
-	if _hl == null:
-		_hl = ShaderMaterial.new()
-		_hl.shader = HL_SHADER
-	var mat: Material = _hl if on and not taken else null
-	for m in target.find_children("*", "GeometryInstance3D", true, false):
-		(m as GeometryInstance3D).material_overlay = mat
-	if target is GeometryInstance3D:
-		(target as GeometryInstance3D).material_overlay = mat
+	if kind != "pickup" and on and not taken:
+		if _outline_ok < 0:
+			var box := aabb_of(root_node)
+			_outline_ok = 1 if box.size.length() > 0.01 and maxf(box.size.x, maxf(box.size.y, box.size.z)) <= MAX_OUTLINE else 0
+		if _outline_ok == 0:
+			return
+	var mat: Material = null
+	if on and not taken:
+		if kind == "pickup":
+			if _hl == null:
+				_hl = ShaderMaterial.new()
+				_hl.shader = HL_SHADER
+			mat = _hl
+		else:
+			if _hl_soft == null:
+				_hl_soft = ShaderMaterial.new()
+				_hl_soft.shader = HL_SHADER
+				_hl_soft.set_shader_parameter("rim_color", Color(0.78, 0.86, 1.0))
+				_hl_soft.set_shader_parameter("strength", 0.2)
+			mat = _hl_soft
+	if mat != null:
+		var meshes := root_node.find_children("*", "GeometryInstance3D", true, false)
+		if root_node is GeometryInstance3D:
+			meshes.append(root_node)
+		for m in meshes:
+			var g := m as GeometryInstance3D
+			if not _outlined.has(g):
+				_outlined[g] = g.material_overlay
+			g.material_overlay = mat
+	else:
+		for g in _outlined.keys():
+			if is_instance_valid(g):
+				(g as GeometryInstance3D).material_overlay = _outlined[g] if kind != "pickup" else null
+		_outlined.clear()
 
 
 ## Loot inside a container: the container part (drawer / cabinet door) and the container piece's own colliders,

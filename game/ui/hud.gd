@@ -85,6 +85,9 @@ func _ready() -> void:
 	root.add_child(speed_l)
 	click_hint = _centered_label("Click to look around", 18, 0.5, 0.5)
 	click_hint.visible = false
+	_hold_ring = VeilHoldRing.new()                          # the "hold to use" progress ring around the crosshair
+	_hold_ring.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	root.add_child(_hold_ring)
 	_build_inventory()
 	_build_pause()
 	_build_end()
@@ -823,3 +826,12 @@ func show_end(drive_seconds: float) -> void:
 	end_panel.visible = true
 	end_panel.position = -end_panel.size / 2
 	Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
+
+
+## "Hold to use" progress (0..1) from the player; the ring is shown only while it is above zero.
+var _hold_ring: VeilHoldRing
+
+
+func set_hold(ratio: float) -> void:
+	if _hold_ring:
+		_hold_ring.progress = ratio

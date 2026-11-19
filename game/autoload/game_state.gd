@@ -24,7 +24,7 @@ var objectives: Array = []
 var goals := {}
 ## game/data/chapters.json: the displayed chapter numbers and titles (one central mapping)
 var chapters: Array = []
-var settings := {"mouse_sensitivity": 0.22, "master_volume": 0.8, "fullscreen": false, "head_bob": true}
+var settings := {"mouse_sensitivity": 0.22, "master_volume": 0.8, "fullscreen": false, "head_bob": true, "film_look": true}
 ## set by the menu: the world reads it on start (true = restore the save instead of a new game)
 var load_requested := false
 var play_time := 0.0
