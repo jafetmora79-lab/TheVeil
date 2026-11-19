@@ -128,11 +128,20 @@ func emergency(talk := true) -> bool:
 		return true
 	if world.get("_encounter_running") == true or (talk and world.conversing):
 		return true
-	# a story trip with companions is under way (Chapters 6-8 followers)
+	# a story trip with companions is under way (Chapters 6-8 followers). Once the player AND the follower are both
+	# back inside the shop the trip is over: a follower a chapter forgot to release must not lock the exit menu,
+	# the sleep offer and the supply runs for the rest of the game.
 	for f in _followers():
 		if not f.has_meta("sv_companion"):              # a scavenging companion is not a story trip
-			return true
+			if not (in_store() and _follower_inside(f)):
+				return true
 	return false
+
+
+func _follower_inside(f: Node) -> bool:
+	var c5 := _c5()
+	var npc: Node3D = (f as VeilCompanionFollow).npc
+	return c5 != null and npc != null and world.market != null and c5._in_store(world.market.to_local(npc.global_position))
 
 
 func can_scavenge() -> bool:
@@ -305,10 +314,12 @@ func continue_story() -> void:
 			_hint(why)
 			return
 		story_departure = true
+		_story_wait = 0.0
 		_story_out = false
 		sd.used.emit(_player())
 		return
 	story_departure = true
+	_story_wait = 0.0
 	_story_out = false
 	var c5d := _c5()
 	if c5d:
@@ -317,6 +328,20 @@ func continue_story() -> void:
 var _quiet_t := 0.0                         ## active time outside with nothing about
 var story_departure := false            ## "Continue Story" was chosen: the doors may open until the player is back in
 var _story_out := false
+var _story_wait := 0.0                  ## seconds the player has stayed in (with control) since choosing "Continue Story"
+const STORY_WAIT := 15.0
+
+
+## The player chose "Continue Story" but stayed inside: the departure is called off, the doors shut again (when
+## nobody is in them) and the shelter menu comes back.
+func cancel_story_departure() -> void:
+	story_departure = false
+	_story_out = false
+	_story_wait = 0.0
+	var c5 := _c5()
+	if c5 and c5._doors_open and not active() and in_store():
+		c5._set_doors(false)
+	_refresh()
 
 
 ## Normal shelter time with the player inside: the front doors only open through "[E] Leave Shelter" (a choice in
@@ -1844,8 +1869,16 @@ func _process(delta: float) -> void:
 	if story_departure:
 		if not in_store():
 			_story_out = true
+			_story_wait = 0.0
 		elif _story_out:
 			story_departure = false              # back inside after the story trip: the doors are held again
+			_story_wait = 0.0
+		elif _menu_allowed():
+			# "Continue Story" chosen but the player never went out: after a while they have simply stayed in. Without this
+			# the exit menu, the sleep offer and the held doors stayed gone for good and the doors hung open.
+			_story_wait += delta
+			if _story_wait > STORY_WAIT:
+				cancel_story_departure()
 	if houses.is_empty():
 		_open_houses()
 	_danger(delta)
@@ -1900,8 +1933,8 @@ func _refresh() -> void:
 		var t := ""
 		if active() and in_store():
 			t = "[E] Secure the Doors"
-		elif can_scavenge() and not story_departure and _menu_allowed():
-			t = "[E] Leave Shelter"
+		elif can_scavenge() and not (story_departure and _story_out) and _menu_allowed():
+			t = "[E] Leave Shelter"                     # (still on offer while the player has not actually gone out yet)
 		e.prompt_text = t
 		e.collision_layer = 8 if t != "" else 0
 	var o: Interactable = its.get("outside")
