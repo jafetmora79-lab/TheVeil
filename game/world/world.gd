@@ -718,7 +718,13 @@ var talk_report := {"count": 0, "blocked": 0, "cam_hits": 0, "min_face_dist": 99
 	"zoom_outs": 0, "released": 0, "watchdog": 0}
 const TALK_RANGE := 12.0              ## a talk started by an approach (a doorway, a yard) can begin a few metres off
 const TALK_FOV_SCALE := 0.9            ## subtle zoom: 10 % narrower field of view
-const TALK_EASE_IN := 7.0              ## exponential rates: ~0.4 s to settle on a speaker
+## Distance-aware framing: standing close needs almost no zoom, a speaker across the room gets a tighter view, so the
+## face fills a similar part of the screen either way (0.9 at about 2 m is the old fixed value).
+static func _talk_fov_scale(dist: float) -> float:
+	return clampf(0.97 - 0.035 * dist, 0.78, 0.95)
+
+
+const TALK_EASE_IN := 7.0             ## exponential rates: ~0.4 s to settle on a speaker
 const TALK_EASE_SPEAKER := 4.5         ## gentler re-aim when the speaker changes
 const TALK_EASE_OUT := 8.0
 
@@ -851,7 +857,7 @@ func _talk_camera() -> void:
 		var fov := fov0
 		var at = _talk_target()
 		if at != null and idle == 0.0:
-			fov = fov0 * TALK_FOV_SCALE
+			fov = fov0 * _talk_fov_scale(eye.distance_to(at))
 			# a speaker hidden from the protagonist's eyes (behind a wall beside a doorway, behind another NPC) is
 			# never framed: the view stays on the last visible speaker instead of turning to a wall
 			var hit := _talk_ray(eye, at, [player.get_rid()])
