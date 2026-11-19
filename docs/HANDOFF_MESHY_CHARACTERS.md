@@ -81,3 +81,12 @@ Kept: every original Meshy source file, all scripts, the final GLBs and face tex
 - Blender `Bone.select` no longer exists in 5.2; the glTF exporter adds a held first frame unless keys are written at `frame-1` (already handled).
 - Godot imports glTF animations with "-loop" stripped and loop set; it ignores glTF sampler filters (the code sets nearest filtering in `psx_look`).
 - Browser-based GitHub PR creation needed the user to sign in manually each time (no `gh`); not needed for these branches (no PRs).
+
+## Monsters (branch `art/meshy-monsters`, branched from `art/npc-meshy-trial-eddie-clerk`; NOT in the game yet)
+Five Meshy monsters were rigged with `creatures/tools/rig_monster.py -- <root> <slug> <kind> <size_m> [preview]` (sources in `creatures/monsters/source/`, GLBs in `game/prototypes/monsters_meshy/MON_<slug>.glb`, wrapper `VeilMonstersMeshy`, test `game/tests/monsters_meshy_test.gd`):
+hound (hound, 2.0 m long: body, neck, head, tail, 4 legs of 2 bones), spider (8 legs, 1.8 m), crab (10 legs, 1.5 m), tentacle_v1 / tentacle_v3 (9-bone chain, 3.5 m tall). They face Godot -Z. Clips: legged `idle`, `walk` (procedural gait, ground speed in `<slug>.json`); tentacles `idle`, `strike`, `retract`.
+**Sizes are my assumptions** (the game's old creatures were not measured): set the size argument and rebuild. Overview: `creatures/monsters/work/monsters_rigged_sheet.png`.
+The legs and the chain are placed automatically from the geometry (k-means of the foot vertices, a chain along the tentacle's centre line) and animated procedurally with no IK: the gaits are basic (feet can slide a little, the crab's legs move little, no jaw/claw clips, automatic weights). Plan for the next session:
+1. Wiring into the game is NOT done. The old creatures (Hounds/CRT_Hound, Skitter, Shellcrawler, Mist_Tentacles under THE_VEIL_ASSETS_V2/07_Creatures) are Godot scenes with their own bone names and clips used by `hound_ai.gd`, the Skitter and Shellcrawler scenes and the tentacle poser; the new bone names are different (Body, Leg0_L_Up..., Head, Tail1, T0..T8). Do it behind a switch like `VeilMeshyNpcs` (`-- old_monsters`), one creature at a time, hound first; compare with the old ones and keep the old assets.
+2. The `claude/tentacle-beast` branch (another session) replaces the Colossus; the Colossus is not part of this set.
+3. Refine the gaits in Blender (real IK, per-leg timing, claws/jaw), then the textures stay as Meshy made them.
