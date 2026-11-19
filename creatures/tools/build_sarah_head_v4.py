@@ -49,10 +49,10 @@ def sm(x):
 V = np.array([v.co[:] for v in head.data.vertices])
 zmin, zmax = V[:, 2].min(), V[:, 2].max()
 V[:, 2] = zmin + (V[:, 2] - zmin) * (1.66 - zmin) / (zmax - zmin)          # crown back to 1.66
-zk = np.array([1.660, 1.645, 1.625, 1.600, 1.575, 1.550, 1.525, 1.500, 1.475, 1.455, 1.440, 1.425, 1.410])
-hw_t = np.array([.022, .050, .068, .075, .077, .074, .069, .063, .055, .045, .037, .035, .037])          # fuller jaw, rounded chin
-fy_t = np.array([-.020, -.062, -.095, -.108, -.110, -.106, -.104, -.103, -.098, -.090, -.078, -.060, -.045])
-by_t = np.array([.040, .064, .080, .086, .086, .082, .076, .066, .052, .034, .024, .018, .016])
+zk = np.array([1.660, 1.645, 1.625, 1.600, 1.575, 1.550, 1.525, 1.500, 1.475, 1.455, 1.440, 1.425, 1.405, 1.380])
+hw_t = np.array([.022, .050, .068, .075, .077, .074, .069, .063, .055, .045, .037, .035, .036, .036])          # fuller jaw, rounded chin
+fy_t = np.array([-.020, -.062, -.095, -.108, -.110, -.106, -.104, -.103, -.098, -.090, -.078, -.060, -.045, -.040])
+by_t = np.array([.040, .064, .080, .086, .086, .082, .076, .066, .052, .034, .024, .018, .016, .016])
 bins = np.linspace(V[:, 2].min(), V[:, 2].max(), 28)
 hw_c, fy_c, by_c, zc = [], [], [], []
 for i in range(len(bins) - 1):
@@ -64,9 +64,9 @@ zi = np.argsort(zc)
 zc, hw_c, fy_c, by_c = zc[zi], hw_c[zi], fy_c[zi], by_c[zi]
 for i, v in enumerate(V):
     z = v[2]
-    if z < 1.405:
+    if z < 1.380:
         continue
-    w = sm((z - 1.405) / .03)
+    w = sm((z - 1.380) / .03)
     hc, fc, bc = np.interp(z, zc, hw_c), np.interp(z, zc, fy_c), np.interp(z, zc, by_c)
     ht, ft, bt = np.interp(z, zk[::-1], hw_t[::-1]), np.interp(z, zk[::-1], fy_t[::-1]), np.interp(z, zk[::-1], by_t[::-1])
     nx = v[0] / max(hc, 1e-5)
@@ -108,7 +108,7 @@ bpy.ops.object.modifier_apply(modifier="lowpoly")
 bme = bmesh.new()
 bme.from_mesh(head.data)
 # take the head down below the jaw: the body's own neck rises into it (softer, shorter jaw-to-neck blend)
-bmesh.ops.delete(bme, geom=[f for f in bme.faces if max(v.co.z for v in f.verts) < 1.425], context='FACES')
+bmesh.ops.delete(bme, geom=[f for f in bme.faces if max(v.co.z for v in f.verts) < 1.395], context='FACES')
 bmesh.ops.delete(bme, geom=[v for v in bme.verts if not v.link_faces], context='VERTS')
 # ears grown out of the side of the skull: inset + extrude the existing side faces, tilted back and tapered
 bme.faces.ensure_lookup_table()
