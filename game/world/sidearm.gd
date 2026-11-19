@@ -45,6 +45,9 @@ var _kick := 0.0                                        # 1 at the shot, back to
 var _reload_t := -1.0                                   # >= 0 while reloading (seconds in)
 var _aim := 0.0                                         # 0..1 toward the aimed pose
 var _time := 0.0
+var _lag := Vector2.ZERO                                # smoothed look-turn lag (yaw, pitch)
+var _last_yaw := 0.0
+var _last_pitch := 0.0
 
 
 func setup(w: Node) -> void:
@@ -374,8 +377,18 @@ func _animate(delta: float) -> void:
 		if _reload_t >= RELOAD_TIME:
 			_finish_reload()
 	pos.y -= 0.28 * (1.0 - smoothstep(0.0, 1.0, _equip))
+	# look-turn lag: the gun trails the view when the player turns and catches up (less while aimed, so sights hold)
+	var yaw_now: float = world.player.rotation.y
+	var pitch_now: float = float(world.player.get("_pitch"))
+	_lag += Vector2(wrapf(yaw_now - _last_yaw, -PI, PI), pitch_now - _last_pitch) * 0.5
+	_last_yaw = yaw_now
+	_last_pitch = pitch_now
+	_lag = _lag.lerp(Vector2.ZERO, clampf(delta * 9.0, 0.0, 1.0)).clamp(Vector2(-0.2, -0.2), Vector2(0.2, 0.2))
+	var lag_k := 1.0 - 0.75 * aim_e
+	pos += Vector3(_lag.x * 0.2, -_lag.y * 0.13, 0.0) * lag_k
+	pitch += _lag.y * 0.5 * lag_k
 	_view.position = pos
-	_view.basis = Basis(Vector3.FORWARD, roll) * Basis(Vector3.RIGHT, pitch) * Basis(Vector3.UP, REST_YAW * (1.0 - aim_e))
+	_view.basis = Basis(Vector3.FORWARD, roll) * Basis(Vector3.RIGHT, pitch) * Basis(Vector3.UP, REST_YAW * (1.0 - aim_e) + _lag.x * 0.7 * lag_k)
 	if _flash:
 		_flash.position = pos + _view.basis * MUZZLE      # at the end of the barrel, wherever the gun is
 
