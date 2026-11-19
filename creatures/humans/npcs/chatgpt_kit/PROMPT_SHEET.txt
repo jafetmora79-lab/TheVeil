@@ -1,0 +1,10 @@
+Attached is a 1536x1024 image: a 3-column x 2-row grid of SIX identical cells, each 512x512, each showing the same front-on, flat-lit crop of a low-poly PSX-style game character's face (soft, slightly blurry painted texture look, black background).
+Edit ONLY the facial expression inside each cell, so that the six cells become six different expressions of the same person. Everything else in every cell must stay pixel-identical to the original cell: same image size (1536x1024), same grid, same framing and position of the head in each cell, same hair, hat, skin colour and shading, nose, lighting and black background. Do not zoom, crop, rotate, mirror, add borders, add text or labels, or redraw the head. Keep the original low-detail PSX painted look (no sharp photo detail, no outlines, nothing cartoonish). Subtle, realistic expressions.
+Cells, left to right, top row then bottom row:
+1 (top-left): eyes gently closed (relaxed lids with a thin dark lash line); mouth and brows unchanged.
+2 (top-middle): mouth slightly open as when speaking (a little of the upper teeth, dark inside, lips connected to the face); eyes and brows unchanged.
+3 (top-right): mouth open wider, speaking loudly (teeth and a dark inside); eyes and brows unchanged.
+4 (bottom-left): scared: eyes a little wider (same size iris, a bit more white), brows raised slightly, mouth slightly open.
+5 (bottom-middle): angry: brows lowered and drawn together, eyes a little narrowed, lips pressed.
+6 (bottom-right): worried: inner brows raised slightly, eyes softer, mouth closed.
+Return ONE image of exactly the same size (1536x1024) with the six cells in that order.
