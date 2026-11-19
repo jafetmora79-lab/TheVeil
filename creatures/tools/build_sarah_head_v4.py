@@ -124,6 +124,16 @@ for sx in (-1, 1):
         v.co.x += sx * .011
         v.co.y = cy + (v.co.y - cy) * .80 + .006
         v.co.z = cz + (v.co.z - cz) * .80
+# neck tube: extrude the open lower boundary straight down into the body's neck so no seam shows
+bme.edges.ensure_lookup_table()
+bnd = [e for e in bme.edges if e.is_boundary]
+ex = bmesh.ops.extrude_edge_only(bme, edges=bnd)
+nv = [g for g in ex['geom'] if isinstance(g, bmesh.types.BMVert)]
+cxm = sum(v.co.x for v in nv) / len(nv); cym = sum(v.co.y for v in nv) / len(nv)
+for v in nv:
+    v.co.z = 1.335
+    v.co.x = cxm + (v.co.x - cxm) * .95
+    v.co.y = cym + (v.co.y - cym) * .95
 bmesh.ops.recalc_face_normals(bme, faces=list(bme.faces))
 bme.to_mesh(head.data)
 bme.free()
