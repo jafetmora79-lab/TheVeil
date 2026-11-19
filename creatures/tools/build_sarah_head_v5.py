@@ -26,7 +26,7 @@ groups = {}
 for f in bm.faces:
     c = f.calc_center_median()
     n = f.normal
-    if abs(c.x) > .058 and -.014 < c.y < .042 and 1.528 < c.z < 1.592 and f.calc_center_median().z > 1.52:
+    if abs(c.x) > .058 and -.010 < c.y < .038 and 1.534 < c.z < 1.584 and f.calc_center_median().z > 1.52:
         g = "earL" if c.x > 0 else "earR"
     elif c.z < 1.452:
         g = "neck"
@@ -62,6 +62,10 @@ for f in bm.faces:
         elif g == "top":
             u = lerp(.89, .99, (co.x + XH) / (2 * XH))
             v = lerp(.28, .48, (co.y + .12) / .22)
+        elif f.normal.z > -.5 and c.z < 1.452:
+            ang = math.atan2(co.x, co.y + .005) / (2 * math.pi) + .5          # neck tube wall: wrap by angle, down by height
+            u = lerp(.89, .99, ang)
+            v = lerp(.03, .23, (co.z - 1.385) / .07)
         else:
             u = lerp(.89, .99, (co.x + XH) / (2 * XH))
             v = lerp(.03, .23, (co.y + .12) / .22)
@@ -75,7 +79,7 @@ for f in bm.faces:
     c = f.calc_center_median()
     if groups[f.index] in ("neck", "earL", "earR"):
         continue
-    ear = abs(c.x) > .062 and -.012 < c.y < .040 and 1.53 < c.z < 1.59
+    ear = abs(c.x) > .062 and -.010 < c.y < .038 and 1.534 < c.z < 1.584
     if ear:
         continue
     if c.z > 1.605 or (c.y > .0 and c.z > 1.535) or (abs(c.x) > .05 and c.z > 1.598):
@@ -124,7 +128,7 @@ pt.name = "Sarah_Hair_Ponytail"
 pv = np.array([v.co[:] for v in pt.data.vertices])
 print("PONY before", pv.min(0).round(3), pv.max(0).round(3))
 for v in pt.data.vertices:
-    v.co.y += .035           # new skull is deeper at the back
+    v.co.y += .047           # new skull is deeper at the back
     v.co.z += .004
 pv = np.array([v.co[:] for v in pt.data.vertices])
 print("PONY after", pv.min(0).round(3), pv.max(0).round(3))

@@ -113,7 +113,7 @@ bmesh.ops.delete(bme, geom=[v for v in bme.verts if not v.link_faces], context='
 # ears grown out of the side of the skull: inset + extrude the existing side faces, tilted back and tapered
 bme.faces.ensure_lookup_table()
 for sx in (-1, 1):
-    sel = [f for f in bme.faces if sx * f.calc_center_median().x > .062 and -.012 < f.calc_center_median().y < .040 and 1.532 < f.calc_center_median().z < 1.588]
+    sel = [f for f in bme.faces if sx * f.calc_center_median().x > .062 and -.006 < f.calc_center_median().y < .034 and 1.538 < f.calc_center_median().z < 1.580]
     print("EAR faces", sx, len(sel))
     if not sel:
         continue
@@ -121,9 +121,9 @@ for sx in (-1, 1):
     vv = [e for e in ex['geom'] if isinstance(e, bmesh.types.BMVert)]
     cz = sum(v.co.z for v in vv) / len(vv); cy = sum(v.co.y for v in vv) / len(vv)
     for v in vv:
-        v.co.x += sx * .006
-        v.co.y = cy + (v.co.y - cy) * .80 + .006
-        v.co.z = cz + (v.co.z - cz) * .80
+        v.co.x += sx * .005
+        v.co.y = cy + (v.co.y - cy) * .72 + .004
+        v.co.z = cz + (v.co.z - cz) * .72
 # neck tube: extrude the open lower boundary straight down into the body's neck so no seam shows
 bme.edges.ensure_lookup_table()
 bnd = [e for e in bme.edges if e.is_boundary]
