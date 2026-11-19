@@ -108,7 +108,7 @@ bpy.ops.object.modifier_apply(modifier="lowpoly")
 bme = bmesh.new()
 bme.from_mesh(head.data)
 # take the head down below the jaw: the body's own neck rises into it (softer, shorter jaw-to-neck blend)
-bmesh.ops.delete(bme, geom=[f for f in bme.faces if max(v.co.z for v in f.verts) < 1.395], context='FACES')
+bmesh.ops.delete(bme, geom=[f for f in bme.faces if max(v.co.z for v in f.verts) < 1.452], context='FACES')
 bmesh.ops.delete(bme, geom=[v for v in bme.verts if not v.link_faces], context='VERTS')
 # ears grown out of the side of the skull: inset + extrude the existing side faces, tilted back and tapered
 bme.faces.ensure_lookup_table()
@@ -131,9 +131,9 @@ ex = bmesh.ops.extrude_edge_only(bme, edges=bnd)
 nv = [g for g in ex['geom'] if isinstance(g, bmesh.types.BMVert)]
 cxm = sum(v.co.x for v in nv) / len(nv); cym = sum(v.co.y for v in nv) / len(nv)
 for v in nv:
-    v.co.z = 1.335
-    v.co.x = cxm + (v.co.x - cxm) * .95
-    v.co.y = cym + (v.co.y - cym) * .95
+    v.co.z = 1.385
+    v.co.x = cxm + (v.co.x - cxm) * .82
+    v.co.y = cym + (v.co.y - cym) * .82
 bmesh.ops.recalc_face_normals(bme, faces=list(bme.faces))
 bme.to_mesh(head.data)
 bme.free()
