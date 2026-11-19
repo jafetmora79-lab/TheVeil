@@ -1,0 +1,12 @@
+THE VEIL - trying the Meshy characters (branch art/npc-meshy-trial-eddie-clerk)
+
+1. Install Godot 4.3 (standard, not .NET): https://godotengine.org/download/archive/4.3-stable/
+2. Unzip this project. The first time Godot opens it, it imports the assets (a few minutes).
+3. To play the game with Eddie and the clerk replaced by the new models:
+   - double-click PLAY_MESHY_TRIAL.bat (set the GODOT environment variable to your godot.exe first, or put godot.exe on PATH), or
+   - run:  godot --path . -- meshy_npcs
+   Without that argument the game is exactly as before.
+   Eddie is in the game shop (customer service counter); the cashier stands at lane 4 in the early chapters (she is hidden from chapter 7 on).
+4. To see all nine NPCs in the supermarket: PLAY_NPC_SUPERMARKET_TEST.bat
+   (keys 1-9 pick an NPC, then T talk, B blink, S scared, A angry, W worried, N neutral). Your save file is backed up and restored by this test.
+Everything about the characters: docs/HANDOFF_MESHY_CHARACTERS.md
