@@ -1,0 +1,12 @@
+Attached is a front-on, flat-lit crop of a low-poly PSX-style game character's face (1000x1000 px, texture look: soft, slightly blurry, chunky).
+Edit ONLY the facial expression. Everything else must stay pixel-identical: the same image size (1000x1000), the same framing and position,
+same hair, same skin colour and shading, same nose, same lighting, same black background, same head outline. Do not zoom, crop, rotate, mirror or re-draw the head.
+Keep the original low-detail PSX painted look (no sharp photo detail, no outlines, no cartoon exaggeration). Subtle, realistic expressions.
+Make one image per expression, each as a separate 1000x1000 PNG:
+1. eyes_closed: both eyes gently closed (relaxed lids with a thin dark lash line), mouth and brows unchanged.
+2. talk_small: mouth slightly open as when speaking, a little of the upper teeth and a dark inside, lips connected to the face, eyes and brows unchanged.
+3. talk_wide: mouth open wider (speaking loudly), teeth and a dark inside, eyes and brows unchanged.
+4. scared: eyes a little wider (same size iris, a bit more white), brows raised slightly, mouth slightly open. Subtle, not cartoonish.
+5. angry: brows lowered and drawn together, eyes a little narrowed, lips pressed. Subtle.
+6. worried: inner brows raised slightly, eyes a little softer, mouth closed.
+Also, as a separate image: an open-mouth interior on a plain dark background: upper teeth, a tongue, dark inside, about 400x250 px.
