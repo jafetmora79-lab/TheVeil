@@ -39,3 +39,7 @@ Next, if approved: combine with the geometric blink and a jaw shape key, build t
 ## Face texture swap running in Godot 4.3 (Compatibility)
 `CHR_Protagonist_FaceTex.glb` (body + rig + a second face material), `game/prototypes/protagonist_meshy/protagonist_face_tex.gd` (swaps the 512 px expression texture: neutral, blink, talk small/wide, scared; auto-blink, talking cycle), `game/tests/protagonist_face_tex_test.gd` (passes), preview `face_texture_in_godot.gif`. Textures colour-matched to the base face (`protagonist_face_tex_prepare.py`). Not wired into any game scene.
 Missing: angry, worried (need aligned images), the mouth-interior image is not needed with this method.
+
+## Supermarket test scene with the face-texture model
+`ProtagonistTest.tscn -- facetex` (F6 in the editor with the argument, or the screenshots `-- shots <dir> chapter 7 facetex` / `-- faces <dir> chapter 7 facetex`): the real chapter 7 supermarket with mist, flashlight and film grain, driven by the game's NpcAnimator; the face-texture controller answers the world's face calls through `face_tex_adapter.gd` (angry maps to neutral for now). Sheets: `work/protagonist_facetex_scene_sheet.png`, `work/protagonist_facetex_faces_strip.png`.
+Observation: under the flashlight a tiny bright dot shows on the bridge of the nose between the eyes in every expression (the eye-normal smoothing reaches the bridge, so one facet faces the light head-on). Candidate fix: shrink the smoothing on the inner side of the eyes.

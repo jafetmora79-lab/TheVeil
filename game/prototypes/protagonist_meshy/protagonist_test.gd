@@ -15,7 +15,8 @@ const SAVE_BAK := "user://veil_save.json.clerk_test_backup"
 var world: Node
 var sarah: Node3D
 var clerk: Node3D
-var adapter: VeilSarahFaceAdapter
+var adapter: Node
+var facetex := false
 var shots_dir := ""
 var faces_dir := ""
 var lookcheck := false
@@ -31,6 +32,8 @@ func _ready() -> void:
 			shots_dir = args[i + 1]
 		if args[i] == "faces" and i + 1 < args.size():
 			faces_dir = args[i + 1]
+		if args[i] == "facetex":
+			facetex = true
 		if args[i] == "lookcheck":
 			lookcheck = true
 		if args[i] == "chapter" and i + 1 < args.size():
@@ -88,7 +91,11 @@ func _setup() -> void:
 		clerk.remove_child(old_face)
 		old_face.free()
 	# 2. the Meshy protagonist, with the game's own procedural animator
-	sarah = VeilProtagonistMeshy.instantiate()
+	if facetex:
+		sarah = (load("res://creatures/humans/protagonist/face_geo/CHR_Protagonist_FaceTex.glb") as PackedScene).instantiate() as Node3D
+		VeilSarahMeshyProto.psx_look(sarah)
+	else:
+		sarah = VeilProtagonistMeshy.instantiate()
 	clerk.add_child(sarah)
 	var anim: Node = NPC_ANIM.new()
 	anim.name = "Animator"
@@ -103,10 +110,20 @@ func _setup() -> void:
 	want.y = 0.0
 	clerk.rotate_y(anim.world_forward().signed_angle_to(want.normalized(), Vector3.UP))
 	# 3. her face answers the world's VeilFace calls
-	adapter = VeilSarahFaceAdapter.new()
-	adapter.name = "VeilFace"
-	clerk.add_child(adapter)
-	adapter.setup(VeilProtagonistMeshy.face(sarah))
+	if facetex:
+		var ft := VeilProtagonistFaceTex.new()
+		ft.name = "FaceTex"
+		sarah.add_child(ft)
+		ft.setup(sarah)
+		adapter = VeilFaceTexAdapter.new()
+		adapter.name = "VeilFace"
+		clerk.add_child(adapter)
+		adapter.setup(ft)
+	else:
+		adapter = VeilSarahFaceAdapter.new()
+		adapter.name = "VeilFace"
+		clerk.add_child(adapter)
+		adapter.setup(VeilProtagonistMeshy.face(sarah))
 	world.faces["Cashier"] = adapter
 	clerk.visible = true
 	# 4. a way to talk to her
@@ -243,7 +260,7 @@ func _faces() -> void:
 	var fl = get_tree().get_first_node_in_group("veil_flashlight")
 	if fl:
 		fl.set_on(true)
-	var f := VeilProtagonistMeshy.face(sarah)
+	var f = adapter.face if facetex else VeilProtagonistMeshy.face(sarah)
 	f.auto_blink = false
 	var cp: Vector3 = world.market.to_local(clerk.global_position)
 	var head_y := 1.60
@@ -252,6 +269,8 @@ func _faces() -> void:
 		f.expression = st[1]
 		f.talking = st[3]
 		f._blink_left = 0.0
+		if facetex:
+			f._apply()
 		_stand(cp + Vector3(0.25, 0, 0.5), Vector3(cp.x, head_y, cp.z))
 		for i in 24:
 			await get_tree().process_frame
