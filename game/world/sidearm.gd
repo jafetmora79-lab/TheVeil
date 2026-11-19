@@ -169,6 +169,15 @@ func _unhandled_input(e: InputEvent) -> void:
 		return
 	var k := (e as InputEventKey).physical_keycode if e is InputEventKey else KEY_NONE
 	var click: bool = e is InputEventMouseButton and (e as InputEventMouseButton).button_index == MOUSE_BUTTON_LEFT
+	if k == KEY_F10 and OS.is_debug_build():
+		# developer shortcut (never in an exported release): take the handgun and twelve spare rounds without the handover scene
+		if not has_gun():
+			Game.add_item("handgun")
+		st()["reserve"] = reserve() + 12
+		set_drawn(true)
+		_hint("DEV: handgun + 12 spare rounds", 3.0)
+		get_viewport().set_input_as_handled()
+		return
 	if not can_act():
 		return
 	if k == KEY_H:
