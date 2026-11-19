@@ -9,6 +9,8 @@ a = sys.argv[sys.argv.index("--") + 1:]
 OUT, UVJSON = a[0], a[1]
 head = bpy.data.objects["Sarah_Head_v4"]
 head.name = head.data.name = "Sarah_Head"
+for _l in list(head.data.uv_layers):
+    head.data.uv_layers.remove(_l)
 bm = bmesh.new()
 bm.from_mesh(head.data)
 bm.faces.ensure_lookup_table()
