@@ -100,6 +100,8 @@ static func prepare(game: Node, n: int) -> bool:
 	for k in range(1, n):
 		game.flags["chapter_card_%d" % k] = true
 	game.flags.erase("chapter_card_%d" % n)
+	# what the player would already carry (and know) by this chapter - a start is "everything before it is done"
+	_carry_over(game, n)
 	if not game.has_item("car_keys"):
 		game.inventory.append("car_keys")                    # the car needs them; nothing in the story takes them away
 	if (game.vehicle_state as Dictionary).get("pos", []).is_empty():
@@ -118,6 +120,23 @@ static func prepare(game: Node, n: int) -> bool:
 		return false
 	game.load_requested = true
 	return true
+
+
+## Things the story hands over in the middle of a chapter, which a chapter start must therefore already include:
+##   - the old town map (Eddie gives it in a quiet moment in the shelter, from Chapter 7 on; on M);
+##   - the manager's handgun with its six rounds (handed over before the first trip out of the supermarket, in Chapter
+##     8): from Chapter 9 on it is in the pack. Starting there with nothing and no handover left to trigger (the
+##     handover is only offered while the supermarket still stands) left the player unarmed for the rest of the game.
+static func _carry_over(game: Node, n: int) -> void:
+	if n >= 7:
+		game.flags["map_acquired"] = true
+		game.flags["map_tutorial_done"] = true
+	if n >= 9:
+		if not game.has_item("handgun"):
+			game.inventory.append("handgun")
+		var sa: Dictionary = game.world_state.get("sidearm", {})
+		if not bool(sa.get("given", false)):
+			game.world_state["sidearm"] = {"mag": 6, "reserve": 6, "given": true, "drawn": false, "tutorial": "skipped", "from": "Marcus"}
 
 
 ## From a menu: the state, then the world.
