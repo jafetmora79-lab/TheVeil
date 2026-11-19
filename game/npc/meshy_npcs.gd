@@ -59,3 +59,9 @@ static func face_for(model_parent: Node) -> Node:
 	var a := VeilMeshyNpcFace.new()
 	a.setup(ctrl)
 	return a
+
+
+## The Meshy MONSTERS (game/prototypes/monsters_meshy) stand in for the old creatures where a scene has been converted (so far: the roof Skitter). ON by default;
+## `-- old_monsters` (or VEIL_OLD_MONSTERS=1) plays with the old creatures.
+static func monsters_enabled() -> bool:
+	return not OS.get_cmdline_user_args().has("old_monsters") and OS.get_environment("VEIL_OLD_MONSTERS") != "1"

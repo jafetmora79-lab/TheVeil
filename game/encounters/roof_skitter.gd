@@ -3,6 +3,7 @@ extends Node
 const HOUSE_ID:= "HOUSE_03"            ## the ranch house in the row behind the supermarket (same model as Codex's first pick)
 const SEEN:= "egg_roof_skitter_seen"
 const MODEL:= preload("res://THE_VEIL_ASSETS_V2/07_Creatures/Godot_Scenes/CRT_Skitter.tscn")
+const MODEL_MESHY:= preload("res://game/prototypes/monsters_meshy/MON_skitter.tscn")      ## the Meshy Skitter (same clips, bones and metadata); `-- old_monsters` plays the old one
 const SOUND:= preload("res://game/encounters/skitter_rattle.wav")
 const CLICKS:= 10
 const STRUGGLE_S:= 4.0
@@ -222,7 +223,7 @@ func _spawn() -> void :
 	var query:= PhysicsRayQueryParameters3D.create(at + Vector3.UP * 25, at + Vector3.UP * 0.5, VIS_LAYER)
 	var hit:= house.get_world_3d().direct_space_state.intersect_ray(query)
 	roof = hit.position if not hit.is_empty() else house.to_global(Vector3(0, 4.5, 2.5))
-	creature = MODEL.instantiate()
+	creature = (MODEL_MESHY if VeilMeshyNpcs.monsters_enabled() else MODEL).instantiate()
 	creature.name = "OptionalRoofSkitter"
 	world.add_child(creature)
 	creature.collision_layer = 0

@@ -1,0 +1,10 @@
+{
+ "kind": "spider",
+ "size_m": 1.9,
+ "height_m": 0.8128820657730103,
+ "walk_ground_speed": 0.553,
+ "walk_cycle_s": 1.25,
+ "crawl_speed_mps": 0.466,
+ "scuttle_speed_mps": 2.618,
+ "facing": "+Z"
+}

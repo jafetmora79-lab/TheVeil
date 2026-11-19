@@ -10,6 +10,8 @@ from mathutils import Vector, Matrix, Euler, Quaternion
 
 root, slug, kind, size_m = sys.argv[sys.argv.index("--") + 1:][:4]
 preview = "preview" in sys.argv
+PLUSZ = "plusz" in sys.argv                          # keep the glTF facing (+Z in Godot): the game's old Skitter scene faces +Z
+OUTNAME = next((a[4:] for a in sys.argv if a.startswith("out=")), slug)
 size_m = float(size_m)
 base = os.path.join(root, "creatures/monsters")
 work = os.path.join(base, slug)
@@ -28,7 +30,7 @@ me = src.data
 co = np.empty(len(me.vertices) * 3)
 me.vertices.foreach_get("co", co)
 co = co.reshape(-1, 3)
-if kind != "tentacle":
+if kind != "tentacle" and not PLUSZ:
     co[:, 0] *= -1                                   # a half turn about Z: the face (at -Y in the GLB) now looks toward +Y, the game's forward
     co[:, 1] *= -1
 mn, mx = co.min(0), co.max(0)
@@ -101,6 +103,9 @@ else:
         add("Tail2", (C.x, (C.y + ymin) / 2, C.z), (C.x, ymin, C.z - 0.05), "Tail1")
     else:
         add("Body", (C.x, C.y, C.z * 0.9), (C.x, C.y + 0.05, C.z), None)
+        if PLUSZ:
+            fy = float(V[:, 1].min())
+            add("Head", (C.x, C.y - 0.1, C.z), (C.x, fy, C.z * 0.9), "Body")
     order = sorted(range(K), key=lambda i: (math.atan2(feet[i][0] - C.x, feet[i][1] - C.y)))
     for n_, i in enumerate(order):
         f2 = Vector((feet[i][0], feet[i][1], 0.0))
@@ -116,6 +121,8 @@ else:
         knee = mid + d * (0.06 * size_m) + Vector((0, 0, (0.20 if kind != "hound" else 0.0) * H + (0.05 if kind == "hound" else 0.0) * H))
         add("Leg%d_%s_Up" % (n_, side), hip, knee, "Body")
         add("Leg%d_%s_Lo" % (n_, side), knee, foot, "Leg%d_%s_Up" % (n_, side))
+        if PLUSZ:
+            add("Leg%d_%s_Foot" % (n_, side), foot, foot - Vector((0, 0, 0.05)), "Leg%d_%s_Lo" % (n_, side))
         LEGS.append(("Leg%d_%s" % (n_, side), hip, knee, foot, d))
 
 arm_data = bpy.data.armatures.new("Monster_Rig")
@@ -258,7 +265,7 @@ else:
                 up_rot = wrot(nm + "_Up", axis_swing, -swing * 1.4)
                 lo_rot = wrot(nm + "_Lo", axis_lift, math.radians(55) * lift + swing * 0.5)
             else:
-                swing_q = wrot(nm + "_Up", (0, 0, 1), swing * (-1.0 if d.x < 0 else 1.0) * 2.4)
+                swing_q = wrot(nm + "_Up", (0, 0, 1), swing * (-1.0 if d.x < 0 else 1.0) * 2.4 * (-1.0 if PLUSZ else 1.0))
                 tvec = Vector((0, 0, 1)).cross(d)
                 up_rot = swing_q @ wrot(nm + "_Up", (tvec.x, tvec.y, tvec.z), -math.radians(40) * lift)
                 lo_rot = wrot(nm + "_Lo", (tvec.x, tvec.y, tvec.z), math.radians(50) * lift)
@@ -271,10 +278,88 @@ else:
             key("Tail1", f, wrot("Tail1", (0, 0, 1), math.radians(14) * math.sin(2 * math.pi * ph0 + 1.0)))
     info["walk_ground_speed"] = round(stride * 1.0 / (0.55 * T / FPS), 3)
     info["walk_cycle_s"] = T / FPS
+
+if PLUSZ and kind == "spider":
+    FW = -1.0                                        # forward is -Y here
+    legs_by_front = sorted(LEGS, key=lambda L: L[3].y)            # most forward (smallest y) first
+    front2 = [L[0] for L in legs_by_front[:2]]
+    front4 = [L[0] for L in legs_by_front[:4]]
+
+    def leg_pose(f, nm, d, lift_deg, spread_deg, fold_deg):
+        tv = Vector((0, 0, 1)).cross(d)
+        up = wrot(nm + "_Up", (0, 0, 1), math.radians(spread_deg) * (1.0 if d.x > 0 else -1.0)) @ wrot(nm + "_Up", (tv.x, tv.y, tv.z), -math.radians(lift_deg))
+        lo = wrot(nm + "_Lo", (tv.x, tv.y, tv.z), math.radians(fold_deg))
+        key(nm + "_Up", f, up)
+        key(nm + "_Lo", f, lo)
+
+    def gait(name, T, stride, speed_key):
+        new_action(name, T + 1)
+        for f in range(1, T + 2):
+            ph0 = ((f - 1) % T) / T
+            for li, (nm, hip, knee, foot, d) in enumerate(LEGS):
+                ph = (ph0 + (li % 2) * 0.5) % 1.0
+                reach = math.atan2(stride * 0.5, max(0.1, (hip - foot).length))
+                if ph < 0.55:
+                    sw, lift = 1.0 - 2.0 * ph / 0.55, 0.0
+                else:
+                    u = (ph - 0.55) / 0.45
+                    sw, lift = -1.0 + 2.0 * u, math.sin(math.pi * u)
+                tv = Vector((0, 0, 1)).cross(d)
+                up = wrot(nm + "_Up", (0, 0, 1), reach * sw * (-1.0 if d.x < 0 else 1.0) * 2.4 * (-1.0)) @ wrot(nm + "_Up", (tv.x, tv.y, tv.z), -math.radians(40) * lift)
+                key(nm + "_Up", f, up)
+                key(nm + "_Lo", f, wrot(nm + "_Lo", (tv.x, tv.y, tv.z), math.radians(50) * lift))
+            key("Body", f, wrot("Body", (0, 0, 1), math.radians(2.5) * math.sin(2 * math.pi * ph0)), loc=(0, 0, math.sin(4 * math.pi * ph0) * 0.012 * size_m))
+        info[speed_key] = round(stride / (0.55 * T / FPS), 3)
+
+    gait("Crawl", 29, 0.31, "crawl_speed_mps")
+    gait("Scuttle_Fast", 10, 0.60, "scuttle_speed_mps")
+    # Idle_Twitch: still, with a small twitch of two legs and the head now and then
+    new_action("Idle_Twitch", 96)
+    for f in range(1, 98):
+        t = (f - 1) / 96.0
+        key("Body", f, wrot("Body", (1, 0, 0), math.radians(1.2) * math.sin(2 * math.pi * t)))
+        key("Head", f, wrot("Head", (0, 0, 1), math.radians(6) * math.sin(2 * math.pi * t * 3)))
+        for j, (nm, hip, knee, foot, d) in enumerate(LEGS[:3]):
+            tw = max(0.0, math.sin(2 * math.pi * (t * 2 + j * 0.31))) ** 6
+            tv = Vector((0, 0, 1)).cross(d)
+            key(nm + "_Lo", f, wrot(nm + "_Lo", (tv.x, tv.y, tv.z), math.radians(22) * tw))
+    # Alert: the two front legs raised, the body tilted up, a slight tremble
+    new_action("Alert", 49)
+    for f in range(1, 50):
+        t = (f - 1) / 48.0
+        tr = math.radians(1.2) * math.sin(2 * math.pi * t * 6)
+        key("Body", f, wrot("Body", (1, 0, 0), math.radians(10) * FW * -1 + tr))
+        for (nm, hip, knee, foot, d) in LEGS:
+            if nm in front2:
+                leg_pose(f, nm, d, 62 + 4 * math.sin(2 * math.pi * t * 4), 14, 38)
+    # Attack_Lunge: crouch, then the front legs spring forward and the body drives ahead, then settle
+    new_action("Attack_Lunge", 16)
+    for f in range(1, 17):
+        u = (f - 1) / 15.0
+        crouch = min(u / 0.3, 1.0) * (1.0 if u < 0.3 else 0.0)
+        spring = 0.0 if u < 0.3 else math.sin(min((u - 0.3) / 0.35, 1.0) * math.pi / 2) * (1.0 - max(0.0, (u - 0.75) / 0.25))
+        key("Body", f, wrot("Body", (1, 0, 0), math.radians(-14) * spring * FW) , loc=(0, -0.45 * size_m * spring * 0.5 * FW * -1 * -1, 0.04 * size_m * spring))
+        for (nm, hip, knee, foot, d) in LEGS:
+            if nm in front4:
+                leg_pose(f, nm, d, 20 + 50 * spring - 18 * crouch, -10 * spring, 20 + 30 * spring)
+    new_action("Hit_React", 13)
+    for f in range(1, 14):
+        u = (f - 1) / 12.0
+        sh = math.sin(u * math.pi * 3) * (1 - u)
+        key("Body", f, wrot("Body", (0, 0, 1), math.radians(9) * sh) @ wrot("Body", (1, 0, 0), math.radians(-6) * (1 - u)))
+        key("Head", f, wrot("Head", (0, 0, 1), math.radians(-18) * sh))
+    new_action("Death", 37)
+    for f in range(1, 38):
+        u = (f - 1) / 36.0
+        k = min(u / 0.6, 1.0)
+        key("Body", f, wrot("Body", (0, 1, 0), math.radians(14) * k) , loc=(0, 0, -0.06 * size_m * k))
+        for (nm, hip, knee, foot, d) in LEGS:
+            leg_pose(f, nm, d, 55 * k, 0, 75 * k)
+    info["facing"] = "+Z"
 bpy.ops.object.mode_set(mode='OBJECT')
 rig.animation_data.action = bpy.data.actions["idle-loop"]
 
-json.dump(info, open(os.path.join(glb_dir, slug + ".json"), "w"), indent=1)
+json.dump(info, open(os.path.join(glb_dir, OUTNAME + ".json"), "w"), indent=1)
 bpy.ops.wm.save_as_mainfile(filepath=os.path.join(work, "monster_rig.blend"))
 
 # ------------------------------------------------------------------ optional preview: three frames of each clip
@@ -293,7 +378,7 @@ if preview:
     sc.collection.objects.link(cobj)
     sc.camera = cobj
     sc.render.resolution_x = sc.render.resolution_y = 300
-    clip_list = ["walk-loop"] if kind != "tentacle" else ["strike"]
+    clip_list = (["Alert", "Attack_Lunge", "Scuttle_Fast"] if PLUSZ else ["walk-loop"]) if kind != "tentacle" else ["strike"]
     shots = []
     for clip in clip_list:
         rig.animation_data.action = bpy.data.actions[clip]
@@ -314,7 +399,7 @@ src.select_set(True)
 rig.select_set(True)
 bpy.context.view_layer.objects.active = rig
 rig.animation_data.action = bpy.data.actions["idle-loop"]
-glb = os.path.join(glb_dir, "MON_%s.glb" % slug)
+glb = os.path.join(glb_dir, "MON_%s.glb" % OUTNAME)
 bpy.ops.export_scene.gltf(filepath=glb, export_format='GLB', use_selection=True, export_animations=True, export_animation_mode='ACTIONS',
                           export_skins=True, export_yup=True, export_normals=True, export_apply=False)
 print("GLB", glb, os.path.getsize(glb))
