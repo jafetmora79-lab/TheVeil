@@ -115,7 +115,7 @@ func _run() -> void:
 	# ---- face decals: eight patches on the front of the head, nearest-filtered; blink / expressions / talking work
 	var face := VeilProtagonistMeshy.face(n)
 	var decals := n.find_children("Face_*", "MeshInstance3D", true, false)
-	ok("eight_face_decals", face != null and face.has_decals() and decals.size() == 8, str(decals.size()))
+	ok("nine_face_decals", face != null and face.has_decals() and decals.size() == 9, str(decals.size()))
 	var vis := func() -> int:
 		var c := 0
 		for d in decals:
@@ -131,7 +131,7 @@ func _run() -> void:
 		await process_frame
 	ok("blink_ends", face.eyes_state == "open")
 	face.expression = "scared"
-	ok("scared_face", face.eyes_state == "wide" and face.mouth_state == "scared")
+	ok("scared_face", face.eyes_state == "wide" and face.mouth_state == "scared" and face.brows_state == "scared")
 	face.expression = "angry"
 	ok("angry_face", face.eyes_state == "narrow" and face.brows_state == "angry")
 	face.expression = "neutral"

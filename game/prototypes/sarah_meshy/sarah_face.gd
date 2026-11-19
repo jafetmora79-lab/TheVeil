@@ -14,6 +14,7 @@ const EYES_CLOSED := "Face_eyes_closed"
 const EYES_WIDE := "Face_eyes_wide"
 const EYES_NARROW := "Face_eyes_narrow"
 const BROWS_ANGRY := "Face_brows_angry"
+const BROWS_SCARED := "Face_brows_scared"                 # (only on faces that have it: the protagonist)
 const MOUTH_SMALL := "Face_mouth_talk_small"
 const MOUTH_WIDE := "Face_mouth_talk_wide"
 const MOUTH_SCARED := "Face_mouth_scared"
@@ -94,6 +95,8 @@ func _apply() -> void:
 		"scared":
 			eyes = EYES_WIDE
 			mouth = MOUTH_SCARED
+			if _meshes.has(BROWS_SCARED):
+				brows = BROWS_SCARED
 		"angry":
 			eyes = EYES_NARROW
 			brows = BROWS_ANGRY
@@ -105,6 +108,6 @@ func _apply() -> void:
 	if _blink_left > 0.0:
 		eyes = EYES_CLOSED
 	eyes_state = {"": "open", EYES_CLOSED: "closed", EYES_WIDE: "wide", EYES_NARROW: "narrow"}[eyes]
-	brows_state = "angry" if brows != "" else "normal"
+	brows_state = "angry" if brows == BROWS_ANGRY else ("scared" if brows == BROWS_SCARED else "normal")
 	mouth_state = {"": "rest", MOUTH_SMALL: "small", MOUTH_WIDE: "wide", MOUTH_SCARED: "scared", MOUTH_ANGRY: "angry"}[mouth]
 	_show([eyes, brows, mouth])

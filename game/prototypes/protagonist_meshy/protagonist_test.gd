@@ -247,7 +247,7 @@ func _faces() -> void:
 	f.auto_blink = false
 	var cp: Vector3 = world.market.to_local(clerk.global_position)
 	var head_y := 1.60
-	var steps := [["1_neutral", "neutral", false, false], ["2_blink", "neutral", true, false], ["3_talk", "neutral", false, true], ["4_scared", "scared", false, false], ["5_angry", "angry", false, false]]
+	var steps := [["1_neutral", "neutral", false, false], ["2_blink", "neutral", true, false], ["3_talk", "neutral", false, true], ["4_scared", "scared", false, false], ["4b_scared_talk", "scared", false, true], ["5_angry", "angry", false, false]]
 	for st in steps:
 		f.expression = st[1]
 		f.talking = st[3]

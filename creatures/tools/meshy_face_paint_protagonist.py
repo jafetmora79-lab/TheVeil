@@ -32,8 +32,8 @@ def skin_near(box, grow=70):
 
 
 # ---- feature boxes in flat pixels (x0, y0, x1, y1) (protagonist capture: 1000 px, face centre ~ (500, 560))
-EYE = {"L": (285, 398, 445, 480), "R": (552, 398, 705, 480)}
-BROW = {"L": (262, 318, 462, 405), "R": (530, 318, 735, 405)}
+EYE = {"L": (268, 372, 458, 496), "R": (538, 372, 722, 496)}
+BROW = {"L": (255, 268, 470, 408), "R": (525, 268, 745, 408)}
 MOUTH = (355, 655, 645, 795)
 LIPS_C = (500, 716)
 SKIN_ROW = 486                                  # clean skin just under the eyes
@@ -66,20 +66,21 @@ def eye_variant(kind):
         x0, y0, x1, y1 = box
         cx, cy = (x0 + x1) // 2, 438
         if kind == "closed":
-            clone_fill(img, (x0 + 8, 404, x1 - 8, 476), SKIN_ROW)
-            for x in range(x0 + 16, x1 - 16):
-                t = (x - cx) / max(1, (x1 - x0) / 2 - 16)
+            clone_fill(img, (x0 + 22, 404, x1 - 22, 476), SKIN_ROW)
+            img[404:476, x0 + 22:x1 - 22] = (img[404:476, x0 + 22:x1 - 22].astype(np.float32) * 0.93).astype(np.uint8)
+            for x in range(x0 + 30, x1 - 30):
+                t = (x - cx) / max(1, (x1 - x0) / 2 - 30)
                 y = int(436 + 9 * (1 - t * t))
-                img[y - 5:y + 5, x] = LASH
+                img[y - 4:y + 4, x] = LASH
         elif kind == "wide":
-            eye = F[402:476, x0 + 6:x1 - 6].copy()
-            sc = 1.32
+            eye = F[402:476, x0 + 22:x1 - 22].copy()
+            sc = 1.62
             e2 = np.array(Image.fromarray(eye).resize((int(eye.shape[1] * sc), int(eye.shape[0] * sc)), Image.NEAREST))
-            paste_img(img, e2, cx - e2.shape[1] // 2, cy - e2.shape[0] // 2 - 8)
+            paste_img(img, e2, cx - e2.shape[1] // 2, cy - e2.shape[0] // 2 - 14)
         elif kind == "narrow":
-            clone_fill(img, (x0 + 8, 402, x1 - 8, 424), SKIN_ROW)                    # the upper lid comes down
-            clone_fill(img, (x0 + 8, 456, x1 - 8, 478), SKIN_ROW)                    # the cheek comes up
-            for x in range(x0 + 14, x1 - 14):
+            clone_fill(img, (x0 + 22, 402, x1 - 22, 424), SKIN_ROW)                    # the upper lid comes down
+            clone_fill(img, (x0 + 22, 456, x1 - 22, 478), SKIN_ROW)                    # the cheek comes up
+            for x in range(x0 + 28, x1 - 28):
                 img[420:430, x] = LASH
     return img
 
@@ -92,6 +93,30 @@ def brow_variant(kind):
     col = (40, 26, 20)
     dr.polygon([(266, 330), (266, 362), (462, 412), (462, 380)], fill=col)
     dr.polygon([(535, 412), (535, 380), (732, 330), (732, 362)], fill=col)
+    return np.array(pim)
+
+
+def brows_scared():
+    """Raised, arched brows (inner ends high, outer ends lower): the old brows are painted out with his forehead skin, new ones drawn higher."""
+    img = F.copy()
+    skin = 0.5 * np.median(F[225:300, 330:500].reshape(-1, 3), axis=0) + 0.5 * np.median(F[484:490, 330:500].reshape(-1, 3), axis=0)
+    from PIL import ImageFilter
+    dark = (lum(F) < 95)
+    m = np.zeros(dark.shape, bool)
+    for (x0, y0, x1, y1) in ((262, 325, 462, 408), (535, 325, 735, 408)):
+        m[y0:y1, x0:x1] = dark[y0:y1, x0:x1]
+    m = np.array(Image.fromarray((m * 255).astype(np.uint8)).filter(ImageFilter.MaxFilter(13))) > 0
+    for (x0, y0, x1, y1) in ((262, 325, 462, 408), (535, 325, 735, 408)):
+        sub = np.zeros(m.shape, bool)
+        sub[y0:y1, x0:x1] = m[y0:y1, x0:x1]
+        a_ = np.array(Image.fromarray((sub * 255).astype(np.uint8)).filter(ImageFilter.GaussianBlur(7))).astype(np.float32)[..., None] / 255.0
+        img[:] = (img.astype(np.float32) * (1 - a_) + skin * a_).astype(np.uint8)
+    pim = Image.fromarray(img)
+    dr = ImageDraw.Draw(pim)
+    col = (40, 26, 20)
+    # image-left brow: outer end left/low, inner end right/high; image-right brow mirrored
+    dr.polygon([(262, 352), (300, 318), (380, 296), (462, 304), (462, 334), (380, 328), (312, 352), (270, 384)], fill=col)
+    dr.polygon([(735, 352), (697, 318), (617, 296), (535, 304), (535, 334), (617, 328), (685, 352), (727, 384)], fill=col)
     return np.array(pim)
 
 
@@ -114,9 +139,9 @@ def mouth_variant(kind):
         ell(56, 27, DARK, 4)
         dr.rectangle((cx - 40, cy - 19 + 4, cx + 40, cy - 9 + 4), fill=TEETH)
     elif kind == "scared":
-        ell(54, 46, LIP, 6)
-        ell(36, 32, DARK, 6)
-        dr.rectangle((cx - 24, cy - 20 + 6, cx + 24, cy - 11 + 6), fill=TEETH)
+        ell(60, 58, LIP, 8)
+        ell(40, 42, DARK, 8)
+        dr.rectangle((cx - 28, cy - 28 + 8, cx + 28, cy - 18 + 8), fill=TEETH)
     elif kind == "angry":
         ell(92, 22, LIP, 2)
         dr.rectangle((cx - 74, cy - 9, cx + 74, cy + 10), fill=TEETH)
@@ -142,6 +167,7 @@ def feather(img, boxes, n=16):
 VARIANTS = []
 for kind in ("closed", "wide", "narrow"):
     VARIANTS.append(("eyes_" + kind, feather(eye_variant(kind), list(EYE.values()), 26), list(EYE.values())))
+VARIANTS.append(("brows_scared", feather(brows_scared(), list(BROW.values()), 10), list(BROW.values())))
 VARIANTS.append(("brows_angry", brow_variant("angry"), list(BROW.values())))
 for kind in ("talk_small", "talk_wide", "scared", "angry"):
     VARIANTS.append(("mouth_" + kind, mouth_variant(kind), [MOUTH]))
@@ -179,7 +205,7 @@ cw = 330
 sheet = Image.new("RGB", (cw * 4, int(cw * 0.75) * 3), (20, 20, 22))
 dd = ImageDraw.Draw(sheet)
 for i, (n, im) in enumerate(sheet_items):
-    crop = Image.fromarray(im[300:830, 200:850]).resize((cw, int(cw * 0.75)), Image.NEAREST)
+    crop = Image.fromarray(im[240:770, 200:850]).resize((cw, int(cw * 0.75)), Image.NEAREST)
     sheet.paste(crop, ((i % 4) * cw, (i // 4) * int(cw * 0.75)))
     dd.text(((i % 4) * cw + 4, (i // 4) * int(cw * 0.75) + 4), n, fill=(255, 255, 255))
 sheet.save(os.path.join(d, "face_variants_flat.png"))
