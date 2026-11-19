@@ -1,6 +1,6 @@
 # THE VEIL - Meshy characters: handoff (read this first)
 
-Written so another Claude Code session can continue this work exactly the way it has been done. Everything here is committed and pushed to
+Written so another Claude Code session can continue this work exactly the way it has been done. **Branches (after the 2026-11-19 clean-up): `art/npc-meshy-trial-eddie-clerk` holds ALL of this work (it contains the older `art/sarah-meshy-integration`, `art/protagonist-face-geometry` and `art/npc-meshy-rigs`, which were removed because contained; their tip commits are in `docs/DELETED_BRANCHES.md`), and `playtest/meshy-trial` is the lean zip-able copy.** Everything here is committed and pushed to
 `https://github.com/jafetmora79-lab/TheVeil` on the branches listed below. The branches are linear: each contains the one before it, so
 **`art/npc-meshy-rigs` has everything.** No PR has been opened for any of them and none must be until the user approves.
 
