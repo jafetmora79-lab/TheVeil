@@ -121,7 +121,7 @@ for sx in (-1, 1):
     vv = [e for e in ex['geom'] if isinstance(e, bmesh.types.BMVert)]
     cz = sum(v.co.z for v in vv) / len(vv); cy = sum(v.co.y for v in vv) / len(vv)
     for v in vv:
-        v.co.x += sx * .011
+        v.co.x += sx * .006
         v.co.y = cy + (v.co.y - cy) * .80 + .006
         v.co.z = cz + (v.co.z - cz) * .80
 # neck tube: extrude the open lower boundary straight down into the body's neck so no seam shows
