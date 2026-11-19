@@ -10,7 +10,8 @@ const SHADER := preload("res://game/enemies/tentacle_beast_walk.gdshader")
 const MODEL_HEIGHT := 0.78            ## the mesh's own height (y -0.39 .. 0.39)
 
 @export var height := 6.0
-@export var walk_speed := 1.1
+@export var walk_speed := 0.5                 ## step cycles per second
+@export var step_swing := 0.065              ## model units the foot moves forward / back
 @export var anim_time := -1.0 : set = _set_anim_time
 
 var material: ShaderMaterial
@@ -30,6 +31,7 @@ func _ready() -> void:
 	material = ShaderMaterial.new()
 	material.shader = SHADER
 	material.set_shader_parameter("walk_speed", walk_speed)
+	material.set_shader_parameter("step_swing", step_swing)
 	material.set_shader_parameter("anim_time", anim_time)
 	var tex_set := false
 	for mi in m.find_children("*", "MeshInstance3D", true, false):
@@ -46,6 +48,11 @@ func _ready() -> void:
 		(mi as MeshInstance3D).material_override = material
 		(mi as MeshInstance3D).extra_cull_margin = 2.0     # (the shader moves vertices: keep it from culling early)
 		meshes.append(mi)
+
+
+## The speed (m/s) the whole creature must travel at for its planted feet not to slide.
+func ground_speed() -> float:
+	return 4.0 * step_swing * walk_speed * height / MODEL_HEIGHT
 
 
 func _set_anim_time(v: float) -> void:
