@@ -101,11 +101,61 @@ for side, sx in (("Left", 1), ("Right", -1)):
     LM[side + "LowerLeg"] = (P(sx * 0.058, -0.245), P(sx * 0.055, -0.428))
     LM[side + "Foot"] = (P(sx * 0.055, -0.428, -0.005), P(sx * 0.055, -0.468, 0.055))
     LM[side + "Toes"] = (P(sx * 0.055, -0.468, 0.055), P(sx * 0.055, -0.472, 0.088))
+# ---- fingers: placed from the actual hand vertices (the hands are symmetric: 5 separate fingers hanging down, thumb to the front)
+FINGERS = ["Thumb", "Index", "Middle", "Ring", "Little"]
+GODOT_NAMES = {"Thumb": ("Metacarpal", "Proximal", "Distal"), "Index": ("Proximal", "Intermediate", "Distal"), "Middle": ("Proximal", "Intermediate", "Distal"),
+               "Ring": ("Proximal", "Intermediate", "Distal"), "Little": ("Proximal", "Intermediate", "Distal")}
+BANDS = {"Index": (0.012, 0.040), "Middle": (-0.014, 0.012), "Ring": (-0.036, -0.014), "Little": (-0.07, -0.036)}
+vw = np.empty(len(me.vertices) * 3)
+me.vertices.foreach_get("co", vw)
+vw = vw.reshape(-1, 3)
+HANDINFO = {}
+for side, sg in (("Left", -1), ("Right", 1)):
+    H = vw[(sg * vw[:, 0] > 0.30) & (vw[:, 2] < 0.95)]
+    wrist = H[(H[:, 2] >= 0.93)].mean(0)
+    wrist[2] = 0.935
+    chains = {}
+    palm = H[(H[:, 2] >= 0.868) & (H[:, 2] < 0.886)]
+    for f in FINGERS:
+        if f == "Thumb":
+            band = H[(H[:, 1] > 0.040) & (H[:, 2] < 0.915)]
+            tip = band[np.argsort(band[:, 2])[:3]].mean(0)
+            base = np.array([wrist[0] - sg * 0.025 * -1 * 0 + sg * 0.0, 0.040, 0.905])
+            base[0] = band[:, 0].mean() if len(band) else wrist[0]
+            base = np.array([base[0], 0.040, 0.905])
+        else:
+            lo, hi = BANDS[f]
+            band = H[(H[:, 1] >= lo) & (H[:, 1] < hi) & (H[:, 2] < 0.886)]
+            tip = band[np.argsort(band[:, 2])[:3]].mean(0)
+            pb = palm[(palm[:, 1] >= lo) & (palm[:, 1] < hi)]
+            bx = pb[:, 0].mean() if len(pb) else band[:, 0].mean()
+            base = np.array([bx, (lo + hi) / 2 if f != "Little" else -0.043, 0.877])
+        j2 = base + 0.45 * (tip - base)
+        j3 = base + 0.75 * (tip - base)
+        chains[f] = [(base, j2), (j2, j3), (j3, tip)]
+    palm_end = np.mean([chains[f][0][0] for f in ("Index", "Middle", "Ring", "Little")], axis=0)
+    HANDINFO[side] = (wrist, palm_end, chains)
+    LM[side + "Hand"] = (Vector(wrist), Vector(palm_end))
+    LM[side + "LowerArm"] = (LM[side + "LowerArm"][0], Vector(wrist))
+    for f in FINGERS:
+        for i, (a_, b_) in enumerate(chains[f]):
+            LM["%s%s%s" % (side, f, GODOT_NAMES[f][i])] = (Vector(a_), Vector(b_))
+print("HANDINFO left wrist", HANDINFO["Left"][0].round(3), "palm end", HANDINFO["Left"][1].round(3))
 PARENT = {"Hips": None, "Spine": "Hips", "Chest": "Spine", "Neck": "Chest", "Head": "Neck"}
 for side in ("Left", "Right"):
     PARENT.update({side + "Shoulder": "Chest", side + "UpperArm": side + "Shoulder", side + "LowerArm": side + "UpperArm", side + "Hand": side + "LowerArm",
                    side + "UpperLeg": "Hips", side + "LowerLeg": side + "UpperLeg", side + "Foot": side + "LowerLeg", side + "Toes": side + "Foot"})
 ORDER = ["Hips", "Spine", "Chest", "Neck", "Head"] + [s + n for s in ("Left", "Right") for n in ("Shoulder", "UpperArm", "LowerArm", "Hand", "UpperLeg", "LowerLeg", "Foot", "Toes")]
+FINGER_BONES = {}
+for side in ("Left", "Right"):
+    for f in FINGERS:
+        prev = side + "Hand"
+        for i in range(3):
+            n_ = "%s%s%s" % (side, f, GODOT_NAMES[f][i])
+            PARENT[n_] = prev
+            prev = n_
+            ORDER.append(n_)
+            FINGER_BONES.setdefault(side + f, []).append(n_)
 
 arm_data = bpy.data.armatures.new("Sarah_Meshy_Rig")
 rig = bpy.data.objects.new("Sarah_Meshy_Rig", arm_data)
@@ -117,10 +167,10 @@ for n in ORDER:
     eb = arm_data.edit_bones.new(n)
     eb.head, eb.tail = h, t
     d = (t - h).normalized()
-    xa = Vector((1, 0, 0))
+    xa = Vector((0, 1, 0)) if (n.endswith('Hand') or any(k in n for k in FINGERS)) else Vector((1, 0, 0))
     xa = xa - d * xa.dot(d)
     if xa.length < 1e-4:
-        xa = Vector((0, 1, 0)) - d * d.y
+        xa = Vector((1, 0, 0)) - d * d.x
     xa.normalize()
     za = xa.cross(d).normalized()
     # local axes: X = world side axis (swing about it), Y = along the bone, Z = X x Y
@@ -180,11 +230,14 @@ if debug:
     print('EVALBBOX rest', ee.min(0).round(3), ee.max(0).round(3), 'frame', bpy.context.scene.frame_current)
     print('BONE0', [(b.name, [round(x, 3) for x in b.head_local], [round(x, 3) for x in b.tail_local]) for b in arm_data.bones][:3])
 
-# ---- temporary animations (rotation about the bones' own axes, which are the world side / up axes by construction)
+# ---- temporary animations. Proportions studied from the clip statistics of the reference game's Mixamo-rig clips (reference only,
+# nothing copied): idles are LONG (6-10 s) and very quiet (body < 2 degrees, head 2-7, arms 6-11); the walk is ~1.5 s with hips 16-23,
+# spine 5-10, thigh 36-52, knee 53-62, foot 21, arm swing 31-49, forearm 29-37, wrist 23-50 and only thumb / index moving ~15 degrees.
 bpy.context.view_layer.objects.active = rig
 bpy.ops.object.mode_set(mode='POSE')
 for pb in rig.pose.bones:
     pb.rotation_mode = 'XYZ'
+FLEX = {"Left": -1.0, "Right": 1.0}                 # finger flexion about the world front-back axis: toward the body, mirrored per hand
 
 
 def rot(name, frame, x=0.0, y=0.0, z=0.0):
@@ -205,7 +258,7 @@ def reset_pose():
         pb.location = (0, 0, 0)
 
 
-def new_action(name, length, loop=True):
+def new_action(name, length):
     reset_pose()
     act = bpy.data.actions.new(name)
     act.use_fake_user = True
@@ -216,42 +269,82 @@ def new_action(name, length, loop=True):
     return act
 
 
+# hand poses: per finger (knuckle, middle joint, tip joint) flexion in degrees; spread is the sideways fan at the knuckle
+POSES = {
+    "relaxed": {"Thumb": (6, 8, 6), "Index": (10, 14, 8), "Middle": (14, 18, 10), "Ring": (18, 20, 12), "Little": (22, 22, 14)},
+    "open": {"Thumb": (0, 0, 0), "Index": (0, 0, 0), "Middle": (0, 0, 0), "Ring": (0, 0, 0), "Little": (0, 0, 0)},
+    "fist": {"Thumb": (30, 40, 30), "Index": (80, 100, 65), "Middle": (85, 105, 65), "Ring": (85, 105, 65), "Little": (85, 100, 60)},
+    "grip": {"Thumb": (25, 20, 12), "Index": (25, 20, 10), "Middle": (65, 80, 50), "Ring": (70, 85, 52), "Little": (72, 85, 52)},
+    "point": {"Thumb": (25, 30, 20), "Index": (0, 0, 0), "Middle": (85, 105, 65), "Ring": (85, 105, 65), "Little": (85, 100, 60)},
+}
+
+
+def hand_pose(side, pose, frame, k=1.0):
+    for f in FINGERS:
+        for i, n_ in enumerate(FINGER_BONES[side + f]):
+            ang = POSES[pose][f][i] * k * FLEX[side]
+            rot(n_, frame, x=ang)
+
+
 FPS = 24
 bpy.context.scene.render.fps = FPS
-# -- idle: a slow breath, tiny head and arm drift (2 s, loops)
-act = new_action("idle-loop", 48)
-for f, br in ((1, 0.0), (25, 1.0), (49, 0.0)):
-    rot("Chest", f, x=-1.2 * br)
-    rot("Spine", f, x=0.6 * br)
-    rot("Head", f, x=0.8 * br, z=0.0)
+# -- one-frame hand pose actions (a game can blend these on top of any body animation)
+for pose in POSES:
+    new_action("hand_" + pose, 1)
+    for side in ("Left", "Right"):
+        hand_pose(side, pose, 1)
+# -- idle: 6 s, very quiet; relaxed fingers with a slow drift of thumb and index
+act = new_action("idle-loop", 144)
+for f, br in ((1, 0.0), (49, 1.0), (97, 0.35), (145, 0.0)):
+    rot("Chest", f, x=-1.0 * br)
+    rot("Spine", f, x=0.5 * br)
+    rot("Head", f, x=0.7 * br)
     for s_, sg in (("Left", 1), ("Right", -1)):
-        rot(s_ + "UpperArm", f, x=0.8 * br, z=sg * 0.8 * br)
+        rot(s_ + "UpperArm", f, x=1.5 * br, z=sg * 1.2 * br)
+        rot(s_ + "LowerArm", f, x=-(5 + 3 * br))
         rot(s_ + "Shoulder", f, z=sg * 0.8 * br)
-for f, yw in ((1, 0.0), (17, 1.2), (33, -1.2), (49, 0.0)):
+        rot(s_ + "Hand", f, x=2 * br * FLEX[s_])
+for f, yw, pt in ((1, 0.0, 0.0), (37, 3.0, 0.5), (73, -2.5, -0.5), (109, 4.0, 0.8), (145, 0.0, 0.0)):
     rot("Neck", f, y=yw)
-# -- walk: 1 s cycle
-act = new_action("walk-loop", 25)
-for f, ph in ((1, 0.0), (7, 0.25), (13, 0.5), (19, 0.75), (25, 1.0)):
+for side in ("Left", "Right"):
+    for f, k in ((1, 1.0), (49, 1.15), (97, 0.9), (145, 1.0)):
+        hand_pose(side, "relaxed", f, k)
+# -- walk: 1.5 s cycle (36 frames). Thigh +-36, knee up to 55, foot 20, arm swing +-31, forearm 8..30, wrist +-20, fingers relaxed with thumb/index flicker
+act = new_action("walk-loop", 37)
+N = 36
+for f in range(1, 38, 3):
+    ph = (f - 1) / N
     a = math.sin(ph * 2 * math.pi)
-    b_ = math.sin((ph + 0.25) * 2 * math.pi)             # knee lift runs a quarter cycle ahead of the swing
+    c = math.cos(ph * 2 * math.pi)
     for s_, sg in (("Left", 1), ("Right", -1)):
-        sw = a * sg
-        rot(s_ + "UpperLeg", f, x=26 * sw)
-        rot(s_ + "LowerLeg", f, x=-(4 + 26 * max(0.0, -sw * 0.0 + (b_ * sg))))
-        rot(s_ + "Foot", f, x=-8 * sw)
-        rot(s_ + "UpperArm", f, x=-22 * sw, z=sg * 2)
-        rot(s_ + "LowerArm", f, x=-(6 + 8 * max(0.0, -sw)))
-        rot(s_ + "Shoulder", f, z=0)
-    rot("Hips", f, z=4 * a)
-    rot("Spine", f, z=-3 * a, x=1.0)
-    rot("Chest", f, z=-3 * a)
-    rot("Head", f, z=3 * a)
-    move("Hips", f, (0, 0, 0.012 * abs(math.cos(ph * 2 * math.pi * 1.0)) * 0 - 0.02 * abs(math.sin(ph * 2 * math.pi))))
+        sw = a * sg                                       # +1 = this leg forward
+        lift = max(0.0, math.sin((ph * sg + (0.0 if sg > 0 else 0.5) + 0.25) * 2 * math.pi)) if False else max(0.0, -c * sg)
+        rot(s_ + "UpperLeg", f, x=36 * sw)
+        rot(s_ + "LowerLeg", f, x=-(6 + 49 * lift))
+        rot(s_ + "Foot", f, x=-20 * sw + 8 * lift)
+        rot(s_ + "UpperArm", f, x=-31 * sw, z=sg * 3)
+        rot(s_ + "LowerArm", f, x=-(8 + 22 * max(0.0, -sw)))
+        rot(s_ + "Hand", f, x=-18 * sw * FLEX[s_] * -1)
+        rot(s_ + "Shoulder", f, z=sg * 2 * sw)
+        for fn, fk in (("Thumb", 1.0), ("Index", 1.0)):
+            for i, n_ in enumerate(FINGER_BONES[s_ + fn]):
+                rot(n_, f, x=(POSES["relaxed"][fn][i] + 8 * sw * (1 if i == 0 else 0.5)) * FLEX[s_])
+        for fn in ("Middle", "Ring", "Little"):
+            for i, n_ in enumerate(FINGER_BONES[s_ + fn]):
+                rot(n_, f, x=POSES["relaxed"][fn][i] * FLEX[s_])
+    rot("Hips", f, z=7 * a, y=0)
+    rot("Spine", f, z=-5 * a, x=1.0)
+    rot("Chest", f, z=-5 * a)
+    rot("Head", f, z=4 * a)
+    move("Hips", f, (0, 0, -0.025 * abs(c)))
 # -- head turn: look left, look right, back (3 s)
 act = new_action("head_turn", 72)
-for f, yw, nk in ((1, 0, 0), (19, 55, 8), (37, 0, 0), (55, -55, -8), (72, 0, 0)):
+for f, yw in ((1, 0), (19, 55), (37, 0), (55, -55), (72, 0)):
     rot("Head", f, y=yw * 0.7)
-    rot("Neck", f, y=nk * 0 + yw * 0.3)
+    rot("Neck", f, y=yw * 0.3)
+for side in ("Left", "Right"):
+    hand_pose(side, "relaxed", 1)
+    hand_pose(side, "relaxed", 72)
 bpy.ops.object.mode_set(mode='OBJECT')
 rig.animation_data.action = bpy.data.actions["idle-loop"]
 

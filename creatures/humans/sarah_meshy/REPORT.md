@@ -37,3 +37,18 @@ Built by `creatures/tools/build_sarah_meshy_proto.py` (Blender source: `game_rea
 - The rest pose is a wide A-pose; the temporary walk keeps the arms in that pose with a small swing. A real walk set would be better retargeted.
 - In Godot the shading looks soft even though flat normals are exported; forcing the faceted PSX look needs a shader or a re-export, not done yet.
 - The auto weights were not hand-edited: any final weight painting is still to do.
+
+## Animation and hand study (from the reference game's extracted clips; reference only, nothing copied)
+The reference game's characters use a Mixamo humanoid rig with finger chains, and a small library of long looping clips chosen per personality
+(bored / normal / swaying / injured / drunk idles; confident / female / old man / sass / injured / drunk walks), with the mouth on its own animator.
+Measured from the clip data (angles in degrees, largest swing from the first pose):
+- Idles are 6-10 s and very quiet: hips/spine 0-1, head 1-7, arm 1-11, fingers almost still. "Injured" is the exception: head 28, fingers 28-68 (a clutching hand).
+- Walks are 1.4-1.6 s at 30 fps: hips 16-23, spine 5-10, head 5-8, thigh 36-52, knee 53-62, foot 21, arm 31-49, forearm 29-37, wrist 23-50;
+  of the fingers only the thumb and index move (about 15); the other fingers stay in a fixed relaxed curl.
+Applied to our Sarah (own values, own clips):
+- 30 finger bones added (thumb metacarpal/proximal/distal, index/middle/ring/little proximal/intermediate/distal, both hands), placed from the real
+  finger geometry of the Meshy hands; 51 bones in all, every vertex weighted by Blender's automatic weights.
+- Hand poses as one-frame actions: `hand_relaxed`, `hand_open`, `hand_fist`, `hand_grip` (a pistol / flashlight grip), `hand_point`.
+- `idle` is now 6 s and quiet, with relaxed fingers drifting slightly; `walk` is 1.5 s with a 36 degree thigh swing, knee up to 55, arm swing 31, forearm 8-30, wrist 18 and thumb/index flicker; `head_turn` is unchanged.
+- Images: `work/hand_poses.png` (Blender, both hands, five poses), `work/godot_hand_check.png`, `work/godot_animation_check.png`.
+- Still to do: weight cleanup, the idle / walk variants the reference game uses per character (bored, injured, nervous...), and a mouth/face swap for talking.

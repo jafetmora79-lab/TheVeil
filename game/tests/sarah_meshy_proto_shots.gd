@@ -44,4 +44,15 @@ func _run() -> void:
 		ap.pause()
 		await frames(4)
 		root.get_texture().get_image().save_png("%s/godot_%s.png" % [out, s[2]])
+	# hand close-ups: her left hand from outside, five poses
+	cam.fov = 9.0
+	cam.position = Vector3(-2.2, 0.86, -0.02)
+	cam.look_at(Vector3(-0.40, 0.86, -0.01))
+	n.rotation_degrees.y = 0
+	for pose in ["relaxed", "open", "fist", "grip", "point"]:
+		ap.play("hand_" + pose)
+		ap.seek(0.0, true)
+		ap.pause()
+		await frames(4)
+		root.get_texture().get_image().save_png("%s/godot_hand_%s.png" % [out, pose])
 	quit(0)

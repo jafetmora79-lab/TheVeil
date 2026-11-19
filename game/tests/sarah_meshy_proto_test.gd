@@ -24,10 +24,14 @@ func _run() -> void:
 	root.add_child(n)
 	await process_frame
 	var sk := VeilSarahMeshyProto.skeleton(n)
-	ok("skeleton", sk != null and sk.get_bone_count() == 21, str(sk.get_bone_count() if sk else 0))
+	ok("skeleton", sk != null and sk.get_bone_count() == 51, str(sk.get_bone_count() if sk else 0))
 	for b in ["Hips", "Spine", "Chest", "Neck", "Head", "LeftShoulder", "LeftUpperArm", "LeftLowerArm", "LeftHand", "RightUpperArm", "RightLowerArm", "RightHand",
 			"LeftUpperLeg", "LeftLowerLeg", "LeftFoot", "LeftToes", "RightUpperLeg", "RightLowerLeg", "RightFoot", "RightToes"]:
 		ok("bone_" + b, sk != null and sk.find_bone(b) >= 0)
+	for side in ["Left", "Right"]:
+		for f in ["Thumb", "Index", "Middle", "Ring", "Little"]:
+			for part in (["Metacarpal", "Proximal", "Distal"] if f == "Thumb" else ["Proximal", "Intermediate", "Distal"]):
+				ok("finger_%s%s%s" % [side, f, part], sk != null and sk.find_bone(side + f + part) >= 0)
 	var mesh: MeshInstance3D = n.find_children("*", "MeshInstance3D", true, false)[0]
 	ok("mesh_skinned", mesh.skin != null and mesh.skeleton != NodePath(""))
 	var box := mesh.get_aabb()
@@ -44,6 +48,20 @@ func _run() -> void:
 	if ap:
 		var names := ap.get_animation_list()
 		ok("animations_present", "idle" in names and "walk" in names and "head_turn" in names, str(names))
+		ok("hand_pose_animations", "hand_relaxed" in names and "hand_open" in names and "hand_fist" in names and "hand_grip" in names and "hand_point" in names, str(names))
+		ok("idle_is_long_and_walk_is_a_stride", absf(ap.get_animation("idle").length - 6.0) < 0.2 and absf(ap.get_animation("walk").length - 1.5) < 0.1,
+			"%.2f %.2f" % [ap.get_animation("idle").length, ap.get_animation("walk").length])
+		# hand poses really curl the fingers (fist: knuckle ~80 degrees, open: none)
+		var ip := sk.find_bone("LeftIndexProximal")
+		ap.play("hand_open")
+		ap.seek(0.0, true)
+		var open_ang := sk.get_bone_pose_rotation(ip).get_angle()
+		ap.play("hand_fist")
+		ap.seek(0.0, true)
+		var fist_ang := sk.get_bone_pose_rotation(ip).get_angle()
+		ok("fist_curls_the_index", fist_ang > open_ang + 1.0, "%.2f vs %.2f" % [fist_ang, open_ang])
+		var rip := sk.find_bone("RightIndexProximal")
+		ok("fist_curls_the_right_hand_too", sk.get_bone_pose_rotation(rip).get_angle() > 1.0)
 		for an in ["idle", "walk"]:
 			ok(an + "_loops", ap.get_animation(an).loop_mode != Animation.LOOP_NONE)
 		ok("head_turn_one_shot", ap.get_animation("head_turn").loop_mode == Animation.LOOP_NONE)
@@ -59,9 +77,9 @@ func _run() -> void:
 		var y2 := sk.get_bone_pose_rotation(head).get_euler().y
 		ok("head_turns_both_ways", y1 * y2 < 0.0 and absf(y1) > 0.3 and absf(y2) > 0.3, "%.2f %.2f %.2f" % [y0, y1, y2])
 		ap.play("walk")
-		ap.seek(0.25, true)
+		ap.seek(0.375, true)
 		var a0 := sk.get_bone_pose_rotation(lleg).get_euler().x
-		ap.seek(0.75, true)
+		ap.seek(1.125, true)
 		var a1 := sk.get_bone_pose_rotation(lleg).get_euler().x
 		ok("walk_swings_the_legs", a0 * a1 < 0.0 and absf(a0 - a1) > 0.6, "%.2f %.2f" % [a0, a1])
 		ap.play("idle")
