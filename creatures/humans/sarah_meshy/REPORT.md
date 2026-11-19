@@ -52,3 +52,44 @@ Applied to our Sarah (own values, own clips):
 - `idle` is now 6 s and quiet, with relaxed fingers drifting slightly; `walk` is 1.5 s with a 36 degree thigh swing, knee up to 55, arm swing 31, forearm 8-30, wrist 18 and thumb/index flicker; `head_turn` is unchanged.
 - Images: `work/hand_poses.png` (Blender, both hands, five poses), `work/godot_hand_check.png`, `work/godot_animation_check.png`.
 - Still to do: weight cleanup, the idle / walk variants the reference game uses per character (bored, injured, nervous...), and a mouth/face swap for talking.
+
+## Second pass: animation polish, facial expressions, new clips (same branch, nothing integrated)
+Build: `creatures/tools/build_sarah_meshy_proto.py` (rig, clips, decals, export). Face pipeline: `meshy_face_capture.py` (Blender: a flat,
+unlit front capture of the 512 texture) -> `meshy_face_paint.py` (Python: paints the expression patches into one 256 x 64 atlas) -> the build
+script (lays the patches on the face as skinned decal meshes). Godot side: `game/prototypes/sarah_meshy/` (`sarah_face.gd` controller,
+`sarah_meshy_proto.gd` loader, `sarah_meshy_proto.json` = walk speed).
+
+### Animation cleanup
+- Fingers: fist / grip / point angles reduced so the tips stop short of the palm (`work/hand_poses.png`); weights lightly smoothed over the whole rig.
+- Walk: legs rebuilt on planted-foot IK (the stance foot moves at a constant speed, the swing foot lifts and carries). The arm swing, spine, head and 1.5 s
+  cycle are kept; the pelvis now twists about the vertical (it used to roll about the front axis by mistake) and bobs vertically (it used to move back and forth).
+  Measured in Godot: planted-foot slide at most 3.1 mm per frame (a hitch of one held frame per loop was also removed by starting the keys at frame 0),
+  provided the body moves at `walk_speed()` = 0.511 m/s; scale the animation speed for any other speed (speed_scale = speed / 0.511).
+- Shoulder / elbow / hip / knee deformation: `work/deformation_tests.png`. Elbows (95), knees (80) and a 85 degree hip bend are clean. At 55 degrees the shoulder
+  still pinches a little at the jacket seam (the arms are part of the jacket mesh).
+- Idle and head_turn are unchanged.
+
+### Facial expressions: neutral, talking, scared, angry, blinking
+Her face has no eyelid or mouth geometry (eyes, brows and lips are painted into the skin texture) and only a few dozen vertices, so blend shapes would only
+stretch the paint (an "open mouth" would show no inside). The lightweight alternative is the reference game's approach, texture decals: eight small Face_* meshes
+(eyes closed / wide / narrowed, angry brows, four mouth shapes), each a crop of HER OWN face texels with one feature edited, skinned to the Head bone, shown or
+hidden by `VeilSarahFace` (expression "neutral" | "scared" | "angry", `talking`, `blink()`, automatic blinks every 2-5 s with the odd double blink).
+Neutral is the untouched face. Images: `work/face/face_expressions.png`, `work/face/face_variants_flat.png`.
+Not done: raised brows for scared (the left brow is crossed by a hair strand, moving it would drag the strand), per-phoneme lip sync.
+
+### New clips (24 fps, restrained)
+`nervous_idle` (6 s loop: small glances both ways, weight shifts, hands low and fidgeting), `injured_idle` (5 s loop: hunched forward, head down, weight on the
+right leg, left hand pressed to her left ribs, shallow breathing), `scared_reaction` (1.6 s one shot: the head snaps ~30 degrees in 0.125 s, the body recoils
+7 cm back, arms come up with fingers spread, then it settles into a braced hold). Keyframes: `work/anim_keyframes2.png`.
+
+### Godot 4.3 Compatibility validation
+- `game/tests/sarah_meshy_face_anim_test.gd` and `sarah_meshy_proto_test.gd` pass (headless): foot slide, clips and their bones, face decals (8, nearest filter, facing the
+  front so back-face culling shows them), every expression state, blinking and talking, and the body walking while the face blinks, talks and is scared.
+- Body and face do not interfere: the AnimationPlayer drives only the skeleton, the controller only toggles decal visibility.
+- Rendering: the previews use the Compatibility renderer, nearest-neighbour filtering, no MSAA, a little mist and the game's film-look shader (vignette, grain, bloom).
+- Previews: `work/sarah_meshy_body_preview.gif` (walks, stops, glances, flinches) and `work/sarah_meshy_face_closeup.gif` (blinks, talks, scared, angry).
+  Frames from `game/tests/sarah_meshy_preview.gd`.
+
+### Known limits
+Weight cleanup is still automatic + a light smooth; the walk's arms are stiff A-pose swings; decal edges are straight (a faint seam is possible under hard light);
+fingers still rigid-bone based; she is not wired into any scene (waiting for your approval before the supermarket test scene).

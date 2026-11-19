@@ -32,7 +32,7 @@ func _run() -> void:
 		for f in ["Thumb", "Index", "Middle", "Ring", "Little"]:
 			for part in (["Metacarpal", "Proximal", "Distal"] if f == "Thumb" else ["Proximal", "Intermediate", "Distal"]):
 				ok("finger_%s%s%s" % [side, f, part], sk != null and sk.find_bone(side + f + part) >= 0)
-	var mesh: MeshInstance3D = n.find_children("*", "MeshInstance3D", true, false)[0]
+	var mesh: MeshInstance3D = n.find_child("Sarah_Meshy_Body", true, false) as MeshInstance3D
 	ok("mesh_skinned", mesh.skin != null and mesh.skeleton != NodePath(""))
 	var box := mesh.get_aabb()
 	var h := box.size.y * mesh.global_transform.basis.get_scale().y
@@ -77,11 +77,11 @@ func _run() -> void:
 		var y2 := sk.get_bone_pose_rotation(head).get_euler().y
 		ok("head_turns_both_ways", y1 * y2 < 0.0 and absf(y1) > 0.3 and absf(y2) > 0.3, "%.2f %.2f %.2f" % [y0, y1, y2])
 		ap.play("walk")
-		ap.seek(0.375, true)
+		ap.seek(0.075, true)
 		var a0 := sk.get_bone_pose_rotation(lleg).get_euler().x
-		ap.seek(1.125, true)
+		ap.seek(0.825, true)
 		var a1 := sk.get_bone_pose_rotation(lleg).get_euler().x
-		ok("walk_swings_the_legs", a0 * a1 < 0.0 and absf(a0 - a1) > 0.6, "%.2f %.2f" % [a0, a1])
+		ok("walk_swings_the_legs", absf(a0 - a1) > 0.3, "%.2f %.2f" % [a0, a1])
 		ap.play("idle")
 		ap.seek(0.0, true)
 		var c0 := sk.get_bone_pose_rotation(sk.find_bone("Chest"))

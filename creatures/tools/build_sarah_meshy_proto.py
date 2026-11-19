@@ -216,6 +216,24 @@ if unw > 0 or len(src.vertex_groups) < len(ORDER) - 4:
             if W[i, j] > 0.02:
                 groups[names[j]].add([i], float(W[i, j]), 'REPLACE')
 
+# smooth the weights a little (shoulder seam, hips)
+bpy.ops.object.mode_set(mode='OBJECT')
+bpy.ops.object.select_all(action='DESELECT')
+src.select_set(True)
+bpy.context.view_layer.objects.active = src
+try:
+    bpy.ops.object.mode_set(mode='WEIGHT_PAINT')
+    bpy.ops.object.vertex_group_smooth(group_select_mode='BONE_DEFORM', factor=0.3, repeat=1, expand=0.0)
+    bpy.ops.object.mode_set(mode='OBJECT')
+except Exception as e_:
+    print("SMOOTH skipped", e_)
+    try:
+        bpy.ops.object.mode_set(mode='OBJECT')
+    except Exception:
+        pass
+bpy.ops.object.vertex_group_normalize_all(group_select_mode='BONE_DEFORM', lock_active=False)
+bpy.ops.object.vertex_group_limit_total(group_select_mode='BONE_DEFORM', limit=4)
+
 if debug:
     from collections import Counter
     cnt = Counter()
@@ -230,6 +248,78 @@ if debug:
     print('EVALBBOX rest', ee.min(0).round(3), ee.max(0).round(3), 'frame', bpy.context.scene.frame_current)
     print('BONE0', [(b.name, [round(x, 3) for x in b.head_local], [round(x, 3) for x in b.tail_local]) for b in arm_data.bones][:3])
 
+# ---- face expression decals (stage C): small conforming patches, each a crop of her own face texels with one feature edited.
+# Painted by meshy_face_paint.py from meshy_face_capture.py; here they are laid onto the real face surface (ray cast from the front,
+# 1.8 mm off the skin), skinned 100% to the Head bone, and exported as separate meshes the game shows / hides (no extra weight, no rebuild).
+FACE_DIR = os.path.join(root, "creatures/humans/sarah_meshy/work/face")
+decal_objs = []
+if os.path.exists(os.path.join(FACE_DIR, "face_atlas.json")):
+    atl = json.load(open(os.path.join(FACE_DIR, "face_atlas.json")))
+    cap = json.load(open(os.path.join(FACE_DIR, "face_capture.json")))
+    RES_, CX_, CZ_, SIZE_ = cap["res"], cap["cx"], cap["cz"], cap["size"]
+    AW_, AH_ = atl["atlas"]
+    dmat = bpy.data.materials.new("Sarah_Face_Decals")
+    dmat.use_nodes = True
+    dn = dmat.node_tree
+    db = dn.nodes["Principled BSDF"]
+    db.inputs["Roughness"].default_value = 1.0
+    try:
+        db.inputs["Specular IOR Level"].default_value = 0.0
+    except Exception:
+        pass
+    dt = dn.nodes.new("ShaderNodeTexImage")
+    dt.image = bpy.data.images.load(os.path.join(FACE_DIR, "face_atlas.png"))
+    dt.image.name = "sarah_face_atlas"
+    dt.interpolation = "Closest"
+    dn.links.new(dt.outputs["Color"], db.inputs["Base Color"])
+    by_name = {}
+    for pt in atl["patches"]:
+        by_name.setdefault(pt["name"], []).append(pt)
+    for name, plist in by_name.items():
+        bmd = bmesh.new()
+        uvl = bmd.loops.layers.uv.new("uv")
+        for pt in plist:
+            x0, y0, x1, y1 = pt["box"]
+            ax, ay, aw, ah = pt["atlas"]
+            NX, NY = 10, 6
+            grid = []
+            for j in range(NY + 1):
+                row = []
+                for i in range(NX + 1):
+                    u = x0 + (x1 - x0) * i / NX
+                    v = y0 + (y1 - y0) * j / NY
+                    X = CX_ - (u - RES_ / 2) * SIZE_ / RES_
+                    Z = CZ_ - (v - RES_ / 2) * SIZE_ / RES_
+                    hit, loc, nor, idx = src.ray_cast(Vector((X, 2.0, Z)), Vector((0, -1, 0)))
+                    pos = (loc + nor * 0.0018) if hit else Vector((X, 0.12, Z))
+                    row.append((bmd.verts.new(pos), (ax + aw * i / NX) / AW_, 1.0 - (ay + ah * j / NY) / AH_))
+                grid.append(row)
+            for j in range(NY):
+                for i in range(NX):
+                    quad = (grid[j][i], grid[j + 1][i], grid[j + 1][i + 1], grid[j][i + 1])          # wound so the face looks toward +Y (the front)
+                    try:
+                        fc = bmd.faces.new([q[0] for q in quad])
+                    except ValueError:
+                        continue
+                    for lp, q in zip(fc.loops, quad):
+                        lp[uvl].uv = (q[1], q[2])
+        dme = bpy.data.meshes.new("Face_" + name)
+        bmd.to_mesh(dme)
+        bmd.free()
+        dob = bpy.data.objects.new("Face_" + name, dme)
+        bpy.context.scene.collection.objects.link(dob)
+        dme.materials.append(dmat)
+        for p_ in dme.polygons:
+            p_.use_smooth = False
+        g_ = dob.vertex_groups.new(name="Head")
+        g_.add(list(range(len(dme.vertices))), 1.0, 'REPLACE')
+        md = dob.modifiers.new("Armature", 'ARMATURE')
+        md.object = rig
+        dob.parent = rig
+        dob.hide_render = True                 # off in Blender renders; the game shows them through the face controller
+        decal_objs.append(dob)
+    print("DECALS", [o.name for o in decal_objs])
+
 # ---- temporary animations. Proportions studied from the clip statistics of the reference game's Mixamo-rig clips (reference only,
 # nothing copied): idles are LONG (6-10 s) and very quiet (body < 2 degrees, head 2-7, arms 6-11); the walk is ~1.5 s with hips 16-23,
 # spine 5-10, thigh 36-52, knee 53-62, foot 21, arm swing 31-49, forearm 29-37, wrist 23-50 and only thumb / index moving ~15 degrees.
@@ -243,13 +333,13 @@ FLEX = {"Left": -1.0, "Right": 1.0}                 # finger flexion about the w
 def rot(name, frame, x=0.0, y=0.0, z=0.0):
     pb = rig.pose.bones[name]
     pb.rotation_euler = Euler((math.radians(x), math.radians(y), math.radians(z)), 'XYZ')
-    pb.keyframe_insert("rotation_euler", frame=frame)
+    pb.keyframe_insert("rotation_euler", frame=frame - 1)
 
 
 def move(name, frame, loc):
     pb = rig.pose.bones[name]
     pb.location = loc
-    pb.keyframe_insert("location", frame=frame)
+    pb.keyframe_insert("location", frame=frame - 1)
 
 
 def reset_pose():
@@ -264,8 +354,8 @@ def new_action(name, length):
     act.use_fake_user = True
     rig.animation_data_create()
     rig.animation_data.action = act
-    bpy.context.scene.frame_start = 1
-    bpy.context.scene.frame_end = length
+    bpy.context.scene.frame_start = 0                      # keys are written at frame - 1: the first key is frame 0, so the export has no held first frame
+    bpy.context.scene.frame_end = length - 1
     return act
 
 
@@ -273,9 +363,9 @@ def new_action(name, length):
 POSES = {
     "relaxed": {"Thumb": (6, 8, 6), "Index": (10, 14, 8), "Middle": (14, 18, 10), "Ring": (18, 20, 12), "Little": (22, 22, 14)},
     "open": {"Thumb": (0, 0, 0), "Index": (0, 0, 0), "Middle": (0, 0, 0), "Ring": (0, 0, 0), "Little": (0, 0, 0)},
-    "fist": {"Thumb": (30, 40, 30), "Index": (80, 100, 65), "Middle": (85, 105, 65), "Ring": (85, 105, 65), "Little": (85, 100, 60)},
-    "grip": {"Thumb": (25, 20, 12), "Index": (25, 20, 10), "Middle": (65, 80, 50), "Ring": (70, 85, 52), "Little": (72, 85, 52)},
-    "point": {"Thumb": (25, 30, 20), "Index": (0, 0, 0), "Middle": (85, 105, 65), "Ring": (85, 105, 65), "Little": (85, 100, 60)},
+    "fist": {"Thumb": (14, 22, 14), "Index": (68, 84, 46), "Middle": (72, 88, 46), "Ring": (72, 88, 46), "Little": (70, 84, 44)},
+    "grip": {"Thumb": (12, 10, 6), "Index": (22, 18, 8), "Middle": (50, 62, 36), "Ring": (54, 66, 38), "Little": (56, 66, 38)},
+    "point": {"Thumb": (12, 16, 10), "Index": (0, 0, 0), "Middle": (72, 88, 46), "Ring": (72, 88, 46), "Little": (70, 84, 44)},
 }
 
 
@@ -309,34 +399,84 @@ for f, yw, pt in ((1, 0.0, 0.0), (37, 3.0, 0.5), (73, -2.5, -0.5), (109, 4.0, 0.
 for side in ("Left", "Right"):
     for f, k in ((1, 1.0), (49, 1.15), (97, 0.9), (145, 1.0)):
         hand_pose(side, "relaxed", f, k)
-# -- walk: 1.5 s cycle (36 frames). Thigh +-36, knee up to 55, foot 20, arm swing +-31, forearm 8..30, wrist +-20, fingers relaxed with thumb/index flicker
+# -- walk: 1.5 s cycle (36 frames). The legs come from two-bone IK on planted feet: the stance foot moves back at a constant speed
+# (zero slide when the body moves at WALK_SPEED), the swing foot lifts and carries forward. Arms, spine and head keep the studied swing.
+LEGS = {}
+for side in ("Left", "Right"):
+    Hh, Kk, Aa = LM[side + "UpperLeg"][0], LM[side + "UpperLeg"][1], LM[side + "LowerLeg"][1]
+    LEGS[side] = (Hh, (Kk - Hh).length, (Aa - Kk).length, Aa.z)
+L1, L2, ANK = LEGS["Left"][1], LEGS["Left"][2], LEGS["Left"][3]
+HIP0 = LEGS["Left"][0].z
+STRIDE, STANCE, T36 = 0.46, 0.60, 36
+HIP_H = 0.735
+WALK_SPEED = STRIDE / (STANCE * T36 / FPS)              # metres per second the body must move for the planted foot not to slide
+print("WALK speed", round(WALK_SPEED, 3), "leg", round(L1, 3), round(L2, 3), "ankle", round(ANK, 3))
+
+
+def smooth(u):
+    u = max(0.0, min(1.0, u))
+    return u * u * (3 - 2 * u)
+
+
+def foot_target(phi):
+    """ankle (forward y, height z) and sole pitch psi (degrees, + = toes up) for a leg at gait phase phi (0..1)"""
+    if phi < STANCE:
+        y = STRIDE / 2 - STRIDE * (phi / STANCE)
+        z = ANK + 0.035 * smooth((phi - 0.42) / 0.18)                  # heel comes up before toe-off
+        if phi < 0.12:
+            psi = 8.0 * (1 - phi / 0.12)
+        elif phi < 0.42:
+            psi = 0.0
+        else:
+            psi = -22.0 * smooth((phi - 0.42) / 0.18)
+    else:
+        u = (phi - STANCE) / (1 - STANCE)
+        y = -STRIDE / 2 + STRIDE * (u - math.sin(2 * math.pi * u) / (2 * math.pi))
+        z = ANK + 0.035 * (1 - u) + 0.075 * math.sin(math.pi * u) ** 1.2
+        psi = -22.0 + 30.0 * smooth(u)
+    return y, z, psi
+
+
+def leg_ik(hip_z, y, z, psi):
+    dy, dz = y, hip_z - z                                               # hip above the ankle
+    d = min(math.hypot(dy, dz), (L1 + L2) * 0.999)
+    alpha = math.atan2(dy, dz)                                          # from straight down, forward positive
+    cos_phi = (L1 * L1 + L2 * L2 - d * d) / (2 * L1 * L2)
+    knee = math.pi - math.acos(max(-1.0, min(1.0, cos_phi)))           # knee flexion
+    delta = math.acos(max(-1.0, min(1.0, (L1 * L1 + d * d - L2 * L2) / (2 * L1 * d))))
+    th = alpha + delta                                                  # thigh angle (knee forward of the hip-ankle line)
+    ts = th - knee                                                      # shin angle
+    return math.degrees(th), math.degrees(knee), psi - math.degrees(ts)
+
+
 act = new_action("walk-loop", 37)
-N = 36
-for f in range(1, 38, 3):
-    ph = (f - 1) / N
+for f in range(1, 38):
+    ph = ((f - 1) % T36) / T36
     a = math.sin(ph * 2 * math.pi)
     c = math.cos(ph * 2 * math.pi)
-    for s_, sg in (("Left", 1), ("Right", -1)):
-        sw = a * sg                                       # +1 = this leg forward
-        lift = max(0.0, math.sin((ph * sg + (0.0 if sg > 0 else 0.5) + 0.25) * 2 * math.pi)) if False else max(0.0, -c * sg)
-        rot(s_ + "UpperLeg", f, x=36 * sw)
-        rot(s_ + "LowerLeg", f, x=-(6 + 49 * lift))
-        rot(s_ + "Foot", f, x=-20 * sw + 8 * lift)
+    hip_z = HIP_H + 0.008 * math.cos(2 * math.pi * 2 * (ph - 0.3))
+    for s_, sg, off in (("Left", 1, 0.0), ("Right", -1, 0.5)):
+        y, z, psi = foot_target((ph + off) % 1.0)
+        th, knee, ft = leg_ik(hip_z, y, z, psi)
+        rot(s_ + "UpperLeg", f, x=th)
+        rot(s_ + "LowerLeg", f, x=-knee)
+        rot(s_ + "Foot", f, x=ft)
+        sw = (1 if sg > 0 else -1) * a                                  # arm swing opposes the leg on the same side
         rot(s_ + "UpperArm", f, x=-31 * sw, z=sg * 3)
         rot(s_ + "LowerArm", f, x=-(8 + 22 * max(0.0, -sw)))
-        rot(s_ + "Hand", f, x=-18 * sw * FLEX[s_] * -1)
+        rot(s_ + "Hand", f, x=18 * sw * FLEX[s_])
         rot(s_ + "Shoulder", f, z=sg * 2 * sw)
-        for fn, fk in (("Thumb", 1.0), ("Index", 1.0)):
+        for fn in ("Thumb", "Index"):
             for i, n_ in enumerate(FINGER_BONES[s_ + fn]):
                 rot(n_, f, x=(POSES["relaxed"][fn][i] + 8 * sw * (1 if i == 0 else 0.5)) * FLEX[s_])
         for fn in ("Middle", "Ring", "Little"):
             for i, n_ in enumerate(FINGER_BONES[s_ + fn]):
                 rot(n_, f, x=POSES["relaxed"][fn][i] * FLEX[s_])
-    rot("Hips", f, z=7 * a, y=0)
-    rot("Spine", f, z=-5 * a, x=1.0)
-    rot("Chest", f, z=-5 * a)
-    rot("Head", f, z=4 * a)
-    move("Hips", f, (0, 0, -0.025 * abs(c)))
+    rot("Hips", f, y=4 * a, z=1.5 * c)                                  # pelvis twist about the vertical, a little roll
+    rot("Spine", f, y=-3 * a, x=1.0)
+    rot("Chest", f, y=-3 * a)
+    rot("Head", f, y=1.5 * a, z=-0.8 * c)
+    move("Hips", f, (0, hip_z - HIP0, 0))                               # the pelvis bone's own Y is the vertical
 # -- head turn: look left, look right, back (3 s)
 act = new_action("head_turn", 72)
 for f, yw in ((1, 0), (19, 55), (37, 0), (55, -55), (72, 0)):
@@ -345,6 +485,81 @@ for f, yw in ((1, 0), (19, 55), (37, 0), (55, -55), (72, 0)):
 for side in ("Left", "Right"):
     hand_pose(side, "relaxed", 1)
     hand_pose(side, "relaxed", 72)
+# -- nervous idle (6 s loop): quick small glances, weight shifts, hands fidgeting low in front of the body
+act = new_action("nervous_idle-loop", 144)
+for f, yw, pt in ((1, 0, 0), (21, 20, 2), (33, 22, 2), (49, 0, 0), (69, -16, -1), (81, -18, -1), (97, 4, 0), (121, 12, 3), (133, 0, 0), (145, 0, 0)):
+    rot("Head", f, y=yw * 0.75, x=pt)
+    rot("Neck", f, y=yw * 0.25)
+for f, sh in ((1, 0.0), (49, 1.0), (73, 1.0), (97, -1.0), (121, -1.0), (145, 0.0)):                   # weight shifts side to side
+    rot("Hips", f, y=3 * sh, z=2.5 * sh)
+    rot("Spine", f, z=-2 * sh, x=1.5)
+    rot("Chest", f, y=-2 * sh, z=-1.0 * sh)
+    move("Hips", f, (0.0, -0.006 * abs(sh), 0.0))
+    rot("LeftFoot", f, x=2.5 * max(0.0, sh))
+    rot("RightFoot", f, x=2.5 * max(0.0, -sh))
+for f, br in ((1, 0.0), (37, 1.0), (73, 0.2), (109, 1.0), (145, 0.0)):                               # quick shallow breaths
+    rot("Chest", f, x=-1.4 * br)
+for s_, sg in (("Left", 1), ("Right", -1)):
+    for f, k in ((1, 0.0), (37, 1.0), (73, 0.3), (109, 0.9), (145, 0.0)):                           # forearms lifted, hands near the belt, fidgeting
+        rot(s_ + "UpperArm", f, x=-10 - 3 * k, z=-sg * 22)
+        rot(s_ + "LowerArm", f, x=-(34 + 7 * k))
+        rot(s_ + "Hand", f, x=(6 + 4 * k) * FLEX[s_])
+        rot(s_ + "Shoulder", f, z=sg * -1.5)
+        for fn in FINGERS:
+            for i, n_ in enumerate(FINGER_BONES[s_ + fn]):
+                base_ = POSES["relaxed"][fn][i]
+                wob = (10 if fn in ("Thumb", "Index") else 3) * k * (1 if (sg > 0) == (f < 80) else -1)
+                rot(n_, f, x=(base_ + wob) * FLEX[s_])
+# -- injured idle (5 s loop): hunched, weight on the right leg, her left hand pressed to her left ribs, slow shallow breathing
+act = new_action("injured_idle-loop", 120)
+for f, br in ((1, 0.0), (41, 1.0), (81, 0.3), (121, 0.0)):
+    rot("Spine", f, x=-(11 + 1.2 * br), z=3, y=-2)
+    rot("Chest", f, x=-(9 + 1.5 * br), z=2)
+    rot("Neck", f, x=-7, y=4 * br - 2)
+    rot("Head", f, x=-4 + 1 * br, z=-5)
+    rot("Hips", f, z=4, y=3)
+    move("Hips", f, (0.0, -0.02, 0.0))
+    rot("LeftShoulder", f, z=-3, x=-4)
+    rot("RightShoulder", f, z=3, x=-2)
+    rot("LeftUpperArm", f, x=-12, y=-50, z=-26 + 1.5 * br)                           # left hand on the left ribs (the upper arm turned in)
+    rot("LeftLowerArm", f, x=-(100 + 2 * br))
+    rot("LeftHand", f, x=-10 * FLEX["Left"])
+    rot("RightUpperArm", f, x=-8, z=-3 * (1 - br * 0.3))                              # right arm hangs heavy, a little forward
+    rot("RightLowerArm", f, x=-(10 + 2 * br))
+    rot("LeftUpperLeg", f, x=4)
+    rot("LeftLowerLeg", f, x=-10)
+    rot("LeftFoot", f, x=-3)
+    rot("RightUpperLeg", f, x=-5)
+    rot("RightLowerLeg", f, x=-3)
+for f in (1, 41, 81, 121):
+    hand_pose("Left", "grip", f, 0.7)
+    hand_pose("Right", "relaxed", f, 1.1)
+# -- scared reaction (1.6 s, one shot): a flinch - the head snaps toward the noise, the body recoils, the arms come up, hands spread,
+# then it settles into a tense, braced posture (the held pose keeps a small recoil)
+act = new_action("scared_reaction", 38)
+KEY = (1, 4, 8, 16, 26, 38)
+YAW = (0, 32, 28, 16, 12, 10)
+RC = (0.0, 1.0, 0.85, 0.5, 0.35, 0.3)
+OPEN = (0.0, 0.0, 0.1, 0.3, 0.55, 0.7)
+for i_, f in enumerate(KEY):
+    yw, rc, k_open = YAW[i_], RC[i_], OPEN[i_]
+    rot("Head", f, y=yw * 0.7, x=7 * rc)
+    rot("Neck", f, y=yw * 0.3, x=4 * rc)
+    rot("Spine", f, x=9 * rc)
+    rot("Chest", f, x=6 * rc)
+    move("Hips", f, (0.0, -0.018 * rc, 0.07 * rc))                                   # back, and a little lower
+    rot("Hips", f, y=-yw * 0.15)
+    for s_, sg in (("Left", 1), ("Right", -1)):
+        rot(s_ + "Shoulder", f, z=sg * 5 * rc, x=-3 * rc)
+        rot(s_ + "UpperArm", f, x=-38 * rc, z=sg * 8 * rc)
+        rot(s_ + "LowerArm", f, x=-(8 + 58 * rc))
+        rot(s_ + "Hand", f, x=-14 * rc * FLEX[s_])
+        rot(s_ + "UpperLeg", f, x=(12 if sg > 0 else -6) * rc)
+        rot(s_ + "LowerLeg", f, x=-(6 + 14 * rc))
+        rot(s_ + "Foot", f, x=-6 * rc)
+        for fn in FINGERS:
+            for j_, n_ in enumerate(FINGER_BONES[s_ + fn]):
+                rot(n_, f, x=POSES["relaxed"][fn][j_] * k_open * FLEX[s_])
 bpy.ops.object.mode_set(mode='OBJECT')
 rig.animation_data.action = bpy.data.actions["idle-loop"]
 
@@ -367,7 +582,7 @@ if debug:
     co_ = bpy.data.objects.new("c", cam)
     sc.collection.objects.link(co_)
     sc.camera = co_
-    dbg = os.path.join(base, "work/rig_debug")
+    dbg = os.path.join(root, "creatures/humans/sarah_meshy/work/rig_debug")
     os.makedirs(dbg, exist_ok=True)
     rig.show_in_front = True
     arm_data.display_type = 'STICK'
@@ -415,10 +630,13 @@ if debug:
     rig.animation_data.action = bpy.data.actions["idle-loop"]
 
 # ---- save the Blender source and export the GLB
+json.dump({"walk_ground_speed": WALK_SPEED, "walk_cycle_s": T36 / FPS, "stride_m": STRIDE, "height_m": HEIGHT}, open(os.path.join(glb_dir, "sarah_meshy_proto.json"), "w"), indent=1)
 bpy.ops.wm.save_as_mainfile(filepath=os.path.join(out_dir, "sarah_meshy_proto.blend"))
 bpy.ops.object.select_all(action='DESELECT')
 src.select_set(True)
 rig.select_set(True)
+for o_ in decal_objs:
+    o_.select_set(True)
 bpy.context.view_layer.objects.active = rig
 glb = os.path.join(glb_dir, "CHR_Sarah_Meshy_Proto.glb")
 bpy.ops.export_scene.gltf(filepath=glb, export_format='GLB', use_selection=True, export_animations=True,
