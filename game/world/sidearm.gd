@@ -50,7 +50,7 @@ var _wall := 0.0                                        # 0..1: how far a close 
 var _sprint := 0.0                                      # 0..1: the carried-while-running pose
 var _fov_base := 0.0                                    # the camera's own field of view while aim zoom is applied
 const AIM_FOV := 0.86                                   # aiming narrows the view a little, like looking down the sights
-const WALL_CLEAR := 0.62                                # closer than this to a wall and the gun is pulled in
+const WALL_CLEAR := 0.40                                # closer than this to a wall and the gun is pulled in
 const SPRINT_SPEED := 3.6
 var force_sprint := false                               # tests / screenshots
 var _lag := Vector2.ZERO                                # smoothed look-turn lag (yaw, pitch)
@@ -408,8 +408,8 @@ func _animate(delta: float) -> void:
 	if not wh.is_empty():
 		want_wall = clampf(1.0 - (cam.global_position.distance_to(wh["position"]) - 0.12) / WALL_CLEAR, 0.0, 1.0)
 	_wall = lerpf(_wall, want_wall, clampf(delta * 14.0, 0.0, 1.0))
-	pos += Vector3(0.03, -0.07, 0.17) * _wall
-	pitch += 0.6 * _wall
+	pos += Vector3(0.02, -0.05, 0.07) * _wall
+	pitch += 0.30 * _wall
 	# aiming narrows the field of view a touch
 	if aim_e > 0.002:
 		if _fov_base == 0.0:
