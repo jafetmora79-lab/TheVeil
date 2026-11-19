@@ -32,7 +32,11 @@ func _run() -> void:
 	var sun := DirectionalLight3D.new()
 	sun.rotation_degrees = Vector3(-50, -30, 0)
 	root.add_child(sun)
-	var gun := (load("res://THE_VEIL_ASSETS_V2/08_Inventory/Weapons/INV_Handgun.glb") as PackedScene).instantiate() as Node3D
+	var mp := "res://THE_VEIL_ASSETS_V2/08_Inventory/Weapons/INV_Handgun.glb"
+	var a := OS.get_cmdline_user_args()
+	if a.size() > 3:
+		mp = a[3]
+	var gun := (load(mp) as PackedScene).instantiate() as Node3D
 	root.add_child(gun)
 	if with_hands:
 		var h = load("res://game/world/view_hands.gd").new()
@@ -43,9 +47,17 @@ func _run() -> void:
 	root.add_child(cam)
 	cam.current = true
 	var c := Vector3(0, 0.07, 0)
-	var views := {"side": Vector3(1, 0, 0), "back": Vector3(0, 0, 1), "top": Vector3(0, 1, 0.0001), "q": Vector3(0.8, 0.5, 0.9)}
+	var views := {"side": Vector3(1, 0, 0), "back": Vector3(0, 0, 1), "top": Vector3(0, 1, 0.0001), "q": Vector3(0.8, 0.5, 0.9), "fp": Vector3(0.1, 0.45, 1.0)}
 	for k in views:
 		var dir: Vector3 = views[k]
+		if k == "fp":                                  # roughly the player's own point of view
+			cam.projection = Camera3D.PROJECTION_PERSPECTIVE
+			cam.fov = 60
+			cam.position = Vector3(0.0, 0.17, 0.40)
+			cam.look_at(Vector3(0, 0.06, -0.10), Vector3.UP)
+			await frames(3)
+			root.get_texture().get_image().save_png("%s/%s_%s.png" % [out_dir, tag, k])
+			continue
 		if k == "q":
 			cam.projection = Camera3D.PROJECTION_PERSPECTIVE
 			cam.fov = 40
