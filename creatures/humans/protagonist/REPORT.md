@@ -9,3 +9,6 @@ Output: `game/prototypes/protagonist_meshy/CHR_Protagonist_Meshy.glb`. Test: `ga
 Not in any game scene yet. No face expression decals yet (they need the same capture/paint pass Sarah had).
 Fingers are laid out from the hand's proportions (the hand is a mitten shape), so they curl as a block.
 Sheet: `work/protagonist_rig_sheet.png`.
+
+## Test scene
+`godot --path . res://game/prototypes/protagonist_meshy/ProtagonistTest.tscn` (F6 in the editor): the real chapter 7 supermarket with the protagonist at the till, animated by the game's NpcAnimator (idle, look-at with the torso-twist assist, talking gestures, scared mood). Walk up and press E. Keys: 6/7 body calm/scared, 8 walk to the doors and back. Screenshot mode: `-- shots <dir>`. Sheet: `work/protagonist_test_sheet.png`. Save file is backed up and restored.
