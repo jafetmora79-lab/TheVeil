@@ -15,21 +15,21 @@ bpy.ops.wm.read_factory_settings(use_empty=True)
 P = np.array([
     # z      hw    front  back
     [1.660, .000, .000, .000],
-    [1.652, .036, .034, .042],
-    [1.640, .054, .056, .066],
-    [1.622, .067, .076, .083],
-    [1.602, .0735, .088, .090],
-    [1.584, .0765, .092, .093],
-    [1.568, .0775, .093, .094],
-    [1.546, .0765, .092, .093],
-    [1.526, .0745, .090, .091],
-    [1.508, .0715, .087, .088],
-    [1.492, .0675, .084, .083],
-    [1.476, .0615, .081, .077],
-    [1.460, .0545, .078, .070],
-    [1.446, .0460, .074, .062],
-    [1.432, .0420, .060, .056],
-    [1.418, .0410, .048, .054],
+    [1.652, .044, .040, .048],
+    [1.640, .060, .060, .068],
+    [1.622, .071, .078, .084],
+    [1.602, .0775, .089, .090],
+    [1.584, .0805, .093, .093],
+    [1.568, .0815, .094, .094],
+    [1.546, .0805, .093, .093],
+    [1.526, .0795, .091, .091],
+    [1.508, .0765, .089, .088],
+    [1.492, .0730, .086, .083],
+    [1.476, .0685, .083, .077],
+    [1.460, .0625, .080, .070],
+    [1.446, .0545, .077, .062],
+    [1.432, .0475, .066, .056],
+    [1.418, .0420, .050, .054],
     [1.402, .0420, .041, .052],
     [1.385, .0450, .043, .055],
     [1.368, .0490, .047, .058],
@@ -44,7 +44,7 @@ def prof(z):
 
 
 def exponent(z):
-    return 2.0 + .55 * max(0.0, min(1.0, (z - 1.43) / .12))                 # rounder at the neck, squarer skull
+    return 2.0 + .85 * max(0.0, min(1.0, (z - 1.43) / .12))                 # rounder at the neck, squarer skull
 
 
 def ring_point(z, a_deg):
@@ -64,14 +64,14 @@ def gauss(x, c, s):
 
 
 def nose_profile(z):
-    zs = [1.560, 1.546, 1.534, 1.522, 1.512, 1.503, 1.496, 1.490]
-    ps = [0.0, .0050, .0105, .0165, .0225, .0165, .0055, 0.0]
+    zs = [1.566, 1.552, 1.538, 1.526, 1.514, 1.506, 1.499, 1.492]
+    ps = [0.0, .0055, .0125, .0205, .0290, .0210, .0075, 0.0]
     return float(np.interp(z, zs[::-1], ps[::-1]))
 
 
 def nose_width(z):
-    zs = [1.560, 1.546, 1.534, 1.522, 1.512, 1.503, 1.496]
-    ws = [.0085, .0075, .0075, .0095, .0145, .0200, .0200]
+    zs = [1.566, 1.552, 1.538, 1.526, 1.514, 1.506, 1.499]
+    ws = [.0085, .0075, .0075, .0085, .0115, .0185, .0195]
     return float(np.interp(z, zs[::-1], ws[::-1]))
 
 
@@ -88,8 +88,8 @@ def face_disp(x, z):
     # nose: bridge, tip and wings
     npz = nose_profile(z)
     if npz > 0:
-        d += npz * math.exp(-(ax / nose_width(z)) ** 2.2)
-    d += .0075 * gauss(ax, .0165, .0055) * gauss(z, 1.506, .0050)           # alae
+        d += npz * math.exp(-(ax / nose_width(z)) ** 3.0)
+    d += .0085 * gauss(ax, .0170, .0055) * gauss(z, 1.507, .0050)           # alae
     d -= .0028 * gauss(ax, .0085, .0045) * gauss(z, 1.500, .0035)           # nostrils
     d -= .0012 * gauss(ax, .020, .008) * gauss(z, 1.513, .006)               # nasolabial fold hint
     # mouth
@@ -97,7 +97,7 @@ def face_disp(x, z):
     d += .0058 * gauss(ax, 0, .0180) * gauss(z, 1.4685, .0048)              # lower lip
     d -= .0030 * gauss(ax, 0, .0200) * gauss(z, 1.4765, .0020)              # mouth line
     d -= .0018 * gauss(ax, 0, .0170) * gauss(z, 1.4560, .0035)              # mentolabial groove
-    d += .0070 * gauss(ax, 0, .0180) * gauss(z, 1.4455, .0075)              # chin
+    d += .0060 * gauss(ax, 0, .0300) * gauss(z, 1.4445, .0090)              # chin
     d -= .0010 * gauss(ax, 0, .0060) * gauss(z, 1.497, .0040)               # philtrum
     return d
 
@@ -149,23 +149,24 @@ def surface_x(y, z):
 
 
 def add_ear(bm, sx):
-    cy, cz = .013, 1.548
-    ry, rz = .0165, .0335
-    tilt = math.radians(16)                                                   # top of the ear leans back
+    cy, cz = .018, 1.552
+    ry, rz = .0150, .0320
+    tilt = math.radians(10)                                                   # top of the ear leans back
     segs = 14
-    prof_x = [(0.00, .0035), (.28, .0055), (.55, .0150), (.80, .0105), (1.00, .0010)]   # concha, antihelix, helix rim, edge
+    prof_x = [(0.00, .0020), (.28, .0032), (.55, .0082), (.80, .0058), (1.00, .0006)]   # concha, antihelix, helix rim, edge
     rings = []
     for rr, off in prof_x:
         row = []
         for k in range(segs if rr > 0 else 1):
             t = 2 * math.pi * k / segs
-            ly, lz = math.cos(t) * ry * rr, math.sin(t) * rz * rr
+            shape = 1.0 + .10 * math.sin(t) - (.20 * (1 - math.cos(t * 2)) / 2 if math.sin(t) < 0 else 0.0)   # fuller top, narrower lobe
+            ly, lz = math.cos(t) * ry * rr * shape * (1 + .12 * math.sin(t)), math.sin(t) * rz * rr * shape
             y = cy + ly * math.cos(tilt) + lz * math.sin(tilt) * -1 * -1
             z = cz + lz * math.cos(tilt) - ly * math.sin(tilt) * -1 * -1 * 0
             y = cy + ly * math.cos(tilt) + (lz * math.sin(tilt))
             z = cz + lz * math.cos(tilt) - (ly * math.sin(tilt))
             # lobe is fuller at the bottom, helix narrower at the top
-            extra = .003 if (lz < -.012 and rr > .5) else 0.0
+            extra = .0015 if (lz < -.012 and rr > .5) else 0.0
             x0 = surface_x(y, z)
             x = sx * (x0 + off + extra * (1 - abs(rr - .75)))
             row.append(bm.verts.new((x, y, z)))
