@@ -391,12 +391,27 @@ func how_to(id: String) -> String:
 
 func _consume(id: String, health: float, refill_stamina: bool) -> void:
 	var pl = get_tree().current_scene.get("player") if get_tree().current_scene else null
-	if pl is VeilPlayer:
-		(pl as VeilPlayer).heal(health)
-		if refill_stamina:
-			pl.stamina = VeilPlayer.MAX_STAMINA
-			pl.stamina_changed.emit(pl.stamina, VeilPlayer.MAX_STAMINA)
-	Game.remove_item(id)
+	var apply := func():
+		if pl is VeilPlayer:
+			(pl as VeilPlayer).heal(health)
+			if refill_stamina:
+				pl.stamina = VeilPlayer.MAX_STAMINA
+				pl.stamina_changed.emit(pl.stamina, VeilPlayer.MAX_STAMINA)
+		Game.remove_item(id)
+	if not pl is VeilPlayer:
+		apply.call()
+		return
+	# the item comes up into the player's hand, is used, and the effect lands at the peak of the motion
+	var held := (pl as Node).get_node_or_null("HeldItem") as VeilHeldItem
+	if held == null:
+		held = VeilHeldItem.new()
+		held.name = "HeldItem"
+		held.player = pl
+		(pl as Node).add_child(held)
+	if held.is_busy():
+		return                                       # one item at a time
+	var kind := "drink" if id in DRINKS else ("take" if String(Game.item_info(id).get("category", "")) == "medical" else "eat")
+	held.use_item(String(Game.item_info(id).get("model", "")), kind, apply)
 
 
 # ------------------------------------------------------------------ icons: the item's own 3D model, rendered once
