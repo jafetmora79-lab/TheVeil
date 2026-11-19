@@ -373,8 +373,11 @@ func _animate(delta: float) -> void:
 	_time += delta
 	_equip = minf(_equip + delta / EQUIP_TIME, 1.0)
 	_kick = maxf(_kick - delta / KICK_TIME, 0.0)
-	var want_aim := 1.0 if can_act() and not reloading() and Input.is_mouse_button_pressed(MOUSE_BUTTON_RIGHT) else 0.0
-	_aim = move_toward(_aim, want_aim, delta / 0.18)
+	# running drops the gun to its rest pose by itself: aiming is let go the moment the player sprints
+	var running: bool = force_sprint or (bool(world.player.get("controls_enabled")) and Input.is_action_pressed("sprint") \
+		and Vector2(world.player.velocity.x, world.player.velocity.z).length() > 1.0)
+	var want_aim := 1.0 if can_act() and not reloading() and not running and Input.is_mouse_button_pressed(MOUSE_BUTTON_RIGHT) else 0.0
+	_aim = move_toward(_aim, want_aim, delta / (0.12 if running else 0.18))
 	var aim_e := smoothstep(0.0, 1.0, _aim)
 	var pos := REST.lerp(AIMED, aim_e)
 	var v: Vector3 = world.player.velocity * Vector3(1, 0, 1)
@@ -390,7 +393,7 @@ func _animate(delta: float) -> void:
 	pitch += 0.32 * k
 	# carried while running: the gun drops to the hip and turns in, bouncing with the stride
 	var hspeed: float = v.length()
-	var want_sprint := 1.0 if (hspeed > SPRINT_SPEED or force_sprint) and aim_e < 0.1 and not reloading() else 0.0
+	var want_sprint := 1.0 if (hspeed > SPRINT_SPEED or running) and aim_e < 0.35 and not reloading() else 0.0
 	_sprint = move_toward(_sprint, want_sprint, delta / 0.22)
 	var sp := smoothstep(0.0, 1.0, _sprint)
 	pos += Vector3(0.0, -0.06, 0.04) * sp

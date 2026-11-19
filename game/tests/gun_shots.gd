@@ -63,4 +63,16 @@ func _run() -> void:
 	sa.force_sprint = true
 	await frames(40)
 	await shot("sprint")
+	sa.force_sprint = false
+	sa.set_drawn(false)
+	var fl = root.get_tree().get_first_node_in_group("veil_flashlight")
+	if fl == null:
+		game.add_item("flashlight")
+		await frames(10)
+		fl = root.get_tree().get_first_node_in_group("veil_flashlight")
+	print("flashlight node: ", fl != null)
+	if fl:
+		fl.set_on(true)
+		await frames(50)
+		await shot("flash")
 	quit(0)
