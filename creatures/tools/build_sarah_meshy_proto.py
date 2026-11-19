@@ -234,6 +234,36 @@ except Exception as e_:
 bpy.ops.object.vertex_group_normalize_all(group_select_mode='BONE_DEFORM', lock_active=False)
 bpy.ops.object.vertex_group_limit_total(group_select_mode='BONE_DEFORM', limit=4)
 
+# ---- the head moves as one piece: automatic weights split the chin, jaw and hair between Neck and Head, so a head turn tore the face.
+# Everything from the middle of the neck upward is blended to 100% Head (full at the top of the neck), whatever the hair or jaw does.
+HEAD_Z0 = P(0, 0.320).z                         # blend starts inside the neck
+HEAD_Z1 = P(0, 0.338).z                         # fully Head from here up (below the chin)
+vg_head = src.vertex_groups["Head"]
+others = [g for g in src.vertex_groups if g.name != "Head"]
+n_fixed = 0
+for vx in me.vertices:
+    z_ = (src.matrix_world @ vx.co).z
+    if z_ <= HEAD_Z0:
+        continue
+    t_ = min(1.0, (z_ - HEAD_Z0) / (HEAD_Z1 - HEAD_Z0))
+    t_ = t_ * t_ * (3 - 2 * t_)
+    ws = {src.vertex_groups[g.group].name: g.weight for g in vx.groups}
+    keep = 1.0 - t_
+    new = {n_: w_ * keep for n_, w_ in ws.items() if n_ != "Head"}
+    new["Head"] = ws.get("Head", 0.0) * keep + t_
+    tot = sum(new.values())
+    for g in others:
+        if g.name in new and new[g.name] / tot > 0.002:
+            g.add([vx.index], new[g.name] / tot, 'REPLACE')
+        else:
+            try:
+                g.remove([vx.index])
+            except RuntimeError:
+                pass
+    vg_head.add([vx.index], new["Head"] / tot, 'REPLACE')
+    n_fixed += 1
+print("HEADFIX vertices re-weighted", n_fixed)
+
 if debug:
     from collections import Counter
     cnt = Counter()
@@ -622,6 +652,10 @@ if debug:
         bpy.context.view_layer.update()
         shot(name + "_three", az=35, scale=1.9, rx=520, ry=860)
         shot(name + "_side", az=90, scale=1.9, rx=520, ry=860)
+        if name == "pose_head":
+            shot("pose_head_close_three", az=35, zc=1.5, scale=0.55, rx=520, ry=520)
+            shot("pose_head_close_side", az=90, zc=1.5, scale=0.55, rx=520, ry=520)
+            shot("pose_head_close_front", az=0, zc=1.5, scale=0.55, rx=520, ry=520)
     bpy.ops.object.mode_set(mode='OBJECT')
     rig.hide_render = False
     for pb in rig.pose.bones:

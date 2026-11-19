@@ -114,3 +114,7 @@ backed up on start and restored on exit. Screenshots: `work/clerk/`, `work/clerk
 The game's NpcAnimator turned only the head (capped at 69 deg) and moved the body only within 2 m or while talking.
 `sarah_look_assist.gd` (Sarah-only, runs after the animator; no game script changed) now: turns her body gently once the player is more than 30 deg off her front, twists the chest (shoulders lead), and extends the head turn to about 100 deg.
 Measured with `ClerkTest.tscn -- lookcheck`: head-to-player yaw error under 0.5 deg at 0 to 100 deg (was -11 deg at 80 and -31 deg at 100); body settles at about 30 deg off, head covers the rest.
+
+### Head turn deformation fix
+Automatic weights had split the chin, jaw and hair between Neck and Head, so a head turn moved only part of the face (hair and chin stayed behind).
+The build script now blends everything above the lower neck to 100% Head (blend 0.320-0.338 of the model height scale, below the chin), so the head, hair and jaw turn as one piece. See `work/head_turn_fixed.png` (Head 55 deg + Neck 15 deg).
