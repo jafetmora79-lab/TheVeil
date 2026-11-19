@@ -50,9 +50,9 @@ V = np.array([v.co[:] for v in head.data.vertices])
 zmin, zmax = V[:, 2].min(), V[:, 2].max()
 V[:, 2] = zmin + (V[:, 2] - zmin) * (1.66 - zmin) / (zmax - zmin)          # crown back to 1.66
 zk = np.array([1.660, 1.645, 1.625, 1.600, 1.575, 1.550, 1.525, 1.500, 1.475, 1.455, 1.440, 1.425, 1.410])
-hw_t = np.array([.022, .050, .068, .075, .077, .074, .069, .063, .055, .046, .038, .040, .044])          # fuller jaw, rounded chin
-fy_t = np.array([-.020, -.062, -.095, -.108, -.110, -.106, -.104, -.103, -.098, -.090, -.080, -.062, -.050])
-by_t = np.array([.040, .064, .080, .086, .086, .082, .076, .066, .052, .036, .026, .022, .020])
+hw_t = np.array([.022, .050, .068, .075, .077, .074, .069, .063, .055, .045, .037, .035, .037])          # fuller jaw, rounded chin
+fy_t = np.array([-.020, -.062, -.095, -.108, -.110, -.106, -.104, -.103, -.098, -.090, -.078, -.060, -.045])
+by_t = np.array([.040, .064, .080, .086, .086, .082, .076, .066, .052, .034, .024, .018, .016])
 bins = np.linspace(V[:, 2].min(), V[:, 2].max(), 28)
 hw_c, fy_c, by_c, zc = [], [], [], []
 for i in range(len(bins) - 1):
@@ -113,7 +113,7 @@ bmesh.ops.delete(bme, geom=[v for v in bme.verts if not v.link_faces], context='
 # ears grown out of the side of the skull: inset + extrude the existing side faces, tilted back and tapered
 bme.faces.ensure_lookup_table()
 for sx in (-1, 1):
-    sel = [f for f in bme.faces if sx * f.calc_center_median().x > .064 and -.006 < f.calc_center_median().y < .036 and 1.536 < f.calc_center_median().z < 1.582]
+    sel = [f for f in bme.faces if sx * f.calc_center_median().x > .062 and -.012 < f.calc_center_median().y < .040 and 1.532 < f.calc_center_median().z < 1.588]
     print("EAR faces", sx, len(sel))
     if not sel:
         continue
@@ -121,9 +121,9 @@ for sx in (-1, 1):
     vv = [e for e in ex['geom'] if isinstance(e, bmesh.types.BMVert)]
     cz = sum(v.co.z for v in vv) / len(vv); cy = sum(v.co.y for v in vv) / len(vv)
     for v in vv:
-        v.co.x += sx * .009
-        v.co.y = cy + (v.co.y - cy) * .85 + .005
-        v.co.z = cz + (v.co.z - cz) * .85
+        v.co.x += sx * .011
+        v.co.y = cy + (v.co.y - cy) * .80 + .006
+        v.co.z = cz + (v.co.z - cz) * .80
 bmesh.ops.recalc_face_normals(bme, faces=list(bme.faces))
 bme.to_mesh(head.data)
 bme.free()
