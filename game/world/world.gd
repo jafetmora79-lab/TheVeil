@@ -984,7 +984,8 @@ func _spawn_npc(scene: PackedScene, face_tex: Texture2D, parent: Node3D, pos: Ve
 	var n := VeilSurvivorBody.new()
 	n.name = speaker
 	n.position = pos
-	n.add_child(scene.instantiate())
+	var meshy: Node3D = VeilMeshyNpcs.model_for(speaker)         # the Meshy trial (off unless launched with `-- meshy_npcs`)
+	n.add_child(meshy if meshy != null else scene.instantiate())
 	parent.add_child(n)
 	if not n.place_at(parent.to_global(pos)):
 		n.hide()
@@ -995,7 +996,7 @@ func _spawn_npc(scene: PackedScene, face_tex: Texture2D, parent: Node3D, pos: Ve
 	var want := parent.global_transform.basis * (Basis(Vector3.UP, yaw) * Vector3(0, 0, -1))
 	want.y = 0.0
 	n.rotate_y(anim.world_forward().signed_angle_to(want.normalized(), Vector3.UP))
-	var f: Node = FACE_SCRIPT.new()
+	var f: Node = VeilMeshyNpcs.face_for(n) if meshy != null else FACE_SCRIPT.new()
 	f.name = "VeilFace"
 	f.face_atlas = face_tex
 	n.add_child(f)
