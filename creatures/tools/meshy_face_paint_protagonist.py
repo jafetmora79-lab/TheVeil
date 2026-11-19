@@ -73,10 +73,25 @@ def eye_variant(kind):
                 y = int(436 + 9 * (1 - t * t))
                 img[y - 4:y + 4, x] = LASH
         elif kind == "wide":
-            eye = F[402:476, x0 + 22:x1 - 22].copy()
-            sc = 1.62
-            e2 = np.array(Image.fromarray(eye).resize((int(eye.shape[1] * sc), int(eye.shape[0] * sc)), Image.NEAREST))
-            paste_img(img, e2, cx - e2.shape[1] // 2, cy - e2.shape[0] // 2 - 14)
+            # rounder eye with more white around the same iris (the iris keeps its size: only the lids open), as in the reference sheet
+            sub = F[398:478, x0 + 20:x1 - 20]
+            dk = lum(sub) < 70
+            ys_, xs_ = np.nonzero(dk)
+            bx, by = (int(xs_.mean()) + x0 + 20, int(ys_.mean()) + 398) if len(xs_) else (cx, cy)
+            clone_fill(img, (x0 + 22, 404, x1 - 22, 476), SKIN_ROW)
+            pim = Image.fromarray(img)
+            dr = ImageDraw.Draw(pim)
+            rx, ry = 60, 30
+            ecx, ecy = bx, by - 2
+            dr.ellipse((ecx - rx - 4, ecy - ry - 4, ecx + rx + 4, ecy + ry + 4), fill=(150, 104, 88))          # lash / lid shadow
+            dr.ellipse((ecx - rx, ecy - ry, ecx + rx, ecy + ry), fill=(232, 228, 224))
+            img = np.array(pim)
+            blob = (lum(F[398:478, bx - 40:bx + 40]) < 90)
+            yy, xx = np.nonzero(blob)
+            img[398 + yy, bx - 40 + xx] = F[398 + yy, bx - 40 + xx]
+            from PIL import ImageFilter
+            reg = Image.fromarray(img[392:484, x0:x1]).filter(ImageFilter.GaussianBlur(1.6))
+            img[392:484, x0:x1] = np.array(reg)
         elif kind == "narrow":
             clone_fill(img, (x0 + 22, 402, x1 - 22, 424), SKIN_ROW)                    # the upper lid comes down
             clone_fill(img, (x0 + 22, 456, x1 - 22, 478), SKIN_ROW)                    # the cheek comes up
@@ -139,9 +154,9 @@ def mouth_variant(kind):
         ell(56, 27, DARK, 4)
         dr.rectangle((cx - 40, cy - 19 + 4, cx + 40, cy - 9 + 4), fill=TEETH)
     elif kind == "scared":
-        ell(60, 58, LIP, 8)
-        ell(40, 42, DARK, 8)
-        dr.rectangle((cx - 28, cy - 28 + 8, cx + 28, cy - 18 + 8), fill=TEETH)
+        ell(50, 48, LIP, 8)
+        ell(33, 33, DARK, 8)
+        dr.rectangle((cx - 22, cy - 22 + 8, cx + 22, cy - 13 + 8), fill=TEETH)
     elif kind == "angry":
         ell(92, 22, LIP, 2)
         dr.rectangle((cx - 74, cy - 9, cx + 74, cy + 10), fill=TEETH)
