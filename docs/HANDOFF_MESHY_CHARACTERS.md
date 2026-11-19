@@ -66,6 +66,14 @@ NpcAnimator (`game/npc/npc_animator.gd`) animates NPCs procedurally by bone name
 ## Pending / ideas (nothing here is approved yet)
 1. Real heights for the nine NPCs. 2. Face expressions for the NPCs (and angry/worried for the protagonist). 3. A flag-guarded swap of the Meshy characters into the real NPC pipeline (e.g. chapter6.gd `SARAH_PATH`) - only after approval. 4. Known rig limits: automatic weights are light (a raised-shoulder pinch at some jacket seams), fingers curl as blocks, walk arms are a stiff A-pose, no UpperChest bone, GIFs are large.
 
+## Repository slimming (branch `art/npc-meshy-trial-eddie-clerk` and later)
+The working tree was cut from 1.1 GB to about 0.74 GB by removing regenerable files (all still in the git history of the earlier commits, e.g. `git checkout 1722e17 -- <path>`):
+- debug renders (`work/rig_debug/`, `work/before_neck_pivot/`) and raw screenshot folders (`work/supermarket|trial|faces|facetex_scene|scene/`): regenerate with `build_*_meshy.py ... debug` and the preview/test-scene scripts (`-- shots <dir>`); the summary sheets and reports were kept;
+- the NPC Blender working copies and exported textures (`creatures/humans/npcs/<slug>/game_ready/`) and the protagonist face experiment blends/renders: regenerate the NPC blend with `build_npc_meshy.py -- <root> <slug> <height>` before running `npc_face_capture.py` or `npc_face_tex_build.py` again (Sarah's and the protagonist's `game_ready` blends were kept);
+- all GIFs (regenerate with the preview scripts) and `.blend1` backups;
+- the plain `CHR_<slug>_Meshy.glb` NPC models: `npc_meshy.gd` (`VeilNpcMeshy`) now loads `CHR_<slug>_FaceTex.glb`, which has the same rig, clips and body.
+Kept: every original Meshy source file, all scripts, the final GLBs and face textures, the ChatGPT kit and returned sheets, and the reports/overview sheets. Not touched: the older project content (docs/ builds, audio, art).
+
 ## Practical gotchas
 - Windows + Git Bash: write multi-line scripts with the Write tool or Python, avoid heredocs with apostrophes; avoid `cd ../..` chains (a wrong `cd` once ran scripts from the wrong folder).
 - In the Blender build scripts the variable `base` is overwritten by the finger code: use `BASE_DIR`/`root` for paths later in the script.

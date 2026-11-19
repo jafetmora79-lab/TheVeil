@@ -8,7 +8,7 @@ const HEIGHTS := {"eddie": 1.76, "plaid_shirt": 1.66, "police_officer": 1.82, "t
 
 
 static func glb_path(slug: String) -> String:
-	return "res://game/prototypes/npc_meshy/CHR_%s_Meshy.glb" % slug
+	return "res://game/prototypes/npc_meshy/CHR_%s_FaceTex.glb" % slug      # (the plain CHR_<slug>_Meshy.glb was removed: the FaceTex GLB has the same rig, clips and body)
 
 
 static func instantiate(slug: String) -> Node3D:
