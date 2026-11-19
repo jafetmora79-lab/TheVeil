@@ -17,6 +17,7 @@ var sarah: Node3D
 var clerk: Node3D
 var adapter: VeilSarahFaceAdapter
 var shots_dir := ""
+var faces_dir := ""
 var lookcheck := false
 var assist: VeilSarahLookAssist
 var chapter := 7                          ## which chapter start to use: 5 = the first night (power out, pitch dark), 7 = the supermarket as the shelter, lights on
@@ -28,6 +29,8 @@ func _ready() -> void:
 	for i in args.size():
 		if args[i] == "shots" and i + 1 < args.size():
 			shots_dir = args[i + 1]
+		if args[i] == "faces" and i + 1 < args.size():
+			faces_dir = args[i + 1]
 		if args[i] == "lookcheck":
 			lookcheck = true
 		if args[i] == "chapter" and i + 1 < args.size():
@@ -103,7 +106,7 @@ func _setup() -> void:
 	adapter = VeilSarahFaceAdapter.new()
 	adapter.name = "VeilFace"
 	clerk.add_child(adapter)
-	adapter.setup(null)                                   # no face expressions for him yet: the adapter only keeps the world's calls harmless
+	adapter.setup(VeilProtagonistMeshy.face(sarah))
 	world.faces["Cashier"] = adapter
 	clerk.visible = true
 	# 4. a way to talk to her
@@ -117,6 +120,8 @@ func _setup() -> void:
 		_shots.call_deferred()
 	if lookcheck:
 		_lookcheck.call_deferred()
+	if faces_dir != "":
+		_faces.call_deferred()
 
 
 func _process(_d: float) -> void:
@@ -153,7 +158,7 @@ func _shot(name: String) -> void:
 	for i in 6:
 		await get_tree().process_frame
 	await RenderingServer.frame_post_draw
-	get_viewport().get_texture().get_image().save_png("%s/clerk_%s.png" % [shots_dir, name])
+	get_viewport().get_texture().get_image().save_png("%s/clerk_%s.png" % [shots_dir if shots_dir != "" else faces_dir, name])
 
 
 func _stand(at_local: Vector3, look_local: Vector3) -> void:
@@ -229,4 +234,28 @@ func _lookcheck() -> void:
 			await get_tree().process_frame
 		var e := _head_error()
 		print("LOOK target %3d deg off her facing: head yaw error %.1f deg (body error %.1f), pitch error %.1f" % [deg, e[0], e[1], e[2]])
+	get_tree().quit()
+
+
+# ---------------------------------------------------------------- the face expressions, close up (screenshot mode: -- faces <dir>)
+func _faces() -> void:
+	world.hud.fade_to(0.0, 0.01)
+	var fl = get_tree().get_first_node_in_group("veil_flashlight")
+	if fl:
+		fl.set_on(true)
+	var f := VeilProtagonistMeshy.face(sarah)
+	f.auto_blink = false
+	var cp: Vector3 = world.market.to_local(clerk.global_position)
+	var head_y := 1.60
+	var steps := [["1_neutral", "neutral", false, false], ["2_blink", "neutral", true, false], ["3_talk", "neutral", false, true], ["4_scared", "scared", false, false], ["5_angry", "angry", false, false]]
+	for st in steps:
+		f.expression = st[1]
+		f.talking = st[3]
+		f._blink_left = 0.0
+		_stand(cp + Vector3(0.25, 0, 0.5), Vector3(cp.x, head_y, cp.z))
+		for i in 24:
+			await get_tree().process_frame
+		if st[2]:
+			f.blink(5.0)
+		await _shot(st[0])
 	get_tree().quit()

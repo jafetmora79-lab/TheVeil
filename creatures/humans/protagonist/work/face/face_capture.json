@@ -1,0 +1,7 @@
+{
+ "res": 1000,
+ "cx": 0.0,
+ "cz": 1.6,
+ "size": 0.24,
+ "note": "pixel u = (CX - X)/SIZE*RES + RES/2 ; pixel v(from top) = RES/2 - (Z - CZ)/SIZE*RES"
+}

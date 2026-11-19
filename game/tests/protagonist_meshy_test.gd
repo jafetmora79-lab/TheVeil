@@ -26,7 +26,10 @@ func _run() -> void:
 		ok("clip_" + a, a in ap.get_animation_list())
 	ok("scared_reaction_one_shot", ap.get_animation("scared_reaction").loop_mode == Animation.LOOP_NONE)
 	# height and facing: 1.78 m tall, face toward -Z
-	var mi := n.find_children("*", "MeshInstance3D", true, false)[0] as MeshInstance3D
+	var mi: MeshInstance3D
+	for m_ in n.find_children("*", "MeshInstance3D", true, false):
+		if not String(m_.name).begins_with("Face_"):
+			mi = m_ as MeshInstance3D
 	var box: AABB = mi.global_transform * mi.get_aabb()
 	ok("height_1_78", absf(box.size.y - 1.78) < 0.03, "%.2f m" % box.size.y)
 	var head_i := sk.find_bone("Head")
@@ -109,5 +112,44 @@ func _run() -> void:
 			if w > 0.99:
 				top_ok += 1
 	ok("head_vertices_fully_on_head_bone", top_n > 200 and top_ok == top_n, "%d of %d" % [top_ok, top_n])
+	# ---- face decals: eight patches on the front of the head, nearest-filtered; blink / expressions / talking work
+	var face := VeilProtagonistMeshy.face(n)
+	var decals := n.find_children("Face_*", "MeshInstance3D", true, false)
+	ok("eight_face_decals", face != null and face.has_decals() and decals.size() == 8, str(decals.size()))
+	var vis := func() -> int:
+		var c := 0
+		for d in decals:
+			if (d as MeshInstance3D).visible:
+				c += 1
+		return c
+	face.auto_blink = false
+	face.expression = "neutral"
+	ok("neutral_shows_no_decal", vis.call() == 0)
+	face.blink()
+	ok("blink_closes_eyes", face.eyes_state == "closed" and vis.call() == 1)
+	for i in 14:
+		await process_frame
+	ok("blink_ends", face.eyes_state == "open")
+	face.expression = "scared"
+	ok("scared_face", face.eyes_state == "wide" and face.mouth_state == "scared")
+	face.expression = "angry"
+	ok("angry_face", face.eyes_state == "narrow" and face.brows_state == "angry")
+	face.expression = "neutral"
+	face.talking = true
+	var seen := {}
+	for i in 90:
+		await process_frame
+		seen[face.mouth_state] = true
+	ok("talking_cycles_mouth", seen.has("small") and seen.has("wide"), str(seen.keys()))
+	var facing := true
+	for d in decals:
+		var a2: Array = ((d as MeshInstance3D).mesh as ArrayMesh).surface_get_arrays(0)
+		var v2: PackedVector3Array = a2[Mesh.ARRAY_VERTEX]
+		var ix: PackedInt32Array = a2[Mesh.ARRAY_INDEX]
+		var sz := 0.0
+		for t3 in range(0, ix.size(), 3):
+			sz += (v2[ix[t3 + 1]] - v2[ix[t3]]).cross(v2[ix[t3 + 2]] - v2[ix[t3]]).z
+		facing = facing and sz > 0.0
+	ok("decals_face_the_front", facing)
 	print("RESULT ", "PASS" if fails == 0 else "%d failures" % fails)
 	quit(1 if fails else 0)

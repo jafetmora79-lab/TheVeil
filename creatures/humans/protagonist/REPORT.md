@@ -12,3 +12,7 @@ Sheet: `work/protagonist_rig_sheet.png`.
 
 ## Test scene
 `godot --path . res://game/prototypes/protagonist_meshy/ProtagonistTest.tscn` (F6 in the editor): the real chapter 7 supermarket with the protagonist at the till, animated by the game's NpcAnimator (idle, look-at with the torso-twist assist, talking gestures, scared mood). Walk up and press E. Keys: 6/7 body calm/scared, 8 walk to the doors and back. Screenshot mode: `-- shots <dir>`. Sheet: `work/protagonist_test_sheet.png`. Save file is backed up and restored.
+
+## Face expressions
+Made without any reference art: `meshy_face_capture_protagonist.py` (flat unlit capture of his face) -> `meshy_face_paint_protagonist.py` (blink, wide/narrow eyes, angry brows, four mouth shapes, painted as crops of his own face with feathered edges) -> decal meshes `Face_*` built in `build_protagonist_meshy.py`, driven by the same `VeilSarahFace` controller (`VeilProtagonistMeshy.face()`): neutral / scared / angry, talking, auto-blink.
+Test scene: `ProtagonistTest.tscn -- faces <dir>` takes the close-ups. Strip: `work/protagonist_expressions.png`.

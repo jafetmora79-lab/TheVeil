@@ -259,7 +259,78 @@ if debug:
     print('EVALBBOX rest', ee.min(0).round(3), ee.max(0).round(3), 'frame', bpy.context.scene.frame_current)
     print('BONE0', [(b.name, [round(x, 3) for x in b.head_local], [round(x, 3) for x in b.tail_local]) for b in arm_data.bones][:3])
 
+# ---- face expression decals (stage C): small conforming patches, each a crop of his own face texels with one feature edited.
+# Painted by meshy_face_paint.py from meshy_face_capture.py; here they are laid onto the real face surface (ray cast from the front,
+# 1.8 mm off the skin), skinned 100% to the Head bone, and exported as separate meshes the game shows / hides (no extra weight, no rebuild).
+FACE_DIR = os.path.join(root, "creatures/humans/protagonist/work/face")
 decal_objs = []
+if os.path.exists(os.path.join(FACE_DIR, "face_atlas.json")):
+    atl = json.load(open(os.path.join(FACE_DIR, "face_atlas.json")))
+    cap = json.load(open(os.path.join(FACE_DIR, "face_capture.json")))
+    RES_, CX_, CZ_, SIZE_ = cap["res"], cap["cx"], cap["cz"], cap["size"]
+    AW_, AH_ = atl["atlas"]
+    dmat = bpy.data.materials.new("Protagonist_Face_Decals")
+    dmat.use_nodes = True
+    dn = dmat.node_tree
+    db = dn.nodes["Principled BSDF"]
+    db.inputs["Roughness"].default_value = 1.0
+    try:
+        db.inputs["Specular IOR Level"].default_value = 0.0
+    except Exception:
+        pass
+    dt = dn.nodes.new("ShaderNodeTexImage")
+    dt.image = bpy.data.images.load(os.path.join(FACE_DIR, "face_atlas.png"))
+    dt.image.name = "protagonist_face_atlas"
+    dt.interpolation = "Closest"
+    dn.links.new(dt.outputs["Color"], db.inputs["Base Color"])
+    by_name = {}
+    for pt in atl["patches"]:
+        by_name.setdefault(pt["name"], []).append(pt)
+    for name, plist in by_name.items():
+        bmd = bmesh.new()
+        uvl = bmd.loops.layers.uv.new("uv")
+        for pt in plist:
+            x0, y0, x1, y1 = pt["box"]
+            ax, ay, aw, ah = pt["atlas"]
+            NX, NY = 10, 6
+            grid = []
+            for j in range(NY + 1):
+                row = []
+                for i in range(NX + 1):
+                    u = x0 + (x1 - x0) * i / NX
+                    v = y0 + (y1 - y0) * j / NY
+                    X = CX_ - (u - RES_ / 2) * SIZE_ / RES_
+                    Z = CZ_ - (v - RES_ / 2) * SIZE_ / RES_
+                    hit, loc, nor, idx = src.ray_cast(Vector((X, 2.0, Z)), Vector((0, -1, 0)))
+                    pos = (loc + nor * 0.0018) if hit else Vector((X, 0.12, Z))
+                    row.append((bmd.verts.new(pos), (ax + aw * i / NX) / AW_, 1.0 - (ay + ah * j / NY) / AH_))
+                grid.append(row)
+            for j in range(NY):
+                for i in range(NX):
+                    quad = (grid[j][i], grid[j + 1][i], grid[j + 1][i + 1], grid[j][i + 1])          # wound so the face looks toward +Y (the front)
+                    try:
+                        fc = bmd.faces.new([q[0] for q in quad])
+                    except ValueError:
+                        continue
+                    for lp, q in zip(fc.loops, quad):
+                        lp[uvl].uv = (q[1], q[2])
+        dme = bpy.data.meshes.new("Face_" + name)
+        bmd.to_mesh(dme)
+        bmd.free()
+        dob = bpy.data.objects.new("Face_" + name, dme)
+        bpy.context.scene.collection.objects.link(dob)
+        dme.materials.append(dmat)
+        for p_ in dme.polygons:
+            p_.use_smooth = False
+        g_ = dob.vertex_groups.new(name="Head")
+        g_.add(list(range(len(dme.vertices))), 1.0, 'REPLACE')
+        md = dob.modifiers.new("Armature", 'ARMATURE')
+        md.object = rig
+        dob.parent = rig
+        dob.hide_render = True                 # off in Blender renders; the game shows them through the face controller
+        decal_objs.append(dob)
+    print("DECALS", [o.name for o in decal_objs])
+
 # ---- temporary animations. Proportions studied from the clip statistics of the reference game's Mixamo-rig clips (reference only,
 # nothing copied): idles are LONG (6-10 s) and very quiet (body < 2 degrees, head 2-7, arms 6-11); the walk is ~1.5 s with hips 16-23,
 # spine 5-10, thigh 36-52, knee 53-62, foot 21, arm swing 31-49, forearm 29-37, wrist 23-50 and only thumb / index moving ~15 degrees.

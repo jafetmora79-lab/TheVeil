@@ -9,13 +9,22 @@ const GLB := "res://game/prototypes/protagonist_meshy/CHR_Protagonist_Meshy.glb"
 const INFO := "res://game/prototypes/protagonist_meshy/protagonist_meshy.json"
 
 
-static func instantiate() -> Node3D:
+static func instantiate(with_face := true) -> Node3D:
 	var ps := load(GLB) as PackedScene
 	if ps == null:
 		return null
 	var n := ps.instantiate() as Node3D
 	VeilSarahMeshyProto.psx_look(n)
+	if with_face:
+		var f := VeilSarahFace.new()                      # the same decal-face controller as Sarah's (neutral / scared / angry, talking, blinking)
+		f.name = "Face"
+		n.add_child(f)
+		f.setup(n)
 	return n
+
+
+static func face(root: Node) -> VeilSarahFace:
+	return root.get_node_or_null("Face") as VeilSarahFace
 
 
 static func walk_speed() -> float:
