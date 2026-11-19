@@ -65,3 +65,8 @@ static func face_for(model_parent: Node) -> Node:
 ## `-- old_monsters` (or VEIL_OLD_MONSTERS=1) plays with the old creatures.
 static func monsters_enabled() -> bool:
 	return not OS.get_cmdline_user_args().has("old_monsters") and OS.get_environment("VEIL_OLD_MONSTERS") != "1"
+
+
+## The Skitter scene to load: the Meshy Skitter (same bones, clip names and metadata as the old one) unless `-- old_monsters`.
+static func skitter_scene(old_path: String) -> String:
+	return "res://game/prototypes/monsters_meshy/MON_skitter.tscn" if monsters_enabled() else old_path

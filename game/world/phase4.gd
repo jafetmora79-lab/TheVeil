@@ -943,7 +943,7 @@ func _run_clear(a: Vector3, b: Vector3) -> bool:
 ## line until it creeps forward); picks a landing on the road and checks the jump, the run to the doors and the
 ## run away against the world's collision. Returns [skitter, animation player] or [].
 func _spawn_roof_skitter(doors_z: float) -> Array:
-	var ps := load(SKITTER_PATH) as PackedScene
+	var ps := load(VeilMeshyNpcs.skitter_scene(SKITTER_PATH)) as PackedScene        # the Meshy Skitter by default (`-- old_monsters` for the old one)
 	var bld := world.find_child(ROOF_BUILDING, true, false) as MeshInstance3D
 	if ps == null or bld == null:
 		charge_report["roof_error"] = "missing Skitter or %s" % ROOF_BUILDING
