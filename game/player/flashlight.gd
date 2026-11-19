@@ -94,9 +94,86 @@ func _unhandled_input(e: InputEvent) -> void:
 		reload()
 
 
+## The flashlight in the player's hand: raised into the lower right while it is on, gripped by a right hand (fingers
+## round the barrel, thumb on the switch), trailing the view a little when you turn and rocking with the walk. The beam
+## comes out of the lens, wherever the hand has it. Lowered away when switched off, while the handgun is drawn, or in a scene.
+const FLASH_MODEL := "res://THE_VEIL_ASSETS_V2/08_Inventory/Story_Items/INV_Flashlight.glb"
+const VIEW_REST := Vector3(0.15, -0.17, -0.34)
+var _view: Node3D
+var _lens: Node3D
+var _up := 0.0
+var _vtime := 0.0
+var _lag := Vector2.ZERO
+var _last_yaw := 0.0
+var _last_pitch := 0.0
+
+
+func _ensure_view() -> void:
+	if _view and is_instance_valid(_view):
+		return
+	var ps := load(FLASH_MODEL) as PackedScene
+	var cam := player.get("camera") as Camera3D
+	if ps == null or cam == null:
+		return
+	_view = Node3D.new()
+	_view.name = "FlashlightView"
+	cam.add_child(_view)
+	var body := Node3D.new()                              # origin on the barrel's axis
+	body.position = Vector3(0, -0.031, 0)
+	_view.add_child(body)
+	body.add_child(ps.instantiate())
+	for gi in body.find_children("*", "GeometryInstance3D", true, false):
+		(gi as GeometryInstance3D).cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+	var hands := VeilViewHands.new()
+	hands.build_cylinder_grip(body)
+	_lens = Node3D.new()
+	_lens.position = Vector3(0, 0.031, -0.108)
+	body.add_child(_lens)
+	_view.visible = false
+
+
+func _update_view(delta: float) -> void:
+	var sa := get_tree().get_first_node_in_group("veil_sidearm")
+	var show: bool = on and player.visible and bool(player.get("controls_enabled")) and not (sa and sa.drawn()) \
+		and DisplayServer.get_name() != "headless"
+	_up = move_toward(_up, 1.0 if show else 0.0, delta / 0.2)
+	if _up <= 0.001:
+		if _view and is_instance_valid(_view):
+			_view.visible = false
+		spot.position = Vector3(0.18, -0.12, 0.0)           # no hand in view: the beam from the shoulder, as before
+		spot.rotation = Vector3.ZERO
+		return
+	_ensure_view()
+	if _view == null:
+		return
+	_view.visible = true
+	_vtime += delta
+	var e := smoothstep(0.0, 1.0, _up)
+	var pos := VIEW_REST + Vector3(0, -0.26, 0.05) * (1.0 - e)
+	var v: Vector3 = player.get("velocity") * Vector3(1, 0, 1)
+	var walk := clampf(v.length() / 4.0, 0.0, 1.0)
+	pos += Vector3(sin(_vtime * 4.2) * 0.010 * walk, absf(sin(_vtime * 8.4)) * -0.009 * walk + sin(_vtime * 1.4) * 0.003, 0.0)
+	var pitch := 0.10
+	var run := clampf((v.length() - 3.4) / 0.9, 0.0, 1.0)
+	pos += Vector3(0.0, -0.05, 0.04) * run                      # carried lower while running
+	pitch -= 0.18 * run
+	var yaw_now: float = player.rotation.y
+	var pitch_now: float = float(player.get("_pitch"))
+	_lag += Vector2(wrapf(yaw_now - _last_yaw, -PI, PI), pitch_now - _last_pitch) * 0.5
+	_last_yaw = yaw_now
+	_last_pitch = pitch_now
+	_lag = _lag.lerp(Vector2.ZERO, clampf(delta * 8.0, 0.0, 1.0)).clamp(Vector2(-0.2, -0.2), Vector2(0.2, 0.2))
+	pos += Vector3(_lag.x * 0.2, -_lag.y * 0.13, 0.0)
+	_view.position = pos
+	_view.basis = Basis(Vector3.RIGHT, pitch + _lag.y * 0.5) * Basis(Vector3.UP, -0.05 + _lag.x * 0.7)
+	if _lens:
+		spot.global_transform = _lens.global_transform         # the beam leaves the lens
+
+
 func _process(delta: float) -> void:
 	if player == null:
 		return
+	_update_view(delta)
 	_ui.visible = player.visible and (on or charge < float(cfg["low_warning"]))
 	if not on:
 		return
