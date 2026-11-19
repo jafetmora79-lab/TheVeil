@@ -31,6 +31,55 @@ func _ready() -> void:
 	_panel.add_child(_box)
 	_title = VeilUI.label("", 18, VeilUI.MUTED)
 	_box.add_child(_title)
+	# the sliding highlight: one frame that glides to whichever option is selected (keys, stick or mouse)
+	_overlay = Control.new()
+	_overlay.set_anchors_preset(Control.PRESET_FULL_RECT)
+	_overlay.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	add_child(_overlay)
+	_hl = Panel.new()
+	_hl.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	var sb := StyleBoxFlat.new()
+	sb.bg_color = Color(VeilUI.ACCENT.r, VeilUI.ACCENT.g, VeilUI.ACCENT.b, 0.10)
+	sb.border_color = VeilUI.ACCENT
+	sb.set_border_width_all(2)
+	_hl.add_theme_stylebox_override("panel", sb)
+	_hl.visible = false
+	_overlay.add_child(_hl)
+
+
+var _overlay: Control
+var _hl: Panel
+var _snap := true
+const SLIDE_RATE := 25.0                      ## how quickly the frame glides to the selection (per second)
+
+
+func _process(delta: float) -> void:
+	if not _open:
+		_hl.visible = false
+		_snap = true
+		return
+	var target: Button = null
+	var f := get_viewport().gui_get_focus_owner()
+	if f is Button and _box.is_ancestor_of(f):
+		target = f
+	if target == null:
+		for c in _box.get_children():
+			if c is Button and (c as Button).is_hovered():
+				target = c
+				break
+	if target == null:
+		_hl.visible = false
+		return
+	var r := target.get_global_rect().grow(3.0)
+	if _snap or not _hl.visible:
+		_hl.position = r.position
+		_hl.size = r.size
+		_snap = false
+	else:
+		var k := 1.0 - exp(-SLIDE_RATE * delta)
+		_hl.position = _hl.position.lerp(r.position, k)
+		_hl.size = _hl.size.lerp(r.size, k)
+	_hl.visible = true
 
 
 func is_open() -> bool:

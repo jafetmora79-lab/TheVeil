@@ -10,6 +10,8 @@ uniform float grain = 0.05;
 uniform float distortion = 0.02;
 uniform float aberration = 0.0012;
 uniform float danger = 0.0;
+uniform float bloom = 0.32;             // soft glow around bright lights (the Compatibility renderer has no built-in glow)
+uniform float bloom_threshold = 0.74;
 
 float hash(vec2 p) {
 	return fract(sin(dot(p, vec2(12.9898, 78.233))) * 43758.5453);
@@ -22,6 +24,15 @@ void fragment() {
 	vec2 duv = clamp(0.5 + c * (1.0 + distortion * r2 * 4.0), vec2(0.001), vec2(0.999));
 	vec2 ab = c * aberration * 4.0;
 	vec3 col = vec3(texture(screen_tex, duv + ab).r, texture(screen_tex, duv).g, texture(screen_tex, duv - ab).b);
+	// bloom: 16 taps on two rings round the pixel, only the part above the threshold, added back softly
+	vec3 glow = vec3(0.0);
+	for (int i = 0; i < 8; i++) {
+		float a = float(i) * 0.785398;
+		vec2 dir = vec2(cos(a) * SCREEN_PIXEL_SIZE.x, sin(a) * SCREEN_PIXEL_SIZE.y);
+		glow += max(texture(screen_tex, duv + dir * 5.0).rgb - vec3(bloom_threshold), vec3(0.0));
+		glow += max(texture(screen_tex, duv + dir * 13.0).rgb - vec3(bloom_threshold), vec3(0.0)) * 0.7;
+	}
+	col += glow * bloom / 8.0;
 	// vignette: 0 in the middle of the screen, 1 in the corners
 	float d = length(c) * 1.4142;
 	float vig = smoothstep(1.0 - smoothness, 1.0, d);
