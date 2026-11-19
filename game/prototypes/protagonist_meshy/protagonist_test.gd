@@ -92,7 +92,7 @@ func _setup() -> void:
 		old_face.free()
 	# 2. the Meshy protagonist, with the game's own procedural animator
 	if facetex:
-		sarah = (load("res://creatures/humans/protagonist/face_geo/CHR_Protagonist_FaceTex.glb") as PackedScene).instantiate() as Node3D
+		sarah = (load("res://game/prototypes/protagonist_meshy/face/CHR_Protagonist_FaceTex.glb") as PackedScene).instantiate() as Node3D
 		VeilSarahMeshyProto.psx_look(sarah)
 	else:
 		sarah = VeilProtagonistMeshy.instantiate()

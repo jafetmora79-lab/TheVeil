@@ -4,7 +4,7 @@ class_name VeilProtagonistFaceTex
 ## The model's face skin is a second material (surface 1 of the body mesh) whose UVs are a plain front projection, so each expression is a
 ## 512 px face image (the base face with the feature edited). Swapping that texture changes the expression: same triangles, same shading.
 ##   expression : "neutral" | "scared"        talking : mouth cycles small / wide / closed        blink() / auto_blink
-const DIR := "res://creatures/humans/protagonist/face_geo/tex/"
+const DIR := "res://game/prototypes/protagonist_meshy/face/tex/"
 const NAMES := ["neutral", "blink", "talk_small", "talk_wide", "scared"]
 static var _tex := {}
 var expression := "neutral":

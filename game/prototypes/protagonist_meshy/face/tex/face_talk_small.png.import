@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://dggbhhfra7hcc"
-path="res://.godot/imported/face_talk_wide.png-6a11d0d032602dc395c8ce46ca9b91e0.ctex"
+uid="uid://cpblhypebfd6c"
+path="res://.godot/imported/face_talk_small.png-68e2780946cf2eafc6deb9fb2f9cec4d.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://creatures/humans/protagonist/face_geo/tex/face_talk_wide.png"
-dest_files=["res://.godot/imported/face_talk_wide.png-6a11d0d032602dc395c8ce46ca9b91e0.ctex"]
+source_file="res://game/prototypes/protagonist_meshy/face/tex/face_talk_small.png"
+dest_files=["res://.godot/imported/face_talk_small.png-68e2780946cf2eafc6deb9fb2f9cec4d.ctex"]
 
 [params]
 

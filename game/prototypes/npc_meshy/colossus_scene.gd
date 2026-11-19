@@ -101,7 +101,7 @@ func _cast() -> void:
 	var f := (Vector3(START.x, 0, START.z) - Vector3(GROUP.x, 0, GROUP.z)).normalized()
 	var r := f.cross(Vector3.UP)
 	# the protagonist (Meshy, with face expressions), Eddie and Marcus (bearded_man) side by side
-	var pm := (load("res://creatures/humans/protagonist/face_geo/CHR_Protagonist_FaceTex.glb") as PackedScene).instantiate() as Node3D
+	var pm := (load("res://game/prototypes/protagonist_meshy/face/CHR_Protagonist_FaceTex.glb") as PackedScene).instantiate() as Node3D
 	VeilSarahMeshyProto.psx_look(pm)
 	var pf := VeilProtagonistFaceTex.new()
 	pm.add_child(pf)

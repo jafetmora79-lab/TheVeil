@@ -2,9 +2,9 @@ extends Node
 class_name VeilMeshyNpcFace
 ## THE VEIL - answers the calls the world already makes on an NPC's VeilFace (set_expression / say / start_talking / stop_talking / blink / look /
 ## widen_eyes / narrow_eyes) for a Meshy NPC's face-texture expressions (VeilNpcFaceTex: neutral, scared, angry, worried + talking + blinking).
-## The old face system has ten expressions; they map onto the four: scared / shocked / pain -> scared; angry / determined / suspicious -> angry;
+## The old face system has ten expressions; they map onto the NPCs' four: scared / shocked / pain -> scared; angry / determined / suspicious -> angry;
 ## sad / confused -> worried; everything else -> neutral.
-var face: VeilNpcFaceTex
+var face: Node                                  ## VeilNpcFaceTex (NPCs), VeilProtagonistFaceTex (protagonist) or VeilSarahFace (Sarah): all have expression / talking / blink() / auto_blink
 var expression := "neutral"
 var talking := false
 var face_atlas: Texture2D                       ## (unused: kept so code that sets it does not break)
@@ -17,7 +17,7 @@ var _talk_left := -1.0
 var _override_left := 0.0
 
 
-func setup(f: VeilNpcFaceTex) -> void:
+func setup(f: Node) -> void:
 	face = f
 
 
@@ -35,7 +35,7 @@ static func map_expression(name: String) -> String:
 func set_expression(name: String, _instant := false) -> void:
 	expression = name
 	if face and _override_left <= 0.0:
-		face.expression = map_expression(name)
+		face.expression = _for_controller(map_expression(name))
 
 
 func start_talking(_style := "idle") -> void:
@@ -77,10 +77,19 @@ func current_cells() -> Dictionary:
 	return {}
 
 
+## Sarah's decal face and the protagonist's texture face know fewer expressions than the NPCs': what they lack becomes neutral.
+func _for_controller(expr: String) -> String:
+	if expr == "worried" and not (face is VeilNpcFaceTex):
+		return "neutral"
+	if expr == "angry" and face is VeilProtagonistFaceTex:
+		return "neutral"
+	return expr
+
+
 func _temporary(expr: String, seconds: float) -> void:
 	_override_left = seconds
 	if face:
-		face.expression = expr
+		face.expression = _for_controller(expr)
 
 
 func _process(delta: float) -> void:
@@ -91,4 +100,4 @@ func _process(delta: float) -> void:
 	if _override_left > 0.0:
 		_override_left -= delta
 		if _override_left <= 0.0 and face:
-			face.expression = map_expression(expression)
+			face.expression = _for_controller(map_expression(expression))

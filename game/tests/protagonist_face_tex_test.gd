@@ -15,7 +15,7 @@ func _initialize() -> void:
 
 
 func _run() -> void:
-	var ps := load("res://creatures/humans/protagonist/face_geo/CHR_Protagonist_FaceTex.glb") as PackedScene
+	var ps := load("res://game/prototypes/protagonist_meshy/face/CHR_Protagonist_FaceTex.glb") as PackedScene
 	var n := ps.instantiate()
 	root.add_child(n)
 	await process_frame

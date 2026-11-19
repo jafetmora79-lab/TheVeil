@@ -4,12 +4,12 @@ importer="scene"
 importer_version=1
 type="PackedScene"
 uid="uid://c4lhdmge412bu"
-path="res://.godot/imported/CHR_Protagonist_FaceTex.glb-9d75d46999003ada340dc30c28f4c999.scn"
+path="res://.godot/imported/CHR_Protagonist_FaceTex.glb-399cef1503d9880d5fb1334b67121a9d.scn"
 
 [deps]
 
-source_file="res://creatures/humans/protagonist/face_geo/CHR_Protagonist_FaceTex.glb"
-dest_files=["res://.godot/imported/CHR_Protagonist_FaceTex.glb-9d75d46999003ada340dc30c28f4c999.scn"]
+source_file="res://game/prototypes/protagonist_meshy/face/CHR_Protagonist_FaceTex.glb"
+dest_files=["res://.godot/imported/CHR_Protagonist_FaceTex.glb-399cef1503d9880d5fb1334b67121a9d.scn"]
 
 [params]
 

@@ -31,7 +31,7 @@ func _run(out: String) -> void:
 	rect.material = sm
 	fx.add_child(rect)
 	root.add_child(fx)
-	var ps := load("res://creatures/humans/protagonist/face_geo/CHR_Protagonist_FaceTex.glb") as PackedScene
+	var ps := load("res://game/prototypes/protagonist_meshy/face/CHR_Protagonist_FaceTex.glb") as PackedScene
 	var n := ps.instantiate() as Node3D
 	root.add_child(n)
 	n.rotation_degrees.y = 180.0 + 0.0                       # the face toward the camera on +Z... the model faces -Z, the camera sits at -Z

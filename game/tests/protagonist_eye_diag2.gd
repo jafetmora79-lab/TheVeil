@@ -1,7 +1,7 @@
 extends SceneTree
 ## DIAGNOSTIC (nothing is changed permanently): the same eye close-up under different conditions, to find the source of the grey lines.
 ##   godot --path . --resolution 560x420 --script res://game/tests/protagonist_eye_diag.gd -- <out_dir>
-const FACETEX := "res://creatures/humans/protagonist/face_geo/CHR_Protagonist_FaceTex.glb"
+const FACETEX := "res://game/prototypes/protagonist_meshy/face/CHR_Protagonist_FaceTex.glb"
 const ORIG := "res://game/prototypes/protagonist_meshy/CHR_Protagonist_Meshy.glb"
 const BASE_FACE := "res://creatures/humans/protagonist/work/face/face_flat.png"       # the original face capture (no cleanup)
 var out := ""

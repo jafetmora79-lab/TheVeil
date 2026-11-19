@@ -1,7 +1,7 @@
 extends Node
 ## Automated check of the Meshy NPC trial (Cashier -> store_clerk, Eddie -> eddie) inside the REAL world (headless, needs the autoloads, so it is a scene):
-##   godot --headless --path . res://game/prototypes/npc_meshy/MeshyTrialCheck.tscn                      (switch off: the old characters must be untouched)
-##   godot --headless --path . res://game/prototypes/npc_meshy/MeshyTrialCheck.tscn -- meshy_npcs       (switch on: the Meshy characters stand in)
+##   godot --headless --path . res://game/prototypes/npc_meshy/MeshyTrialCheck.tscn                      -- old_npcs   (the old characters must be untouched)
+##   godot --headless --path . res://game/prototypes/npc_meshy/MeshyTrialCheck.tscn (default: the Meshy characters stand in)
 ## Your save file is backed up and restored.
 const CS := preload("res://game/chapters/chapter_select.gd")
 const SAVE_BAK := "user://veil_save.json.trial_backup"

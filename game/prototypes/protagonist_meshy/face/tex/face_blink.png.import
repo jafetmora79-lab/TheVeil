@@ -2,19 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://tmom0ri5dt8"
-path="res://.godot/imported/CHR_Protagonist_FaceTex_Image_0.png-e95a4ced7b3b31f5312869f03e93e5db.ctex"
+uid="uid://dylxp8v7epl5d"
+path="res://.godot/imported/face_blink.png-85115756f4464cc9291e6742ab520640.ctex"
 metadata={
 "vram_texture": false
-}
-generator_parameters={
-"md5": "2e70bfaf1d07524d5ab32e49b7b4df66"
 }
 
 [deps]
 
-source_file="res://creatures/humans/protagonist/face_geo/CHR_Protagonist_FaceTex_Image_0.png"
-dest_files=["res://.godot/imported/CHR_Protagonist_FaceTex_Image_0.png-e95a4ced7b3b31f5312869f03e93e5db.ctex"]
+source_file="res://game/prototypes/protagonist_meshy/face/tex/face_blink.png"
+dest_files=["res://.godot/imported/face_blink.png-85115756f4464cc9291e6742ab520640.ctex"]
 
 [params]
 
@@ -24,7 +21,7 @@ compress/lossy_quality=0.7
 compress/hdr_compression=1
 compress/normal_map=0
 compress/channel_pack=0
-mipmaps/generate=true
+mipmaps/generate=false
 mipmaps/limit=-1
 roughness/mode=0
 roughness/src_normal=""

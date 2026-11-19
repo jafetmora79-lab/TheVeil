@@ -1,7 +1,7 @@
 extends SceneTree
 ## DIAGNOSTIC (nothing is changed permanently): the same eye close-up under different conditions, to find the source of the grey lines.
 ##   godot --path . --resolution 560x420 --script res://game/tests/protagonist_eye_diag.gd -- <out_dir>
-const FACETEX := "res://creatures/humans/protagonist/face_geo/CHR_Protagonist_FaceTex.glb"
+const FACETEX := "res://game/prototypes/protagonist_meshy/face/CHR_Protagonist_FaceTex.glb"
 const ORIG := "res://game/prototypes/protagonist_meshy/CHR_Protagonist_Meshy.glb"
 const BASE_FACE := "res://creatures/humans/protagonist/work/face/face_flat.png"       # the original face capture (no cleanup)
 var out := ""
@@ -67,7 +67,7 @@ func _run() -> void:
 	# 3: the current Godot material and lighting (cleaned neutral texture, lit, nearest)
 	tests.append(["3 current material + lighting", FACETEX, func(i, m):
 		if i == 1:
-			m.albedo_texture = load("res://creatures/humans/protagonist/face_geo/tex/face_neutral.png")
+			m.albedo_texture = load("res://game/prototypes/protagonist_meshy/face/tex/face_neutral.png")
 			m.texture_filter = BaseMaterial3D.TEXTURE_FILTER_NEAREST
 			m.roughness = 1.0])
 	# 3b: the ORIGINAL texture with the current material and lighting

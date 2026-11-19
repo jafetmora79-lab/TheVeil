@@ -171,6 +171,14 @@ func _setup_market() -> void:
 	its["exit"] = _spot("C5_HeadOut", market, _door_spot(), Vector3(2.5, 2.2, 0.3), "", _head_out)
 
 
+## Eddie's way out of the store (world points): through the right-hand opening of the vestibule wall, across the vestibule, through the doors and a
+## few metres into the street. He says his line while the player may already be leaving; with no route he would walk the straight line to wherever the
+## player is by then, through the walls, and get stuck inside.
+func _eddie_exit_route() -> Array:
+	var dz := _door_spot().z
+	return [ml(Vector3(1.5, 0.04, 3.0)), ml(Vector3(1.1, 0.04, 1.4)), ml(Vector3(0.0, 0.04, dz)), ml(Vector3(0.0, 0.04, OUTSIDE_Z - 1.2))]
+
+
 ## Market-local centre of the front door pair, just on the inside of the leaves.
 func _door_spot() -> Vector3:
 	var zs := 0.0
@@ -503,7 +511,7 @@ func _head_out(_b: Node) -> void:
 	_set_doors(true)
 	st()["eddie"] = "following"
 	_reparent(eddie, world)
-	eddie_follow.start()
+	eddie_follow.start(_eddie_exit_route())      # out through the doors first: the player may already be outside by now
 	Game.set_flag("c5_prepared")                 # saves (flags auto-save) with Eddie following
 	world._beacon("c5", hl(Vector3(-1.6, 2.8, 3.0)), Color(0.8, 0.9, 1.0))
 	_busy["out"] = false

@@ -5,7 +5,7 @@ import numpy as np
 from PIL import Image
 root = sys.argv[1]
 base = os.path.join(root, "creatures/humans/protagonist")
-out = os.path.join(base, "face_geo/tex")
+out = os.path.join(root, "game/prototypes/protagonist_meshy/face/tex")
 F = np.array(Image.open(os.path.join(base, "work/face/face_flat.png")).convert("RGB")).astype(np.float32)
 SRC = {"neutral": None, "blink": "eyes_closed_a", "talk_small": "talk_small", "talk_wide": "talk_wide", "scared": "scared_open"}
 REF = [(330, 250, 680, 320), (300, 520, 400, 690), (600, 520, 700, 690)]          # forehead and both cheeks: skin that does not change

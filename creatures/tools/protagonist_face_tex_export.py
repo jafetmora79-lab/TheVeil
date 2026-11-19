@@ -9,7 +9,7 @@ rig = bpy.data.objects["Protagonist_Meshy_Rig"]
 mat = body.data.materials[1]
 for nd in mat.node_tree.nodes:
     if nd.type == 'TEX_IMAGE':
-        nd.image = bpy.data.images.load(os.path.join(base, "tex/face_neutral.png"))
+        nd.image = bpy.data.images.load(os.path.join(root, "game/prototypes/protagonist_meshy/face/tex/face_neutral.png"))
         nd.interpolation = "Closest"
 import json, math
 from mathutils import Vector
@@ -61,6 +61,6 @@ bpy.ops.object.select_all(action='DESELECT')
 body.select_set(True)
 rig.select_set(True)
 bpy.context.view_layer.objects.active = rig
-bpy.ops.export_scene.gltf(filepath=os.path.join(base, "CHR_Protagonist_FaceTex.glb"), export_format='GLB', use_selection=True, export_animations=True,
+bpy.ops.export_scene.gltf(filepath=os.path.join(root, "game/prototypes/protagonist_meshy/face/CHR_Protagonist_FaceTex.glb"), export_format='GLB', use_selection=True, export_animations=True,
                           export_animation_mode='ACTIONS', export_skins=True, export_yup=True, export_apply=False)
-print("EXPORTED", os.path.getsize(os.path.join(base, "CHR_Protagonist_FaceTex.glb")))
+print("EXPORTED", os.path.getsize(os.path.join(root, "game/prototypes/protagonist_meshy/face/CHR_Protagonist_FaceTex.glb")))
