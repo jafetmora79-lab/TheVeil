@@ -18,6 +18,15 @@ var support: Node3D
 var _mats := {}
 
 
+## The inventory models carry a collision body (INV_*_Col) for pickups lying in the world. A model held in the hand is a
+## child of the player's camera, so that body would shove the player's own capsule (the "super pushback" through walls):
+## every first-person model has its physics bodies removed.
+static func strip_physics(root_node: Node) -> void:
+	for c in root_node.find_children("*", "CollisionObject3D", true, false):
+		c.get_parent().remove_child(c)
+		c.free()
+
+
 func _mat(c: Color) -> StandardMaterial3D:
 	var k := c.to_html()
 	if not _mats.has(k):
