@@ -17,6 +17,8 @@ var sarah: Node3D
 var clerk: Node3D
 var adapter: VeilSarahFaceAdapter
 var shots_dir := ""
+var lookcheck := false
+var assist: VeilSarahLookAssist
 var chapter := 7                          ## which chapter start to use: 5 = the first night (power out, pitch dark), 7 = the supermarket as the shelter, lights on
 var _frames := 0
 
@@ -26,6 +28,8 @@ func _ready() -> void:
 	for i in args.size():
 		if args[i] == "shots" and i + 1 < args.size():
 			shots_dir = args[i + 1]
+		if args[i] == "lookcheck":
+			lookcheck = true
 		if args[i] == "chapter" and i + 1 < args.size():
 			chapter = int(args[i + 1])
 	_backup_save()
@@ -87,6 +91,10 @@ func _setup() -> void:
 	anim.name = "Animator"
 	clerk.add_child(anim)
 	world.animators["Cashier"] = anim
+	assist = VeilSarahLookAssist.new()
+	assist.name = "LookAssist"
+	clerk.add_child(assist)
+	assist.setup(anim, clerk)
 	clerk.transform = Transform3D(Basis(), clerk.transform.origin)
 	var want: Vector3 = world.market.global_transform.basis * (Basis(Vector3.UP, -PI * 0.5) * Vector3(0, 0, -1))
 	want.y = 0.0
@@ -107,6 +115,8 @@ func _setup() -> void:
 	print("CLERK TEST ready: Sarah at ", clerk.global_position)
 	if shots_dir != "":
 		_shots.call_deferred()
+	if lookcheck:
+		_lookcheck.call_deferred()
 
 
 func _process(_d: float) -> void:
@@ -182,4 +192,41 @@ func _shots() -> void:
 	for i in 60:
 		await get_tree().process_frame
 	await _shot("6_side")
+	get_tree().quit()
+
+
+# ---------------------------------------------------------------- how well does her head follow the player?
+func _head_error() -> Array:
+	var a: Node = world.animators["Cashier"]
+	var sk: Skeleton3D = a.skel
+	var head: int = a.bone("Head")
+	var gp := sk.get_bone_global_pose(head)
+	var rest := sk.get_bone_global_rest(head)
+	var fwd_local: Vector3 = (gp.basis * rest.basis.inverse()) * a.F                 # the head's forward, in skeleton space
+	var fwd: Vector3 = sk.global_transform.basis * fwd_local
+	var head_w: Vector3 = sk.global_transform * gp.origin
+	var to: Vector3 = world.player.camera.global_position - head_w
+	var h_to := Vector3(to.x, 0, to.z).normalized()
+	var h_f := Vector3(fwd.x, 0, fwd.z).normalized()
+	var body: Vector3 = a.world_forward()
+	return [rad_to_deg(h_f.signed_angle_to(h_to, Vector3.UP)), rad_to_deg(Vector3(body.x, 0, body.z).normalized().signed_angle_to(h_to, Vector3.UP)),
+		rad_to_deg(atan2(to.y, Vector2(to.x, to.z).length()) - atan2(fwd.y, Vector2(fwd.x, fwd.z).length()))]
+
+
+func _lookcheck() -> void:
+	world.hud.fade_to(0.0, 0.01)
+	var m: Node3D = world.market
+	var cp: Vector3 = m.to_local(clerk.global_position)
+	var a = world.animators["Cashier"]
+	a.turn_to_face = false                                # measure the head alone: the body stays put
+	assist.enabled = "noassist" not in OS.get_cmdline_user_args()
+	var fwd_l: Vector3 = m.to_local(clerk.global_position + a.world_forward()) - cp
+	for deg in [0, 20, 40, 60, 80, 100]:
+		var ang := deg_to_rad(float(deg))
+		var dir := Vector3(fwd_l.x * cos(ang) - fwd_l.z * sin(ang), 0, fwd_l.x * sin(ang) + fwd_l.z * cos(ang)).normalized()
+		_stand(cp + dir * 1.8, cp + Vector3(0, 0, 0))
+		for i in 150:
+			await get_tree().process_frame
+		var e := _head_error()
+		print("LOOK target %3d deg off her facing: head yaw error %.1f deg (body error %.1f), pitch error %.1f" % [deg, e[0], e[1], e[2]])
 	get_tree().quit()

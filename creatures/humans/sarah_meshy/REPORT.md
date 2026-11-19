@@ -109,3 +109,8 @@ lights and mist; `-- chapter 5` is the pitch-dark first night) and swaps the lan
 NpcAnimator (it worked on her skeleton unchanged: idle, look-at, talk gestures, scared mood) and her face answers the world's VeilFace calls through an adapter
 (expressions, talking while a dialogue line plays, blink). Walk up and press E to talk to her. Nothing in the game's scenes or scripts is modified. The save file is
 backed up on start and restored on exit. Screenshots: `work/clerk/`, `work/clerk_test_sheet.png`. Keys: 1 neutral, 2 scared, 3 angry, 4 talk, 5 blink, 6 / 7 calm / scared body, 8 walk to the doors and back.
+
+### Head turn toward the player (clerk test)
+The game's NpcAnimator turned only the head (capped at 69 deg) and moved the body only within 2 m or while talking.
+`sarah_look_assist.gd` (Sarah-only, runs after the animator; no game script changed) now: turns her body gently once the player is more than 30 deg off her front, twists the chest (shoulders lead), and extends the head turn to about 100 deg.
+Measured with `ClerkTest.tscn -- lookcheck`: head-to-player yaw error under 0.5 deg at 0 to 100 deg (was -11 deg at 80 and -31 deg at 100); body settles at about 30 deg off, head covers the rest.
