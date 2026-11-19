@@ -121,7 +121,9 @@ func _ensure_view() -> void:
 	var body := Node3D.new()                              # origin on the barrel's axis
 	body.position = Vector3(0, -0.031, 0)
 	_view.add_child(body)
-	body.add_child(ps.instantiate())
+	var model := ps.instantiate()
+	VeilViewHands.strip_physics(model)                    # the model's pickup collision body must not push the player
+	body.add_child(model)
 	for gi in body.find_children("*", "GeometryInstance3D", true, false):
 		(gi as GeometryInstance3D).cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 	var hands := VeilViewHands.new()
