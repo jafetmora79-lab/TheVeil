@@ -19,6 +19,10 @@ head.data.materials.append(grey)
 for _o in list(bpy.data.objects):
     if _o is head or _o.type != 'MESH':
         continue
+    if _o.name.startswith("Sarah_Hair"):
+        _o.data.materials.clear()
+        _o.data.materials.append(grey)
+        continue
     if _o.name.startswith("Sarah_Body") or _o.name.startswith("Skin_Body"):
         _o.data.materials.clear()
         _o.data.materials.append(grey)
@@ -79,7 +83,7 @@ sc.collection.objects.link(co)
 sc.camera = co
 ctr = Vector((0, -.02, 1.52))
 tiles = []
-for name, az in (("front", 0), ("three", 38), ("side", 90)):
+for name, az in (("front", 0), ("three", 38), ("side", 90), ("back", 180)):
     t = math.radians(az)
     co.location = (ctr.x + 6 * math.sin(t), ctr.y - 6 * math.cos(t), ctr.z)
     co.rotation_euler = (math.pi / 2, 0, t)
