@@ -50,8 +50,8 @@ V = np.array([v.co[:] for v in head.data.vertices])
 zmin, zmax = V[:, 2].min(), V[:, 2].max()
 V[:, 2] = zmin + (V[:, 2] - zmin) * (1.66 - zmin) / (zmax - zmin)          # crown back to 1.66
 zk = np.array([1.660, 1.645, 1.625, 1.600, 1.575, 1.550, 1.525, 1.500, 1.475, 1.455, 1.440, 1.425, 1.405, 1.380])
-hw_t = np.array([.022, .050, .068, .075, .077, .073, .065, .058, .051, .043, .037, .035, .036, .036])          # fuller jaw, rounded chin
-fy_t = np.array([-.020, -.062, -.095, -.108, -.110, -.106, -.104, -.103, -.098, -.090, -.078, -.060, -.045, -.040])
+hw_t = np.array([.022, .050, .068, .075, .077, .075, .069, .064, .056, .047, .040, .036, .036, .036])          # fuller jaw, rounded chin
+fy_t = np.array([-.020, -.062, -.095, -.108, -.110, -.106, -.104, -.102, -.096, -.086, -.074, -.058, -.045, -.040])
 by_t = np.array([.042, .067, .083, .089, .089, .085, .078, .067, .052, .034, .024, .018, .016, .016])
 bins = np.linspace(V[:, 2].min(), V[:, 2].max(), 28)
 hw_c, fy_c, by_c, zc = [], [], [], []
@@ -75,7 +75,7 @@ for i, v in enumerate(V):
     V[i, 1] = v[1] * (1 - w) + (ft + ny * (bt - ft)) * w
 for i, v in enumerate(V):
     if v[2] < 1.50:
-        V[i, 2] = 1.50 - (1.50 - v[2]) * .90
+        V[i, 2] = 1.50 - (1.50 - v[2]) * .86
 EZ = 1.553                                                                                          # eye line
 for i, v in enumerate(V):
     x, y, z = v
@@ -91,7 +91,9 @@ for i, v in enumerate(V):
     base = .008 * math.exp(-((x / .017) ** 2) - ((z - 1.517) / .007) ** 2)
     d += bridge + tip + base                                                                       # a low-poly nose volume
     d += 0.0       # keep the cheekbone soft
-    d += .0015 * math.exp(-((x / .025) ** 2) - ((z - 1.490) / .008) ** 2)                           # mouth area barely proud
+    d += .0030 * math.exp(-((x / .020) ** 2) - ((z - 1.497) / .0045) ** 2)                      # upper lip
+    d += .0026 * math.exp(-((x / .019) ** 2) - ((z - 1.481) / .0045) ** 2)                      # lower lip
+    d += .0030 * math.exp(-((x / .020) ** 2) - ((z - 1.458) / .008) ** 2)                      # chin pad                           # mouth area barely proud
     d += .002 * math.exp(-((x / .022) ** 2) - ((z - 1.455) / .008) ** 2)                           # round chin
     V[i, 1] -= d
 for i, v in enumerate(head.data.vertices):
@@ -122,8 +124,8 @@ for sx in (-1, 1):
     cz = sum(v.co.z for v in vv) / len(vv); cy = sum(v.co.y for v in vv) / len(vv)
     for v in vv:
         v.co.x += sx * .005
-        v.co.y = cy + (v.co.y - cy) * .72 + .004
-        v.co.z = cz + (v.co.z - cz) * .72
+        v.co.y = cy + (v.co.y - cy) * .60 + .004
+        v.co.z = cz + (v.co.z - cz) * .62
 # neck tube: extrude the open lower boundary straight down into the body's neck so no seam shows
 bme.edges.ensure_lookup_table()
 bnd = [e for e in bme.edges if e.is_boundary]
@@ -132,8 +134,8 @@ nv = [g for g in ex['geom'] if isinstance(g, bmesh.types.BMVert)]
 cxm = sum(v.co.x for v in nv) / len(nv); cym = sum(v.co.y for v in nv) / len(nv)
 for v in nv:
     v.co.z = 1.385
-    v.co.x = cxm + (v.co.x - cxm) * .82
-    v.co.y = cym + (v.co.y - cym) * .82
+    v.co.x = cxm + (v.co.x - cxm) * .95
+    v.co.y = cym + (v.co.y - cym) * .95
 bmesh.ops.recalc_face_normals(bme, faces=list(bme.faces))
 bme.to_mesh(head.data)
 bme.free()

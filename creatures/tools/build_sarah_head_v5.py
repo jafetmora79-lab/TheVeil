@@ -113,26 +113,41 @@ for p in cm.polygons:
     p.use_smooth = False
 bm.free()
 
-# ------------------------------------------------------------------------------------------ ponytail refit
-path = os.path.abspath("creatures/humans/sarah/CHR_Sarah_v3.blend")
-with bpy.data.libraries.load(path, link=False) as (src, dst):
-    dst.objects = ["Sarah_Hair"]
-pt = dst.objects[0]
+# ------------------------------------------------------------------------------------------ ponytail (rebuilt: tapered, curved, rooted in the skull)
+import random
+random.seed(7)
+path_pts = [(0, .072, 1.590), (0, .108, 1.545), (0, .130, 1.470), (0, .142, 1.385), (0, .140, 1.290), (0, .128, 1.200), (0, .118, 1.125)]
+rad_x = [.026, .036, .037, .033, .027, .018, .004]
+rad_y = [.020, .026, .027, .024, .020, .014, .004]
+NS = 6
+pb = bmesh.new()
+pl = pb.loops.layers.uv.new("UVMap")
+rings = []
+for i, ((px, py, pz), rx, ry) in enumerate(zip(path_pts, rad_x, rad_y)):
+    ring = []
+    for k in range(NS):
+        t = 2 * math.pi * k / NS + (.25 if i % 2 else 0)
+        j = 1 + random.uniform(-.08, .08)
+        ring.append(pb.verts.new((px + math.cos(t) * rx * j, py + math.sin(t) * ry * j, pz)))
+    rings.append(ring)
+for i in range(len(rings) - 1):
+    for k in range(NS):
+        k2 = (k + 1) % NS
+        f = pb.faces.new((rings[i][k], rings[i][k2], rings[i + 1][k2], rings[i + 1][k]))
+        us = (k / NS, (k + 1) / NS, (k + 1) / NS, k / NS)
+        vs = (i, i, i + 1, i + 1)
+        for l, uu, vv in zip(f.loops, us, vs):
+            l[pl].uv = (uu * .96 + .02, 1 - vv / (len(rings) - 1) * .96 - .02)
+pb.faces.new(rings[0][::-1])
+bmesh.ops.recalc_face_normals(pb, faces=list(pb.faces))
+pm = bpy.data.meshes.new("Sarah_Hair_Ponytail")
+pb.to_mesh(pm)
+pb.free()
+pt = bpy.data.objects.new("Sarah_Hair_Ponytail", pm)
 bpy.context.scene.collection.objects.link(pt)
-pt.parent = None
-for md in list(pt.modifiers):
-    pt.modifiers.remove(md)
-for vg in list(pt.vertex_groups):
-    pt.vertex_groups.remove(vg)
-pt.name = "Sarah_Hair_Ponytail"
-pv = np.array([v.co[:] for v in pt.data.vertices])
-print("PONY before", pv.min(0).round(3), pv.max(0).round(3))
-for v in pt.data.vertices:
-    v.co.y += .047           # new skull is deeper at the back
-    v.co.z += .004
-pv = np.array([v.co[:] for v in pt.data.vertices])
-print("PONY after", pv.min(0).round(3), pv.max(0).round(3))
-print("HEAD tris", sum(len(p.vertices) - 2 for p in head.data.polygons), "CAP tris", sum(len(p.vertices) - 2 for p in cm.polygons))
+for p_ in pm.polygons:
+    p_.use_smooth = False
+print("PONY tris", sum(len(p_.vertices) - 2 for p_ in pm.polygons))
 for o in list(bpy.data.objects):
     if o.name not in ("Sarah_Head", "Sarah_HairCap", "Sarah_Hair_Ponytail"):
         bpy.data.objects.remove(o)

@@ -46,7 +46,7 @@ def hair_col(p, n):
 def skin_col(p, n, region):
     m = noise(p, 70)
     c = SKIN * (1 + .07 * m)
-    if hash2(math.floor(p.x * 260), math.floor(p.z * 260) + math.floor(p.y * 260)) > .985 and region != "neck":
+    if hash2(math.floor(p.x * 260), math.floor(p.z * 260) + math.floor(p.y * 260)) > .985 and region == "face":
         c = c * .82
     if region == "neck":
         c = c * (.95 + .05 * sm((p.z - 1.40) / .05))
@@ -73,15 +73,22 @@ def shade(p, n, kind):
     if kind == "head":
         if p.z < 1.452:
             return skin_col(p, n, "neck")
-        if is_ear(p):
+        de = math.hypot((p.y - .014) / .022, (p.z - 1.558) / .028)
+        if is_ear(p) and de < 1.25:
             c = skin_col(p, n, "ear")
-            d = math.hypot((p.y - .014) / .02, (p.z - 1.558) / .026)
-            return c * (.82 + .12 * sm(d)) * np.array([1.04, .96, .94])
+            w = 1 - sm((de - .75) / .5)
+            rim = .88 + .1 * sm(abs(de - .55) / .35)
+            inner = .90 if de < .45 else 1.0
+            tint = np.array([1.05, .95, .93])
+            return c * (1 - w) + c * rim * inner * tint * w
         hair = p.z > 1.600 or (p.y > .005 and p.z > 1.525) or (abs(p.x) > .055 and p.z > 1.588 and p.y > -.03)
-        wf = sm((-n.y - .10) / .35) * (1 - sm((abs(p.x) - .056) / .016)) * (1 if p.y < -.03 else 0)
+        wf = sm((-n.y - .10) / .35) * (1 - sm((abs(p.x) - .048) / .014)) * (1 if p.y < -.03 else 0)
         base = hair_col(p, n) if hair else skin_col(p, n, "face")
         if wf > 0:
-            return base * (1 - wf) + face_sample(p) * wf
+            fs = face_sample(p)
+            if fs.min() > .80:
+                return base
+            return base * (1 - wf) + fs * wf
         return base
     return hair_col(p, n)
 
@@ -147,22 +154,18 @@ img256 = save_png("Sarah_Head_256", tex)
 t128 = tex.reshape(128, 2, 128, 2, 3).mean((1, 3))
 save_png("Sarah_Head_128", t128)
 
-bm = bmesh.new(); bm.from_mesh(pony.data)
-uvl = bm.loops.layers.uv.verify()
-zs = [v.co.z for v in bm.verts]; z0, z1 = min(zs), max(zs)
-for f in bm.faces:
-    for l in f.loops:
-        co = l.vert.co
-        side = abs(f.normal.x) > abs(f.normal.y)
-        u = (co.y * 6.0 if side else co.x * 6.0) % 1.0 * .9 + .05
-        l[uvl].uv = (u, (co.z - z0) / (z1 - z0) * .96 + .02)
-bm.to_mesh(pony.data); bm.free()
 PT = 64
 pt = np.zeros((PT, PT, 3), np.float32)
+rs = np.random.RandomState(11)
+colw = rs.uniform(.55, 1.2, PT)
+colo = rs.uniform(0, 6.28, PT)
 for y in range(PT):
     for x in range(PT):
-        s = .5 + .5 * math.sin(x * .9 + math.sin(y * .22) * 1.4)
-        pt[y, x] = (HAIR_A * (1 - s) + HAIR_B * s) * (.9 + .18 * hash2(x, y // 3))
+        wob = math.sin(y * .18 + colo[x]) * .5 + math.sin(y * .47 + colo[x] * 2.1) * .25
+        s_ = np.clip(.25 + .35 * colw[x] * (.5 + .5 * wob) + (rs.rand() - .5) * .22, 0, 1)
+        if rs.rand() < .015:
+            s_ = min(1.0, s_ + .35)
+        pt[y, x] = (HAIR_A * (1 - s_) + HAIR_B * s_) * (.95 + .1 * rs.rand())
 pimg = save_png("Sarah_Ponytail_64", pt)
 
 
