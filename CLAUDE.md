@@ -15,6 +15,19 @@ is in `docs/HANDOFF.md`; story and art direction are in `docs/THE_VEIL_MASTER_CO
   - Contents: `TheVeil.exe` (stock 4.3 template), `TheVeil.pck`, `TheVeil_TrailerMode.bat`,
     `Unlock_All_Chapters.bat`, `CHANGELOG.txt`.
 
+## Meshy characters (2026-11-19) - READ `docs/HANDOFF_MESHY_CHARACTERS.md` BEFORE TOUCHING NPCs, FACES OR CHARACTER MODELS
+
+Branch `art/npc-meshy-trial-eddie-clerk` (not merged into the default branch yet; merge only when the owner says so). On it, **every NPC in the game is a new
+Meshy model by default** (the old models are still in the repo; launch with `-- old_npcs` to see them):
+- Who plays whom is one list, `MAP` in `game/npc/meshy_npcs.gd`; the swap is a guarded hook in `world._spawn_npc` (all NPCs, including the protagonist in cutscenes,
+  are created there). Faces answer the old VeilFace calls through `game/npc/meshy_npc_face.gd` and follow the NpcAnimator's scared mood.
+- Models, rigs, face textures and tools: `game/prototypes/npc_meshy/`, `game/prototypes/protagonist_meshy/`, `game/prototypes/sarah_meshy/`, `creatures/` (sources + Blender scripts).
+  Do not make new character models or faces by hand: use the pipeline in the handoff document.
+- Also on that branch: Eddie now leaves the supermarket through the doors before following (`chapter5.gd`, `_eddie_exit_route`), with a regression test.
+- Merge notes: it merges cleanly into the default branch (code changes are only `world.gd` (3 lines), `chapter5.gd`, two new files in `game/npc/`); against `claude/tentacle-beast`
+  the only conflicts are 22 identical `game/audio/encounters/*.wav.import` add/add files (take either side).
+- The lean download copy for testing is branch `playtest/meshy-trial` (no docs or character sources).
+
 ## The owner's working rules
 
 - Make focused changes, one branch per fix or feature. Commit and push. Never merge unless the owner asks.
