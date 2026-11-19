@@ -1755,6 +1755,13 @@ const PROTAG_PATH := "res://THE_VEIL_ASSETS_V2/06_Characters/Protagonist/CHR_Pro
 const PROTAG_FACE_PATH := "res://THE_VEIL_ASSETS_V2/06_Characters/Facial/Faces/T_Face_Protagonist.png"
 const TENTACLE_AI := preload("res://game/enemies/tentacle_ai.gd")
 const CEILING_SHADER := preload("res://game/world/mist_ceiling.gdshader")
+## THE SWITCH: the Colossus's place in the shop encounter is taken by the Meshy tentacle beast (a vertex-shader walk, no
+## skeleton). false = the original rigged Colossus (kept, unchanged). Tests that read the old rig's bones set the
+## `use_beast_colossus` variable to false.
+const USE_BEAST_COLOSSUS := true
+const BEAST_HEIGHT := 60.0                   ## metres (the Colossus is ~60 m at COLOSSUS_SCALE)
+const BEAST_WALK_SPEED := 0.25               ## leg cycles per second: heavy and slow (~5 m/s over the ground)
+var use_beast_colossus := USE_BEAST_COLOSSUS
 const COLOSSUS_SCALE := 6.0                  ## presentation scale for the encounter (~60 m tall)
 const CEILING_LAYERS := [9.0, 12.0, 15.5, 19.5]
 
@@ -2174,6 +2181,9 @@ func _enc_fade_sounds() -> void:
 
 
 func _colossus_encounter() -> void:
+	if use_beast_colossus:
+		await _colossus_encounter_beast()
+		return
 	_encounter_running = true
 	Game.set_flag("p3_stepped_out")
 	_end_cine()
@@ -2493,6 +2503,364 @@ func _colossus_encounter() -> void:
 	ap.speed_scale = 0.5
 	var speed: float = STANCE_RATE * COLOSSUS_SCALE * ap.speed_scale
 	var away := c.create_tween()
+	away.tween_property(c, "global_position", c.global_position + walk_dir * speed * 30.0, 30.0)
+	away.tween_callback(c.queue_free)
+	_enc_sounds.append(Sfx.play("colossus_step", L + walk_dir * 6.0, 4.0, 0.65))
+	await get_tree().create_timer(2.0).timeout
+	_enc_sounds.append(Sfx.play("colossus_step", L + walk_dir * 12.0, 2.0, 0.6))
+	await get_tree().create_timer(1.6).timeout                  # frozen for a moment
+	# --- Stage 6: back to the first person, eased (no snap); the encounter's sounds fade out with it
+	gaze.queue_free()
+	me.queue_free()
+	animators.erase("Protagonist")
+	faces.erase("Protagonist")
+	player.set_yaw_pitch(atan2(-d_leg.x, -d_leg.z), deg_to_rad(8.0))
+	var fp := player.camera.global_transform
+	var tb := create_tween()
+	tb.tween_property(cam, "global_transform", fp, 0.7).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
+	tb.parallel().tween_property(cam, "fov", player.camera.fov, 0.7)
+	_enc_fade_sounds()
+	await tb.finished
+	cam.queue_free()
+	player.camera.current = true
+	player.controls_enabled = true
+	hud.allow_pause = true
+	_encounter_running = false
+	if living and living.has_method("restore_after_shot"):
+		living.restore_after_shot()
+	# --- Stage 7: survival begins
+	player.set_survival(true)
+	hud.set_survival_visible(true)
+	if _enc_store == market:
+		# the supermarket's doors are dead behind him: Eddie is at the game shop's, calling him over
+		hud.title_card("GET TO THE GAME SHOP", 2.2)
+		Dialogue.say("p3_doors_dead", false, true)
+		if eddie and animators.has("Eddie"):
+			npc_walk("Eddie", game_shop.to_local((game_shop.get_node("Doorways/Entrance_Inside") as Node3D).global_position), 3.2)
+		get_tree().create_timer(2.4).timeout.connect(func(): Dialogue.say("p3_eddie_over_here", false, false))
+		_p3_spawn_tentacles()
+		_beacon("store_back", shop_door + Vector3(0, 2.4, 0), Color(0.75, 0.85, 1.0))
+	else:
+		hud.title_card("GET BACK INSIDE THE STORE", 2.2)
+		Dialogue.say("p3_colossus", false, true)
+		_p3_spawn_tentacles()
+		_beacon("store_back", door_out + Vector3(0, 2.4, 0), Color(0.75, 0.85, 1.0))
+	save()
+
+
+## The same encounter with the tentacle beast in the Colossus's place (USE_BEAST_COLOSSUS). Same stages, sounds,
+## lamp, camera and report fields; only the creature and its feet differ.
+func _colossus_encounter_beast() -> void:
+	_encounter_running = true
+	Game.set_flag("p3_stepped_out")
+	_end_cine()
+	_enc_store = market if player.global_position.distance_to(market.global_position) < player.global_position.distance_to(game_shop.global_position) else game_shop
+	var door_in: Vector3 = (_enc_store.get_node("Doorways/Entrance_Inside") as Node3D).global_position
+	var door_out: Vector3 = (_enc_store.get_node("Doorways/Entrance_Outside") as Node3D).global_position
+	var n := (door_out - door_in) * Vector3(1, 0, 1)
+	n = n.normalized()
+	var side := n.cross(Vector3.UP).normalized()
+	var P := player.global_position
+	var ground := P.y
+	var L := P + n * 15.0 + side * 1.6                 # across the street, well clear of the storefront
+	# leaving the supermarket last, the way back to Eddie is across the street to the game shop: the foot comes
+	# down beside that way (50 degrees off it, 9+ m clear), never on it, and the creature walks away from it
+	var shop_door: Vector3 = (game_shop.get_node("Doorways/Entrance_Outside") as Node3D).global_position
+	var route := (shop_door - P) * Vector3(1, 0, 1)
+	var route_dir := route.normalized() if route.length() > 0.5 else n
+	var off_route := _enc_store == market and route.length() > 6.0
+	if off_route:
+		var best_l := Vector3.INF
+		for sg in [1.0, -1.0]:
+			var cand: Vector3 = P + route_dir.rotated(Vector3.UP, sg * deg_to_rad(50.0)) * 15.0
+			if not best_l.is_finite() or (cand - P).normalized().dot(n) > (best_l - P).normalized().dot(n):
+				best_l = cand
+		L = best_l
+	var aim := ((L - P) * Vector3(1, 0, 1)).normalized()
+	# the foot comes down right beside a street lamp when one stands in that part of the street (13.5-16.5 m out,
+	# within 25 degrees of where it lands): the leg itself strikes it (see _crush_lamp)
+	var best_post: Node3D = null
+	var bd := INF
+	for post in _lamp_posts():
+		var to := ((post as Node3D).global_position - P) * Vector3(1, 0, 1)
+		var dist := to.length()
+		if dist < 13.5 or dist > 16.5 or rad_to_deg(to.normalized().angle_to(aim)) > 25.0:
+			continue
+		if off_route and absf(route_dir.cross(Vector3.UP).dot(to)) < 9.0:
+			continue                                   # (a lamp on the way to the shop: not that one)
+		var dd := Vector2((post as Node3D).global_position.x - L.x, (post as Node3D).global_position.z - L.z).length()
+		if dd < bd:
+			bd = dd
+			best_post = post
+	if best_post:
+		var bp := best_post.global_position
+		var back := (L - bp) * Vector3(1, 0, 1)
+		back = back.normalized() if back.length() > 0.1 else -n
+		L = bp + back * 1.3                            # the claws land against the post's foot
+		enc_report["foot_by_lamp"] = String(best_post.name)
+	L.y = ground
+	enc_report["route_clearance_m"] = absf(route_dir.cross(Vector3.UP).dot((L - P) * Vector3(1, 0, 1))) if off_route else -1.0
+	if _enc_store == market:
+		_market_doors_die()
+		_clerk_beside(P, n, L)
+	# --- Stage 1: something enormous moving (sound first), controls held
+	player.controls_enabled = false
+	player.velocity = Vector3.ZERO
+	hud.allow_pause = false
+	hud.set_hint("")
+	_enc_sounds.append(Sfx.play("colossus_call", P + n * 14.0 + Vector3(0, 9, 0), 4.0, 0.8))   # close enough to be heard at once
+	Sfx.play_music(Sfx.MUSIC_COLOSSUS, false, -6.0, 0.6, Sfx.MUSIC_GAMEPLAY)   # the reveal theme, then back to the loop
+	var cam := Camera3D.new()
+	cam.name = "EncounterCam"
+	add_child(cam)
+	cam.global_transform = player.camera.global_transform
+	cam.fov = player.camera.fov
+	cam.far = 700.0
+	cam.current = true
+	if living and living.has_method("clear_shot"):
+		living.clear_shot(cam.global_position, [-cam.global_basis.z, L - cam.global_position])   # nobody stands in the shot
+	# --- the creature: the tentacle beast (see USE_BEAST_COLOSSUS). ~60 m, the Colossus's dark mist look; it has no
+	# skeleton, so its feet are computed from the same leg maths as its vertex shader (VeilTentacleBeast).
+	var c = load("res://game/enemies/tentacle_beast.gd").new()
+	c.name = "Colossus_Encounter"
+	c.height = BEAST_HEIGHT
+	c.walk_speed = BEAST_WALK_SPEED
+	c.veil = true
+	c.veil_ground = ground
+	c.anim_time = 0.0
+	add_child(c)
+	var veil_n := 0
+	for mi in c.meshes:
+		veil_n += (mi as MeshInstance3D).mesh.get_surface_count() if (mi as MeshInstance3D).material_override == c.material else 0
+	enc_report["veil_surfaces"] = veil_n                          # (the beast is one mesh with one surface)
+	enc_report["veil_shader"] = true
+	var walk_dir := side
+	if off_route:
+		walk_dir = route_dir.cross(Vector3.UP).normalized()
+		if walk_dir.dot(L - P) < 0.0:
+			walk_dir = -walk_dir                                  # it walks on away from the way to the shop
+	c.rotation.y = atan2(walk_dir.x, walk_dir.z)                 # the model faces +Z
+	var len_s: float = c.cycle_length()
+	var rate: float = c.ground_speed()                            # metres per animation second (speed_scale 1)
+	# one foot lands on L: whichever of the four is the store-most foot of the creature for this walk direction, so
+	# the other three land farther out over the street (a 60 m body is long: the hero foot is not always a front one)
+	var legs := [[1.0, 1.0], [-1.0, 1.0], [1.0, -1.0], [-1.0, -1.0]]
+	var near_side := 1.0
+	var near_fb := 1.0
+	var t_c := 0.0
+	var place := func(sd: float, fb: float, at: float):
+		c.seek(at)
+		c.global_position = Vector3.ZERO
+		var tips: Array = c.tips_world(sd, fb)
+		var mid: Vector3 = (tips[0] + tips[1] + tips[2]) / 3.0
+		var dy: float = c.min_tip_y(sd, fb) - (ground + 0.02)        # the toe tips rest on the road (2 cm)
+		c.global_position = Vector3(L.x - mid.x, -dy, L.z - mid.z)
+	var other_out := func(sd: float, fb: float) -> float:
+		var out := INF
+		for lg in legs:
+			if lg[0] == sd and lg[1] == fb:
+				continue
+			var tp: Array = c.tips_world(lg[0], lg[1])
+			out = minf(out, ((tp[0] as Vector3) - P).dot(n))
+		return out
+	var near_out := -INF
+	for lg in legs:
+		var cand_t: float = c.touchdown_time(lg[0], lg[1], 2)
+		place.call(lg[0], lg[1], cand_t)
+		var no: float = other_out.call(lg[0], lg[1])
+		if no > near_out:
+			near_out = no
+			near_side = lg[0]
+			near_fb = lg[1]
+			t_c = cand_t
+		if no >= (L - P).dot(n) + 2.0:
+			break
+	enc_report["other_feet_min_out_m"] = near_out
+	# the leg comes down from the top of its swing: the swing starts half a cycle before the touch-down
+	var span: float = 0.5 * len_s
+	var best_y := -INF
+	for i in 61:
+		var tt: float = t_c - span + span * float(i) / 60.0
+		c.seek(tt)
+		best_y = maxf(best_y, c.min_tip_y(near_side, near_fb))
+	c.seek(t_c)
+	place.call(near_side, near_fb, t_c)
+	var contact_pos: Vector3 = c.global_position
+	if c.has_method("attach_blockers"):
+		c.attach_blockers()
+		enc_report["leg_blockers"] = true
+	const SPEED := 0.5
+	c.global_position = contact_pos - walk_dir * rate * span
+	c.seek(t_c - span)
+	c.speed_scale = 0.0
+	c.visible = false
+	var veil_mats: Array = [c.material]
+	var set_far := func(m: float):                               # staging: the far legs stay in the mist for now
+		for sm in veil_mats:
+			sm.set_shader_parameter("far_hide", m)
+	set_far.call(40.0)
+	var set_band := func(k: float):                              # 0: everything above the road is in the mist; 1: normal
+		for sm in veil_mats:
+			sm.set_shader_parameter("dissolve_start", lerpf(-2.0, 10.0, k))
+			sm.set_shader_parameter("dissolve_end", lerpf(0.5, 17.0, k))
+	set_band.call(0.0)
+	# the player instinctively looks at the sound / the darkness ahead
+	var tw0 := create_tween()
+	var b0 := cam.global_basis.get_rotation_quaternion()
+	var b1 := Transform3D(Basis(), cam.global_position).looking_at(L + Vector3(0, 4.0, 0) + side * -1.0, Vector3.UP).basis.get_rotation_quaternion()
+	tw0.tween_method(func(q): cam.global_basis = Basis(b0.slerp(b1, q * q * (3.0 - 2.0 * q))), 0.0, 1.0, 1.5)
+	await get_tree().create_timer(len_s / SPEED * 0.55).timeout   # the held beat (a little shorter than a stride)
+	# the leg comes DOWN FROM ABOVE and stops: no fade. The whole creature starts DROP metres higher and comes down
+	# accelerating, so the foot drops out of the mist and stops hard on the road on the contact frame.
+	const DROP := 12.0
+	set_band.call(1.0)
+	var walk_from: Vector3 = c.global_position
+	c.global_position = walk_from + Vector3.UP * DROP
+	c.visible = true
+	c.speed_scale = SPEED * STOMP_QUICKEN
+	var lamp_post := _lamp_near(L)
+	var lamp_l: Light3D = _lamp_light_of(lamp_post) if lamp_post else null
+	var lamp_head_y: float = (lamp_l.global_position.y if lamp_l else lamp_post.global_position.y + 5.75) if lamp_post else -INF
+	var lamp_hit := lamp_post == null
+	c.seek(t_c - span)
+	var elapsed := 0.0
+	var dur := span / (SPEED * STOMP_QUICKEN)
+	# touch-downs of the other three feet during the walk-in, and whether the camera could see them
+	var extra := 0
+	var events: Array = []
+	for lg in legs:
+		if lg[0] == near_side and lg[1] == near_fb:
+			continue
+		for kk in range(1, 6):
+			var td: float = c.touchdown_time(lg[0], lg[1], kk)
+			if td > t_c - span and td < t_c:
+				var body_at: Vector3 = contact_pos - walk_dir * rate * (t_c - td)
+				var sv: float = c.anim_time
+				c.seek(td)
+				var saved: Vector3 = c.global_position
+				c.global_position = body_at
+				var tp: Vector3 = (c.tips_world(lg[0], lg[1])[0] as Vector3)
+				tp.y = L.y
+				var seen := cam.is_position_in_frustum(tp + Vector3(0, 0.5, 0))
+				events.append({"foot": str(lg), "seen": seen, "dist": cam.global_position.distance_to(tp), "pos": tp})
+				if seen and cam.global_position.distance_to(tp) < 40.0 and Vector2(tp.x - L.x, tp.z - L.z).length() > 10.0:
+					extra += 1
+				c.global_position = saved
+				c.seek(sv)
+	while elapsed < dur:                                          # to the very contact frame: no last-frame snap
+		await get_tree().process_frame
+		elapsed += get_process_delta_time()
+		var k := clampf(elapsed / dur, 0.0, 1.0)
+		c.global_position = walk_from.lerp(contact_pos, k) + Vector3.UP * DROP * (1.0 - k * k)
+		if not lamp_hit:
+			if c.min_tip_y(near_side, near_fb) <= lamp_head_y + 0.2:
+				lamp_hit = true                                    # the leg strikes the lamp on its way down
+				enc_report["lamp_hit_height_m"] = lamp_head_y - ground
+				enc_report["lamp_hit_k"] = k
+				_crush_lamp(L, true)
+	enc_report["walkin_touchdowns"] = events
+	enc_report["leg_drop_m"] = DROP
+	enc_report["walkin_extra_seen"] = extra
+	enc_report["walk_in_m"] = rate * span
+	c.global_position = contact_pos
+	c.seek(t_c)                                                   # exactly the touch-down frame
+	# --- Stage 2: the footstep (impact) - sound, dust and shake on the contact frame
+	var tips_now: Array = c.tips_world(near_side, near_fb)
+	var mid_now: Vector3 = (tips_now[0] + tips_now[1] + tips_now[2]) / 3.0
+	enc_report["foot_error_m"] = Vector2(mid_now.x - L.x, mid_now.z - L.z).length()
+	enc_report["foot_height_m"] = c.min_tip_y(near_side, near_fb) - ground
+	enc_report["body_height_m"] = c.body_world().y - ground
+	enc_report["ceiling_m"] = CEILING_LAYERS[0]
+	enc_report["leg_distance_m"] = Vector2(L.x - P.x, L.z - P.z).length()
+	enc_report["walk_in_m"] = rate * span
+	enc_report["apex_height_m"] = best_y - ground + DROP
+	c.speed_scale = 0.0                                          # planted: the weight comes down on it
+	_enc_sounds.append(Sfx.play("colossus_step", L + Vector3(0, 1, 0), 6.0, 0.7))
+	_impact_dust(L)
+	_clerk_flees(L)
+	if not lamp_hit:
+		_crush_lamp(L)                                # (no head reached on the way down: it goes at the footfall)
+	_shake(cam, 0.35, 0.05)
+	_npc_fright(L)
+	for l in get_tree().get_nodes_in_group("veil_streetlight"):
+		if l is Light3D and l.global_position.distance_to(L) < 45.0:
+			(l as Light3D).visible = false
+			get_tree().create_timer(randf_range(0.3, 1.2)).timeout.connect(func(): if is_instance_valid(l): l.visible = true)
+	await get_tree().create_timer(0.9).timeout
+	var tips_later: Array = c.tips_world(near_side, near_fb)
+	enc_report["foot_planted_drift_m"] = Vector2(tips_later[1].x - tips_now[1].x, tips_later[1].z - tips_now[1].z).length()
+	# --- Stage 3: the protagonist's face (he is frozen; his eyes go up)
+	var d_leg := (L - P) * Vector3(1, 0, 1)
+	d_leg = d_leg.normalized()
+	var me := _spawn_npc(load(PROTAG_PATH), load(PROTAG_FACE_PATH), self, P, atan2(-d_leg.x, -d_leg.z), "Protagonist")
+	_cine_double(me, P)                         # a stand-in: exactly here, no collision (it overlaps the player)
+	me.name = "Protagonist_Cine"
+	var ma = animators["Protagonist"]
+	ma.set_mood("scared")
+	ma.turn_to_face = false
+	ma.max_pitch = 1.05
+	var gaze := Node3D.new()
+	gaze.name = "Gaze"
+	add_child(gaze)
+	gaze.global_position = L + Vector3(0, 1.2, 0)
+	ma.look_target = gaze
+	faces["Protagonist"].set_expression("shocked")
+	faces["Protagonist"].widen_eyes(2.5)
+	var head: Vector3 = (ma.skel.global_transform * ma.skel.get_bone_global_pose(ma.bone("Head")).origin)
+	var key := OmniLight3D.new()                                  # soft spill from the shop windows on his face
+	key.light_color = Color(0.9, 0.86, 0.78)
+	key.light_energy = 0.9
+	key.omni_range = 3.0
+	add_child(key)
+	key.global_position = head + d_leg * 1.2 + side * 0.6 + Vector3(0, 0.3, 0)
+	cam.global_position = head + d_leg * 1.05 + side * 0.42 - Vector3(0, 0.04, 0)
+	cam.look_at(head + Vector3(0, 0.02, 0), Vector3.UP)
+	cam.fov = 42.0
+	enc_report["face_cam_distance_m"] = cam.global_position.distance_to(head)
+	var tg := create_tween()
+	tg.tween_property(gaze, "global_position", L + Vector3(0, 14.0, 0), 2.6).set_trans(Tween.TRANS_SINE)
+	faces["Protagonist"].set_expression("scared")
+	var unhide: Tween = c.create_tween()
+	unhide.tween_method(set_far, 40.0, 400.0, 2.6)
+	unhide.tween_callback(set_far.bind(100000.0))
+	await get_tree().create_timer(2.8).timeout
+	# --- Stage 4: from his eyes, up the leg into the mist. He is hidden for this shot (the camera sits where his
+	# eyes are, so nothing of him can cut the frame); the view rotates only (one smooth quaternion slerp, no
+	# per-step look_at flips), from a spot that can actually see the leg (moved out from under any awning)
+	key.queue_free()
+	me.visible = false
+	var start := head + d_leg * 0.12
+	var space := get_world_3d().direct_space_state
+	for k in 7:
+		var blocked := false
+		for hgt in [3.0, 7.0, 11.0]:
+			var q := PhysicsRayQueryParameters3D.create(start, L + Vector3(0, hgt, 0), 1, [player.get_rid()])
+			if not space.intersect_ray(q).is_empty():
+				blocked = true
+		if not blocked:
+			break
+		start += d_leg * 0.5
+	cam.global_position = start
+	cam.fov = 60.0
+	var look_from := L + Vector3(0, 1.0, 0)
+	var look_to := L + Vector3(0, 40.0, 0) + d_leg * 6.0
+	var qa := Transform3D(Basis(), start).looking_at(look_from, Vector3.UP).basis.get_rotation_quaternion()
+	var qb := Transform3D(Basis(), start).looking_at(look_to, Vector3.UP).basis.get_rotation_quaternion()
+	cam.global_basis = Basis(qa)
+	var tw := create_tween()
+	tw.tween_method(func(k: float):
+		var e := k * k * (3.0 - 2.0 * k)
+		cam.global_basis = Basis(qa.slerp(qb, e))
+		cam.fov = lerpf(60.0, 50.0, e), 0.0, 1.0, 4.2)
+	tg = create_tween()
+	tg.tween_property(gaze, "global_position", L + Vector3(0, 40.0, 0), 4.0)
+	await tw.finished
+	enc_report["max_look_up_deg"] = rad_to_deg(asin(clampf((look_to - start).normalized().y, -1.0, 1.0)))
+	# --- Stage 5: it moves on. The body moves at the clip's stance rate (1 m per animation second at scale 1),
+	# so whichever foot is planted stays put while it walks off (no sliding); steps sound on their contacts
+	c.speed_scale = 0.5
+	var speed: float = c.ground_speed() * c.speed_scale
+	var away: Tween = c.create_tween()
 	away.tween_property(c, "global_position", c.global_position + walk_dir * speed * 30.0, 30.0)
 	away.tween_callback(c.queue_free)
 	_enc_sounds.append(Sfx.play("colossus_step", L + walk_dir * 6.0, 4.0, 0.65))

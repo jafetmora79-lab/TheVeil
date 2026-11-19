@@ -71,9 +71,14 @@ func _run() -> void:
 	var legs := w.find_children("LegBlockers", "", true, false)
 	var leg_rids: Array = []
 	if not legs.is_empty():
-		for b in (legs[0] as Node).find_children("*", "AnimatableBody3D", true, false):
-			leg_rids.append((b as CollisionObject3D).get_rid())
-	ok("leg_bodies", leg_rids.size() == 8, "%d" % leg_rids.size())
+		if w.use_beast_colossus:                      # the beast: one static body with four foot columns
+			leg_rids.append((legs[0] as CollisionObject3D).get_rid())
+		else:
+			for b in (legs[0] as Node).find_children("*", "AnimatableBody3D", true, false):
+				leg_rids.append((b as CollisionObject3D).get_rid())
+	var want_legs := 4 if w.use_beast_colossus else 8
+	var have_legs := (legs[0] as Node).find_children("*", "CollisionShape3D", true, false).size() if (w.use_beast_colossus and not legs.is_empty()) else leg_rids.size()
+	ok("leg_bodies", have_legs == want_legs, "%d" % have_legs)
 	var P: Vector3 = w.player.global_position
 	for k in 21:
 		var pt := P.lerp(shop_door, k / 20.0) + Vector3(0, 1.0, 0)

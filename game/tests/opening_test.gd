@@ -195,6 +195,8 @@ func phase4_tests(game, ps: PackedScene) -> void:
 	game.load_game()
 	game.load_requested = true
 	world = ps.instantiate()
+	if "old_colossus" in OS.get_cmdline_user_args():
+		world.use_beast_colossus = false          # run with: -- 50 old_colossus  (the original rigged Colossus)
 	root.add_child(world)
 	await frames(40)
 	p4 = world.phase4
@@ -280,6 +282,8 @@ func phase4_tests(game, ps: PackedScene) -> void:
 	game.load_game()
 	game.load_requested = true
 	world = ps.instantiate()
+	if "old_colossus" in OS.get_cmdline_user_args():
+		world.use_beast_colossus = false          # run with: -- 50 old_colossus  (the original rigged Colossus)
 	root.add_child(world)
 	await frames(40)
 	ok("p4_load_end", world.phase4 != null and world.phase4.threat_runs == 0 and game.has_flag("p4_slept")
@@ -304,6 +308,8 @@ func _run() -> void:
 	var ps: PackedScene = load("res://game/scenes/World.tscn")
 	ok("world_loads", ps != null)
 	world = ps.instantiate()
+	if "old_colossus" in OS.get_cmdline_user_args():
+		world.use_beast_colossus = false          # run with: -- 50 old_colossus  (the original rigged Colossus)
 	root.add_child(world)
 	await frames(10)
 	var home: Node3D = world.home
@@ -601,6 +607,8 @@ func _run() -> void:
 		world.free()
 		game.load_requested = true
 		world = ps.instantiate()
+		if "old_colossus" in OS.get_cmdline_user_args():
+			world.use_beast_colossus = false          # run with: -- 50 old_colossus  (the original rigged Colossus)
 		root.add_child(world)
 		await frames(15)
 		ok("restored_in_car", world.in_car and world.sedan.driven)
@@ -804,7 +812,7 @@ func _run() -> void:
 		"body at %.1f m, mist ceiling from %.1f m" % [r.get("body_height_m", -1.0), r.get("ceiling_m", -1.0)])
 	ok("encounter_face_shot", r.get("face_cam_distance_m", 0.0) > 0.6 and r.get("face_cam_distance_m", 9.0) < 1.6)
 	ok("encounter_looks_up", r.get("max_look_up_deg", 0.0) > 55.0, "%.0f deg" % r.get("max_look_up_deg", -1.0))
-	ok("colossus_veil_material", r.get("veil_surfaces", 0) >= 3, str(r.get("veil_surfaces", 0)))
+	ok("colossus_veil_material", r.get("veil_surfaces", 0) >= (1 if world.use_beast_colossus else 3), str(r.get("veil_surfaces", 0)))   # (the beast is one mesh, one surface)
 	ok("colossus_claws_on_road", absf(r.get("foot_height_m", 9.0) - 0.02) < 0.1, "%.3f m" % r.get("foot_height_m", -1.0))
 	ok("colossus_foot_planted", r.get("foot_planted_drift_m", 9.0) < 0.05, "%.3f m" % r.get("foot_planted_drift_m", -1.0))
 	ok("colossus_audio_cleared", world._enc_sounds.is_empty())
@@ -963,6 +971,8 @@ func _run() -> void:
 	world.free()
 	game.load_requested = true
 	world = ps.instantiate()
+	if "old_colossus" in OS.get_cmdline_user_args():
+		world.use_beast_colossus = false          # run with: -- 50 old_colossus  (the original rigged Colossus)
 	root.add_child(world)
 	await frames(30)
 	ok("p3_restored", world.atmos != null and world.marcus != null and world.marcus.get_parent() == world.market and not world.cashier.visible)
