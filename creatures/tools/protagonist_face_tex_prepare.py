@@ -44,7 +44,6 @@ for name, src in SRC.items():
         off = np.mean(gain, axis=0)
         print(name, "colour offset", off.round(1))
         A = np.clip(A + off, 0, 255)
-    if name != "blink":
-        A = clean_eyes(A.astype(np.float32))
+    # (the eye smoothing, clean_eyes, is no longer applied: the grey lines were a lighting / normals problem, see EYE_ARTIFACT_DIAGNOSTIC.md)
     Image.fromarray(A.astype(np.uint8)).resize((512, 512), Image.LANCZOS).save(os.path.join(out, "face_%s.png" % name))
 print("DONE")

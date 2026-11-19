@@ -23,3 +23,6 @@ Pictures: `eye_diag_grid.png` (diagnosis), `eye_fix_proposal_grid.png` (proposal
 
 ## Smallest fix proposed (not applied)
 Give the loops of the ~470 face triangles around the eyes a smooth, face-aligned normal (custom normals, fading out to the normal flat shading). No vertex moves, no texture change, no new geometry; the rest of the face stays faceted (PSX look). Test: grey lines gone under two different lights (`eye_fix_proposal_grid.png`). Also revert the eye smoothing I did on the textures (it was not needed).
+
+## Applied (approved)
+Smooth face-aligned normals around the eyes are now baked into `CHR_Protagonist_FaceTex.glb` (`protagonist_face_tex_export.py`); the eye smoothing on the textures was removed (`protagonist_face_tex_prepare.py`), so the original eye pixels are back (colour-matched only). The Godot test still passes. Picture: `eye_fix_applied_before_after.png`.
