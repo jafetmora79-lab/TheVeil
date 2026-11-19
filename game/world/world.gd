@@ -78,6 +78,13 @@ func _ready() -> void:
 	player.name = "Player"
 	add_child(player)
 	player.prompt_changed.connect(hud.set_prompt)
+	screen_fx = VeilScreenFX.new()                       # vignette, lens curve and film grain under the HUD (Settings: Film look)
+	screen_fx.name = "ScreenFX"
+	add_child(screen_fx)
+	throwing = VeilThrowing.new()                        # G: throw the selected bottle or can to draw the Hounds away
+	throwing.name = "Throwing"
+	add_child(throwing)
+	throwing.setup(self)
 	sedan = SEDAN_SCRIPT.new()
 	sedan.radio_changed.connect(func(station: String):
 		hud.set_hint("RADIO — " + (station if station != "" else "OFF"))
@@ -710,6 +717,8 @@ var expedition: Node
 const SURVIVORS := preload("res://game/world/survivors.gd")
 var survivors: Node
 var sidearm: Node
+var screen_fx: Node
+var throwing: Node
 var nav: Node
 var conversing := false
 var talk_report := {"count": 0, "blocked": 0, "cam_hits": 0, "min_face_dist": 99.0, "max_fov_drop": 0.0, "zoom_ins": 0,

@@ -32,6 +32,7 @@ static func assign(i: int, id: String) -> void:
 
 
 func _ready() -> void:
+	add_to_group("veil_quick_slots")                 # the throwing system reads the selected slot
 	# bottom-right corner, clear of the subtitles (centre) and the health / stamina bars (left)
 	anchor_left = 1.0
 	anchor_right = 1.0

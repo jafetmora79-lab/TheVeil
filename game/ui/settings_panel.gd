@@ -25,6 +25,16 @@ func _ready() -> void:
 		Game.settings["head_bob"] = on
 		Game.save_settings())
 	v.add_child(hb)
+	var fl := CheckButton.new()
+	fl.text = "Film look (vignette, grain)"
+	fl.button_pressed = Game.settings.get("film_look", true)
+	fl.toggled.connect(func(on):
+		Game.settings["film_look"] = on
+		Game.save_settings()
+		var fx := get_tree().get_first_node_in_group("veil_screen_fx")
+		if fx:
+			fx._apply_setting())
+	v.add_child(fl)
 	var back := VeilUI.button("Back")
 	back.pressed.connect(func():
 		Game.save_settings()
