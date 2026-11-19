@@ -27,9 +27,9 @@ const EQUIP_TIME := 0.3
 const KICK_TIME := 0.25
 const ROAMERS := ["EXP_Hound", "C14_RunHound", "C15_Hound"]    # free-roaming Hounds: a hit drives them off
 ## The model's muzzle is on its -Z, sights on top (+Y), the grip at the back: it points down the view as it is.
-const REST := Vector3(0.16, -0.2, -0.36)               # lower right, angled a touch in towards the crosshair
-const AIMED := Vector3(0.0, -0.128, -0.30)             # sights just under the crosshair
-const REST_YAW := 0.06
+const REST := Vector3(0.062, -0.158, -0.42)            # low and a little right of centre, both hands in view, arms from the bottom
+const AIMED := Vector3(0.0, -0.1235, -0.345)           # sights just under the crosshair
+const REST_YAW := 0.04
 const MUZZLE := Vector3(0.0, 0.104, -0.1)              # model-local: the end of the barrel
 const PRACTICE_ROUNDS := 3
 
@@ -45,6 +45,17 @@ var _kick := 0.0                                        # 1 at the shot, back to
 var _reload_t := -1.0                                   # >= 0 while reloading (seconds in)
 var _aim := 0.0                                         # 0..1 toward the aimed pose
 var _time := 0.0
+var _hands: VeilViewHands
+var _wall := 0.0                                        # 0..1: how far a close wall pushes the gun back and down
+var _sprint := 0.0                                      # 0..1: the carried-while-running pose
+var _fov_base := 0.0                                    # the camera's own field of view while aim zoom is applied
+const AIM_FOV := 0.86                                   # aiming narrows the view a little, like looking down the sights
+const WALL_CLEAR := 0.40                                # closer than this to a wall and the gun is pulled in
+const SPRINT_SPEED := 3.6
+var force_sprint := false                               # tests / screenshots
+var _lag := Vector2.ZERO                                # smoothed look-turn lag (yaw, pitch)
+var _last_yaw := 0.0
+var _last_pitch := 0.0
 
 
 func setup(w: Node) -> void:
@@ -158,6 +169,15 @@ func _unhandled_input(e: InputEvent) -> void:
 		return
 	var k := (e as InputEventKey).physical_keycode if e is InputEventKey else KEY_NONE
 	var click: bool = e is InputEventMouseButton and (e as InputEventMouseButton).button_index == MOUSE_BUTTON_LEFT
+	if k == KEY_F10 and OS.is_debug_build():
+		# developer shortcut (never in an exported release): take the handgun and twelve spare rounds without the handover scene
+		if not has_gun():
+			Game.add_item("handgun")
+		st()["reserve"] = reserve() + 12
+		set_drawn(true)
+		_hint("DEV: handgun + 12 spare rounds", 3.0)
+		get_viewport().set_input_as_handled()
+		return
 	if not can_act():
 		return
 	if k == KEY_H:
@@ -303,12 +323,15 @@ func _ensure_view() -> void:
 	var cam: Camera3D = world.player.camera
 	_view = ps.instantiate() as Node3D
 	_view.name = "SidearmView"
+	VeilViewHands.strip_physics(_view)                  # the model's pickup collision body must not push the player
 	cam.add_child(_view)
 	_view.position = REST
 	_view.basis = Basis(Vector3.UP, REST_YAW)
 	_view.visible = false
 	for gi in _view.find_children("*", "GeometryInstance3D", true, false):
 		(gi as GeometryInstance3D).cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+	_hands = VeilViewHands.new()
+	_hands.build(_view)                                 # both hands on the grip, forearms running off the bottom corners
 	_flash = MeshInstance3D.new()
 	var q := QuadMesh.new()
 	q.size = Vector2(0.09, 0.09)
@@ -338,6 +361,11 @@ func _animate(delta: float) -> void:
 		_equip = 0.0
 		_reload_t = -1.0
 		_aim = 0.0
+		_wall = 0.0
+		_sprint = 0.0
+		if _fov_base != 0.0 and world.player and world.player.camera:
+			world.player.camera.fov = _fov_base          # holstered or taken away mid-aim: the view widens back
+			_fov_base = 0.0
 		return
 	_ensure_view()
 	if _view == null:
@@ -346,27 +374,63 @@ func _animate(delta: float) -> void:
 	_time += delta
 	_equip = minf(_equip + delta / EQUIP_TIME, 1.0)
 	_kick = maxf(_kick - delta / KICK_TIME, 0.0)
-	var want_aim := 1.0 if can_act() and not reloading() and Input.is_mouse_button_pressed(MOUSE_BUTTON_RIGHT) else 0.0
-	_aim = move_toward(_aim, want_aim, delta / 0.18)
+	# running drops the gun to its rest pose by itself: aiming is let go the moment the player sprints
+	var running: bool = force_sprint or (bool(world.player.get("controls_enabled")) and Input.is_action_pressed("sprint") \
+		and Vector2(world.player.velocity.x, world.player.velocity.z).length() > 1.0)
+	var want_aim := 1.0 if can_act() and not reloading() and not running and Input.is_mouse_button_pressed(MOUSE_BUTTON_RIGHT) else 0.0
+	_aim = move_toward(_aim, want_aim, delta / (0.12 if running else 0.18))
 	var aim_e := smoothstep(0.0, 1.0, _aim)
 	var pos := REST.lerp(AIMED, aim_e)
 	var v: Vector3 = world.player.velocity * Vector3(1, 0, 1)
 	var walk := clampf(v.length() / 4.0, 0.0, 1.0)
 	var sway := 1.0 - 0.7 * aim_e
 	pos += Vector3(sin(_time * 4.2) * 0.010 * walk, absf(sin(_time * 8.4)) * -0.008 * walk + sin(_time * 1.6) * 0.003, 0.0) * sway
-	var pitch := 0.0
+	var pitch := -0.09 * (1.0 - aim_e)                  # low ready: the muzzle a touch down, so the gun does not read as pointing up
 	var roll := 0.0
+	var yaw_extra := 0.0
 	var k := _kick * _kick                              # sharp at the shot, settling smoothly
 	pos.z += 0.07 * k
 	pos.y += 0.02 * k
 	pitch += 0.32 * k
+	# carried while running: the gun drops to the hip and turns in, bouncing with the stride
+	var hspeed: float = v.length()
+	var want_sprint := 1.0 if (hspeed > SPRINT_SPEED or running) and aim_e < 0.35 and not reloading() else 0.0
+	_sprint = move_toward(_sprint, want_sprint, delta / 0.22)
+	var sp := smoothstep(0.0, 1.0, _sprint)
+	pos += Vector3(0.0, -0.06, 0.04) * sp
+	pos.y += absf(sin(_time * 9.0)) * 0.010 * sp
+	pitch += -0.16 * sp
+	# a close wall: pull the gun back and down and tip the muzzle up, so it never pokes through
+	var cam: Camera3D = world.player.camera
+	var space: PhysicsDirectSpaceState3D = world.get_world_3d().direct_space_state
+	var q := PhysicsRayQueryParameters3D.create(cam.global_position, cam.global_position - cam.global_transform.basis.z * (WALL_CLEAR + 0.12), 1, [world.player.get_rid()])
+	var wh := space.intersect_ray(q)
+	var want_wall := 0.0
+	if not wh.is_empty():
+		want_wall = clampf(1.0 - (cam.global_position.distance_to(wh["position"]) - 0.12) / WALL_CLEAR, 0.0, 1.0)
+	_wall = lerpf(_wall, want_wall, clampf(delta * 14.0, 0.0, 1.0))
+	pos += Vector3(0.02, -0.05, 0.07) * _wall
+	pitch += 0.30 * _wall
+	# aiming narrows the field of view a touch
+	if aim_e > 0.002:
+		if _fov_base == 0.0:
+			_fov_base = cam.fov
+		cam.fov = lerpf(_fov_base, _fov_base * AIM_FOV, aim_e)
+	elif _fov_base != 0.0:
+		cam.fov = _fov_base
+		_fov_base = 0.0
+	var drop := 0.0
 	if reloading():
 		_reload_t += delta
 		var ph := clampf(_reload_t / RELOAD_TIME, 0.0, 1.0)
 		var dip := sin(ph * PI)
-		pos += Vector3(-0.04, -0.12, 0.05) * dip
-		roll += 0.7 * dip
-		pitch += 0.25 * dip
+		# the gun tips toward the player and the support hand drops to the magazine base, pulls it, and slaps a fresh one home
+		pos += Vector3(-0.03, -0.07, 0.04) * dip
+		roll += 0.35 * dip
+		pitch += 0.30 * dip
+		drop = smoothstep(0.0, 0.25, ph) * (1.0 - smoothstep(0.62, 0.8, ph))
+		if ph > 0.3 and ph < 0.5:
+			drop += 0.25 * sin((ph - 0.3) / 0.2 * PI)       # the old magazine is pulled free
 		if ph > 0.55 and ph < 0.7:                      # the magazine slapped home
 			pos.y += 0.015 * sin((ph - 0.55) / 0.15 * PI)
 		if ph >= 0.55 and _reload_t - delta < RELOAD_TIME * 0.55:
@@ -374,8 +438,20 @@ func _animate(delta: float) -> void:
 		if _reload_t >= RELOAD_TIME:
 			_finish_reload()
 	pos.y -= 0.28 * (1.0 - smoothstep(0.0, 1.0, _equip))
+	# look-turn lag: the gun trails the view when the player turns and catches up (less while aimed, so sights hold)
+	var yaw_now: float = world.player.rotation.y
+	var pitch_now: float = float(world.player.get("_pitch"))
+	_lag += Vector2(wrapf(yaw_now - _last_yaw, -PI, PI), pitch_now - _last_pitch) * 0.5
+	_last_yaw = yaw_now
+	_last_pitch = pitch_now
+	_lag = _lag.lerp(Vector2.ZERO, clampf(delta * 9.0, 0.0, 1.0)).clamp(Vector2(-0.2, -0.2), Vector2(0.2, 0.2))
+	var lag_k := 1.0 - 0.75 * aim_e
+	pos += Vector3(_lag.x * 0.2, -_lag.y * 0.13, 0.0) * lag_k
+	pitch += _lag.y * 0.5 * lag_k
 	_view.position = pos
-	_view.basis = Basis(Vector3.FORWARD, roll) * Basis(Vector3.RIGHT, pitch) * Basis(Vector3.UP, REST_YAW * (1.0 - aim_e))
+	_view.basis = Basis(Vector3.FORWARD, roll) * Basis(Vector3.RIGHT, pitch) * Basis(Vector3.UP, REST_YAW * (1.0 - aim_e) + _lag.x * 0.7 * lag_k + yaw_extra)
+	if _hands:
+		_hands.set_support(drop)
 	if _flash:
 		_flash.position = pos + _view.basis * MUZZLE      # at the end of the barrel, wherever the gun is
 

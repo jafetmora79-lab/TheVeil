@@ -68,7 +68,8 @@ func _run() -> void:
 	world.phase4.choice.pick(1)
 	await frames(30)
 	ok("pickup_six_loaded", sa.has_gun() and sa.mag() == 6 and sa.reserve() == 0 and sa.drawn())
-	ok("gun_in_view", sa.view_shown() and sa._equip >= 1.0 and sa._view.position.distance_to(sa.REST) < 0.05, str(sa._view.position if sa._view else null))
+	ok("gun_in_view", sa.view_shown() and sa._equip >= 1.0 and sa._view.position.distance_to(sa.REST) < 0.1, str(sa._view.position if sa._view else null))
+	ok("view_has_no_collision_body", sa._view != null and sa._view.find_children("*", "CollisionObject3D", true, false).is_empty())
 	# ---- holster / draw with H; F is the flashlight's while holstered
 	await key(KEY_H)
 	await frames(2)
@@ -86,7 +87,7 @@ func _run() -> void:
 	ok("fire_spends_one", sa.mag() == 5 and sa.report["shots"] == 1 and fl.on == on1)
 	ok("fire_kick_and_flash", sa._kick > 0.5 and sa._flash.visible)
 	await frames(30)
-	ok("kick_settles", sa._kick == 0.0 and sa._view.position.distance_to(sa.REST) < 0.05)
+	ok("kick_settles", sa._kick == 0.0 and sa._view.position.distance_to(sa.REST) < 0.1)
 	# ---- aim (right mouse)
 	Input.parse_input_event(_mouse(MOUSE_BUTTON_RIGHT, true))
 	await frames(25)

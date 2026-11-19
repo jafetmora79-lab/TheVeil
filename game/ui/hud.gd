@@ -96,8 +96,11 @@ func _ready() -> void:
 	root.add_child(fade)
 	Game.objective_changed.connect(set_objective)
 	Game.inventory_changed.connect(_refresh_inventory)
-	Dialogue.line_started.connect(func(spk, t, _d):
+	Dialogue.line_started.connect(func(spk, t, d):
 		speaker_l.text = Game.player_name.to_upper() if spk == "" else String(SPEAKER_NAMES.get(spk, String(spk).to_upper()))
+		_line_time = float(d)
+		_blip_on = String(spk) != "" and Dialogue.confirm_mode          # companions and NPCs "speak"; the protagonist thinks
+		_blip_pitch = 0.9 + float(absi(String(spk).hash()) % 100) / 100.0 * 0.4      # one stable voice pitch per speaker
 		show_subtitle(t))
 	Dialogue.line_finished.connect(func():
 		speaker_l.text = ""
@@ -229,6 +232,7 @@ func _unhandled_input(e: InputEvent) -> void:
 
 
 func _process(_d: float) -> void:
+	_update_reveal(_d)
 	_update_marker()
 	if not _obj_pending.is_empty() and not scene_holds_objective():
 		_flush_objective()
@@ -268,8 +272,81 @@ func set_prompt(t: String) -> void:
 	dot.color.a = 0.9 if t != "" else 0.45
 
 
+## Typewriter reveal: a line types itself out (about 48 characters a second, never slower than 60 % of the line's
+## own time so short lines still finish well before they leave), and while an NPC speaks a very quiet, pitch-varied
+## blip plays every other letter, so spoken lines have a "voice" without any recorded dialogue.
+const REVEAL_CPS := 48.0
+const REVEAL_FRACTION := 0.6
+var _reveal := -1.0                      ## characters revealed so far; -1 = not revealing
+var _reveal_cps := REVEAL_CPS
+var _line_time := 2.5
+var _blip_on := false
+var _blip_pitch := 1.0
+var _blip_count := 0
+var _blip_player: AudioStreamPlayer
+var _blip_stream: AudioStreamWAV
+
+
 func show_subtitle(t: String) -> void:
+	t = t.replace("<br>", "\n")                 # authored manual line breaks
 	sub.text = t
+	_blip_count = 0
+	if t == "" or DisplayServer.get_name() == "headless":
+		sub.visible_characters = -1
+		_reveal = -1.0
+		return
+	sub.visible_characters = 0
+	_reveal = 0.0
+	_reveal_cps = maxf(REVEAL_CPS, float(t.length()) / maxf(REVEAL_FRACTION * _line_time, 0.2))
+
+
+func _update_reveal(delta: float) -> void:
+	if _reveal < 0.0:
+		return
+	_reveal += _reveal_cps * delta
+	var total := sub.text.length()
+	var shown := mini(int(_reveal), total)
+	if shown > sub.visible_characters:
+		if _blip_on:
+			for i in range(maxi(sub.visible_characters, 0), shown):
+				var ch := sub.text.substr(i, 1)
+				if ch != " " and ch != "\n":
+					_blip_count += 1
+					if _blip_count % 2 == 0:
+						_play_blip()
+		sub.visible_characters = shown
+	if shown >= total:
+		sub.visible_characters = -1
+		_reveal = -1.0
+
+
+func _play_blip() -> void:
+	if _blip_player == null:
+		_blip_stream = _make_blip()
+		_blip_player = AudioStreamPlayer.new()
+		_blip_player.stream = _blip_stream
+		_blip_player.volume_db = -24.0
+		add_child(_blip_player)
+	_blip_player.pitch_scale = _blip_pitch * randf_range(0.93, 1.08)
+	_blip_player.play()
+
+
+## A 45 ms soft sine blip with a fast decay, generated in code.
+static func _make_blip() -> AudioStreamWAV:
+	var rate := 22050
+	var n := int(rate * 0.045)
+	var data := PackedByteArray()
+	data.resize(n * 2)
+	for i in n:
+		var t := float(i) / rate
+		var env := exp(-t * 70.0) * minf(1.0, float(i) / 40.0)
+		var v := (sin(TAU * 440.0 * t) + 0.3 * sin(TAU * 880.0 * t)) * 0.5 * env
+		data.encode_s16(i * 2, int(clampf(v, -1.0, 1.0) * 30000.0))
+	var w := AudioStreamWAV.new()
+	w.format = AudioStreamWAV.FORMAT_16_BITS
+	w.mix_rate = rate
+	w.data = data
+	return w
 
 
 func set_hint(t: String) -> void:
