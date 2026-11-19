@@ -102,3 +102,10 @@ forward. Checked three ways: a Blender measurement over every key frame of every
 idle, 5..24 in the walk, 31..38 in the nervous idle, 105..110 with the hand at the ribs in the injured idle, 5..55 in the scared reaction, all positive = forward), the
 side-view key frames in `work/anim_keyframes3.png`, and a new Godot regression test (`elbows_never_bend_backwards_in_any_clip`, `wrists_stay_within_a_natural_range`).
 The injured idle's hand now rests up at the left side of her chest / ribs. The GIF previews were re-rendered with the corrected clips.
+
+## Clerk test scene (supermarket, lane 4)
+`game/prototypes/sarah_meshy/ClerkTest.tscn` (+ `clerk_test.gd`, `sarah_face_adapter.gd`) runs the real world from a chapter start (default Chapter 7, the supermarket as the shelter,
+lights and mist; `-- chapter 5` is the pitch-dark first night) and swaps the lane-4 cashier's model, procedural animator and face for the Meshy Sarah. She is driven by the game's own
+NpcAnimator (it worked on her skeleton unchanged: idle, look-at, talk gestures, scared mood) and her face answers the world's VeilFace calls through an adapter
+(expressions, talking while a dialogue line plays, blink). Walk up and press E to talk to her. Nothing in the game's scenes or scripts is modified. The save file is
+backed up on start and restored on exit. Screenshots: `work/clerk/`, `work/clerk_test_sheet.png`. Keys: 1 neutral, 2 scared, 3 angry, 4 talk, 5 blink, 6 / 7 calm / scared body, 8 walk to the doors and back.
