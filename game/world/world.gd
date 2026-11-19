@@ -78,6 +78,7 @@ func _ready() -> void:
 	player.name = "Player"
 	add_child(player)
 	player.prompt_changed.connect(hud.set_prompt)
+	player.hold_progress.connect(hud.set_hold)
 	screen_fx = VeilScreenFX.new()                       # vignette, lens curve and film grain under the HUD (Settings: Film look)
 	screen_fx.name = "ScreenFX"
 	add_child(screen_fx)

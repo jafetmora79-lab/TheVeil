@@ -1,29 +1,36 @@
 extends Node
 class_name VeilThrowing
-## THE VEIL - throwing a bottle or a can to draw the Hounds away (G).
-## The item in the SELECTED quick slot (1-5) is thrown, so it is always a deliberate choice: it leaves the inventory,
-## flies along the view, bounces off the world and, on its first hard impact, clinks (louder when it hits faster)
-## and every Hound within earshot goes to look at the sound (VeilHoundAI.investigate), the same way a car alarm
-## draws them. A distraction, never a weapon.
+## THE VEIL - throwing and dropping carried items.
+##   G  throw the bottle or can in the SELECTED quick slot (1-5) to draw the Hounds away: it leaves the inventory,
+##      flies along the view, bounces off the world and, on its first hard impact, clinks (louder the harder it hit)
+##      and every Hound within earshot goes to look at the sound (VeilHoundAI.investigate), the way a car alarm does.
+##   X  put the selected item down in front of you: it is a real object that falls, bounces, makes a sound scaled to
+##      how hard it landed, and can be picked up again. Food, medicine and miscellany only: keys, notes, puzzle pieces,
+##      tools, weapons, the flashlight and the radio are never dropped.
+## Both are deliberate (a selected slot), so nothing is lost by a stray key press.
 
 const THROWABLE := ["water_bottle", "cola_bottle", "canned_food"]
+const DROPPABLE_CATEGORIES := ["food", "medical", "misc"]
 const SPEED := 11.0
+const DROP_SPEED := 2.4
 const HEARING := 30.0                ## metres: Hounds this close to the impact go to look
 const LINGER := 7.0                  ## seconds a Hound stays at the noise
 const COOLDOWN := 0.6
+const LIFETIME := 60.0               ## a dropped item that nobody picks up is tidied away after this long
 
 var world: Node
-var report := {"thrown": 0, "impacts": 0, "distracted": 0}
+var report := {"thrown": 0, "impacts": 0, "distracted": 0, "dropped": 0, "drop_impacts": 0}
 var _cd := 0.0
 
 
 func setup(w: Node) -> void:
 	world = w
-	if not InputMap.has_action("throw_item"):
-		InputMap.add_action("throw_item")
-		var ev := InputEventKey.new()
-		ev.physical_keycode = KEY_G
-		InputMap.action_add_event("throw_item", ev)
+	for a in [["throw_item", KEY_G], ["drop_item", KEY_X]]:
+		if not InputMap.has_action(a[0]):
+			InputMap.add_action(a[0])
+			var ev := InputEventKey.new()
+			ev.physical_keycode = a[1]
+			InputMap.action_add_event(a[0], ev)
 
 
 func _process(delta: float) -> void:
@@ -31,22 +38,35 @@ func _process(delta: float) -> void:
 
 
 func _unhandled_input(e: InputEvent) -> void:
-	if world == null or not e.is_action_pressed("throw_item") or e.is_echo():
+	if world == null or e.is_echo():
+		return
+	var throw: bool = e.is_action_pressed("throw_item")
+	var drop: bool = e.is_action_pressed("drop_item")
+	if not (throw or drop):
 		return
 	var p = world.get("player")
 	if p == null or not p.visible or not p.controls_enabled or world.get("in_car") or world.get("conversing"):
 		return
-	if try_throw():
+	if (try_throw() if throw else try_drop()):
 		get_viewport().set_input_as_handled()
 
 
-## The id in the selected quick slot, if it can be thrown and is still carried ("" otherwise).
-func selected_throwable() -> String:
+## The id in the selected quick slot ("" if none is selected or it is no longer carried).
+func selected_item() -> String:
 	var q := get_tree().get_first_node_in_group("veil_quick_slots") as VeilQuickSlots
 	if q == null or q.selected < 0:
 		return ""
 	var id: String = VeilQuickSlots.slots()[q.selected]
-	return id if id in THROWABLE and Game.has_item(id) else ""
+	return id if id != "" and Game.has_item(id) else ""
+
+
+func selected_throwable() -> String:
+	var id := selected_item()
+	return id if id in THROWABLE else ""
+
+
+func can_drop(id: String) -> bool:
+	return id != "" and String(Game.item_info(id).get("category", "")) in DROPPABLE_CATEGORIES
 
 
 func try_throw(id := "") -> bool:
@@ -59,24 +79,50 @@ func try_throw(id := "") -> bool:
 		return false
 	_cd = COOLDOWN
 	Game.remove_item(id)
-	_spawn(id)
+	var cam: Camera3D = world.player.camera
+	_spawn(id, -cam.global_transform.basis.z * SPEED + Vector3(0, 1.5, 0), true)
 	report["thrown"] += 1
+	world.player.set_yaw_pitch(world.player.rotation.y, world.player.head.rotation.x + 0.02)
 	return true
 
 
-func _spawn(id: String) -> void:
+func try_drop(id := "") -> bool:
+	if _cd > 0.0:
+		return false
+	if id == "":
+		id = selected_item()
+	if id == "" or not Game.has_item(id):
+		_hint("To put something down: select it in a quick slot (1-5), then press X.")
+		return false
+	if not can_drop(id):
+		_hint("You keep that with you.")
+		return false
+	_cd = COOLDOWN
+	Game.remove_item(id)
 	var cam: Camera3D = world.player.camera
+	var fwd := -cam.global_transform.basis.z
+	_spawn(id, fwd * DROP_SPEED + Vector3(0, 0.6, 0), false)
+	report["dropped"] += 1
+	return true
+
+
+## The physical item: a rigid body with the item's own model. Thrown = distracts Hounds; dropped = can be taken again.
+func _spawn(id: String, velocity: Vector3, thrown: bool) -> RigidBody3D:
+	var cam: Camera3D = world.player.camera
+	var info: Dictionary = Game.item_info(id)
+	var weight := float(info.get("weight", 0.4))
 	var rb := RigidBody3D.new()
-	rb.name = "Thrown_" + id
+	rb.name = ("Thrown_" if thrown else "Dropped_") + id
 	rb.collision_layer = 1 << 5                       # its own layer: never shoves the player
 	rb.collision_mask = 1 | 4
-	rb.mass = 0.4
+	rb.mass = clampf(weight, 0.1, 6.0)
 	rb.continuous_cd = true
 	rb.contact_monitor = true
 	rb.max_contacts_reported = 4
 	world.add_child(rb)
-	rb.global_position = cam.global_position - cam.global_transform.basis.z * 0.5 + Vector3(0, -0.1, 0)
-	var path := String(Game.item_info(id).get("model", ""))
+	var origin := cam.global_position - cam.global_transform.basis.z * (0.5 if thrown else 0.7) + Vector3(0, -0.15, 0)
+	rb.global_position = origin
+	var path := String(info.get("model", ""))
 	var size := Vector3(0.08, 0.2, 0.08)
 	if path != "" and ResourceLoader.exists(path):
 		var model := (load(path) as PackedScene).instantiate() as Node3D
@@ -93,36 +139,53 @@ func _spawn(id: String) -> void:
 	bs.size = size
 	cs.shape = bs
 	rb.add_child(cs)
-	rb.linear_velocity = -cam.global_transform.basis.z * SPEED + Vector3(0, 1.5, 0)
-	rb.angular_velocity = Vector3(randf_range(-6, 6), randf_range(-6, 6), randf_range(-6, 6))
-	var state := {"hit": false, "speed": 0.0}
+	rb.linear_velocity = velocity
+	rb.angular_velocity = Vector3(randf_range(-6, 6), randf_range(-6, 6), randf_range(-6, 6)) * (1.0 if thrown else 0.3)
+	var state := {"hit": false, "last": 0.0}
 	rb.body_entered.connect(func(_b):
-		_impact(rb, state))
-	var t := get_tree().create_timer(10.0)
-	t.timeout.connect(func():
+		_impact(rb, state, thrown, weight))
+	if not thrown:
+		# a dropped item can be picked up again; the body goes when it is taken
+		var it := Interactable.attach(rb, {"kind": "pickup", "label": String(info.get("name", id)), "item_id": id})
+		it.used.connect(func(_by):
+			get_tree().create_timer(0.4).timeout.connect(func():
+				if is_instance_valid(rb):
+					rb.queue_free()))
+	get_tree().create_timer(10.0 if thrown else LIFETIME).timeout.connect(func():
 		if is_instance_valid(rb):
 			rb.queue_free())
-	Sfx.play("pickup", rb.global_position, -12.0, 0.7)          # the little whoosh of the throw
-	world.player.set_yaw_pitch(world.player.rotation.y, world.player.head.rotation.x + 0.02)
+	Sfx.play("pickup", rb.global_position, -12.0, 0.7)          # the little whoosh
+	return rb
 
 
+## What an impact sounds like: louder the harder it hit, lower and duller for heavy things.
+func impact_volume(speed: float) -> float:
+	return clampf(-18.0 + speed * 1.1, -18.0, 2.0)
 
 
-func _impact(rb: RigidBody3D, state: Dictionary) -> void:
+func impact_pitch(weight: float) -> float:
+	return clampf(2.4 - weight * 0.45, 0.8, 2.4)
+
+
+func _impact(rb: RigidBody3D, state: Dictionary, thrown: bool, weight: float) -> void:
 	if not is_instance_valid(rb):
 		return
 	var speed := rb.linear_velocity.length()
+	var now := Time.get_ticks_msec() / 1000.0
+	if now - float(state["last"]) < 0.12:
+		return                                        # a rattle of contacts on one bounce is one sound
+	state["last"] = now
 	var first: bool = not state["hit"]
 	state["hit"] = true
 	if first:
-		report["impacts"] += 1
-		# a clink, louder the harder it hit (the speed after contact is a fair stand-in for the speed before)
-		var v := clampf(-16.0 + speed * 0.9, -16.0, 2.0)
-		Sfx.play("door_close", rb.global_position, v, 2.1)
-		Sfx.play("pickup", rb.global_position, v - 4.0, 0.6)
+		report["impacts" if thrown else "drop_impacts"] += 1
+	if first or speed > 1.5:
+		var v := impact_volume(speed if first else speed * 0.8)
+		Sfx.play("door_close", rb.global_position, v, impact_pitch(weight) * randf_range(0.92, 1.08))
+		if first:
+			Sfx.play("pickup", rb.global_position, v - 6.0, 0.6)
+	if first and thrown:
 		_distract(rb.global_position)
-	elif speed > 2.0:
-		Sfx.play("door_close", rb.global_position, clampf(-20.0 + speed, -20.0, -4.0), randf_range(1.7, 2.4))
 
 
 func _distract(at: Vector3) -> void:

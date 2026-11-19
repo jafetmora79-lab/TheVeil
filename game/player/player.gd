@@ -5,6 +5,7 @@ class_name VeilPlayer
 ## Built in code so the scene file stays minimal.
 
 signal prompt_changed(text: String)
+signal hold_progress(ratio: float)                 ## 0..1 while the interact key is held on a "hold to use" object (0 = idle)
 
 const WALK := 2.4
 const SPRINT := 4.3
@@ -167,6 +168,7 @@ func _physics_process(delta: float) -> void:
 		_step_up(hv, delta)                      # (flat ground only: stairs are ramps, a lift there only jolts)
 	move_and_slide()
 	_debug_pushed_back(delta)
+	_update_hold(delta)
 	_fall_guard(delta)
 	# eye height + head bob
 	_eye = move_toward(_eye, EYE_CROUCH if crouching else EYE, delta * 3.5)
@@ -383,6 +385,34 @@ func try_interact() -> void:
 func _input(event: InputEvent) -> void:
 	if event.is_action_pressed("interact") and visible and controls_enabled:
 		get_viewport().set_input_as_handled()
+		if _focus and not event.is_echo() and float(_focus.get("hold_time") if _focus.get("hold_time") != null else 0.0) > 0.0:
+			_hold_target = _focus                    # heavy things take a moment: hold the key, a ring fills
+			_hold_t = 0.0
+		elif not _hold_target:
+			try_interact()
+
+
+## "Hold to use": a ring fills while the key stays down with the object still under the crosshair; releasing, looking
+## away or losing control cancels it; a full ring does the interaction (interact() itself is unchanged and instant).
+var _hold_target: Node = null
+var _hold_t := 0.0
+
+
+func _update_hold(delta: float) -> void:
+	if _hold_target == null:
+		return
+	var need := float(_hold_target.get("hold_time")) if is_instance_valid(_hold_target) else 0.0
+	if need <= 0.0 or not controls_enabled or not Input.is_action_pressed("interact") or _focus != _hold_target:
+		_hold_target = null
+		_hold_t = 0.0
+		hold_progress.emit(0.0)
+		return
+	_hold_t += delta
+	hold_progress.emit(clampf(_hold_t / need, 0.0, 1.0))
+	if _hold_t >= need:
+		_hold_target = null
+		_hold_t = 0.0
+		hold_progress.emit(0.0)
 		try_interact()
 
 
