@@ -1,4 +1,4 @@
-# Meshy NPCs: rigged like the protagonist
+# Meshy NPCs: rigged like the protagonist (nine characters)
 
 Sources (untouched): `source/*.glb` - eddie (Ghost Kart hoodie), plaid_shirt (woman with a shoulder bag), police_officer, teen_blue_jacket, bearded_man. All have the protagonist's body (A-pose, same proportions), a 2048 px texture and about 5,000 triangles.
 Meshy scales every model to the same size, so the real heights are ASSUMED (a parameter, easy to change): eddie 1.76 m, plaid_shirt 1.66, police_officer 1.82, teen_blue_jacket 1.62, bearded_man 1.80.
@@ -15,3 +15,6 @@ Not done: face expressions (each needs aligned expression images), the textures 
 ## Head-turn fix (neck pivot and per-character neck level)
 Some heads sat too far back / sideways when turned: the head and neck bones pivoted at the middle of the body, 2 to 3 cm in front of the real neck, so a turn swung the head; and for the teen (chin much lower than the others) the jaw fell in the blend zone and stretched.
 `build_npc_meshy.py` now measures, per character, the neck centre (front to back) and the neck level (the smallest front extent between chest and chin): the Neck/Head joint sits at that centre, and the 100%-Head weighting starts at that neck level. Before/after: `work/head_turn_before_after.png`.
+
+## Second batch
+police_cap (police officer with a cap, 1.78 m assumed), elderly_woman (1.58), police_redhair (1.68), store_clerk (apron, 1.70) were added the same way; all nine pass `game/tests/npc_meshy_test.gd`. Overviews: `work/npcs_rig_overview.png`, `work/npcs2_rig_overview.png`, line-up `work/npcs9_lineup_in_godot.png`. See `docs/HANDOFF_MESHY_CHARACTERS.md` for everything.

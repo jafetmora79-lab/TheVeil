@@ -46,16 +46,16 @@ func _run(out: String) -> void:
 	var cam := Camera3D.new()
 	root.add_child(cam)
 	cam.current = true
-	cam.fov = 36.0
-	cam.position = Vector3(0, 1.15, -6.4)
+	cam.fov = 44.0
+	cam.position = Vector3(0, 1.15, -7.2)
 	cam.look_at(Vector3(0, 0.95, 0))
-	var clips := ["idle", "walk", "nervous_idle", "injured_idle", "scared_reaction"]
+	var clips := ["idle", "walk", "nervous_idle", "injured_idle", "scared_reaction", "idle", "nervous_idle", "walk", "idle"]
 	var nodes := []
 	var aps := []
 	for i in VeilNpcMeshy.SLUGS.size():
 		var n := VeilNpcMeshy.instantiate(VeilNpcMeshy.SLUGS[i])
 		root.add_child(n)
-		n.position = Vector3(float(i - 2) * 1.15, 0, 0)
+		n.position = Vector3(float(i - 4) * 1.15, 0, 0)
 		var ap := VeilSarahMeshyProto.anim_player(n)
 		ap.callback_mode_process = AnimationMixer.ANIMATION_CALLBACK_MODE_PROCESS_MANUAL
 		ap.play(clips[i])
@@ -71,7 +71,7 @@ func _run(out: String) -> void:
 	# walking toward the camera, all five (each at its own planted-foot speed)
 	for i in nodes.size():
 		var slug: String = VeilNpcMeshy.SLUGS[i]
-		(nodes[i] as Node3D).position = Vector3(float(i - 2) * 1.15, 0, 3.0)
+		(nodes[i] as Node3D).position = Vector3(float(i - 4) * 1.15, 0, 3.0)
 		aps[i].play("walk")
 	var frame := 0
 	for k in 96:
