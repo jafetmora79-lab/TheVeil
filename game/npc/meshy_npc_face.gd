@@ -15,10 +15,16 @@ var auto_blink := true:
 			face.auto_blink = v
 var _talk_left := -1.0
 var _override_left := 0.0
+var _anim: Node                                 ## the NpcAnimator next to this node: a scared body (set_mood("scared"): fleeing, hiding, hurt) shows a scared face
 
 
 func setup(f: Node) -> void:
 	face = f
+
+
+func _ready() -> void:
+	var p := get_parent()
+	_anim = p.get_node_or_null("Animator") if p else null
 
 
 static func map_expression(name: String) -> String:
@@ -92,7 +98,20 @@ func _temporary(expr: String, seconds: float) -> void:
 		face.expression = _for_controller(expr)
 
 
+## The face follows the body: while the NpcAnimator's mood is scared and the game has not set a stronger expression, the face is scared.
+func _mood_face() -> void:
+	if _anim == null or face == null or _override_left > 0.0:
+		return
+	var want := map_expression(expression)
+	if want == "neutral" and String(_anim.get("mood")) == "scared":
+		want = "scared"
+	want = _for_controller(want)
+	if String(face.expression) != want:
+		face.expression = want
+
+
 func _process(delta: float) -> void:
+	_mood_face()
 	if _talk_left > 0.0:
 		_talk_left -= delta
 		if _talk_left <= 0.0:

@@ -62,6 +62,7 @@ func _run() -> void:
 			ok(nm + "_is_meshy_51_bones", bones == 51, str(bones))
 			ok(nm + "_face_is_meshy", face is VeilMeshyNpcFace)
 			var f := face as VeilMeshyNpcFace
+			anim.set_mood("calm")                                  # (the cashier starts scared in chapter 7: a scared face would hide the talking check)
 			f.set_expression("scared")
 			ok(nm + "_scared", f.face.state == "scared")
 			f.set_expression("neutral")
@@ -79,6 +80,14 @@ func _run() -> void:
 			f.set_expression("neutral")
 			f.widen_eyes(0.2)
 			ok(nm + "_widen_eyes", f.face.state == "scared")
+			# the face follows the body: a scared mood (fleeing, hiding) shows a scared face by itself, and calm brings the neutral face back
+			await get_tree().create_timer(0.5).timeout            # (headless frames can be very short: wait in real time for the 0.2 s override to end)
+			anim.set_mood("scared")
+			await get_tree().create_timer(0.2).timeout
+			ok(nm + "_scared_mood_scared_face", f.face.state == "scared")
+			anim.set_mood("calm")
+			await get_tree().create_timer(0.2).timeout
+			ok(nm + "_calm_mood_neutral_face", f.face.state in ["neutral", "blink"])
 		else:
 			ok(nm + "_old_model_untouched", bones != 51, str(bones))
 			ok(nm + "_old_face_script", not (face is VeilMeshyNpcFace))
