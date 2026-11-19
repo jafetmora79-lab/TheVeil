@@ -166,6 +166,7 @@ func _physics_process(delta: float) -> void:
 	if not jump and is_on_floor() and hv.length() > 0.05 and get_floor_normal().y > 0.93:
 		_step_up(hv, delta)                      # (flat ground only: stairs are ramps, a lift there only jolts)
 	move_and_slide()
+	_debug_pushed_back(delta)
 	_fall_guard(delta)
 	# eye height + head bob
 	_eye = move_toward(_eye, EYE_CROUCH if crouching else EYE, delta * 3.5)
@@ -186,6 +187,37 @@ func _physics_process(delta: float) -> void:
 	head.rotation.z = _kick.y
 	head.position.x = cos(_bob_t) * amp * 0.6
 	_update_focus()
+
+
+## Developer diagnostic (debug builds only): walking forward but being carried BACKWARDS for a moment means something is
+## pushing the player (a follower, a prop, a moving body). The screen hint and the console name what touched the capsule.
+var _back_t := 0.0
+var _back_reported := 0.0
+
+
+func _debug_pushed_back(delta: float) -> void:
+	if not OS.is_debug_build():
+		return
+	_back_reported = maxf(_back_reported - delta, 0.0)
+	var fwd := -global_transform.basis.z
+	var hv := Vector3(velocity.x, 0, velocity.z)
+	if controls_enabled and Input.is_action_pressed("move_forward") and not Input.is_action_pressed("move_back") and hv.dot(fwd) < -0.25:
+		_back_t += delta
+	else:
+		_back_t = 0.0
+	if _back_t > 0.25 and _back_reported <= 0.0:
+		_back_reported = 3.0
+		var who := "nothing in contact"
+		for i in get_slide_collision_count():
+			var c := get_slide_collision(i).get_collider()
+			if c is Node:
+				who = "%s (%s)" % [(c as Node).name, (c as Node).get_class()]
+				break
+		var msg := "DEV: pushed backwards by " + who
+		print(msg)
+		var w := get_tree().get_first_node_in_group("veil_world")
+		if w and w.get("hud") and w.hud.has_method("set_hint"):
+			w.hud.set_hint(msg)
 
 
 ## Stair-step: when the way ahead is blocked by a low vertical face (a curb, a door sill), lift the capsule onto it.
