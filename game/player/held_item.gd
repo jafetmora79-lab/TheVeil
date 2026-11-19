@@ -50,6 +50,7 @@ func use_item(model_path: String, kind: String, effect: Callable) -> void:
 	_view = Node3D.new()
 	_view.name = "HeldItemView"
 	var model := ps.instantiate() as Node3D
+	VeilViewHands.strip_physics(model)               # a model's pickup collision body must not push the player
 	_view.add_child(model)
 	# normalise: centre the model on the hand and scale it to a hand-sized object
 	var box := Interactable.aabb_of(model)

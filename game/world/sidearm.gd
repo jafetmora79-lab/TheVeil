@@ -323,6 +323,7 @@ func _ensure_view() -> void:
 	var cam: Camera3D = world.player.camera
 	_view = ps.instantiate() as Node3D
 	_view.name = "SidearmView"
+	VeilViewHands.strip_physics(_view)                  # the model's pickup collision body must not push the player
 	cam.add_child(_view)
 	_view.position = REST
 	_view.basis = Basis(Vector3.UP, REST_YAW)
