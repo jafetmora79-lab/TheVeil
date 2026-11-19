@@ -71,7 +71,7 @@ func _run() -> void:
 	ok("injured_idle_hunches_forward", absf(lean) > 0.12, "%.2f rad" % lean)
 	var chest_pos: Vector3 = sk.get_bone_global_pose(sk.find_bone("Chest")).origin
 	var lhand: Vector3 = sk.get_bone_global_pose(sk.find_bone("LeftHand")).origin
-	ok("injured_left_hand_is_up_near_the_ribs", lhand.y > 0.9 and lhand.y < 1.25 and absf(lhand.x) < 0.3, "%s" % str(lhand))
+	ok("injured_left_hand_is_up_near_the_ribs", lhand.y > 1.0 and lhand.y < 1.3 and absf(lhand.x) < 0.33, "%s" % str(lhand))
 	var head := sk.find_bone("Head")
 	ap.play("nervous_idle")
 	ap.seek(1.2, true)
@@ -90,6 +90,33 @@ func _run() -> void:
 	var hp1 := sk.get_bone_pose_position(hips)
 	ok("scared_head_snaps_quickly", absf(hy1 - hy0) > 0.3, "%.2f -> %.2f" % [hy0, hy1])
 	ok("scared_body_recoils_backwards", (hp1 - hp0).length() > 0.04, "%.3f m" % (hp1 - hp0).length())
+
+	# ---- elbows and wrists bend FORWARD in every clip (a regression test: an earlier pass had the arm signs reversed)
+	var ang_fwd := func(v: Vector3) -> float:
+		return rad_to_deg(atan2(-v.z, -v.y))                       # from straight down, toward the front (-Z in Godot) positive
+	var worst_elbow := 99.0
+	var worst_wrist := 0.0
+	var arm_clips := ["idle", "walk", "nervous_idle", "injured_idle", "scared_reaction", "head_turn"]
+	for clip in arm_clips:
+		var len_ := ap.get_animation(clip).length
+		for k in 13:
+			ap.play(clip)
+			ap.seek(len_ * k / 12.0, true)
+			ap.pause()
+			sk.force_update_all_bone_transforms()
+			for side in ["Left", "Right"]:
+				var o := func(bn: String) -> Vector3:
+					return sk.get_bone_global_pose(sk.find_bone(side + bn)).origin
+				var shoulder: Vector3 = o.call("UpperArm")
+				var elbow: Vector3 = o.call("LowerArm")
+				var wrist: Vector3 = o.call("Hand")
+				var palm: Vector3 = sk.get_bone_global_pose(sk.find_bone(side + "MiddleProximal")).origin
+				var e_ := (ang_fwd.call(wrist - elbow) as float) - (ang_fwd.call(elbow - shoulder) as float)
+				worst_elbow = minf(worst_elbow, e_)
+				var w_ := (ang_fwd.call(palm - wrist) as float) - (ang_fwd.call(wrist - elbow) as float)
+				worst_wrist = maxf(worst_wrist, absf(w_))
+	ok("elbows_never_bend_backwards_in_any_clip", worst_elbow > -4.0, "most backward %.1f degrees (rest pose is about -2)" % worst_elbow)
+	ok("wrists_stay_within_a_natural_range", worst_wrist < 35.0, "%.1f degrees" % worst_wrist)
 
 	# ---- the face decals
 	ok("face_controller_with_decals", face != null and face.has_decals())

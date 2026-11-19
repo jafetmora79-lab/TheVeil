@@ -391,9 +391,9 @@ for f, br in ((1, 0.0), (49, 1.0), (97, 0.35), (145, 0.0)):
     rot("Head", f, x=0.7 * br)
     for s_, sg in (("Left", 1), ("Right", -1)):
         rot(s_ + "UpperArm", f, x=1.5 * br, z=sg * 1.2 * br)
-        rot(s_ + "LowerArm", f, x=-(5 + 3 * br))
+        rot(s_ + "LowerArm", f, x=(5 + 3 * br))
         rot(s_ + "Shoulder", f, z=sg * 0.8 * br)
-        rot(s_ + "Hand", f, x=2 * br * FLEX[s_])
+        rot(s_ + "Hand", f, z=-2 * br)
 for f, yw, pt in ((1, 0.0, 0.0), (37, 3.0, 0.5), (73, -2.5, -0.5), (109, 4.0, 0.8), (145, 0.0, 0.0)):
     rot("Neck", f, y=yw)
 for side in ("Left", "Right"):
@@ -461,14 +461,14 @@ for f in range(1, 38):
         rot(s_ + "UpperLeg", f, x=th)
         rot(s_ + "LowerLeg", f, x=-knee)
         rot(s_ + "Foot", f, x=ft)
-        sw = (1 if sg > 0 else -1) * a                                  # arm swing opposes the leg on the same side
-        rot(s_ + "UpperArm", f, x=-31 * sw, z=sg * 3)
-        rot(s_ + "LowerArm", f, x=-(8 + 22 * max(0.0, -sw)))
-        rot(s_ + "Hand", f, x=18 * sw * FLEX[s_])
-        rot(s_ + "Shoulder", f, z=sg * 2 * sw)
+        armf = -math.cos(2 * math.pi * ((ph + off) % 1.0))               # +1 = this arm forward (it opposes the leg on its side)
+        rot(s_ + "UpperArm", f, x=31 * armf, z=sg * 3)
+        rot(s_ + "LowerArm", f, x=8 + 22 * max(0.0, armf))
+        rot(s_ + "Hand", f, z=-(4 + 5 * armf))
+        rot(s_ + "Shoulder", f, z=sg * 2 * armf)
         for fn in ("Thumb", "Index"):
             for i, n_ in enumerate(FINGER_BONES[s_ + fn]):
-                rot(n_, f, x=(POSES["relaxed"][fn][i] + 8 * sw * (1 if i == 0 else 0.5)) * FLEX[s_])
+                rot(n_, f, x=(POSES["relaxed"][fn][i] + 8 * armf * (1 if i == 0 else 0.5)) * FLEX[s_])
         for fn in ("Middle", "Ring", "Little"):
             for i, n_ in enumerate(FINGER_BONES[s_ + fn]):
                 rot(n_, f, x=POSES["relaxed"][fn][i] * FLEX[s_])
@@ -501,9 +501,9 @@ for f, br in ((1, 0.0), (37, 1.0), (73, 0.2), (109, 1.0), (145, 0.0)):          
     rot("Chest", f, x=-1.4 * br)
 for s_, sg in (("Left", 1), ("Right", -1)):
     for f, k in ((1, 0.0), (37, 1.0), (73, 0.3), (109, 0.9), (145, 0.0)):                           # forearms lifted, hands near the belt, fidgeting
-        rot(s_ + "UpperArm", f, x=-10 - 3 * k, z=-sg * 22)
-        rot(s_ + "LowerArm", f, x=-(34 + 7 * k))
-        rot(s_ + "Hand", f, x=(6 + 4 * k) * FLEX[s_])
+        rot(s_ + "UpperArm", f, x=10 + 3 * k, z=-sg * 22)
+        rot(s_ + "LowerArm", f, x=(34 + 7 * k))
+        rot(s_ + "Hand", f, z=-(8 + 4 * k))
         rot(s_ + "Shoulder", f, z=sg * -1.5)
         for fn in FINGERS:
             for i, n_ in enumerate(FINGER_BONES[s_ + fn]):
@@ -521,11 +521,11 @@ for f, br in ((1, 0.0), (41, 1.0), (81, 0.3), (121, 0.0)):
     move("Hips", f, (0.0, -0.02, 0.0))
     rot("LeftShoulder", f, z=-3, x=-4)
     rot("RightShoulder", f, z=3, x=-2)
-    rot("LeftUpperArm", f, x=-12, y=-50, z=-26 + 1.5 * br)                           # left hand on the left ribs (the upper arm turned in)
-    rot("LeftLowerArm", f, x=-(100 + 2 * br))
-    rot("LeftHand", f, x=-10 * FLEX["Left"])
-    rot("RightUpperArm", f, x=-8, z=-3 * (1 - br * 0.3))                              # right arm hangs heavy, a little forward
-    rot("RightLowerArm", f, x=-(10 + 2 * br))
+    rot("LeftUpperArm", f, x=18, y=-45, z=-34 + 1.5 * br)                           # left hand on the left ribs (the upper arm turned in)
+    rot("LeftLowerArm", f, x=(118 + 2 * br))
+    rot("LeftHand", f, z=-8)
+    rot("RightUpperArm", f, x=8, z=-3 * (1 - br * 0.3))                              # right arm hangs heavy, a little forward
+    rot("RightLowerArm", f, x=(10 + 2 * br))
     rot("LeftUpperLeg", f, x=4)
     rot("LeftLowerLeg", f, x=-10)
     rot("LeftFoot", f, x=-3)
@@ -551,9 +551,9 @@ for i_, f in enumerate(KEY):
     rot("Hips", f, y=-yw * 0.15)
     for s_, sg in (("Left", 1), ("Right", -1)):
         rot(s_ + "Shoulder", f, z=sg * 5 * rc, x=-3 * rc)
-        rot(s_ + "UpperArm", f, x=-38 * rc, z=sg * 8 * rc)
-        rot(s_ + "LowerArm", f, x=-(8 + 58 * rc))
-        rot(s_ + "Hand", f, x=-14 * rc * FLEX[s_])
+        rot(s_ + "UpperArm", f, x=38 * rc, z=sg * 8 * rc)
+        rot(s_ + "LowerArm", f, x=(8 + 58 * rc))
+        rot(s_ + "Hand", f, z=10 * rc)
         rot(s_ + "UpperLeg", f, x=(12 if sg > 0 else -6) * rc)
         rot(s_ + "LowerLeg", f, x=-(6 + 14 * rc))
         rot(s_ + "Foot", f, x=-6 * rc)
@@ -605,9 +605,9 @@ if debug:
     bpy.ops.object.mode_set(mode='POSE')
     tests = {
         "pose_rest": {},
-        "pose_elbows": {"LeftLowerArm": (-95, 0, 0), "RightLowerArm": (-95, 0, 0)},
-        "pose_shoulders": {"LeftUpperArm": (0, 0, 55), "RightUpperArm": (0, 0, -55), "LeftLowerArm": (-30, 0, 0), "RightLowerArm": (-30, 0, 0)},
-        "pose_arms_forward": {"LeftUpperArm": (-85, 0, 0), "RightUpperArm": (-85, 0, 0)},
+        "pose_elbows": {"LeftLowerArm": (95, 0, 0), "RightLowerArm": (95, 0, 0)},
+        "pose_shoulders": {"LeftUpperArm": (0, 0, 55), "RightUpperArm": (0, 0, -55), "LeftLowerArm": (30, 0, 0), "RightLowerArm": (30, 0, 0)},
+        "pose_arms_forward": {"LeftUpperArm": (85, 0, 0), "RightUpperArm": (85, 0, 0)},
         "pose_knees": {"LeftUpperLeg": (50, 0, 0), "LeftLowerLeg": (-80, 0, 0), "RightUpperLeg": (-15, 0, 0), "RightLowerLeg": (-10, 0, 0)},
         "pose_hips_sit": {"LeftUpperLeg": (85, 0, 0), "RightUpperLeg": (85, 0, 0), "LeftLowerLeg": (-85, 0, 0), "RightLowerLeg": (-85, 0, 0), "Spine": (-8, 0, 0)},
         "pose_head": {"Head": (0, 0, 0), "Neck": (0, 0, 0)},

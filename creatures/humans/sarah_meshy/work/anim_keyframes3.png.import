@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://dx8jwkjh7wnau"
-path="res://.godot/imported/anim_keyframes2.png-b393a18483c1d59341407b066ff6e8ba.ctex"
+uid="uid://c5ryto2wqjr10"
+path="res://.godot/imported/anim_keyframes3.png-4c5ab232b9fded48d63ebbd70bf639a9.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://creatures/humans/sarah_meshy/work/anim_keyframes2.png"
-dest_files=["res://.godot/imported/anim_keyframes2.png-b393a18483c1d59341407b066ff6e8ba.ctex"]
+source_file="res://creatures/humans/sarah_meshy/work/anim_keyframes3.png"
+dest_files=["res://.godot/imported/anim_keyframes3.png-4c5ab232b9fded48d63ebbd70bf639a9.ctex"]
 
 [params]
 

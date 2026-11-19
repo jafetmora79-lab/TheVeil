@@ -93,3 +93,12 @@ right leg, left hand pressed to her left ribs, shallow breathing), `scared_react
 ### Known limits
 Weight cleanup is still automatic + a light smooth; the walk's arms are stiff A-pose swings; decal edges are straight (a faint seam is possible under hard light);
 fingers still rigid-bone based; she is not wired into any scene (waiting for your approval before the supermarket test scene).
+
+### Correction: arm directions (reported by the user, fixed)
+In the second pass every ARM rotation had the wrong sign: the elbows, hands and arm swings bent / swung BACKWARD. Cause: I treated negative X rotation as forward
+for the arm bones, but like the legs, positive X swings an arm / bends an elbow forward. I also drove the wrists with a rotation about the front axis (a sideways
+wag) instead of flexion, and the walk's arm swing was a quarter cycle out of step with the new IK legs. All arm values were flipped / re-phased and the wrists now flex
+forward. Checked three ways: a Blender measurement over every key frame of every clip (`creatures/tools/meshy_arm_check.py`: elbow flexion is now +2..+5 degrees in the
+idle, 5..24 in the walk, 31..38 in the nervous idle, 105..110 with the hand at the ribs in the injured idle, 5..55 in the scared reaction, all positive = forward), the
+side-view key frames in `work/anim_keyframes3.png`, and a new Godot regression test (`elbows_never_bend_backwards_in_any_clip`, `wrists_stay_within_a_natural_range`).
+The injured idle's hand now rests up at the left side of her chest / ribs. The GIF previews were re-rendered with the corrected clips.
