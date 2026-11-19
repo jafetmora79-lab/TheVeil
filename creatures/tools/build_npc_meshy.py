@@ -35,6 +35,19 @@ co = np.empty(len(me.vertices) * 3)
 me.vertices.foreach_get("co", co)
 co = co.reshape(-1, 3)
 feet = co[:, 2].min()
+# the real neck centre, front to back: the head and neck bones pivot there (a pivot in front of the neck swings the head sideways when it turns)
+_m = (np.abs(co[:, 0]) < 0.05) & (co[:, 2] > 0.29 + feet + 0.475 - 0.0) & (co[:, 2] < 0.33 + feet + 0.475)
+NECK_FRONT = float(-co[_m, 1].mean()) if _m.any() else 0.0
+print("NECK_FRONT (raw units, + = forward)", round(NECK_FRONT, 4))
+# the neck level: where the profile (front extent, by height) is smallest between the chest and the chin. The head blend and the neck / head
+# joint follow it, so a character with a low chin (the teen) or a high one still has the whole jaw on the Head bone.
+_prof = []
+for _z in np.arange(0.26, 0.345, 0.005):
+    _mm = (np.abs(co[:, 0]) < 0.05) & (co[:, 2] >= _z) & (co[:, 2] < _z + 0.01)
+    _prof.append((float((-co[_mm, 1]).max()) if _mm.any() else 9.0, float(_z)))
+NECK_Z = min(_prof)[1] + 0.005
+print("NECK_Z (raw)", round(NECK_Z, 3))
+NECK_TOP = max(NECK_Z + 0.025, 0.285 + 0.02)
 new = np.stack([-co[:, 0] * S, -co[:, 1] * S, (co[:, 2] - feet) * S], axis=1)
 me.vertices.foreach_set("co", new.reshape(-1))
 me.update()
@@ -79,8 +92,8 @@ LM = {
     "Hips": (P(0, -0.03), P(0, 0.06)),
     "Spine": (P(0, 0.06), P(0, 0.18)),
     "Chest": (P(0, 0.18), P(0, 0.285)),
-    "Neck": (P(0, 0.285), P(0, 0.335)),
-    "Head": (P(0, 0.335), P(0, 0.475)),
+    "Neck": (P(0, 0.285, NECK_FRONT), P(0, NECK_TOP, NECK_FRONT)),
+    "Head": (P(0, NECK_TOP, NECK_FRONT), P(0, 0.475, NECK_FRONT)),
 }
 WRIST = (0.232, 0.095)
 PALM = (0.250, 0.035)
@@ -269,8 +282,8 @@ for _comp in _comps[1:]:
 
 # ---- the head moves as one piece: automatic weights split the chin, jaw and hair between Neck and Head, so a head turn tore the face.
 # Everything from the middle of the neck upward is blended to 100% Head (full at the top of the neck), whatever the hair or jaw does.
-HEAD_Z0 = P(0, 0.300).z                         # blend starts inside the neck
-HEAD_Z1 = P(0, 0.322).z                         # fully Head from here up (below the chin)
+HEAD_Z0 = P(0, NECK_Z - 0.010).z                         # blend starts inside the neck
+HEAD_Z1 = P(0, NECK_Z + 0.012).z                         # fully Head from here up (below the chin)
 vg_head = src.vertex_groups["Head"]
 others = [g for g in src.vertex_groups if g.name != "Head"]
 n_fixed = 0

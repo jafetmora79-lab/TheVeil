@@ -11,3 +11,7 @@ Per-character handling added for these models:
 - every vertex keeps at most 4 bone influences (the head fix is applied after that), so Godot uses lightweight 4-weight skinning;
 - the head, hair and jaw are 100% on the Head bone (same fix as the protagonist).
 Not done: face expressions (each needs aligned expression images), the textures are untouched.
+
+## Head-turn fix (neck pivot and per-character neck level)
+Some heads sat too far back / sideways when turned: the head and neck bones pivoted at the middle of the body, 2 to 3 cm in front of the real neck, so a turn swung the head; and for the teen (chin much lower than the others) the jaw fell in the blend zone and stretched.
+`build_npc_meshy.py` now measures, per character, the neck centre (front to back) and the neck level (the smallest front extent between chest and chin): the Neck/Head joint sits at that centre, and the 100%-Head weighting starts at that neck level. Before/after: `work/head_turn_before_after.png`.
