@@ -50,6 +50,8 @@ func ask(title: String, options: Array, player: Node = null, rows: Array = []) -
 		b.custom_minimum_size = Vector2(380, 36) if not rows.is_empty() else Vector2(460, 44)
 		b.pressed.connect(pick.bind(i))
 		_box.add_child(b)
+		if i == 0:
+			b.grab_focus.call_deferred()            # arrow keys / stick + Enter / A work as well as 1..9 and the mouse
 	_player = player
 	if _player and "controls_enabled" in _player:
 		_player.controls_enabled = false
