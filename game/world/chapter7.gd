@@ -558,7 +558,7 @@ func _setup_distraction() -> void:
 func _spawn_car_skitters() -> void:
 	if not skitters.is_empty() or _skitters_done():
 		return
-	var ps := load(SKITTER_PATH) as PackedScene
+	var ps := load(VeilMeshyNpcs.monster_scene(SKITTER_PATH)) as PackedScene
 	if ps == null:
 		Game.set_flag("ch7_skitters_gone")
 		return

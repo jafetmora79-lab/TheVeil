@@ -299,7 +299,7 @@ func _dress_skitter(h: Node3D, box: AABB, meta: Dictionary, r: Dictionary) -> vo
 			floor_y = float(rm.get("floor_y", 0.6))
 	var a0 := Vector3(room.position.x + 0.8, floor_y, room.position.y + 0.7)
 	var b0 := Vector3(room.end.x - 0.8, floor_y, room.position.y + 0.9)
-	var sk := (load(SKITTER) as PackedScene).instantiate() as Node3D
+	var sk := (load(VeilMeshyNpcs.monster_scene(SKITTER)) as PackedScene).instantiate() as Node3D
 	sk.name = "Dress_Skitter"
 	h.add_child(sk)
 	for co in sk.find_children("*", "CollisionObject3D", true, false):

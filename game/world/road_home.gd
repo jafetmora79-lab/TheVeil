@@ -180,7 +180,7 @@ func _dart(car: Node3D) -> void:
 		from = car.global_position + fwd * (ahead - 6.0) + side * off
 		to = from + fwd * (absf(float(car.speed)) * 1.6 + 8.0) + side * 6.0
 		dur = 1.6
-	var sk := (load(SKITTER) as PackedScene).instantiate() as Node3D
+	var sk := (load(VeilMeshyNpcs.monster_scene(SKITTER)) as PackedScene).instantiate() as Node3D
 	sk.name = "RoadHome_Skitter"
 	add_child(sk)
 	for co in sk.find_children("*", "CollisionObject3D", true, false):

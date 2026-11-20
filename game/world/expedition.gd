@@ -1714,7 +1714,7 @@ func _spawn_skitter() -> bool:
 	var at := find_spawn(22.0, 34.0)
 	if not at.is_finite():
 		return false
-	var ps := load(SKITTER_PATH) as PackedScene
+	var ps := load(VeilMeshyNpcs.monster_scene(SKITTER_PATH)) as PackedScene
 	if ps == null:
 		return false
 	var sk := ps.instantiate() as Node3D
@@ -1749,7 +1749,7 @@ func _spawn_skitter() -> bool:
 ## A scripted sighting for the story chapters: a Skitter scuttles from `from` to `to` (world, ground) and is
 ## removed only once out of view. Not counted against the dynamic budget (story encounters take priority).
 func skitter_crossing(from: Vector3, to: Vector3, speed := 7.5) -> Node3D:
-	var ps := load(SKITTER_PATH) as PackedScene
+	var ps := load(VeilMeshyNpcs.monster_scene(SKITTER_PATH)) as PackedScene
 	if ps == null:
 		return null
 	var space: PhysicsDirectSpaceState3D = world.get_world_3d().direct_space_state

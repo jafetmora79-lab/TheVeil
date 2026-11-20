@@ -774,7 +774,7 @@ func _roof_skitter() -> void:
 
 
 func _make_skitter(n: String, at: Vector3) -> Node3D:
-	var sk := (load(SKITTER_PATH) as PackedScene).instantiate() as Node3D
+	var sk := (load(VeilMeshyNpcs.monster_scene(SKITTER_PATH)) as PackedScene).instantiate() as Node3D
 	sk.name = n
 	world.add_child(sk)
 	if sk is CollisionObject3D:

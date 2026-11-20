@@ -974,7 +974,7 @@ func _frank() -> void:
 	var cover := _cover_near(pin)
 	if cover.distance_to(eye) < 6.0:
 		cover = _ground(pin + fwd * 9.0 - side * 3.0)
-	var sk := (load(SKITTER) as PackedScene).instantiate() as Node3D
+	var sk := (load(VeilMeshyNpcs.monster_scene(SKITTER)) as PackedScene).instantiate() as Node3D
 	sk.name = "LT_Skitter"
 	world.add_child(sk)
 	VeilCreatureLook.apply_skitter(sk, cover.y)        # its approved look (not the pale raw atlas)

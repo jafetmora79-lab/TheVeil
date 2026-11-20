@@ -701,7 +701,7 @@ func _seg_survive() -> void:
 			sx = x
 			break
 	report["skitter_aisle_x"] = sx
-	var sk := _spawn(SKITTER, M * Vector3(sx - 4.5, 0.04, 12.6)) as Node3D
+	var sk := _spawn(VeilMeshyNpcs.monster_scene(SKITTER), M * Vector3(sx - 4.5, 0.04, 12.6)) as Node3D
 	if sk:
 		VeilCreatureLook.apply_skitter(sk, sk.global_position.y)
 		_mats_ok(sk, "skitter")

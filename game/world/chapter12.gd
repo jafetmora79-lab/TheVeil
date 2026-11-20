@@ -875,7 +875,7 @@ func _start_chase(restoring: bool) -> void:
 		return
 	report["chase_runs"] += 1
 	Game.set_flag("ch12_chase_started")
-	var ps := load(SKITTER_PATH) as PackedScene
+	var ps := load(VeilMeshyNpcs.monster_scene(SKITTER_PATH)) as PackedScene
 	skitter = ps.instantiate() as Node3D
 	skitter.name = "C12_Skitter"
 	world.add_child(skitter)
