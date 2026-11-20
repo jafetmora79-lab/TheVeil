@@ -14,9 +14,15 @@ const MAP := {
 	"Lena": "plaid_shirt",
 	"Frank": "police_cap",
 	"Officer": "police_officer",
-	"Cashier": "store_clerk", "Survivor": "store_clerk", "Civilian_A": "store_clerk", "LT_Window": "store_clerk",
-	"Civilian_B": "police_redhair",
+	"Cashier": "clerk_burgundy",                       # the new store clerk
+	"Survivor": "store_clerk",                          # the old clerk: David (his name is set in hud.gd SPEAKER_NAMES)
+	"Civilian_A": "bomber", "Civilian_B": "woman_red_plaid", "Joan": "woman_red_plaid",
+	"Res_Walker": "plaid_man", "Res_Neighbour": "tan_jacket", "Res_Driveway": "bomber",
+	"LT_Driver": "bomber", "LT_Window": "woman_red_plaid",
 }
+## Characters that have only their painted neutral face (no expression sheet): plain rigged GLBs `CHR_<slug>_Meshy.glb`, a VeilPlainFace as their face controller.
+const PLAIN := ["bomber", "clerk_burgundy", "woman_red_plaid", "tan_jacket", "plaid_man"]
+const EXTRAS := ["bomber", "woman_red_plaid", "tan_jacket", "plaid_man"]     # the town's neighbours, walkers and drivers (LT_*)
 const PROTAGONIST_GLB := "res://game/prototypes/protagonist_meshy/face/CHR_Protagonist_FaceTex.glb"
 
 
@@ -28,7 +34,7 @@ static func slug_for(speaker: String) -> String:
 	if MAP.has(speaker):
 		return String(MAP[speaker])
 	if speaker.begins_with("LT_"):                   # the living town's drivers and extras
-		return "store_clerk"
+		return String(EXTRAS[absi(speaker.hash()) % EXTRAS.size()])
 	return ""
 
 
@@ -48,6 +54,16 @@ static func model_for(speaker: String) -> Node3D:
 			return n
 		"sarah":
 			return VeilSarahMeshyProto.instantiate(true)                  # her face is the decal face (child "Face")
+	if PLAIN.has(slug):
+		var ps := load("res://game/prototypes/npc_meshy/CHR_%s_Meshy.glb" % slug) as PackedScene
+		if ps == null:
+			return null
+		var pn := ps.instantiate() as Node3D
+		VeilSarahMeshyProto.psx_look(pn)
+		var pf := VeilPlainFace.new()
+		pf.name = "FaceTex"
+		pn.add_child(pf)
+		return pn
 	return VeilNpcFaceTex.instantiate(slug)
 
 
