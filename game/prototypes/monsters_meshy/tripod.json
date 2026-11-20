@@ -1,0 +1,7 @@
+{
+ "kind": "tripod",
+ "height_m": 12.0,
+ "facing": "-Z",
+ "walk_ground_speed": 0.72,
+ "walk_cycle_s": 5.0
+}
