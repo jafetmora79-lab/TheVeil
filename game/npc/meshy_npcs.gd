@@ -23,6 +23,7 @@ const MAP := {
 ## Characters that have only their painted neutral face (no expression sheet): plain rigged GLBs `CHR_<slug>_Meshy.glb`, a VeilPlainFace as their face controller.
 const PLAIN := ["bomber", "clerk_burgundy", "woman_red_plaid", "tan_jacket", "plaid_man"]
 const MIXAMO := ["bomber", "woman_red_plaid", "tan_jacket"]                    ## played by the Mixamo-rigged model that plays its own Walking / Running clips (NpcAnimator native mode)
+const FACE_MIXAMO := ["eddie"]               ## Mixamo-rigged models whose expression faces are cut onto the new mesh (game/npc/face_fit.gd, face_fit/<slug>.json)
 const EXTRAS := ["bomber", "woman_red_plaid", "tan_jacket", "plaid_man"]     # the town's neighbours, walkers and drivers (LT_*)
 const PROTAGONIST_GLB := "res://game/prototypes/protagonist_meshy/face/CHR_Protagonist_FaceTex.glb"
 
@@ -65,6 +66,19 @@ static func model_for(speaker: String) -> Node3D:
 		pf.name = "FaceTex"
 		pn.add_child(pf)
 		return pn
+	if FACE_MIXAMO.has(slug):
+		var mps := load("res://game/prototypes/npc_meshy/CHR_%s_Mixamo.glb" % slug) as PackedScene
+		if mps != null:
+			var mn := mps.instantiate() as Node3D
+			VeilSarahMeshyProto.psx_look(mn)
+			if VeilFaceFit.apply(mn, slug):
+				var mf := VeilNpcFaceTex.new()
+				mf.name = "FaceTex"
+				mf.slug = slug
+				mn.add_child(mf)
+				mf.setup(mn)
+				return mn
+			mn.free()
 	return VeilNpcFaceTex.instantiate(slug)
 
 
