@@ -22,7 +22,7 @@ What to send back (all 1000x1000 PNG, one folder per character, exactly these fi
   <name>/face_blink.png  face_talk_small.png  face_talk_wide.png  face_scared.png  face_angry.png  face_worried.png
 and copy the base image as face_neutral.png.
 
-The five characters (base images in this folder):
+The first five characters (base images in this folder):
   eddie_face_base_1000.png          Eddie (red hoodie)   - already working with the old images; new ones will make him match exactly
   bearded_man_face_base_1000.png    Marcus (beard, tan jacket)
   police_officer_face_base_1000.png the Officer (grey hair, moustache, blue shirt)
@@ -33,3 +33,11 @@ Notes
  * The brows are rebuilt in the game as movable geometry, so ChatGPT must NOT change them in any image (they are masked out anyway).
  * If an image comes back with the head shifted, scaled or the hair changed, ask again: "same framing and position, change only the eyes and mouth". A shifted image will not line up in the game.
  * Eddie, the tan jacket and the bomber have no beard or moustache; Marcus has a beard, the Officer a moustache: their mouths must move under it.
+
+The other five (same kit, same prompt):
+  police_redhair_face_base_marked_1000.png   the red-haired officer (freckles, blue uniform)
+  teen_blue_jacket_face_base_marked_1000.png Noah (blue jacket, yellow tee)
+  store_clerk_face_base_marked_1000.png      David the store clerk (green apron)
+  police_cap_face_base_marked_1000.png       Frank (officer with cap)
+  elderly_woman_face_base_marked_1000.png    Ruth (white hair, cardigan)
+ (their crops are 0.34-0.36 m across instead of 0.30, so the whole cap and hair fit; kit_projection_new5.json records the framing)
