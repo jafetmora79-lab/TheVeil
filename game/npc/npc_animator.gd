@@ -136,9 +136,11 @@ func _ready() -> void:
 	_seed = float(hash(root.name) % 1000) * 0.37
 	for i in skel.get_bone_count():
 		_b[skel.get_bone_name(i)] = i
+	if not _b.has("Hips") and _b.has("mixamorig_Hips"):
+		_setup_native()
 	_measure_frame()
 	_build_rest()
-	if bone("LeftUpperLeg") >= 0 and bone("LeftFoot") >= 0 and bone("RightFoot") >= 0:
+	if not _native and bone("LeftUpperLeg") >= 0 and bone("LeftFoot") >= 0 and bone("RightFoot") >= 0:
 		_gait_rig = Gait.measure(skel, F)
 		_gprof = Gait.profile_for(String(root.name))
 		_gait_base_guard = float(_gprof.get("guard", 0.0))
@@ -307,7 +309,76 @@ func _process(delta: float) -> void:
 		_jump_t += delta
 		if _jump_t >= _jump_dur:
 			_jump_t = -1.0
+	if _native:
+		_native_step()
+		if _clip_on:
+			return
 	_pose()
+
+
+# ------------------------------------------------------------------ a Mixamo-rigged model plays its own clips while it moves
+var _native := false                ## the model is the Mixamo-rigged one (CHR_bomber_Mixamo.glb): "Walking" / "Running" play as authored, this animator poses everything else
+var _clip_on := false
+var _clip := ""
+var _ap: AnimationPlayer
+var _rest_pos := {}
+const NATIVE_SPEED := {"Walking": 1.3, "Running": 2.8}     ## ground speed (m/s) each clip covers at its authored pace
+
+
+func _setup_native() -> void:
+	_native = true
+	var base := {"Hips": "Hips", "Spine": "Spine", "Chest": "Spine1", "UpperChest": "Spine2", "Neck": "Neck", "Head": "Head"}
+	for k in base:
+		_b[k] = _b.get("mixamorig_" + base[k], -1)
+	var fingers := {"Thumb": "HandThumb", "Index": "HandIndex", "Middle": "HandMiddle", "Ring": "HandRing", "Little": "HandPinky"}
+	for side in ["Left", "Right"]:
+		for k in {"Shoulder": "Shoulder", "UpperArm": "Arm", "LowerArm": "ForeArm", "Hand": "Hand", "UpperLeg": "UpLeg", "LowerLeg": "Leg", "Foot": "Foot", "Toes": "ToeBase"}:
+			var m: String = {"Shoulder": "Shoulder", "UpperArm": "Arm", "LowerArm": "ForeArm", "Hand": "Hand", "UpperLeg": "UpLeg", "LowerLeg": "Leg", "Foot": "Foot", "Toes": "ToeBase"}[k]
+			_b[side + k] = _b.get("mixamorig_" + side + m, -1)
+		for f in fingers:
+			for j in 3:
+				_b[side + f + ["Proximal", "Intermediate", "Distal"][j]] = _b.get("mixamorig_" + side + fingers[f] + str(j + 1), -1)
+	for i in skel.get_bone_count():
+		_rest_pos[i] = skel.get_bone_pose_position(i)
+	var aps := root.find_children("*", "AnimationPlayer", true, false)
+	if not aps.is_empty():
+		_ap = aps[0] as AnimationPlayer
+		for c in ["Walking", "Running"]:
+			if _ap.has_animation(c):
+				var an := _ap.get_animation(c).duplicate() as Animation
+				an.loop_mode = Animation.LOOP_LINEAR
+				for t in an.get_track_count():               # in place: the character's own travel comes from the game, not from the clip
+					if an.track_get_type(t) == Animation.TYPE_POSITION_3D and String(an.track_get_path(t)).ends_with("mixamorig_Hips"):
+						var x0: Vector3 = an.track_get_key_value(t, 0)
+						for k in an.track_get_key_count(t):
+							var v: Vector3 = an.track_get_key_value(t, k)
+							an.track_set_key_value(t, k, Vector3(x0.x, v.y, x0.z))
+				var lib := _ap.get_animation_library("")
+				lib.remove_animation(c)
+				lib.add_animation(c, an)
+		_ap.stop()
+
+
+func _native_step() -> void:
+	if _ap == null:
+		return
+	var want := ""
+	if _gw > 0.15 and _sit < 0.3 and _jump_t < 0.0 and _speed > 0.25:
+		want = "Running" if _run > 0.5 else "Walking"
+	if want != "":
+		if want != _clip or not _ap.is_playing():
+			_clip = want
+			_ap.play(want, 0.2)
+		_ap.speed_scale = clampf(_speed / float(NATIVE_SPEED[want]), 0.7, 1.4)
+		_clip_on = true
+		skel.position.y = 0.0
+	elif _clip_on:
+		_ap.stop()
+		_clip = ""
+		_clip_on = false
+		for i in skel.get_bone_count():                       # back to the animator's own rest pose (arms down) for everything the clip touched
+			skel.set_bone_pose_rotation(i, _rest[i].get_rotation_quaternion())
+			skel.set_bone_pose_position(i, _rest_pos[i])
 
 
 func _physics_process(delta: float) -> void:
