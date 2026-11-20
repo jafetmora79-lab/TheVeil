@@ -1,0 +1,53 @@
+intro_trailer_test | RESULT PASS fails=0 | 
+opening_test | NO RESULT (timeout or crash) | 
+opening_test | NO RESULT (timeout or crash) | 
+chapter_select_test | Binary file /tmp/acc_chapter_select_test.log matches | 
+chapter_select_test | RESULT PASS fails=0 | 
+chapter5_test | NO RESULT (timeout or crash) | c5_stash_reach FAIL ;c5_exit_reach FAIL ;c5_prepared FAIL ;c5_doors_open FAIL ;c5_item_assist_medical FAIL focus <null>;c5_item_reach_medical FAIL ;
+chapter5_test | NO RESULT (timeout or crash) | c5_stash_reach FAIL ;c5_exit_reach FAIL ;c5_prepared FAIL ;c5_doors_open FAIL ;c5_item_assist_medical FAIL focus <null>;c5_item_reach_medical FAIL ;
+chapter6_test | Binary file /tmp/acc_chapter6_test.log matches | 
+chapter6_test | RESULT FAIL (1 failures) | c6_rs_talk_camera FAIL { "count": 1, "blocked": 0, "cam_hits": 0, "min;
+chapter7_test | NO RESULT (timeout or crash) | c7_eddie_stRESULT FAIL (watchdog: test did not finish);c7_note_clue FAIL ;
+chapter7_test | RESULT FAIL (15 failures) | c7_eddie_stRESULT FAIL (watchdog: test did not finish);c7_note_clue FAIL ;c7_load_clue FAIL ;c7_road_choice_offered FAIL ;c7_choice_trust FAIL ;c7_doors_closed_on_return FAIL ;
+chapter8_test | Binary file /tmp/acc_chapter8_test.log matches | Binary file /tmp/acc_chapter8_test.log matches;
+chapter9_test | RESULT PASS (0 failures) | 
+chapter8_test | Binary file /tmp/acc_chapter8_test.log matches | Binary file /tmp/acc_chapter8_test.log matches;
+chapter10_test | RESULT FAIL (1 failures) | c10_group_through FAIL [(-52.2, 0.1, -4.3), (-52, 0.1, -5.2), (-51.9, ;
+chapter9_test | RESULT PASS (0 failures) | 
+chapter10_test | RESULT PASS (0 failures) | 
+chapter11_test | Binary file /tmp/acc_chapter11_test.log matches | Binary file /tmp/acc_chapter11_test.log matches;
+chapter11_test | RESULT FAIL (30 failures) | c11_zoom_in FAIL TalkCam;c11_note_read FAIL ;c11_campsite_talk FAIL ;c11_field_starts FAIL ;c11_field_zoom FAIL min fov <null>;c11_field_lines FAIL ;
+chapter12_test | Binary file /tmp/acc_chapter12_test.log matches | 
+chapter12_noah_test | RESULT FAIL fails=2 | n_load_no_replay FAIL ;n_load_noah_home FAIL ;
+chapter12_test | RESULT 2 failures | c12_escape_run FAIL (0.216583, -0.307404, 28.6811);c12_skitter_moved FAIL (0.016975, -2.085938, 32.17751) step 0.34;
+noah_late_test | RESULT PASS fails=0 | 
+chapter12_noah_test | RESULT PASS fails=0 | 
+noah_late_test | RESULT PASS fails=0 | 
+chapter13_test | Binary file /tmp/acc_chapter13_test.log matches | Binary file /tmp/acc_chapter13_test.log matches;
+chapter13_test | RESULT 1 failures | c13_load_complete FAIL ;
+chapter14_test | Binary file /tmp/acc_chapter14_test.log matches | Binary file /tmp/acc_chapter14_test.log matches;
+chapter14_test | RESULT 3 failures | c14_run_back FAIL (-84.54464, 0.000941, -1.918596);c14_run_done FAIL ;c14_load_complete FAIL ;
+chapter15_test | RESULT PASS | 
+frank_skitter_test | RESULT PASS fails=0 | 
+colossus_market_last_test | RESULT PASS fails=0 | 
+colossus_shot_test | RESULT PASS fails=0 | 
+trailer_test | RESULT PASS fails=0 | 
+death_test | RESULT FAIL (7 failures) | death_stages_false FAIL { "started": true };death_duration_false FAIL 14.0 s;death_cam_above_ground_false FAIL -1.00 m;death_colossus_veil_false FAIL ;death_creatures_false FAIL -1;death_panel_false FAIL ;
+tripod_gait_test | RESULT PASS | 
+pay_first_test | RESULT PASS fails=0 | 
+town_destruction_test | RESULT PASS fails=0 | 
+roof_skitter_handoff_test | RESULT PASS | 
+cinematic_test | CINEMATIC preview PASS | 
+DONE
+chapter15_test | RESULT 2 failures | 
+frank_skitter_test | RESULT PASS fails=0 | 
+colossus_market_last_test | RESULT PASS fails=0 | 
+colossus_shot_test | RESULT PASS fails=0 | 
+trailer_test | RESULT PASS fails=0 | 
+death_test | RESULT FAIL (7 failures) | death_stages_false FAIL { "started": true };death_duration_false FAIL 14.0 s;death_cam_above_ground_false FAIL -1.00 m;death_colossus_veil_false FAIL ;death_creatures_false FAIL -1;death_panel_false FAIL ;
+tripod_gait_test | RESULT PASS | 
+pay_first_test | RESULT PASS fails=0 | 
+town_destruction_test | RESULT PASS fails=0 | 
+roof_skitter_handoff_test | RESULT PASS | 
+cinematic_test | CINEMATIC preview PASS | 
+DONE

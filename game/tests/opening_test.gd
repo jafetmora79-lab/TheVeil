@@ -647,7 +647,7 @@ func _run() -> void:
 	var to_p: Vector3 = (player.global_position - world.eddie.global_position) * Vector3(1, 0, 1)
 	ok("eddie_looks_at_player", rad_to_deg(gaze.angle_to(to_p.normalized())) < 25.0,
 		"gaze off by %.0f deg (head yaw %.2f, body turned %s)" % [rad_to_deg(gaze.angle_to(to_p.normalized())), ea._look.x, ea.world_forward()])
-	ok("eddie_face", world.eddie_face != null and world.eddie_face._mat != null)
+	ok("eddie_face", world.eddie_face != null and (world.eddie_face.get("_mat") != null or world.eddie_face.get("face") != null))
 	ok("eddie_talk_reach", await aim_at(player, eddie_it, -gs.global_transform.basis.z, 1.75))
 	var game_it = world.interactables.get("shop/horror_game")
 	ok("game_rack_reach", await aim_at(player, game_it, gs.global_transform.basis.x, 0.9))
@@ -714,7 +714,7 @@ func _run() -> void:
 	# checkout refuses an empty basket
 	var pay = world.interactables.get("market/cashier")
 	ok("cashier_faces_aisle", world.animators["Cashier"].world_forward().dot(mk.global_transform.basis.x) > 0.9)
-	ok("cashier_present", world.cashier != null and world.cashier.visible and world.faces.has("Cashier") and world.faces["Cashier"]._mat != null)
+	ok("cashier_present", world.cashier != null and world.cashier.visible and world.faces.has("Cashier") and (world.faces["Cashier"].get("_mat") != null or world.faces["Cashier"].get("face") != null))
 	var lane: Vector3 = ((mk.get_node("NavTargets/Checkout_4") as Node3D).global_position - pay.global_position) * Vector3(1, 0, 1)
 	ok("cashier_reach", await aim_at(player, pay, lane, lane.length()))     # from the lane's checkout spot, across the belt
 	pay.interact(player)
@@ -870,7 +870,7 @@ func _run() -> void:
 	player.global_position = mk.global_transform * Vector3(0, 0.2, 5.5)
 	await frames(20)
 	ok("p3_back_inside", game.has_flag("p3_back_inside") and game.current_step().get("id", "") == "mist_shop", game.current_step().get("id", ""))
-	ok("p3_marcus_in_shop", world.marcus != null and world.marcus.get_parent() == gs and world.faces.has("Marcus") and world.faces["Marcus"]._mat != null,
+	ok("p3_marcus_in_shop", world.marcus != null and world.marcus.get_parent() == gs and world.faces.has("Marcus") and (world.faces["Marcus"].get("_mat") != null or world.faces["Marcus"].get("face") != null),
 		"marcus=%s parent=%s faces=%s" % [world.marcus, world.marcus.get_parent().name if world.marcus else "-", world.faces.keys()])
 	ok("p3_npcs_scared", world.animators["Eddie"].mood == "scared" and world.animators["Marcus"].mood == "scared")
 	var shop_in: Vector3 = gs.to_local((gs.get_node("Doorways/Entrance_Inside") as Node3D).global_position)
