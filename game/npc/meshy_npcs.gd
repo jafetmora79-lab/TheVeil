@@ -22,7 +22,7 @@ const MAP := {
 }
 ## Characters that have only their painted neutral face (no expression sheet): plain rigged GLBs `CHR_<slug>_Meshy.glb`, a VeilPlainFace as their face controller.
 const PLAIN := ["bomber", "clerk_burgundy", "woman_red_plaid", "tan_jacket", "plaid_man"]
-const MIXAMO := ["bomber"]                    ## played by the Mixamo-rigged model that plays its own Walking / Running clips (NpcAnimator native mode)
+const MIXAMO := ["bomber", "woman_red_plaid"]                    ## played by the Mixamo-rigged model that plays its own Walking / Running clips (NpcAnimator native mode)
 const EXTRAS := ["bomber", "woman_red_plaid", "tan_jacket", "plaid_man"]     # the town's neighbours, walkers and drivers (LT_*)
 const PROTAGONIST_GLB := "res://game/prototypes/protagonist_meshy/face/CHR_Protagonist_FaceTex.glb"
 
@@ -56,7 +56,7 @@ static func model_for(speaker: String) -> Node3D:
 		"sarah":
 			return VeilSarahMeshyProto.instantiate(true)                  # her face is the decal face (child "Face")
 	if PLAIN.has(slug):
-		var ps := load("res://game/prototypes/npc_meshy/CHR_bomber_Mixamo.glb" if MIXAMO.has(slug) else "res://game/prototypes/npc_meshy/CHR_%s_Meshy.glb" % slug) as PackedScene
+		var ps := load("res://game/prototypes/npc_meshy/CHR_%s_Mixamo.glb" % slug if MIXAMO.has(slug) else "res://game/prototypes/npc_meshy/CHR_%s_Meshy.glb" % slug) as PackedScene
 		if ps == null:
 			return null
 		var pn := ps.instantiate() as Node3D
