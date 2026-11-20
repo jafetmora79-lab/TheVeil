@@ -2588,9 +2588,25 @@ func _tripod_encounter() -> void:
 	tc.name = "Colossus_Encounter"
 	add_child(tc)
 	tc.build(COLOSSUS_H, ground)
-	var A := P + n * 95.0 - side * 40.0
+	var A := P + n * 104.0 - side * 14.0                      # far off in the mist, ahead of him: it comes TOWARD him (it faces him the whole way)
 	A.y = ground
-	var wd := (side * 1.0 + n * 0.12).normalized()
+	var wd := ((P + n * 86.0 - side * 3.0) - A) * Vector3(1, 0, 1)
+	wd = wd.normalized()
+	var curtains := _enc_mist(P, n, ground)
+	var veil_mats: Array = []
+	for mi in tc.model.find_children("*", "MeshInstance3D", true, false):
+		var vm := (mi as MeshInstance3D).get_surface_override_material(0) as ShaderMaterial
+		if vm:
+			vm.set_shader_parameter("distance_fade", 0.1)
+			veil_mats.append(vm)
+	tc.eye.level = 0.25
+	var emerge := create_tween().set_parallel(true)          # it surfaces out of the fog over the whole walk
+	emerge.tween_method(func(v: float):
+		for vm in veil_mats:
+			(vm as ShaderMaterial).set_shader_parameter("distance_fade", v), 0.1, 0.006, 13.0).set_trans(Tween.TRANS_SINE)
+	emerge.tween_property(tc.eye, "level", 1.0, 13.0)
+	for c in curtains:
+		emerge.tween_method(func(v: float): ((c as MeshInstance3D).mesh as QuadMesh).material.set_shader_parameter("density", v), 0.97, 0.5, 13.0)
 	tc.global_position = A
 	tc.rotation.y = atan2(-wd.x, -wd.z)                       # the model faces -Z
 	tc.set_walking(true, 0.45)
@@ -2604,7 +2620,7 @@ func _tripod_encounter() -> void:
 	var head_pos := P + Vector3(0, 1.5, 0)
 	var t := 0.0
 	var step_t := 0.0
-	var walk_end := 11.0
+	var walk_end := 13.0
 	var turned := false
 	var lock_t := walk_end + 2.2
 	var aim_to := Vector3.ZERO
@@ -2619,7 +2635,7 @@ func _tripod_encounter() -> void:
 				step_t = 0.0
 				_enc_sounds.append(Sfx.play("colossus_step", tc.global_position + Vector3(0, 1, 0), 5.0, 0.55))
 			var k := clampf(t / (walk_end - 0.5), 0.0, 1.0)
-			scan.global_position = P + n * 38.0 + side * lerpf(-90.0, 45.0, k * k * (3.0 - 2.0 * k)) + Vector3(0, 0.5, 0)       # the light sweeps the street
+			scan.global_position = P + n * 40.0 + side * lerpf(-60.0, 8.0, k * k * (3.0 - 2.0 * k)) + Vector3(0, 0.5, 0)       # the light sweeps the street, ever nearer him
 			aim_to = tc.global_position + Vector3(0, COLOSSUS_H * 0.5, 0)
 		else:
 			if not turned:
@@ -2630,7 +2646,7 @@ func _tripod_encounter() -> void:
 				tw_t.tween_property(tc, "rotation:y", lerp_angle(tc.rotation.y, atan2(-to_p.x, -to_p.z), 1.0), 2.4).set_trans(Tween.TRANS_SINE)
 				_enc_sounds.append(Sfx.play("colossus_step", tc.global_position + Vector3(0, 1, 0), 6.0, 0.5))
 			var k2 := clampf((t - walk_end) / 1.6, 0.0, 1.0)
-			scan.global_position = (P + n * 38.0 + side * 45.0 + Vector3(0, 0.5, 0)).lerp(head_pos, k2 * k2 * (3.0 - 2.0 * k2))   # it finds him: the light comes straight to his face
+			scan.global_position = (P + n * 40.0 + side * 8.0 + Vector3(0, 0.5, 0)).lerp(head_pos, k2 * k2 * (3.0 - 2.0 * k2))   # it finds him: the light comes straight to his face
 			aim_to = aim_to.lerp(tc.eye.eye_world_pos(), clampf(k2 * 1.5, 0.0, 1.0))
 		# the player's eyes follow the creature (no shake: a slow, steady lift of the view)
 		var want := Transform3D(Basis(), cam.global_position).looking_at(aim_to, Vector3.UP).basis.get_rotation_quaternion()
@@ -2651,6 +2667,8 @@ func _tripod_encounter() -> void:
 	var z0 := cam.global_basis.get_rotation_quaternion()
 	var z1 := Transform3D(Basis(), cam.global_position).looking_at(eye_p, Vector3.UP).basis.get_rotation_quaternion()
 	zoom.tween_method(func(k: float): cam.global_basis = Basis(z0.slerp(z1, k)), 0.0, 1.0, 0.5)
+	for c in curtains:
+		zoom.tween_method(func(v: float): ((c as MeshInstance3D).mesh as QuadMesh).material.set_shader_parameter("density", v), 0.5, 0.12, 0.8)
 	await zoom.finished
 	enc_report["eye_zoom"] = true
 	await get_tree().create_timer(0.9).timeout               # the lens fills the view
@@ -2674,8 +2692,43 @@ func _tripod_encounter() -> void:
 	scan.queue_free()
 	tc.eye.beam_on = false
 	tc.eye.level = 1.0
+	for c in curtains:
+		var cm := ((c as MeshInstance3D).mesh as QuadMesh).material as ShaderMaterial
+		var tcw := create_tween()
+		tcw.tween_method(func(v: float): cm.set_shader_parameter("density", v), 0.12, 0.0, 3.0)
+		tcw.tween_callback(c.queue_free)
 	_p3_survival_begins(door_out, shop_door)
 	_tripod_watch(tc, wd)
+
+
+## The fog thickens across the street for the Colossus: three tall curtains of the game's mist, ahead of him; it walks out of them.
+func _enc_mist(P: Vector3, n: Vector3, ground: float) -> Array:
+	var out: Array = []
+	var sh := load("res://THE_VEIL_ASSETS_V2/09_Horror_Atmosphere/Fog/veil_mist_boundary.gdshader") as Shader
+	var noise := load("res://THE_VEIL_ASSETS_V2/09_Horror_Atmosphere/Textures/T_Veil_MistNoise.png") as Texture2D
+	if sh == null:
+		return out
+	var face := Basis.looking_at(n, Vector3.UP)
+	for L in [[34.0, 110.0], [52.0, 130.0], [70.0, 150.0]]:
+		var mi := MeshInstance3D.new()
+		mi.name = "Enc_Mist"
+		var qm := QuadMesh.new()
+		qm.size = Vector2(700.0, float(L[1]))
+		var mat := ShaderMaterial.new()
+		mat.shader = sh
+		mat.set_shader_parameter("noise_tex", noise)
+		mat.set_shader_parameter("curtain_height", float(L[1]))
+		mat.set_shader_parameter("density", 0.97)
+		mat.set_shader_parameter("base_color", Color(0.3, 0.32, 0.36))
+		mat.set_shader_parameter("edge_color", Color(0.14, 0.15, 0.19))
+		mat.set_shader_parameter("rise_speed", 0.04)
+		qm.material = mat
+		mi.mesh = qm
+		mi.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+		add_child(mi)
+		mi.global_transform = Transform3D(face, Vector3(P.x, ground, P.z) + n * float(L[0]) + Vector3(0, float(L[1]) * 0.5 - 2.0, 0))
+		out.append(mi)
+	return out
 
 
 ## The light stays on him while he is out in the street; once he is back under cover it swings away and the Colossus walks off into the mist.
