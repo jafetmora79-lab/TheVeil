@@ -20,6 +20,7 @@ var talking := false:
 var auto_blink := true
 var state := "neutral"                          ## the texture currently shown (read by tests)
 var _mat: BaseMaterial3D
+var _bake: VeilFaceBake
 var _sm: ShaderMaterial
 var _brow_sm: ShaderMaterial                    ## the movable eyebrows of a Mixamo model (VeilFaceBrows)
 var _brow := Vector3.ZERO                       ## current lift_in, lift_out, shift_in (metres)
@@ -60,6 +61,10 @@ static func instantiate(s: String) -> Node3D:
 
 func setup(model_root: Node) -> bool:
 	_rng.randomize()
+	if model_root.has_meta("face_bake"):                 # baked expressions on the model's own texture (VeilFaceBake)
+		_bake = model_root.get_meta("face_bake")
+		_apply()
+		return true
 	for mi in model_root.find_children("*", "MeshInstance3D", true, false):
 		var m := mi as MeshInstance3D
 		if m.mesh != null and m.mesh.get_surface_count() >= 2:
@@ -118,7 +123,7 @@ func _process(delta: float) -> void:
 
 
 func _apply() -> void:
-	if (_mat == null and _sm == null) or slug == "":
+	if (_mat == null and _sm == null and _bake == null) or slug == "":
 		return
 	var s := expression if expression in ["scared", "angry", "worried"] else "neutral"
 	if talking and expression != "scared":
@@ -126,6 +131,9 @@ func _apply() -> void:
 	if _blink_left > 0.0 and expression == "neutral":
 		s = "blink"
 	state = s
+	if _bake != null:
+		_bake.show(s)
+		return
 	if _sm != null:
 		_sm.set_shader_parameter("face_tex", texture(slug, s))
 		_sm.set_shader_parameter("amount", 0.0 if s == "neutral" else 1.0)

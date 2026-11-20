@@ -267,11 +267,19 @@ func _extract(slug: String, out: String, tex: Image, depth: PackedFloat32Array, 
 					cell.append(snappedf(q.y, 0.000001))
 				cells.append(cell)
 		strips.append({"inner_low": inner_is_low, "r0": r_lo, "u0": u_lo, "step": step, "nr": nr, "nu": nu, "f": fs, "cells": cells})
+	# the painted EYES too (white and very dark pixels in the eye windows): wiped like the brows, so an expression that narrows or moves the eyes never leaves a piece of the old eye
+	for ex in eye_r:
+		for y in range(maxi(int((eye_u - 0.020 - U0) / RES), 0), mini(int((eye_u + 0.0075 - U0) / RES), H)):
+			for x in range(maxi(int((ex - 0.032 - R0) / RES), 0), mini(int((ex + 0.032 - R0) / RES), W)):
+				if depth[y * W + x] > -8.0:
+					var le := _px_lum(tex, uvb[y * W + x])
+					if le > 0.72 or le < 0.16:
+						mask[y * W + x] = 1
 	# the texels to wipe: the brow's own texels and their dark rim, filled with the skin above / below
 	var w := tex.get_width()
 	var h := tex.get_height()
 	var patch := {}
-	for y in range(maxi(umin_px - 6, 0), mini(umax_px + 6, H)):
+	for y in range(maxi(int((eye_u - 0.026 - U0) / RES), 0), mini(umax_px + 6, H)):
 		for x in W:
 			var near := false
 			for dy in range(-6, 7):
@@ -283,7 +291,7 @@ func _extract(slug: String, out: String, tex: Image, depth: PackedFloat32Array, 
 			if not near or depth[y * W + x] < -8.0:
 				continue
 			var q := uvb[y * W + x]
-			if _px_lum(tex, q) > patch_t + 0.08:
+			if mask[y * W + x] == 0 and _px_lum(tex, q) > patch_t + 0.08:
 				continue
 			# nearest un-masked, light pixels straight up and straight down
 			var up := y

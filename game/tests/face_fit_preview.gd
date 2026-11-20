@@ -21,6 +21,8 @@ func _run() -> void:
 	var sun := DirectionalLight3D.new()
 	sun.rotation_degrees = Vector3(-20, 0, 0)
 	root.add_child(sun)
+	if a.has("bake"):
+		VeilMeshyNpcs.face_bake = [slug]
 	var m := VeilMeshyNpcs.model_for({"eddie": "Eddie", "eddie_v2": "Eddie", "bearded_man": "Marcus", "police_officer": "Officer"}[slug])
 	root.add_child(m)
 	var ctrl := m.get_node("FaceTex") as VeilNpcFaceTex

@@ -24,6 +24,7 @@ const MAP := {
 const PLAIN := ["bomber", "clerk_burgundy", "woman_red_plaid", "tan_jacket", "plaid_man"]
 const MIXAMO := ["bomber", "woman_red_plaid", "tan_jacket"]                    ## played by the Mixamo-rigged model that plays its own Walking / Running clips (NpcAnimator native mode)
 const FACE_MIXAMO := ["eddie"]               ## Mixamo-rigged models whose expression faces are cut onto the new mesh (game/npc/face_fit.gd, face_fit/<slug>.json)
+static var face_bake: Array = []                         ## slugs shown with baked expressions (VeilFaceBake); empty: the shipped faces
 const FACE_SET := {}                                    # {"eddie": "eddie_v2"}: the ChatGPT-sheet set for Eddie (works, under review)                                    # {"eddie": "eddie_v2"} tried the ChatGPT sheet: it smears the whole face (see the report), so Eddie keeps the old images
 const EXTRAS := ["bomber", "woman_red_plaid", "tan_jacket", "plaid_man"]     # the town's neighbours, walkers and drivers (LT_*)
 const PROTAGONIST_GLB := "res://game/prototypes/protagonist_meshy/face/CHR_Protagonist_FaceTex.glb"
@@ -72,6 +73,15 @@ static func model_for(speaker: String) -> Node3D:
 		if mps != null:
 			var mn := mps.instantiate() as Node3D
 			VeilSarahMeshyProto.psx_look(mn)
+			if face_bake.has(slug):
+				var bk := VeilFaceBake.apply(mn, slug)
+				if bk != null:
+					var bf := VeilNpcFaceTex.new()
+					bf.name = "FaceTex"
+					bf.slug = slug
+					mn.add_child(bf)
+					bf.setup(mn)
+					return mn
 			var fs: String = String(FACE_SET.get(slug, slug))                 # the face data set: a kit set made from this model's own face crop (eddie_v2) or the old images
 			VeilFaceBrows.apply(mn, fs)                                    # movable brows (before the face fit: it reads the patched texture)
 			if VeilFaceFit.apply(mn, fs):
