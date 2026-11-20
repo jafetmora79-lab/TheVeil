@@ -343,10 +343,10 @@ func _setup_native() -> void:
 	var aps := root.find_children("*", "AnimationPlayer", true, false)
 	if not aps.is_empty():
 		_ap = aps[0] as AnimationPlayer
-		for c in ["Walking", "Running"]:
+		for c in ["Walking", "Running", "Jump", "Chair_Sit_Idle_M"]:
 			if _ap.has_animation(c):
 				var an := _ap.get_animation(c).duplicate() as Animation
-				an.loop_mode = Animation.LOOP_LINEAR
+				an.loop_mode = Animation.LOOP_NONE if c == "Jump" else Animation.LOOP_LINEAR
 				for t in an.get_track_count():               # in place: the character's own travel comes from the game, not from the clip
 					if an.track_get_type(t) == Animation.TYPE_POSITION_3D and String(an.track_get_path(t)).ends_with("mixamorig_Hips"):
 						var x0: Vector3 = an.track_get_key_value(t, 0)
@@ -359,19 +359,39 @@ func _setup_native() -> void:
 		_ap.stop()
 
 
+func _play_native(clip: String, speed: float, y: float) -> void:
+	if clip != _clip or not _ap.is_playing():
+		_clip = clip
+		_ap.play(clip, 0.2)
+	_ap.speed_scale = speed
+	_clip_on = true
+	skel.position.y = y
+
+
+## The sit clip's pelvis is at its own chair height: the skeleton is moved so the pelvis sits where this NPC's seat is.
+func _seat_offset() -> float:
+	var an := _ap.get_animation("Chair_Sit_Idle_M")
+	var hips_y := 0.5
+	for t in an.get_track_count():
+		if an.track_get_type(t) == Animation.TYPE_POSITION_3D and String(an.track_get_path(t)).ends_with("mixamorig_Hips"):
+			hips_y = (an.track_get_key_value(t, 0) as Vector3).y
+	return (seat_y + 0.12) - hips_y
+
+
 func _native_step() -> void:
 	if _ap == null:
 		return
 	var want := ""
+	if _jump_t >= 0.0 and _ap.has_animation("Jump"):
+		_play_native("Jump", _ap.get_animation("Jump").length / maxf(_jump_dur, 0.3), 0.0)
+		return
+	if _sit > 0.5 and _ap.has_animation("Chair_Sit_Idle_M"):
+		_play_native("Chair_Sit_Idle_M", 1.0, _seat_offset())
+		return
 	if _gw > 0.15 and _sit < 0.3 and _jump_t < 0.0 and _speed > 0.25:
 		want = "Running" if _run > 0.5 else "Walking"
 	if want != "":
-		if want != _clip or not _ap.is_playing():
-			_clip = want
-			_ap.play(want, 0.2)
-		_ap.speed_scale = clampf(_speed / float(NATIVE_SPEED[want]), 0.7, 1.4)
-		_clip_on = true
-		skel.position.y = 0.0
+		_play_native(want, clampf(_speed / float(NATIVE_SPEED[want]), 0.7, 1.4), 0.0)
 	elif _clip_on:
 		_ap.stop()
 		_clip = ""

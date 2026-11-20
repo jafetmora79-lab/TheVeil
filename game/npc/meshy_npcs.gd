@@ -22,7 +22,7 @@ const MAP := {
 }
 ## Characters that have only their painted neutral face (no expression sheet): plain rigged GLBs `CHR_<slug>_Meshy.glb`, a VeilPlainFace as their face controller.
 const PLAIN := ["bomber", "clerk_burgundy", "woman_red_plaid", "tan_jacket", "plaid_man"]
-const MIXAMO := ["bomber", "woman_red_plaid"]                    ## played by the Mixamo-rigged model that plays its own Walking / Running clips (NpcAnimator native mode)
+const MIXAMO := ["bomber", "woman_red_plaid", "tan_jacket"]                    ## played by the Mixamo-rigged model that plays its own Walking / Running clips (NpcAnimator native mode)
 const EXTRAS := ["bomber", "woman_red_plaid", "tan_jacket", "plaid_man"]     # the town's neighbours, walkers and drivers (LT_*)
 const PROTAGONIST_GLB := "res://game/prototypes/protagonist_meshy/face/CHR_Protagonist_FaceTex.glb"
 
