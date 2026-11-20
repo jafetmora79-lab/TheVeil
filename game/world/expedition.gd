@@ -1639,7 +1639,7 @@ func _spawn_hound(lv: int) -> bool:
 ## A Skitter or Shellcrawler with the Hound's AI, its own clips and pace, at `at` with a patrol and a leash (the
 ## dynamic hunters above; the car-part guard in car_quest.gd). Returns the AI (its .body is the creature) or null.
 func make_hunter(kind: String, at: Vector3, points: Array, leash: float) -> Node:
-	var ps := load(SKITTER_PATH if kind == "skitter" else CRAB_PATH) as PackedScene
+	var ps := load(VeilMeshyNpcs.monster_scene(SKITTER_PATH if kind == "skitter" else CRAB_PATH)) as PackedScene
 	if ps == null:
 		return null
 	var c := ps.instantiate() as CharacterBody3D

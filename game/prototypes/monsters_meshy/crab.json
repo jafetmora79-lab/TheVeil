@@ -1,7 +1,7 @@
 {
  "kind": "crab",
  "size_m": 1.5,
- "height_m": 0.74155592918396,
- "walk_ground_speed": 0.436,
- "walk_cycle_s": 1.25
+ "facing": "-Z in the GLB (the scene turns it to +Z)",
+ "crawl_sideways_speed_mps": 0.5,
+ "crawl_forward_speed_mps": 0.367
 }

@@ -95,6 +95,7 @@ static func skitter_scene(old_path: String) -> String:
 
 ## Creature scenes: the Meshy version of an old creature scene path (same interface: clip names, metadata, markers), unless `-- old_monsters`.
 const MONSTER_SCENES := {
+	"CRT_Shellcrawler.tscn": "res://game/prototypes/monsters_meshy/MON_crab.tscn",
 	"CRT_Hound.tscn": "res://game/prototypes/monsters_meshy/MON_hound.tscn",
 	"CRT_MistTentacle_Thin.tscn": "res://game/prototypes/monsters_meshy/MON_tentacle_thin.tscn",
 	"CRT_MistTentacle_Medium.tscn": "res://game/prototypes/monsters_meshy/MON_tentacle_medium.tscn",

@@ -897,7 +897,7 @@ func _open_gate(instant: bool) -> void:
 func _spawn_crab(restoring: bool) -> void:
 	if crab != null:
 		return
-	crab = (load(CRAB_PATH) as PackedScene).instantiate() as CharacterBody3D
+	crab = (load(VeilMeshyNpcs.monster_scene(CRAB_PATH)) as PackedScene).instantiate() as CharacterBody3D
 	crab.name = "C13_Shellcrawler"
 	world.add_child(crab)
 	crab.collision_layer = 0

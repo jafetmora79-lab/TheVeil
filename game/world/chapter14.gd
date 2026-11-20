@@ -914,7 +914,7 @@ func _crab() -> void:
 	_play("deep", hl(BACK_OUT + Vector3(0, 0, 4)), 8.0)
 	c12._shake(1.0, 0.05)
 	await c9._talk_group("c14_impact", [_node("Ruth")])
-	crab = (load(CRAB_PATH) as PackedScene).instantiate() as CharacterBody3D
+	crab = (load(VeilMeshyNpcs.monster_scene(CRAB_PATH)) as PackedScene).instantiate() as CharacterBody3D
 	crab.name = "C14_Shellcrawler"
 	world.add_child(crab)
 	crab.collision_layer = 0
