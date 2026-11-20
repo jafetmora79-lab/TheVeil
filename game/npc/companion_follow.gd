@@ -64,6 +64,12 @@ func _physics_process(delta: float) -> void:
 	_detour_retry -= delta
 	_yield_for -= delta
 	var here := _floor(leader.global_position)
+	if not trail.is_empty() and Vector2(here.x - trail[-1].x, here.z - trail[-1].z).length() > JUMP:
+		# the leader was moved by a scene, a ride or a teleport: the old crumbs lead nowhere (one huge gap between two of them
+		# used to read as "the leader stopped" and the companion waited there for ever): start the trail again at the leader
+		trail = [here]
+		_best = INF
+		_lost_t = LOST_ROUTE
 	if trail.is_empty() or Vector2(here.x - trail[-1].x, here.z - trail[-1].z).length() >= STEP:
 		trail.append(here)
 		if trail.size() > 600:
@@ -75,6 +81,8 @@ func _physics_process(delta: float) -> void:
 	if _repath > 0.0:
 		return
 	_repath = 0.25
+	if _watchdog(here):
+		return
 	# the companion walks the trail from the point nearest to it up to `gap` metres short of the leader
 	var start := _nearest_index(npc.global_position)
 
@@ -91,6 +99,12 @@ func _physics_process(delta: float) -> void:
 		return
 	if _queue_behind_other():
 		return
+	if end <= start and flat.length() > gap + 1.5 and not trail.is_empty():
+		# too little trail to follow (it was restarted after the leader was moved) yet he is not near: walk at the leader's last spot
+		var parent0 := npc.get_parent_node_3d()
+		if parent0:
+			anim.walk_to([parent0.to_local(trail[-1])], run_speed if flat.length() > gap + 6.0 else walk_speed)
+			return
 	if end <= start or flat.length() < gap * 0.85:
 		if anim.is_walking():
 			anim.walk_to([])                     # the leader stopped: wait, turned towards them
@@ -127,6 +141,82 @@ func _physics_process(delta: float) -> void:
 	anim.walk_to(pts, speed)
 	trail = trail.slice(maxi(0, start - 8))
 	_stuck_check(flat.length())
+
+
+## Keeping up is judged by the distance to the leader, not by the breadcrumb walk: whatever the trail says, a companion who is
+## far and not getting closer is lost. First he is sent along the world's own route to the leader (any gap in the trail, a door
+## the crumbs ran past, a leader moved by a scene); if that does not bring him back, he is put behind the leader while nobody is
+## looking (or at once when very far away). Returns true when it took over this tick.
+const JUMP := 8.0                    # a leader that moves this far between two ticks was teleported
+const LOST_ROUTE := 3.0              # seconds without closing in before he takes the world route
+const LOST_RECOVER := 9.0            # ... before he is put behind the leader (out of sight)
+const VERY_FAR := 45.0
+var _lost_t := 0.0
+var _best := INF
+var _route_at := -99.0
+var _clock := 0.0                    # seconds of watchdog ticks (0.25 s each: simulated time, not the wall clock)
+var watchdog_routes := 0             ## tests
+var last_route: Array = []           ## tests
+var watchdog_recoveries := 0         ## tests
+var allow_recover := true            ## tests: false = only the walking route may bring him back
+
+
+var _lost := false                   # in "lost" mode the watchdog owns his walking until he is back near the leader
+
+
+func _watchdog(leader_floor: Vector3) -> bool:
+	var dist := Vector2(leader.global_position.x - npc.global_position.x, leader.global_position.z - npc.global_position.z).length()
+	if dist <= gap + 5.0:
+		_lost = false
+		_lost_t = 0.0
+		_best = INF
+		return false
+	_clock += 0.25
+	if dist < _best - 1.0:
+		_best = dist                                   # getting closer: all well
+		_lost_t = 0.0
+	else:
+		_lost_t += 0.25
+	if _lost_t >= LOST_ROUTE:
+		_lost = true                                   # no headway for a while (or the leader was moved): the watchdog takes over
+	if not _lost:
+		return false
+	# no headway for long: put him behind the leader while nobody is looking (at once when very far away)
+	if _lost_t >= LOST_RECOVER or (dist > VERY_FAR and _lost_t >= LOST_ROUTE):
+		var cam := get_viewport().get_camera_3d()
+		var seen := cam != null and cam.is_position_in_frustum(npc.global_position + Vector3(0, 1.0, 0)) 			and cam.global_position.distance_to(npc.global_position) < 40.0
+		if allow_recover and (not seen or dist > VERY_FAR * 2.0):
+			recover_behind(maxf(gap, 2.4))
+			watchdog_recoveries += 1
+			recoveries += 1
+			_lost = false
+			_lost_t = 0.0
+			_best = INF
+			return true
+	# keep walking: legs of at most 22 m along the world's own route (its search is bounded), re-issued when a leg ends
+	if anim.is_walking() and _clock - _route_at < 5.0:
+		return true                                    # (the trail logic would read the reset trail as "the leader stopped" and halt him)
+	_route_at = _clock
+	var parent := npc.get_parent_node_3d()
+	var world := get_tree().get_first_node_in_group("veil_world")
+	if parent == null or world == null or not world.has_method("npc_route"):
+		return false
+	var body := npc as VeilSurvivorBody
+	var goal := leader_floor
+	var to_leader := Vector3(leader.global_position.x - npc.global_position.x, 0.0, leader.global_position.z - npc.global_position.z)
+	if to_leader.length() > 24.0:
+		goal = _floor(npc.global_position + to_leader.normalized() * 22.0)
+	if body:
+		var safe := body.nearest_safe(goal, 4.0)
+		if safe.is_finite():
+			goal = safe
+	var route: Array = world.npc_route(parent, npc.position, parent.to_local(goal), body)
+	if route.is_empty():
+		route = [parent.to_local(goal)]                  # no route known: walk at it, the body's collision and detours do the rest
+	anim.walk_to(route, run_speed)
+	last_route = route
+	watchdog_routes += 1
+	return true
 
 
 ## (QA-009) A companion that has made no headway for a while (caught on a gate post, a leaf, a fence) while the

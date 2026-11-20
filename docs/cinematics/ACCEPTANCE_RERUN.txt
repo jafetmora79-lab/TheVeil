@@ -1,3 +1,4 @@
+follow_ai_test | RESULT PASS fails=0 | 
 npc_physics_audit_test | RESULT PASS fails=0 | 
 chapter9_test | RESULT PASS (0 failures) | 
 chapter10_test | RESULT PASS (0 failures) | 
@@ -8,8 +9,5 @@ chapter15_test | RESULT PASS |
 frank_skitter_test | RESULT PASS fails=0 | 
 colossus_market_last_test | RESULT PASS fails=0 | 
 pay_first_test | RESULT PASS fails=0 | 
-living_town_test | RESULT FAIL fails=6 | E4_crash_once FAIL ;E4_car_stays FAIL ;E2_joan_once FAIL route -1;E5_window_once FAIL ;flags_persist FAIL ;nothing_replays FAIL ;
-scavenge_companion_test | NO RESULT | 
-shelter_systems_test | RESULT 1 failures | storage_panel_shows_actual_totals FAIL;
-eddie_exit_test | NO RESULT | 
+noah_late_test | RESULT PASS fails=0 | 
 DONE
