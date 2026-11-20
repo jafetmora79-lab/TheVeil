@@ -8,6 +8,8 @@ uniform vec3 up_local = vec3(0.0, 1.0, 0.0);
 uniform float lift_in = 0.0;
 uniform float lift_out = 0.0;
 uniform float shift_in = 0.0;
+uniform float alpha_lo = 0.30;
+uniform float alpha_hi = 0.42;
 
 void vertex() {
 	float t = UV2.x;
@@ -18,7 +20,7 @@ void vertex() {
 void fragment() {
 	vec4 c = texture(tex, UV);
 	float lum = dot(c.rgb, vec3(0.3, 0.59, 0.11));
-	ALPHA = 1.0 - smoothstep(0.30, 0.42, lum);
+	ALPHA = 1.0 - smoothstep(alpha_lo, alpha_hi, lum);
 	ALPHA_SCISSOR_THRESHOLD = 0.5;
 	ALBEDO = texture(tex_lin, UV).rgb;
 	ROUGHNESS = 1.0;

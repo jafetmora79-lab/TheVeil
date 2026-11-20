@@ -109,6 +109,9 @@ static func apply(model: Node3D, slug: String) -> bool:
 	sm.shader = BROW_SHADER
 	sm.set_shader_parameter("tex", orig_tex)
 	sm.set_shader_parameter("tex_lin", orig_tex)
+	var al: Array = data.get("alpha", [0.30, 0.42])
+	sm.set_shader_parameter("alpha_lo", float(al[0]))
+	sm.set_shader_parameter("alpha_hi", float(al[1]))
 	sm.set_shader_parameter("up_local", inv.basis * Vector3.UP)
 	mesh.surface_set_material(0, sm)
 	var att := BoneAttachment3D.new()

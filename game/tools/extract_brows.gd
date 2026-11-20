@@ -3,9 +3,14 @@ extends SceneTree
 ## (right, up, forward). Writes the region image for checking. Usage: godot --headless --path . --script res://game/tools/extract_brows.gd -- <slug> <out_dir>
 const RES := 0.00025                          ## metres per pixel
 var R0 := -0.075
-var U0 := 0.028
+var U0 := -0.020
 var W := 640
-var H := 300
+var H := 760
+var mask_t := 0.20                           ## brow pixels are darker than this (luminance); per model: extract_brows.gd -- <slug> <out> mask=0.38 patch=0.55
+var browlike_t := 0.19
+var patch_t := 0.40
+var eye_r := [-0.02, 0.04]
+var eye_u := 0.0503                          ## measured per model: the height of its eyes above the Head bone
 var tri_buf := PackedInt32Array()
 var tp := PackedVector3Array()
 var tuv := PackedVector2Array()
@@ -16,6 +21,12 @@ func _initialize() -> void:
 	var a := OS.get_cmdline_user_args()
 	var slug: String = a[0]
 	var out: String = a[1]
+	for e in a:
+		if String(e).begins_with("mask="):
+			mask_t = float(String(e).substr(5))
+			browlike_t = mask_t - 0.01
+		if String(e).begins_with("patch="):
+			patch_t = float(String(e).substr(6))
 	var n := (load("res://game/prototypes/npc_meshy/CHR_%s_Mixamo.glb" % slug) as PackedScene).instantiate() as Node3D
 	root.add_child(n)
 	var sk := n.find_children("*", "Skeleton3D", true, false)[0] as Skeleton3D
@@ -55,7 +66,7 @@ func _initialize() -> void:
 		var l1b: float = lum.call(uv[idx[t + 1]])
 		var l2b: float = lum.call(uv[idx[t + 2]])
 		var skinlike := maxf(l0, maxf(l1b, l2b)) > 0.45
-		var browlike := maxf(l0, maxf(l1b, l2b)) < 0.19
+		var browlike := maxf(l0, maxf(l1b, l2b)) < browlike_t
 		if not (skinlike or browlike):
 			continue                                   # hair (in front of the skin) is not the surface the brows are painted on
 		var a0 := p[idx[t]]
@@ -122,17 +133,18 @@ func _px_lum(tex: Image, q: Vector2) -> float:
 
 
 func _extract(slug: String, out: String, tex: Image, depth: PackedFloat32Array, uvb: PackedVector2Array, _t: Image) -> void:
-	var umin_px := int((0.0545 - U0) / RES)
-	var umax_px := int((0.092 - U0) / RES)
+	_measure_eyes_and_fit(slug, tex, depth, uvb)
+	var umin_px := int((eye_u + 0.0042 - U0) / RES)
+	var umax_px := mini(int((eye_u + 0.0417 - U0) / RES), H - 1)
 	var mask := PackedByteArray()
 	mask.resize(W * H)
 	for y in range(umin_px, umax_px):
 		for x in W:
-			if depth[y * W + x] > -8.0 and _px_lum(tex, uvb[y * W + x]) < 0.20:
+			if depth[y * W + x] > -8.0 and _px_lum(tex, uvb[y * W + x]) < mask_t:
 				mask[y * W + x] = 1
 	# per column only the dark run that holds the brow's middle (eyelids and pupils below it are not brow)
-	var seed_lo := int((0.064 - U0) / RES)
-	var seed_hi := int((0.074 - U0) / RES)
+	var seed_lo := int((eye_u + 0.0137 - U0) / RES)
+	var seed_hi := int((eye_u + 0.0237 - U0) / RES)
 	for x in W:
 		var keep := PackedByteArray()
 		keep.resize(H)
@@ -178,12 +190,12 @@ func _extract(slug: String, out: String, tex: Image, depth: PackedFloat32Array, 
 	var mid_r := 0.0
 	var n_sec := 8
 	for run in runs:
-		if run[1] - run[0] < 100:
+		if run[1] - run[0] < 100 or run[0] < 3 or run[1] > W - 4 or not _near_eye(R0 + (run[0] + run[1]) * 0.5 * RES):
 			continue
 		mid_r += (R0 + (run[0] + run[1]) * 0.5 * RES)
 	mid_r /= maxf(runs.size(), 1)
 	for run in runs:
-		if run[1] - run[0] < 100:
+		if run[1] - run[0] < 100 or run[0] < 3 or run[1] > W - 4 or not _near_eye(R0 + (run[0] + run[1]) * 0.5 * RES):
 			continue
 		var r_lo: float = R0 + run[0] * RES
 		var r_hi: float = R0 + run[1] * RES
@@ -251,7 +263,7 @@ func _extract(slug: String, out: String, tex: Image, depth: PackedFloat32Array, 
 	var w := tex.get_width()
 	var h := tex.get_height()
 	var patch := {}
-	for y in range(umin_px - 6, umax_px + 6):
+	for y in range(maxi(umin_px - 6, 0), mini(umax_px + 6, H)):
 		for x in W:
 			var near := false
 			for dy in range(-6, 7):
@@ -263,14 +275,14 @@ func _extract(slug: String, out: String, tex: Image, depth: PackedFloat32Array, 
 			if not near or depth[y * W + x] < -8.0:
 				continue
 			var q := uvb[y * W + x]
-			if _px_lum(tex, q) > 0.48:
+			if _px_lum(tex, q) > patch_t + 0.08:
 				continue
 			# nearest un-masked, light pixels straight up and straight down
 			var up := y
-			while up < H - 1 and (mask[up * W + x] == 1 or _px_lum(tex, uvb[up * W + x]) < 0.40 or depth[up * W + x] < -8.0) and up - y < 40:
+			while up < H - 1 and (mask[up * W + x] == 1 or _px_lum(tex, uvb[up * W + x]) < patch_t or depth[up * W + x] < -8.0) and up - y < 40:
 				up += 1
 			var dn := y
-			while dn > 0 and (mask[dn * W + x] == 1 or _px_lum(tex, uvb[dn * W + x]) < 0.40 or depth[dn * W + x] < -8.0) and y - dn < 40:
+			while dn > 0 and (mask[dn * W + x] == 1 or _px_lum(tex, uvb[dn * W + x]) < patch_t or depth[dn * W + x] < -8.0) and y - dn < 40:
 				dn -= 1
 			var cu := tex.get_pixelv(Vector2i(int(uvb[up * W + x].x * w) % w, int(uvb[up * W + x].y * h) % h))
 			var cd := tex.get_pixelv(Vector2i(int(uvb[dn * W + x].x * w) % w, int(uvb[dn * W + x].y * h) % h))
@@ -284,7 +296,7 @@ func _extract(slug: String, out: String, tex: Image, depth: PackedFloat32Array, 
 					var nk := Vector2i(key.x + dx2, key.y + dy2)
 					if not patch.has(nk) and nk.x >= 0 and nk.x < w and nk.y >= 0 and nk.y < h:
 						var nc := tex.get_pixelv(nk)
-						if nc.r * 0.3 + nc.g * 0.59 + nc.b * 0.11 < 0.48:
+						if nc.r * 0.3 + nc.g * 0.59 + nc.b * 0.11 < patch_t + 0.08:
 							patch[nk] = col
 	var flat := []
 	for k in patch:
@@ -292,7 +304,7 @@ func _extract(slug: String, out: String, tex: Image, depth: PackedFloat32Array, 
 		flat.append_array([k.x, k.y, int(c.r * 255.0), int(c.g * 255.0), int(c.b * 255.0)])
 	DirAccess.make_dir_recursive_absolute(ProjectSettings.globalize_path("res://game/prototypes/npc_meshy/face_fit"))
 	var f := FileAccess.open("res://game/prototypes/npc_meshy/face_fit/%s_brows.json" % slug, FileAccess.WRITE)
-	f.store_string(JSON.stringify({"strips": strips, "patch": flat, "tex": [w, h]}))
+	f.store_string(JSON.stringify({"alpha": [mask_t + 0.10, mask_t + 0.22], "strips": strips, "patch": flat, "tex": [w, h]}))
 	f.close()
 	# a check image: the region with the wiped texels (what the head looks like without brows) and the strip outlines
 	var chk := Image.create(W, H, false, Image.FORMAT_RGB8)
@@ -326,13 +338,22 @@ func _eye_mask(slug: String, tex: Image, depth: PackedFloat32Array, uvb: PackedV
 				continue
 			var r := R0 + (x + 0.5) * RES
 			var u := U0 + (y + 0.5) * RES
-			if u < 0.030 or u > 0.0585 or r < -0.05 or r > 0.07:
+			if u < eye_u - 0.0203 or u > eye_u + 0.0082 or r < eye_r[0] - 0.03 or r > eye_r[1] + 0.03:
 				continue
 			var l := _px_lum(tex, uvb[y * W + x])
 			if l > 0.22 and l < 0.72:
 				continue
-			var ux: float = pu[0] * (r / sc + dr) + pu[2]
-			var vy: float = pv[1] * (u / sc + du) + pv[2]
+			var cr2: float = r / sc + dr
+			var cu2: float = u / sc + du
+			if fit.has("tilt"):
+				var pvt: Array = fit["pivot"]
+				var tl: float = fit["tilt"]
+				var ddx: float = cr2 - pvt[0]
+				var ddy: float = cu2 - pvt[1]
+				cr2 = pvt[0] + ddx * cos(tl) - ddy * sin(tl)
+				cu2 = pvt[1] + ddx * sin(tl) + ddy * cos(tl)
+			var ux: float = pu[0] * cr2 + pu[2]
+			var vy: float = pv[1] * cu2 + pv[2]
 			if ux < 0.29 or ux > 0.70:
 				continue
 			var ix := clampi(int(ux * 127.0), 0, 127)
@@ -352,3 +373,92 @@ func _eye_mask(slug: String, tex: Image, depth: PackedFloat32Array, uvb: PackedV
 	var img := Image.create_from_data(128, 128, false, Image.FORMAT_L8, out)
 	img.save_png("res://game/prototypes/npc_meshy/face_fit/%s_eyes.png" % slug)
 	print("EYES mask saved")
+
+
+## Where this model's eyes are (the white pixels of its painted eyes, front surface), and the fit of the old face image to them: scale, dr, du in face_fit/<slug>.json
+## (the old model's measurements come from measure_old_face.gd, run first; the old eye positions from face_info.json).
+func _measure_eyes_and_fit(slug: String, tex: Image, depth: PackedFloat32Array, uvb: PackedVector2Array) -> void:
+	# the pupils: the biggest two blobs of very dark pixels at about the same height, 4 to 9 cm... apart
+	var dark := PackedByteArray()
+	dark.resize(W * H)
+	for y in H:
+		for x in W:
+			if depth[y * W + x] > -8.0 and _px_lum(tex, uvb[y * W + x]) < 0.06:
+				dark[y * W + x] = 1
+	var comps := []
+	var seen := PackedByteArray()
+	seen.resize(W * H)
+	for y0 in range(0, H, 2):
+		for x0 in range(0, W, 2):
+			if dark[y0 * W + x0] == 0 or seen[y0 * W + x0] == 1:
+				continue
+			var stack := [Vector2i(x0, y0)]
+			seen[y0 * W + x0] = 1
+			var sx := 0.0
+			var sy := 0.0
+			var n := 0
+			while not stack.is_empty():
+				var c: Vector2i = stack.pop_back()
+				sx += c.x
+				sy += c.y
+				n += 1
+				for d in [Vector2i(2, 0), Vector2i(-2, 0), Vector2i(0, 2), Vector2i(0, -2)]:
+					var q: Vector2i = c + d
+					if q.x >= 0 and q.x < W and q.y >= 0 and q.y < H and dark[q.y * W + q.x] == 1 and seen[q.y * W + q.x] == 0:
+						seen[q.y * W + q.x] = 1
+						stack.append(q)
+			if n > 60:
+				comps.append([n, R0 + (sx / n + 0.5) * RES, U0 + (sy / n + 0.5) * RES])
+	comps.sort_custom(func(a, b): return a[0] > b[0])
+	var pair := []
+	for i in comps.size():
+		for j in range(i + 1, comps.size()):
+			var dr: float = absf(comps[i][1] - comps[j][1])
+			var du: float = absf(comps[i][2] - comps[j][2])
+			if dr > 0.04 and dr < 0.09 and du < 0.012 and comps[i][2] > 0.0:
+				pair = [comps[i], comps[j]]
+				break
+		if not pair.is_empty():
+			break
+	if pair.is_empty():
+		print("EYES not found: ", comps.slice(0, 6))
+		return
+	var e0 := Vector2(pair[0][1], pair[0][2])
+	var e1 := Vector2(pair[1][1], pair[1][2])
+	eye_r = [minf(e0.x, e1.x), maxf(e0.x, e1.x)]
+	eye_u = (e0.y + e1.y) * 0.5
+	print("EYES new r ", e0.x, " ", e1.x, " u ", eye_u)
+	var path := "res://game/prototypes/npc_meshy/face_fit/%s.json" % slug
+	var fit: Dictionary = JSON.parse_string(FileAccess.get_file_as_string(path))
+	var info: Dictionary = JSON.parse_string(FileAccess.get_file_as_string("res://creatures/humans/npcs/%s/face_tex/face_info.json" % slug))
+	var pu: Array = fit["u"]
+	var pv: Array = fit["v"]
+	var oc := []
+	for e in info["eyes1000"]:
+		oc.append(Vector2((float(e[0]) / 1000.0 - pu[2]) / pu[0], (float(e[1]) / 1000.0 - pv[2]) / pv[1]))
+	# old canonical (cr, cu); the first listed is the image's left eye = the larger cr
+	var oa: Vector2 = oc[0]
+	var ob: Vector2 = oc[1]
+	if oa.x < ob.x:
+		var t := oa
+		oa = ob
+		ob = t
+	var n_hi := e1 if e1.x > e0.x else e0
+	var n_lo := e0 if e1.x > e0.x else e1
+	var sc: float = (n_hi.x - n_lo.x) / (oa.x - ob.x)
+	fit["scale"] = sc
+	fit["dr"] = (oa.x + ob.x) * 0.5 - (n_hi.x + n_lo.x) * 0.5 / sc
+	fit["du"] = (oa.y + ob.y) * 0.5 - eye_u / sc
+	# the old eyes may sit at a slant the new ones do not have: rotate the image about its eye midpoint by the difference
+	var old_ang := atan2(oa.y - ob.y, oa.x - ob.x)
+	var new_ang := atan2((n_hi.y - n_lo.y), (n_hi.x - n_lo.x))
+	fit["tilt"] = old_ang - new_ang
+	fit["pivot"] = [(oa.x + ob.x) * 0.5, (oa.y + ob.y) * 0.5]
+	var f := FileAccess.open(path, FileAccess.WRITE)
+	f.store_string(JSON.stringify(fit))
+	f.close()
+	print("FIT scale ", fit["scale"], " dr ", fit["dr"], " du ", fit["du"])
+
+
+func _near_eye(r: float) -> bool:
+	return absf(r - eye_r[0]) < 0.035 or absf(r - eye_r[1]) < 0.035

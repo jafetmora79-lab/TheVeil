@@ -45,7 +45,9 @@ func _initialize() -> void:
 		err = maxf(err, Vector2(pu, pv).distance_to(uv[i]))
 	DirAccess.make_dir_recursive_absolute(ProjectSettings.globalize_path("res://game/prototypes/npc_meshy/face_fit"))
 	var out := FileAccess.open("res://game/prototypes/npc_meshy/face_fit/%s.json" % slug, FileAccess.WRITE)
-	out.store_string(JSON.stringify({"u": su, "v": sv, "face_min": [lo.x, lo.y], "face_max": [hi.x, hi.y], "head_y": hp.y, "max_uv_error": err}))
+	var info = JSON.parse_string(FileAccess.get_file_as_string("res://creatures/humans/npcs/%s/face_tex/face_info.json" % slug))
+	var sk3: Array = info["skin"]
+	out.store_string(JSON.stringify({"skin": [sk3[0] / 255.0, sk3[1] / 255.0, sk3[2] / 255.0], "scale": 0.96, "dr": 0.0, "du": 0.0, "u": su, "v": sv, "face_min": [lo.x, lo.y], "face_max": [hi.x, hi.y], "head_y": hp.y, "max_uv_error": err}))
 	out.close()
 	print("fit ", slug, " u ", su, " v ", sv, " err ", err, " face box ", lo, hi)
 	quit(0)

@@ -6,6 +6,7 @@ extends RefCounted
 ## c = (right, up) of a vertex relative to the Head bone in the rig's own frame (right = forward x up, forward measured from the feet).
 
 
+const DIFF_T := 0.07
 const FACE_SHADER := preload("res://game/npc/face_fit.gdshader")
 static var _dm := {}
 
@@ -41,7 +42,7 @@ static func _diff_mask(slug: String, grow: int, cut := 0.0) -> PackedByteArray:
 			for x in 128:
 				var d := base.get_pixel(x, y)
 				var e := im.get_pixel(x, y)
-				if maxf(absf(d.r - e.r), maxf(absf(d.g - e.g), absf(d.b - e.b))) > 0.07:
+				if maxf(absf(d.r - e.r), maxf(absf(d.g - e.g), absf(d.b - e.b))) > DIFF_T:
 					m[y * 128 + x] = 1
 	var ep := "res://game/prototypes/npc_meshy/face_fit/%s_eyes.png" % slug
 	if ResourceLoader.exists(ep):                                  # the model's own painted eyes count as changed: the face image replaces all of the eye
@@ -122,8 +123,15 @@ static func apply(model: Node3D, slug: String, ov := {}) -> bool:
 	front.resize(v.size())
 	for i in v.size():
 		var d := to_sk * v[i] - hp
-		var cr := d.dot(r) / s + dr
-		var cu := d.dot(Vector3.UP) / s + du
+		var cr: float = d.dot(r) / s + dr
+		var cu: float = d.dot(Vector3.UP) / s + du
+		if fit.has("tilt"):
+			var pvt: Array = fit["pivot"]
+			var tl: float = fit["tilt"]
+			var ddx: float = cr - float(pvt[0])
+			var ddy: float = cu - float(pvt[1])
+			cr = float(pvt[0]) + ddx * cos(tl) - ddy * sin(tl)
+			cu = float(pvt[1]) + ddx * sin(tl) + ddy * cos(tl)
 		uvs[i] = Vector2(pu[0] * cr + pu[1] * cu + pu[2], pv[0] * cr + pv[1] * cu + pv[2])
 		front[i] = 1 if (to_sk.basis * nrm[i]).dot(f) > float(fit.get("facing", 0.25)) else 0
 	# skin test on the model's own texture: hair, brows and clothes in front of the face stay as they are (the face image only replaces skin and the eye / mouth box)
