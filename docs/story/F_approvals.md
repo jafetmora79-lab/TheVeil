@@ -1,5 +1,7 @@
 # F. Approval list for canon-changing proposals (recommended choice first)
 
+**STATUS: all 17 items APPROVED by the owner as recommended (2026-11-20).** Item 3: keep the specific years unless trimmed later; item 8: keep the current three endings; item 12: no name. Still nothing implemented.
+
 Every item below changes published events or canon. **Nothing is implemented.** "Recommend" is my recommendation.
 
 | # | Proposal | Where | Recommend |
