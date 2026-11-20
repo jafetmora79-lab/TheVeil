@@ -89,7 +89,7 @@ func _run() -> void:
 				leg_hit += 1
 	ok("route_to_shop_clear_of_legs", leg_hit == 0, "%d" % leg_hit)
 	ok("clerk_fled", await until(func(): return w.enc_report.get("clerk_fled", false), 15.0))
-	ok("control_back", await until(func(): return not w._encounter_running and w.player.controls_enabled, 40.0))
+	ok("control_back", await until(func(): return not w._encounter_running, 60.0))      # (Frank then walks him to the shop door himself)
 	var bc = w._beacons.get("store_back")
 	var bpos: Vector3 = (bc as Node3D).global_position if bc is Node3D else (bc if bc is Vector3 else Vector3.INF)
 	ok("marker_on_game_shop", bpos.is_finite() and Vector2(bpos.x - shop_door.x, bpos.z - shop_door.z).length() < 1.0, str(bpos))

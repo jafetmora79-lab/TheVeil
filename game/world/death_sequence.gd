@@ -178,6 +178,18 @@ func _street_yaw() -> float:
 
 
 func _spawn_colossus(at: Vector3, dir: Vector3) -> Node3D:
+	if VeilMeshyNpcs.tripod_enabled():                       # the Meshy tripod, 60 m, stepping slowly through the fog
+		var g0 := _ground_y(at + Vector3(0, 3.0, 0))
+		var hold := VeilTripodColossus.make_holder(self, 60.0, g0)
+		hold.global_position = Vector3(at.x, g0, at.z)
+		hold.rotation.y = atan2(dir.x, dir.z)
+		var tcc := hold.get_meta("tripod") as VeilTripodColossus
+		tcc.set_walking(true, 0.5)
+		var twc := hold.create_tween()
+		twc.tween_property(hold, "global_position", hold.global_position + dir * tcc.ground_speed() * 12.0, 12.0)
+		report["colossus_root_y"] = 0.0
+		report["veil_surfaces"] = hold.find_children("*", "MeshInstance3D", true, false).size()
+		return hold
 	var ps := load(COLOSSUS) as PackedScene
 	if ps == null:
 		return null

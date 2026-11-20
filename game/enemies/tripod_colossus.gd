@@ -69,3 +69,26 @@ func set_walking(on: bool, speed_scale := 1.2) -> void:
 	else:
 		ap.play("Idle")
 		ap.speed_scale = 1.0
+
+
+## A holder that stands in for an OLD Colossus scene (the old one walks +Z and has no pivot offset): the tripod faces -Z, so it sits turned half a turn inside the holder.
+## The holder carries `animation_player`-style helpers: `col` (this node), and answers the old clip names (Walk_Heavy, anything else -> Idle) through play_old().
+static func make_holder(parent: Node, h: float, ground_y: float) -> Node3D:
+	var holder := Node3D.new()
+	parent.add_child(holder)
+	var tc := VeilTripodColossus.new()
+	tc.name = "Tripod"
+	holder.add_child(tc)
+	tc.build(h, ground_y)
+	tc.rotation.y = PI
+	holder.set_meta("tripod", tc)
+	return holder
+
+
+func play_old(clip: String, speed_scale := 1.0) -> void:
+	if ap == null:
+		return
+	if clip == "Walk_Heavy":
+		set_walking(true, speed_scale)
+	else:
+		set_walking(false)

@@ -637,6 +637,14 @@ func _road_tick(delta: float) -> void:
 func _spawn_colossus() -> void:
 	if colossus != null:
 		return
+	if VeilMeshyNpcs.tripod_enabled():                     # the Meshy tripod (60 m); its walk matches the 1.3 m/s the field crossing uses
+		colossus = VeilTripodColossus.make_holder(world, 60.0, 0.15)
+		colossus.name = "C15_Colossus"
+		colossus.global_position = Vector3(COLOSSUS_X, 0.15, -18.0)
+		colossus.rotation.y = 0.0
+		col_anim = null
+		_col_play("Walk_Heavy")
+		return
 	colossus = (load(COLOSSUS_PATH) as PackedScene).instantiate() as Node3D
 	colossus.name = "C15_Colossus"
 	world.add_child(colossus)
@@ -655,6 +663,9 @@ func _spawn_colossus() -> void:
 
 
 func _col_play(n: String) -> void:
+	if colossus != null and colossus.has_meta("tripod"):
+		(colossus.get_meta("tripod") as VeilTripodColossus).play_old(n, 0.58)     # 0.58 x 60 m: 1.3 m/s on the ground
+		return
 	if col_anim and col_anim.has_animation(n) and col_anim.current_animation != n:
 		col_anim.play(n, 0.6)
 

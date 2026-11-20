@@ -940,6 +940,8 @@ func _frank() -> void:
 		Game.set_flag("lt_frank_done")
 		return
 	_begin("frank")
+	world.player.controls_enabled = false                  # nobody wanders off mid-scene (the view stays free)
+	world.player.velocity = Vector3.ZERO
 	var p: Dictionary = people["Frank"]
 	var body: Node3D = p["body"]
 	var a = p["anim"]
@@ -1013,7 +1015,7 @@ func _frank() -> void:
 	var leap := create_tween()
 	leap.tween_method(func(k: float):
 		if is_instance_valid(sk):
-			sk.global_position = from.lerp(land, k) + Vector3.UP * (sin(k * PI) * 1.0 + 0.3 * k)
+			sk.global_position = from.lerp(land, k) + Vector3.UP * (sin(k * PI) * 1.0)
 			sk.rotation.x = lerpf(-0.35, 0.25, k), 0.0, 1.0, 0.36)
 	await leap.finished
 	# impact: both together, now
@@ -1025,9 +1027,8 @@ func _frank() -> void:
 	Sfx.play("hurt", chest + Vector3.UP * 0.4, 4.0, 0.85)    # his cry, on the hit
 	await down.finished
 	sk.rotation.x = 0.0
-	sk.global_position = land + Vector3.UP * 0.3
-	if world.has_method("_shake") and cam:
-		world._shake(cam, 0.2, 0.02)
+	sk.global_position = land                                # its legs are on the ground, astride him: body over his chest
+
 	frank_report["skitter_to_chest_m"] = Vector2(sk.global_position.x - chest.x, sk.global_position.z - chest.z).length()
 	frank_report["frank_root_above_ground_m"] = body.global_position.y - _ground(feet).y
 	# --- pin: ~1.5 s, both moving
@@ -1041,7 +1042,7 @@ func _frank() -> void:
 		var dt := get_process_delta_time()
 		t += dt
 		body.global_transform = Transform3D(lie.basis.rotated(d, sin(t * 21.0) * 0.09), lie.origin)
-		sk.global_position = land + Vector3.UP * (0.3 + absf(sin(t * 13.0)) * 0.06)
+		sk.global_position = land + Vector3.UP * (absf(sin(t * 13.0)) * 0.05)
 		if fmod(t, 0.45) < dt:
 			VeilCreatureLook.skitter_anim(sk, "attack", 0.0, 0.05)    # it tears at him again
 		if t >= next_scream:
@@ -1061,21 +1062,28 @@ func _frank() -> void:
 	var head_gap := 0.55                               # its rear legs at his shoulders
 	var max_sep := 0.0
 	var span := 0.0
+	var sdir := d.cross(Vector3.UP).normalized()       # it crawls round to his side...
+	var grip := _ground(feet + d * 1.7)                # ...to his shoulders, where it takes hold
+	var lie0 := _lying(feet, d)
 	while travelled < 60.0:
 		await get_tree().process_frame
 		var dt := get_process_delta_time()
-		speed = minf(speed + 5.5 * dt, 8.0)             # it accelerates away
+		var kb := clampf(span / 1.0, 0.0, 1.0)
+		kb = kb * kb * (3.0 - 2.0 * kb)
+		speed = minf(speed + 5.5 * dt * kb, 8.0) if kb >= 1.0 else 0.0   # it only runs once it has hold of him
 		travelled += speed * dt
 		span += dt
-		var lead := _ground(land + away * travelled)
-		sk.global_position = lead + Vector3.UP * 0.05
+		var lead := _ground(land.lerp(grip, kb) + sdir * 0.8 * sin(kb * PI) + away * travelled)
+		sk.global_position = lead
+		_face(sk, away.lerp(d, 1.0 - kb).normalized())
+		VeilCreatureLook.skitter_anim(sk, "crawl" if kb < 1.0 else "scuttle", maxf(speed, 0.6))
 		if move_snd and is_instance_valid(move_snd):
 			move_snd.global_position = lead + Vector3.UP * 0.4     # the scuttle goes with it
-		VeilCreatureLook.skitter_anim(sk, "scuttle", speed)
 		var head := lead - away * head_gap
 		var f := head - away * 1.75
 		var lying := _lying(_ground(f), away)
-		body.global_transform = Transform3D(lying.basis.rotated(away, sin(span * 9.0) * 0.06), lying.origin)
+		var end_t := Transform3D(lying.basis.rotated(away, sin(span * 9.0) * 0.06), lying.origin)
+		body.global_transform = lie0.interpolate_with(end_t, kb)
 		var sep := Vector2(sk.global_position.x - head.x, sk.global_position.z - head.z).length()
 		max_sep = maxf(max_sep, absf(sep - head_gap))
 		var gone_far := lead.distance_to(world.player.global_position) > 32.0
@@ -1092,7 +1100,39 @@ func _frank() -> void:
 	_unregister(body)
 	sk.queue_free()
 	report["frank_pin"] = pin
+	await _retreat_player()
 	_end("frank")
+
+
+## After Frank is taken the protagonist backs away on his own, straight to the nearest open store door and inside (the supermarket's doors are dead
+## by then, so the game shop): he has no chance to wander off, and control returns only once he is under cover.
+func _retreat_player() -> void:
+	var pl = world.player
+	var store: Node3D = world.game_shop
+	if not Game.has_flag("p3_market_doors_dead"):
+		var m: Node3D = world.market
+		if pl.global_position.distance_to(m.global_position) < pl.global_position.distance_to(world.game_shop.global_position):
+			store = m
+	var d_out := (store.get_node("Doorways/Entrance_Outside") as Node3D).global_position
+	var d_in := (store.get_node("Doorways/Entrance_Inside") as Node3D).global_position
+	frank_report["retreat_to"] = store.name
+	pl.controls_enabled = false
+	for wp in [d_out, d_in]:
+		var guard := 0.0
+		while is_instance_valid(pl) and guard < 12.0:
+			await get_tree().process_frame
+			var dt := get_process_delta_time()
+			guard += dt
+			var to: Vector3 = (wp - pl.global_position) * Vector3(1, 0, 1)
+			if to.length() < 0.35:
+				break
+			var step := minf(3.8 * dt, to.length())
+			pl.velocity = Vector3.ZERO
+			pl.global_position += to.normalized() * step
+			pl.global_position.y = lerpf(pl.global_position.y, wp.y, minf(dt * 6.0, 1.0))
+			pl.set_yaw_pitch(lerp_angle(pl.rotation.y, atan2(-to.x, -to.z), minf(dt * 4.0, 1.0)), 0.0)
+	frank_report["retreated"] = true
+	pl.controls_enabled = true
 
 
 ## Somewhere to hide behind near `at` on the far side of the street from the player: a parked vehicle if any.

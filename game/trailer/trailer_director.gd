@@ -415,8 +415,24 @@ func _seg_shape() -> void:
 	var x0 := 62.0 + pace * 1.9
 	_focus_lock = Vector3(400, 0, 400)                         # the town's walk-ons stay away from this shot
 	_clear_extras(low, gap)
-	var col := _spawn(COLOSSUS, Vector3(x0, 0.0, 105.0)) as Node3D
-	if col:
+	var col: Node3D = null
+	if VeilMeshyNpcs.tripod_enabled():                         # the Meshy tripod, 42 m, slow: its ground speed sets the pace
+		col = VeilTripodColossus.make_holder(world, 42.0, 0.0)
+		_spawned.append(col)
+		_mats_ok(col, "colossus")
+		var tcol := col.get_meta("tripod") as VeilTripodColossus
+		tcol.set_walking(true, 0.6)
+		pace = tcol.ground_speed()
+		x0 = 62.0 + pace * 1.9
+		col.global_position = Vector3(x0, 0.0, 105.0)
+		col.rotation.y = -PI * 0.5                              # heading -x: left to right for a camera looking +z
+		var twt := create_tween()
+		twt.tween_property(col, "global_position", Vector3(x0 - pace * 4.0, 0.0, 105.0), 4.0)
+		_watch(col, "colossus_visible", true)
+		_step_sync(col, 3.6)
+	else:
+		col = _spawn(COLOSSUS, Vector3(x0, 0.0, 105.0)) as Node3D
+	if col and not col.has_meta("tripod"):
 		var model := col.get_node_or_null("Model") as Node3D
 		if model:
 			model.scale = Vector3.ONE * cscale

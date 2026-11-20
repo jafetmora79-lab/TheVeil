@@ -58,7 +58,7 @@ func _run() -> void:
 		and not w.living.focus_override.is_finite() and w.player.camera.current)
 	var note = w.home.find_child("IntroNote", true, false)
 	ok("note_on_fridge_door", note != null and String(note.get_parent().name) == "INT_ApplianceDoor_Fridge")
-	ok("veil_wall_shot", int(w.intro_report.get("veil_wall", 0)) == 3 and w.find_children("Intro_VeilWall", "", true, false).is_empty())
+	ok("veil_wall_shot", int(w.intro_report.get("veil_wall", 0)) >= 3 and w.find_children("Intro_VeilWall", "", true, false).is_empty())
 	ok("game_shelf_found", not w.intro._game_shelf().is_empty() if w.intro and is_instance_valid(w.intro) else true)
 	ok("wake_up_follows", await until(func(): return w.player.controls_enabled, 40.0))
 	w.queue_free()

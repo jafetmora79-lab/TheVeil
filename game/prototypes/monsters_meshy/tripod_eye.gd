@@ -21,6 +21,7 @@ var cone: MeshInstance3D
 var _cone_mat: ShaderMaterial
 var _search_k := 0.0
 var ground_y := 0.0
+var aim_direct := false                ## the searchlight (spot + cone) points exactly at the target from the lens, not along where the pod happens to face
 const CONE_SHADER := """shader_type spatial;
 render_mode unshaded, blend_add, cull_disabled, depth_draw_never;
 uniform float k = 1.0;
@@ -49,7 +50,7 @@ func _ready() -> void:
 			mesh.set_surface_override_material(1, glow)
 	light = OmniLight3D.new()
 	light.light_color = Color(1.0, 0.55, 0.18)
-	light.omni_range = 16.0
+	light.omni_range = 16.0 * minf(maxf(skel.global_transform.basis.get_scale().x, 1.0), 4.0)
 	light.shadow_enabled = false
 	add_child(light)
 	beam = MeshInstance3D.new()
@@ -143,15 +144,21 @@ func _process(delta: float) -> void:
 	# the searchlight
 	_search_k = move_toward(_search_k, 1.0 if search_on else 0.0, delta * 2.5)
 	if _search_k > 0.01:
-		var sp := pos + fwd * 0.6
+		var sc := maxf(skel.global_transform.basis.get_scale().x, 1.0)
+		var sp := pos + fwd * 0.7 * sc
+		if aim_direct and target != null:
+			var dd := target.global_position - sp
+			if dd.length() > 1.0:
+				fwd = dd.normalized()
 		spot.global_position = sp
 		spot.look_at(sp + fwd, Vector3.UP if absf(fwd.y) < 0.95 else Vector3.RIGHT)
+		(cone.mesh as CylinderMesh).top_radius = 0.3 * sc
 		spot.light_energy = 9.0 * _search_k * pulse
 		var tl := 160.0
 		if fwd.y < -0.02:
 			tl = minf(160.0, (sp.y - ground_y) / -fwd.y)
 		(cone.mesh as CylinderMesh).height = tl
-		(cone.mesh as CylinderMesh).bottom_radius = 0.2 + tl * 0.075
+		(cone.mesh as CylinderMesh).bottom_radius = 0.3 * sc + tl * 0.075
 		_cone_mat.set_shader_parameter("k", _search_k)
 		cone.visible = true
 		cone.global_transform = Transform3D(Basis(Quaternion(Vector3.DOWN, fwd)), sp + fwd * tl * 0.5)

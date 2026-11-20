@@ -2548,7 +2548,7 @@ func _colossus_encounter() -> void:
 	_p3_survival_begins(door_out, shop_door)
 
 
-const COLOSSUS_H := 42.0                       ## the tripod Colossus's height in the encounter (m)
+const COLOSSUS_H := 85.0                       ## the tripod Colossus's height in the encounter (m)
 
 
 ## The Colossus (the Meshy tripod). It strides in out of the mist across the street, its one eye a searchlight sweeping the city; it stops, turns, finds the
@@ -2583,30 +2583,31 @@ func _tripod_encounter() -> void:
 	cam.current = true
 	if living and living.has_method("clear_shot"):
 		living.clear_shot(cam.global_position, [-cam.global_basis.z, n * 30.0])
-	# --- the creature comes in from the left, far across the street
+	# --- the creature comes in from the left, far across the street: huge, and slow (each of its three steps takes seconds)
 	var tc := VeilTripodColossus.new()
 	tc.name = "Colossus_Encounter"
 	add_child(tc)
 	tc.build(COLOSSUS_H, ground)
-	var A := P + n * 50.0 - side * 42.0
-	var B := P + n * 40.0 + side * 30.0
+	var A := P + n * 95.0 - side * 40.0
 	A.y = ground
-	var wd := ((B - A) * Vector3(1, 0, 1)).normalized()
+	var wd := (side * 1.0 + n * 0.12).normalized()
 	tc.global_position = A
 	tc.rotation.y = atan2(-wd.x, -wd.z)                       # the model faces -Z
-	tc.set_walking(true, 1.2)
+	tc.set_walking(true, 0.45)
 	tc.eye.search_on = true
+	tc.eye.aim_direct = true
 	var scan := Node3D.new()
 	scan.name = "EyeScan"
 	add_child(scan)
 	tc.eye.target = scan
 	enc_report["colossus_tripod"] = true
-	var head_pos := P + Vector3(0, 1.6, 0)
+	var head_pos := P + Vector3(0, 1.5, 0)
 	var t := 0.0
 	var step_t := 0.0
-	var walk_end := 7.0
+	var walk_end := 11.0
 	var turned := false
-	var lock_t := walk_end + 1.8
+	var lock_t := walk_end + 2.2
+	var aim_to := Vector3.ZERO
 	while t < lock_t:
 		await get_tree().process_frame
 		var dt := get_process_delta_time()
@@ -2616,70 +2617,51 @@ func _tripod_encounter() -> void:
 			step_t += dt
 			if step_t >= tc.step_interval():
 				step_t = 0.0
-				_enc_sounds.append(Sfx.play("colossus_step", tc.global_position + Vector3(0, 1, 0), 3.0, 0.7))
-				_shake(cam, 0.3, 0.012)
+				_enc_sounds.append(Sfx.play("colossus_step", tc.global_position + Vector3(0, 1, 0), 5.0, 0.55))
 			var k := clampf(t / (walk_end - 0.5), 0.0, 1.0)
-			scan.global_position = P + n * 24.0 + side * lerpf(-52.0, 30.0, k * k * (3.0 - 2.0 * k)) + Vector3(0, 0.5, 0)       # the light sweeps the street
+			scan.global_position = P + n * 38.0 + side * lerpf(-90.0, 45.0, k * k * (3.0 - 2.0 * k)) + Vector3(0, 0.5, 0)       # the light sweeps the street
+			aim_to = tc.global_position + Vector3(0, COLOSSUS_H * 0.5, 0)
 		else:
 			if not turned:
 				turned = true
 				tc.set_walking(false)
 				var to_p := (P - tc.global_position) * Vector3(1, 0, 1)
 				var tw_t := create_tween()
-				tw_t.tween_property(tc, "rotation:y", lerp_angle(tc.rotation.y, atan2(-to_p.x, -to_p.z), 1.0), 1.6).set_trans(Tween.TRANS_SINE)
-				_enc_sounds.append(Sfx.play("colossus_step", tc.global_position + Vector3(0, 1, 0), 4.0, 0.6))
-			var k2 := clampf((t - walk_end) / 1.2, 0.0, 1.0)
-			scan.global_position = (P + n * 24.0 + side * 30.0 + Vector3(0, 0.5, 0)).lerp(head_pos, k2 * k2 * (3.0 - 2.0 * k2))   # it finds him
-		# the player's eyes follow the creature
-		var want := Transform3D(Basis(), cam.global_position).looking_at(tc.global_position + Vector3(0, COLOSSUS_H * 0.45, 0), Vector3.UP).basis.get_rotation_quaternion()
-		cam.global_basis = Basis(cam.global_basis.get_rotation_quaternion().slerp(want, 1.0 - exp(-2.5 * dt)))
-	# --- locked on him
+				tw_t.tween_property(tc, "rotation:y", lerp_angle(tc.rotation.y, atan2(-to_p.x, -to_p.z), 1.0), 2.4).set_trans(Tween.TRANS_SINE)
+				_enc_sounds.append(Sfx.play("colossus_step", tc.global_position + Vector3(0, 1, 0), 6.0, 0.5))
+			var k2 := clampf((t - walk_end) / 1.6, 0.0, 1.0)
+			scan.global_position = (P + n * 38.0 + side * 45.0 + Vector3(0, 0.5, 0)).lerp(head_pos, k2 * k2 * (3.0 - 2.0 * k2))   # it finds him: the light comes straight to his face
+			aim_to = aim_to.lerp(tc.eye.eye_world_pos(), clampf(k2 * 1.5, 0.0, 1.0))
+		# the player's eyes follow the creature (no shake: a slow, steady lift of the view)
+		var want := Transform3D(Basis(), cam.global_position).looking_at(aim_to, Vector3.UP).basis.get_rotation_quaternion()
+		cam.global_basis = Basis(cam.global_basis.get_rotation_quaternion().slerp(want, 1.0 - exp(-1.6 * dt)))
+	# --- locked on him: the beam is on his face; the view is thrown at the eye - a fast zoom with the scare
 	enc_report["locked_on"] = true
-	_enc_sounds.append(Sfx.play("colossus_call", tc.global_position + Vector3(0, 20, 0), 6.0, 1.0))
+	tc.eye.target = player.camera                             # straight at him, from now on
+	tc.eye.max_angle = PI
+	tc.eye.level = 1.5
+	tc.eye.beam_on = true
 	_clerk_flees(P + ((tc.global_position - P) * Vector3(1, 0, 1)).normalized() * 15.0)     # the clerk breaks and runs
-	await _shake(cam, 0.5, 0.05)                              # (it puts the camera back where it was: finish before the face shot places it)
+	await get_tree().create_timer(0.55).timeout
+	_enc_sounds.append(Sfx.play("colossus_call", P + Vector3(0, 1.6, 0), 14.0, 1.35))      # the jump scare: in his ears, not out there
+	Sfx.play("colossus_call", tc.eye.eye_world_pos(), 10.0, 0.7)
+	var eye_p := tc.eye.eye_world_pos()
+	var zoom := create_tween().set_parallel(true)
+	zoom.tween_property(cam, "fov", 7.0, 0.8).set_trans(Tween.TRANS_EXPO).set_ease(Tween.EASE_IN)
+	var z0 := cam.global_basis.get_rotation_quaternion()
+	var z1 := Transform3D(Basis(), cam.global_position).looking_at(eye_p, Vector3.UP).basis.get_rotation_quaternion()
+	zoom.tween_method(func(k: float): cam.global_basis = Basis(z0.slerp(z1, k)), 0.0, 1.0, 0.5)
+	await zoom.finished
+	enc_report["eye_zoom"] = true
+	await get_tree().create_timer(0.9).timeout               # the lens fills the view
 	_npc_fright(P + n * 10.0)
-	# --- the protagonist's face, lit by it
+	# --- back to the first person, quickly; the encounter's sounds fade out with it
 	var d_leg := ((tc.global_position - P) * Vector3(1, 0, 1)).normalized()
-	var me := _spawn_npc(load(PROTAG_PATH), load(PROTAG_FACE_PATH), self, P, atan2(-d_leg.x, -d_leg.z), "Protagonist")
-	_cine_double(me, P)
-	me.name = "Protagonist_Cine"
-	var ma = animators["Protagonist"]
-	ma.set_mood("scared")
-	ma.turn_to_face = false
-	ma.max_pitch = 1.05
-	var gaze := Node3D.new()
-	gaze.name = "Gaze"
-	add_child(gaze)
-	gaze.global_position = tc.eye.eye_world_pos()
-	ma.look_target = gaze
-	faces["Protagonist"].set_expression("shocked")
-	faces["Protagonist"].widen_eyes(2.5)
-	var head: Vector3 = (ma.skel.global_transform * ma.skel.get_bone_global_pose(ma.bone("Head")).origin)
-	var key := OmniLight3D.new()                                   # its light on his face
-	key.light_color = Color(1.0, 0.72, 0.4)
-	key.light_energy = 0.9
-	key.omni_range = 3.5
-	add_child(key)
-	key.global_position = head + d_leg * 1.3 + side * 0.5 + Vector3(0, 0.3, 0)
-	cam.global_position = head + d_leg * 1.05 + side * 0.42 - Vector3(0, 0.04, 0)
-	cam.look_at(head + Vector3(0, 0.02, 0), Vector3.UP)
-	cam.fov = 42.0
-	var tk := create_tween()
-	tk.tween_property(key, "light_energy", 3.2, 1.8)
-	faces["Protagonist"].set_expression("scared")
-	await get_tree().create_timer(2.4).timeout
-	# --- back to the first person, eased; the encounter's sounds fade out with it
-	key.queue_free()
-	gaze.queue_free()
-	me.queue_free()
-	animators.erase("Protagonist")
-	faces.erase("Protagonist")
-	player.set_yaw_pitch(atan2(-d_leg.x, -d_leg.z), deg_to_rad(14.0))
+	player.set_yaw_pitch(atan2(-d_leg.x, -d_leg.z), deg_to_rad(22.0))
 	var fp := player.camera.global_transform
 	var tb := create_tween()
-	tb.tween_property(cam, "global_transform", fp, 0.7).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
-	tb.parallel().tween_property(cam, "fov", player.camera.fov, 0.7)
+	tb.tween_property(cam, "global_transform", fp, 0.35).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
+	tb.parallel().tween_property(cam, "fov", player.camera.fov, 0.35)
 	_enc_fade_sounds()
 	await tb.finished
 	cam.queue_free()
@@ -2690,6 +2672,8 @@ func _tripod_encounter() -> void:
 	if living and living.has_method("restore_after_shot"):
 		living.restore_after_shot()
 	scan.queue_free()
+	tc.eye.beam_on = false
+	tc.eye.level = 1.0
 	_p3_survival_begins(door_out, shop_door)
 	_tripod_watch(tc, wd)
 
@@ -2713,7 +2697,7 @@ func _tripod_watch(tc: VeilTripodColossus, wd: Vector3) -> void:
 	get_tree().create_timer(3.0).timeout.connect(func(): if is_instance_valid(tc): tc.eye.search_on = false)
 	var tw := create_tween()
 	tw.tween_property(tc, "rotation:y", lerp_angle(tc.rotation.y, atan2(-wd.x, -wd.z), 1.0), 2.0)
-	tc.set_walking(true, 1.2)
+	tc.set_walking(true, 0.45)
 	var tm := create_tween()
 	tm.tween_property(tc, "global_position", tc.global_position + wd * tc.ground_speed() * 30.0, 30.0)
 	tm.tween_callback(func():

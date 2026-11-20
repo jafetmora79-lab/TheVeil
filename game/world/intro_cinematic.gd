@@ -115,10 +115,50 @@ func play(w: Node) -> void:
 	await _end()
 
 
+## A faint, soft glow where the eye is: drawn through the mist (no depth test, low alpha), so it reads as a lamp seen in fog and nothing else of the creature does.
+func _eye_glow(tc: VeilTripodColossus) -> void:
+	var g := GradientTexture2D.new()
+	g.fill = GradientTexture2D.FILL_RADIAL
+	g.fill_from = Vector2(0.5, 0.5)
+	g.fill_to = Vector2(1.0, 0.5)
+	var gr := Gradient.new()
+	gr.colors = PackedColorArray([Color(1.0, 0.62, 0.28, 1.0), Color(1.0, 0.4, 0.1, 0.0)])
+	g.gradient = gr
+	g.width = 128
+	g.height = 128
+	var sp := Sprite3D.new()
+	sp.name = "EyeGlow"
+	sp.texture = g
+	sp.billboard = BaseMaterial3D.BILLBOARD_ENABLED
+	sp.shaded = false
+	sp.no_depth_test = true
+	sp.transparent = true
+	sp.modulate = Color(1, 1, 1, 0.0)
+	sp.pixel_size = 0.2
+	sp.render_priority = 10
+	tc.eye.add_child(sp)
+	sp.top_level = true
+	_glow = sp
+	_glow_tc = tc
+
+
+func _process(_d: float) -> void:
+	if is_instance_valid(_glow) and is_instance_valid(_glow_tc) and _glow_tc.eye.skel:
+		_glow.global_position = _glow_tc.eye.eye_world_pos()
+		_glow_t += _d
+		_glow.modulate.a = clampf(_glow_t / 8.0, 0.0, 1.0) * 0.32 * (0.85 + 0.15 * sin(_glow_t * 2.2))      # it surfaces slowly, never bright
+
+
+var _glow: Sprite3D
+var _glow_tc: VeilTripodColossus
+var _glow_t := 0.0
+
+
 func _end() -> void:
 	var hud: Node = world.hud
-	Sfx.stop_music(1.2)
-	await hud.fade_to(1.0, 0.6)
+	Sfx.stop_music(2.4)
+	await hud.fade_to(1.0, 1.8)                                 # a slow fade to black; the game then fades in from it (no cut)
+	await get_tree().create_timer(0.5).timeout
 	for wl in _wall:
 		if is_instance_valid(wl):
 			wl.queue_free()
@@ -257,7 +297,7 @@ func _build_veil_wall(at: Vector3, dir: Vector3) -> void:
 	if sh == null:
 		return
 	var face := Basis.looking_at(dir, Vector3.UP)              # its face toward the town (and the camera)
-	var layers := [[0.0, 0.55, 140.0], [35.0, 0.78, 170.0], [80.0, 0.95, 200.0]]
+	var layers := [[-20.0, 0.8, 150.0], [0.0, 0.9, 160.0], [18.0, 0.95, 180.0], [34.0, 0.9, 200.0], [80.0, 0.98, 220.0]]   # thick: the Colossus stands behind the first four
 	for L in layers:
 		var mi := MeshInstance3D.new()
 		mi.name = "Intro_VeilWall"
@@ -301,6 +341,8 @@ func _place_colossus(at: Vector3) -> void:
 	toward = toward.normalized()
 	tc.rotation.y = atan2(-toward.x, -toward.z)                # (its model faces -Z)
 	tc.set_walking(true, 0.9)
+	tc.eye.level = 2.2                                         # all that shows of it through the thick mist: the eye
+	_eye_glow(tc)
 	var tw := create_tween()
 	tw.tween_property(tc, "global_position", at + toward * tc.ground_speed() * 24.0, 24.0)
 	report["colossus"] = true
