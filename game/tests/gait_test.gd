@@ -72,10 +72,10 @@ func measure(sp: String, v: float) -> void:
 		ids[n] = sk.find_bone(n)
 		rest_y[n] = (sk.global_transform * sk.get_bone_global_pose(ids[n]).origin).y
 	anim.walk_to([Vector3(0, 0, -400)], v)
-	for i in 90:                                    # reach steady speed
+	for i in 180:                                   # reach steady speed (the ground speed ramps at 5 m/s^2 and the stride length follows)
 		await process_frame
-	var runs := {"LeftFoot": [], "RightFoot": []}
-	var cur := {"LeftFoot": [], "RightFoot": []}
+	var runs := {"LeftFoot": [], "RightFoot": [], "LeftToes": [], "RightToes": []}
+	var cur := {"LeftFoot": [], "RightFoot": [], "LeftToes": [], "RightToes": []}
 	var min_toe := 9.0
 	var max_clear := 0.0
 	var steps := 0
@@ -83,11 +83,12 @@ func measure(sp: String, v: float) -> void:
 	var frames := 240
 	for i in frames:
 		await process_frame
-		for n in ["LeftFoot", "RightFoot"]:
+		for n in ["LeftFoot", "RightFoot", "LeftToes", "RightToes"]:
 			var p: Vector3 = sk.global_transform * sk.get_bone_global_pose(ids[n]).origin
 			var y: float = p.y - rest_y[n]
-			max_clear = maxf(max_clear, y)
-			if y < 0.004:
+			if n.ends_with("Foot"):
+				max_clear = maxf(max_clear, y)
+			if y < (0.008 if n.ends_with("Toes") else 0.004):
 				cur[n].append(p.z)
 			elif not cur[n].is_empty():
 				runs[n].append(cur[n]); cur[n] = []
@@ -97,11 +98,15 @@ func measure(sp: String, v: float) -> void:
 			last_phase_step = int(anim._phase / PI); steps += 1
 	var slip := 0.0
 	var n_runs := 0
-	for n in runs:
+	# walking plants the ankle (heel flat for most of the stance); a run rolls onto the ball of the foot from mid-stance and pushes off the
+	# toes, so at run speed the ball is the planted point. Slip = worst drift of that point over its contact frames.
+	var planted := ["LeftToes", "RightToes"] if v >= 3.4 else ["LeftFoot", "RightFoot"]
+	for n in planted:
 		for r in runs[n]:
-			if r.size() < 8: continue
+			if r.size() < 5: continue
 			n_runs += 1
-			var core: Array = r.slice(2, r.size() - 2)
+			var trim := maxi(1, int(r.size() * 0.2))         # the first / last fifth of a contact is the foot arriving / leaving, not planted
+			var core: Array = r.slice(trim, r.size() - trim)
 			slip = maxf(slip, (core.max() - core.min()))
 	var rg: Dictionary = anim._gait_rig
 	print("   rig: leg %.3f (thigh %.3f shin %.3f) hip-ankle %.3f hipw %.3f toe %.3f cycle %.2f" % [rg["leg"], rg["thigh"], rg["shin"], rg["height"], rg["hipw"], rg["toe_len"], anim._cyc])

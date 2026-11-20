@@ -10,4 +10,7 @@ frank_skitter_test | RESULT PASS fails=0 |
 colossus_market_last_test | RESULT PASS fails=0 | 
 pay_first_test | RESULT PASS fails=0 | 
 noah_late_test | RESULT PASS fails=0 | 
+living_town_test | RESULT FAIL fails=2 | E4_crash_once FAIL ;E4_car_stays FAIL ;
+run_pose_test | RESULT PASS | 
+gait_test | RESULT PASS | 
 DONE

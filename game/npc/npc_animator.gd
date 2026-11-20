@@ -63,6 +63,65 @@ var _cyc := 1.3                     ## metres per cycle, smoothed
 var _was_moving := false
 var _next_right := false            ## the foot that leads the next start (alternates)
 
+## A runner keeps his eyes on where he is running and his hands low. A scared runner now and then reacts, briefly: one palm comes up and the head
+## glances to the side (react() starts one; with chase_reactions on they also happen by themselves every 5-9 s while running scared).
+var chase_reactions := true
+var _react_in := -1.0
+var _react_dur := 0.0
+var _react_t := 0.0
+var _react_side := 1.0
+var _react_w := 0.0
+var _react_q := {}
+var react_twist_deg := -120.0       ## forearm twist of the raised hand (mirrored for the left hand): -120 shows an open palm out in front of the shoulder, clear of the face (picked from renders)
+var _palm_n := {}                   ## per hand: the palm normal at rest
+var _fore_dir := {}                 ## per hand: the forearm direction at rest (skeleton space)
+var _finger_axis := {}              ## per hand: the knuckle axis that curls the fingers toward the palm (measured from the rig)
+
+
+func react(seconds := 0.8, side := 0.0) -> void:
+	_react_dur = maxf(seconds, 0.3)
+	_react_t = 0.0
+	_react_side = side if side != 0.0 else (1.0 if randf() < 0.5 else -1.0)
+	var hand := "Right" if _react_side > 0.0 else "Left"
+	# the arm swings a little outward, then lifts forward (the hand ends in front of and beside the shoulder, clear of the face) ...
+	var out := signf(_gp(hand + "UpperArm").origin.dot(R))
+	var abduct := _q(F, 35.0)
+	if (abduct * -U).dot(R * out) < 0.0:
+		abduct = _q(F, -35.0)
+	var q_up := _q(R, 50.0) * abduct
+	var q_low := _q(R, 105.0)
+	# ... and the forearm turns about its own axis so the open palm faces forward (angle measured on the rig: tests/run_pose_test.gd)
+	if _fore_dir.has(hand):
+		var total := q_up * q_low
+		var tw := Quaternion((total * (_fore_dir[hand] as Vector3)).normalized(), deg_to_rad(react_twist_deg * (1.0 if hand == "Right" else -1.0)))
+		q_low = q_up.inverse() * tw * q_up * q_low
+	_react_q = {hand + "UpperArm": q_up, hand + "LowerArm": q_low}
+
+
+func _running_now() -> bool:
+	return _run > 0.5 and _walk > 0.5 and not _path.is_empty()
+
+
+func _update_react(delta: float) -> void:
+	var target := 0.0
+	if _react_dur > 0.0:
+		_react_t += delta
+		var k := _react_t / _react_dur
+		if k >= 1.0:
+			_react_dur = 0.0
+		else:
+			target = sin(PI * k)                        # up, hold, down: one brief reaction
+	elif chase_reactions and mood == "scared" and _running_now():
+		if _react_in < 0.0:
+			_react_in = randf_range(2.5, 5.0)
+		_react_in -= delta
+		if _react_in <= 0.0:
+			react(0.8)
+			_react_in = randf_range(5.0, 9.0)
+	_react_w = lerpf(_react_w, target, minf(delta * 10.0, 1.0))
+	if _react_w < 0.002 and _react_dur <= 0.0:
+		_react_w = 0.0
+
 
 func _ready() -> void:
 	root = get_parent() as Node3D
@@ -80,6 +139,27 @@ func _ready() -> void:
 		_gait_rig = Gait.measure(skel, F)
 		_gprof = Gait.profile_for(String(root.name))
 		_gait_base_guard = float(_gprof.get("guard", 0.0))
+	_measure_fingers()
+
+
+## The curl axis of each hand: across the knuckles (index -> little), signed so that the fingertips move toward the palm (the side facing the body).
+func _measure_fingers() -> void:
+	for side in ["Left", "Right"]:
+		var names := [side + "IndexProximal", side + "LittleProximal", side + "MiddleProximal", side + "MiddleDistal", side + "Hand"]
+		var ok := true
+		for n in names:
+			if bone(n) < 0:
+				ok = false
+		if not ok:
+			continue
+		var a := (_gp(side + "LittleProximal").origin - _gp(side + "IndexProximal").origin).normalized()
+		var d := (_gp(side + "MiddleDistal").origin - _gp(side + "MiddleProximal").origin).normalized()
+		var hand := _gp(side + "Hand").origin
+		var medial := -R * signf(hand.dot(R))
+		var sgn := 1.0 if a.cross(d).dot(medial) >= 0.0 else -1.0
+		_finger_axis[side] = a * sgn * FINGER_FLIP
+		_palm_n[side] = a.cross(d).normalized() * sgn                 # the palm normal at rest (faces the body)
+		_fore_dir[side] = _dir(side + "LowerArm", side + "Hand")
 
 
 func bone(n: String) -> int:
@@ -150,6 +230,7 @@ var hold_facing := false               ## riding in the car: the body keeps faci
 var seat_y := 0.48
 var _sit := 0.0
 var _hip_h := -1.0
+const FINGER_FLIP := 1.0              ## 1 / -1: flips every curl if the measured palm side proved wrong on a rig
 const SIT_THIGH := 86.0
 const SIT_KNEE := 88.0
 
@@ -214,6 +295,7 @@ func _process(delta: float) -> void:
 		_update_walk(delta)
 	_update_turn(delta)
 	_update_gestures(delta)
+	_update_react(delta)
 	_update_look(delta)
 	_sit = move_toward(_sit, 1.0 if seated else 0.0, delta * 1.7)
 	if _jump_t >= 0.0:
@@ -232,6 +314,8 @@ func _physics_process(delta: float) -> void:
 ## companion's. A scripted walk that is jammed for ~1.6 s (a shut door it could not open, a prop on the path) falls back to the
 ## old unconstrained walk for a moment so a scene never waits forever on `arrived`; that leg still follows the floor height.
 var _jam_t := 0.0
+var _vcmd := 0.0                                ## the ground speed actually used this frame (walk_speed reached by acceleration)
+var _gap_t := 0.0                               ## seconds without a path (short gaps between two paths keep the speed)
 var _rerouted := false
 var _ghost_left := 0.0
 var jams := 0                                   ## tests: how many walks had to be forced through
@@ -287,6 +371,9 @@ func _settle_clear() -> void:
 
 func _update_walk(delta: float) -> void:
 	if _path.is_empty():
+		_gap_t += delta
+		if _gap_t > 0.4:
+			_vcmd = move_toward(_vcmd, 0.0, 14.0 * delta)     # a gap between two paths (a follower is re-pathed every 0.25 s) keeps its speed for 0.4 s; a real stop then falls to 0
 		_walk = move_toward(_walk, 0.0, delta * 3.0)
 		_speed = lerpf(_speed, 0.0, minf(delta * 6.0, 1.0))      # settle: the gait fades out instead of freezing mid-stride
 		_run = move_toward(_run, 0.0, delta * 2.5)
@@ -306,7 +393,9 @@ func _update_walk(delta: float) -> void:
 			arrived.emit()
 		return
 	_walk = move_toward(_walk, 1.0, delta * 3.0)
-	var step := minf(walk_speed * _walk * delta, d.length())
+	_gap_t = 0.0
+	_vcmd = move_toward(_vcmd, walk_speed, (12.0 if physical else 5.0) * delta)   # ground speed ramps (5 m/s^2; 12 for a follower that keeps pace with the player): walk -> run is an acceleration, not a step
+	var step := minf(_vcmd * _walk * delta, d.length())
 	var body := root as VeilSurvivorBody if _uses_physics() else null
 	var before := root.global_position
 	if body:
@@ -430,6 +519,12 @@ func _target_pos():
 
 
 func _update_look(delta: float) -> void:
+	if _running_now() and look_target == null:
+		# a runner looks where he is running (no turning to whoever is near); the chase reaction is the only glance
+		var ahead := Vector2(_react_side * 0.8 * _react_w, 0.04 * _react_w)
+		_look = _look.lerp(ahead, minf(delta * 6.0, 1.0))
+		_prev_look = _look
+		return
 	var want := Vector2.ZERO
 	var tp = _target_pos()
 	if tp != null and bone("Head") >= 0:
@@ -467,6 +562,8 @@ func _pose_bone(n: String, q: Quaternion) -> void:
 			q = q * Quaternion.IDENTITY.slerp(_gait[n], _gait_on)      # the gaze (look-at, nods) stays on top of the gait
 		else:
 			q = q.slerp(_gait[n], _gait_on)
+	if _react_w > 0.0 and _react_q.has(n):
+		q = q.slerp(_react_q[n], _react_w)               # the chase reaction: a hand up beside the shoulder
 	var pb: Basis = _prest[i]
 	skel.set_bone_pose_rotation(i, (_pinv[i] * Basis(q) * pb * _rest[i]).get_rotation_quaternion())
 
@@ -537,6 +634,15 @@ func _pose() -> void:
 		_pose_bone(side + "UpperLeg", _q(R, c * (24.0 + 22.0 * _run) * w + maxf(c, 0.0) * 16.0 * _run * w + 48.0 * cr + (46.0 if side == "Left" else 22.0) * air + s * 2.0 + SIT_THIGH * _sit) * _q(F, sit_out))
 		_pose_bone(side + "LowerLeg", _q(R, -maxf(-cos(ph) * sg, 0.0) * (38.0 + 60.0 * _run) * w - 80.0 * cr - 70.0 * air - maxf(c, 0.0) * 8.0 * w - s * 3.0 - SIT_KNEE * _sit))
 		_pose_bone(side + "Foot", _q(R, -c * 10.0 * w + 12.0 * cr + 18.0 * air))
+	# fingers: relaxed in a loose curl while moving (more at a run), open for the raised hand of a reaction
+	var curl := _gw * (0.25 + 0.30 * _run) * (1.0 - _sit) * (1.0 - _react_w)
+	if curl > 0.001:
+		for side in _finger_axis:
+			var ax: Vector3 = _finger_axis[side]
+			for f in ["Index", "Middle", "Ring", "Little"]:
+				_pose_bone(side + f + "Proximal", Quaternion(ax, deg_to_rad(40.0 * curl)))
+				_pose_bone(side + f + "Intermediate", Quaternion(ax, deg_to_rad(55.0 * curl)))
+				_pose_bone(side + f + "Distal", Quaternion(ax, deg_to_rad(30.0 * curl)))
 	# a small bounce while walking (on the skeleton node, not the character root); seated: pelvis down to the seat
 	if _hip_h < 0.0:
 		var hi := bone("Hips")
