@@ -6,6 +6,8 @@ var R0 := -0.075
 var U0 := -0.020
 var W := 640
 var H := 760
+var model_slug := ""
+var known_eye := []
 var mask_t := 0.20                           ## brow pixels are darker than this (luminance); per model: extract_brows.gd -- <slug> <out> mask=0.38 patch=0.55
 var browlike_t := 0.19
 var patch_t := 0.40
@@ -21,13 +23,19 @@ func _initialize() -> void:
 	var a := OS.get_cmdline_user_args()
 	var slug: String = a[0]
 	var out: String = a[1]
+	model_slug = slug
+	for e in a:
+		if String(e).begins_with("model="):
+			model_slug = String(e).substr(6)
+		if String(e).begins_with("known_eye="):
+			known_eye = Array(String(e).substr(10).split(",")).map(func(x): return float(x))
 	for e in a:
 		if String(e).begins_with("mask="):
 			mask_t = float(String(e).substr(5))
 			browlike_t = mask_t - 0.01
 		if String(e).begins_with("patch="):
 			patch_t = float(String(e).substr(6))
-	var n := (load("res://game/prototypes/npc_meshy/CHR_%s_Mixamo.glb" % slug) as PackedScene).instantiate() as Node3D
+	var n := (load("res://game/prototypes/npc_meshy/CHR_%s_Mixamo.glb" % model_slug) as PackedScene).instantiate() as Node3D
 	root.add_child(n)
 	var sk := n.find_children("*", "Skeleton3D", true, false)[0] as Skeleton3D
 	var rg := sk.get_bone_global_pose(sk.find_bone("mixamorig_RightUpLeg")).origin - sk.get_bone_global_pose(sk.find_bone("mixamorig_LeftUpLeg")).origin
@@ -378,6 +386,10 @@ func _eye_mask(slug: String, tex: Image, depth: PackedFloat32Array, uvb: PackedV
 ## Where this model's eyes are (the white pixels of its painted eyes, front surface), and the fit of the old face image to them: scale, dr, du in face_fit/<slug>.json
 ## (the old model's measurements come from measure_old_face.gd, run first; the old eye positions from face_info.json).
 func _measure_eyes_and_fit(slug: String, tex: Image, depth: PackedFloat32Array, uvb: PackedVector2Array) -> void:
+	if not known_eye.is_empty():                                  # a kit model: its fit (the render projection) is exact and already written
+		eye_r = [known_eye[0] - 0.0305, known_eye[0] + 0.0305]
+		eye_u = known_eye[1]
+		return
 	# the pupils: the biggest two blobs of very dark pixels at about the same height, 4 to 9 cm... apart
 	var dark := PackedByteArray()
 	dark.resize(W * H)

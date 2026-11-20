@@ -11,8 +11,8 @@ const FACE_SHADER := preload("res://game/npc/face_fit.gdshader")
 static var _dm := {}
 
 
-static func _mask_texture(slug: String, grow: int, cut: float) -> ImageTexture:
-	var m := _diff_mask(slug, grow, cut)
+static func _mask_texture(slug: String, grow: int, cut: float, diff_t := DIFF_T) -> ImageTexture:
+	var m := _diff_mask(slug, grow, cut, diff_t)
 	var img := Image.create(128, 128, false, Image.FORMAT_L8)
 	var eyes: Image = null
 	var ep := "res://game/prototypes/npc_meshy/face_fit/%s_eyes.png" % slug
@@ -25,8 +25,8 @@ static func _mask_texture(slug: String, grow: int, cut: float) -> ImageTexture:
 
 
 ## 128 x 128 mask (1 = changed by some expression, then dilated by `grow` cells) of the face image space.
-static func _diff_mask(slug: String, grow: int, cut := 0.0) -> PackedByteArray:
-	var key := "%s/%d/%.2f" % [slug, grow, cut]
+static func _diff_mask(slug: String, grow: int, cut := 0.0, diff_t := DIFF_T) -> PackedByteArray:
+	var key := "%s/%d/%.2f/%.2f" % [slug, grow, cut, diff_t]
 	if _dm.has(key):
 		return _dm[key]
 	var base := VeilNpcFaceTex.texture(slug, "neutral").get_image()
@@ -42,7 +42,7 @@ static func _diff_mask(slug: String, grow: int, cut := 0.0) -> PackedByteArray:
 			for x in 128:
 				var d := base.get_pixel(x, y)
 				var e := im.get_pixel(x, y)
-				if maxf(absf(d.r - e.r), maxf(absf(d.g - e.g), absf(d.b - e.b))) > DIFF_T:
+				if maxf(absf(d.r - e.r), maxf(absf(d.g - e.g), absf(d.b - e.b))) > diff_t:
 					m[y * 128 + x] = 1
 	var ep := "res://game/prototypes/npc_meshy/face_fit/%s_eyes.png" % slug
 	if ResourceLoader.exists(ep):                                  # the model's own painted eyes count as changed: the face image replaces all of the eye
@@ -149,7 +149,7 @@ static func apply(model: Node3D, slug: String, ov := {}) -> bool:
 	var tint_sum := Vector3.ZERO
 	var tint_n := 0
 	# what the expressions change (brows, eyes, mouth), grown a little: only those triangles get the face image, everything else keeps the model's own painted face
-	var dm := _diff_mask(slug, int(fit.get("dilate", 9)), float(fit.get("brow_cut", 0.45)))
+	var dm := _diff_mask(slug, int(fit.get("dilate", 9)), float(fit.get("brow_cut", 0.45)), float(fit.get("diff_t", DIFF_T)))
 	var rest := PackedInt32Array()
 	var face := PackedInt32Array()
 	for t in range(0, idx.size(), 3):
@@ -231,7 +231,7 @@ static func apply(model: Node3D, slug: String, ov := {}) -> bool:
 	sm.shader = FACE_SHADER
 	sm.set_shader_parameter("face_tex", VeilNpcFaceTex.texture(slug, "neutral"))
 	sm.set_shader_parameter("orig_tex", (mat as BaseMaterial3D).albedo_texture)
-	sm.set_shader_parameter("mask_tex", _mask_texture(slug, int(fit.get("dilate_mask", 1)), float(fit.get("brow_cut", 0.45))))
+	sm.set_shader_parameter("mask_tex", _mask_texture(slug, int(fit.get("dilate_mask", 1)), float(fit.get("brow_cut", 0.45)), float(fit.get("diff_t", DIFF_T))))
 	sm.set_shader_parameter("amount", 0.0)
 	sm.set_shader_parameter("blink_line_v", float(fit.get("blink_line_v", 0.505)))
 	if tint_n > 5:
