@@ -1,6 +1,6 @@
 # THE VEIL - story pass (narrative + implementable state specification)
 
-Branch `cinematics/ledger-pilot` (docs only; nothing merged, nothing implemented). Prepared for **owner approval first**. Companion to the cinematic ledger in `docs/cinematics/`: scene IDs match (`C03.02b` etc.), new beats add suffixes (`03.04.1`, `13.0a`...).
+Written on `cinematics/ledger-pilot`; the **approved** parts are implemented on `story/noah-rescue` (see `IMPLEMENTATION_STATUS.md`). Nothing is merged. Companion to the cinematic ledger in `docs/cinematics/`: scene IDs match (`C03.02b` etc.), new beats add suffixes (`03.04.1`, `13.0a`...).
 
 | File | Package item |
 |---|---|
