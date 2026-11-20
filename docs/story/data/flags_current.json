@@ -1,0 +1,2750 @@
+{
+ "flags": {
+  "arrival_shot": {
+   "set_in": [
+    "game/world/world.gd"
+   ],
+   "read_in": [
+    "game/easter_egg/golden_peek.gd",
+    "game/tests/opening_test.gd",
+    "game/world/world.gd"
+   ]
+  },
+  "auto_parked": {
+   "set_in": [
+    "game/world/world.gd"
+   ],
+   "read_in": [
+    "game/tests/opening_test.gd",
+    "game/world/world.gd"
+   ]
+  },
+  "c5_complete": {
+   "set_in": [
+    "game/world/chapter5.gd"
+   ],
+   "read_in": [
+    "game/tests/chapter5_test.gd",
+    "game/world/chapter5.gd"
+   ]
+  },
+  "c5_eddie_talked": {
+   "set_in": [
+    "game/world/chapter5.gd"
+   ],
+   "read_in": [
+    "game/tests/chapter5_test.gd",
+    "game/world/chapter5.gd"
+   ]
+  },
+  "c5_found_said": {
+   "set_in": [
+    "game/world/chapter5.gd"
+   ],
+   "read_in": [
+    "game/tests/chapter5_test.gd",
+    "game/world/chapter5.gd"
+   ]
+  },
+  "c5_got_batteries": {
+   "set_in": [],
+   "read_in": [
+    "game/world/chapter5.gd"
+   ]
+  },
+  "c5_got_food": {
+   "set_in": [],
+   "read_in": [
+    "game/world/chapter5.gd"
+   ]
+  },
+  "c5_got_medical": {
+   "set_in": [],
+   "read_in": [
+    "game/world/chapter5.gd"
+   ]
+  },
+  "c5_house_reached": {
+   "set_in": [
+    "game/world/chapter5.gd"
+   ],
+   "read_in": [
+    "game/tests/chapter5_test.gd",
+    "game/world/chapter5.gd"
+   ]
+  },
+  "c5_left_store": {
+   "set_in": [
+    "game/world/chapter5.gd"
+   ],
+   "read_in": [
+    "game/tests/chapter5_test.gd",
+    "game/world/chapter5.gd"
+   ]
+  },
+  "c5_marcus_talked": {
+   "set_in": [
+    "game/world/chapter5.gd"
+   ],
+   "read_in": [
+    "game/tests/chapter5_test.gd",
+    "game/world/chapter5.gd"
+   ]
+  },
+  "c5_prepared": {
+   "set_in": [
+    "game/world/chapter5.gd"
+   ],
+   "read_in": [
+    "game/tests/chapter5_test.gd",
+    "game/world/chapter5.gd"
+   ]
+  },
+  "c5_radio_done": {
+   "set_in": [
+    "game/world/chapter5.gd"
+   ],
+   "read_in": [
+    "game/tests/chapter5_test.gd",
+    "game/world/chapter5.gd"
+   ]
+  },
+  "c5_radio_used": {
+   "set_in": [
+    "game/world/chapter5.gd"
+   ],
+   "read_in": [
+    "game/world/chapter5.gd"
+   ]
+  },
+  "c5_reported": {
+   "set_in": [
+    "game/world/chapter5.gd"
+   ],
+   "read_in": [
+    "game/tests/chapter5_test.gd",
+    "game/world/chapter5.gd"
+   ]
+  },
+  "c5_rested": {
+   "set_in": [
+    "game/world/chapter5.gd"
+   ],
+   "read_in": [
+    "game/tests/chapter5_test.gd",
+    "game/world/chapter5.gd"
+   ]
+  },
+  "c5_return_said": {
+   "set_in": [
+    "game/world/chapter5.gd"
+   ],
+   "read_in": [
+    "game/tests/chapter5_test.gd",
+    "game/world/chapter5.gd"
+   ]
+  },
+  "c5_returned": {
+   "set_in": [
+    "game/world/chapter5.gd"
+   ],
+   "read_in": [
+    "game/tests/chapter5_test.gd",
+    "game/world/chapter5.gd"
+   ]
+  },
+  "c5_started": {
+   "set_in": [
+    "game/world/chapter5.gd"
+   ],
+   "read_in": [
+    "game/tests/chapter5_test.gd",
+    "game/tests/chapter_select_audit.gd",
+    "game/tests/opening_test.gd",
+    "game/tests/refuse_branch_test.gd",
+    "game/ui/nav_map.gd",
+    "game/world/chapter5.gd",
+    "game/world/expedition.gd",
+    "game/world/living_town.gd",
+    "game/world/sidearm.gd",
+    "game/world/world.gd"
+   ]
+  },
+  "c5_street_said": {
+   "set_in": [
+    "game/world/chapter5.gd"
+   ],
+   "read_in": [
+    "game/tests/chapter5_test.gd",
+    "game/world/chapter5.gd"
+   ]
+  },
+  "c5_supplies_checked": {
+   "set_in": [
+    "game/world/chapter5.gd"
+   ],
+   "read_in": [
+    "game/tests/chapter5_test.gd",
+    "game/world/chapter5.gd",
+    "game/world/expedition.gd"
+   ]
+  },
+  "c5_supplies_done": {
+   "set_in": [
+    "game/world/chapter5.gd"
+   ],
+   "read_in": [
+    "game/tests/chapter5_test.gd",
+    "game/world/chapter5.gd"
+   ]
+  },
+  "c5_survivor_following": {
+   "set_in": [
+    "game/world/chapter5.gd"
+   ],
+   "read_in": []
+  },
+  "c5_survivor_helped": {
+   "set_in": [],
+   "read_in": [
+    "game/tests/chapter5_test.gd",
+    "game/world/chapter5.gd",
+    "game/world/chapter8.gd"
+   ]
+  },
+  "c5_survivor_informed": {
+   "set_in": [],
+   "read_in": [
+    "game/world/chapter5.gd"
+   ]
+  },
+  "c5_survivor_left": {
+   "set_in": [],
+   "read_in": [
+    "game/world/chapter5.gd"
+   ]
+  },
+  "c5_talked_both": {
+   "set_in": [
+    "game/world/chapter5.gd"
+   ],
+   "read_in": [
+    "game/tests/chapter5_test.gd",
+    "game/world/chapter5.gd",
+    "game/world/expedition.gd"
+   ]
+  },
+  "c6_started": {
+   "set_in": [],
+   "read_in": [
+    "game/tests/chapter5_test.gd"
+   ]
+  },
+  "ch10_around_done": {
+   "set_in": [
+    "game/world/chapter10.gd"
+   ],
+   "read_in": [
+    "game/tests/chapter10_test.gd",
+    "game/world/chapter10.gd"
+   ]
+  },
+  "ch10_building_seen": {
+   "set_in": [
+    "game/world/chapter10.gd"
+   ],
+   "read_in": [
+    "game/tests/chapter10_test.gd",
+    "game/world/chapter10.gd"
+   ]
+  },
+  "ch10_car_done": {
+   "set_in": [
+    "game/world/chapter10.gd"
+   ],
+   "read_in": [
+    "game/tests/chapter10_test.gd",
+    "game/world/chapter10.gd"
+   ]
+  },
+  "ch10_car_door": {
+   "set_in": [
+    "game/world/chapter10.gd"
+   ],
+   "read_in": [
+    "game/tests/chapter10_test.gd",
+    "game/world/chapter10.gd"
+   ]
+  },
+  "ch10_car_found": {
+   "set_in": [
+    "game/world/chapter10.gd"
+   ],
+   "read_in": [
+    "game/tests/chapter10_test.gd",
+    "game/world/chapter10.gd"
+   ]
+  },
+  "ch10_car_fuel": {
+   "set_in": [
+    "game/world/chapter10.gd"
+   ],
+   "read_in": [
+    "game/tests/chapter10_test.gd",
+    "game/world/chapter10.gd"
+   ]
+  },
+  "ch10_car_glove": {
+   "set_in": [
+    "game/world/chapter10.gd"
+   ],
+   "read_in": [
+    "game/tests/chapter10_test.gd",
+    "game/world/chapter10.gd"
+   ]
+  },
+  "ch10_car_trunk": {
+   "set_in": [
+    "game/world/chapter10.gd"
+   ],
+   "read_in": [
+    "game/world/chapter10.gd"
+   ]
+  },
+  "ch10_choice_help": {
+   "set_in": [],
+   "read_in": [
+    "game/tests/chapter10_test.gd"
+   ]
+  },
+  "ch10_choice_made": {
+   "set_in": [
+    "game/world/chapter10.gd"
+   ],
+   "read_in": [
+    "game/tests/chapter10_test.gd",
+    "game/world/chapter10.gd"
+   ]
+  },
+  "ch10_choice_push": {
+   "set_in": [],
+   "read_in": [
+    "game/tests/chapter10_test.gd"
+   ]
+  },
+  "ch10_creature_seen": {
+   "set_in": [
+    "game/world/chapter10.gd"
+   ],
+   "read_in": [
+    "game/tests/chapter10_test.gd",
+    "game/world/chapter10.gd"
+   ]
+  },
+  "ch10_entrance_checked": {
+   "set_in": [
+    "game/world/chapter10.gd"
+   ],
+   "read_in": [
+    "game/world/chapter10.gd"
+   ]
+  },
+  "ch10_exposure": {
+   "set_in": [
+    "game/world/chapter10.gd"
+   ],
+   "read_in": []
+  },
+  "ch10_followed_done": {
+   "set_in": [
+    "game/world/chapter10.gd"
+   ],
+   "read_in": [
+    "game/tests/chapter10_test.gd",
+    "game/world/chapter10.gd"
+   ]
+  },
+  "ch10_plan_done": {
+   "set_in": [
+    "game/world/chapter10.gd"
+   ],
+   "read_in": [
+    "game/tests/chapter10_test.gd",
+    "game/world/chapter10.gd"
+   ]
+  },
+  "ch10_refuge_checked": {
+   "set_in": [
+    "game/world/chapter10.gd"
+   ],
+   "read_in": [
+    "game/tests/chapter10_test.gd",
+    "game/world/chapter10.gd"
+   ]
+  },
+  "ch10_refuge_rested": {
+   "set_in": [
+    "game/world/chapter10.gd"
+   ],
+   "read_in": []
+  },
+  "ch10_refuge_talk_done": {
+   "set_in": [
+    "game/world/chapter10.gd"
+   ],
+   "read_in": [
+    "game/tests/chapter10_test.gd",
+    "game/world/chapter10.gd"
+   ]
+  },
+  "ch10_roadblock_seen": {
+   "set_in": [
+    "game/world/chapter10.gd"
+   ],
+   "read_in": [
+    "game/tests/chapter10_test.gd",
+    "game/world/chapter10.gd"
+   ]
+  },
+  "ch10_sarah_exhausted": {
+   "set_in": [
+    "game/world/chapter10.gd"
+   ],
+   "read_in": [
+    "game/tests/chapter10_test.gd"
+   ]
+  },
+  "ch10_sarah_rested": {
+   "set_in": [
+    "game/world/chapter10.gd"
+   ],
+   "read_in": []
+  },
+  "ch10_skitter_seen": {
+   "set_in": [
+    "game/world/chapter10.gd"
+   ],
+   "read_in": [
+    "game/world/chapter10.gd"
+   ]
+  },
+  "ch10_started": {
+   "set_in": [
+    "game/world/chapter10.gd"
+   ],
+   "read_in": [
+    "game/tests/chapter10_test.gd",
+    "game/tests/chapter9_test.gd",
+    "game/ui/nav_map.gd",
+    "game/world/chapter10.gd",
+    "game/world/chapter9.gd"
+   ]
+  },
+  "ch11_attack_started": {
+   "set_in": [
+    "game/world/chapter11.gd"
+   ],
+   "read_in": [
+    "game/tests/chapter11_test.gd",
+    "game/world/chapter11.gd"
+   ]
+  },
+  "ch11_campsite_reached": {
+   "set_in": [
+    "game/world/chapter11.gd"
+   ],
+   "read_in": [
+    "game/tests/chapter11_test.gd",
+    "game/world/chapter11.gd"
+   ]
+  },
+  "ch11_escaped": {
+   "set_in": [
+    "game/world/chapter11.gd"
+   ],
+   "read_in": [
+    "game/tests/chapter11_test.gd",
+    "game/world/chapter11.gd"
+   ]
+  },
+  "ch11_farmhouse_reached": {
+   "set_in": [
+    "game/world/chapter11.gd"
+   ],
+   "read_in": [
+    "game/tests/chapter11_test.gd",
+    "game/world/chapter11.gd"
+   ]
+  },
+  "ch11_field_seen": {
+   "set_in": [
+    "game/world/chapter11.gd"
+   ],
+   "read_in": [
+    "game/tests/chapter11_test.gd",
+    "game/world/chapter11.gd"
+   ]
+  },
+  "ch11_group_waiting": {
+   "set_in": [
+    "game/world/chapter11.gd"
+   ],
+   "read_in": [
+    "game/tests/chapter11_test.gd",
+    "game/world/chapter11.gd"
+   ]
+  },
+  "ch11_light_seen": {
+   "set_in": [
+    "game/world/chapter11.gd"
+   ],
+   "read_in": [
+    "game/world/chapter11.gd"
+   ]
+  },
+  "ch11_message_found": {
+   "set_in": [
+    "game/world/chapter11.gd"
+   ],
+   "read_in": [
+    "game/world/chapter11.gd"
+   ]
+  },
+  "ch11_message_read": {
+   "set_in": [],
+   "read_in": [
+    "game/tests/chapter11_test.gd",
+    "game/world/chapter11.gd"
+   ]
+  },
+  "ch11_note_found": {
+   "set_in": [
+    "game/world/chapter11.gd"
+   ],
+   "read_in": []
+  },
+  "ch11_note_read": {
+   "set_in": [],
+   "read_in": [
+    "game/tests/chapter11_test.gd",
+    "game/world/chapter11.gd"
+   ]
+  },
+  "ch11_regrouped": {
+   "set_in": [
+    "game/world/chapter11.gd"
+   ],
+   "read_in": [
+    "game/tests/chapter11_test.gd",
+    "game/world/chapter11.gd"
+   ]
+  },
+  "ch11_search_done": {
+   "set_in": [
+    "game/world/chapter11.gd"
+   ],
+   "read_in": [
+    "game/tests/chapter11_test.gd",
+    "game/world/chapter11.gd"
+   ]
+  },
+  "ch11_skitter_seen": {
+   "set_in": [
+    "game/world/chapter11.gd"
+   ],
+   "read_in": [
+    "game/world/chapter11.gd"
+   ]
+  },
+  "ch11_started": {
+   "set_in": [
+    "game/world/chapter11.gd"
+   ],
+   "read_in": [
+    "game/tests/chapter10_test.gd",
+    "game/tests/chapter11_test.gd",
+    "game/tests/chapter9_test.gd",
+    "game/world/chapter10.gd",
+    "game/world/chapter11.gd"
+   ]
+  },
+  "ch11_talk_done": {
+   "set_in": [
+    "game/world/chapter11.gd"
+   ],
+   "read_in": [
+    "game/tests/chapter11_test.gd",
+    "game/world/chapter11.gd"
+   ]
+  },
+  "ch12_access_open": {
+   "set_in": [
+    "game/world/chapter12.gd"
+   ],
+   "read_in": [
+    "game/tests/chapter12_test.gd",
+    "game/world/chapter12.gd"
+   ]
+  },
+  "ch12_chamber_open": {
+   "set_in": [
+    "game/world/chapter12.gd"
+   ],
+   "read_in": [
+    "game/tests/chapter12_test.gd",
+    "game/world/chapter12.gd"
+   ]
+  },
+  "ch12_chase_started": {
+   "set_in": [
+    "game/world/chapter12.gd"
+   ],
+   "read_in": [
+    "game/world/chapter12.gd"
+   ]
+  },
+  "ch12_descended": {
+   "set_in": [
+    "game/world/chapter12.gd"
+   ],
+   "read_in": [
+    "game/tests/chapter12_test.gd",
+    "game/world/chapter12.gd"
+   ]
+  },
+  "ch12_door_secured": {
+   "set_in": [
+    "game/world/chapter12.gd"
+   ],
+   "read_in": [
+    "game/tests/chapter12_test.gd",
+    "game/world/chapter12.gd"
+   ]
+  },
+  "ch12_fog_talk": {
+   "set_in": [
+    "game/world/chapter12.gd"
+   ],
+   "read_in": [
+    "game/world/chapter12.gd"
+   ]
+  },
+  "ch12_fuse_found": {
+   "set_in": [
+    "game/world/chapter12.gd"
+   ],
+   "read_in": [
+    "game/world/chapter12.gd"
+   ]
+  },
+  "ch12_left_now": {
+   "set_in": [
+    "game/world/chapter12.gd"
+   ],
+   "read_in": [
+    "game/tests/chapter13_test.gd"
+   ]
+  },
+  "ch12_left_station": {
+   "set_in": [
+    "game/world/chapter12.gd"
+   ],
+   "read_in": [
+    "game/tests/chapter12_test.gd",
+    "game/world/chapter12.gd"
+   ]
+  },
+  "ch12_low_locker": {
+   "set_in": [
+    "game/world/chapter12.gd"
+   ],
+   "read_in": [
+    "game/tests/chapter12_test.gd",
+    "game/world/chapter12.gd"
+   ]
+  },
+  "ch12_power_on": {
+   "set_in": [
+    "game/world/chapter12.gd"
+   ],
+   "read_in": [
+    "game/tests/chapter12_test.gd",
+    "game/world/chapter12.gd"
+   ]
+  },
+  "ch12_records_taken": {
+   "set_in": [
+    "game/world/chapter12.gd"
+   ],
+   "read_in": [
+    "game/tests/chapter12_test.gd",
+    "game/world/chapter12.gd"
+   ]
+  },
+  "ch12_returned": {
+   "set_in": [
+    "game/world/chapter12.gd"
+   ],
+   "read_in": [
+    "game/tests/chapter12_test.gd",
+    "game/world/chapter12.gd"
+   ]
+  },
+  "ch12_set_out": {
+   "set_in": [
+    "game/world/chapter12.gd"
+   ],
+   "read_in": [
+    "game/tests/chapter12_test.gd",
+    "game/world/chapter12.gd"
+   ]
+  },
+  "ch12_started": {
+   "set_in": [
+    "game/world/chapter12.gd"
+   ],
+   "read_in": [
+    "game/tests/chapter10_test.gd",
+    "game/tests/chapter11_test.gd",
+    "game/tests/chapter12_test.gd",
+    "game/world/chapter11.gd",
+    "game/world/chapter12.gd"
+   ]
+  },
+  "ch12_station_reached": {
+   "set_in": [
+    "game/world/chapter12.gd"
+   ],
+   "read_in": [
+    "game/tests/chapter12_test.gd",
+    "game/world/chapter12.gd"
+   ]
+  },
+  "ch12_supplies_taken": {
+   "set_in": [
+    "game/world/chapter12.gd"
+   ],
+   "read_in": [
+    "game/tests/chapter12_test.gd",
+    "game/world/chapter12.gd"
+   ]
+  },
+  "ch12_supply_choice": {
+   "set_in": [
+    "game/world/chapter12.gd"
+   ],
+   "read_in": [
+    "game/tests/chapter12_test.gd",
+    "game/world/chapter12.gd"
+   ]
+  },
+  "ch12_talk_done": {
+   "set_in": [
+    "game/world/chapter12.gd"
+   ],
+   "read_in": [
+    "game/tests/chapter12_test.gd",
+    "game/world/chapter12.gd"
+   ]
+  },
+  "ch13_beam_moved": {
+   "set_in": [
+    "game/world/chapter13.gd"
+   ],
+   "read_in": [
+    "game/world/chapter13.gd"
+   ]
+  },
+  "ch13_chamber_reached": {
+   "set_in": [
+    "game/world/chapter13.gd"
+   ],
+   "read_in": [
+    "game/tests/chapter13_test.gd",
+    "game/world/chapter13.gd"
+   ]
+  },
+  "ch13_choice_evidence": {
+   "set_in": [
+    "game/world/chapter13.gd"
+   ],
+   "read_in": [
+    "game/tests/chapter13_test.gd",
+    "game/world/chapter13.gd"
+   ]
+  },
+  "ch13_choice_help": {
+   "set_in": [
+    "game/world/chapter13.gd"
+   ],
+   "read_in": [
+    "game/tests/chapter13_test.gd"
+   ]
+  },
+  "ch13_choice_made": {
+   "set_in": [
+    "game/world/chapter13.gd"
+   ],
+   "read_in": [
+    "game/tests/chapter13_test.gd",
+    "game/world/chapter13.gd"
+   ]
+  },
+  "ch13_collapsed": {
+   "set_in": [
+    "game/world/chapter13.gd"
+   ],
+   "read_in": [
+    "game/tests/chapter13_test.gd",
+    "game/world/chapter13.gd"
+   ]
+  },
+  "ch13_crab_seen": {
+   "set_in": [
+    "game/world/chapter13.gd"
+   ],
+   "read_in": [
+    "game/tests/chapter13_test.gd",
+    "game/world/chapter13.gd"
+   ]
+  },
+  "ch13_crank_found": {
+   "set_in": [
+    "game/tests/qa_softlock_test.gd",
+    "game/world/chapter13.gd"
+   ],
+   "read_in": [
+    "game/tests/chapter13_test.gd",
+    "game/world/chapter13.gd"
+   ]
+  },
+  "ch13_district_reached": {
+   "set_in": [
+    "game/world/chapter13.gd"
+   ],
+   "read_in": [
+    "game/tests/chapter13_test.gd",
+    "game/world/chapter13.gd"
+   ]
+  },
+  "ch13_entrance_open": {
+   "set_in": [
+    "game/world/chapter13.gd"
+   ],
+   "read_in": [
+    "game/tests/chapter13_test.gd",
+    "game/world/chapter13.gd"
+   ]
+  },
+  "ch13_gate_open": {
+   "set_in": [
+    "game/world/chapter13.gd"
+   ],
+   "read_in": [
+    "game/tests/chapter13_test.gd",
+    "game/world/chapter13.gd"
+   ]
+  },
+  "ch13_in_passage": {
+   "set_in": [
+    "game/world/chapter13.gd"
+   ],
+   "read_in": [
+    "game/tests/chapter13_test.gd",
+    "game/world/chapter13.gd"
+   ]
+  },
+  "ch13_mist_warned": {
+   "set_in": [
+    "game/world/chapter13.gd"
+   ],
+   "read_in": [
+    "game/world/chapter13.gd"
+   ]
+  },
+  "ch13_out_of_passage": {
+   "set_in": [
+    "game/world/chapter13.gd"
+   ],
+   "read_in": [
+    "game/tests/chapter13_test.gd",
+    "game/world/chapter13.gd"
+   ]
+  },
+  "ch13_returned": {
+   "set_in": [
+    "game/world/chapter13.gd"
+   ],
+   "read_in": [
+    "game/tests/chapter13_test.gd",
+    "game/world/chapter13.gd"
+   ]
+  },
+  "ch13_set_out": {
+   "set_in": [
+    "game/world/chapter13.gd"
+   ],
+   "read_in": [
+    "game/tests/chapter13_test.gd",
+    "game/world/chapter13.gd"
+   ]
+  },
+  "ch13_sign1": {
+   "set_in": [
+    "game/world/chapter13.gd"
+   ],
+   "read_in": [
+    "game/tests/chapter13_test.gd",
+    "game/world/chapter13.gd"
+   ]
+  },
+  "ch13_sign_again": {
+   "set_in": [
+    "game/world/chapter13.gd"
+   ],
+   "read_in": [
+    "game/world/chapter13.gd"
+   ]
+  },
+  "ch13_started": {
+   "set_in": [
+    "game/tests/qa_softlock_test.gd",
+    "game/world/chapter13.gd"
+   ],
+   "read_in": [
+    "game/tests/chapter12_test.gd",
+    "game/tests/chapter13_test.gd",
+    "game/world/chapter12.gd",
+    "game/world/chapter13.gd"
+   ]
+  },
+  "ch13_street_seen": {
+   "set_in": [
+    "game/world/chapter13.gd"
+   ],
+   "read_in": [
+    "game/tests/chapter13_test.gd",
+    "game/world/chapter13.gd"
+   ]
+  },
+  "ch13_talk_done": {
+   "set_in": [
+    "game/world/chapter13.gd"
+   ],
+   "read_in": [
+    "game/tests/chapter13_test.gd",
+    "game/world/chapter13.gd"
+   ]
+  },
+  "ch13_voice_heard": {
+   "set_in": [
+    "game/world/chapter13.gd"
+   ],
+   "read_in": [
+    "game/world/chapter13.gd"
+   ]
+  },
+  "ch13_winch_turned": {
+   "set_in": [
+    "game/world/chapter13.gd"
+   ],
+   "read_in": [
+    "game/tests/chapter13_test.gd",
+    "game/world/chapter13.gd"
+   ]
+  },
+  "ch14_crab_seen": {
+   "set_in": [
+    "game/world/chapter14.gd"
+   ],
+   "read_in": [
+    "game/world/chapter14.gd"
+   ]
+  },
+  "ch14_escape_ready": {
+   "set_in": [
+    "game/world/chapter14.gd"
+   ],
+   "read_in": [
+    "game/tests/chapter14_test.gd",
+    "game/world/chapter14.gd"
+   ]
+  },
+  "ch14_evac_started": {
+   "set_in": [
+    "game/world/chapter14.gd"
+   ],
+   "read_in": [
+    "game/tests/chapter14_test.gd",
+    "game/ui/nav_map.gd",
+    "game/world/chapter14.gd"
+   ]
+  },
+  "ch14_hounds_done": {
+   "set_in": [
+    "game/world/chapter14.gd"
+   ],
+   "read_in": [
+    "game/tests/chapter14_test.gd",
+    "game/world/chapter14.gd"
+   ]
+  },
+  "ch14_marcus_missing": {
+   "set_in": [],
+   "read_in": [
+    "game/tests/chapter14_test.gd"
+   ]
+  },
+  "ch14_meeting_done": {
+   "set_in": [
+    "game/world/chapter14.gd"
+   ],
+   "read_in": [
+    "game/tests/chapter14_test.gd",
+    "game/world/chapter14.gd"
+   ]
+  },
+  "ch14_prepared": {
+   "set_in": [
+    "game/world/chapter14.gd"
+   ],
+   "read_in": [
+    "game/tests/chapter14_test.gd",
+    "game/world/chapter14.gd"
+   ]
+  },
+  "ch14_rescue_failed": {
+   "set_in": [
+    "game/world/chapter14.gd"
+   ],
+   "read_in": []
+  },
+  "ch14_rescue_saved": {
+   "set_in": [
+    "game/world/chapter14.gd"
+   ],
+   "read_in": []
+  },
+  "ch14_run_done": {
+   "set_in": [
+    "game/world/chapter14.gd"
+   ],
+   "read_in": [
+    "game/tests/chapter14_test.gd",
+    "game/world/chapter14.gd"
+   ]
+  },
+  "ch14_run_started": {
+   "set_in": [
+    "game/world/chapter14.gd"
+   ],
+   "read_in": [
+    "game/tests/chapter14_test.gd",
+    "game/world/chapter14.gd"
+   ]
+  },
+  "ch14_run_warned": {
+   "set_in": [
+    "game/world/chapter14.gd"
+   ],
+   "read_in": [
+    "game/world/chapter14.gd"
+   ]
+  },
+  "ch14_safe": {
+   "set_in": [
+    "game/world/chapter14.gd"
+   ],
+   "read_in": [
+    "game/world/chapter14.gd"
+   ]
+  },
+  "ch14_separation": {
+   "set_in": [
+    "game/tests/qa_softlock_test.gd",
+    "game/world/chapter14.gd"
+   ],
+   "read_in": [
+    "game/tests/chapter14_test.gd",
+    "game/tests/qa_softlock_test.gd",
+    "game/world/chapter14.gd"
+   ]
+  },
+  "ch14_separation_made": {
+   "set_in": [
+    "game/world/chapter14.gd"
+   ],
+   "read_in": [
+    "game/tests/chapter14_test.gd",
+    "game/tests/qa_softlock_test.gd",
+    "game/world/chapter14.gd"
+   ]
+  },
+  "ch14_siege_started": {
+   "set_in": [
+    "game/world/chapter14.gd"
+   ],
+   "read_in": [
+    "game/tests/chapter14_test.gd",
+    "game/world/chapter14.gd"
+   ]
+  },
+  "ch14_skitters_done": {
+   "set_in": [
+    "game/world/chapter14.gd"
+   ],
+   "read_in": [
+    "game/tests/chapter14_test.gd",
+    "game/world/chapter14.gd"
+   ]
+  },
+  "ch14_started": {
+   "set_in": [
+    "game/world/chapter14.gd"
+   ],
+   "read_in": [
+    "game/tests/chapter13_test.gd",
+    "game/tests/chapter14_test.gd",
+    "game/world/chapter13.gd",
+    "game/world/chapter14.gd"
+   ]
+  },
+  "ch14_supplies_checked": {
+   "set_in": [
+    "game/world/chapter14.gd"
+   ],
+   "read_in": [
+    "game/tests/chapter14_test.gd",
+    "game/world/chapter14.gd"
+   ]
+  },
+  "ch14_window_seen": {
+   "set_in": [
+    "game/world/chapter14.gd"
+   ],
+   "read_in": [
+    "game/world/chapter14.gd"
+   ]
+  },
+  "ch15_chamber_reached": {
+   "set_in": [
+    "game/world/chapter15.gd"
+   ],
+   "read_in": [
+    "game/tests/chapter15_test.gd",
+    "game/world/chapter15.gd"
+   ]
+  },
+  "ch15_choice_": {
+   "set_in": [
+    "game/world/chapter15.gd"
+   ],
+   "read_in": []
+  },
+  "ch15_choice_b": {
+   "set_in": [
+    "game/tests/qa_softlock_test.gd"
+   ],
+   "read_in": [
+    "game/tests/qa_softlock_test.gd"
+   ]
+  },
+  "ch15_colossus_seen": {
+   "set_in": [
+    "game/world/chapter15.gd"
+   ],
+   "read_in": [
+    "game/tests/chapter15_test.gd",
+    "game/world/chapter15.gd"
+   ]
+  },
+  "ch15_crossed": {
+   "set_in": [
+    "game/world/chapter15.gd"
+   ],
+   "read_in": [
+    "game/tests/chapter15_test.gd",
+    "game/world/chapter15.gd"
+   ]
+  },
+  "ch15_decided": {
+   "set_in": [
+    "game/tests/qa_softlock_test.gd",
+    "game/world/chapter15.gd"
+   ],
+   "read_in": [
+    "game/autoload/game_state.gd",
+    "game/tests/chapter15_test.gd",
+    "game/tests/qa_softlock_test.gd",
+    "game/world/chapter15.gd"
+   ]
+  },
+  "ch15_ended": {
+   "set_in": [
+    "game/world/chapter15.gd"
+   ],
+   "read_in": [
+    "game/tests/chapter15_test.gd",
+    "game/world/chapter15.gd"
+   ]
+  },
+  "ch15_gap_cleared": {
+   "set_in": [
+    "game/world/chapter15.gd"
+   ],
+   "read_in": [
+    "game/tests/chapter15_test.gd",
+    "game/world/chapter15.gd"
+   ]
+  },
+  "ch15_horror": {
+   "set_in": [
+    "game/world/chapter15.gd"
+   ],
+   "read_in": [
+    "game/world/chapter15.gd"
+   ]
+  },
+  "ch15_in_passage": {
+   "set_in": [
+    "game/world/chapter15.gd"
+   ],
+   "read_in": [
+    "game/tests/chapter15_test.gd",
+    "game/world/chapter15.gd"
+   ]
+  },
+  "ch15_mechanism_done": {
+   "set_in": [
+    "game/world/chapter15.gd"
+   ],
+   "read_in": [
+    "game/tests/chapter15_test.gd",
+    "game/world/chapter15.gd"
+   ]
+  },
+  "ch15_opening_done": {
+   "set_in": [
+    "game/world/chapter15.gd"
+   ],
+   "read_in": [
+    "game/tests/chapter14_test.gd",
+    "game/tests/chapter15_test.gd",
+    "game/world/chapter15.gd"
+   ]
+  },
+  "ch15_plan_done": {
+   "set_in": [
+    "game/world/chapter15.gd"
+   ],
+   "read_in": [
+    "game/tests/chapter15_test.gd",
+    "game/world/chapter15.gd"
+   ]
+  },
+  "ch15_pocket_warned": {
+   "set_in": [
+    "game/world/chapter15.gd"
+   ],
+   "read_in": [
+    "game/world/chapter15.gd"
+   ]
+  },
+  "ch15_set_out": {
+   "set_in": [
+    "game/world/chapter15.gd"
+   ],
+   "read_in": [
+    "game/tests/chapter15_test.gd",
+    "game/ui/nav_map.gd",
+    "game/world/chapter15.gd"
+   ]
+  },
+  "ch15_started": {
+   "set_in": [
+    "game/world/chapter15.gd"
+   ],
+   "read_in": [
+    "game/tests/chapter14_test.gd",
+    "game/tests/chapter15_test.gd",
+    "game/ui/nav_map.gd",
+    "game/world/chapter14.gd",
+    "game/world/chapter15.gd"
+   ]
+  },
+  "ch6_eddie_following": {
+   "set_in": [
+    "game/world/chapter6.gd"
+   ],
+   "read_in": [
+    "game/tests/chapter6_test.gd",
+    "game/world/chapter6.gd"
+   ]
+  },
+  "ch6_eddie_ready": {
+   "set_in": [
+    "game/world/chapter6.gd"
+   ],
+   "read_in": [
+    "game/tests/ch6_supplies_map_test.gd",
+    "game/tests/chapter6_test.gd",
+    "game/world/chapter6.gd",
+    "game/world/expedition.gd"
+   ]
+  },
+  "ch6_eddie_talked": {
+   "set_in": [
+    "game/world/chapter6.gd"
+   ],
+   "read_in": [
+    "game/tests/chapter6_test.gd",
+    "game/world/chapter6.gd",
+    "game/world/expedition.gd"
+   ]
+  },
+  "ch6_hound_encounter_complete": {
+   "set_in": [
+    "game/world/chapter6.gd"
+   ],
+   "read_in": [
+    "game/tests/chapter6_test.gd",
+    "game/world/chapter6.gd"
+   ]
+  },
+  "ch6_hound_encounter_started": {
+   "set_in": [
+    "game/world/chapter6.gd"
+   ],
+   "read_in": [
+    "game/tests/chapter6_test.gd",
+    "game/world/chapter6.gd"
+   ]
+  },
+  "ch6_house_found": {
+   "set_in": [
+    "game/world/chapter6.gd"
+   ],
+   "read_in": [
+    "game/tests/chapter6_test.gd",
+    "game/world/chapter6.gd"
+   ]
+  },
+  "ch6_investigation_reached": {
+   "set_in": [
+    "game/world/chapter6.gd"
+   ],
+   "read_in": [
+    "game/tests/chapter6_test.gd",
+    "game/world/chapter6.gd"
+   ]
+  },
+  "ch6_left_supermarket": {
+   "set_in": [
+    "game/world/chapter6.gd"
+   ],
+   "read_in": [
+    "game/tests/chapter6_test.gd",
+    "game/world/chapter6.gd"
+   ]
+  },
+  "ch6_marcus_briefing_complete": {
+   "set_in": [
+    "game/world/chapter6.gd"
+   ],
+   "read_in": [
+    "game/tests/chapter6_test.gd",
+    "game/world/chapter6.gd"
+   ]
+  },
+  "ch6_rested": {
+   "set_in": [
+    "game/world/chapter6.gd"
+   ],
+   "read_in": [
+    "game/tests/chapter6_test.gd",
+    "game/world/chapter6.gd"
+   ]
+  },
+  "ch6_retreat_route_reached": {
+   "set_in": [
+    "game/world/chapter6.gd"
+   ],
+   "read_in": [
+    "game/tests/chapter6_test.gd",
+    "game/world/chapter6.gd"
+   ]
+  },
+  "ch6_return_said": {
+   "set_in": [
+    "game/world/chapter6.gd"
+   ],
+   "read_in": [
+    "game/tests/chapter6_test.gd",
+    "game/world/chapter6.gd"
+   ]
+  },
+  "ch6_returned_to_supermarket": {
+   "set_in": [
+    "game/world/chapter6.gd"
+   ],
+   "read_in": [
+    "game/tests/chapter6_test.gd",
+    "game/world/chapter6.gd"
+   ]
+  },
+  "ch6_ruth_sarah_choice_": {
+   "set_in": [],
+   "read_in": [
+    "game/tests/chapter6_test.gd"
+   ]
+  },
+  "ch6_ruth_sarah_heard": {
+   "set_in": [
+    "game/world/chapter6.gd"
+   ],
+   "read_in": [
+    "game/world/chapter6.gd"
+   ]
+  },
+  "ch6_ruth_sarah_met": {
+   "set_in": [
+    "game/world/chapter6.gd"
+   ],
+   "read_in": [
+    "game/tests/chapter6_test.gd",
+    "game/world/chapter6.gd",
+    "game/world/sidearm.gd"
+   ]
+  },
+  "ch6_started": {
+   "set_in": [
+    "game/world/chapter6.gd"
+   ],
+   "read_in": [
+    "game/tests/chapter5_test.gd",
+    "game/tests/chapter6_test.gd",
+    "game/world/chapter5.gd",
+    "game/world/chapter6.gd"
+   ]
+  },
+  "ch6_voice_choice_investigate": {
+   "set_in": [],
+   "read_in": [
+    "game/world/chapter6.gd"
+   ]
+  },
+  "ch6_voice_choice_made": {
+   "set_in": [
+    "game/world/chapter6.gd"
+   ],
+   "read_in": [
+    "game/tests/chapter6_test.gd",
+    "game/world/chapter6.gd"
+   ]
+  },
+  "ch6_voice_choice_retreat": {
+   "set_in": [],
+   "read_in": [
+    "game/world/chapter6.gd"
+   ]
+  },
+  "ch6_voice_heard": {
+   "set_in": [
+    "game/world/chapter6.gd"
+   ],
+   "read_in": [
+    "game/tests/chapter6_test.gd",
+    "game/world/chapter6.gd"
+   ]
+  },
+  "ch6_voice_resolved": {
+   "set_in": [
+    "game/world/chapter6.gd"
+   ],
+   "read_in": [
+    "game/world/chapter6.gd"
+   ]
+  },
+  "ch6_walk_said": {
+   "set_in": [
+    "game/world/chapter6.gd"
+   ],
+   "read_in": [
+    "game/tests/chapter6_test.gd",
+    "game/world/chapter6.gd"
+   ]
+  },
+  "ch7_backpack_found": {
+   "set_in": [
+    "game/world/chapter7.gd"
+   ],
+   "read_in": [
+    "game/tests/chapter7_test.gd",
+    "game/world/chapter7.gd"
+   ]
+  },
+  "ch7_departure_complete": {
+   "set_in": [
+    "game/world/chapter7.gd"
+   ],
+   "read_in": [
+    "game/tests/chapter7_test.gd",
+    "game/world/chapter7.gd"
+   ]
+  },
+  "ch7_eddie_warning_complete": {
+   "set_in": [
+    "game/world/chapter7.gd"
+   ],
+   "read_in": [
+    "game/tests/chapter7_test.gd",
+    "game/world/chapter7.gd"
+   ]
+  },
+  "ch7_marcus_briefing_complete": {
+   "set_in": [
+    "game/world/chapter7.gd"
+   ],
+   "read_in": [
+    "game/tests/chapter7_test.gd",
+    "game/world/chapter7.gd"
+   ]
+  },
+  "ch7_note_read": {
+   "set_in": [
+    "game/world/chapter7.gd"
+   ],
+   "read_in": [
+    "game/world/chapter7.gd"
+   ]
+  },
+  "ch7_report_complete": {
+   "set_in": [
+    "game/world/chapter7.gd"
+   ],
+   "read_in": [
+    "game/tests/chapter7_test.gd",
+    "game/world/chapter7.gd"
+   ]
+  },
+  "ch7_rested": {
+   "set_in": [
+    "game/world/chapter7.gd"
+   ],
+   "read_in": [
+    "game/tests/chapter7_test.gd",
+    "game/world/chapter7.gd"
+   ]
+  },
+  "ch7_returned_to_supermarket": {
+   "set_in": [
+    "game/world/chapter7.gd"
+   ],
+   "read_in": [
+    "game/tests/chapter7_test.gd",
+    "game/world/chapter7.gd"
+   ]
+  },
+  "ch7_road_investigation_complete": {
+   "set_in": [
+    "game/world/chapter7.gd"
+   ],
+   "read_in": [
+    "game/tests/chapter7_test.gd",
+    "game/world/chapter7.gd"
+   ]
+  },
+  "ch7_road_reached": {
+   "set_in": [
+    "game/world/chapter7.gd"
+   ],
+   "read_in": [
+    "game/tests/chapter7_test.gd",
+    "game/world/chapter7.gd"
+   ]
+  },
+  "ch7_skitters_gone": {
+   "set_in": [
+    "game/world/chapter7.gd"
+   ],
+   "read_in": [
+    "game/tests/chapter7_test.gd",
+    "game/world/chapter7.gd"
+   ]
+  },
+  "ch7_skitters_seen": {
+   "set_in": [
+    "game/world/chapter7.gd"
+   ],
+   "read_in": [
+    "game/tests/chapter7_test.gd",
+    "game/world/chapter7.gd"
+   ]
+  },
+  "ch7_started": {
+   "set_in": [
+    "game/world/chapter7.gd"
+   ],
+   "read_in": [
+    "game/tests/chapter6_test.gd",
+    "game/tests/chapter7_test.gd",
+    "game/world/chapter6.gd",
+    "game/world/chapter7.gd",
+    "game/world/sidearm.gd"
+   ]
+  },
+  "ch7_vehicle_reached": {
+   "set_in": [
+    "game/world/chapter7.gd"
+   ],
+   "read_in": [
+    "game/tests/chapter7_test.gd",
+    "game/world/chapter7.gd"
+   ]
+  },
+  "ch7_walk_said": {
+   "set_in": [
+    "game/world/chapter7.gd"
+   ],
+   "read_in": [
+    "game/tests/chapter7_test.gd",
+    "game/world/chapter7.gd"
+   ]
+  },
+  "ch8_aftermath_complete": {
+   "set_in": [
+    "game/world/chapter8.gd"
+   ],
+   "read_in": [
+    "game/tests/chapter8_test.gd",
+    "game/world/chapter8.gd"
+   ]
+  },
+  "ch8_attack_started": {
+   "set_in": [
+    "game/world/chapter8.gd"
+   ],
+   "read_in": [
+    "game/tests/chapter8_test.gd",
+    "game/world/chapter8.gd",
+    "game/world/expedition.gd"
+   ]
+  },
+  "ch8_barricade_inspected": {
+   "set_in": [
+    "game/world/chapter8.gd"
+   ],
+   "read_in": [
+    "game/tests/chapter8_test.gd",
+    "game/world/chapter8.gd"
+   ]
+  },
+  "ch8_barricade_repaired": {
+   "set_in": [
+    "game/world/chapter8.gd"
+   ],
+   "read_in": [
+    "game/tests/chapter8_test.gd",
+    "game/world/chapter8.gd"
+   ]
+  },
+  "ch8_eddie_talked": {
+   "set_in": [
+    "game/world/chapter8.gd"
+   ],
+   "read_in": [
+    "game/tests/chapter8_test.gd",
+    "game/world/chapter8.gd"
+   ]
+  },
+  "ch8_entrance_secured": {
+   "set_in": [
+    "game/world/chapter8.gd"
+   ],
+   "read_in": [
+    "game/tests/chapter8_test.gd",
+    "game/tests/sarah_rescue_test.gd",
+    "game/world/chapter8.gd",
+    "game/world/expedition.gd"
+   ]
+  },
+  "ch8_got_": {
+   "set_in": [
+    "game/world/chapter8.gd"
+   ],
+   "read_in": []
+  },
+  "ch8_materials_collected": {
+   "set_in": [
+    "game/world/chapter8.gd"
+   ],
+   "read_in": [
+    "game/tests/chapter8_test.gd",
+    "game/world/chapter8.gd"
+   ]
+  },
+  "ch8_medical_used": {
+   "set_in": [
+    "game/world/chapter8.gd"
+   ],
+   "read_in": [
+    "game/tests/chapter8_test.gd",
+    "game/world/chapter8.gd"
+   ]
+  },
+  "ch8_panel_inspected": {
+   "set_in": [
+    "game/world/chapter8.gd"
+   ],
+   "read_in": [
+    "game/tests/chapter8_test.gd",
+    "game/world/chapter8.gd"
+   ]
+  },
+  "ch8_power_failed": {
+   "set_in": [
+    "game/world/chapter8.gd"
+   ],
+   "read_in": [
+    "game/tests/chapter8_test.gd",
+    "game/world/chapter8.gd"
+   ]
+  },
+  "ch8_power_restored": {
+   "set_in": [
+    "game/world/chapter8.gd"
+   ],
+   "read_in": [
+    "game/tests/chapter8_test.gd",
+    "game/world/chapter8.gd"
+   ]
+  },
+  "ch8_rescue_slow": {
+   "set_in": [
+    "game/world/chapter8.gd"
+   ],
+   "read_in": []
+  },
+  "ch8_rested": {
+   "set_in": [
+    "game/world/chapter8.gd"
+   ],
+   "read_in": [
+    "game/tests/chapter8_test.gd",
+    "game/world/chapter8.gd"
+   ]
+  },
+  "ch8_sarah_bitten": {
+   "set_in": [
+    "game/world/chapter8.gd"
+   ],
+   "read_in": [
+    "game/tests/sarah_rescue_test.gd",
+    "game/world/chapter8.gd"
+   ]
+  },
+  "ch8_sarah_injured": {
+   "set_in": [
+    "game/world/chapter8.gd"
+   ],
+   "read_in": [
+    "game/tests/chapter8_test.gd",
+    "game/tests/sarah_rescue_test.gd",
+    "game/world/chapter8.gd"
+   ]
+  },
+  "ch8_sarah_treated": {
+   "set_in": [
+    "game/world/chapter8.gd"
+   ],
+   "read_in": [
+    "game/tests/chapter8_test.gd"
+   ]
+  },
+  "ch8_sarah_untreated": {
+   "set_in": [
+    "game/world/chapter8.gd"
+   ],
+   "read_in": [
+    "game/tests/chapter8_test.gd"
+   ]
+  },
+  "ch8_started": {
+   "set_in": [
+    "game/world/chapter8.gd"
+   ],
+   "read_in": [
+    "game/tests/chapter7_test.gd",
+    "game/tests/chapter8_test.gd",
+    "game/world/chapter7.gd",
+    "game/world/chapter8.gd"
+   ]
+  },
+  "ch8_survivor_helped": {
+   "set_in": [
+    "game/world/chapter8.gd"
+   ],
+   "read_in": [
+    "game/tests/chapter8_test.gd",
+    "game/world/chapter8.gd"
+   ]
+  },
+  "ch8_temp_survivor_died": {
+   "set_in": [
+    "game/world/chapter8.gd"
+   ],
+   "read_in": [
+    "game/tests/chapter8_test.gd",
+    "game/tests/sarah_rescue_test.gd",
+    "game/world/chapter8.gd"
+   ]
+  },
+  "ch9_escaped": {
+   "set_in": [
+    "game/world/chapter9.gd"
+   ],
+   "read_in": [
+    "game/tests/chapter9_test.gd",
+    "game/world/chapter9.gd",
+    "game/world/expedition.gd"
+   ]
+  },
+  "ch9_fall_started": {
+   "set_in": [
+    "game/world/chapter9.gd"
+   ],
+   "read_in": [
+    "game/tests/chapter9_test.gd",
+    "game/world/chapter9.gd"
+   ]
+  },
+  "ch9_food_done": {
+   "set_in": [
+    "game/world/chapter9.gd"
+   ],
+   "read_in": [
+    "game/tests/chapter9_test.gd",
+    "game/world/chapter9.gd"
+   ]
+  },
+  "ch9_light_checked": {
+   "set_in": [
+    "game/world/chapter9.gd"
+   ],
+   "read_in": [
+    "game/tests/chapter9_test.gd",
+    "game/world/chapter9.gd"
+   ]
+  },
+  "ch9_lookback_done": {
+   "set_in": [
+    "game/world/chapter9.gd"
+   ],
+   "read_in": [
+    "game/tests/chapter9_test.gd",
+    "game/world/chapter9.gd"
+   ]
+  },
+  "ch9_marcus_lost": {
+   "set_in": [
+    "game/world/chapter9.gd"
+   ],
+   "read_in": [
+    "game/tests/chapter9_test.gd",
+    "game/world/chapter10.gd",
+    "game/world/chapter15.gd",
+    "game/world/chapter9.gd",
+    "game/world/survivors.gd"
+   ]
+  },
+  "ch9_marcus_saved": {
+   "set_in": [
+    "game/world/chapter9.gd"
+   ],
+   "read_in": [
+    "game/tests/chapter9_test.gd",
+    "game/world/chapter9.gd"
+   ]
+  },
+  "ch9_marcus_talked": {
+   "set_in": [
+    "game/world/chapter9.gd"
+   ],
+   "read_in": [
+    "game/tests/chapter9_test.gd",
+    "game/world/chapter9.gd"
+   ]
+  },
+  "ch9_medical_done": {
+   "set_in": [
+    "game/world/chapter9.gd"
+   ],
+   "read_in": [
+    "game/tests/chapter9_test.gd",
+    "game/world/chapter9.gd"
+   ]
+  },
+  "ch9_prepared": {
+   "set_in": [
+    "game/world/chapter9.gd"
+   ],
+   "read_in": [
+    "game/tests/chapter9_test.gd",
+    "game/world/chapter9.gd"
+   ]
+  },
+  "ch9_rendezvous_reached": {
+   "set_in": [
+    "game/world/chapter9.gd"
+   ],
+   "read_in": [
+    "game/tests/chapter9_test.gd",
+    "game/world/chapter9.gd"
+   ]
+  },
+  "ch9_started": {
+   "set_in": [
+    "game/world/chapter9.gd"
+   ],
+   "read_in": [
+    "game/tests/chapter7_test.gd",
+    "game/tests/chapter8_test.gd",
+    "game/tests/chapter9_test.gd",
+    "game/world/chapter8.gd",
+    "game/world/chapter9.gd"
+   ]
+  },
+  "ch9_supermarket_lost": {
+   "set_in": [
+    "game/world/chapter9.gd"
+   ],
+   "read_in": [
+    "game/tests/chapter9_test.gd",
+    "game/tests/chapter_select_audit.gd",
+    "game/ui/nav_map.gd",
+    "game/world/chapter9.gd",
+    "game/world/expedition.gd",
+    "game/world/sidearm.gd"
+   ]
+  },
+  "ch9_warning_started": {
+   "set_in": [
+    "game/world/chapter9.gd"
+   ],
+   "read_in": [
+    "game/tests/chapter9_test.gd",
+    "game/world/chapter9.gd",
+    "game/world/expedition.gd"
+   ]
+  },
+  "chapter_10_complete": {
+   "set_in": [
+    "game/world/chapter10.gd"
+   ],
+   "read_in": [
+    "game/tests/chapter10_test.gd",
+    "game/world/chapter10.gd"
+   ]
+  },
+  "chapter_11_complete": {
+   "set_in": [
+    "game/world/chapter11.gd"
+   ],
+   "read_in": [
+    "game/tests/chapter11_test.gd",
+    "game/tests/chapter12_test.gd",
+    "game/world/chapter11.gd"
+   ]
+  },
+  "chapter_12_complete": {
+   "set_in": [
+    "game/world/chapter12.gd"
+   ],
+   "read_in": [
+    "game/tests/chapter12_test.gd",
+    "game/tests/chapter13_test.gd",
+    "game/world/chapter12.gd"
+   ]
+  },
+  "chapter_13_complete": {
+   "set_in": [
+    "game/world/chapter13.gd"
+   ],
+   "read_in": [
+    "game/tests/chapter13_test.gd",
+    "game/tests/chapter14_test.gd",
+    "game/world/chapter13.gd"
+   ]
+  },
+  "chapter_14_complete": {
+   "set_in": [
+    "game/world/chapter14.gd"
+   ],
+   "read_in": [
+    "game/tests/chapter14_test.gd",
+    "game/tests/chapter15_test.gd",
+    "game/world/chapter14.gd"
+   ]
+  },
+  "chapter_15_complete": {
+   "set_in": [
+    "game/world/chapter15.gd"
+   ],
+   "read_in": [
+    "game/autoload/game_state.gd",
+    "game/tests/chapter15_test.gd",
+    "game/ui/nav_map.gd",
+    "game/world/chapter15.gd"
+   ]
+  },
+  "chapter_6_complete": {
+   "set_in": [
+    "game/world/chapter6.gd"
+   ],
+   "read_in": [
+    "game/tests/chapter6_test.gd",
+    "game/world/chapter6.gd"
+   ]
+  },
+  "chapter_7_complete": {
+   "set_in": [
+    "game/world/chapter7.gd"
+   ],
+   "read_in": [
+    "game/tests/chapter7_test.gd",
+    "game/world/chapter7.gd"
+   ]
+  },
+  "chapter_8_complete": {
+   "set_in": [
+    "game/world/chapter8.gd"
+   ],
+   "read_in": [
+    "game/tests/chapter8_test.gd",
+    "game/world/chapter8.gd"
+   ]
+  },
+  "chapter_9_complete": {
+   "set_in": [
+    "game/world/chapter9.gd"
+   ],
+   "read_in": [
+    "game/tests/chapter9_test.gd",
+    "game/world/chapter9.gd"
+   ]
+  },
+  "chapter_card_1": {
+   "set_in": [],
+   "read_in": [
+    "game/tests/opening_test.gd"
+   ]
+  },
+  "chapter_card_2": {
+   "set_in": [],
+   "read_in": [
+    "game/tests/opening_test.gd"
+   ]
+  },
+  "chapter_card_3": {
+   "set_in": [],
+   "read_in": [
+    "game/tests/opening_test.gd"
+   ]
+  },
+  "chapter_card_4": {
+   "set_in": [],
+   "read_in": [
+    "game/tests/opening_test.gd"
+   ]
+  },
+  "chapter_card_5": {
+   "set_in": [],
+   "read_in": [
+    "game/tests/opening_test.gd"
+   ]
+  },
+  "dev_roof_skitter_pointer": {
+   "set_in": [],
+   "read_in": [
+    "game/encounters/roof_skitter.gd"
+   ]
+  },
+  "egg_golden_reaction": {
+   "set_in": [
+    "game/easter_egg/golden_peek.gd"
+   ],
+   "read_in": [
+    "game/easter_egg/golden_peek.gd",
+    "game/tests/easter_egg_test.gd"
+   ]
+  },
+  "egg_golden_seen": {
+   "set_in": [
+    "game/easter_egg/golden_peek.gd"
+   ],
+   "read_in": [
+    "game/easter_egg/golden_peek.gd",
+    "game/tests/easter_egg_test.gd"
+   ]
+  },
+  "entered_car": {
+   "set_in": [
+    "game/world/world.gd"
+   ],
+   "read_in": [
+    "game/world/world.gd"
+   ]
+  },
+  "fridge_checked": {
+   "set_in": [
+    "game/tests/render_smoke.gd",
+    "game/tests/world_repair_test.gd",
+    "game/world/world.gd"
+   ],
+   "read_in": [
+    "game/tests/opening_test.gd",
+    "game/world/opening_guide.gd",
+    "game/world/world.gd"
+   ]
+  },
+  "game_bought": {
+   "set_in": [
+    "game/tests/pay_first_test.gd",
+    "game/world/world.gd"
+   ],
+   "read_in": [
+    "game/tests/opening_test.gd",
+    "game/world/expedition.gd",
+    "game/world/opening_guide.gd",
+    "game/world/world.gd"
+   ]
+  },
+  "gh_reminder": {
+   "set_in": [
+    "game/world/opening_guide.gd"
+   ],
+   "read_in": [
+    "game/world/opening_guide.gd"
+   ]
+  },
+  "groceries_done": {
+   "set_in": [
+    "game/tests/colossus_market_last_test.gd",
+    "game/tests/world_repair_test.gd",
+    "game/world/world.gd"
+   ],
+   "read_in": [
+    "game/tests/opening_test.gd",
+    "game/ui/inventory_panel.gd",
+    "game/world/expedition.gd",
+    "game/world/opening_guide.gd",
+    "game/world/world.gd"
+   ]
+  },
+  "has_keys": {
+   "set_in": [],
+   "read_in": [
+    "game/world/world.gd"
+   ]
+  },
+  "intro_seen": {
+   "set_in": [
+    "game/world/intro_cinematic.gd"
+   ],
+   "read_in": [
+    "game/tests/chapter_select_test.gd",
+    "game/tests/intro_trailer_test.gd",
+    "game/world/world.gd"
+   ]
+  },
+  "left_house": {
+   "set_in": [
+    "game/tests/world_repair_test.gd",
+    "game/world/world.gd"
+   ],
+   "read_in": [
+    "game/tests/opening_test.gd",
+    "game/world/opening_guide.gd",
+    "game/world/road_arrows.gd",
+    "game/world/world.gd"
+   ]
+  },
+  "lt_crash_done": {
+   "set_in": [],
+   "read_in": [
+    "game/tests/living_town_test.gd",
+    "game/world/living_town.gd"
+   ]
+  },
+  "lt_frank_done": {
+   "set_in": [
+    "game/world/living_town.gd"
+   ],
+   "read_in": [
+    "game/tests/frank_skitter_test.gd",
+    "game/tests/living_town_test.gd",
+    "game/world/living_town.gd"
+   ]
+  },
+  "lt_joan_done": {
+   "set_in": [],
+   "read_in": [
+    "game/tests/living_town_test.gd",
+    "game/world/living_town.gd"
+   ]
+  },
+  "lt_police_done": {
+   "set_in": [
+    "game/world/living_town.gd"
+   ],
+   "read_in": [
+    "game/tests/living_town_test.gd",
+    "game/world/living_town.gd"
+   ]
+  },
+  "lt_window_done": {
+   "set_in": [],
+   "read_in": [
+    "game/tests/living_town_test.gd",
+    "game/world/living_town.gd"
+   ]
+  },
+  "map_acquired": {
+   "set_in": [
+    "game/tests/navigation_test.gd",
+    "game/ui/nav_map.gd"
+   ],
+   "read_in": [
+    "game/tests/chapter_select_audit.gd",
+    "game/tests/chapter_select_items_test.gd",
+    "game/tests/map_test.gd",
+    "game/ui/nav_map.gd"
+   ]
+  },
+  "map_first_loot": {
+   "set_in": [
+    "game/ui/nav_map.gd"
+   ],
+   "read_in": [
+    "game/tests/map_test.gd",
+    "game/ui/nav_map.gd"
+   ]
+  },
+  "map_tutorial_done": {
+   "set_in": [
+    "game/ui/nav_map.gd"
+   ],
+   "read_in": [
+    "game/ui/nav_map.gd"
+   ]
+  },
+  "marcus_cautious_search": {
+   "set_in": [],
+   "read_in": [
+    "game/tests/chapter7_test.gd"
+   ]
+  },
+  "marcus_trust_search": {
+   "set_in": [],
+   "read_in": [
+    "game/tests/chapter7_test.gd",
+    "game/world/chapter9.gd"
+   ]
+  },
+  "next_destination_farms": {
+   "set_in": [
+    "game/world/chapter9.gd"
+   ],
+   "read_in": [
+    "game/tests/chapter9_test.gd"
+   ]
+  },
+  "noah_clue_backpack": {
+   "set_in": [
+    "game/world/chapter7.gd"
+   ],
+   "read_in": [
+    "game/tests/chapter7_test.gd",
+    "game/world/chapter7.gd"
+   ]
+  },
+  "noah_clue_campsite": {
+   "set_in": [
+    "game/world/chapter11.gd"
+   ],
+   "read_in": [
+    "game/tests/chapter11_test.gd"
+   ]
+  },
+  "noah_clue_farmhouse": {
+   "set_in": [
+    "game/world/chapter11.gd"
+   ],
+   "read_in": [
+    "game/tests/chapter11_test.gd",
+    "game/tests/chapter12_test.gd"
+   ]
+  },
+  "p3_back_inside": {
+   "set_in": [
+    "game/world/world.gd"
+   ],
+   "read_in": [
+    "game/tests/colossus_market_last_test.gd",
+    "game/tests/opening_test.gd",
+    "game/world/living_town.gd",
+    "game/world/world.gd"
+   ]
+  },
+  "p3_doors_shut": {
+   "set_in": [
+    "game/world/world.gd"
+   ],
+   "read_in": [
+    "game/tests/opening_test.gd",
+    "game/tests/tentacle_entrance_test.gd",
+    "game/world/world.gd"
+   ]
+  },
+  "p3_fled_together": {
+   "set_in": [
+    "game/world/world.gd"
+   ],
+   "read_in": [
+    "game/encounters/roof_skitter.gd",
+    "game/tests/tentacle_entrance_test.gd",
+    "game/world/living_town.gd",
+    "game/world/world.gd"
+   ]
+  },
+  "p3_in_market": {
+   "set_in": [
+    "game/world/world.gd"
+   ],
+   "read_in": [
+    "game/encounters/roof_skitter.gd",
+    "game/tests/opening_test.gd",
+    "game/tests/tentacle_entrance_test.gd",
+    "game/world/living_town.gd",
+    "game/world/world.gd"
+   ]
+  },
+  "p3_in_shop": {
+   "set_in": [
+    "game/world/world.gd"
+   ],
+   "read_in": [
+    "game/tests/opening_test.gd",
+    "game/world/world.gd"
+   ]
+  },
+  "p3_market_doors_dead": {
+   "set_in": [
+    "game/world/world.gd"
+   ],
+   "read_in": [
+    "game/tests/colossus_market_last_test.gd",
+    "game/tests/opening_test.gd",
+    "game/world/living_town.gd",
+    "game/world/world.gd"
+   ]
+  },
+  "p3_mist": {
+   "set_in": [
+    "game/world/world.gd"
+   ],
+   "read_in": [
+    "game/autoload/sfx.gd",
+    "game/easter_egg/golden_peek.gd",
+    "game/encounters/roof_skitter.gd",
+    "game/prototypes/npc_meshy/colossus_encounter_record.gd",
+    "game/tests/colossus_market_last_test.gd",
+    "game/tests/final_repairs_test.gd",
+    "game/tests/opening_test.gd",
+    "game/vehicles/player_sedan.gd",
+    "game/world/living_town.gd",
+    "game/world/opening_guide.gd",
+    "game/world/world.gd"
+   ]
+  },
+  "p3_stepped_out": {
+   "set_in": [
+    "game/world/world.gd"
+   ],
+   "read_in": [
+    "game/prototypes/npc_meshy/colossus_encounter_record.gd",
+    "game/world/living_town.gd",
+    "game/world/world.gd"
+   ]
+  },
+  "p3_two_hours_later": {
+   "set_in": [
+    "game/tests/town_destruction_test.gd",
+    "game/world/world.gd"
+   ],
+   "read_in": [
+    "game/tests/opening_test.gd",
+    "game/tests/trailer_test.gd",
+    "game/world/world.gd"
+   ]
+  },
+  "p4_backexit_closed": {
+   "set_in": [
+    "game/world/phase4.gd"
+   ],
+   "read_in": [
+    "game/world/phase4.gd"
+   ]
+  },
+  "p4_backexit_secured": {
+   "set_in": [],
+   "read_in": [
+    "game/tests/opening_test.gd",
+    "game/world/phase4.gd"
+   ]
+  },
+  "p4_bed_": {
+   "set_in": [
+    "game/world/phase4.gd"
+   ],
+   "read_in": [
+    "game/world/phase4.gd"
+   ]
+  },
+  "p4_bed_card": {
+   "set_in": [],
+   "read_in": [
+    "game/world/phase4.gd"
+   ]
+  },
+  "p4_bed_gathered": {
+   "set_in": [
+    "game/world/phase4.gd"
+   ],
+   "read_in": [
+    "game/tests/opening_test.gd"
+   ]
+  },
+  "p4_bed_made": {
+   "set_in": [
+    "game/world/phase4.gd"
+   ],
+   "read_in": [
+    "game/tests/opening_test.gd",
+    "game/world/phase4.gd"
+   ]
+  },
+  "p4_bed_soft": {
+   "set_in": [],
+   "read_in": [
+    "game/world/phase4.gd"
+   ]
+  },
+  "p4_breaker": {
+   "set_in": [
+    "game/world/phase4.gd"
+   ],
+   "read_in": [
+    "game/tests/opening_test.gd",
+    "game/world/phase4.gd",
+    "game/world/world.gd"
+   ]
+  },
+  "p4_choice_made": {
+   "set_in": [
+    "game/world/phase4.gd"
+   ],
+   "read_in": [
+    "game/world/phase4.gd"
+   ]
+  },
+  "p4_choice_noah": {
+   "set_in": [],
+   "read_in": [
+    "game/tests/opening_test.gd",
+    "game/tests/refuse_branch_test.gd",
+    "game/world/chapter9.gd",
+    "game/world/phase4.gd"
+   ]
+  },
+  "p4_choice_wait": {
+   "set_in": [],
+   "read_in": [
+    "game/tests/opening_test.gd",
+    "game/tests/refuse_branch_test.gd",
+    "game/world/phase4.gd"
+   ]
+  },
+  "p4_exits_secured": {
+   "set_in": [
+    "game/world/phase4.gd"
+   ],
+   "read_in": [
+    "game/tests/opening_test.gd",
+    "game/world/phase4.gd"
+   ]
+  },
+  "p4_flashlight": {
+   "set_in": [
+    "game/world/phase4.gd"
+   ],
+   "read_in": [
+    "game/tests/opening_test.gd",
+    "game/world/garage_tentacle.gd",
+    "game/world/phase4.gd"
+   ]
+  },
+  "p4_garage_done": {
+   "set_in": [
+    "game/world/garage_tentacle.gd"
+   ],
+   "read_in": [
+    "game/tests/loading_door_test.gd",
+    "game/tests/opening_test.gd",
+    "game/tests/retry_test.gd",
+    "game/world/garage_tentacle.gd"
+   ]
+  },
+  "p4_hound_charged": {
+   "set_in": [
+    "game/world/phase4.gd"
+   ],
+   "read_in": [
+    "game/tests/refuse_branch_test.gd",
+    "game/world/phase4.gd"
+   ]
+  },
+  "p4_loading_down": {
+   "set_in": [
+    "game/world/phase4.gd"
+   ],
+   "read_in": [
+    "game/tests/loading_door_test.gd",
+    "game/tests/opening_test.gd",
+    "game/world/garage_tentacle.gd",
+    "game/world/phase4.gd"
+   ]
+  },
+  "p4_loading_secured": {
+   "set_in": [],
+   "read_in": [
+    "game/tests/loading_door_test.gd",
+    "game/tests/opening_test.gd",
+    "game/world/phase4.gd"
+   ]
+  },
+  "p4_night_banging": {
+   "set_in": [
+    "game/world/phase4.gd"
+   ],
+   "read_in": [
+    "game/tests/refuse_branch_test.gd",
+    "game/world/phase4.gd"
+   ]
+  },
+  "p4_slept": {
+   "set_in": [
+    "game/world/phase4.gd"
+   ],
+   "read_in": [
+    "game/tests/opening_test.gd",
+    "game/world/phase4.gd"
+   ]
+  },
+  "p4_started": {
+   "set_in": [
+    "game/world/phase4.gd"
+   ],
+   "read_in": [
+    "game/tests/opening_test.gd",
+    "game/world/garage_tentacle.gd",
+    "game/world/phase4.gd",
+    "game/world/world.gd"
+   ]
+  },
+  "p4_talk_done": {
+   "set_in": [
+    "game/world/phase4.gd"
+   ],
+   "read_in": [
+    "game/tests/opening_test.gd",
+    "game/world/phase4.gd"
+   ]
+  },
+  "p4_threat_done": {
+   "set_in": [
+    "game/world/phase4.gd"
+   ],
+   "read_in": [
+    "game/prototypes/monsters_meshy/skitter_door_record.gd",
+    "game/tests/accept_branch_test.gd",
+    "game/tests/opening_test.gd",
+    "game/tests/refuse_branch_test.gd",
+    "game/world/phase4.gd"
+   ]
+  },
+  "parked": {
+   "set_in": [
+    "game/world/world.gd"
+   ],
+   "read_in": [
+    "game/tests/opening_test.gd",
+    "game/tests/world_repair_test.gd",
+    "game/world/opening_guide.gd",
+    "game/world/world.gd"
+   ]
+  },
+  "phase2_done": {
+   "set_in": [
+    "game/world/world.gd"
+   ],
+   "read_in": [
+    "game/tests/opening_test.gd"
+   ]
+  },
+  "reached_town": {
+   "set_in": [
+    "game/world/world.gd"
+   ],
+   "read_in": [
+    "game/easter_egg/golden_peek.gd",
+    "game/tests/opening_test.gd",
+    "game/world/opening_guide.gd",
+    "game/world/road_arrows.gd"
+   ]
+  },
+  "said_": {
+   "set_in": [],
+   "read_in": [
+    "game/autoload/dialogue.gd"
+   ]
+  },
+  "said_exp_seen_battery": {
+   "set_in": [],
+   "read_in": [
+    "game/tests/car_quest_test.gd"
+   ]
+  },
+  "said_exp_seen_fuel": {
+   "set_in": [],
+   "read_in": [
+    "game/tests/car_quest_test.gd"
+   ]
+  },
+  "said_exp_seen_fuse": {
+   "set_in": [],
+   "read_in": [
+    "game/tests/car_quest_test.gd"
+   ]
+  },
+  "said_exp_seen_relay": {
+   "set_in": [],
+   "read_in": [
+    "game/tests/car_quest_test.gd"
+   ]
+  },
+  "said_p3_car_dead_once": {
+   "set_in": [],
+   "read_in": [
+    "game/world/world.gd"
+   ]
+  },
+  "scav_container_tip": {
+   "set_in": [
+    "game/world/scavenge_house.gd"
+   ],
+   "read_in": [
+    "game/world/scavenge_house.gd"
+   ]
+  },
+  "shelter_compromised": {
+   "set_in": [
+    "game/world/chapter9.gd"
+   ],
+   "read_in": []
+  },
+  "shelter_evacuation_concern": {
+   "set_in": [
+    "game/world/chapter8.gd"
+   ],
+   "read_in": [
+    "game/tests/chapter8_test.gd"
+   ]
+  },
+  "supermarket_evacuated": {
+   "set_in": [
+    "game/world/chapter9.gd"
+   ],
+   "read_in": [
+    "game/tests/chapter9_test.gd"
+   ]
+  },
+  "supply_chest_tutorial": {
+   "set_in": [
+    "game/world/expedition.gd"
+   ],
+   "read_in": [
+    "game/world/expedition.gd"
+   ]
+  },
+  "vehicle_found": {
+   "set_in": [
+    "game/tests/car_quest_test.gd",
+    "game/tests/car_repair_anim_test.gd",
+    "game/tests/road_home_test.gd",
+    "game/world/expedition.gd"
+   ],
+   "read_in": [
+    "game/tests/expedition_test.gd",
+    "game/world/expedition.gd"
+   ]
+  },
+  "vehicle_repaired": {
+   "set_in": [
+    "game/tests/four_fixes_test.gd",
+    "game/tests/road_home_test.gd",
+    "game/world/expedition.gd"
+   ],
+   "read_in": [
+    "game/tests/car_quest_test.gd",
+    "game/tests/chapter_select_audit.gd",
+    "game/tests/chapter_select_test.gd",
+    "game/tests/expedition_test.gd",
+    "game/world/car_quest.gd",
+    "game/world/chapter14.gd",
+    "game/world/chapter15.gd",
+    "game/world/chapter9.gd",
+    "game/world/expedition.gd",
+    "game/world/world.gd"
+   ]
+  },
+  "washed_face": {
+   "set_in": [
+    "game/world/home_bathroom.gd"
+   ],
+   "read_in": [
+    "game/tests/handwash_test.gd",
+    "game/tests/opening_test.gd",
+    "game/tests/player_name_test.gd",
+    "game/world/home_bathroom.gd"
+   ]
+  }
+ },
+ "dynamic_prefixes": {
+  "said_": [
+   "game/autoload/dialogue.gd"
+  ],
+  "ch6_ruth_sarah_choice_": [
+   "game/tests/chapter6_test.gd"
+  ],
+  "ch15_choice_": [
+   "game/world/chapter15.gd"
+  ],
+  "ch8_got_": [
+   "game/world/chapter8.gd"
+  ],
+  "p4_bed_": [
+   "game/world/phase4.gd"
+  ]
+ }
+}
