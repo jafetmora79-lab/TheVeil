@@ -1288,6 +1288,7 @@ func _joan() -> void:
 	jb.global_position = door
 	jb.visible = true
 	ja.set_process(true)
+	ja.free_walk = true                                           # out of the gas station's door, along her own collision-checked route
 	ja.set_mood("scared")
 	p["state"] = "event"
 	_say("lt_joan_scream")

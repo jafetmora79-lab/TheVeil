@@ -494,7 +494,54 @@ func _fall_guard(delta: float) -> void:
 		_safe_pos = Vector3.INF                         # and the next floor stood on is the new reference
 		return
 	_air_t = 0.0 if is_on_floor() else _air_t + delta
-	if _safe_pos.is_finite() and _air_t > 1.0 and global_position.y < _safe_pos.y - 20.0:
+	# a real fall out of the world (through a floor a scripted move left the player under) puts them back on the last floor stood on
+	# within a second or so (was 20 m / 1 s: long enough to see the world vanish)
+	if _safe_pos.is_finite() and _air_t > 0.8 and global_position.y < _safe_pos.y - 8.0:
 		global_position = _safe_pos + Vector3(0, 0.3, 0)
 		velocity = Vector3.ZERO
 		fall_recoveries += 1
+	_unstick(delta)
+
+
+## A scene's hand-typed teleport can leave the player inside a prop or a wall. Once a second, while they are in control and on
+## foot, one capsule query; overlapping twice in a row, they are lifted/moved to the nearest clear spot (at most 1.5 m).
+var _unstick_t := 0.0
+var _overlap_seen := 0
+var unsticks := 0                     ## tests
+
+
+func _unstick(delta: float) -> void:
+	_unstick_t -= delta
+	if _unstick_t > 0.0:
+		return
+	_unstick_t = 1.0
+	if not controls_enabled or not visible or shape.disabled:
+		_overlap_seen = 0
+		return
+	var space := get_world_3d().direct_space_state
+	var q := PhysicsShapeQueryParameters3D.new()
+	q.shape = capsule
+	q.collision_mask = 1
+	q.exclude = [get_rid()]
+	q.transform = Transform3D(Basis.IDENTITY, global_position + Vector3(0, capsule.height * 0.5 + 0.02, 0))
+	if space.intersect_shape(q, 1).is_empty():
+		_overlap_seen = 0
+		return
+	_overlap_seen += 1
+	if _overlap_seen < 2:
+		return
+	_overlap_seen = 0
+	var offsets: Array = []
+	for up in [0.15, 0.3, 0.5, 0.8, 1.2]:
+		offsets.append(Vector3(0, up, 0))
+	for ring in [0.3, 0.6, 1.0, 1.5]:
+		for i in 12:
+			var a := TAU * i / 12.0
+			offsets.append(Vector3(cos(a) * ring, 0.05, sin(a) * ring))
+	for o in offsets:
+		q.transform = Transform3D(Basis.IDENTITY, global_position + o + Vector3(0, capsule.height * 0.5 + 0.02, 0))
+		if space.intersect_shape(q, 1).is_empty():
+			global_position += o
+			velocity = Vector3.ZERO
+			unsticks += 1
+			return

@@ -210,7 +210,7 @@ func _process(delta: float) -> void:
 	_t += delta
 	_talk_left = maxf(_talk_left - delta, 0.0)
 	_scare = move_toward(_scare, 1.0 if mood == "scared" else 0.0, delta * 0.8)
-	if not physical:
+	if not _uses_physics():
 		_update_walk(delta)
 	_update_turn(delta)
 	_update_gestures(delta)
@@ -224,8 +224,53 @@ func _process(delta: float) -> void:
 
 
 func _physics_process(delta: float) -> void:
-	if physical and skel != null and root.is_visible_in_tree():
+	if _uses_physics() and skel != null and root.is_visible_in_tree():
 		_update_walk(delta)
+
+
+## Every walk of a survivor body collides with the world (walls, props, doors, other people) and follows the floor, not only a
+## companion's. A scripted walk that is jammed for ~1.6 s (a shut door it could not open, a prop on the path) falls back to the
+## old unconstrained walk for a moment so a scene never waits forever on `arrived`; that leg still follows the floor height.
+var _jam_t := 0.0
+var _rerouted := false
+var _ghost_left := 0.0
+var jams := 0                                   ## tests: how many walks had to be forced through
+
+
+## An authored scene that walks someone out of a doorway or through geometry on purpose (it routes the path itself) sets this: the
+## walk is then the old unconstrained one, but still follows the floor height.
+var free_walk := false
+
+
+func _uses_physics() -> bool:
+	if physical:
+		return true
+	if free_walk:
+		return false
+	return root is VeilSurvivorBody and root.is_inside_tree() and _ghost_left <= 0.0
+
+
+## A shut door the walker is heading for opens (the same rule as a companion's: not a locked one).
+func _open_door_ahead(heading: Vector3) -> void:
+	if root == null or not root.is_inside_tree():
+		return
+	for d in root.get_tree().get_nodes_in_group("veil_door"):
+		var door := d as Interactable
+		if door == null or door.is_open or not door.is_inside_tree() or door.collision_layer == 0:
+			continue
+		if door.lock_check.is_valid() and String(door.lock_check.call()) != "":
+			continue
+		var to: Vector3 = (door.global_position - root.global_position) * Vector3(1, 0, 1)
+		if to.length() < 1.6 and (to.length() < 0.05 or to.normalized().dot(heading) > 0.2):
+			door.set_open(true)
+
+
+func _snap_to_floor() -> void:
+	var from := root.global_position + Vector3(0, 0.8, 0)
+	var q := PhysicsRayQueryParameters3D.create(from, from + Vector3(0, -1.6, 0), 1)
+	var hit := root.get_world_3d().direct_space_state.intersect_ray(q)
+	if not hit.is_empty() and (hit["normal"] as Vector3).y > 0.7 and not (hit["collider"] as Node).is_in_group("veil_furniture"):
+		root.global_position.y = (hit["position"] as Vector3).y
 
 
 ## A walk that ends inside the player, another survivor or a wall edge takes one short corrective step to the
@@ -249,6 +294,7 @@ func _update_walk(delta: float) -> void:
 		if _gw < 0.02:
 			_was_moving = false
 		return
+	_ghost_left = maxf(_ghost_left - delta, 0.0)
 	var target: Vector3 = _path[0]
 	var here := root.position
 	var d := target - here
@@ -261,7 +307,7 @@ func _update_walk(delta: float) -> void:
 		return
 	_walk = move_toward(_walk, 1.0, delta * 3.0)
 	var step := minf(walk_speed * _walk * delta, d.length())
-	var body := root as VeilSurvivorBody if physical else null
+	var body := root as VeilSurvivorBody if _uses_physics() else null
 	var before := root.global_position
 	if body:
 		var frame := body.get_parent_node_3d()
@@ -280,7 +326,32 @@ func _update_walk(delta: float) -> void:
 				body.step_target = VeilSurvivorBody.step_landing(body, probe, 0.35)
 	else:
 		root.position += d.normalized() * step
+		if root is VeilSurvivorBody and root.is_inside_tree():
+			_snap_to_floor()
 	var moved := before.distance_to(root.global_position)
+	if body != null and not physical:
+		# jam detection for scripted walks only (a companion has its own stuck recovery)
+		if moved < step * 0.2 and step > 0.0:
+			_jam_t += delta
+			if _jam_t > 0.5 and _jam_t - delta <= 0.5:
+				_open_door_ahead(d.normalized())
+			if _jam_t > 1.0 and not _rerouted:
+				_rerouted = true                 # first a detour around whatever is in the way (the world's own A* for NPCs)
+				var w := root.get_tree().get_first_node_in_group("veil_world")
+				var frame := root.get_parent_node_3d()
+				if w != null and frame != null and not _path.is_empty():
+					var route: Array = w.npc_route(frame, root.position, _path[-1], body)
+					if not route.is_empty():
+						_path = route
+						_jam_t = 0.0
+			if _jam_t > 1.6:
+				_jam_t = 0.0
+				_rerouted = false
+				_ghost_left = 1.2                # no way round: only now is the old unconstrained walk used, for a moment
+				jams += 1
+		else:
+			_jam_t = 0.0
+			_rerouted = false
 	if moved < 0.001:
 		_walk = move_toward(_walk, 0.0, delta * 3.0)
 	_speed = lerpf(_speed, moved / maxf(delta, 0.001), minf(delta * 6.0, 1.0))

@@ -25,6 +25,39 @@ func _init() -> void:
 	add_child(collider)
 	visibility_changed.connect(_sync_collision_visibility)
 
+## Safety net: something solid that appears on a standing survivor (a counter or crate built after they were placed, a prop
+## dropped by a scene) used to leave them half inside it. Once a second a visible, idle, free-standing body is checked with one
+## capsule query; found overlapping twice in a row, it is moved to the nearest clear floor (never far: 1.5 m).
+var _unstick_t := randf()
+var _overlap_seen := 0
+var unsticks := 0                                  ## tests
+
+
+func _physics_process(delta: float) -> void:
+	_unstick_t -= delta
+	if _unstick_t > 0.0:
+		return
+	_unstick_t = 1.0
+	if not _placement_valid or collision_layer == 0 or not is_visible_in_tree() or step_target.is_finite():
+		_overlap_seen = 0
+		return
+	var an := get_node_or_null("Animator")
+	if an != null and (an.is_walking() or an.seated or an.hold_facing or an.is_jumping()):
+		_overlap_seen = 0
+		return
+	if is_clear(global_position):
+		_overlap_seen = 0
+		return
+	_overlap_seen += 1
+	if _overlap_seen < 2:
+		return
+	_overlap_seen = 0
+	var safe := nearest_safe(global_position, 1.5)
+	if safe.is_finite() and safe.distance_to(global_position) > 0.03:
+		global_position = safe
+		unsticks += 1
+
+
 func _sync_collision_visibility() -> void:
 	if visible and not _placement_valid:
 		hide()
@@ -65,6 +98,8 @@ func nearest_safe(requested: Vector3, max_distance := 3.0) -> Vector3:
 ## Explicit story placement only. A failed search never installs the requested position.
 func place_at(requested: Vector3) -> bool:
 	var safe := nearest_safe(requested)
+	if not safe.is_finite():
+		safe = nearest_safe(requested, 6.0)                 # a wider look before a character is given up on (and hidden)
 	if not safe.is_finite():
 		push_warning("No safe placement for %s near %s" % [name, requested])
 		var floor_point := floor_at(get_world_3d().direct_space_state, global_position)
