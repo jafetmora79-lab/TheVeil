@@ -289,11 +289,11 @@ for f in range(1, 122):
     t = (f - 1) / 120.0
     key("Body", f, wrot("Body", (1, 0, 0), math.radians(1.1) * math.sin(2 * math.pi * t)) @ wrot("Body", (0, 1, 0), math.radians(0.8) * math.sin(2 * math.pi * t + 1.0)))
 
-# walk: a tripod gait. Each leg is in the air for a third of the cycle, the three take turns (L, back, R); a foot is planted while it is on the ground.
-T = 120                                              # 5 s per cycle
+# walk: a tripod gait. Each leg is in the air for a third of the cycle, the three take turns (front L, front R, then the rear one); a foot is planted while it is on the ground.
+T = 192                                              # 8 s per cycle: it is a huge being
 STRIDE = 0.2 * height_m
 new_action("Walk_Heavy-loop", T + 1)
-PH = {"Leg_L": 0.0, "Leg_B": 1.0 / 3.0, "Leg_R": 2.0 / 3.0}
+PH = {"Leg_L": 0.0, "Leg_R": 1.0 / 3.0, "Leg_B": 2.0 / 3.0}   # the two front legs first (L, R), then the rear one
 for f in range(1, T + 2):
     ph0 = ((f - 1) % T) / T
     for name, (hip, knee, ankle, toe) in FL.items():

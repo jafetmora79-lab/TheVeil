@@ -1,18 +1,17 @@
 extends Node
 class_name VeilIntro
-## THE VEIL - the opening cinematic (a new game only, once; hold E or Esc to skip). A normal Friday in Greyhaven,
-## seen from too high up - then the first wrong notes - then home, the errands - then, far off in the haze,
-## something enormous moves. Title. It hands over to the wake-up as before.
-##   0  black: a car radio playing; it slips into static for half a second and comes back
-##   1  over the town at dusk (main street, the lit supermarket); "GREYHAVEN / Friday, 6:40 PM"
-##   2  along the shop row's sidewalk (people out, traffic)
-##   3  the supermarket's lit front
+## THE VEIL - the opening cinematic (a new game only, once; hold E or Esc to skip). Rebuilt: it never shows the inside of the home any more
+## (the wake-up follows the intro, as before). A normal Friday in Greyhaven seen from above and from the street, with its people (the Meshy
+## characters of the living town), then the first wrong notes, then - far off in the haze - the Veil rising and the tripod Colossus walking in it. Title.
+##   0  black from the first frame (the camera is parked outside before anything is shown): a car radio; static for half a second
+##   1  a crane move over the town at dusk (main street, the lit supermarket); "GREYHAVEN / Friday, 6:40 PM"
+##   2  a slow dolly along the shop row's sidewalk: people out, traffic
+##   3  the supermarket's lit front, pushing in
 ##   4  the mist pooling where the woods road meets the trees
-##   5  a streetlight flickers once
+##   5  the game shop's lights stutter once
 ##   6  a dog barks at nothing on Maple Ave, then stops
-##   7  home: the near-empty fridge with a note ("groceries + pick up the game"), the car keys on the counter
-##   8  the driveway, the car - the camera rises over the rooftops: in the far haze a silhouette shifts. THE VEIL.
-## Only real game things are shown; nothing is changed for good (the note on the fridge stays as a prop).
+##   7  the driveway and the car; the camera rises over the rooftops: in the far haze the Veil comes up, the tripod Colossus walks in it, slowly. THE VEIL.
+## Only real game things are shown; nothing is changed for good.
 
 signal finished
 
@@ -26,7 +25,7 @@ var _colossus: Node3D
 var _wall: Array = []                 ## the mist curtains of the last shot
 
 const RADIO := "res://game/audio/radio/midnight_drive_lofi.wav"
-const COLOSSUS := "res://THE_VEIL_ASSETS_V2/07_Creatures/Godot_Scenes/CRT_Colossus.tscn"
+const COLOSSUS_H := 70.0              ## the tripod's height in the haze (m)
 
 
 func play(w: Node) -> void:
@@ -38,11 +37,14 @@ func play(w: Node) -> void:
 	world.player.set("look_enabled", false)
 	if hud.get("quick"):
 		hud.quick.modulate.a = 0.0
+	hud.fade.color.a = 1.0                                   # black from the very first frame
 	cam = Camera3D.new()
 	cam.name = "IntroCam"
 	cam.fov = 55.0
-	cam.far = 600.0
+	cam.far = 900.0
 	world.add_child(cam)
+	cam.global_transform = Transform3D(Basis.looking_at(Vector3(10, 0, -12) - Vector3(-30, 26, 30), Vector3.UP), Vector3(-30, 26, 30))
+	cam.current = true                                       # parked outside already: the home is never on screen
 	_note_on_fridge()
 	# 0: black, the radio
 	if ResourceLoader.exists(RADIO):
@@ -54,23 +56,25 @@ func play(w: Node) -> void:
 	await _wait(2.2)
 	if _radio and not skipped:
 		_radio.stream_paused = true
-		Sfx.play("static", world.player.global_position + Vector3(0, 1, 0), -6.0)
+		Sfx.play("static", Vector3(-30, 26, 30), -6.0)
 		await _wait(0.5)
 		_radio.stream_paused = false
 	await _wait(1.0)
 	# 1-3: the town at dusk
-	cam.current = true
 	_shot_living(true)
 	hud.fade_to(0.0, 1.6)
 	world.get_tree().create_timer(1.8).timeout.connect(func():
 		if not skipped and is_instance_valid(world):
 			hud.location_caption("GREYHAVEN\nFriday, 6:40 PM", 3.2))
-	await _shot(Vector3(-30, 26, 30), Vector3(65, 22, 30), Vector3(10, 0, -12), Vector3(48, 0, -14), 7.5)
-	await _shot(Vector3(2, 2.2, 1.6), Vector3(24, 2.2, 1.2), Vector3(6, 1.4, 6.5), Vector3(28, 1.4, 6.5), 6.0)
-	await _shot(Vector3(24, 3.0, -4), Vector3(29, 4.2, -8), Vector3(31, 5.0, -30), Vector3(31, 5.0, -30), 4.5)
+	# a crane move: high over the main street, sinking and drifting along it
+	await _shot(Vector3(-30, 26, 30), Vector3(52, 14, 26), Vector3(10, 0, -12), Vector3(44, 0, -14), 8.0, 50.0, 0.0)
+	# the shop row at eye level: a slow dolly beside the people on the pavement
+	await _shot(Vector3(2, 1.7, 1.8), Vector3(26, 1.7, 1.4), Vector3(14, 1.5, 7.0), Vector3(38, 1.5, 7.0), 7.0, 42.0, 0.02)
+	# the supermarket's lit front, pushing in
+	await _shot(Vector3(22, 2.4, -2), Vector3(28, 2.6, -8), Vector3(31, 4.2, -30), Vector3(31, 4.2, -30), 5.0, 38.0, 0.015)
 	_fade_radio(4.0)
 	# 4-6: three quiet wrong notes
-	await _shot(Vector3(184, 1.7, 86), Vector3(184, 1.7, 96), Vector3(184, 1.2, 150), Vector3(184, 1.2, 150), 4.0)
+	await _shot(Vector3(184, 1.7, 86), Vector3(184, 1.7, 96), Vector3(184, 1.2, 150), Vector3(184, 1.2, 150), 4.5, 45.0, 0.02)
 	var shelf := _game_shelf()
 	if not shelf.is_empty():
 		var c: Vector3 = shelf[0]
@@ -80,20 +84,12 @@ func play(w: Node) -> void:
 			if not skipped and world.has_method("_stutter_lights"):
 				world._stutter_lights(world.game_shop))     # the shop's lights stutter, once
 		await _shot(c + nrm * 1.7 - along * 1.3 + Vector3(0, 0.15, 0), c + nrm * 1.45 + along * 1.1 + Vector3(0, 0.05, 0),
-			c - along * 0.7, c + along * 0.8, 4.4)
+			c - along * 0.7, c + along * 0.8, 4.4, 50.0, 0.0)
 	var yard := Vector3(60, 0.5, 476)
 	world.get_tree().create_timer(0.6).timeout.connect(func(): if not skipped: Sfx.bank_at("hound_bark", yard + Vector3(-6, 1, 6), -4.0, 20.0))
 	world.get_tree().create_timer(1.4).timeout.connect(func(): if not skipped: Sfx.bank_at("hound_bark", yard + Vector3(-6, 1, 6), -6.0, 20.0))
-	await _shot(Vector3(70, 3.2, 466), Vector3(69, 3.0, 467), yard, yard + Vector3(-1, 0, 1), 4.2)
-	# 7: home - the fridge and its note, the keys
-	var fridge := world.home.find_child("Fridge_Retro_01", true, false) as Node3D if world.get("home") else null
-	if fridge:
-		var fz: Vector3 = fridge.global_transform.basis.z.normalized()
-		var fc: Vector3 = fridge.global_transform * Vector3(0, 1.35, 0)
-		var keys := _keys()
-		var kp: Vector3 = keys.global_position if keys else fc + fridge.global_transform.basis.x * 1.2
-		await _shot(fc + fz * 1.7 + Vector3(0, 0.15, 0), fc + fz * 1.4, fc + Vector3(0, -0.05, 0), kp, 5.0)
-	# 8: the driveway; the rise over the roofs; the shape in the haze; the title
+	await _shot(Vector3(70, 3.2, 466), Vector3(69, 3.0, 467), yard, yard + Vector3(-1, 0, 1), 4.2, 45.0, 0.02)
+	# 7: the driveway and the car; the rise over the roofs; the Veil coming up with the Colossus in it; the title
 	var car: Node3D = world.sedan
 	if car:
 		var low: Vector3 = car.global_transform * Vector3(1.8, 1.0, 5.5)
@@ -101,16 +97,16 @@ func play(w: Node) -> void:
 		dir = dir.normalized()
 		var wall_at := car.global_position + dir * 190.0
 		_build_veil_wall(wall_at, dir)
-		_place_colossus(car.global_position + dir * 215.0)      # just inside the wall: a shape, barely there
-		await _shot(low, low + Vector3(0, 0.6, 0), car.global_position + Vector3(0, 0.8, 0), car.global_position + Vector3(0, 0.8, 0), 2.6)
+		_place_colossus(car.global_position + dir * 235.0)      # inside the wall: a huge shape, barely there
+		await _shot(low, low + Vector3(0, 0.6, 0), car.global_position + Vector3(0, 0.8, 0), car.global_position + Vector3(0, 0.8, 0), 2.6, 50.0, 0.015)
 		if not skipped:
 			Sfx.play_music(Sfx.MUSIC_COLOSSUS, false, -4.0, 1.5)    # the ominous turn, as the camera rises
 			Sfx.play("veil_rumble", car.global_position + dir * 60.0 + Vector3(0, 10, 0), 0.0)
 		await _shot(low + Vector3(0, 0.6, 0), car.global_position + Vector3(0, 24, 0) - dir * 6.0, car.global_position + Vector3(0, 0.8, 0),
-			wall_at + Vector3(0, 28, 0), 6.0)
-		_creep_wall(dir, 34.0, 7.0)                             # it keeps coming
+			wall_at + Vector3(0, 30, 0), 6.5, 50.0, 0.0)
+		_creep_wall(dir, 30.0, 8.0)                             # it keeps coming
 		await _shot(car.global_position + Vector3(0, 24, 0) - dir * 6.0, car.global_position + Vector3(0, 21, 0) - dir * 10.0,
-			wall_at + Vector3(0, 28, 0), wall_at + Vector3(0, 24, 0) - dir * 30.0, 4.5)
+			wall_at + Vector3(0, 30, 0), wall_at + Vector3(0, 26, 0) - dir * 30.0, 5.0, 32.0, 0.0)      # a long lens: it looms
 		if not skipped:
 			Sfx.play("colossus_call", wall_at + Vector3(0, 30, 0), -1.0, 0.55)
 	if not skipped:
@@ -143,17 +139,23 @@ func _end() -> void:
 	finished.emit()
 
 
-## One camera move: position from `a` to `b`, looking from `la` to `lb`, eased, `secs` long (skippable).
-func _shot(a: Vector3, b: Vector3, la: Vector3, lb: Vector3, secs: float) -> void:
+## One camera move: position from `a` to `b`, looking from `la` to `lb`, eased, `secs` long (skippable). `fov` eases from the previous lens to this one;
+## `sway` is a faint handheld drift (metres). Near geometry never sits between the camera and what it looks at (the camera is pulled in front of it).
+func _shot(a: Vector3, b: Vector3, la: Vector3, lb: Vector3, secs: float, fov := 55.0, sway := 0.0) -> void:
 	if skipped:
 		return
 	report["shots"] = int(report["shots"]) + 1
 	var t := 0.0
+	var fov0 := cam.fov
 	while t < secs and not skipped:
 		var k := t / secs
 		k = k * k * (3.0 - 2.0 * k)
 		var p := a.lerp(b, k)
 		var look := la.lerp(lb, k)
+		if sway > 0.0:
+			p += Vector3(sin(t * 1.3), sin(t * 1.9 + 1.0) * 0.7, sin(t * 1.1 + 2.0)) * sway
+		p = _clear(p, look)
+		cam.fov = lerpf(fov0, fov, minf(t / 1.5, 1.0))
 		if (look - p).length() > 0.05:
 			cam.global_transform = Transform3D(Basis.looking_at(look - p, Vector3.UP), p)
 		var living = world.get("living")
@@ -162,6 +164,20 @@ func _shot(a: Vector3, b: Vector3, la: Vector3, lb: Vector3, secs: float) -> voi
 		await world.get_tree().process_frame
 		t += world.get_process_delta_time()
 		_check_skip(world.get_process_delta_time())
+
+
+## Pull a close camera in front of a wall / car / sign that would block the view (only for shots within 30 m of their target).
+func _clear(p: Vector3, look: Vector3) -> Vector3:
+	var d := p.distance_to(look)
+	if d > 30.0 or d < 0.8 or not is_instance_valid(world):
+		return p
+	var space: PhysicsDirectSpaceState3D = world.get_world_3d().direct_space_state
+	var q := PhysicsRayQueryParameters3D.create(look, p)
+	q.collide_with_areas = false
+	var hit := space.intersect_ray(q)
+	if hit.is_empty():
+		return p
+	return (hit["position"] as Vector3) + (look - p).normalized() * 0.35
 
 
 func _wait(secs: float) -> void:
@@ -194,30 +210,6 @@ func _fade_radio(secs: float) -> void:
 	tw.tween_property(_radio, "volume_db", -40.0, secs)
 
 
-func _lamp_near(at: Vector3, lights: Array) -> Light3D:
-	var best: Light3D = null
-	var bd := 60.0
-	for l in lights:
-		if l is Light3D and (l as Light3D).visible:
-			var d := (l as Light3D).global_position.distance_to(at)
-			if d < bd:
-				bd = d
-				best = l
-	return best
-
-
-func _flicker(l: Light3D) -> void:
-	var e0 := l.light_energy
-	await _wait(1.0)
-	for k in [0.0, e0 * 1.4, 0.0, e0]:
-		if skipped or not is_instance_valid(l):
-			break
-		l.light_energy = k
-		await _wait(0.08)
-	if is_instance_valid(l):
-		l.light_energy = e0
-
-
 func _keys() -> Node3D:
 	for it in world.interactables.values():
 		if is_instance_valid(it) and String((it as Interactable).item_id) == "car_keys":
@@ -225,7 +217,7 @@ func _keys() -> Node3D:
 	return null
 
 
-## The errands, on a note stuck to the outside of the fridge door (it stays there, and swings with the door).
+## The errands, on a note stuck to the outside of the fridge door (a prop of the home: it stays there, and swings with the door).
 func _note_on_fridge() -> void:
 	var fridge := world.home.find_child("Fridge_Retro_01", true, false) as Node3D if world.get("home") else null
 	var door := fridge.find_child("INT_ApplianceDoor_Fridge", true, false) as Node3D if fridge else null
@@ -296,35 +288,20 @@ func _creep_wall(dir: Vector3, metres: float, secs: float) -> void:
 			tw.tween_property(n, "global_position", (n as Node3D).global_position - dir * metres, secs)
 
 
-## Far off in the haze, the Colossus: a dark shape shifting for a few seconds (it walks, slowly).
+## Far off in the haze, the Colossus: the Meshy tripod, huge, walking toward the town very slowly - the two front legs first, then the rear one.
+## It is not carried along with the mist: it moves only as fast as its own legs walk (ground_speed), so its feet do not slide.
 func _place_colossus(at: Vector3) -> void:
-	if not ResourceLoader.exists(COLOSSUS):
-		return
-	_colossus = (load(COLOSSUS) as PackedScene).instantiate() as Node3D
-	_colossus.name = "Intro_Colossus"
-	world.add_child(_colossus)
-	if _colossus is CollisionObject3D:
-		(_colossus as CollisionObject3D).collision_layer = 0
-		(_colossus as CollisionObject3D).collision_mask = 0
-	_colossus.set_physics_process(false)
-	var model := _colossus.get_node_or_null("Model") as Node3D
-	if model:
-		model.scale = Vector3.ONE * 6.0
-	VeilCreatureLook.apply_colossus(_colossus, at.y)
-	_colossus.global_position = at
-	# facing the town (and the camera), walking toward it - very slowly. It is not carried along with the mist: it
-	# moves only as fast as its own legs walk (scale x anim speed m/s, measured off Walk_Heavy), so its feet don't slide
+	var tc := VeilTripodColossus.new()
+	tc.name = "Intro_Colossus"
+	world.add_child(tc)
+	tc.build(COLOSSUS_H, at.y)
+	_colossus = tc
+	tc.global_position = at
 	var toward: Vector3 = ((world.sedan.global_position if world.get("sedan") else Vector3.ZERO) - at) * Vector3(1, 0, 1)
 	toward = toward.normalized()
-	_colossus.rotation.y = atan2(toward.x, toward.z)          # (its model faces +Z)
-	var anim_speed := 0.2
-	var pace := 6.0 * anim_speed
-	var ap := _colossus.find_child("AnimationPlayer", true, false) as AnimationPlayer
-	if ap and ap.has_animation("Walk_Heavy"):
-		ap.get_animation("Walk_Heavy").loop_mode = Animation.LOOP_LINEAR
-		ap.play("Walk_Heavy")
-		ap.speed_scale = anim_speed
+	tc.rotation.y = atan2(-toward.x, -toward.z)                # (its model faces -Z)
+	tc.set_walking(true, 0.9)
 	var tw := create_tween()
-	tw.tween_property(_colossus, "global_position", at + toward * pace * 14.0, 14.0)
+	tw.tween_property(tc, "global_position", at + toward * tc.ground_speed() * 24.0, 24.0)
 	report["colossus"] = true
 	report["colossus_faces_camera"] = true

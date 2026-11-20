@@ -2587,7 +2587,7 @@ func _tripod_encounter() -> void:
 	var wd := ((B - A) * Vector3(1, 0, 1)).normalized()
 	tc.global_position = A
 	tc.rotation.y = atan2(-wd.x, -wd.z)                       # the model faces -Z
-	tc.set_walking(true, 1.5)
+	tc.set_walking(true, 1.2)
 	tc.eye.search_on = true
 	var scan := Node3D.new()
 	scan.name = "EyeScan"
@@ -2706,7 +2706,7 @@ func _tripod_watch(tc: VeilTripodColossus, wd: Vector3) -> void:
 	get_tree().create_timer(3.0).timeout.connect(func(): if is_instance_valid(tc): tc.eye.search_on = false)
 	var tw := create_tween()
 	tw.tween_property(tc, "rotation:y", lerp_angle(tc.rotation.y, atan2(-wd.x, -wd.z), 1.0), 2.0)
-	tc.set_walking(true, 1.5)
+	tc.set_walking(true, 1.2)
 	var tm := create_tween()
 	tm.tween_property(tc, "global_position", tc.global_position + wd * tc.ground_speed() * 30.0, 30.0)
 	tm.tween_callback(func():
