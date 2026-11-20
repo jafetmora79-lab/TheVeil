@@ -52,6 +52,16 @@ var _speed := 0.0
 var _step_i := 0
 var _phase := 0.0
 var _turn_goal = null               ## world-space direction the body should turn towards (or null)
+## Distance-driven gait (game/animation/gait_pose.gd): one pose function of the real ground speed, planted feet.
+const Gait = preload("res://game/animation/gait_pose.gd")
+var _gait := {}                     ## sampled rotations (+ "_y" pelvis offset), reused every frame
+var _gait_rig := {}
+var _gprof := {}
+var _gait_base_guard := 0.0
+var _gw := 0.0                      ## 0..1 weight of the gait over idle (0 standing, 1 moving)
+var _cyc := 1.3                     ## metres per cycle, smoothed
+var _was_moving := false
+var _next_right := false            ## the foot that leads the next start (alternates)
 
 
 func _ready() -> void:
@@ -66,6 +76,10 @@ func _ready() -> void:
 		_b[skel.get_bone_name(i)] = i
 	_measure_frame()
 	_build_rest()
+	if bone("LeftUpperLeg") >= 0 and bone("LeftFoot") >= 0 and bone("RightFoot") >= 0:
+		_gait_rig = Gait.measure(skel, F)
+		_gprof = Gait.profile_for(String(root.name))
+		_gait_base_guard = float(_gprof.get("guard", 0.0))
 
 
 func bone(n: String) -> int:
@@ -229,6 +243,11 @@ func _settle_clear() -> void:
 func _update_walk(delta: float) -> void:
 	if _path.is_empty():
 		_walk = move_toward(_walk, 0.0, delta * 3.0)
+		_speed = lerpf(_speed, 0.0, minf(delta * 6.0, 1.0))      # settle: the gait fades out instead of freezing mid-stride
+		_run = move_toward(_run, 0.0, delta * 2.5)
+		_gw = move_toward(_gw, clampf(_speed / 0.4, 0.0, 1.0), delta * 6.0)
+		if _gw < 0.02:
+			_was_moving = false
 		return
 	var target: Vector3 = _path[0]
 	var here := root.position
@@ -266,7 +285,21 @@ func _update_walk(delta: float) -> void:
 		_walk = move_toward(_walk, 0.0, delta * 3.0)
 	_speed = lerpf(_speed, moved / maxf(delta, 0.001), minf(delta * 6.0, 1.0))
 	_run = move_toward(_run, clampf((_speed - 2.4) / 1.8, 0.0, 1.0), delta * 2.5)
-	_phase += moved / lerpf(0.62, 0.98, _run) * PI   # one stride ~1.24 m walking, ~1.96 m running
+	_gw = move_toward(_gw, clampf(_speed / 0.4, 0.0, 1.0), delta * 6.0)
+	if not _gait_rig.is_empty():
+		var want_cyc := Gait.cycle_for(_speed, _gprof, _gait_rig)
+		if moved > 0.0005 and not _was_moving and _gw < 0.05:
+			# starting from rest: begin in the passing pose (feet together), the stance foot alternating each start
+			_cyc = want_cyc
+			_phase = Gait.contact_fraction(_speed) * 0.5 * TAU + (PI if _next_right else 0.0)
+			_next_right = not _next_right
+		else:
+			_cyc = lerpf(_cyc, want_cyc, minf(delta * 3.0, 1.0))
+		if moved > 0.0005:
+			_was_moving = true
+		_phase += moved / _cyc * TAU                  # one full cycle per _cyc metres: the planted foot stays put
+	else:
+		_phase += moved / lerpf(0.62, 0.98, _run) * PI
 	var si := int(_phase / PI)
 	if si != _step_i:
 		_step_i = si
@@ -358,11 +391,25 @@ func _pose_bone(n: String, q: Quaternion) -> void:
 	var i := bone(n)
 	if i < 0:
 		return
+	if _gait_on > 0.0 and _gait.has(n):
+		if n == "Neck" or n == "Head":
+			q = q * Quaternion.IDENTITY.slerp(_gait[n], _gait_on)      # the gaze (look-at, nods) stays on top of the gait
+		else:
+			q = q.slerp(_gait[n], _gait_on)
 	var pb: Basis = _prest[i]
 	skel.set_bone_pose_rotation(i, (_pinv[i] * Basis(q) * pb * _rest[i]).get_rotation_quaternion())
 
 
+var _gait_on := 0.0                 ## effective gait weight this frame (0 while seated / jumping / standing)
+
+
 func _pose() -> void:
+	_gait_on = 0.0
+	if not _gait_rig.is_empty() and _jump_t < 0.0:
+		_gait_on = _gw * (1.0 - _sit)
+		if _gait_on > 0.0:
+			_gprof["guard"] = maxf(_gait_base_guard, _scare)
+			Gait.sample(_phase, _speed, _gprof, _gait_rig, Gait.BONES, F, U, R, _gait)
 	var t := _t + _seed
 	var s := _scare
 	var breath_rate := lerpf(0.26, 0.55, s)            # breaths per second
@@ -424,6 +471,8 @@ func _pose() -> void:
 		var hi := bone("Hips")
 		_hip_h = (skel.get_bone_global_rest(hi).origin * skel.global_transform.basis.get_scale()).y if hi >= 0 else 0.95
 	skel.position.y = absf(sin(ph)) * (0.025 + 0.06 * _run) * w - 0.03 * _run * w + lift - 0.16 * cr - maxf(_hip_h - seat_y - 0.06, 0.0) * _sit
+	if _gait_on > 0.0:
+		skel.position.y = lerpf(skel.position.y, float(_gait["_y"]), _gait_on)
 
 
 # ------------------------------------------------------------------ footsteps (the same recordings as the player's)

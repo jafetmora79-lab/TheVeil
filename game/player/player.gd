@@ -8,6 +8,7 @@ signal prompt_changed(text: String)
 signal hold_progress(ratio: float)                 ## 0..1 while the interact key is held on a "hold to use" object (0 = idle)
 
 const WALK := 2.4
+const GaitPose = preload("res://game/animation/gait_pose.gd")
 const SPRINT := 4.3
 const CROUCH := 1.3
 const ACCEL := 10.0
@@ -174,7 +175,7 @@ func _physics_process(delta: float) -> void:
 	_eye = move_toward(_eye, EYE_CROUCH if crouching else EYE, delta * 3.5)
 	var moving := hv.length() > 0.4 and is_on_floor()
 	if moving and Game.settings.get("head_bob", true):
-		_bob_t += delta * hv.length() * 2.3
+		_bob_t += delta * hv.length() * PI / (0.5 * GaitPose.cycle_length(hv.length()))   # one bob per footfall: the gait's step length at this speed
 	else:
 		_bob_t = lerpf(_bob_t, roundf(_bob_t / PI) * PI, delta * 6.0)
 	if moving and int(_bob_t / PI) != _last_step:
