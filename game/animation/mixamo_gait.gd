@@ -60,14 +60,23 @@ static func _vec(arr: Array, fr: Array) -> Vector3:
 	return Vector3(lerpf(a[0], b[0], fr[2]), lerpf(a[1], b[1], fr[2]), lerpf(a[2], b[2], fr[2])).normalized()
 
 
+static func _stride(d: Vector3, s: float) -> Vector3:
+	return Vector3(d.x, d.y, d.z * s).normalized()
+
+
 static func _quat(a: Array) -> Quaternion:
 	return Quaternion(a[0], a[1], a[2], a[3]).normalized()
 
 
 ## phase in radians (0 = left touchdown); writes into `out` for the names in Gait.BONES (those the clip does not drive are identity) and "_y".
-static func sample(clip: String, phase: float, forward: Vector3, up: Vector3, right: Vector3, rest: Dictionary, rig: Dictionary, out: Dictionary) -> void:
+static func sample(clip: String, phase: float, forward: Vector3, up: Vector3, right: Vector3, rest: Dictionary, rig: Dictionary, out: Dictionary, v := 0.0) -> void:
 	var c: Dictionary = data()[clip]
 	var info: Dictionary = c["info"]
+	var stride := 1.0
+	if v > 0.0:
+		var natural := float(info["speed_legs_per_s"]) * float(rig["leg"])
+		var kk := clampf(v / maxf(natural, 0.1), 0.8, 1.12)
+		stride = clampf(v / (maxf(natural, 0.1) * kk), 0.7, 1.45)
 	var bn := Basis(right, up, right.cross(up))
 	var bi := bn.inverse()
 	var u := fposmod(phase / TAU + float(info["touchdown_left"]), 1.0)
@@ -90,6 +99,8 @@ static func sample(clip: String, phase: float, forward: Vector3, up: Vector3, ri
 			var a: Array = arr[fr[0]]
 			var b: Array = arr[fr[1]]
 			var d := Vector3(lerpf(a[0], b[0], fr[2]), lerpf(a[1], b[1], fr[2]), lerpf(a[2], b[2], fr[2])).normalized()
+			if k == "UpperLeg" or k == "LowerLeg":
+				d = Vector3(d.x, d.y, d.z * stride).normalized()     # the stance foot has to cover the ground the character really covers
 			swing[k] = Quaternion(rest[key], bn * d)
 		out[side + "UpperArm"] = (dw["UpperChest"].inverse() * swing["UpperArm"]).normalized()
 		out[side + "LowerArm"] = (swing["UpperArm"].inverse() * swing["LowerArm"]).normalized()
@@ -97,7 +108,7 @@ static func sample(clip: String, phase: float, forward: Vector3, up: Vector3, ri
 		out[side + "LowerLeg"] = (swing["UpperLeg"].inverse() * swing["LowerLeg"]).normalized()
 		out[side + "Foot"] = (swing["LowerLeg"].inverse() * swing["Foot"]).normalized()
 		# how far this ankle hangs below the hip joint (thigh and shin along the clip's own directions)
-		var da: float = -(float(rig["thigh"]) * (bn * _vec(c["limbs"][side + "UpperLeg"], fr)).dot(up) + float(rig["shin"]) * (bn * _vec(c["limbs"][side + "LowerLeg"], fr)).dot(up))
+		var da: float = -(float(rig["thigh"]) * (bn * _stride(_vec(c["limbs"][side + "UpperLeg"], fr), stride)).dot(up) + float(rig["shin"]) * (bn * _stride(_vec(c["limbs"][side + "LowerLeg"], fr), stride)).dot(up))
 		var td: float = float(rig.get("toe_drop", 0.0))
 		var ltoe := sqrt(float(rig["toe_len"]) * float(rig["toe_len"]) + td * td)
 		var dt: float = da - ltoe * (bn * _vec(c["limbs"][side + "Foot"], fr)).dot(up)

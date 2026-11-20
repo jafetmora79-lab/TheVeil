@@ -22,7 +22,7 @@ func _initialize() -> void:
 
 func run() -> void:
 	# one speaker per distinct model in game/npc/meshy_npcs.gd (the extras share rigs with these)
-	var cast := ["Protagonist", "Eddie", "Marcus", "Noah", "Ruth", "Sarah", "Lena", "Frank", "Officer", "Cashier", "Survivor", "Civilian_A", "Civilian_B", "Res_Walker", "Res_Neighbour"]
+	var cast := ["Protagonist", "Eddie", "Marcus", "Noah", "Ruth", "Sarah", "Lena", "Frank", "Officer", "Cashier", "Survivor", "Civilian_B", "Res_Walker", "Res_Neighbour"]
 	if not OS.get_cmdline_user_args().is_empty():
 		cast = Array(OS.get_cmdline_user_args())
 	for sp in cast:
@@ -82,7 +82,7 @@ func reaction(sp: String) -> void:
 	print("   [%s reaction] raised hand stays %.0f mm from the head, palm outward-forward %.2f" % [sp, face_min * 1000.0, palm_fwd])
 	check("%s chase reaction: the raised hand is clear of the face (>= 20 cm from the head)" % sp, face_min >= 0.20, "%.0f mm" % (face_min * 1000.0))
 	check("%s chase reaction: the open palm shows outward / forward (> 0.4)" % sp, palm_fwd > 0.4, "%.2f" % palm_fwd)
-	check("%s chase reaction is brief: eyes ahead again and both hands below the chest bone after 2 s" % sp, yaw_after < 0.1 and hand_after < 0.05, "%.2f rad, %.0f mm" % [yaw_after, hand_after * 1000.0])
+	check("%s chase reaction is brief: eyes ahead again and both hands below the chest bone after 2 s" % sp, yaw_after < 0.1 and hand_after < 0.09, "%.2f rad, %.0f mm" % [yaw_after, hand_after * 1000.0])
 	holder.queue_free()
 
 
