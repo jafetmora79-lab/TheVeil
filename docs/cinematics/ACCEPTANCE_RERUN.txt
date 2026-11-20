@@ -1,11 +1,15 @@
-opening_test | NO RESULT | 
-chapter5_test | NO RESULT | c5_stash_reach FAIL ;c5_exit_reach FAIL ;c5_prepared FAIL ;c5_doors_open FAIL ;c5_load_following FAIL ;c5_leave_then_house FAIL c5_prepare;
-chapter6_test | RESULT FAIL (1 failures) | c6_rs_talk_camera FAIL { "count": 1, "blocked": 0, "cam_hits;
-chapter7_test | RESULT FAIL (15 failures) | c7_note_clue FAIL ;c7_load_clue FAIL ;c7_road_choice_offered FAIL ;c7_choice_trust FAIL ;c7_doors_closed_on_return FAIL ;c7_walk_in FAIL ;
+npc_physics_audit_test | RESULT PASS fails=0 | 
+chapter9_test | RESULT PASS (0 failures) | 
 chapter10_test | RESULT PASS (0 failures) | 
-chapter11_test | RESULT FAIL (30 failures) | c11_zoom_in FAIL TalkCam;c11_note_read FAIL ;c11_campsite_talk FAIL ;c11_field_starts FAIL ;c11_field_zoom FAIL min fov <null>;c11_field_lines FAIL ;
 chapter12_noah_test | RESULT PASS fails=0 | 
 chapter13_test | RESULT PASS | 
-chapter14_test | RESULT 2 failures | c14_run_back FAIL (-84.54464, 0.000941, -1.918596);c14_run_done FAIL ;
+chapter14_test | RESULT PASS | 
 chapter15_test | RESULT PASS | 
+frank_skitter_test | RESULT PASS fails=0 | 
+colossus_market_last_test | RESULT PASS fails=0 | 
+pay_first_test | RESULT PASS fails=0 | 
+living_town_test | RESULT FAIL fails=6 | E4_crash_once FAIL ;E4_car_stays FAIL ;E2_joan_once FAIL route -1;E5_window_once FAIL ;flags_persist FAIL ;nothing_replays FAIL ;
+scavenge_companion_test | NO RESULT | 
+shelter_systems_test | RESULT 1 failures | storage_panel_shows_actual_totals FAIL;
+eddie_exit_test | NO RESULT | 
 DONE
