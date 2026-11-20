@@ -247,7 +247,7 @@ func _start() -> void:
 	loading.visible = true
 	await get_tree().process_frame
 	await get_tree().process_frame
-	_start_cinematic("intro")
+	get_tree().change_scene_to_file("res://game/scenes/World.tscn")   # the world plays the one intro itself (no title reel first)
 
 
 func _start_cinematic(mode: String) -> void:
