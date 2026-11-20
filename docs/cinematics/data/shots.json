@@ -1,0 +1,1787 @@
+[
+ {
+  "id": "C01.00",
+  "title": "Before the evening (new intro)",
+  "class": "campaign",
+  "source": "game/world/intro_cinematic.gd: VeilIntro.play, _shot, _build_veil_wall, _place_colossus; called from world.gd:_opening",
+  "entry_predicate": "new game AND not Game.has_flag('intro_seen') AND (not headless OR world.force_intro); main_menu.gd:_start goes straight to World.tscn (the old title reel is NOT played)",
+  "present": "player (hidden); the living town's Meshy walk-ons; radio; Colossus (tripod, 70 m) in the Veil",
+  "assets": "Greyhaven_Core/Commercial/Houses; MON_tripod.glb; veil_mist_boundary.gdshader; V.Intro_VeilWall (5 curtains)",
+  "shots": [
+   {
+    "shot": "black + radio static",
+    "seconds": 4.0,
+    "frames_24": 96,
+    "fov_deg": null,
+    "blocking": "HUD fade alpha 1 from the first frame; the radio breaks a human sentence"
+   },
+   {
+    "shot": "crane over the town",
+    "seconds": null,
+    "frames_24": null,
+    "fov_deg": 55,
+    "blocking": "high sweep, caption GREYHAVEN / Friday 6:40 PM"
+   },
+   {
+    "shot": "sidewalk dolly",
+    "seconds": null,
+    "frames_24": null,
+    "fov_deg": 55,
+    "blocking": "pedestrian height, Meshy townspeople"
+   },
+   {
+    "shot": "supermarket push-in",
+    "seconds": null,
+    "frames_24": null,
+    "fov_deg": 55,
+    "blocking": "lit supermarket"
+   },
+   {
+    "shot": "mist at the woods road",
+    "seconds": null,
+    "frames_24": null,
+    "fov_deg": 55,
+    "blocking": "wrong note 1"
+   },
+   {
+    "shot": "game shop stutter",
+    "seconds": null,
+    "frames_24": null,
+    "fov_deg": 55,
+    "blocking": "lights stutter, wrong note 2"
+   },
+   {
+    "shot": "dog bark / yard",
+    "seconds": 4.2,
+    "frames_24": 101,
+    "fov_deg": 45,
+    "blocking": "yard, bark at 0.6 s and 1.4 s"
+   },
+   {
+    "shot": "driveway low + rise",
+    "seconds": 9.1,
+    "frames_24": 218,
+    "fov_deg": 50,
+    "blocking": "low at the sedan, rise to +24 m, Veil curtains creep 30 m in 8 s; Colossus a silhouette in thick mist, faint eye glow"
+   },
+   {
+    "shot": "long-lens loom",
+    "seconds": 5.0,
+    "frames_24": 120,
+    "fov_deg": 32,
+    "blocking": "wall rolls in; colossus_call -1 dB pitch 0.55"
+   },
+   {
+    "shot": "title",
+    "seconds": 3.4,
+    "frames_24": 82,
+    "fov_deg": null,
+    "blocking": "THE VEIL card; then slow fade to black (1.8 s) + 0.5 s hold"
+   }
+  ],
+  "dialogue": [],
+  "sound": [
+   "radio static",
+   "hound_bark x2",
+   "MUSIC_COLOSSUS at the rise",
+   "veil_rumble",
+   "colossus_call"
+  ],
+  "control_state": "controls off, HUD hidden, hold E / Esc skips (skipped=true)",
+  "exit_camera_pose": "black, then world.gd fades in on the bedroom spawn (no bed, no wash after the new intro)",
+  "handoff": "intro_seen set in _end; game continues to C01.01",
+  "skip_retry_load": "skip: any time, 0.2 s measured; load: Continue never plays it (intro_seen)",
+  "status": "LEDGER",
+  "notes": "Visual framing NOT verified (owner's visual test). intro_trailer_test passes.",
+  "verify": [
+   [
+    "game/world/intro_cinematic.gd",
+    "func play"
+   ],
+   [
+    "game/world/intro_cinematic.gd",
+    "func _place_colossus"
+   ],
+   [
+    "game/world/world.gd",
+    "func _opening"
+   ],
+   [
+    "game/scenes/main_menu.gd",
+    "change_scene_to_file"
+   ]
+  ]
+ },
+ {
+  "id": "C01.01",
+  "title": "6:42 PM, waking and the drive",
+  "class": "campaign",
+  "source": "world.gd:_opening (wake branch), home_bathroom.gd:wash_face, world.gd:enter_car/_arrival_ease",
+  "entry_predicate": "after the intro (new game) or fresh world; intro skipped/seen paths still play the bed wake-up + wash",
+  "present": "protagonist only",
+  "assets": "PLAYER_HOME (Greyhaven_Houses), Markers/Spawn_WakeUp, fridge note, car keys (pickup 'car_keys'), sedan",
+  "shots": [
+   {
+    "shot": "wake (legacy path)",
+    "seconds": 4.6,
+    "frames_24": 110,
+    "fov_deg": null,
+    "blocking": "player.play_wake_up(4.6,false); chapter_start(1) + 'FRIDAY - 6:42 PM'"
+   },
+   {
+    "shot": "after new intro",
+    "seconds": 2.0,
+    "frames_24": 48,
+    "fov_deg": null,
+    "blocking": "straight fade-in, no bed/wash"
+   },
+   {
+    "shot": "keys, front door, car",
+    "seconds": null,
+    "frames_24": null,
+    "fov_deg": null,
+    "blocking": "first-person interactions"
+   }
+  ],
+  "dialogue": [
+   "wake",
+   "wake_hint",
+   "keys"
+  ],
+  "sound": [
+   "fridge_hum",
+   "door_open/close",
+   "step"
+  ],
+  "control_state": "wake: locked until wash_face finishes (legacy); new-intro path: controls on after fade",
+  "exit_camera_pose": "first person at the bedroom spawn or after wash",
+  "handoff": "objective from Game.current_goal(); has_keys, fridge_checked, left_house, entered_car",
+  "skip_retry_load": "pause disabled until controls return",
+  "status": "LEDGER",
+  "notes": "Bathroom hand-washing is its own hook (handwash_test).",
+  "verify": [
+   [
+    "game/world/world.gd",
+    "func enter_car"
+   ],
+   [
+    "game/world/home_bathroom.gd",
+    "func wash_face"
+   ]
+  ]
+ },
+ {
+  "id": "C02.01",
+  "title": "One Last Stop - arrival shot and errands",
+  "class": "campaign",
+  "source": "world.gd:_arrival_ease/_arrival_shot, _on_market_entered, _checkout, _pay_guard",
+  "entry_predicate": "in_car AND sedan.driven AND not arrival_shot AND not _auto_parking",
+  "present": "protagonist, cashier, Eddie (game shop), living-town people",
+  "assets": "market sign, Greyhaven_Commercial, sedan, checkout, game shop",
+  "shots": [
+   {
+    "shot": "market sign focus (arrival zoom)",
+    "seconds": null,
+    "frames_24": null,
+    "fov_deg": null,
+    "blocking": "the sedan brakes into the sign; exit camera = vehicle camera; exiting the car ends it early"
+   }
+  ],
+  "dialogue": [
+   "town"
+  ],
+  "sound": [
+   "engine/radio",
+   "door"
+  ],
+  "control_state": "driving; locked during the zoom, released by exit_car",
+  "exit_camera_pose": "vehicle camera",
+  "handoff": "arrival_shot, groceries_done, game_bought (either order); pay-before-you-leave (_pay_guard)",
+  "skip_retry_load": "state flags make it once-only; load re-enters without replay",
+  "status": "LEDGER",
+  "notes": "",
+  "verify": [
+   [
+    "game/world/world.gd",
+    "func _arrival_shot"
+   ],
+   [
+    "game/world/world.gd",
+    "func _checkout"
+   ],
+   [
+    "game/world/world.gd",
+    "func _pay_guard"
+   ]
+  ]
+ },
+ {
+  "id": "C03.01",
+  "title": "Mist arrival",
+  "class": "campaign",
+  "source": "world.gd:_p3_tick -> _p3_start_mist",
+  "entry_predicate": "groceries_done AND game_bought AND not p3_mist; not in car, not _encounter_running, not conversing",
+  "present": "protagonist, Eddie, Marcus (placed in the game shop), clerk if inside the market zone",
+  "assets": "veil_rumble, night_preset('approach'->'active'), _build_mist_ceiling, _stutter_lights",
+  "shots": [
+   {
+    "shot": "lights stutter, distant horizon goes",
+    "seconds": 5.0,
+    "frames_24": 120,
+    "fov_deg": 72,
+    "blocking": "atmosphere preset approach for 5 s then active; clerk/Eddie walk to the door; shop door set open"
+   }
+  ],
+  "dialogue": [
+   "p3_fog"
+  ],
+  "sound": [
+   "veil_rumble",
+   "light stutter"
+  ],
+  "control_state": "player keeps control; Dialogue.say(p3_fog, false, true)",
+  "exit_camera_pose": "first person",
+  "handoff": "p3_mist set; chapter_start(3)",
+  "skip_retry_load": "once-only by p3_mist",
+  "status": "LEDGER",
+  "notes": "",
+  "verify": [
+   [
+    "game/world/world.gd",
+    "func _p3_start_mist"
+   ],
+   [
+    "game/world/world.gd",
+    "func _p3_tick"
+   ]
+  ]
+ },
+ {
+  "id": "C03.02a",
+  "title": "Colossus encounter - ORIGINAL stomping version",
+  "class": "campaign (legacy path: `-- old_colossus`)",
+  "source": "world.gd:_colossus_encounter (dispatch at its first line: VeilMeshyNpcs.tripod_enabled() -> _tripod_encounter instead)",
+  "entry_predicate": "p3_mist AND not p3_stepped_out AND _outdoors() (polled in _p3_tick); sets p3_stepped_out",
+  "present": "protagonist (stand-in Protagonist_Cine for the face shot), clerk if out, living town fright, lamp post",
+  "assets": "CRT_Colossus.tscn at COLOSSUS_SCALE 6 (~60 m), leg blockers, street lamp (_crush_lamp), VeilCreatureLook.apply_colossus",
+  "shots": [
+   {
+    "shot": "1 call + look at the sound",
+    "seconds": 1.5,
+    "frames_24": 36,
+    "fov_deg": 72,
+    "blocking": "controls held, EncounterCam = player cam; slerp to L+4 m"
+   },
+   {
+    "shot": "held beat",
+    "seconds": 4.0,
+    "frames_24": 96,
+    "fov_deg": 72,
+    "blocking": "creature hidden; far parts in mist"
+   },
+   {
+    "shot": "2 the foot comes down from 12 m above onto L",
+    "seconds": null,
+    "frames_24": null,
+    "fov_deg": 72,
+    "blocking": "contact frame measured from claw tips; lamp struck on the way down; dust, shake 0.35 s, light flicker < 45 m, clerk flees"
+   },
+   {
+    "shot": "3 protagonist's face lit, eyes go up",
+    "seconds": 2.8,
+    "frames_24": 67,
+    "fov_deg": 42,
+    "blocking": "cam 1.05 m in front of his head, key light warm"
+   },
+   {
+    "shot": "4 up the leg into the mist",
+    "seconds": 4.2,
+    "frames_24": 101,
+    "fov_deg": 60,
+    "blocking": "slerp up to +40 m, fov 60->50"
+   },
+   {
+    "shot": "5 it walks on",
+    "seconds": 3.6,
+    "frames_24": 86,
+    "fov_deg": null,
+    "blocking": "two distant steps; frozen"
+   },
+   {
+    "shot": "6 return to first person",
+    "seconds": 0.7,
+    "frames_24": 17,
+    "fov_deg": null,
+    "blocking": "ease to player camera, pitch 8 deg"
+   }
+  ],
+  "dialogue": [
+   "p3_colossus (prompt after)",
+   "p3_doors_dead (supermarket)",
+   "p3_eddie_over_here"
+  ],
+  "sound": [
+   "colossus_call +4/-6 dB",
+   "MUSIC_COLOSSUS",
+   "colossus_step +6 dB pitch 0.7",
+   "hurt (clerk)",
+   "lamp sparks"
+  ],
+  "control_state": "controls_enabled=false, allow_pause=false from stage 1 until stage 6",
+  "exit_camera_pose": "first-person at yaw toward the leg, pitch 8 deg, fov = player fov",
+  "handoff": "_p3_survival_begins(door_out, shop_door): survival HUD, beacon store_back, tentacles; save()",
+  "skip_retry_load": "no skip; load before p3_stepped_out replays it; after, never",
+  "status": "LEDGER",
+  "notes": "Where the lamp is broken its final state persists (_crush_lamp). Not retested in this pass.",
+  "verify": [
+   [
+    "game/world/world.gd",
+    "func _colossus_encounter"
+   ],
+   [
+    "game/world/world.gd",
+    "func _crush_lamp"
+   ],
+   [
+    "game/world/world.gd",
+    "func _p3_survival_begins"
+   ]
+  ]
+ },
+ {
+  "id": "C03.02b",
+  "title": "Colossus encounter - Meshy tripod (DEFAULT)",
+  "class": "campaign (default path)",
+  "source": "world.gd:_tripod_encounter, _enc_mist, _tripod_watch; dispatched from _colossus_encounter when VeilMeshyNpcs.tripod_enabled()",
+  "entry_predicate": "same as C03.02a (p3_mist, not p3_stepped_out, _outdoors())",
+  "present": "protagonist, clerk (if _clerk_out: _clerk_beside, _clerk_flees), Eddie (at game shop after), Colossus 85 m",
+  "assets": "game/prototypes/monsters_meshy/MON_tripod.glb (+tripod_eye.gd searchlight), colossus_veil.gdshader, veil_mist_boundary.gdshader x3 curtains at 34/52/70 m, docs/cinematics/blender/C03_02b_pilot.blend",
+  "shots": [
+   {
+    "shot": "walk-in out of the fog",
+    "seconds": 13.0,
+    "frames_24": 312,
+    "fov_deg": 72,
+    "blocking": "creature starts 104 m ahead, 14 m left, walks toward you at 1.43 m/s facing you; distance_fade 0.1->0.006, eye level 0.25->1, curtains 0.97->0.5; searchlight scan sweeps -60..+8 m"
+   },
+   {
+    "shot": "it finds you",
+    "seconds": 2.2,
+    "frames_24": 53,
+    "fov_deg": 72,
+    "blocking": "turn 2.4 s toward you; light converges on head height 1.5 m"
+   },
+   {
+    "shot": "lock-on hold",
+    "seconds": 0.55,
+    "frames_24": 13,
+    "fov_deg": 72,
+    "blocking": "eye.target=player camera, beam_on, level 1.5; clerk flees"
+   },
+   {
+    "shot": "jump-scare zoom to the eye",
+    "seconds": 0.8,
+    "frames_24": 19,
+    "fov_deg": "72->7",
+    "blocking": "colossus_call +14 dB pitch 1.35 at the player + second +10 dB at the eye; curtains to 0.12; rotate to the eye over 0.5 s"
+   },
+   {
+    "shot": "lens holds the frame",
+    "seconds": 0.9,
+    "frames_24": 22,
+    "fov_deg": 7,
+    "blocking": "npc fright"
+   },
+   {
+    "shot": "snap back to first person",
+    "seconds": 0.35,
+    "frames_24": 8,
+    "fov_deg": "7->72",
+    "blocking": "yaw toward it, pitch 22 deg; curtains fade 3 s"
+   },
+   {
+    "shot": "survival begins",
+    "seconds": null,
+    "frames_24": null,
+    "fov_deg": 72,
+    "blocking": "GET BACK INSIDE THE STORE / GET TO THE GAME SHOP; _tripod_watch holds the light on you until you are under cover, then it swings away, turns and walks off over 30 s"
+   }
+  ],
+  "dialogue": [
+   "p3_colossus",
+   "p3_doors_dead",
+   "p3_eddie_over_here"
+  ],
+  "sound": [
+   "colossus_step +5 dB pitch 0.55 each step_interval 5.93 s",
+   "colossus_call jump-scare",
+   "MUSIC_COLOSSUS -6 dB"
+  ],
+  "control_state": "controls off + no pause from the start to the snap-back (17.8 s); no camera shake anywhere in this branch",
+  "exit_camera_pose": "first person, pitch 22 deg toward the creature, fov restored",
+  "handoff": "_p3_survival_begins; _tripod_watch(tc, wd); enc_report keys: colossus_tripod, locked_on, eye_zoom, tripod_released",
+  "skip_retry_load": "no skip; load before p3_stepped_out replays; _encounter_running guards re-entry",
+  "status": "BUILT",
+  "notes": "Camera + marker data: data/C03_02b_camera.json (428 frames @24). Round trip: camera forward error 0.000 deg. Eye height measured 43.6 m at H=85. Design conflict: the narrative bible says four legs, the Meshy rig has three (Leg_L, Leg_R, Leg_B).",
+  "verify": [
+   [
+    "game/world/world.gd",
+    "func _tripod_encounter"
+   ],
+   [
+    "game/world/world.gd",
+    "func _enc_mist"
+   ],
+   [
+    "game/world/world.gd",
+    "func _tripod_watch"
+   ],
+   [
+    "game/enemies/tripod_colossus.gd",
+    "class_name VeilTripodColossus"
+   ]
+  ]
+ },
+ {
+  "id": "C03.03",
+  "title": "Street survival and the failed car",
+  "class": "campaign",
+  "source": "world.gd:_p3_survival_begins, _p3_spawn_tentacles, _p3_car_dead, _p3_back_inside",
+  "entry_predicate": "p3_stepped_out AND not p3_back_inside; car interaction any time after p3_mist",
+  "present": "protagonist, Eddie (calls from the game shop door), Marcus",
+  "assets": "tentacle scenes (monster_scene), sedan, beacon store_back",
+  "shots": [
+   {
+    "shot": "player-led",
+    "seconds": null,
+    "frames_24": null,
+    "fov_deg": 72,
+    "blocking": "tentacles emerge with wind-up/contact/recovery; dead sedan = static + one line"
+   }
+  ],
+  "dialogue": [
+   "p3_car_dead",
+   "p3_car_again",
+   "p3_eddie_calls",
+   "p3_hit"
+  ],
+  "sound": [
+   "static -4 dB at the sedan",
+   "tentacle_hiss",
+   "colossus_call"
+  ],
+  "control_state": "player control; hurt = non-lethal",
+  "exit_camera_pose": "first person",
+  "handoff": "p3_back_inside; then p3_in_shop",
+  "skip_retry_load": "_encounter_running guards; load restores the state",
+  "status": "LEDGER",
+  "notes": "Frank/Skitter (living_town.gd:_frank) can run here: see OPT.FRANK",
+  "verify": [
+   [
+    "game/world/world.gd",
+    "func _p3_car_dead"
+   ],
+   [
+    "game/world/world.gd",
+    "func _p3_back_inside"
+   ],
+   [
+    "game/world/world.gd",
+    "func _p3_spawn_tentacles"
+   ]
+  ]
+ },
+ {
+  "id": "C03.04",
+  "title": "Stockroom and two hours later",
+  "class": "campaign",
+  "source": "world.gd:_p3_reach_shop, _shop_seated_talk, _shop_regroup (shots F/G)",
+  "entry_predicate": "p3_back_inside AND not p3_in_shop",
+  "present": "protagonist, Eddie, Marcus",
+  "assets": "game shop stockroom (SHOP_TALK spots), door gap light",
+  "shots": [
+   {
+    "shot": "F: Eddie calls from the threshold",
+    "seconds": 2.4,
+    "frames_24": 58,
+    "fov_deg": 46,
+    "blocking": "cam picked by cam_point_ok/sight_ok"
+   },
+   {
+    "shot": "G: all go in, Eddie shuts the door",
+    "seconds": 9.0,
+    "frames_24": 216,
+    "fov_deg": 55,
+    "blocking": "hinge close when clear of the leaf"
+   },
+   {
+    "shot": "seated talk",
+    "seconds": null,
+    "frames_24": null,
+    "fov_deg": null,
+    "blocking": "away from windows"
+   },
+   {
+    "shot": "2 HOURS LATER card",
+    "seconds": null,
+    "frames_24": null,
+    "fov_deg": null,
+    "blocking": "fade through black, then lights reset"
+   }
+  ],
+  "dialogue": [
+   "p3_eddie_calls",
+   "p3_colossus",
+   "shop talk ids"
+  ],
+  "sound": [
+   "door_close",
+   "footfalls outside"
+  ],
+  "control_state": "controls_enabled=false during _shop_seated_talk",
+  "exit_camera_pose": "stockroom, half-lit exit route",
+  "handoff": "p3_in_shop; time skip; town_destruction after the skip",
+  "skip_retry_load": "no skip documented; load restores p3_in_shop",
+  "status": "LEDGER",
+  "notes": "",
+  "verify": [
+   [
+    "game/world/world.gd",
+    "func _shop_seated_talk"
+   ],
+   [
+    "game/world/world.gd",
+    "func _shop_regroup"
+   ]
+  ]
+ },
+ {
+  "id": "C04.01",
+  "title": "Shop exit and Main Street",
+  "class": "campaign",
+  "source": "world.gd:_p3_escape_tentacle, _street_tentacle_to_chase, _p3_flee_together",
+  "entry_predicate": "_p3_shop_talked AND not _p3_npcs_moved AND _outdoors()",
+  "present": "protagonist, Eddie, Marcus",
+  "assets": "street tentacle, VEH_ cars, shop signs",
+  "shots": [
+   {
+    "shot": "exit lash",
+    "seconds": null,
+    "frames_24": null,
+    "fov_deg": 72,
+    "blocking": "controls held; tentacle -> chase AI recovery"
+   }
+  ],
+  "dialogue": [
+   "p3_hit"
+  ],
+  "sound": [
+   "tentacle_hiss",
+   "chase music"
+  ],
+  "control_state": "controls restored to was_controls after the lash",
+  "exit_camera_pose": "first person",
+  "handoff": "p3_fled_together",
+  "skip_retry_load": "_encounter_running guard",
+  "status": "LEDGER",
+  "notes": "",
+  "verify": [
+   [
+    "game/world/world.gd",
+    "func _p3_escape_tentacle"
+   ],
+   [
+    "game/world/world.gd",
+    "func _p3_flee_together"
+   ]
+  ]
+ },
+ {
+  "id": "C04.02",
+  "title": "The last open door",
+  "class": "campaign",
+  "source": "world.gd:_p3_market_arrival, _arrival_turn_to, _arrival_wait_lines, _market_blackout, _p3_shut_doors",
+  "entry_predicate": "p3_fled_together AND not p3_in_market AND _near_market_entrance() (polled)",
+  "present": "protagonist, Eddie, Marcus",
+  "assets": "market doors (dead: forced apart by Eddie), vestibule, checkout lanes",
+  "shots": [
+   {
+    "shot": "doors forced + vestibule",
+    "seconds": null,
+    "frames_24": null,
+    "fov_deg": 72,
+    "blocking": "door_open +2 dB pitch 0.55; power drops; pan past dead lanes"
+   }
+  ],
+  "dialogue": [
+   "market arrival lines"
+  ],
+  "sound": [
+   "door_open",
+   "blackout"
+  ],
+  "control_state": "controls_enabled=false; hold-to-skip via _arrival_skip_held",
+  "exit_camera_pose": "request to secure the entrances",
+  "handoff": "p3_in_market -> p3_doors_shut -> Lock-In",
+  "skip_retry_load": "skip: hold; already-inside path via _p3_reach_market(from_scene)",
+  "status": "LEDGER",
+  "notes": "",
+  "verify": [
+   [
+    "game/world/world.gd",
+    "func _p3_market_arrival"
+   ],
+   [
+    "game/world/world.gd",
+    "func _market_blackout"
+   ],
+   [
+    "game/world/world.gd",
+    "func _p3_shut_doors"
+   ]
+  ]
+ },
+ {
+  "id": "C05.01",
+  "title": "Lock-In work",
+  "class": "campaign",
+  "source": "game/world/phase4.gd:begin, _throw_breaker, _pull_loading, _close_back, _push_pallet, _make_bed, _open_supplies",
+  "entry_predicate": "p3_doors_shut",
+  "present": "protagonist, Eddie, Marcus",
+  "assets": "flashlight, breaker, rear/loading exits, pallets, bedding",
+  "shots": [
+   {
+    "shot": "first-person physical beats",
+    "seconds": null,
+    "frames_24": null,
+    "fov_deg": 72,
+    "blocking": "no cinematic camera"
+   }
+  ],
+  "dialogue": [
+   "flashlight / breaker lines"
+  ],
+  "sound": [
+   "door/rattle/flicker on the contact frame"
+  ],
+  "control_state": "player control",
+  "exit_camera_pose": "first person",
+  "handoff": "p4_* flags; p4_slept",
+  "skip_retry_load": "state flags + save",
+  "status": "LEDGER",
+  "notes": "Common rear-door strike: phase4.gd:_door_strike (see C05.02b).",
+  "verify": [
+   [
+    "game/world/phase4.gd",
+    "func _throw_breaker"
+   ],
+   [
+    "game/world/phase4.gd",
+    "func _push_pallet"
+   ],
+   [
+    "game/world/phase4.gd",
+    "func _door_strike"
+   ]
+  ]
+ },
+ {
+  "id": "C05.02a",
+  "title": "Accept the search (Skitter on the roof)",
+  "class": "campaign",
+  "source": "phase4.gd:_on_choices -> _run_threat -> _hound_charge (name historical; the creature is the Skitter), _spawn_roof_skitter, _skitter_run",
+  "entry_predicate": "p4 choice 'accept'",
+  "present": "protagonist, Marcus",
+  "assets": "MON_skitter (Meshy) via skitter_scene, roof building, VeilCreatureLook.apply_skitter",
+  "shots": [
+   {
+    "shot": "step out, roof sighting, focus zoom, run back",
+    "seconds": null,
+    "frames_24": null,
+    "fov_deg": 72,
+    "blocking": "creature crouched ~2.5 m back from the roof edge; _fp_face/_fp_track"
+   }
+  ],
+  "dialogue": [
+   "p4_skitter_seen",
+   "p4_skitter_run"
+  ],
+  "sound": [
+   "breath",
+   "music cue",
+   "impact after the door closes"
+  ],
+  "control_state": "camera held then control returns",
+  "exit_camera_pose": "back inside",
+  "handoff": "p4 night report",
+  "skip_retry_load": "retry via save",
+  "status": "LEDGER",
+  "notes": "charge_report keys exist for tests.",
+  "verify": [
+   [
+    "game/world/phase4.gd",
+    "func _hound_charge"
+   ],
+   [
+    "game/world/phase4.gd",
+    "func _spawn_roof_skitter"
+   ],
+   [
+    "game/world/phase4.gd",
+    "func _skitter_run"
+   ]
+  ]
+ },
+ {
+  "id": "C05.02b",
+  "title": "Refuse the search (the unseen thing at the rear door)",
+  "class": "campaign",
+  "source": "phase4.gd:_on_choices -> _run_threat, _night_banging, _spawn_hound, _door_strike, _flicker_burst",
+  "entry_predicate": "p4 choice 'refuse'",
+  "present": "all inside",
+  "assets": "rear door seam, pallets",
+  "shots": [
+   {
+    "shot": "banging, long gap, door strike",
+    "seconds": null,
+    "frames_24": null,
+    "fov_deg": 72,
+    "blocking": "source never shown"
+   }
+  ],
+  "dialogue": [
+   "night lines"
+  ],
+  "sound": [
+   "impact_wave",
+   "scrape",
+   "door strike"
+  ],
+  "control_state": "per code",
+  "exit_camera_pose": "indoors",
+  "handoff": "p4_slept / night report",
+  "skip_retry_load": "state flags",
+  "status": "LEDGER",
+  "notes": "",
+  "verify": [
+   [
+    "game/world/phase4.gd",
+    "func _night_banging"
+   ],
+   [
+    "game/world/phase4.gd",
+    "func _door_strike"
+   ]
+  ]
+ },
+ {
+  "id": "C06.01",
+  "title": "First expedition",
+  "class": "campaign",
+  "source": "game/world/chapter5.gd: _head_out, _use_radio, _survivor_encounter, _report",
+  "entry_predicate": "started by flag chain: p4_slept / c5_started; all state in story flags + Game.world_state, a load rebuilds without replay (file header)",
+  "present": "alive/present survivors only (alive()/present() helpers); Marcus lines only if he survived",
+  "assets": "see file header",
+  "shots": [
+   {
+    "shot": "see source functions (first-person beats; cinematic camera only where a helper takes it)",
+    "seconds": null,
+    "frames_24": null,
+    "fov_deg": 72,
+    "blocking": "per function"
+   }
+  ],
+  "dialogue": [
+   "ids c5_*"
+  ],
+  "sound": [
+   "per _make_sounds / _play waves"
+  ],
+  "control_state": "movement locks by _hold(true/false) around each beat; control returns before timers",
+  "exit_camera_pose": "first person",
+  "handoff": "chapter_N_complete flag, checkpoint files (never the player's save slot)",
+  "skip_retry_load": "load rebuilds from flags",
+  "status": "LEDGER",
+  "notes": "Per-beat shot rows still to expand from the source functions listed here.",
+  "verify": [
+   [
+    "game/world/chapter5.gd",
+    "func _head_out"
+   ],
+   [
+    "game/world/chapter5.gd",
+    "func _use_radio"
+   ],
+   [
+    "game/world/chapter5.gd",
+    "func _survivor_encounter"
+   ],
+   [
+    "game/world/chapter5.gd",
+    "func _report"
+   ]
+  ]
+ },
+ {
+  "id": "C07.01",
+  "title": "Voices in the Mist",
+  "class": "campaign",
+  "source": "game/world/chapter6.gd: _ruth_sarah, _voice, _spawn_hound, _chase_tick",
+  "entry_predicate": "started by flag chain: c5_rested -> ch6_started; all state in story flags + Game.world_state, a load rebuilds without replay (file header)",
+  "present": "alive/present survivors only (alive()/present() helpers); Marcus lines only if he survived",
+  "assets": "see file header",
+  "shots": [
+   {
+    "shot": "see source functions (first-person beats; cinematic camera only where a helper takes it)",
+    "seconds": null,
+    "frames_24": null,
+    "fov_deg": 72,
+    "blocking": "per function"
+   }
+  ],
+  "dialogue": [
+   "ids ch6_*"
+  ],
+  "sound": [
+   "per _make_sounds / _play waves"
+  ],
+  "control_state": "movement locks by _hold(true/false) around each beat; control returns before timers",
+  "exit_camera_pose": "first person",
+  "handoff": "chapter_N_complete flag, checkpoint files (never the player's save slot)",
+  "skip_retry_load": "load rebuilds from flags",
+  "status": "LEDGER",
+  "notes": "Per-beat shot rows still to expand from the source functions listed here.",
+  "verify": [
+   [
+    "game/world/chapter6.gd",
+    "func _ruth_sarah"
+   ],
+   [
+    "game/world/chapter6.gd",
+    "func _voice"
+   ],
+   [
+    "game/world/chapter6.gd",
+    "func _spawn_hound"
+   ],
+   [
+    "game/world/chapter6.gd",
+    "func _chase_tick"
+   ]
+  ]
+ },
+ {
+  "id": "C08.01",
+  "title": "Backpack and trust",
+  "class": "campaign",
+  "source": "game/world/chapter7.gd: _use_doors, _examine_backpack, _note_tick, _skitter_intro",
+  "entry_predicate": "started by flag chain: ch6_rested -> ch7_started; all state in story flags + Game.world_state, a load rebuilds without replay (file header)",
+  "present": "alive/present survivors only (alive()/present() helpers); Marcus lines only if he survived",
+  "assets": "see file header",
+  "shots": [
+   {
+    "shot": "see source functions (first-person beats; cinematic camera only where a helper takes it)",
+    "seconds": null,
+    "frames_24": null,
+    "fov_deg": 72,
+    "blocking": "per function"
+   }
+  ],
+  "dialogue": [
+   "ids ch7_*"
+  ],
+  "sound": [
+   "per _make_sounds / _play waves"
+  ],
+  "control_state": "movement locks by _hold(true/false) around each beat; control returns before timers",
+  "exit_camera_pose": "first person",
+  "handoff": "chapter_N_complete flag, checkpoint files (never the player's save slot)",
+  "skip_retry_load": "load rebuilds from flags",
+  "status": "LEDGER",
+  "notes": "Per-beat shot rows still to expand from the source functions listed here.",
+  "verify": [
+   [
+    "game/world/chapter7.gd",
+    "func _use_doors"
+   ],
+   [
+    "game/world/chapter7.gd",
+    "func _examine_backpack"
+   ],
+   [
+    "game/world/chapter7.gd",
+    "func _note_tick"
+   ],
+   [
+    "game/world/chapter7.gd",
+    "func _skitter_intro"
+   ]
+  ]
+ },
+ {
+  "id": "C09.01",
+  "title": "Something at the Doors",
+  "class": "campaign",
+  "source": "game/world/chapter8.gd: _repair, _power_fail, _run_attack, _give_way, _hound_burst, _kill_temp, _push_secure, _help_sarah",
+  "entry_predicate": "started by flag chain: ch7_rested -> ch8_started; all state in story flags + Game.world_state, a load rebuilds without replay (file header)",
+  "present": "alive/present survivors only (alive()/present() helpers); Marcus lines only if he survived",
+  "assets": "see file header",
+  "shots": [
+   {
+    "shot": "see source functions (first-person beats; cinematic camera only where a helper takes it)",
+    "seconds": null,
+    "frames_24": null,
+    "fov_deg": 72,
+    "blocking": "per function"
+   }
+  ],
+  "dialogue": [
+   "ids ch8_*"
+  ],
+  "sound": [
+   "per _make_sounds / _play waves"
+  ],
+  "control_state": "movement locks by _hold(true/false) around each beat; control returns before timers",
+  "exit_camera_pose": "first person",
+  "handoff": "chapter_N_complete flag, checkpoint files (never the player's save slot)",
+  "skip_retry_load": "load rebuilds from flags",
+  "status": "LEDGER",
+  "notes": "Per-beat shot rows still to expand from the source functions listed here.",
+  "verify": [
+   [
+    "game/world/chapter8.gd",
+    "func _repair"
+   ],
+   [
+    "game/world/chapter8.gd",
+    "func _power_fail"
+   ],
+   [
+    "game/world/chapter8.gd",
+    "func _run_attack"
+   ],
+   [
+    "game/world/chapter8.gd",
+    "func _give_way"
+   ],
+   [
+    "game/world/chapter8.gd",
+    "func _hound_burst"
+   ],
+   [
+    "game/world/chapter8.gd",
+    "func _kill_temp"
+   ],
+   [
+    "game/world/chapter8.gd",
+    "func _push_secure"
+   ],
+   [
+    "game/world/chapter8.gd",
+    "func _help_sarah"
+   ]
+  ]
+ },
+ {
+  "id": "C10.01",
+  "title": "The Fall of the Supermarket and Marcus",
+  "class": "campaign",
+  "source": "game/world/chapter9.gd: _run_warning, _run_fall, _pin_marcus, _pin_countdown, _free_marcus, _marcus_lost, _lookback, _rendezvous",
+  "entry_predicate": "started by flag chain: ch8_rested -> ch9_started; all state in story flags + Game.world_state, a load rebuilds without replay (file header)",
+  "present": "alive/present survivors only (alive()/present() helpers); Marcus lines only if he survived",
+  "assets": "see file header",
+  "shots": [
+   {
+    "shot": "see source functions (first-person beats; cinematic camera only where a helper takes it)",
+    "seconds": null,
+    "frames_24": null,
+    "fov_deg": 72,
+    "blocking": "per function"
+   }
+  ],
+  "dialogue": [
+   "ids ch9_*"
+  ],
+  "sound": [
+   "per _make_sounds / _play waves"
+  ],
+  "control_state": "movement locks by _hold(true/false) around each beat; control returns before timers",
+  "exit_camera_pose": "first person",
+  "handoff": "chapter_N_complete flag, checkpoint files (never the player's save slot)",
+  "skip_retry_load": "load rebuilds from flags",
+  "status": "LEDGER",
+  "notes": "Per-beat shot rows still to expand from the source functions listed here.",
+  "verify": [
+   [
+    "game/world/chapter9.gd",
+    "func _run_warning"
+   ],
+   [
+    "game/world/chapter9.gd",
+    "func _run_fall"
+   ],
+   [
+    "game/world/chapter9.gd",
+    "func _pin_marcus"
+   ],
+   [
+    "game/world/chapter9.gd",
+    "func _pin_countdown"
+   ],
+   [
+    "game/world/chapter9.gd",
+    "func _free_marcus"
+   ],
+   [
+    "game/world/chapter9.gd",
+    "func _marcus_lost"
+   ],
+   [
+    "game/world/chapter9.gd",
+    "func _lookback"
+   ],
+   [
+    "game/world/chapter9.gd",
+    "func _rendezvous"
+   ]
+  ]
+ },
+ {
+  "id": "C11.01",
+  "title": "No Safe Road",
+  "class": "campaign",
+  "source": "game/world/chapter10.gd: _use_driver, _followed, _sarah_stops, _house_tick",
+  "entry_predicate": "started by flag chain: chapter_9_complete -> ch10_started; all state in story flags + Game.world_state, a load rebuilds without replay (file header)",
+  "present": "alive/present survivors only (alive()/present() helpers); Marcus lines only if he survived",
+  "assets": "see file header",
+  "shots": [
+   {
+    "shot": "see source functions (first-person beats; cinematic camera only where a helper takes it)",
+    "seconds": null,
+    "frames_24": null,
+    "fov_deg": 72,
+    "blocking": "per function"
+   }
+  ],
+  "dialogue": [
+   "ids ch10_*"
+  ],
+  "sound": [
+   "per _make_sounds / _play waves"
+  ],
+  "control_state": "movement locks by _hold(true/false) around each beat; control returns before timers",
+  "exit_camera_pose": "first person",
+  "handoff": "chapter_N_complete flag, checkpoint files (never the player's save slot)",
+  "skip_retry_load": "load rebuilds from flags",
+  "status": "LEDGER",
+  "notes": "Per-beat shot rows still to expand from the source functions listed here.",
+  "verify": [
+   [
+    "game/world/chapter10.gd",
+    "func _use_driver"
+   ],
+   [
+    "game/world/chapter10.gd",
+    "func _followed"
+   ],
+   [
+    "game/world/chapter10.gd",
+    "func _sarah_stops"
+   ],
+   [
+    "game/world/chapter10.gd",
+    "func _house_tick"
+   ]
+  ]
+ },
+ {
+  "id": "C12.01",
+  "title": "The Farm Road",
+  "class": "campaign",
+  "source": "game/world/chapter11.gd: _inspect, _field, _attack, _escape_tick, _setup_far_light",
+  "entry_predicate": "started by flag chain: chapter_10_complete -> ch11_started; all state in story flags + Game.world_state, a load rebuilds without replay (file header)",
+  "present": "alive/present survivors only (alive()/present() helpers); Marcus lines only if he survived",
+  "assets": "see file header",
+  "shots": [
+   {
+    "shot": "see source functions (first-person beats; cinematic camera only where a helper takes it)",
+    "seconds": null,
+    "frames_24": null,
+    "fov_deg": 72,
+    "blocking": "per function"
+   }
+  ],
+  "dialogue": [
+   "ids ch11_*"
+  ],
+  "sound": [
+   "per _make_sounds / _play waves"
+  ],
+  "control_state": "movement locks by _hold(true/false) around each beat; control returns before timers",
+  "exit_camera_pose": "first person",
+  "handoff": "chapter_N_complete flag, checkpoint files (never the player's save slot)",
+  "skip_retry_load": "load rebuilds from flags",
+  "status": "LEDGER",
+  "notes": "Per-beat shot rows still to expand from the source functions listed here.",
+  "verify": [
+   [
+    "game/world/chapter11.gd",
+    "func _inspect"
+   ],
+   [
+    "game/world/chapter11.gd",
+    "func _field"
+   ],
+   [
+    "game/world/chapter11.gd",
+    "func _attack"
+   ],
+   [
+    "game/world/chapter11.gd",
+    "func _escape_tick"
+   ],
+   [
+    "game/world/chapter11.gd",
+    "func _setup_far_light"
+   ]
+  ]
+ },
+ {
+  "id": "C13.01",
+  "title": "The Truth Beneath Greyhaven",
+  "class": "campaign",
+  "source": "game/world/chapter12.gd: _enter, _use_panel, _force_seal, _start_chase, _sound_below, _ending",
+  "entry_predicate": "started by flag chain: chapter_11_complete -> ch12_started; all state in story flags + Game.world_state, a load rebuilds without replay (file header)",
+  "present": "alive/present survivors only (alive()/present() helpers); Marcus lines only if he survived",
+  "assets": "see file header",
+  "shots": [
+   {
+    "shot": "see source functions (first-person beats; cinematic camera only where a helper takes it)",
+    "seconds": null,
+    "frames_24": null,
+    "fov_deg": 72,
+    "blocking": "per function"
+   }
+  ],
+  "dialogue": [
+   "ids ch12_*"
+  ],
+  "sound": [
+   "per _make_sounds / _play waves"
+  ],
+  "control_state": "movement locks by _hold(true/false) around each beat; control returns before timers",
+  "exit_camera_pose": "first person",
+  "handoff": "chapter_N_complete flag, checkpoint files (never the player's save slot)",
+  "skip_retry_load": "load rebuilds from flags",
+  "status": "LEDGER",
+  "notes": "Per-beat shot rows still to expand from the source functions listed here.",
+  "verify": [
+   [
+    "game/world/chapter12.gd",
+    "func _enter"
+   ],
+   [
+    "game/world/chapter12.gd",
+    "func _use_panel"
+   ],
+   [
+    "game/world/chapter12.gd",
+    "func _force_seal"
+   ],
+   [
+    "game/world/chapter12.gd",
+    "func _start_chase"
+   ],
+   [
+    "game/world/chapter12.gd",
+    "func _sound_below"
+   ],
+   [
+    "game/world/chapter12.gd",
+    "func _ending"
+   ]
+  ]
+ },
+ {
+  "id": "C14.01",
+  "title": "Into the Veil",
+  "class": "campaign",
+  "source": "game/world/chapter13.gd: _roof_skitter, _crab_reveal, _voice, _use_winch, _veil_tentacles, _collapse, _help_companion, _take_evidence, _night",
+  "entry_predicate": "started by flag chain: chapter_12_complete -> ch13_started; all state in story flags + Game.world_state, a load rebuilds without replay (file header)",
+  "present": "alive/present survivors only (alive()/present() helpers); Marcus lines only if he survived",
+  "assets": "see file header",
+  "shots": [
+   {
+    "shot": "see source functions (first-person beats; cinematic camera only where a helper takes it)",
+    "seconds": null,
+    "frames_24": null,
+    "fov_deg": 72,
+    "blocking": "per function"
+   }
+  ],
+  "dialogue": [
+   "ids ch13_*"
+  ],
+  "sound": [
+   "per _make_sounds / _play waves"
+  ],
+  "control_state": "movement locks by _hold(true/false) around each beat; control returns before timers",
+  "exit_camera_pose": "first person",
+  "handoff": "chapter_N_complete flag, checkpoint files (never the player's save slot)",
+  "skip_retry_load": "load rebuilds from flags",
+  "status": "LEDGER",
+  "notes": "Per-beat shot rows still to expand from the source functions listed here.",
+  "verify": [
+   [
+    "game/world/chapter13.gd",
+    "func _roof_skitter"
+   ],
+   [
+    "game/world/chapter13.gd",
+    "func _crab_reveal"
+   ],
+   [
+    "game/world/chapter13.gd",
+    "func _voice"
+   ],
+   [
+    "game/world/chapter13.gd",
+    "func _use_winch"
+   ],
+   [
+    "game/world/chapter13.gd",
+    "func _veil_tentacles"
+   ],
+   [
+    "game/world/chapter13.gd",
+    "func _collapse"
+   ],
+   [
+    "game/world/chapter13.gd",
+    "func _help_companion"
+   ],
+   [
+    "game/world/chapter13.gd",
+    "func _take_evidence"
+   ],
+   [
+    "game/world/chapter13.gd",
+    "func _night"
+   ]
+  ]
+ },
+ {
+  "id": "C15.01",
+  "title": "The Last Shelter",
+  "class": "campaign",
+  "source": "game/world/chapter14.gd: _window_scene, _meeting, _siege, _shove, _crab, _separation, _house_gone",
+  "entry_predicate": "started by flag chain: chapter_13_complete -> ch14_started; all state in story flags + Game.world_state, a load rebuilds without replay (file header)",
+  "present": "alive/present survivors only (alive()/present() helpers); Marcus lines only if he survived",
+  "assets": "see file header",
+  "shots": [
+   {
+    "shot": "see source functions (first-person beats; cinematic camera only where a helper takes it)",
+    "seconds": null,
+    "frames_24": null,
+    "fov_deg": 72,
+    "blocking": "per function"
+   }
+  ],
+  "dialogue": [
+   "ids ch14_*"
+  ],
+  "sound": [
+   "per _make_sounds / _play waves"
+  ],
+  "control_state": "movement locks by _hold(true/false) around each beat; control returns before timers",
+  "exit_camera_pose": "first person",
+  "handoff": "chapter_N_complete flag, checkpoint files (never the player's save slot)",
+  "skip_retry_load": "load rebuilds from flags",
+  "status": "LEDGER",
+  "notes": "Per-beat shot rows still to expand from the source functions listed here.",
+  "verify": [
+   [
+    "game/world/chapter14.gd",
+    "func _window_scene"
+   ],
+   [
+    "game/world/chapter14.gd",
+    "func _meeting"
+   ],
+   [
+    "game/world/chapter14.gd",
+    "func _siege"
+   ],
+   [
+    "game/world/chapter14.gd",
+    "func _shove"
+   ],
+   [
+    "game/world/chapter14.gd",
+    "func _crab"
+   ],
+   [
+    "game/world/chapter14.gd",
+    "func _separation"
+   ],
+   [
+    "game/world/chapter14.gd",
+    "func _house_gone"
+   ]
+  ]
+ },
+ {
+  "id": "C16.01",
+  "title": "What Remains (opening to chamber)",
+  "class": "campaign",
+  "source": "game/world/chapter15.gd: _colossus_reveal, _crossing_tick, _detected, _retry, _horror, _drop_stone, _decide",
+  "entry_predicate": "started by flag chain: chapter_14_complete -> ch15_started; all state in story flags + Game.world_state, a load rebuilds without replay (file header)",
+  "present": "alive/present survivors only (alive()/present() helpers); Marcus lines only if he survived",
+  "assets": "see file header",
+  "shots": [
+   {
+    "shot": "see source functions (first-person beats; cinematic camera only where a helper takes it)",
+    "seconds": null,
+    "frames_24": null,
+    "fov_deg": 72,
+    "blocking": "per function"
+   }
+  ],
+  "dialogue": [
+   "ids ch15_*"
+  ],
+  "sound": [
+   "per _make_sounds / _play waves"
+  ],
+  "control_state": "movement locks by _hold(true/false) around each beat; control returns before timers",
+  "exit_camera_pose": "first person",
+  "handoff": "chapter_N_complete flag, checkpoint files (never the player's save slot)",
+  "skip_retry_load": "load rebuilds from flags",
+  "status": "LEDGER",
+  "notes": "Per-beat shot rows still to expand from the source functions listed here. C16 Colossus beat: chapter15.gd:_colossus_reveal now uses the Meshy tripod (60 m holder via VeilTripodColossus.make_holder; walk 1.3 m/s = speed_scale 0.58); _col_play maps old clip names to Walk_Heavy / Idle.",
+  "verify": [
+   [
+    "game/world/chapter15.gd",
+    "func _colossus_reveal"
+   ],
+   [
+    "game/world/chapter15.gd",
+    "func _crossing_tick"
+   ],
+   [
+    "game/world/chapter15.gd",
+    "func _detected"
+   ],
+   [
+    "game/world/chapter15.gd",
+    "func _retry"
+   ],
+   [
+    "game/world/chapter15.gd",
+    "func _horror"
+   ],
+   [
+    "game/world/chapter15.gd",
+    "func _drop_stone"
+   ],
+   [
+    "game/world/chapter15.gd",
+    "func _decide"
+   ]
+  ]
+ },
+ {
+  "id": "C16.A",
+  "title": "Leave Greyhaven (ending A)",
+  "class": "campaign",
+  "source": "chapter15.gd:_ending_a, _look_back, _walk_away, _mist_edge, _leave_tunnel",
+  "entry_predicate": "decision ESCAPE after the final mechanism",
+  "present": "present survivors",
+  "assets": "service tunnel, fields",
+  "shots": [
+   {
+    "shot": "walk out, look back at Greyhaven",
+    "seconds": null,
+    "frames_24": null,
+    "fov_deg": 72,
+    "blocking": "mist edge moves"
+   }
+  ],
+  "dialogue": [
+   "epilogue_lines"
+  ],
+  "sound": [
+   "per code"
+  ],
+  "control_state": "hold",
+  "exit_camera_pose": "look-back",
+  "handoff": "_record_ending (user://veil_endings.json)",
+  "skip_retry_load": "replayable pre-decision save",
+  "status": "LEDGER",
+  "notes": "",
+  "verify": [
+   [
+    "game/world/chapter15.gd",
+    "func _ending_a"
+   ]
+  ]
+ },
+ {
+  "id": "C16.B",
+  "title": "Seal the chamber (ending B)",
+  "class": "campaign",
+  "source": "chapter15.gd:_ending_b, _seal_step, _refresh_seal_prompts",
+  "entry_predicate": "decision SEAL THE CHAMBER",
+  "present": "present survivors",
+  "assets": "chamber, lever, wheel, slab",
+  "shots": [
+   {
+    "shot": "lever then wheel under debris, escape, look back",
+    "seconds": null,
+    "frames_24": null,
+    "fov_deg": 72,
+    "blocking": "slab travel fitted to the mechanism"
+   }
+  ],
+  "dialogue": [
+   "ending B"
+  ],
+  "sound": [
+   "stone"
+  ],
+  "control_state": "hold",
+  "exit_camera_pose": "look-back",
+  "handoff": "_record_ending",
+  "skip_retry_load": "same",
+  "status": "LEDGER",
+  "notes": "",
+  "verify": [
+   [
+    "game/world/chapter15.gd",
+    "func _ending_b"
+   ]
+  ]
+ },
+ {
+  "id": "C16.C",
+  "title": "Send the survivors ahead (ending C)",
+  "class": "campaign",
+  "source": "chapter15.gd:_ending_c",
+  "entry_predicate": "decision SEND THE SURVIVORS AHEAD",
+  "present": "spokesperson + group; protagonist stays",
+  "assets": "tunnel, slab",
+  "shots": [
+   {
+    "shot": "goodbye, lever + wheel, collapse after they clear, flashlight dies",
+    "seconds": null,
+    "frames_24": null,
+    "fov_deg": 72,
+    "blocking": "unresolved fate"
+   }
+  ],
+  "dialogue": [
+   "ending C"
+  ],
+  "sound": [
+   "flashlight flicker -> silence"
+  ],
+  "control_state": "hold",
+  "exit_camera_pose": "dark",
+  "handoff": "_record_ending",
+  "skip_retry_load": "same",
+  "status": "LEDGER",
+  "notes": "",
+  "verify": [
+   [
+    "game/world/chapter15.gd",
+    "func _ending_c"
+   ]
+  ]
+ },
+ {
+  "id": "C16.X",
+  "title": "Epilogue and credits",
+  "class": "campaign",
+  "source": "chapter15.gd:epilogue_lines, _finish, _credits, _menu_main, _menu_replay, _menu_load",
+  "entry_predicate": "after any ending",
+  "present": "roster from real flags",
+  "assets": "title, credits, THANK YOU FOR PLAYING",
+  "shots": [
+   {
+    "shot": "epilogue lines -> title -> credits -> menu",
+    "seconds": null,
+    "frames_24": null,
+    "fov_deg": null,
+    "blocking": "text"
+   }
+  ],
+  "dialogue": [
+   "epilogue_lines()"
+  ],
+  "sound": [
+   "music"
+  ],
+  "control_state": "none",
+  "exit_camera_pose": "menu",
+  "handoff": "ending history file",
+  "skip_retry_load": "replay = pre-decision save",
+  "status": "LEDGER",
+  "notes": "Noah is NOT rescued in this snapshot; a rescue needs a story decision before wiring (separate animatic).",
+  "verify": [
+   [
+    "game/world/chapter15.gd",
+    "func epilogue_lines"
+   ],
+   [
+    "game/world/chapter15.gd",
+    "func _credits"
+   ]
+  ]
+ },
+ {
+  "id": "OPT.ROOF",
+  "title": "Optional roof Skitter (HOUSE_03)",
+  "class": "campaign (optional)",
+  "source": "game/encounters/roof_skitter.gd: setup, eligible, near_porch, _encounter, _escape_plan",
+  "entry_predicate": "flag egg_roof_skitter_seen not set; after the mist; near the porch",
+  "present": "protagonist",
+  "assets": "MON_skitter (Meshy), HOUSE_03 roof, skitter_hiss.wav, the_veil_jumpscare_sting.wav",
+  "shots": [
+   {
+    "shot": "porch sighting, leap/pin, 10-click struggle 4 s, escape",
+    "seconds": null,
+    "frames_24": null,
+    "fov_deg": 72,
+    "blocking": "fallback leap across blocked geometry"
+   }
+  ],
+  "dialogue": [],
+  "sound": [
+   "hiss",
+   "sting"
+  ],
+  "control_state": "struggle clicks; explicit handoff",
+  "exit_camera_pose": "first person",
+  "handoff": "SEEN flag",
+  "skip_retry_load": "once",
+  "status": "LEDGER",
+  "notes": "roof_skitter_handoff_test exists",
+  "verify": [
+   [
+    "game/encounters/roof_skitter.gd",
+    "func _encounter"
+   ]
+  ]
+ },
+ {
+  "id": "OPT.FRANK",
+  "title": "Frank and the Skitter",
+  "class": "campaign (optional-looking, runs after the Colossus)",
+  "source": "game/world/living_town.gd:_frank, _retreat_player",
+  "entry_predicate": "p3_stepped_out AND not lt_frank_done AND outdoors AND p3_mist AND not p3_back_inside",
+  "present": "Frank, Skitter, protagonist",
+  "assets": "MON_skitter via monster_scene, CHR_Frank",
+  "shots": [
+   {
+    "shot": "run, hunt, leap onto his chest (legs on the ground), 1.5 s pin, crawl to his side, grip shoulders, drag",
+    "seconds": null,
+    "frames_24": null,
+    "fov_deg": 72,
+    "blocking": "controls locked all scene; then the protagonist walks himself to the nearest open door and inside"
+   }
+  ],
+  "dialogue": [
+   "lt_frank_help",
+   "lt_eddie_frank"
+  ],
+  "sound": [
+   "ss_rush",
+   "ss_impact",
+   "hurt",
+   "sk_move_loop"
+  ],
+  "control_state": "controls off for the whole scene; returned after the retreat",
+  "exit_camera_pose": "inside the store door",
+  "handoff": "lt_frank_done",
+  "skip_retry_load": "once",
+  "status": "LEDGER",
+  "notes": "frank_skitter_test passes.",
+  "verify": [
+   [
+    "game/world/living_town.gd",
+    "func _frank"
+   ],
+   [
+    "game/world/living_town.gd",
+    "func _retreat_player"
+   ]
+  ]
+ },
+ {
+  "id": "OPT.STRUGGLE",
+  "title": "First-person monster struggles (hound/skitter/crab)",
+  "class": "campaign (optional, random)",
+  "source": "game/encounters/struggle.gd",
+  "entry_predicate": "eligible attack, chance 0.35, cooldown 40 s, never in story scenes",
+  "present": "any",
+  "assets": "hound/skitter/crab scenes",
+  "shots": [
+   {
+    "shot": "grab; click to break free",
+    "seconds": 5.0,
+    "frames_24": 120,
+    "fov_deg": null,
+    "blocking": "view turns to the creature"
+   }
+  ],
+  "dialogue": [],
+  "sound": [
+   "hs_* / ss_* / cs_* banks"
+  ],
+  "control_state": "clicks",
+  "exit_camera_pose": "player cam",
+  "handoff": "no kill",
+  "skip_retry_load": "nothing saved",
+  "status": "LEDGER",
+  "notes": "",
+  "verify": [
+   [
+    "game/encounters/struggle.gd",
+    "const STYLE"
+   ]
+  ]
+ },
+ {
+  "id": "OPT.GARAGE",
+  "title": "Garage tentacle",
+  "class": "campaign (optional)",
+  "source": "game/world/garage_tentacle.gd",
+  "entry_predicate": "after the breaker, before the loading door is pulled down",
+  "present": "protagonist",
+  "assets": "tentacles x3",
+  "shots": [
+   {
+    "shot": "reveal (camera held), 10 s countdown to pull the door",
+    "seconds": 10.0,
+    "frames_24": 240,
+    "fov_deg": null,
+    "blocking": "success/failure variants"
+   }
+  ],
+  "dialogue": [],
+  "sound": [
+   "tentacle_hiss"
+  ],
+  "control_state": "held then countdown",
+  "exit_camera_pose": "first person",
+  "handoff": "p4_garage_done",
+  "skip_retry_load": "retry = save at encounter start",
+  "status": "LEDGER",
+  "notes": "",
+  "verify": [
+   [
+    "game/world/garage_tentacle.gd",
+    "func _taken"
+   ]
+  ]
+ },
+ {
+  "id": "DEATH",
+  "title": "Death sequence",
+  "class": "campaign (all deaths)",
+  "source": "game/world/death_sequence.gd: VeilDeathSequence",
+  "entry_predicate": "player health reaches 0",
+  "present": "player",
+  "assets": "Meshy tripod holder (60 m) + 3 hounds",
+  "shots": [
+   {
+    "shot": "collapse 0-2 s, last view 2-5 s, the town belongs to them 5-8 s, YOU DIED 8-10 s",
+    "seconds": 9.5,
+    "frames_24": 228,
+    "fov_deg": null,
+    "blocking": "indoors: cut through black to a fixed Main St vignette; nothing spawns inside"
+   }
+  ],
+  "dialogue": [],
+  "sound": [
+   "muffle",
+   "distant calls"
+  ],
+  "control_state": "controls off",
+  "exit_camera_pose": "black + panel",
+  "handoff": "RETRY loads last save",
+  "skip_retry_load": "no flags/saves touched",
+  "status": "LEDGER",
+  "notes": "death_test fails identically with old creatures (baseline, not caused by this pass: 'death_stages_false started:true').",
+  "verify": [
+   [
+    "game/world/death_sequence.gd",
+    "func _spawn_colossus"
+   ]
+  ]
+ },
+ {
+  "id": "PROMO.TRAILER",
+  "title": "Trailer 'The Change'",
+  "class": "promotional (trailer mode)",
+  "source": "game/trailer/trailer_director.gd: _seg_ordinary/_seg_falling/_seg_shape/_seg_run/_seg_survive; --trailer",
+  "entry_predicate": "launch flag, F12 / T",
+  "present": "Eddie, Marcus, living town",
+  "assets": "Greyhaven",
+  "shots": [
+   {
+    "shot": "7 beats",
+    "seconds": null,
+    "frames_24": null,
+    "fov_deg": null,
+    "blocking": "never saves (Game.no_save)"
+   }
+  ],
+  "dialogue": [],
+  "sound": [],
+  "control_state": "none",
+  "exit_camera_pose": "menu",
+  "handoff": "none",
+  "skip_retry_load": "Esc",
+  "status": "LEDGER",
+  "notes": "Shape beat (_seg_shape) now uses the Meshy tripod (42 m, 0.6 speed).",
+  "verify": [
+   [
+    "game/trailer/trailer_director.gd",
+    "func _seg_shape"
+   ]
+  ]
+ },
+ {
+  "id": "LEGACY.PREVIEW",
+  "title": "Menu 'Watch Preview' reel",
+  "class": "legacy/menu",
+  "source": "game/cinematics/cinematic.gd (mode 'preview')",
+  "entry_predicate": "menu button only",
+  "present": "none",
+  "assets": "CRT_Colossus.glb (old)",
+  "shots": [
+   {
+    "shot": "7 title cards",
+    "seconds": 28.0,
+    "frames_24": 672,
+    "fov_deg": 68,
+    "blocking": "staged silhouettes"
+   }
+  ],
+  "dialogue": [],
+  "sound": [],
+  "control_state": "none",
+  "exit_camera_pose": "menu",
+  "handoff": "none",
+  "skip_retry_load": "skip",
+  "status": "LEDGER",
+  "notes": "New Game no longer plays its 'intro' mode.",
+  "verify": [
+   [
+    "game/cinematics/cinematic.gd",
+    "var mode"
+   ]
+  ]
+ }
+]

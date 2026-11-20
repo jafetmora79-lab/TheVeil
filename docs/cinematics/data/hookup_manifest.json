@@ -1,0 +1,24 @@
+{
+ "branch": "cinematics/ledger-pilot (off art/meshy-monsters 0aff4cb; nothing merged)",
+ "pilot": {
+  "sequence": "C03.02b",
+  "camera_data": "docs/cinematics/data/C03_02b_camera.json",
+  "blend": "docs/cinematics/blender/C03_02b_pilot.blend",
+  "hookup": "runtime stays code-driven (world.gd:_tripod_encounter); Blender data is the reference/timing. Markers to compare in a Godot reference scene: lock_on 15.2 s, jump_scare 15.75 s, zoom_end 16.55 s, control_return 17.8 s.",
+  "markers": [
+   "step_1 @ 5.93 s",
+   "step_2 @ 11.86 s",
+   "lock_on",
+   "jump_scare",
+   "zoom_end",
+   "control_return"
+  ]
+ },
+ "entry_points": {
+  "new_game": "MainMenu.tscn -> main_menu.gd:_start -> World.tscn -> world.gd:_opening",
+  "chapter_select": "chapters/chapter_select.gd (dev_chapterN.gd set-ups)",
+  "trailer": "trailer_mode.gd --trailer",
+  "preview": "cinematics/Cinematic.tscn (preview only)"
+ },
+ "integration_patch": "none needed for the pilot: the Godot code already runs the sequence; approved sequences would add runtime markers only"
+}

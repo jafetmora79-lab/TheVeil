@@ -1,0 +1,62 @@
+sequence,cue,source_function
+C01.00,radio static,game/world/intro_cinematic.gd
+C01.00,hound_bark x2,game/world/intro_cinematic.gd
+C01.00,MUSIC_COLOSSUS at the rise,game/world/intro_cinematic.gd
+C01.00,veil_rumble,game/world/intro_cinematic.gd
+C01.00,colossus_call,game/world/intro_cinematic.gd
+C01.01,fridge_hum,world.gd
+C01.01,door_open/close,world.gd
+C01.01,step,world.gd
+C02.01,engine/radio,world.gd
+C02.01,door,world.gd
+C03.01,veil_rumble,world.gd
+C03.01,light stutter,world.gd
+C03.02a,colossus_call +4/-6 dB,world.gd
+C03.02a,MUSIC_COLOSSUS,world.gd
+C03.02a,colossus_step +6 dB pitch 0.7,world.gd
+C03.02a,hurt (clerk),world.gd
+C03.02a,lamp sparks,world.gd
+C03.02b,colossus_step +5 dB pitch 0.55 each step_interval 5.93 s,world.gd
+C03.02b,colossus_call jump-scare,world.gd
+C03.02b,MUSIC_COLOSSUS -6 dB,world.gd
+C03.03,static -4 dB at the sedan,world.gd
+C03.03,tentacle_hiss,world.gd
+C03.03,colossus_call,world.gd
+C03.04,door_close,world.gd
+C03.04,footfalls outside,world.gd
+C04.01,tentacle_hiss,world.gd
+C04.01,chase music,world.gd
+C04.02,door_open,world.gd
+C04.02,blackout,world.gd
+C05.01,door/rattle/flicker on the contact frame,game/world/phase4.gd
+C05.02a,breath,phase4.gd
+C05.02a,music cue,phase4.gd
+C05.02a,impact after the door closes,phase4.gd
+C05.02b,impact_wave,phase4.gd
+C05.02b,scrape,phase4.gd
+C05.02b,door strike,phase4.gd
+C06.01,per _make_sounds / _play waves,game/world/chapter5.gd
+C07.01,per _make_sounds / _play waves,game/world/chapter6.gd
+C08.01,per _make_sounds / _play waves,game/world/chapter7.gd
+C09.01,per _make_sounds / _play waves,game/world/chapter8.gd
+C10.01,per _make_sounds / _play waves,game/world/chapter9.gd
+C11.01,per _make_sounds / _play waves,game/world/chapter10.gd
+C12.01,per _make_sounds / _play waves,game/world/chapter11.gd
+C13.01,per _make_sounds / _play waves,game/world/chapter12.gd
+C14.01,per _make_sounds / _play waves,game/world/chapter13.gd
+C15.01,per _make_sounds / _play waves,game/world/chapter14.gd
+C16.01,per _make_sounds / _play waves,game/world/chapter15.gd
+C16.A,per code,chapter15.gd
+C16.B,stone,chapter15.gd
+C16.C,flashlight flicker -> silence,chapter15.gd
+C16.X,music,chapter15.gd
+OPT.ROOF,hiss,game/encounters/roof_skitter.gd
+OPT.ROOF,sting,game/encounters/roof_skitter.gd
+OPT.FRANK,ss_rush,game/world/living_town.gd
+OPT.FRANK,ss_impact,game/world/living_town.gd
+OPT.FRANK,hurt,game/world/living_town.gd
+OPT.FRANK,sk_move_loop,game/world/living_town.gd
+OPT.STRUGGLE,hs_* / ss_* / cs_* banks,game/encounters/struggle.gd
+OPT.GARAGE,tentacle_hiss,game/world/garage_tentacle.gd
+DEATH,muffle,game/world/death_sequence.gd
+DEATH,distant calls,game/world/death_sequence.gd
