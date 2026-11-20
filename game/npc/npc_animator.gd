@@ -151,6 +151,21 @@ func set_mood(m: String) -> void:
 	mood = m
 
 
+## A hop / vault: wind-up crouch (20 %), flight (60 %) with arms thrown up and knees tucked, landing absorb (20 %).
+## Only the body pose and the skeleton's height move (the physical body is driven by whoever calls this).
+var _jump_t := -1.0
+var _jump_dur := 0.75
+var _jump_h := 0.5
+func jump(height := 0.5, duration := 0.75) -> void:
+	_jump_h = height
+	_jump_dur = maxf(duration, 0.3)
+	_jump_t = 0.0
+
+
+func is_jumping() -> bool:
+	return _jump_t >= 0.0
+
+
 func walk_to(points: Array, speed := 1.25) -> void:
 	_path = points.duplicate()
 	walk_speed = speed
@@ -187,6 +202,10 @@ func _process(delta: float) -> void:
 	_update_gestures(delta)
 	_update_look(delta)
 	_sit = move_toward(_sit, 1.0 if seated else 0.0, delta * 1.7)
+	if _jump_t >= 0.0:
+		_jump_t += delta
+		if _jump_t >= _jump_dur:
+			_jump_t = -1.0
 	_pose()
 
 
@@ -351,10 +370,26 @@ func _pose() -> void:
 	var sway := sin(t * 0.37) * (1.0 - _walk)
 	var w := _walk
 	var ph := _phase
+	# jump envelope: cr = crouch (wind-up, landing), air = in flight, lift = height of the flight arc
+	var cr := 0.0
+	var air := 0.0
+	var lift := 0.0
+	if _jump_t >= 0.0:
+		var ju := _jump_t / _jump_dur
+		w = 0.0
+		if ju < 0.2:
+			cr = sin(ju / 0.2 * PI * 0.5)
+		elif ju < 0.8:
+			var u := (ju - 0.2) / 0.6
+			air = smoothstep(0.0, 0.12, u) * (1.0 - smoothstep(0.85, 1.0, u))
+			lift = 4.0 * u * (1.0 - u) * _jump_h
+			cr = (1.0 - smoothstep(0.0, 0.12, u)) * 1.0
+		else:
+			cr = cos((ju - 0.8) / 0.2 * PI * 0.5) * 0.85
 	# --- torso: breathing, weight shift, scared hunch, walk counter-rotation, nods on speech
-	_pose_bone("Hips", _q(F, sway * 1.4) * _q(U, sin(ph) * 4.0 * w))
+	_pose_bone("Hips", _q(F, sway * 1.4) * _q(U, sin(ph) * (4.0 + 4.0 * _run) * w) * _q(R, -5.0 * _run * w - 14.0 * cr + 6.0 * air))
 	var rn := _run
-	_pose_bone("Spine", _q(R, -br * 0.7 - s * 4.0 - 9.0 * rn) * _q(U, -sin(ph) * (2.5 + 3.0 * rn) * w))
+	_pose_bone("Spine", _q(R, -br * 0.7 - s * 4.0 - 9.0 * rn - 12.0 * cr + 5.0 * air) * _q(U, -sin(ph) * (2.5 + 3.0 * rn) * w))
 	_pose_bone("Chest", _q(R, -br * 1.4 - s * 5.0 - 4.0 * rn) * _q(F, -sway * 0.8))
 	_pose_bone("UpperChest", _q(R, -br * 0.8 - s * 3.0) * _q(U, -sin(ph) * 3.0 * w))
 	# --- head / neck: look-at + nods + tilt
@@ -370,25 +405,25 @@ func _pose() -> void:
 		var out := -1.0 if side == "Left" else 1.0
 		var k := "l" if side == "Left" else "r"
 		var opp := -1.0 if side == "Left" else 1.0
-		var swing := sin(ph) * opp * (22.0 + 26.0 * _run) * w
+		var swing := sin(ph) * opp * (22.0 + 44.0 * _run) * w
 		var idle := sin(t * 0.9 + out) * 1.5 * (1.0 - w)
 		var g_up: float = _gest[k + "a"] * 28.0
 		var g_fore: float = _gest[k + "f"] * 55.0
-		_pose_bone(side + "UpperArm", _q(R, swing + idle + g_up + s * 14.0) * _q(F, -out * (g_up * 0.25 + s * 4.0)))
-		_pose_bone(side + "LowerArm", _q(R, g_fore + s * 34.0 + maxf(swing, 0.0) * 0.6 + 4.0 * w + 72.0 * _run * w))
+		_pose_bone(side + "UpperArm", _q(R, swing + idle + g_up + s * 14.0 - 40.0 * cr + 125.0 * air) * _q(F, -out * (g_up * 0.25 + s * 4.0)))
+		_pose_bone(side + "LowerArm", _q(R, g_fore + s * 34.0 + maxf(swing, 0.0) * 0.6 + 4.0 * w + 88.0 * _run * w + 25.0 * air - 10.0 * cr))
 	# --- legs: walk cycle (thigh swing, knee bend on the back swing)
 	for side in ["Left", "Right"]:
 		var sg := 1.0 if side == "Left" else -1.0
 		var c := sin(ph) * sg
 		var sit_out := (-1.0 if side == "Left" else 1.0) * 6.0 * _sit          # knees slightly apart
-		_pose_bone(side + "UpperLeg", _q(R, c * (24.0 + 14.0 * _run) * w + maxf(c, 0.0) * 12.0 * _run * w + s * 2.0 + SIT_THIGH * _sit) * _q(F, sit_out))
-		_pose_bone(side + "LowerLeg", _q(R, -maxf(-cos(ph) * sg, 0.0) * (38.0 + 50.0 * _run) * w - maxf(c, 0.0) * 8.0 * w - s * 3.0 - SIT_KNEE * _sit))
-		_pose_bone(side + "Foot", _q(R, -c * 10.0 * w))
+		_pose_bone(side + "UpperLeg", _q(R, c * (24.0 + 22.0 * _run) * w + maxf(c, 0.0) * 16.0 * _run * w + 48.0 * cr + (46.0 if side == "Left" else 22.0) * air + s * 2.0 + SIT_THIGH * _sit) * _q(F, sit_out))
+		_pose_bone(side + "LowerLeg", _q(R, -maxf(-cos(ph) * sg, 0.0) * (38.0 + 60.0 * _run) * w - 80.0 * cr - 70.0 * air - maxf(c, 0.0) * 8.0 * w - s * 3.0 - SIT_KNEE * _sit))
+		_pose_bone(side + "Foot", _q(R, -c * 10.0 * w + 12.0 * cr + 18.0 * air))
 	# a small bounce while walking (on the skeleton node, not the character root); seated: pelvis down to the seat
 	if _hip_h < 0.0:
 		var hi := bone("Hips")
 		_hip_h = (skel.get_bone_global_rest(hi).origin * skel.global_transform.basis.get_scale()).y if hi >= 0 else 0.95
-	skel.position.y = absf(sin(ph)) * (0.025 + 0.035 * _run) * w - 0.03 * _run * w - maxf(_hip_h - seat_y - 0.06, 0.0) * _sit
+	skel.position.y = absf(sin(ph)) * (0.025 + 0.06 * _run) * w - 0.03 * _run * w + lift - 0.16 * cr - maxf(_hip_h - seat_y - 0.06, 0.0) * _sit
 
 
 # ------------------------------------------------------------------ footsteps (the same recordings as the player's)
