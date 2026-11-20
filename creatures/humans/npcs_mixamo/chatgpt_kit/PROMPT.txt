@@ -1,7 +1,7 @@
 THE VEIL - face expression kit for the Mixamo-rigged NPCs
 =========================================================
 Use ONE image per chat (the attached <name>_face_base_marked_1000.png - the version with four magenta registration squares) and the prompt below. Send it, then ask for ONE separate image at a time (not a combined sheet): each must be 1000x1000 with the head and the four squares in exactly the same place as the original. If you do ask for several at once, get each as its own full-size file.
-If you ask for the six images one by one if ChatGPT does not make them all at once.
+Ask for the six images one by one.
 
 ----- PROMPT (copy everything between the lines) -----
 Attached is a front-on, flat-lit crop of a low-poly PSX-style game character's face (1000x1000 px, texture look: soft, slightly blurry, chunky), on a black background.
