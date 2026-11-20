@@ -2191,6 +2191,9 @@ func _enc_fade_sounds() -> void:
 
 
 func _colossus_encounter() -> void:
+	if VeilMeshyNpcs.tripod_enabled():
+		await _tripod_encounter()
+		return
 	_encounter_running = true
 	Game.set_flag("p3_stepped_out")
 	_end_cine()
@@ -2535,7 +2538,184 @@ func _colossus_encounter() -> void:
 	_encounter_running = false
 	if living and living.has_method("restore_after_shot"):
 		living.restore_after_shot()
-	# --- Stage 7: survival begins
+	_p3_survival_begins(door_out, shop_door)
+
+
+const COLOSSUS_H := 42.0                       ## the tripod Colossus's height in the encounter (m)
+
+
+## The Colossus (the Meshy tripod). It strides in out of the mist across the street, its one eye a searchlight sweeping the city; it stops, turns, finds the
+## protagonist and locks the light on him. Then the survival begins: GET BACK INSIDE. The light follows him until he is under cover (_tripod_watch).
+func _tripod_encounter() -> void:
+	_encounter_running = true
+	Game.set_flag("p3_stepped_out")
+	_end_cine()
+	_enc_store = market if player.global_position.distance_to(market.global_position) < player.global_position.distance_to(game_shop.global_position) else game_shop
+	var door_in: Vector3 = (_enc_store.get_node("Doorways/Entrance_Inside") as Node3D).global_position
+	var door_out: Vector3 = (_enc_store.get_node("Doorways/Entrance_Outside") as Node3D).global_position
+	var n := ((door_out - door_in) * Vector3(1, 0, 1)).normalized()
+	var side := n.cross(Vector3.UP).normalized()
+	var P := player.global_position
+	var ground := P.y
+	var shop_door: Vector3 = (game_shop.get_node("Doorways/Entrance_Outside") as Node3D).global_position
+	if _enc_store == market:
+		_market_doors_die()
+		_clerk_beside(P, n, P + n * 20.0 + side * 6.0)
+	player.controls_enabled = false
+	player.velocity = Vector3.ZERO
+	hud.allow_pause = false
+	hud.set_hint("")
+	_enc_sounds.append(Sfx.play("colossus_call", P + n * 30.0 + Vector3(0, 12, 0), 4.0, 0.8))
+	Sfx.play_music(Sfx.MUSIC_COLOSSUS, false, -6.0, 0.6, Sfx.MUSIC_GAMEPLAY)
+	var cam := Camera3D.new()
+	cam.name = "EncounterCam"
+	add_child(cam)
+	cam.global_transform = player.camera.global_transform
+	cam.fov = player.camera.fov
+	cam.far = 700.0
+	cam.current = true
+	if living and living.has_method("clear_shot"):
+		living.clear_shot(cam.global_position, [-cam.global_basis.z, n * 30.0])
+	# --- the creature comes in from the left, far across the street
+	var tc := VeilTripodColossus.new()
+	tc.name = "Colossus_Encounter"
+	add_child(tc)
+	tc.build(COLOSSUS_H, ground)
+	var A := P + n * 50.0 - side * 42.0
+	var B := P + n * 40.0 + side * 30.0
+	A.y = ground
+	var wd := ((B - A) * Vector3(1, 0, 1)).normalized()
+	tc.global_position = A
+	tc.rotation.y = atan2(-wd.x, -wd.z)                       # the model faces -Z
+	tc.set_walking(true, 1.5)
+	tc.eye.search_on = true
+	var scan := Node3D.new()
+	scan.name = "EyeScan"
+	add_child(scan)
+	tc.eye.target = scan
+	enc_report["colossus_tripod"] = true
+	var head_pos := P + Vector3(0, 1.6, 0)
+	var t := 0.0
+	var step_t := 0.0
+	var walk_end := 7.0
+	var turned := false
+	var lock_t := walk_end + 1.8
+	while t < lock_t:
+		await get_tree().process_frame
+		var dt := get_process_delta_time()
+		t += dt
+		if t < walk_end:
+			tc.global_position += wd * tc.ground_speed() * dt
+			step_t += dt
+			if step_t >= tc.step_interval():
+				step_t = 0.0
+				_enc_sounds.append(Sfx.play("colossus_step", tc.global_position + Vector3(0, 1, 0), 3.0, 0.7))
+				_shake(cam, 0.3, 0.012)
+			var k := clampf(t / (walk_end - 0.5), 0.0, 1.0)
+			scan.global_position = P + n * 24.0 + side * lerpf(-52.0, 30.0, k * k * (3.0 - 2.0 * k)) + Vector3(0, 0.5, 0)       # the light sweeps the street
+		else:
+			if not turned:
+				turned = true
+				tc.set_walking(false)
+				var to_p := (P - tc.global_position) * Vector3(1, 0, 1)
+				var tw_t := create_tween()
+				tw_t.tween_property(tc, "rotation:y", lerp_angle(tc.rotation.y, atan2(-to_p.x, -to_p.z), 1.0), 1.6).set_trans(Tween.TRANS_SINE)
+				_enc_sounds.append(Sfx.play("colossus_step", tc.global_position + Vector3(0, 1, 0), 4.0, 0.6))
+			var k2 := clampf((t - walk_end) / 1.2, 0.0, 1.0)
+			scan.global_position = (P + n * 24.0 + side * 30.0 + Vector3(0, 0.5, 0)).lerp(head_pos, k2 * k2 * (3.0 - 2.0 * k2))   # it finds him
+		# the player's eyes follow the creature
+		var want := Transform3D(Basis(), cam.global_position).looking_at(tc.global_position + Vector3(0, COLOSSUS_H * 0.45, 0), Vector3.UP).basis.get_rotation_quaternion()
+		cam.global_basis = Basis(cam.global_basis.get_rotation_quaternion().slerp(want, 1.0 - exp(-2.5 * dt)))
+	# --- locked on him
+	enc_report["locked_on"] = true
+	_enc_sounds.append(Sfx.play("colossus_call", tc.global_position + Vector3(0, 20, 0), 6.0, 1.0))
+	_clerk_flees(P + ((tc.global_position - P) * Vector3(1, 0, 1)).normalized() * 15.0)     # the clerk breaks and runs
+	await _shake(cam, 0.5, 0.05)                              # (it puts the camera back where it was: finish before the face shot places it)
+	_npc_fright(P + n * 10.0)
+	# --- the protagonist's face, lit by it
+	var d_leg := ((tc.global_position - P) * Vector3(1, 0, 1)).normalized()
+	var me := _spawn_npc(load(PROTAG_PATH), load(PROTAG_FACE_PATH), self, P, atan2(-d_leg.x, -d_leg.z), "Protagonist")
+	_cine_double(me, P)
+	me.name = "Protagonist_Cine"
+	var ma = animators["Protagonist"]
+	ma.set_mood("scared")
+	ma.turn_to_face = false
+	ma.max_pitch = 1.05
+	var gaze := Node3D.new()
+	gaze.name = "Gaze"
+	add_child(gaze)
+	gaze.global_position = tc.eye.eye_world_pos()
+	ma.look_target = gaze
+	faces["Protagonist"].set_expression("shocked")
+	faces["Protagonist"].widen_eyes(2.5)
+	var head: Vector3 = (ma.skel.global_transform * ma.skel.get_bone_global_pose(ma.bone("Head")).origin)
+	var key := OmniLight3D.new()                                   # its light on his face
+	key.light_color = Color(1.0, 0.72, 0.4)
+	key.light_energy = 0.9
+	key.omni_range = 3.5
+	add_child(key)
+	key.global_position = head + d_leg * 1.3 + side * 0.5 + Vector3(0, 0.3, 0)
+	cam.global_position = head + d_leg * 1.05 + side * 0.42 - Vector3(0, 0.04, 0)
+	cam.look_at(head + Vector3(0, 0.02, 0), Vector3.UP)
+	cam.fov = 42.0
+	var tk := create_tween()
+	tk.tween_property(key, "light_energy", 3.2, 1.8)
+	faces["Protagonist"].set_expression("scared")
+	await get_tree().create_timer(2.4).timeout
+	# --- back to the first person, eased; the encounter's sounds fade out with it
+	key.queue_free()
+	gaze.queue_free()
+	me.queue_free()
+	animators.erase("Protagonist")
+	faces.erase("Protagonist")
+	player.set_yaw_pitch(atan2(-d_leg.x, -d_leg.z), deg_to_rad(14.0))
+	var fp := player.camera.global_transform
+	var tb := create_tween()
+	tb.tween_property(cam, "global_transform", fp, 0.7).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
+	tb.parallel().tween_property(cam, "fov", player.camera.fov, 0.7)
+	_enc_fade_sounds()
+	await tb.finished
+	cam.queue_free()
+	player.camera.current = true
+	player.controls_enabled = true
+	hud.allow_pause = true
+	_encounter_running = false
+	if living and living.has_method("restore_after_shot"):
+		living.restore_after_shot()
+	scan.queue_free()
+	_p3_survival_begins(door_out, shop_door)
+	_tripod_watch(tc, wd)
+
+
+## The light stays on him while he is out in the street; once he is back under cover it swings away and the Colossus walks off into the mist.
+func _tripod_watch(tc: VeilTripodColossus, wd: Vector3) -> void:
+	tc.eye.target = player.camera
+	var t := 0.0
+	while is_instance_valid(tc) and t < 40.0:
+		await get_tree().process_frame
+		t += get_process_delta_time()
+		if t > 3.0 and not _outdoors():
+			break
+	if not is_instance_valid(tc):
+		return
+	enc_report["tripod_released"] = true
+	var away := Node3D.new()
+	add_child(away)
+	away.global_position = tc.global_position + wd * 40.0 + Vector3(0, 2.0, 0)
+	tc.eye.target = away
+	get_tree().create_timer(3.0).timeout.connect(func(): if is_instance_valid(tc): tc.eye.search_on = false)
+	var tw := create_tween()
+	tw.tween_property(tc, "rotation:y", lerp_angle(tc.rotation.y, atan2(-wd.x, -wd.z), 1.0), 2.0)
+	tc.set_walking(true, 1.5)
+	var tm := create_tween()
+	tm.tween_property(tc, "global_position", tc.global_position + wd * tc.ground_speed() * 30.0, 30.0)
+	tm.tween_callback(func():
+		away.queue_free()
+		tc.queue_free())
+
+
+## Stage 7 of the Colossus encounter (either one): the survival HUD, the way back, the tentacles.
+func _p3_survival_begins(door_out: Vector3, shop_door: Vector3) -> void:
 	player.set_survival(true)
 	hud.set_survival_visible(true)
 	if _enc_store == market:

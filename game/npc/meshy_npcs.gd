@@ -67,6 +67,11 @@ static func monsters_enabled() -> bool:
 	return not OS.get_cmdline_user_args().has("old_monsters") and OS.get_environment("VEIL_OLD_MONSTERS") != "1"
 
 
+## The Colossus is the Meshy tripod (a searchlight eye that scans the city and locks on). `-- old_colossus` (or VEIL_OLD_COLOSSUS=1) plays the original stomping encounter.
+static func tripod_enabled() -> bool:
+	return not OS.get_cmdline_user_args().has("old_colossus") and OS.get_environment("VEIL_OLD_COLOSSUS") != "1"
+
+
 ## The Skitter scene to load: the Meshy Skitter (same bones, clip names and metadata as the old one) unless `-- old_monsters`.
 static func skitter_scene(old_path: String) -> String:
 	return "res://game/prototypes/monsters_meshy/MON_skitter.tscn" if monsters_enabled() else old_path

@@ -160,6 +160,11 @@ for name, fx in leg_defs.items():
     LEGS.append((name, hip, knee, ankle, toe))
     print("LEG", name, "hip", np.round(hip, 3), "knee", np.round(knee, 3), "ankle", np.round(ankle, 3), "pts", int(mask.sum()))
 
+# the eye: the pod hanging in the ribcage (GLB coordinates). It gets its own bone so the game can turn it to watch things.
+EC = np.array([0.062, -0.085, 0.012])
+ER = np.array([0.045, 0.040, 0.062])
+bones.append(("Eye", EC, EC + np.array([0, -0.05, 0]), "Body"))
+
 # ------------------------------------------------------------------ 3. skin weights per vertex: nearest bone segments, short blend (computed here, in the GLB's frame)
 SIGMA = 0.012
 D = np.stack([seg_dist(V, b[1], b[2]) for b in bones], axis=1)       # (n verts, n bones)
@@ -171,6 +176,12 @@ np.put_along_axis(mask3, order[:, :3], True, axis=1)
 Wt = np.where(mask3, Wt, 0.0)
 Wt = np.where(Wt < 0.04 * Wt.max(1, keepdims=True), 0.0, Wt)
 Wt /= Wt.sum(1, keepdims=True)
+j_eye = [b[0] for b in bones].index("Eye")
+qe = (((V - EC) / ER) ** 2).sum(1)
+bl = np.clip((qe - 0.7) / 0.7, 0.0, 1.0)
+Wt = Wt * bl[:, None]
+Wt[:, j_eye] = 1.0 - bl
+print("EYE verts", int((qe < 0.7).sum()), "blend", int(((qe >= 0.7) & (qe < 1.4)).sum()))
 
 # ------------------------------------------------------------------ 4. orient (a half turn about Z so the front looks +Y = Godot -Z), scale, ground; flat-shade
 Vf = V.copy()
@@ -193,6 +204,13 @@ for p in me.polygons:
 for nd in me.materials[0].node_tree.nodes:
     if nd.type == 'TEX_IMAGE':
         nd.interpolation = "Closest"
+eye_mat = me.materials[0].copy()                     # the pod's faces get their own material slot (the game makes it glow)
+eye_mat.name = "Eye"
+me.materials.append(eye_mat)
+for pg in me.polygons:
+    if all(Wt[v, j_eye] > 0.99 for v in pg.vertices):
+        pg.material_index = 1
+print("EYE faces", sum(1 for pg in me.polygons if pg.material_index == 1))
 src.name = "Tripod_Body"
 VS = verts()
 print("TRIPOD size", (VS.max(0) - VS.min(0)).round(2), "scale", round(S, 3))

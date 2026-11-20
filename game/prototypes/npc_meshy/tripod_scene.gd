@@ -15,6 +15,8 @@ var out := ""
 var camera: Camera3D
 var stage: Node3D
 var colossus: Node3D
+var eye: VeilTripodEye
+var scan: Node3D
 var cast := {}                                         # name -> {"holder", "anim", "face"}
 var caption: Label
 var small: Label
@@ -44,6 +46,8 @@ func _ready() -> void:
 	colossus = COLOSSUS.instantiate() as Node3D
 	add_child(colossus)
 	colossus.position = START
+	eye = VeilTripodEye.new()
+	colossus.add_child(eye)
 	colossus.look_at(Vector3(16, 0, -8), Vector3.UP)
 	var players := colossus.find_children("*", "AnimationPlayer", true, false)
 	if not players.is_empty():
@@ -122,7 +126,7 @@ func _cast() -> void:
 
 
 func _set_look() -> void:
-	(get_node("ColossusHead") as Node3D).global_position = colossus.global_position + Vector3(0, 9.0, 0)
+	(get_node("ColossusHead") as Node3D).global_position = eye.eye_world_pos()
 
 
 func _frame(i: int) -> void:
@@ -130,19 +134,25 @@ func _frame(i: int) -> void:
 	get_viewport().get_texture().get_image().save_png("%s/col_%03d.png" % [out, i])
 
 
+func _head(nm: String) -> Vector3:
+	return (cast[nm]["holder"] as Node3D).global_position + Vector3(0, 1.62, 0)
+
+
 func _run() -> void:
 	var f := (Vector3(START.x, 0, START.z) - Vector3(GROUP.x, 0, GROUP.z)).normalized()
 	var r := f.cross(Vector3.UP)
+	scan = Node3D.new()
+	add_child(scan)
+	eye.target = scan
 	var shots := [
-		# 1: the title reel's own camera move, the three of them in the foreground, backs to us, watching it come
-		{"dur": 4.2, "from": Vector3(17, 1.65, -7), "to": Vector3(16, 1.65, -8), "look": Vector3(21, 3.5, -15), "title": "THE MIST HAS A SHAPE", "sub": "And it remembers you."},
-		# 2: from beside them: faces turned up to it; the fear arrives
-		{"dur": 3.4, "from": GROUP + f * 0.9 + r * 3.7 + Vector3(0, 1.5, 0), "to": GROUP + f * 0.7 + r * 2.9 + Vector3(0, 1.5, 0), "look": GROUP - f * 0.3 - r * 0.2 + Vector3(0, 1.85, 0), "title": "", "sub": ""},
-		# 3: close on their faces
-		{"dur": 3.2, "fov": 36.0, "from": GROUP + f * 2.5 + r * 0.7 + Vector3(0, 1.3, 0), "to": GROUP + f * 2.1 + r * 0.3 + Vector3(0, 1.35, 0), "look": GROUP - f * 0.45 + Vector3(0, 1.5, 0), "title": "", "sub": ""},
+		# 1: the three of them with their backs to us, the creature coming; its eye sweeps over the street looking for them
+		{"dur": 4.4, "from": Vector3(17, 1.65, -7), "to": Vector3(16, 1.65, -8), "title": "THE MIST HAS A SHAPE", "sub": "And it remembers you."},
+		# 2: from the side: the eye finds the protagonist, meets his eyes, the beam, GET BACK INSIDE THE STORE, they run
+		{"dur": 7.0, "from": GROUP + f * 5.0 + r * 15.0 + Vector3(0, 2.3, 0), "to": GROUP + f * 4.0 + r * 13.0 + Vector3(0, 2.3, 0), "fov": 62.0, "title": "", "sub": ""},
 	]
 	var n := 0
 	var t_all := 0.0
+	var run_away := false
 	for si in shots.size():
 		var s: Dictionary = shots[si]
 		caption.text = s["title"]
@@ -152,32 +162,46 @@ func _run() -> void:
 			var u := clampf(t / s["dur"], 0.0, 1.0)
 			var e := u * u * (3.0 - 2.0 * u)
 			camera.position = (s["from"] as Vector3).lerp(s["to"] as Vector3, e)
-			var lk: Vector3 = s["look"]
-			if si == 0:
-				lk = colossus.global_position + Vector3(0, 5.5, 0)
+			var gp := GROUP + Vector3(0, 1.6, 0)
+			var lk := colossus.global_position + Vector3(0, 5.5, 0)
+			if si == 1:
+				lk = gp.lerp(eye.eye_world_pos(), 0.5)
 			camera.look_at(lk, Vector3.UP)
 			camera.fov = float(s.get("fov", 68.0))
-			# the Colossus walks toward them (slowly)
-			colossus.global_position = START + (Vector3(GROUP.x, 0.15, GROUP.z) - START).normalized() * 0.72 * (t_all)
+			if not run_away:
+				colossus.global_position = START + (Vector3(GROUP.x, 0.15, GROUP.z) - START).normalized() * 0.72 * t_all
 			_set_look()
-			# reactions in the second shot: Eddie and the protagonist scared, Marcus worried then scared
-			if si == 1:
-				if t >= 0.5 and t < 0.5 + DT:
+			if si == 0:
+				# scanning: the eye sweeps slowly along the three of them
+				scan.global_position = GROUP + r * (2.4 * sin(t * 1.1)) + Vector3(0, 1.5, 0)
+			else:
+				var sw := clampf(t / 1.4, 0.0, 1.0)                    # the sweep slows and settles on the protagonist's face
+				scan.global_position = (GROUP + r * (2.4 * sin(4.4 * 1.1 + t * 1.1) * (1.0 - sw)) + Vector3(0, 1.5, 0)).lerp(_head("Protagonist"), sw)
+				if t >= 0.3 and t < 0.3 + DT:
 					cast["Protagonist"]["face"].expression = "scared"
 					cast["Protagonist"]["anim"].set_mood("scared")
 					cast["Eddie"]["face"].expression = "scared"
 					cast["Eddie"]["anim"].set_mood("scared")
 					cast["Marcus"]["face"].expression = "worried"
-				if t >= 1.8 and t < 1.8 + DT:
+				if t >= 1.6 and t < 1.6 + DT:
+					eye.beam_on = true                                   # it has found his eyes
+				if t >= 2.9 and t < 2.9 + DT:
+					caption.text = "GET BACK INSIDE THE STORE"
+					caption.add_theme_color_override("font_color", Color(1.0, 0.45, 0.3))
 					cast["Marcus"]["face"].expression = "scared"
 					cast["Marcus"]["anim"].set_mood("scared")
-					cast["Marcus"]["anim"].talk(2.0)
-			# fade in from black and out to black at each cut
-			var a := 1.0 - clampf(t / 0.6, 0.0, 1.0)
-			if u > 0.86:
-				a = maxf(a, (u - 0.86) / 0.14)
+				if t >= 3.5 and t < 3.5 + DT:
+					for nm in cast:
+						var h: Node3D = cast[nm]["holder"]
+						var away := h.global_position - f * 14.0 + r * (0.6 if nm == "Eddie" else -0.6 if nm == "Marcus" else 0.0)
+						cast[nm]["anim"].walk_to([away], 4.8)
+				if t >= 5.2:
+					eye.beam_on = false
+			var a := 1.0 - clampf(t / 0.6, 0.0, 1.0) if si == 0 else 0.0
+			if u > 0.93:
+				a = maxf(a, (u - 0.93) / 0.07)
 			fade.color.a = a
-			caption.modulate.a = minf(1.0, t / 0.8)
+			caption.modulate.a = minf(1.0, t / 0.6) if si == 0 or t > 2.9 else (0.0 if si == 1 else 1.0)
 			small.modulate.a = caption.modulate.a
 			await get_tree().process_frame
 			if n % 2 == 0 and out != "":

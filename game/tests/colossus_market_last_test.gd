@@ -60,8 +60,9 @@ func _run() -> void:
 	ok("encounter_starts", await until(func(): return w._encounter_running, 6.0))
 	ok("doors_died", game.has_flag("p3_market_doors_dead") and not w._doors_powered)
 	ok("clerk_beside", w.enc_report.get("clerk_out", false) and w.cashier.visible)
-	ok("foot_off_route", float(w.enc_report.get("route_clearance_m", -1.0)) >= 8.5, "%.1f m" % float(w.enc_report.get("route_clearance_m", -1.0)))
-	ok("legs_solid", w.enc_report.get("leg_blockers", false))
+	var tri: bool = w.enc_report.get("colossus_tripod", false)             # the tripod Colossus stays across the street: no foot / leg bodies by the shop
+	ok("foot_off_route", tri or float(w.enc_report.get("route_clearance_m", -1.0)) >= 8.5, "%.1f m" % float(w.enc_report.get("route_clearance_m", -1.0)))
+	ok("legs_solid", tri or w.enc_report.get("leg_blockers", false))
 	# while it stands there: the straight way to the shop is not blocked by a leg
 	await until(func(): return w.enc_report.has("foot_error_m"), 30.0)
 	await frames(10)
@@ -73,7 +74,7 @@ func _run() -> void:
 	if not legs.is_empty():
 		for b in (legs[0] as Node).find_children("*", "AnimatableBody3D", true, false):
 			leg_rids.append((b as CollisionObject3D).get_rid())
-	ok("leg_bodies", leg_rids.size() == 8, "%d" % leg_rids.size())
+	ok("leg_bodies", tri or leg_rids.size() == 8, "%d" % leg_rids.size())
 	var P: Vector3 = w.player.global_position
 	for k in 21:
 		var pt := P.lerp(shop_door, k / 20.0) + Vector3(0, 1.0, 0)
