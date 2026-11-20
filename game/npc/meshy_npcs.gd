@@ -5,7 +5,7 @@ class_name VeilMeshyNpcs
 ## world.gd `_spawn_npc(...)` asks `model_for(speaker)`: the Meshy model (with face-texture expressions) when this speaker has one, else the old model.
 ## Edit MAP to change who plays whom (the slug is a folder name under game/prototypes/npc_meshy, or "protagonist" / "sarah").
 const MAP := {
-	"Protagonist": "protagonist", "Trailer_Driver": "protagonist",
+	"Protagonist": "protagonist", "Trailer_Driver": "protagonist", "Reflection": "protagonist",
 	"Eddie": "eddie",
 	"Marcus": "bearded_man",
 	"Noah": "teen_blue_jacket",
