@@ -71,3 +71,27 @@ if not any(s["id"] == "c12n_ribbon" for s in steps):
     steps[i:i] = new
 save("game/data/objectives.json", ob, nl)
 print("ok", len(dlg), "dialogue ids")
+
+# ---- part 2: Noah in displayed chapters 15 and 16 (story pass B5)
+d, nl = load("game/data/dialogue.json")
+SRC2 = "Chapters 15-16: Noah (story pass B5, approved)"
+more = {
+    "c14_wake_noah": [("Noah", "You need to see this. Look at my line.")],
+    "c14_noah_log": [("Noah", "Fog line, hour by hour. It doesn't come on Mondays."), ("Eddie", "It's Friday."), ("Noah", "Then it's coming.")],
+    "c14_partner_Ruth": [("Ruth", "Noah, with me. Back door, the ditch, the field edge. If I say run, you don't wait."), ("Noah", "I know the route. I drew it.")],
+    "c14_partner_Marcus": [("Marcus", "Noah, with me. I'm not letting go of this one."), ("Noah", "Dad. I know the route. I drew it.")],
+    "c14_partner_Sarah": [("Sarah", "Noah, stay by me. Back door, the ditch, the field edge."), ("Noah", "I know the route. I drew it.")],
+    "c15_why_below": [("Ruth", "We can't stay here."), ("Eddie", "We can't go back."), ("Noah", "He said across. Not out. Across."), ("Sarah", "Across what?"),
+        ("Noah", "I don't know. He didn't either."), (P, "There's one place that has a door that opens both ways."), ("Eddie", "Ah. The creepy one.")],
+    "c15_end_a_noah_alive": [("Marcus", "I looked back more than anyone."), ("Noah", "I know. I counted."), ("Marcus", "How many?"), ("Noah", "Eleven."),
+        (P, "It's still behind us."), ("Eddie", "That's not what I meant by what now.")],
+    "c15_end_a_noah_lost": [("Noah", "He didn't see it."), ("Ruth", "See what?"), ("Noah", "The sky.")],
+    "c15_end_b_next": [("Ruth", "The map shows farms on this side."), ("Sarah", "People, maybe."), ("Noah", "The old man had a route to the next town. I know the first three turns."),
+        ("Eddie", "I'll take the ones I know I can't mess up.")],
+    "c15_knock": [(P, "(Three short, one long, on the stone.)"), (P, "(Silence.)"), ("", "(From beyond the stone: three short, one long. Faint.)")],
+    "c15_end_c_noah": [("Noah", "He knocked back."), ("Ruth", "Who?"), ("Noah", "Nobody.")],
+}
+for k, v in more.items():
+    d[k] = D(SRC2, v)
+save("game/data/dialogue.json", d, nl)
+print("part 2 ok")

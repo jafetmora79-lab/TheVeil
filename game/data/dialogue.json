@@ -7627,5 +7627,240 @@
     "time": 2.8
    }
   ]
+ },
+ "c14_wake_noah": {
+  "source": "Chapters 15-16: Noah (story pass B5, approved)",
+  "lines": [
+   {
+    "speaker": "Noah",
+    "text": "You need to see this. Look at my line.",
+    "time": 3.0
+   }
+  ]
+ },
+ "c14_noah_log": {
+  "source": "Chapters 15-16: Noah (story pass B5, approved)",
+  "lines": [
+   {
+    "speaker": "Noah",
+    "text": "Fog line, hour by hour. It doesn't come on Mondays.",
+    "time": 3.7
+   },
+   {
+    "speaker": "Eddie",
+    "text": "It's Friday.",
+    "time": 1.6
+   },
+   {
+    "speaker": "Noah",
+    "text": "Then it's coming.",
+    "time": 1.8
+   }
+  ]
+ },
+ "c14_partner_Ruth": {
+  "source": "Chapters 15-16: Noah (story pass B5, approved)",
+  "lines": [
+   {
+    "speaker": "Ruth",
+    "text": "Noah, with me. Back door, the ditch, the field edge. If I say run, you don't wait.",
+    "time": 5.4
+   },
+   {
+    "speaker": "Noah",
+    "text": "I know the route. I drew it.",
+    "time": 2.4
+   }
+  ]
+ },
+ "c14_partner_Marcus": {
+  "source": "Chapters 15-16: Noah (story pass B5, approved)",
+  "lines": [
+   {
+    "speaker": "Marcus",
+    "text": "Noah, with me. I'm not letting go of this one.",
+    "time": 3.4
+   },
+   {
+    "speaker": "Noah",
+    "text": "Dad. I know the route. I drew it.",
+    "time": 2.7
+   }
+  ]
+ },
+ "c14_partner_Sarah": {
+  "source": "Chapters 15-16: Noah (story pass B5, approved)",
+  "lines": [
+   {
+    "speaker": "Sarah",
+    "text": "Noah, stay by me. Back door, the ditch, the field edge.",
+    "time": 3.9
+   },
+   {
+    "speaker": "Noah",
+    "text": "I know the route. I drew it.",
+    "time": 2.4
+   }
+  ]
+ },
+ "c15_why_below": {
+  "source": "Chapters 15-16: Noah (story pass B5, approved)",
+  "lines": [
+   {
+    "speaker": "Ruth",
+    "text": "We can't stay here.",
+    "time": 1.9
+   },
+   {
+    "speaker": "Eddie",
+    "text": "We can't go back.",
+    "time": 1.8
+   },
+   {
+    "speaker": "Noah",
+    "text": "He said across. Not out. Across.",
+    "time": 2.7
+   },
+   {
+    "speaker": "Sarah",
+    "text": "Across what?",
+    "time": 1.6
+   },
+   {
+    "speaker": "Noah",
+    "text": "I don't know. He didn't either.",
+    "time": 2.6
+   },
+   {
+    "speaker": "",
+    "text": "There's one place that has a door that opens both ways.",
+    "time": 3.9
+   },
+   {
+    "speaker": "Eddie",
+    "text": "Ah. The creepy one.",
+    "time": 1.9
+   }
+  ]
+ },
+ "c15_end_a_noah_alive": {
+  "source": "Chapters 15-16: Noah (story pass B5, approved)",
+  "lines": [
+   {
+    "speaker": "Marcus",
+    "text": "I looked back more than anyone.",
+    "time": 2.6
+   },
+   {
+    "speaker": "Noah",
+    "text": "I know. I counted.",
+    "time": 1.9
+   },
+   {
+    "speaker": "Marcus",
+    "text": "How many?",
+    "time": 1.4
+   },
+   {
+    "speaker": "Noah",
+    "text": "Eleven.",
+    "time": 1.4
+   },
+   {
+    "speaker": "",
+    "text": "It's still behind us.",
+    "time": 2.1
+   },
+   {
+    "speaker": "Eddie",
+    "text": "That's not what I meant by what now.",
+    "time": 2.9
+   }
+  ]
+ },
+ "c15_end_a_noah_lost": {
+  "source": "Chapters 15-16: Noah (story pass B5, approved)",
+  "lines": [
+   {
+    "speaker": "Noah",
+    "text": "He didn't see it.",
+    "time": 1.8
+   },
+   {
+    "speaker": "Ruth",
+    "text": "See what?",
+    "time": 1.4
+   },
+   {
+    "speaker": "Noah",
+    "text": "The sky.",
+    "time": 1.4
+   }
+  ]
+ },
+ "c15_end_b_next": {
+  "source": "Chapters 15-16: Noah (story pass B5, approved)",
+  "lines": [
+   {
+    "speaker": "Ruth",
+    "text": "The map shows farms on this side.",
+    "time": 2.7
+   },
+   {
+    "speaker": "Sarah",
+    "text": "People, maybe.",
+    "time": 1.7
+   },
+   {
+    "speaker": "Noah",
+    "text": "The old man had a route to the next town. I know the first three turns.",
+    "time": 4.8
+   },
+   {
+    "speaker": "Eddie",
+    "text": "I'll take the ones I know I can't mess up.",
+    "time": 3.2
+   }
+  ]
+ },
+ "c15_knock": {
+  "source": "Chapters 15-16: Noah (story pass B5, approved)",
+  "lines": [
+   {
+    "speaker": "",
+    "text": "(Three short, one long, on the stone.)",
+    "time": 3.0
+   },
+   {
+    "speaker": "",
+    "text": "(Silence.)",
+    "time": 1.5
+   },
+   {
+    "speaker": "",
+    "text": "(From beyond the stone: three short, one long. Faint.)",
+    "time": 3.9
+   }
+  ]
+ },
+ "c15_end_c_noah": {
+  "source": "Chapters 15-16: Noah (story pass B5, approved)",
+  "lines": [
+   {
+    "speaker": "Noah",
+    "text": "He knocked back.",
+    "time": 1.8
+   },
+   {
+    "speaker": "Ruth",
+    "text": "Who?",
+    "time": 1.4
+   },
+   {
+    "speaker": "Noah",
+    "text": "Nobody.",
+    "time": 1.4
+   }
+  ]
  }
 }

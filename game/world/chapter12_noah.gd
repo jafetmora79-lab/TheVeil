@@ -39,6 +39,10 @@ var companion := ""
 var report := {"ribbon": false, "hound_resets": 0, "knock_tries": 0, "test_wrong": 0, "found": false, "home": false, "solo": false, "marcus_at_gate": false}
 var _busy := {}
 var _last_safe := Vector3.ZERO
+var _waymarks: Array = []                # the farmer's chalked posts between the mill house and HOUSE_19: where the group falls back to when the Hound finds them
+var _lamp: OmniLight3D                   # Noah's signal lamp in the mill-house window: three short, one long
+var _tally: Label3D                      # the fog-line tally pencilled on the window frame
+var _lamp_t := 0.0
 
 
 func setup(chapter12: Node) -> void:
@@ -150,6 +154,7 @@ func _ribbon() -> void:
 		else:
 			c12._stay_inside(k)
 	_last_safe = player.global_position
+	_build_waymarks()
 	_busy["ribbon"] = false
 	c12._guide()
 	c12._hint("Cross the field to HOUSE_19. Crouch (Ctrl) and keep to the fences. It circles the two houses.")
@@ -168,6 +173,9 @@ func tick(_dt: float) -> void:
 			if int(report.get("hound_bit", 0)) > 0 and not _busy.get("reset", false):
 				_try_again()
 		_marcus_gate(p)
+		for wm in _waymarks:
+			if Vector2(p.x - wm.x, p.z - wm.z).length() < 3.5:
+				_last_safe = p                                  # a chalked post: the group falls back here, not to the door
 		if not Game.has_flag("ch12_house19_entered") and Vector2(p.x - porch.x, p.z - porch.z).length() < 2.6 and not _busy.get("reset", false):
 			Game.set_flag("ch12_house19_entered")
 			_offer_knock()
@@ -410,6 +418,8 @@ func _place_noah_home() -> void:
 
 ## After a load: Noah is wherever the milestone says.
 func restore() -> void:
+	if Game.has_flag("ch12_rescue_started") and not Game.has_flag("ch12_noah_home"):
+		_build_waymarks()
 	if Game.has_flag("ch12_noah_home"):
 		_place_noah_home()
 	elif Game.has_flag("ch12_noah_found"):
@@ -422,3 +432,72 @@ func restore() -> void:
 				c9._start_follow(k)
 			else:
 				c12._stay_inside(k)
+
+
+# ------------------------------------------------------------------ props: the chalked posts, the signal lamp, the fog-line tally
+func _build_waymarks() -> void:
+	if not _waymarks.is_empty():
+		return
+	var a: Vector3 = c10.hl(c10.PORCH)
+	var b := porch_point()
+	var dir := ((b - a) * Vector3(1, 0, 1)).normalized()
+	var side := dir.cross(Vector3.UP).normalized()
+	var tex := ImageTexture.create_from_image(c12.symbol_image(64, Color(0.12, 0.10, 0.08), Color(0.84, 0.80, 0.66)))
+	var wood := StandardMaterial3D.new()
+	wood.albedo_color = Color(0.22, 0.17, 0.12)
+	wood.roughness = 1.0
+	var chalk := StandardMaterial3D.new()
+	chalk.albedo_texture = tex
+	chalk.texture_filter = BaseMaterial3D.TEXTURE_FILTER_NEAREST
+	chalk.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
+	for t in [0.38, 0.62, 0.84]:
+		var at: Vector3 = _ground(a.lerp(b, t) + side * 3.2)
+		var post := MeshInstance3D.new()
+		post.name = "C12_Waymark"
+		var bm := BoxMesh.new()
+		bm.size = Vector3(0.12, 1.15, 0.12)
+		bm.material = wood
+		post.mesh = bm
+		world.add_child(post)
+		post.global_position = at + Vector3(0, 0.575, 0)
+		var q := MeshInstance3D.new()
+		var qm := QuadMesh.new()
+		qm.size = Vector2(0.34, 0.34)
+		qm.material = chalk
+		q.mesh = qm
+		post.add_child(q)
+		q.position = Vector3(0, 0.3, 0.065)
+		post.look_at(post.global_position + (a - b).normalized() * Vector3(1, 0, 1), Vector3.UP)       # the chalk faces the way the group came from... and so back
+		_waymarks.append(at)
+
+
+func _process(dt: float) -> void:
+	if not Game.has_flag("ch12_noah_home") or Game.has_flag("chapter_14_complete") or c10 == null:
+		if _lamp != null:
+			_lamp.light_energy = 0.0
+		return
+	if _lamp == null:
+		_lamp = OmniLight3D.new()
+		_lamp.name = "C12_NoahLamp"
+		_lamp.light_color = Color(1.0, 0.72, 0.4)
+		_lamp.omni_range = 9.0
+		_lamp.shadow_enabled = false
+		world.add_child(_lamp)
+		_lamp.global_position = c10.hl(c10.WINDOW + Vector3(0, -0.1, -0.7))
+	if _tally == null:
+		_tally = Label3D.new()
+		_tally.name = "C12_FogTally"
+		_tally.font_size = 22
+		_tally.pixel_size = 0.0025
+		_tally.modulate = Color(0.16, 0.14, 0.12)
+		_tally.outline_size = 0
+		world.add_child(_tally)
+		_tally.global_position = c10.hl(Vector3(-1.9, 1.15, 3.35))
+		_tally.global_rotation = world.global_rotation
+	var marks := 3 + (3 if Game.has_flag("chapter_12_complete") else 0) + (3 if Game.has_flag("chapter_13_complete") else 0)
+	_tally.text = "FOG
+" + "||||  ".repeat(marks / 4) + "|".repeat(marks % 4)
+	_lamp_t = fmod(_lamp_t + dt, 8.0)
+	var on := (_lamp_t > 0.0 and _lamp_t < 0.2) or (_lamp_t > 0.55 and _lamp_t < 0.75) or (_lamp_t > 1.1 and _lamp_t < 1.3) or (_lamp_t > 1.9 and _lamp_t < 2.6)   # three short, one long
+	var near_window := player != null and player.global_position.distance_to(_lamp.global_position) < 3.0
+	_lamp.light_energy = 2.4 if on and not near_window else 0.0

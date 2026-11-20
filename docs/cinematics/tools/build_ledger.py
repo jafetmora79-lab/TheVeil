@@ -139,31 +139,15 @@ R("C05.02b", "Refuse the search (the unseen thing at the rear door)", "campaign"
   "p4 choice 'refuse'", "all inside", "rear door seam, pallets", [S("banging, long gap, door strike", None, 72, "source never shown")], ["night lines"], ["impact_wave", "scrape", "door strike"], "per code", "indoors", "p4_slept / night report",
   "state flags", "LEDGER", "", [(W + "phase4.gd", "func _night_banging"), (W + "phase4.gd", "func _door_strike")])
 
-for cid, title, file_, fn, entry, flags in [
-    ("C06.01", "First expedition", "chapter5.gd", ["_head_out", "_use_radio", "_survivor_encounter", "_report"], "p4_slept / c5_started", "c5_*"),
-    ("C07.01", "Voices in the Mist", "chapter6.gd", ["_ruth_sarah", "_voice", "_spawn_hound", "_chase_tick"], "c5_rested -> ch6_started", "ch6_*"),
-    ("C08.01", "Backpack and trust", "chapter7.gd", ["_use_doors", "_examine_backpack", "_note_tick", "_skitter_intro"], "ch6_rested -> ch7_started", "ch7_*"),
-    ("C09.01", "Something at the Doors", "chapter8.gd", ["_repair", "_power_fail", "_run_attack", "_give_way", "_hound_burst", "_kill_temp", "_push_secure", "_help_sarah"], "ch7_rested -> ch8_started", "ch8_*"),
-    ("C10.01", "The Fall of the Supermarket and Marcus", "chapter9.gd", ["_run_warning", "_run_fall", "_pin_marcus", "_pin_countdown", "_free_marcus", "_marcus_lost", "_lookback", "_rendezvous"], "ch8_rested -> ch9_started", "ch9_*"),
-    ("C11.01", "No Safe Road", "chapter10.gd", ["_use_driver", "_followed", "_sarah_stops", "_house_tick"], "chapter_9_complete -> ch10_started", "ch10_*"),
-    ("C12.01", "The Farm Road", "chapter11.gd", ["_inspect", "_field", "_attack", "_escape_tick", "_setup_far_light"], "chapter_10_complete -> ch11_started", "ch11_*"),
-    ("C13.01", "The Truth Beneath Greyhaven", "chapter12.gd", ["_enter", "_use_panel", "_force_seal", "_start_chase", "_sound_below", "_ending"], "chapter_11_complete -> ch12_started", "ch12_*"),
-    ("C14.01", "Into the Veil", "chapter13.gd", ["_roof_skitter", "_crab_reveal", "_voice", "_use_winch", "_veil_tentacles", "_collapse", "_help_companion", "_take_evidence", "_night"], "chapter_12_complete -> ch13_started", "ch13_*"),
-    ("C15.01", "The Last Shelter", "chapter14.gd", ["_window_scene", "_meeting", "_siege", "_shove", "_crab", "_separation", "_house_gone"], "chapter_13_complete -> ch14_started", "ch14_*"),
-    ("C16.01", "What Remains (opening to chamber)", "chapter15.gd", ["_colossus_reveal", "_crossing_tick", "_detected", "_retry", "_horror", "_drop_stone", "_decide"], "chapter_14_complete -> ch15_started", "ch15_*"),
-]:
-    shots = []
-    R(cid, title, "campaign", "game/world/%s: %s" % (file_, ", ".join(fn)), "started by flag chain: " + entry + "; all state in story flags + Game.world_state, a load rebuilds without replay (file header)",
-      "alive/present survivors only (alive()/present() helpers); Marcus lines only if he survived", "see file header", [S("see source functions (first-person beats; cinematic camera only where a helper takes it)", None, 72, "per function")],
-      ["ids " + flags], ["per _make_sounds / _play waves"], "movement locks by _hold(true/false) around each beat; control returns before timers", "first person", "chapter_N_complete flag, checkpoint files (never the player's save slot)", "load rebuilds from flags", "LEDGER",
-      "Per-beat shot rows still to expand from the source functions listed here.", [("game/world/" + file_, "func " + f) for f in fn])
-# chapter 15 specifics
-rows[-1]["notes"] += (" C16 Colossus beat: chapter15.gd:_colossus_reveal now uses the Meshy tripod (60 m holder via VeilTripodColossus.make_holder; walk 1.3 m/s = speed_scale 0.58); "
-                       "_col_play maps old clip names to Walk_Heavy / Idle.")
+from ledger_chapters import BEATS          # displayed chapters 6-16, beat by beat (incl. the three endings)
+for (bid, btitle, bsrc, bentry, bshots, bdlg, bsound, bctl, bexit, bnotes, bver) in BEATS:
+    built = bid.startswith("C13.0") or bid == "C13.1"
+    R(bid, btitle, "campaign", "game/world/" + bsrc if not bsrc.startswith("game/") else bsrc, bentry,
+      "alive/present survivors only (alive()/present() helpers); Marcus lines only if he survived; missing speakers use the _alt / @1 and _Sarah/_Ruth/_Marcus conventions",
+      "see source functions", [S(n_, d_, f_, bl_) for (n_, d_, f_, bl_) in bshots], bdlg, bsound, bctl, bexit,
+      "checkpoint/skip/retry per story pass C7", "load rebuilds from flags (no replay of finished events)",
+      "BUILT (code + headless test)" if built else "LEDGER", bnotes, bver)
 
-R("C16.A", "Leave Greyhaven (ending A)", "campaign", "chapter15.gd:_ending_a, _look_back, _walk_away, _mist_edge, _leave_tunnel", "decision ESCAPE after the final mechanism", "present survivors", "service tunnel, fields", [S("walk out, look back at Greyhaven", None, 72, "mist edge moves")], ["epilogue_lines"], ["per code"], "hold", "look-back", "_record_ending (user://veil_endings.json)", "replayable pre-decision save", "LEDGER", "", [(W + "chapter15.gd", "func _ending_a")])
-R("C16.B", "Seal the chamber (ending B)", "campaign", "chapter15.gd:_ending_b, _seal_step, _refresh_seal_prompts", "decision SEAL THE CHAMBER", "present survivors", "chamber, lever, wheel, slab", [S("lever then wheel under debris, escape, look back", None, 72, "slab travel fitted to the mechanism")], ["ending B"], ["stone"], "hold", "look-back", "_record_ending", "same", "LEDGER", "", [(W + "chapter15.gd", "func _ending_b")])
-R("C16.C", "Send the survivors ahead (ending C)", "campaign", "chapter15.gd:_ending_c", "decision SEND THE SURVIVORS AHEAD", "spokesperson + group; protagonist stays", "tunnel, slab", [S("goodbye, lever + wheel, collapse after they clear, flashlight dies", None, 72, "unresolved fate")], ["ending C"], ["flashlight flicker -> silence"], "hold", "dark", "_record_ending", "same", "LEDGER", "", [(W + "chapter15.gd", "func _ending_c")])
 R("C16.X", "Epilogue and credits", "campaign", "chapter15.gd:epilogue_lines, _finish, _credits, _menu_main, _menu_replay, _menu_load", "after any ending", "roster from real flags", "title, credits, THANK YOU FOR PLAYING", [S("epilogue lines -> title -> credits -> menu", None, None, "text")], ["epilogue_lines()"], ["music"], "none", "menu", "ending history file", "replay = pre-decision save", "LEDGER",
   "Noah is NOT rescued in this snapshot; a rescue needs a story decision before wiring (separate animatic).", [(W + "chapter15.gd", "func epilogue_lines"), (W + "chapter15.gd", "func _credits")])
 

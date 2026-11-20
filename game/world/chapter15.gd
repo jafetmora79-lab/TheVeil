@@ -381,7 +381,55 @@ func _place_in_chamber() -> void:
 	_slow_injured()
 
 
+## The rescued Noah (null when the storyline went on without the rescue).
+func _noah_node() -> Node3D:
+	if not Game.has_flag("ch12_noah_found") or c12 == null or c12.get("noah") == null:
+		return null
+	var n: Variant = c12.noah.get("noah")
+	return n as Node3D if n != null and is_instance_valid(n) else null
+
+
+## Noah's last lines of each ending (B5): the reunion or the grief, the way on, the knock he does not repeat.
+func _noah_end(ending: String) -> void:
+	var nn := _noah_node()
+	if nn == null:
+		return
+	var id := ""
+	match ending:
+		"A":
+			id = "c15_end_a_noah_lost" if Game.has_flag("ch9_marcus_lost") else ("c15_end_a_noah_alive" if "Marcus" in present() else "")
+		"B":
+			id = "c15_end_b_next"
+		"C":
+			id = "c15_end_c_noah"
+	if id != "":
+		await _tg(id, [nn, _node(voice())])
+
+
+## Ending C: the protagonist taps three short and one long on the stone; after a silence, three short and one long answer, faint, from beyond it.
+func _knock_motif() -> void:
+	var at := player.global_position
+	for i in 4:
+		await get_tree().create_timer(0.3 if i < 3 else 0.7).timeout
+		Sfx.play("door_close", at, 0.0, 2.0 if i < 3 else 1.1)
+	Dialogue.say("c15_knock", false, true)
+	await get_tree().create_timer(2.6).timeout
+	for i in 4:
+		await get_tree().create_timer(0.35 if i < 3 else 0.8).timeout
+		Sfx.play("door_close", UL(SEAL + Vector3(0, 1.0, 14.0)), -12.0, 1.5 if i < 3 else 0.9)
+	while Dialogue.is_busy():
+		await get_tree().process_frame
+
+
 func _place_refuge() -> void:
+	var nn := _noah_node()
+	if nn != null:
+		c9.c5._reparent(nn, world)
+		nn.visible = true
+		world.place_survivor(nn, F(REFUGE_SPOTS.get("Sarah", REFUGE_SPOTS["Eddie"]) + Vector3(0.9, 0.0, 0.5)))
+		var na = world.animators.get("Noah")
+		if na:
+			na.set_mood("calm")
 	for k in present():
 		(c9.follows[k] as VeilCompanionFollow).stop()
 		c9.c5._reparent(_node(k), world)
@@ -586,6 +634,8 @@ func _plan(_b: Node) -> void:
 		return
 	_busy["plan"] = true
 	var npcs: Array = [_node(_second()), _node(voice())]
+	if _noah_node() != null:
+		await _tg("c15_why_below", [_noah_node(), _node(voice())])        # why go back down (B5)
 	await _tg(_pick("c15_plan"), npcs)
 	if Game.has_item("ancient_rubbing"):
 		await _tg("c15_plan_evidence", [_node(voice())])
@@ -1084,6 +1134,14 @@ func _to_outer(and_player: bool) -> void:
 	else:
 		player.global_position = BEYOND + Vector3(0, 0.1, -9.0)     # Ending C: only an onlooker's view of them
 		player.set_yaw_pitch(0.0, -0.05)
+	var nn := _noah_node()
+	if nn != null:
+		nn.visible = true
+		world.place_survivor(nn, BEYOND_SPOTS["Sarah"] + Vector3(1.4, 0.0, -0.6))
+		var na = world.animators.get("Noah")
+		if na:
+			na.set_mood("calm")
+			na.face_towards(BEYOND + Vector3(0, 1.5, 40.0))
 	for k in present():
 		(c9.follows[k] as VeilCompanionFollow).stop()
 		world.place_survivor(_node(k), BEYOND_SPOTS[k])
@@ -1109,6 +1167,7 @@ func _ending_a() -> void:
 		await get_tree().process_frame
 	await _to_outer(true)
 	await _look_back("c15_end_a" + _end_suffix(), 0.0)
+	await _noah_end("A")
 	_walk_away()
 	await get_tree().create_timer(2.5).timeout
 	_mist_edge()
@@ -1150,6 +1209,7 @@ func _ending_b() -> void:
 	await _to_outer(true)
 	# the mist over Greyhaven pulls back - a little
 	await _look_back("c15_end_b" + _end_suffix(), 0.0)
+	await _noah_end("B")
 	var env := _env()
 	if env:
 		var tw2 := create_tween()
@@ -1215,6 +1275,8 @@ func _ending_c() -> void:
 	await get_tree().create_timer(2.0).timeout
 	await c8._turn_to(UL(OUTER + Vector3(0, 1.4, 0)), 2.0)
 	await get_tree().create_timer(1.0).timeout
+	if _noah_node() != null:
+		await _knock_motif()                              # the code Noah taught the whole group, answered from beyond the stone (ambiguous)
 	c13._play("voice", UL(SEAL + Vector3(0, 0, 12.0)), -2.0)
 	Dialogue.say("c15_voice", false, true)
 	while Dialogue.is_busy():
@@ -1223,6 +1285,7 @@ func _ending_c() -> void:
 	# the epilogue: the others, beyond the town (seen from a distance; the protagonist is not there)
 	await _to_outer(false)
 	await _tg("c15_end_c" + _end_suffix(), [_node(voice())])
+	await _noah_end("C")
 	_walk_away()
 	await get_tree().create_timer(3.0).timeout
 	await _finish("C")
@@ -1247,6 +1310,8 @@ func _look_back(id: String, _d: float) -> void:
 
 
 func _walk_away() -> void:
+	if _noah_node() != null:
+		world.npc_walk("Noah", BEYOND_SPOTS["Sarah"] + Vector3(1.4, 0, -14.6), 1.2)
 	for k in present():
 		world.npc_walk(k, BEYOND_SPOTS[k] + Vector3(0, 0, -14.0), 1.2)
 

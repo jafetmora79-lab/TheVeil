@@ -1,0 +1,2775 @@
+{
+ "C01.00": {
+  "title": "Before the evening (new intro)",
+  "status": "LEDGER",
+  "frames": 1097,
+  "seconds": 45.71,
+  "shots": [
+   {
+    "shot": "black + radio static",
+    "start_frame": 0,
+    "frames": 96,
+    "paced": false,
+    "fov0": 72.0,
+    "fov1": 72.0,
+    "blocking": "HUD fade alpha 1 from the first frame; the radio breaks a human sentence"
+   },
+   {
+    "shot": "crane over the town",
+    "start_frame": 96,
+    "frames": 96,
+    "paced": true,
+    "fov0": 55.0,
+    "fov1": 55.0,
+    "blocking": "high sweep, caption GREYHAVEN / Friday 6:40 PM"
+   },
+   {
+    "shot": "sidewalk dolly",
+    "start_frame": 192,
+    "frames": 96,
+    "paced": true,
+    "fov0": 55.0,
+    "fov1": 55.0,
+    "blocking": "pedestrian height, Meshy townspeople"
+   },
+   {
+    "shot": "supermarket push-in",
+    "start_frame": 288,
+    "frames": 96,
+    "paced": true,
+    "fov0": 55.0,
+    "fov1": 55.0,
+    "blocking": "lit supermarket"
+   },
+   {
+    "shot": "mist at the woods road",
+    "start_frame": 384,
+    "frames": 96,
+    "paced": true,
+    "fov0": 55.0,
+    "fov1": 55.0,
+    "blocking": "wrong note 1"
+   },
+   {
+    "shot": "game shop stutter",
+    "start_frame": 480,
+    "frames": 96,
+    "paced": true,
+    "fov0": 55.0,
+    "fov1": 55.0,
+    "blocking": "lights stutter, wrong note 2"
+   },
+   {
+    "shot": "dog bark / yard",
+    "start_frame": 576,
+    "frames": 101,
+    "paced": false,
+    "fov0": 45.0,
+    "fov1": 45.0,
+    "blocking": "yard, bark at 0.6 s and 1.4 s"
+   },
+   {
+    "shot": "driveway low + rise",
+    "start_frame": 677,
+    "frames": 218,
+    "paced": false,
+    "fov0": 50.0,
+    "fov1": 50.0,
+    "blocking": "low at the sedan, rise to +24 m, Veil curtains creep 30 m in 8 s; Colossus a silhouette in thick mist, faint eye glow"
+   },
+   {
+    "shot": "long-lens loom",
+    "start_frame": 895,
+    "frames": 120,
+    "paced": false,
+    "fov0": 32.0,
+    "fov1": 32.0,
+    "blocking": "wall rolls in; colossus_call -1 dB pitch 0.55"
+   },
+   {
+    "shot": "title",
+    "start_frame": 1015,
+    "frames": 82,
+    "paced": false,
+    "fov0": 72.0,
+    "fov1": 72.0,
+    "blocking": "THE VEIL card; then slow fade to black (1.8 s) + 0.5 s hold"
+   }
+  ]
+ },
+ "C01.01": {
+  "title": "6:42 PM, waking and the drive",
+  "status": "LEDGER",
+  "frames": 254,
+  "seconds": 10.58,
+  "shots": [
+   {
+    "shot": "wake (legacy path)",
+    "start_frame": 0,
+    "frames": 110,
+    "paced": false,
+    "fov0": 72.0,
+    "fov1": 72.0,
+    "blocking": "player.play_wake_up(4.6,false); chapter_start(1) + 'FRIDAY - 6:42 PM'"
+   },
+   {
+    "shot": "after new intro",
+    "start_frame": 110,
+    "frames": 48,
+    "paced": false,
+    "fov0": 72.0,
+    "fov1": 72.0,
+    "blocking": "straight fade-in, no bed/wash"
+   },
+   {
+    "shot": "keys, front door, car",
+    "start_frame": 158,
+    "frames": 96,
+    "paced": true,
+    "fov0": 72.0,
+    "fov1": 72.0,
+    "blocking": "first-person interactions"
+   }
+  ]
+ },
+ "C02.01": {
+  "title": "One Last Stop - arrival shot and errands",
+  "status": "LEDGER",
+  "frames": 96,
+  "seconds": 4.0,
+  "shots": [
+   {
+    "shot": "market sign focus (arrival zoom)",
+    "start_frame": 0,
+    "frames": 96,
+    "paced": true,
+    "fov0": 72.0,
+    "fov1": 72.0,
+    "blocking": "the sedan brakes into the sign; exit camera = vehicle camera; exiting the car ends it early"
+   }
+  ]
+ },
+ "C03.01": {
+  "title": "Mist arrival",
+  "status": "LEDGER",
+  "frames": 120,
+  "seconds": 5.0,
+  "shots": [
+   {
+    "shot": "lights stutter, distant horizon goes",
+    "start_frame": 0,
+    "frames": 120,
+    "paced": false,
+    "fov0": 72.0,
+    "fov1": 72.0,
+    "blocking": "atmosphere preset approach for 5 s then active; clerk/Eddie walk to the door; shop door set open"
+   }
+  ]
+ },
+ "C03.02a": {
+  "title": "Colossus encounter - ORIGINAL stomping version",
+  "status": "LEDGER",
+  "frames": 499,
+  "seconds": 20.79,
+  "shots": [
+   {
+    "shot": "1 call + look at the sound",
+    "start_frame": 0,
+    "frames": 36,
+    "paced": false,
+    "fov0": 72.0,
+    "fov1": 72.0,
+    "blocking": "controls held, EncounterCam = player cam; slerp to L+4 m"
+   },
+   {
+    "shot": "held beat",
+    "start_frame": 36,
+    "frames": 96,
+    "paced": false,
+    "fov0": 72.0,
+    "fov1": 72.0,
+    "blocking": "creature hidden; far parts in mist"
+   },
+   {
+    "shot": "2 the foot comes down from 12 m above onto L",
+    "start_frame": 132,
+    "frames": 96,
+    "paced": true,
+    "fov0": 72.0,
+    "fov1": 72.0,
+    "blocking": "contact frame measured from claw tips; lamp struck on the way down; dust, shake 0.35 s, light flicker < 45 m, clerk flees"
+   },
+   {
+    "shot": "3 protagonist's face lit, eyes go up",
+    "start_frame": 228,
+    "frames": 67,
+    "paced": false,
+    "fov0": 42.0,
+    "fov1": 42.0,
+    "blocking": "cam 1.05 m in front of his head, key light warm"
+   },
+   {
+    "shot": "4 up the leg into the mist",
+    "start_frame": 295,
+    "frames": 101,
+    "paced": false,
+    "fov0": 60.0,
+    "fov1": 60.0,
+    "blocking": "slerp up to +40 m, fov 60->50"
+   },
+   {
+    "shot": "5 it walks on",
+    "start_frame": 396,
+    "frames": 86,
+    "paced": false,
+    "fov0": 72.0,
+    "fov1": 72.0,
+    "blocking": "two distant steps; frozen"
+   },
+   {
+    "shot": "6 return to first person",
+    "start_frame": 482,
+    "frames": 17,
+    "paced": false,
+    "fov0": 72.0,
+    "fov1": 72.0,
+    "blocking": "ease to player camera, pitch 8 deg"
+   }
+  ]
+ },
+ "C03.02b": {
+  "title": "Colossus encounter - Meshy tripod (DEFAULT)",
+  "status": "BUILT",
+  "frames": 523,
+  "seconds": 21.79,
+  "shots": [
+   {
+    "shot": "walk-in out of the fog",
+    "start_frame": 0,
+    "frames": 312,
+    "paced": false,
+    "fov0": 72.0,
+    "fov1": 72.0,
+    "blocking": "creature starts 104 m ahead, 14 m left, walks toward you at 1.43 m/s facing you; distance_fade 0.1->0.006, eye level 0.25->1, curtains 0.97->0.5; searchlight scan sweeps -60..+8 m"
+   },
+   {
+    "shot": "it finds you",
+    "start_frame": 312,
+    "frames": 53,
+    "paced": false,
+    "fov0": 72.0,
+    "fov1": 72.0,
+    "blocking": "turn 2.4 s toward you; light converges on head height 1.5 m"
+   },
+   {
+    "shot": "lock-on hold",
+    "start_frame": 365,
+    "frames": 13,
+    "paced": false,
+    "fov0": 72.0,
+    "fov1": 72.0,
+    "blocking": "eye.target=player camera, beam_on, level 1.5; clerk flees"
+   },
+   {
+    "shot": "jump-scare zoom to the eye",
+    "start_frame": 378,
+    "frames": 19,
+    "paced": false,
+    "fov0": 72.0,
+    "fov1": 7.0,
+    "blocking": "colossus_call +14 dB pitch 1.35 at the player + second +10 dB at the eye; curtains to 0.12; rotate to the eye over 0.5 s"
+   },
+   {
+    "shot": "lens holds the frame",
+    "start_frame": 397,
+    "frames": 22,
+    "paced": false,
+    "fov0": 7.0,
+    "fov1": 7.0,
+    "blocking": "npc fright"
+   },
+   {
+    "shot": "snap back to first person",
+    "start_frame": 419,
+    "frames": 8,
+    "paced": false,
+    "fov0": 7.0,
+    "fov1": 72.0,
+    "blocking": "yaw toward it, pitch 22 deg; curtains fade 3 s"
+   },
+   {
+    "shot": "survival begins",
+    "start_frame": 427,
+    "frames": 96,
+    "paced": true,
+    "fov0": 72.0,
+    "fov1": 72.0,
+    "blocking": "GET BACK INSIDE THE STORE / GET TO THE GAME SHOP; _tripod_watch holds the light on you until you are under cover, then it swings away, turns and walks off over 30 s"
+   }
+  ]
+ },
+ "C03.03": {
+  "title": "Street survival and the failed car",
+  "status": "LEDGER",
+  "frames": 96,
+  "seconds": 4.0,
+  "shots": [
+   {
+    "shot": "player-led",
+    "start_frame": 0,
+    "frames": 96,
+    "paced": true,
+    "fov0": 72.0,
+    "fov1": 72.0,
+    "blocking": "tentacles emerge with wind-up/contact/recovery; dead sedan = static + one line"
+   }
+  ]
+ },
+ "C03.04": {
+  "title": "Stockroom and two hours later",
+  "status": "LEDGER",
+  "frames": 466,
+  "seconds": 19.42,
+  "shots": [
+   {
+    "shot": "F: Eddie calls from the threshold",
+    "start_frame": 0,
+    "frames": 58,
+    "paced": false,
+    "fov0": 46.0,
+    "fov1": 46.0,
+    "blocking": "cam picked by cam_point_ok/sight_ok"
+   },
+   {
+    "shot": "G: all go in, Eddie shuts the door",
+    "start_frame": 58,
+    "frames": 216,
+    "paced": false,
+    "fov0": 55.0,
+    "fov1": 55.0,
+    "blocking": "hinge close when clear of the leaf"
+   },
+   {
+    "shot": "seated talk",
+    "start_frame": 274,
+    "frames": 96,
+    "paced": true,
+    "fov0": 72.0,
+    "fov1": 72.0,
+    "blocking": "away from windows"
+   },
+   {
+    "shot": "2 HOURS LATER card",
+    "start_frame": 370,
+    "frames": 96,
+    "paced": true,
+    "fov0": 72.0,
+    "fov1": 72.0,
+    "blocking": "fade through black, then lights reset"
+   }
+  ]
+ },
+ "C04.01": {
+  "title": "Shop exit and Main Street",
+  "status": "LEDGER",
+  "frames": 96,
+  "seconds": 4.0,
+  "shots": [
+   {
+    "shot": "exit lash",
+    "start_frame": 0,
+    "frames": 96,
+    "paced": true,
+    "fov0": 72.0,
+    "fov1": 72.0,
+    "blocking": "controls held; tentacle -> chase AI recovery"
+   }
+  ]
+ },
+ "C04.02": {
+  "title": "The last open door",
+  "status": "LEDGER",
+  "frames": 96,
+  "seconds": 4.0,
+  "shots": [
+   {
+    "shot": "doors forced + vestibule",
+    "start_frame": 0,
+    "frames": 96,
+    "paced": true,
+    "fov0": 72.0,
+    "fov1": 72.0,
+    "blocking": "door_open +2 dB pitch 0.55; power drops; pan past dead lanes"
+   }
+  ]
+ },
+ "C05.01": {
+  "title": "Lock-In work",
+  "status": "LEDGER",
+  "frames": 96,
+  "seconds": 4.0,
+  "shots": [
+   {
+    "shot": "first-person physical beats",
+    "start_frame": 0,
+    "frames": 96,
+    "paced": true,
+    "fov0": 72.0,
+    "fov1": 72.0,
+    "blocking": "no cinematic camera"
+   }
+  ]
+ },
+ "C05.02a": {
+  "title": "Accept the search (Skitter on the roof)",
+  "status": "LEDGER",
+  "frames": 96,
+  "seconds": 4.0,
+  "shots": [
+   {
+    "shot": "step out, roof sighting, focus zoom, run back",
+    "start_frame": 0,
+    "frames": 96,
+    "paced": true,
+    "fov0": 72.0,
+    "fov1": 72.0,
+    "blocking": "creature crouched ~2.5 m back from the roof edge; _fp_face/_fp_track"
+   }
+  ]
+ },
+ "C05.02b": {
+  "title": "Refuse the search (the unseen thing at the rear door)",
+  "status": "LEDGER",
+  "frames": 96,
+  "seconds": 4.0,
+  "shots": [
+   {
+    "shot": "banging, long gap, door strike",
+    "start_frame": 0,
+    "frames": 96,
+    "paced": true,
+    "fov0": 72.0,
+    "fov1": 72.0,
+    "blocking": "source never shown"
+   }
+  ]
+ },
+ "C06.01": {
+  "title": "Morning talks (Eddie, Marcus)",
+  "status": "LEDGER",
+  "frames": 96,
+  "seconds": 4.0,
+  "shots": [
+   {
+    "shot": "two short conversations",
+    "start_frame": 0,
+    "frames": 96,
+    "paced": true,
+    "fov0": 72.0,
+    "fov1": 72.0,
+    "blocking": "talk camera on each"
+   }
+  ]
+ },
+ "C06.02": {
+  "title": "Check supplies, confirm at the doors, head out",
+  "status": "LEDGER",
+  "frames": 192,
+  "seconds": 8.0,
+  "shots": [
+   {
+    "shot": "supply check panel",
+    "start_frame": 0,
+    "frames": 96,
+    "paced": true,
+    "fov0": 72.0,
+    "fov1": 72.0,
+    "blocking": "inventory/stock panel"
+   },
+   {
+    "shot": "doors open, Eddie follows",
+    "start_frame": 96,
+    "frames": 96,
+    "paced": true,
+    "fov0": 72.0,
+    "fov1": 72.0,
+    "blocking": "first person"
+   }
+  ]
+ },
+ "C06.03": {
+  "title": "HOUSE_04 search and the radio",
+  "status": "LEDGER",
+  "frames": 192,
+  "seconds": 8.0,
+  "shots": [
+   {
+    "shot": "kitchen / nightstand / bathroom pickups",
+    "start_frame": 0,
+    "frames": 96,
+    "paced": true,
+    "fov0": 72.0,
+    "fov1": 72.0,
+    "blocking": "first person"
+   },
+   {
+    "shot": "radio loop",
+    "start_frame": 96,
+    "frames": 96,
+    "paced": true,
+    "fov0": 72.0,
+    "fov1": 72.0,
+    "blocking": "fixed prop; the player can leave it"
+   }
+  ]
+ },
+ "C06.04": {
+  "title": "HOUSE_05: the survivor (3 variants)",
+  "status": "LEDGER",
+  "frames": 192,
+  "seconds": 8.0,
+  "shots": [
+   {
+    "shot": "conversation through the door",
+    "start_frame": 0,
+    "frames": 96,
+    "paced": true,
+    "fov0": 72.0,
+    "fov1": 72.0,
+    "blocking": "talk camera"
+   },
+   {
+    "shot": "choice",
+    "start_frame": 96,
+    "frames": 96,
+    "paced": true,
+    "fov0": 72.0,
+    "fov1": 72.0,
+    "blocking": "choice panel"
+   }
+  ]
+ },
+ "C06.05": {
+  "title": "Return and report to Marcus",
+  "status": "LEDGER",
+  "frames": 96,
+  "seconds": 4.0,
+  "shots": [
+   {
+    "shot": "report conversation",
+    "start_frame": 0,
+    "frames": 96,
+    "paced": true,
+    "fov0": 72.0,
+    "fov1": 72.0,
+    "blocking": "talk camera"
+   }
+  ]
+ },
+ "C07.01": {
+  "title": "Marcus heard a voice; Eddie",
+  "status": "LEDGER",
+  "frames": 96,
+  "seconds": 4.0,
+  "shots": [
+   {
+    "shot": "two talks",
+    "start_frame": 0,
+    "frames": 96,
+    "paced": true,
+    "fov0": 72.0,
+    "fov1": 72.0,
+    "blocking": "talk camera"
+   }
+  ]
+ },
+ "C07.02": {
+  "title": "HOUSE_06: Ruth and Sarah (3 variants)",
+  "status": "LEDGER",
+  "frames": 192,
+  "seconds": 8.0,
+  "shots": [
+   {
+    "shot": "conversation at the yard",
+    "start_frame": 0,
+    "frames": 96,
+    "paced": true,
+    "fov0": 72.0,
+    "fov1": 72.0,
+    "blocking": "talk camera; front door opens for the talk only"
+   },
+   {
+    "shot": "choice",
+    "start_frame": 96,
+    "frames": 96,
+    "paced": true,
+    "fov0": 72.0,
+    "fov1": 72.0,
+    "blocking": "choice panel"
+   }
+  ]
+ },
+ "C07.03": {
+  "title": "The lure voice and the choice",
+  "status": "LEDGER",
+  "frames": 192,
+  "seconds": 8.0,
+  "shots": [
+   {
+    "shot": "voice heard, source never shown",
+    "start_frame": 0,
+    "frames": 96,
+    "paced": true,
+    "fov0": 72.0,
+    "fov1": 72.0,
+    "blocking": "restrained directional audio"
+   },
+   {
+    "shot": "choice",
+    "start_frame": 96,
+    "frames": 96,
+    "paced": true,
+    "fov0": 72.0,
+    "fov1": 72.0,
+    "blocking": "choice panel"
+   }
+  ]
+ },
+ "C07.04a": {
+  "title": "Investigate: the back-alley Hound",
+  "status": "LEDGER",
+  "frames": 192,
+  "seconds": 8.0,
+  "shots": [
+   {
+    "shot": "silhouette seen",
+    "start_frame": 0,
+    "frames": 96,
+    "paced": true,
+    "fov0": 72.0,
+    "fov1": 72.0,
+    "blocking": "first person, fog"
+   },
+   {
+    "shot": "chase",
+    "start_frame": 96,
+    "frames": 96,
+    "paced": true,
+    "fov0": 72.0,
+    "fov1": 72.0,
+    "blocking": "player-led; fence jump; non-lethal bite"
+   }
+  ]
+ },
+ "C07.04b": {
+  "title": "Retreat: the Hound on the east route",
+  "status": "LEDGER",
+  "frames": 192,
+  "seconds": 8.0,
+  "shots": [
+   {
+    "shot": "silhouette on the route home",
+    "start_frame": 0,
+    "frames": 96,
+    "paced": true,
+    "fov0": 72.0,
+    "fov1": 72.0,
+    "blocking": "first person"
+   },
+   {
+    "shot": "chase",
+    "start_frame": 96,
+    "frames": 96,
+    "paced": true,
+    "fov0": 72.0,
+    "fov1": 72.0,
+    "blocking": "player-led"
+   }
+  ]
+ },
+ "C07.05": {
+  "title": "Back inside and the report",
+  "status": "LEDGER",
+  "frames": 96,
+  "seconds": 4.0,
+  "shots": [
+   {
+    "shot": "report conversation",
+    "start_frame": 0,
+    "frames": 96,
+    "paced": true,
+    "fov0": 72.0,
+    "fov1": 72.0,
+    "blocking": "talk camera"
+   }
+  ]
+ },
+ "C08.01": {
+  "title": "Marcus's lead and Eddie's warning",
+  "status": "LEDGER",
+  "frames": 96,
+  "seconds": 4.0,
+  "shots": [
+   {
+    "shot": "two talks",
+    "start_frame": 0,
+    "frames": 96,
+    "paced": true,
+    "fov0": 72.0,
+    "fov1": 72.0,
+    "blocking": "talk camera"
+   }
+  ]
+ },
+ "C08.02": {
+  "title": "Out through the real doors, west on the road",
+  "status": "LEDGER",
+  "frames": 192,
+  "seconds": 8.0,
+  "shots": [
+   {
+    "shot": "doors",
+    "start_frame": 0,
+    "frames": 96,
+    "paced": true,
+    "fov0": 72.0,
+    "fov1": 72.0,
+    "blocking": "the doors' own interaction"
+   },
+   {
+    "shot": "walk with Marcus",
+    "start_frame": 96,
+    "frames": 96,
+    "paced": true,
+    "fov0": 72.0,
+    "fov1": 72.0,
+    "blocking": "first person; c7_walk"
+   }
+  ]
+ },
+ "C08.03": {
+  "title": "The car's Skitters and the noise distraction",
+  "status": "LEDGER",
+  "frames": 192,
+  "seconds": 8.0,
+  "shots": [
+   {
+    "shot": "two Skitters around the car",
+    "start_frame": 0,
+    "frames": 96,
+    "paced": true,
+    "fov0": 72.0,
+    "fov1": 72.0,
+    "blocking": "crouched, patrolling; not a reveal"
+   },
+   {
+    "shot": "alarm lures them off",
+    "start_frame": 96,
+    "frames": 96,
+    "paced": true,
+    "fov0": 72.0,
+    "fov1": 72.0,
+    "blocking": "noise away from the car"
+   }
+  ]
+ },
+ "C08.04": {
+  "title": "The backpack",
+  "status": "LEDGER",
+  "frames": 96,
+  "seconds": 4.0,
+  "shots": [
+   {
+    "shot": "examine inserts",
+    "start_frame": 0,
+    "frames": 96,
+    "paced": true,
+    "fov0": 50.0,
+    "fov1": 50.0,
+    "blocking": "close inspect of the bag"
+   }
+  ]
+ },
+ "C08.05": {
+  "title": "Noah's note",
+  "status": "LEDGER",
+  "frames": 96,
+  "seconds": 4.0,
+  "shots": [
+   {
+    "shot": "note readable in the inventory",
+    "start_frame": 0,
+    "frames": 96,
+    "paced": true,
+    "fov0": 50.0,
+    "fov1": 50.0,
+    "blocking": "read for 1.2 s counts as read"
+   }
+  ]
+ },
+ "C08.06": {
+  "title": "The service road and the trust choice (2 variants)",
+  "status": "LEDGER",
+  "frames": 192,
+  "seconds": 8.0,
+  "shots": [
+   {
+    "shot": "gravel road, barriers, dead-end sign",
+    "start_frame": 0,
+    "frames": 96,
+    "paced": true,
+    "fov0": 72.0,
+    "fov1": 72.0,
+    "blocking": "first person"
+   },
+   {
+    "shot": "choice",
+    "start_frame": 96,
+    "frames": 96,
+    "paced": true,
+    "fov0": 72.0,
+    "fov1": 72.0,
+    "blocking": "choice panel"
+   }
+  ]
+ },
+ "C08.07": {
+  "title": "Quiet return and Eddie debrief; the shared decision",
+  "status": "LEDGER",
+  "frames": 192,
+  "seconds": 8.0,
+  "shots": [
+   {
+    "shot": "debrief conversation",
+    "start_frame": 0,
+    "frames": 96,
+    "paced": true,
+    "fov0": 72.0,
+    "fov1": 72.0,
+    "blocking": "talk camera"
+   },
+   {
+    "shot": "NEW c7_enough: group decides when to go",
+    "start_frame": 96,
+    "frames": 96,
+    "paced": true,
+    "fov0": 72.0,
+    "fov1": 72.0,
+    "blocking": "talk camera"
+   }
+  ]
+ },
+ "C09.00": {
+  "title": "Night arrivals (NEW)",
+  "status": "LEDGER",
+  "frames": 96,
+  "seconds": 4.0,
+  "shots": [
+   {
+    "shot": "knocks at the glass, side panel",
+    "start_frame": 0,
+    "frames": 96,
+    "paced": true,
+    "fov0": 72.0,
+    "fov1": 72.0,
+    "blocking": "talk camera at the doors"
+   }
+  ]
+ },
+ "C09.01": {
+  "title": "The damaged barricade",
+  "status": "LEDGER",
+  "frames": 96,
+  "seconds": 4.0,
+  "shots": [
+   {
+    "shot": "inspect: displaced pallets, claw marks, a creak",
+    "start_frame": 0,
+    "frames": 96,
+    "paced": true,
+    "fov0": 72.0,
+    "fov1": 72.0,
+    "blocking": "first person"
+   }
+  ]
+ },
+ "C09.02": {
+  "title": "Collect materials and repair",
+  "status": "LEDGER",
+  "frames": 192,
+  "seconds": 8.0,
+  "shots": [
+   {
+    "shot": "boards, tape, hammer",
+    "start_frame": 0,
+    "frames": 96,
+    "paced": true,
+    "fov0": 72.0,
+    "fov1": 72.0,
+    "blocking": "pickups"
+   },
+   {
+    "shot": "three-board repair",
+    "start_frame": 96,
+    "frames": 96,
+    "paced": true,
+    "fov0": 72.0,
+    "fov1": 72.0,
+    "blocking": "first-person hand action"
+   }
+  ]
+ },
+ "C09.03": {
+  "title": "The lights fail; the maintenance panel",
+  "status": "LEDGER",
+  "frames": 192,
+  "seconds": 8.0,
+  "shots": [
+   {
+    "shot": "hum dies, flicker, dark",
+    "start_frame": 0,
+    "frames": 96,
+    "paced": true,
+    "fov0": 72.0,
+    "fov1": 72.0,
+    "blocking": "first person"
+   },
+   {
+    "shot": "reseat the cable",
+    "start_frame": 96,
+    "frames": 96,
+    "paced": true,
+    "fov0": 72.0,
+    "fov1": 72.0,
+    "blocking": "panel interaction"
+   }
+  ]
+ },
+ "C09.04": {
+  "title": "Three impacts and the breach",
+  "status": "LEDGER",
+  "frames": 192,
+  "seconds": 8.0,
+  "shots": [
+   {
+    "shot": "three rear impacts, vibration to visible deformation",
+    "start_frame": 0,
+    "frames": 96,
+    "paced": true,
+    "fov0": 72.0,
+    "fov1": 72.0,
+    "blocking": "first person, no talk camera"
+   },
+   {
+    "shot": "barricade gives, Hound enters",
+    "start_frame": 96,
+    "frames": 96,
+    "paced": true,
+    "fov0": 72.0,
+    "fov1": 72.0,
+    "blocking": "first person"
+   }
+  ]
+ },
+ "C09.05": {
+  "title": "The temporary survivor is caught (3 variants)",
+  "status": "LEDGER",
+  "frames": 96,
+  "seconds": 4.0,
+  "shots": [
+   {
+    "shot": "caught, gone (no gore)",
+    "start_frame": 0,
+    "frames": 96,
+    "paced": true,
+    "fov0": 72.0,
+    "fov1": 72.0,
+    "blocking": "first person"
+   }
+  ]
+ },
+ "C09.06": {
+  "title": "Sarah is bitten; rescue",
+  "status": "LEDGER",
+  "frames": 192,
+  "seconds": 8.0,
+  "shots": [
+   {
+    "shot": "bite, view to Sarah",
+    "start_frame": 0,
+    "frames": 96,
+    "paced": true,
+    "fov0": 72.0,
+    "fov1": 72.0,
+    "blocking": "first person"
+   },
+   {
+    "shot": "rescue interaction",
+    "start_frame": 96,
+    "frames": 96,
+    "paced": true,
+    "fov0": 72.0,
+    "fov1": 72.0,
+    "blocking": "player-led"
+   }
+  ]
+ },
+ "C09.07": {
+  "title": "Push the pallet stack; the Hound withdraws",
+  "status": "LEDGER",
+  "frames": 192,
+  "seconds": 8.0,
+  "shots": [
+   {
+    "shot": "pallet across the doorway",
+    "start_frame": 0,
+    "frames": 96,
+    "paced": true,
+    "fov0": 72.0,
+    "fov1": 72.0,
+    "blocking": "first-person push"
+   },
+   {
+    "shot": "Hound withdraws",
+    "start_frame": 96,
+    "frames": 96,
+    "paced": true,
+    "fov0": 72.0,
+    "fov1": 72.0,
+    "blocking": "over the threshold"
+   }
+  ]
+ },
+ "C09.08": {
+  "title": "Treat Sarah (or not)",
+  "status": "LEDGER",
+  "frames": 96,
+  "seconds": 4.0,
+  "shots": [
+   {
+    "shot": "treatment",
+    "start_frame": 0,
+    "frames": 96,
+    "paced": true,
+    "fov0": 72.0,
+    "fov1": 72.0,
+    "blocking": "interaction"
+   }
+  ]
+ },
+ "C09.09": {
+  "title": "Everyone gathers: the talk about leaving",
+  "status": "LEDGER",
+  "frames": 96,
+  "seconds": 4.0,
+  "shots": [
+   {
+    "shot": "group conversation",
+    "start_frame": 0,
+    "frames": 96,
+    "paced": true,
+    "fov0": 72.0,
+    "fov1": 72.0,
+    "blocking": "talk camera"
+   }
+  ]
+ },
+ "C10.01": {
+  "title": "The decision talk",
+  "status": "LEDGER",
+  "frames": 96,
+  "seconds": 4.0,
+  "shots": [
+   {
+    "shot": "group conversation",
+    "start_frame": 0,
+    "frames": 96,
+    "paced": true,
+    "fov0": 72.0,
+    "fov1": 72.0,
+    "blocking": "talk camera"
+   }
+  ]
+ },
+ "C10.02": {
+  "title": "Preparation (medical, food and water, flashlight, words)",
+  "status": "LEDGER",
+  "frames": 96,
+  "seconds": 4.0,
+  "shots": [
+   {
+    "shot": "pickups and four short talks",
+    "start_frame": 0,
+    "frames": 96,
+    "paced": true,
+    "fov0": 72.0,
+    "fov1": 72.0,
+    "blocking": "first person / talk"
+   }
+  ]
+ },
+ "C10.03": {
+  "title": "The warning",
+  "status": "LEDGER",
+  "frames": 96,
+  "seconds": 4.0,
+  "shots": [
+   {
+    "shot": "distant impacts, scraping, flicker, a shape in the fog",
+    "start_frame": 0,
+    "frames": 96,
+    "paced": true,
+    "fov0": 72.0,
+    "fov1": 72.0,
+    "blocking": "first person"
+   }
+  ]
+ },
+ "C10.04": {
+  "title": "The fall",
+  "status": "LEDGER",
+  "frames": 96,
+  "seconds": 4.0,
+  "shots": [
+   {
+    "shot": "doorway barricade gives, Hound in; another at the front",
+    "start_frame": 0,
+    "frames": 96,
+    "paced": true,
+    "fov0": 72.0,
+    "fov1": 72.0,
+    "blocking": "first person"
+   }
+  ]
+ },
+ "C10.05": {
+  "title": "Escape through the staff door, corridor, rear exit",
+  "status": "LEDGER",
+  "frames": 96,
+  "seconds": 4.0,
+  "shots": [
+   {
+    "shot": "the group follows east, through the staff door",
+    "start_frame": 0,
+    "frames": 96,
+    "paced": true,
+    "fov0": 72.0,
+    "fov1": 72.0,
+    "blocking": "player-led, group visible"
+   }
+  ]
+ },
+ "C10.06a": {
+  "title": "Marcus pinned - pulled free",
+  "status": "LEDGER",
+  "frames": 288,
+  "seconds": 12.0,
+  "shots": [
+   {
+    "shot": "telegraph (Marcus last, back for the medicine bag)",
+    "start_frame": 0,
+    "frames": 48,
+    "paced": false,
+    "fov0": 72.0,
+    "fov1": 72.0,
+    "blocking": "first person; NEW c9_pin_telegraph"
+   },
+   {
+    "shot": "countdown",
+    "start_frame": 48,
+    "frames": 240,
+    "paced": false,
+    "fov0": 72.0,
+    "fov1": 72.0,
+    "blocking": "7/10/13 s by trust (approved)"
+   }
+  ]
+ },
+ "C10.06b": {
+  "title": "Marcus pinned - lost (never random)",
+  "status": "LEDGER",
+  "frames": 96,
+  "seconds": 4.0,
+  "shots": [
+   {
+    "shot": "cut to black while he is dragged",
+    "start_frame": 0,
+    "frames": 96,
+    "paced": true,
+    "fov0": 72.0,
+    "fov1": 72.0,
+    "blocking": "fade"
+   }
+  ]
+ },
+ "C10.07": {
+  "title": "Look back and the roll call",
+  "status": "LEDGER",
+  "frames": 96,
+  "seconds": 4.0,
+  "shots": [
+   {
+    "shot": "look back at the store",
+    "start_frame": 0,
+    "frames": 96,
+    "paced": true,
+    "fov0": 72.0,
+    "fov1": 72.0,
+    "blocking": "turn camera"
+   }
+  ]
+ },
+ "C10.08": {
+  "title": "The rendezvous (Ruth and Sarah's yard)",
+  "status": "LEDGER",
+  "frames": 96,
+  "seconds": 4.0,
+  "shots": [
+   {
+    "shot": "arrival, c9_rv_plan (NEW)",
+    "start_frame": 0,
+    "frames": 96,
+    "paced": true,
+    "fov0": 72.0,
+    "fov1": 72.0,
+    "blocking": "talk camera"
+   }
+  ]
+ },
+ "C11.01": {
+  "title": "The plan at the rendezvous",
+  "status": "LEDGER",
+  "frames": 96,
+  "seconds": 4.0,
+  "shots": [
+   {
+    "shot": "plan conversation",
+    "start_frame": 0,
+    "frames": 96,
+    "paced": true,
+    "fov0": 72.0,
+    "fov1": 72.0,
+    "blocking": "talk camera"
+   }
+  ]
+ },
+ "C11.02": {
+  "title": "The abandoned sedan",
+  "status": "LEDGER",
+  "frames": 96,
+  "seconds": 4.0,
+  "shots": [
+   {
+    "shot": "door, gauge, glove box, trunk",
+    "start_frame": 0,
+    "frames": 96,
+    "paced": true,
+    "fov0": 72.0,
+    "fov1": 72.0,
+    "blocking": "one press each"
+   }
+  ]
+ },
+ "C11.03": {
+  "title": "Roadblock and the side route",
+  "status": "LEDGER",
+  "frames": 192,
+  "seconds": 8.0,
+  "shots": [
+   {
+    "shot": "blocked road",
+    "start_frame": 0,
+    "frames": 96,
+    "paced": true,
+    "fov0": 72.0,
+    "fov1": 72.0,
+    "blocking": "first person"
+   },
+   {
+    "shot": "gap, gate, back to the road",
+    "start_frame": 96,
+    "frames": 96,
+    "paced": true,
+    "fov0": 72.0,
+    "fov1": 72.0,
+    "blocking": "player-led"
+   }
+  ]
+ },
+ "C11.04": {
+  "title": "Something follows (Hound silhouette)",
+  "status": "LEDGER",
+  "frames": 96,
+  "seconds": 4.0,
+  "shots": [
+   {
+    "shot": "a Hound crosses behind buildings",
+    "start_frame": 0,
+    "frames": 96,
+    "paced": true,
+    "fov0": 72.0,
+    "fov1": 72.0,
+    "blocking": "first person, no fight"
+   }
+  ]
+ },
+ "C11.05": {
+  "title": "Sarah can't go on (2 variants x 2 choices)",
+  "status": "LEDGER",
+  "frames": 96,
+  "seconds": 4.0,
+  "shots": [
+   {
+    "shot": "choice",
+    "start_frame": 0,
+    "frames": 96,
+    "paced": true,
+    "fov0": 72.0,
+    "fov1": 72.0,
+    "blocking": "choice panel"
+   }
+  ]
+ },
+ "C11.06": {
+  "title": "The mill-worker house",
+  "status": "LEDGER",
+  "frames": 96,
+  "seconds": 4.0,
+  "shots": [
+   {
+    "shot": "entrance, main room empty, group gathers",
+    "start_frame": 0,
+    "frames": 96,
+    "paced": true,
+    "fov0": 72.0,
+    "fov1": 72.0,
+    "blocking": "first person"
+   }
+  ]
+ },
+ "C11.07": {
+  "title": "Rest and the window",
+  "status": "LEDGER",
+  "frames": 192,
+  "seconds": 8.0,
+  "shots": [
+   {
+    "shot": "rest a few hours",
+    "start_frame": 0,
+    "frames": 96,
+    "paced": true,
+    "fov0": 72.0,
+    "fov1": 72.0,
+    "blocking": "fade"
+   },
+   {
+    "shot": "window: countryside, a distant call",
+    "start_frame": 96,
+    "frames": 96,
+    "paced": true,
+    "fov0": 72.0,
+    "fov1": 72.0,
+    "blocking": "first person, c10.WINDOW"
+   }
+  ]
+ },
+ "C12.01": {
+  "title": "Morning talk",
+  "status": "LEDGER",
+  "frames": 96,
+  "seconds": 4.0,
+  "shots": [
+   {
+    "shot": "group talk",
+    "start_frame": 0,
+    "frames": 96,
+    "paced": true,
+    "fov0": 72.0,
+    "fov1": 72.0,
+    "blocking": "talk camera"
+   }
+  ]
+ },
+ "C12.02": {
+  "title": "Farm road: pickup, fence, bus shelter",
+  "status": "LEDGER",
+  "frames": 96,
+  "seconds": 4.0,
+  "shots": [
+   {
+    "shot": "three props along the road",
+    "start_frame": 0,
+    "frames": 96,
+    "paced": true,
+    "fov0": 72.0,
+    "fov1": 72.0,
+    "blocking": "first person; snack optional"
+   }
+  ]
+ },
+ "C12.03": {
+  "title": "The cold camp and the campsite note",
+  "status": "LEDGER",
+  "frames": 192,
+  "seconds": 8.0,
+  "shots": [
+   {
+    "shot": "bedroll, lantern, can, jacket, scuffed earth",
+    "start_frame": 0,
+    "frames": 96,
+    "paced": true,
+    "fov0": 72.0,
+    "fov1": 72.0,
+    "blocking": "inspect props"
+   },
+   {
+    "shot": "note read",
+    "start_frame": 96,
+    "frames": 96,
+    "paced": true,
+    "fov0": 50.0,
+    "fov1": 50.0,
+    "blocking": "inventory"
+   }
+  ]
+ },
+ "C12.04": {
+  "title": "The Hound in the field (view turned and zoomed)",
+  "status": "LEDGER",
+  "frames": 96,
+  "seconds": 4.0,
+  "shots": [
+   {
+    "shot": "view turned and zoomed onto a silhouette, then handed back",
+    "start_frame": 0,
+    "frames": 96,
+    "paced": true,
+    "fov0": 72.0,
+    "fov1": 72.0,
+    "blocking": "first person, restrained FOV beat"
+   }
+  ]
+ },
+ "C12.05": {
+  "title": "HOUSE_20: living room, kitchen, back door, upstairs; Noah's message",
+  "status": "LEDGER",
+  "frames": 192,
+  "seconds": 8.0,
+  "shots": [
+   {
+    "shot": "four searches",
+    "start_frame": 0,
+    "frames": 96,
+    "paced": true,
+    "fov0": 72.0,
+    "fov1": 72.0,
+    "blocking": "first person; group waits in the living room"
+   },
+   {
+    "shot": "message read",
+    "start_frame": 96,
+    "frames": 96,
+    "paced": true,
+    "fov0": 50.0,
+    "fov1": 50.0,
+    "blocking": "inventory"
+   }
+  ]
+ },
+ "C12.06": {
+  "title": "Regroup, the shadow at the window, the blow at the back, the circling Hound",
+  "status": "LEDGER",
+  "frames": 288,
+  "seconds": 12.0,
+  "shots": [
+   {
+    "shot": "shadow crosses the window",
+    "start_frame": 0,
+    "frames": 96,
+    "paced": true,
+    "fov0": 72.0,
+    "fov1": 72.0,
+    "blocking": "first person"
+   },
+   {
+    "shot": "a blow at the back door",
+    "start_frame": 96,
+    "frames": 96,
+    "paced": true,
+    "fov0": 72.0,
+    "fov1": 72.0,
+    "blocking": "first person"
+   },
+   {
+    "shot": "Hound circles; lead the group out the front",
+    "start_frame": 192,
+    "frames": 96,
+    "paced": true,
+    "fov0": 72.0,
+    "fov1": 72.0,
+    "blocking": "player-led"
+   }
+  ]
+ },
+ "C12.07": {
+  "title": "The light in HOUSE_19",
+  "status": "LEDGER",
+  "frames": 96,
+  "seconds": 4.0,
+  "shots": [
+   {
+    "shot": "view drawn to the flickering light; a shape passes behind it",
+    "start_frame": 0,
+    "frames": 96,
+    "paced": true,
+    "fov0": 72.0,
+    "fov1": 72.0,
+    "blocking": "first person; nothing revealed"
+   }
+  ]
+ },
+ "C13.0a": {
+  "title": "First light: the ribbon (NEW)",
+  "status": "BUILT (code + headless test)",
+  "frames": 96,
+  "seconds": 4.0,
+  "shots": [
+   {
+    "shot": "Eddie hands over the ribbon; ribbon inspect",
+    "start_frame": 0,
+    "frames": 96,
+    "paced": true,
+    "fov0": 50.0,
+    "fov1": 50.0,
+    "blocking": "talk camera; inventory"
+   }
+  ]
+ },
+ "C13.0b": {
+  "title": "Who goes (NEW)",
+  "status": "BUILT (code + headless test)",
+  "frames": 96,
+  "seconds": 4.0,
+  "shots": [
+   {
+    "shot": "choice: Eddie / alone",
+    "start_frame": 0,
+    "frames": 96,
+    "paced": true,
+    "fov0": 72.0,
+    "fov1": 72.0,
+    "blocking": "choice panel"
+   }
+  ]
+ },
+ "C13.0c": {
+  "title": "The field and the Hound (NEW)",
+  "status": "BUILT (code + headless test)",
+  "frames": 96,
+  "seconds": 4.0,
+  "shots": [
+   {
+    "shot": "cross the field to HOUSE_19",
+    "start_frame": 0,
+    "frames": 96,
+    "paced": true,
+    "fov0": 72.0,
+    "fov1": 72.0,
+    "blocking": "first person; chalked posts as fall-back points; Hound patrols a line"
+   }
+  ]
+ },
+ "C13.0d": {
+  "title": "The knock and the bag question (NEW)",
+  "status": "BUILT (code + headless test)",
+  "frames": 167,
+  "seconds": 6.96,
+  "shots": [
+   {
+    "shot": "three short, one long",
+    "start_frame": 0,
+    "frames": 42,
+    "paced": false,
+    "fov0": 72.0,
+    "fov1": 72.0,
+    "blocking": "knock sounds at the door"
+   },
+   {
+    "shot": "Noah behind the door: question",
+    "start_frame": 42,
+    "frames": 96,
+    "paced": true,
+    "fov0": 72.0,
+    "fov1": 72.0,
+    "blocking": "choice panel"
+   },
+   {
+    "shot": "door opens",
+    "start_frame": 138,
+    "frames": 29,
+    "paced": false,
+    "fov0": 72.0,
+    "fov1": 72.0,
+    "blocking": "hinge tween"
+   }
+  ]
+ },
+ "C13.0e": {
+  "title": "Noah's account, the journal, the reunion or the bereavement (NEW)",
+  "status": "BUILT (code + headless test)",
+  "frames": 288,
+  "seconds": 12.0,
+  "shots": [
+   {
+    "shot": "account and journal",
+    "start_frame": 0,
+    "frames": 96,
+    "paced": true,
+    "fov0": 72.0,
+    "fov1": 72.0,
+    "blocking": "talk camera"
+   },
+   {
+    "shot": "reunion (Marcus alive)",
+    "start_frame": 96,
+    "frames": 96,
+    "paced": true,
+    "fov0": 72.0,
+    "fov1": 72.0,
+    "blocking": "talk camera, held shot"
+   },
+   {
+    "shot": "bereavement (Marcus lost): choice then comfort",
+    "start_frame": 192,
+    "frames": 96,
+    "paced": true,
+    "fov0": 72.0,
+    "fov1": 72.0,
+    "blocking": "talk camera"
+   }
+  ]
+ },
+ "C13.0f": {
+  "title": "Home with Noah (NEW)",
+  "status": "BUILT (code + headless test)",
+  "frames": 192,
+  "seconds": 8.0,
+  "shots": [
+   {
+    "shot": "walk back",
+    "start_frame": 0,
+    "frames": 96,
+    "paced": true,
+    "fov0": 72.0,
+    "fov1": 72.0,
+    "blocking": "first person; Noah follows"
+   },
+   {
+    "shot": "arrival talk",
+    "start_frame": 96,
+    "frames": 96,
+    "paced": true,
+    "fov0": 72.0,
+    "fov1": 72.0,
+    "blocking": "talk camera"
+   }
+  ]
+ },
+ "C13.1": {
+  "title": "Why under the ground (NEW)",
+  "status": "BUILT (code + headless test)",
+  "frames": 96,
+  "seconds": 4.0,
+  "shots": [
+   {
+    "shot": "group talk with Noah's tally",
+    "start_frame": 0,
+    "frames": 96,
+    "paced": true,
+    "fov0": 72.0,
+    "fov1": 72.0,
+    "blocking": "talk camera"
+   }
+  ]
+ },
+ "C13.02": {
+  "title": "The symbol and the map; preparation",
+  "status": "BUILT (code + headless test)",
+  "frames": 192,
+  "seconds": 8.0,
+  "shots": [
+   {
+    "shot": "map talk",
+    "start_frame": 0,
+    "frames": 96,
+    "paced": true,
+    "fov0": 72.0,
+    "fov1": 72.0,
+    "blocking": "talk camera"
+   },
+   {
+    "shot": "preparation panel",
+    "start_frame": 96,
+    "frames": 96,
+    "paced": true,
+    "fov0": 72.0,
+    "fov1": 72.0,
+    "blocking": "choice panel"
+   }
+  ]
+ },
+ "C13.03": {
+  "title": "Across the road to the station; the fog talk",
+  "status": "BUILT (code + headless test)",
+  "frames": 96,
+  "seconds": 4.0,
+  "shots": [
+   {
+    "shot": "walk with the companion",
+    "start_frame": 0,
+    "frames": 96,
+    "paced": true,
+    "fov0": 72.0,
+    "fov1": 72.0,
+    "blocking": "first person; clanks on the fog"
+   }
+  ]
+ },
+ "C13.04": {
+  "title": "Inside: radio, report, log, map",
+  "status": "BUILT (code + headless test)",
+  "frames": 96,
+  "seconds": 4.0,
+  "shots": [
+   {
+    "shot": "four readable clues",
+    "start_frame": 0,
+    "frames": 96,
+    "paced": true,
+    "fov0": 50.0,
+    "fov1": 50.0,
+    "blocking": "inspect props"
+   }
+  ]
+ },
+ "C13.05": {
+  "title": "Fuse and control-room panel",
+  "status": "BUILT (code + headless test)",
+  "frames": 192,
+  "seconds": 8.0,
+  "shots": [
+   {
+    "shot": "fuse from the locker",
+    "start_frame": 0,
+    "frames": 96,
+    "paced": true,
+    "fov0": 72.0,
+    "fov1": 72.0,
+    "blocking": "first person"
+   },
+   {
+    "shot": "panel: limited power, a sound from below",
+    "start_frame": 96,
+    "frames": 96,
+    "paced": true,
+    "fov0": 72.0,
+    "fov1": 72.0,
+    "blocking": "first person"
+   }
+  ]
+ },
+ "C13.06": {
+  "title": "Access door, ramp, tunnels, locker",
+  "status": "BUILT (code + headless test)",
+  "frames": 192,
+  "seconds": 8.0,
+  "shots": [
+   {
+    "shot": "ramp down",
+    "start_frame": 0,
+    "frames": 96,
+    "paced": true,
+    "fov0": 72.0,
+    "fov1": 72.0,
+    "blocking": "first person; mist on the floor, scratches"
+   },
+   {
+    "shot": "locker: battery, painkillers",
+    "start_frame": 96,
+    "frames": 96,
+    "paced": true,
+    "fov0": 72.0,
+    "fov1": 72.0,
+    "blocking": "pickup"
+   }
+  ]
+ },
+ "C13.07": {
+  "title": "The sealed chamber and the records",
+  "status": "BUILT (code + headless test)",
+  "frames": 192,
+  "seconds": 8.0,
+  "shots": [
+   {
+    "shot": "older stonework behind concrete, the symbol carved again and again",
+    "start_frame": 0,
+    "frames": 96,
+    "paced": true,
+    "fov0": 72.0,
+    "fov1": 72.0,
+    "blocking": "first person"
+   },
+   {
+    "shot": "records taken",
+    "start_frame": 96,
+    "frames": 96,
+    "paced": true,
+    "fov0": 72.0,
+    "fov1": 72.0,
+    "blocking": "pickup"
+   }
+  ]
+ },
+ "C13.08": {
+  "title": "The vent Skitter and the run",
+  "status": "BUILT (code + headless test)",
+  "frames": 192,
+  "seconds": 8.0,
+  "shots": [
+   {
+    "shot": "scratching, grate shakes, Skitter out",
+    "start_frame": 0,
+    "frames": 96,
+    "paced": true,
+    "fov0": 72.0,
+    "fov1": 72.0,
+    "blocking": "first person"
+   },
+   {
+    "shot": "run up, door shut",
+    "start_frame": 96,
+    "frames": 96,
+    "paced": true,
+    "fov0": 72.0,
+    "fov1": 72.0,
+    "blocking": "player-led"
+   }
+  ]
+ },
+ "C13.09": {
+  "title": "The sound from below; the supply choice",
+  "status": "BUILT (code + headless test)",
+  "frames": 192,
+  "seconds": 8.0,
+  "shots": [
+   {
+    "shot": "a sound with nothing shown",
+    "start_frame": 0,
+    "frames": 96,
+    "paced": true,
+    "fov0": 72.0,
+    "fov1": 72.0,
+    "blocking": "first person"
+   },
+   {
+    "shot": "choice: take supplies / leave",
+    "start_frame": 96,
+    "frames": 96,
+    "paced": true,
+    "fov0": 72.0,
+    "fov1": 72.0,
+    "blocking": "choice panel"
+   }
+  ]
+ },
+ "C13.10": {
+  "title": "Back to the mill house; the map",
+  "status": "LEDGER",
+  "frames": 192,
+  "seconds": 8.0,
+  "shots": [
+   {
+    "shot": "walk back",
+    "start_frame": 0,
+    "frames": 96,
+    "paced": true,
+    "fov0": 72.0,
+    "fov1": 72.0,
+    "blocking": "first person"
+   },
+   {
+    "shot": "the map on the table",
+    "start_frame": 96,
+    "frames": 96,
+    "paced": true,
+    "fov0": 72.0,
+    "fov1": 72.0,
+    "blocking": "talk camera"
+   }
+  ]
+ },
+ "C14.01": {
+  "title": "The recovered map; preparation and a companion",
+  "status": "LEDGER",
+  "frames": 192,
+  "seconds": 8.0,
+  "shots": [
+   {
+    "shot": "map talk",
+    "start_frame": 0,
+    "frames": 96,
+    "paced": true,
+    "fov0": 72.0,
+    "fov1": 72.0,
+    "blocking": "talk camera"
+   },
+   {
+    "shot": "companion choice",
+    "start_frame": 96,
+    "frames": 96,
+    "paced": true,
+    "fov0": 72.0,
+    "fov1": 72.0,
+    "blocking": "choice panel"
+   }
+  ]
+ },
+ "C14.02": {
+  "title": "The broken sign, twice",
+  "status": "LEDGER",
+  "frames": 96,
+  "seconds": 4.0,
+  "shots": [
+   {
+    "shot": "sign passed; the same sign again from another side",
+    "start_frame": 0,
+    "frames": 96,
+    "paced": true,
+    "fov0": 72.0,
+    "fov1": 72.0,
+    "blocking": "first person; landmarks stay visible"
+   }
+  ]
+ },
+ "C14.03": {
+  "title": "Mist exposure in the district",
+  "status": "LEDGER",
+  "frames": 96,
+  "seconds": 4.0,
+  "shots": [
+   {
+    "shot": "muffled sound, soft distortion, heartbeat, misleading sounds",
+    "start_frame": 0,
+    "frames": 96,
+    "paced": true,
+    "fov0": 72.0,
+    "fov1": 72.0,
+    "blocking": "first person; never takes control or health"
+   }
+  ]
+ },
+ "C14.04": {
+  "title": "Roof Skitter and the street patroller",
+  "status": "LEDGER",
+  "frames": 192,
+  "seconds": 8.0,
+  "shots": [
+   {
+    "shot": "a Skitter crosses a roof and drops out of sight",
+    "start_frame": 0,
+    "frames": 96,
+    "paced": true,
+    "fov0": 72.0,
+    "fov1": 72.0,
+    "blocking": "first person"
+   },
+   {
+    "shot": "a second patrols at street height",
+    "start_frame": 96,
+    "frames": 96,
+    "paced": true,
+    "fov0": 72.0,
+    "fov1": 72.0,
+    "blocking": "sneak past; a lunge hurts, never kills"
+   }
+  ]
+ },
+ "C14.05": {
+  "title": "Checkpoint gate: office, note, crank, release",
+  "status": "LEDGER",
+  "frames": 192,
+  "seconds": 8.0,
+  "shots": [
+   {
+    "shot": "office note",
+    "start_frame": 0,
+    "frames": 96,
+    "paced": true,
+    "fov0": 50.0,
+    "fov1": 50.0,
+    "blocking": "inventory"
+   },
+   {
+    "shot": "crank and manual release",
+    "start_frame": 96,
+    "frames": 96,
+    "paced": true,
+    "fov0": 72.0,
+    "fov1": 72.0,
+    "blocking": "first person"
+   }
+  ]
+ },
+ "C14.06": {
+  "title": "Courtyard: the Shellcrawler and the passage",
+  "status": "LEDGER",
+  "frames": 192,
+  "seconds": 8.0,
+  "shots": [
+   {
+    "shot": "crab comes out from behind the collapsed shed (first person)",
+    "start_frame": 0,
+    "frames": 96,
+    "paced": true,
+    "fov0": 72.0,
+    "fov1": 72.0,
+    "blocking": "player-led run round the debris"
+   },
+   {
+    "shot": "passage too narrow for it",
+    "start_frame": 96,
+    "frames": 96,
+    "paced": true,
+    "fov0": 72.0,
+    "fov1": 72.0,
+    "blocking": "first person"
+   }
+  ]
+ },
+ "C14.07": {
+  "title": "The passage of echoes",
+  "status": "LEDGER",
+  "frames": 96,
+  "seconds": 4.0,
+  "shots": [
+   {
+    "shot": "a familiar voice from a dead end; the companion warns",
+    "start_frame": 0,
+    "frames": 96,
+    "paced": true,
+    "fov0": 72.0,
+    "fov1": 72.0,
+    "blocking": "first person; companion in frame"
+   }
+  ]
+ },
+ "C14.08": {
+  "title": "The ancient doorway: winch, beam, mist, a shape",
+  "status": "LEDGER",
+  "frames": 288,
+  "seconds": 12.0,
+  "shots": [
+   {
+    "shot": "room tone stops, mist drawn inward, flashlight flickers",
+    "start_frame": 0,
+    "frames": 96,
+    "paced": true,
+    "fov0": 72.0,
+    "fov1": 72.0,
+    "blocking": "first person"
+   },
+   {
+    "shot": "slab drops into the floor; doorway opens",
+    "start_frame": 96,
+    "frames": 96,
+    "paced": true,
+    "fov0": 72.0,
+    "fov1": 72.0,
+    "blocking": "literal before/after"
+   },
+   {
+    "shot": "partial shape; threshold tentacles; mist reverses",
+    "start_frame": 192,
+    "frames": 96,
+    "paced": true,
+    "fov0": 72.0,
+    "fov1": 72.0,
+    "blocking": "first person"
+   }
+  ]
+ },
+ "C14.09": {
+  "title": "The collapse: help the companion or secure the evidence",
+  "status": "LEDGER",
+  "frames": 192,
+  "seconds": 8.0,
+  "shots": [
+   {
+    "shot": "collapse",
+    "start_frame": 0,
+    "frames": 96,
+    "paced": true,
+    "fov0": 72.0,
+    "fov1": 72.0,
+    "blocking": "first person; debris"
+   },
+   {
+    "shot": "choice",
+    "start_frame": 96,
+    "frames": 96,
+    "paced": true,
+    "fov0": 72.0,
+    "fov1": 72.0,
+    "blocking": "choice panel"
+   }
+  ]
+ },
+ "C14.10": {
+  "title": "Out by the drain; back; the window at night",
+  "status": "LEDGER",
+  "frames": 288,
+  "seconds": 12.0,
+  "shots": [
+   {
+    "shot": "storm drain, district in thick fog",
+    "start_frame": 0,
+    "frames": 96,
+    "paced": true,
+    "fov0": 72.0,
+    "fov1": 72.0,
+    "blocking": "first person"
+   },
+   {
+    "shot": "Noah's lamp answers (NEW prop)",
+    "start_frame": 96,
+    "frames": 96,
+    "paced": true,
+    "fov0": 72.0,
+    "fov1": 72.0,
+    "blocking": "the window light"
+   },
+   {
+    "shot": "the window: the mist rolling in",
+    "start_frame": 192,
+    "frames": 96,
+    "paced": true,
+    "fov0": 72.0,
+    "fov1": 72.0,
+    "blocking": "talk camera / first person"
+   }
+  ]
+ },
+ "C15.01": {
+  "title": "The vibration; the window",
+  "status": "LEDGER",
+  "frames": 192,
+  "seconds": 8.0,
+  "shots": [
+   {
+    "shot": "bed height, shake, view lifts",
+    "start_frame": 0,
+    "frames": 96,
+    "paced": false,
+    "fov0": 72.0,
+    "fov1": 72.0,
+    "blocking": "fade in 2 s, view tween 1.6 s"
+   },
+   {
+    "shot": "window: the mist is close, a vast shape",
+    "start_frame": 96,
+    "frames": 96,
+    "paced": true,
+    "fov0": 72.0,
+    "fov1": 72.0,
+    "blocking": "first person"
+   }
+  ]
+ },
+ "C15.02": {
+  "title": "The meeting",
+  "status": "LEDGER",
+  "frames": 192,
+  "seconds": 8.0,
+  "shots": [
+   {
+    "shot": "every living survivor in the room",
+    "start_frame": 0,
+    "frames": 96,
+    "paced": true,
+    "fov0": 72.0,
+    "fov1": 72.0,
+    "blocking": "talk camera"
+   },
+   {
+    "shot": "Noah's watch log and his evacuation partner (NEW, built)",
+    "start_frame": 96,
+    "frames": 96,
+    "paced": true,
+    "fov0": 72.0,
+    "fov1": 72.0,
+    "blocking": "talk camera"
+   }
+  ]
+ },
+ "C15.03": {
+  "title": "Three preparations (any order)",
+  "status": "LEDGER",
+  "frames": 288,
+  "seconds": 12.0,
+  "shots": [
+   {
+    "shot": "supplies",
+    "start_frame": 0,
+    "frames": 96,
+    "paced": true,
+    "fov0": 72.0,
+    "fov1": 72.0,
+    "blocking": "panel"
+   },
+   {
+    "shot": "front door, front window, back door",
+    "start_frame": 96,
+    "frames": 96,
+    "paced": true,
+    "fov0": 72.0,
+    "fov1": 72.0,
+    "blocking": "first person; visible states"
+   },
+   {
+    "shot": "escape route",
+    "start_frame": 192,
+    "frames": 96,
+    "paced": true,
+    "fov0": 72.0,
+    "fov1": 72.0,
+    "blocking": "first person"
+   }
+  ]
+ },
+ "C15.04": {
+  "title": "The calm: optional talks",
+  "status": "LEDGER",
+  "frames": 96,
+  "seconds": 4.0,
+  "shots": [
+   {
+    "shot": "per-survivor talks",
+    "start_frame": 0,
+    "frames": 96,
+    "paced": true,
+    "fov0": 72.0,
+    "fov1": 72.0,
+    "blocking": "talk camera"
+   }
+  ]
+ },
+ "C15.05": {
+  "title": "Siege: Skitters at the window, Hounds at the weakest door",
+  "status": "LEDGER",
+  "frames": 192,
+  "seconds": 8.0,
+  "shots": [
+   {
+    "shot": "window scratching, braced window holds longer",
+    "start_frame": 0,
+    "frames": 96,
+    "paced": true,
+    "fov0": 72.0,
+    "fov1": 72.0,
+    "blocking": "first person"
+   },
+   {
+    "shot": "Hounds at the weak door; it breaks",
+    "start_frame": 96,
+    "frames": 96,
+    "paced": true,
+    "fov0": 72.0,
+    "fov1": 72.0,
+    "blocking": "first person"
+   }
+  ]
+ },
+ "C15.06": {
+  "title": "The table save",
+  "status": "LEDGER",
+  "frames": 336,
+  "seconds": 14.0,
+  "shots": [
+   {
+    "shot": "a survivor caught (Sarah, else Ruth)",
+    "start_frame": 0,
+    "frames": 96,
+    "paced": true,
+    "fov0": 72.0,
+    "fov1": 72.0,
+    "blocking": "first person; control first"
+   },
+   {
+    "shot": "ten-second shove",
+    "start_frame": 96,
+    "frames": 240,
+    "paced": false,
+    "fov0": 72.0,
+    "fov1": 72.0,
+    "blocking": "timer after control"
+   }
+  ]
+ },
+ "C15.07": {
+  "title": "The Shellcrawler blocks the front; out the back",
+  "status": "LEDGER",
+  "frames": 192,
+  "seconds": 8.0,
+  "shots": [
+   {
+    "shot": "crab at the front",
+    "start_frame": 0,
+    "frames": 96,
+    "paced": true,
+    "fov0": 72.0,
+    "fov1": 72.0,
+    "blocking": "first person"
+   },
+   {
+    "shot": "back door (forced if unprepared)",
+    "start_frame": 96,
+    "frames": 96,
+    "paced": true,
+    "fov0": 72.0,
+    "fov1": 72.0,
+    "blocking": "first person"
+   }
+  ]
+ },
+ "C15.08": {
+  "title": "Evacuation; the fence",
+  "status": "LEDGER",
+  "frames": 192,
+  "seconds": 8.0,
+  "shots": [
+   {
+    "shot": "injured survivors slower; Noah with his partner",
+    "start_frame": 0,
+    "frames": 96,
+    "paced": true,
+    "fov0": 72.0,
+    "fov1": 72.0,
+    "blocking": "player-led"
+   },
+   {
+    "shot": "someone caught behind a fallen fence: go back / keep moving",
+    "start_frame": 96,
+    "frames": 96,
+    "paced": true,
+    "fov0": 72.0,
+    "fov1": 72.0,
+    "blocking": "choice panel"
+   }
+  ]
+ },
+ "C15.09": {
+  "title": "The field: the shelter disappears",
+  "status": "LEDGER",
+  "frames": 96,
+  "seconds": 4.0,
+  "shots": [
+   {
+    "shot": "turn to the house, fov 0.72, light flickers, the house is erased by mist",
+    "start_frame": 0,
+    "frames": 96,
+    "paced": true,
+    "fov0": 72.0,
+    "fov1": 72.0,
+    "blocking": "held camera"
+   }
+  ]
+ },
+ "C16.01": {
+  "title": "The station refuge: roster, treatment, talks, plan",
+  "status": "LEDGER",
+  "frames": 192,
+  "seconds": 8.0,
+  "shots": [
+   {
+    "shot": "refuge",
+    "start_frame": 0,
+    "frames": 96,
+    "paced": true,
+    "fov0": 72.0,
+    "fov1": 72.0,
+    "blocking": "talk camera"
+   },
+   {
+    "shot": "why back down (NEW, built): c15_why_below",
+    "start_frame": 96,
+    "frames": 96,
+    "paced": true,
+    "fov0": 72.0,
+    "fov1": 72.0,
+    "blocking": "talk camera"
+   }
+  ]
+ },
+ "C16.02": {
+  "title": "The road west and the Colossus crossing",
+  "status": "LEDGER",
+  "frames": 192,
+  "seconds": 8.0,
+  "shots": [
+   {
+    "shot": "the view drawn up a leg into the mist (tripod, 60 m)",
+    "start_frame": 0,
+    "frames": 96,
+    "paced": true,
+    "fov0": 72.0,
+    "fov1": 72.0,
+    "blocking": "first person"
+   },
+   {
+    "shot": "cover to cover while it walks and looks",
+    "start_frame": 96,
+    "frames": 96,
+    "paced": true,
+    "fov0": 72.0,
+    "fov1": 72.0,
+    "blocking": "player-led; detection audible; fair retry"
+   }
+  ]
+ },
+ "C16.03": {
+  "title": "District, rubble gap, passage",
+  "status": "LEDGER",
+  "frames": 192,
+  "seconds": 8.0,
+  "shots": [
+   {
+    "shot": "roof Skitter, Hound behind",
+    "start_frame": 0,
+    "frames": 96,
+    "paced": true,
+    "fov0": 72.0,
+    "fov1": 72.0,
+    "blocking": "first person"
+   },
+   {
+    "shot": "rubble squeeze",
+    "start_frame": 96,
+    "frames": 96,
+    "paced": true,
+    "fov0": 72.0,
+    "fov1": 72.0,
+    "blocking": "first person"
+   }
+  ]
+ },
+ "C16.04": {
+  "title": "The sealed doorway and the great chamber",
+  "status": "LEDGER",
+  "frames": 192,
+  "seconds": 8.0,
+  "shots": [
+   {
+    "shot": "mist pocket",
+    "start_frame": 0,
+    "frames": 96,
+    "paced": true,
+    "fov0": 72.0,
+    "fov1": 72.0,
+    "blocking": "first person"
+   },
+   {
+    "shot": "chamber: symbols, seals, records, a shape",
+    "start_frame": 96,
+    "frames": 96,
+    "paced": true,
+    "fov0": 72.0,
+    "fov1": 72.0,
+    "blocking": "first person"
+   }
+  ]
+ },
+ "C16.05": {
+  "title": "Two control points and the final mechanism",
+  "status": "LEDGER",
+  "frames": 264,
+  "seconds": 11.0,
+  "shots": [
+   {
+    "shot": "flashlight falters, vast shadow crosses, stone falls",
+    "start_frame": 0,
+    "frames": 168,
+    "paced": false,
+    "fov0": 72.0,
+    "fov1": 72.0,
+    "blocking": "held camera to the seal"
+   },
+   {
+    "shot": "control A then B then the mechanism",
+    "start_frame": 168,
+    "frames": 96,
+    "paced": true,
+    "fov0": 72.0,
+    "fov1": 72.0,
+    "blocking": "player-led"
+   }
+  ]
+ },
+ "C16.06": {
+  "title": "The decision",
+  "status": "LEDGER",
+  "frames": 96,
+  "seconds": 4.0,
+  "shots": [
+   {
+    "shot": "choice with cost hover text (NEW, not built)",
+    "start_frame": 0,
+    "frames": 96,
+    "paced": true,
+    "fov0": 72.0,
+    "fov1": 72.0,
+    "blocking": "choice panel"
+   }
+  ]
+ },
+ "C16.A": {
+  "title": "Ending A - Leave Greyhaven",
+  "status": "LEDGER",
+  "frames": 288,
+  "seconds": 12.0,
+  "shots": [
+   {
+    "shot": "through the service tunnel, everyone together",
+    "start_frame": 0,
+    "frames": 96,
+    "paced": true,
+    "fov0": 72.0,
+    "fov1": 72.0,
+    "blocking": "player-led"
+   },
+   {
+    "shot": "fields, look back, walk away, mist edge",
+    "start_frame": 96,
+    "frames": 192,
+    "paced": false,
+    "fov0": 72.0,
+    "fov1": 72.0,
+    "blocking": "held camera"
+   }
+  ]
+ },
+ "C16.B": {
+  "title": "Ending B - Seal the Chamber",
+  "status": "LEDGER",
+  "frames": 312,
+  "seconds": 13.0,
+  "shots": [
+   {
+    "shot": "lever A then wheel B under falling stone",
+    "start_frame": 0,
+    "frames": 96,
+    "paced": true,
+    "fov0": 72.0,
+    "fov1": 72.0,
+    "blocking": "player-led"
+   },
+   {
+    "shot": "slab closes",
+    "start_frame": 96,
+    "frames": 72,
+    "paced": false,
+    "fov0": 72.0,
+    "fov1": 72.0,
+    "blocking": "tween"
+   },
+   {
+    "shot": "run to the service tunnel; the fog pulls back",
+    "start_frame": 168,
+    "frames": 144,
+    "paced": false,
+    "fov0": 72.0,
+    "fov1": 72.0,
+    "blocking": "held"
+   }
+  ]
+ },
+ "C16.C": {
+  "title": "Ending C - Send the survivors ahead",
+  "status": "LEDGER",
+  "frames": 418,
+  "seconds": 17.42,
+  "shots": [
+   {
+    "shot": "goodbye, the group leaves",
+    "start_frame": 0,
+    "frames": 96,
+    "paced": true,
+    "fov0": 72.0,
+    "fov1": 72.0,
+    "blocking": "talk camera"
+   },
+   {
+    "shot": "lever + wheel; the passage collapses; slab closes",
+    "start_frame": 96,
+    "frames": 82,
+    "paced": false,
+    "fov0": 72.0,
+    "fov1": 72.0,
+    "blocking": "held"
+   },
+   {
+    "shot": "flashlight dies; the knock and its faint answer (NEW, built)",
+    "start_frame": 178,
+    "frames": 144,
+    "paced": false,
+    "fov0": 72.0,
+    "fov1": 72.0,
+    "blocking": "dark"
+   },
+   {
+    "shot": "exterior cutaway of the group",
+    "start_frame": 322,
+    "frames": 96,
+    "paced": true,
+    "fov0": 72.0,
+    "fov1": 72.0,
+    "blocking": "held"
+   }
+  ]
+ },
+ "C16.X": {
+  "title": "Epilogue and credits",
+  "status": "LEDGER",
+  "frames": 96,
+  "seconds": 4.0,
+  "shots": [
+   {
+    "shot": "epilogue lines -> title -> credits -> menu",
+    "start_frame": 0,
+    "frames": 96,
+    "paced": true,
+    "fov0": 72.0,
+    "fov1": 72.0,
+    "blocking": "text"
+   }
+  ]
+ },
+ "OPT.ROOF": {
+  "title": "Optional roof Skitter (HOUSE_03)",
+  "status": "LEDGER",
+  "frames": 96,
+  "seconds": 4.0,
+  "shots": [
+   {
+    "shot": "porch sighting, leap/pin, 10-click struggle 4 s, escape",
+    "start_frame": 0,
+    "frames": 96,
+    "paced": true,
+    "fov0": 72.0,
+    "fov1": 72.0,
+    "blocking": "fallback leap across blocked geometry"
+   }
+  ]
+ },
+ "OPT.FRANK": {
+  "title": "Frank and the Skitter",
+  "status": "LEDGER",
+  "frames": 96,
+  "seconds": 4.0,
+  "shots": [
+   {
+    "shot": "run, hunt, leap onto his chest (legs on the ground), 1.5 s pin, crawl to his side, grip shoulders, drag",
+    "start_frame": 0,
+    "frames": 96,
+    "paced": true,
+    "fov0": 72.0,
+    "fov1": 72.0,
+    "blocking": "controls locked all scene; then the protagonist walks himself to the nearest open door and inside"
+   }
+  ]
+ },
+ "OPT.STRUGGLE": {
+  "title": "First-person monster struggles (hound/skitter/crab)",
+  "status": "LEDGER",
+  "frames": 120,
+  "seconds": 5.0,
+  "shots": [
+   {
+    "shot": "grab; click to break free",
+    "start_frame": 0,
+    "frames": 120,
+    "paced": false,
+    "fov0": 72.0,
+    "fov1": 72.0,
+    "blocking": "view turns to the creature"
+   }
+  ]
+ },
+ "OPT.GARAGE": {
+  "title": "Garage tentacle",
+  "status": "LEDGER",
+  "frames": 240,
+  "seconds": 10.0,
+  "shots": [
+   {
+    "shot": "reveal (camera held), 10 s countdown to pull the door",
+    "start_frame": 0,
+    "frames": 240,
+    "paced": false,
+    "fov0": 72.0,
+    "fov1": 72.0,
+    "blocking": "success/failure variants"
+   }
+  ]
+ },
+ "DEATH": {
+  "title": "Death sequence",
+  "status": "LEDGER",
+  "frames": 228,
+  "seconds": 9.5,
+  "shots": [
+   {
+    "shot": "collapse 0-2 s, last view 2-5 s, the town belongs to them 5-8 s, YOU DIED 8-10 s",
+    "start_frame": 0,
+    "frames": 228,
+    "paced": false,
+    "fov0": 72.0,
+    "fov1": 72.0,
+    "blocking": "indoors: cut through black to a fixed Main St vignette; nothing spawns inside"
+   }
+  ]
+ },
+ "PROMO.TRAILER": {
+  "title": "Trailer 'The Change'",
+  "status": "LEDGER",
+  "frames": 96,
+  "seconds": 4.0,
+  "shots": [
+   {
+    "shot": "7 beats",
+    "start_frame": 0,
+    "frames": 96,
+    "paced": true,
+    "fov0": 72.0,
+    "fov1": 72.0,
+    "blocking": "never saves (Game.no_save)"
+   }
+  ]
+ },
+ "LEGACY.PREVIEW": {
+  "title": "Menu 'Watch Preview' reel",
+  "status": "LEDGER",
+  "frames": 672,
+  "seconds": 28.0,
+  "shots": [
+   {
+    "shot": "7 title cards",
+    "start_frame": 0,
+    "frames": 672,
+    "paced": false,
+    "fov0": 68.0,
+    "fov1": 68.0,
+    "blocking": "staged silhouettes"
+   }
+  ]
+ }
+}

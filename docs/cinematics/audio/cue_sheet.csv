@@ -35,20 +35,108 @@ C05.02a,impact after the door closes,phase4.gd
 C05.02b,impact_wave,phase4.gd
 C05.02b,scrape,phase4.gd
 C05.02b,door strike,phase4.gd
-C06.01,per _make_sounds / _play waves,game/world/chapter5.gd
-C07.01,per _make_sounds / _play waves,game/world/chapter6.gd
-C08.01,per _make_sounds / _play waves,game/world/chapter7.gd
-C09.01,per _make_sounds / _play waves,game/world/chapter8.gd
-C10.01,per _make_sounds / _play waves,game/world/chapter9.gd
-C11.01,per _make_sounds / _play waves,game/world/chapter10.gd
-C12.01,per _make_sounds / _play waves,game/world/chapter11.gd
-C13.01,per _make_sounds / _play waves,game/world/chapter12.gd
-C14.01,per _make_sounds / _play waves,game/world/chapter13.gd
-C15.01,per _make_sounds / _play waves,game/world/chapter14.gd
-C16.01,per _make_sounds / _play waves,game/world/chapter15.gd
-C16.A,per code,chapter15.gd
-C16.B,stone,chapter15.gd
-C16.C,flashlight flicker -> silence,chapter15.gd
+C06.01,room tone,game/world/chapter5.gd
+C06.02,door_open,game/world/chapter5.gd
+C06.02,steps,game/world/chapter5.gd
+C06.03,radio static,game/world/chapter5.gd
+C06.03,pickup,game/world/chapter5.gd
+C06.04,door,game/world/chapter5.gd
+C06.05,door_close,game/world/chapter5.gd
+C07.01,distant street,game/world/chapter6.gd
+C07.02,door,game/world/chapter6.gd
+C07.03,voice (off axis),game/world/chapter6.gd
+C07.04a,growl,game/world/chapter6.gd
+C07.04a,bark,game/world/chapter6.gd
+C07.04a,breath,game/world/chapter6.gd
+C07.04b,growl,game/world/chapter6.gd
+C07.04b,bark,game/world/chapter6.gd
+C08.02,door_open,game/world/chapter7.gd
+C08.02,steps,game/world/chapter7.gd
+C08.03,alarm,game/world/chapter7.gd
+C08.03,scuttle,game/world/chapter7.gd
+C08.04,pickup,game/world/chapter7.gd
+C09.00,knock,game/world/chapter8.gd
+C09.00,door,game/world/chapter8.gd
+C09.01,creak,game/world/chapter8.gd
+C09.02,hammer,game/world/chapter8.gd
+C09.03,hum_wave,game/world/chapter8.gd
+C09.03,spark_wave,game/world/chapter8.gd
+C09.04,impact_wave,game/world/chapter8.gd
+C09.04,creak,game/world/chapter8.gd
+C09.05,hurt,game/world/chapter8.gd
+C09.05,snarl,game/world/chapter8.gd
+C09.06,bite,game/world/chapter8.gd
+C09.06,scream,game/world/chapter8.gd
+C09.07,scrape,game/world/chapter8.gd
+C09.07,growl,game/world/chapter8.gd
+C10.02,pickup,game/world/chapter9.gd
+C10.03,impact,game/world/chapter9.gd
+C10.03,scrape,game/world/chapter9.gd
+C10.03,flicker,game/world/chapter9.gd
+C10.04,impact,game/world/chapter9.gd
+C10.04,bark,game/world/chapter9.gd
+C10.05,steps,game/world/chapter9.gd
+C10.05,snarl,game/world/chapter9.gd
+C10.06a,claws,game/world/chapter9.gd
+C10.06a,snarl,game/world/chapter9.gd
+C10.06b,drag,game/world/chapter9.gd
+C11.02,door,game/world/chapter10.gd
+C11.02,pickup,game/world/chapter10.gd
+C11.04,call_wave,game/world/chapter10.gd
+C11.07,distant call,game/world/chapter10.gd
+C12.02,wind,game/world/chapter11.gd
+C12.04,breath,game/world/chapter11.gd
+C12.06,impact,game/world/chapter11.gd
+C12.06,growl,game/world/chapter11.gd
+C12.07,wind,game/world/chapter11.gd
+C13.0a,room tone,game/world/chapter12_noah.gd
+C13.0c,wind,game/world/chapter12_noah.gd
+C13.0c,breath,game/world/chapter12_noah.gd
+C13.0d,door_close x4,game/world/chapter12_noah.gd
+C13.03,clank,game/world/chapter12.gd
+C13.05,hum,game/world/chapter12.gd
+C13.05,clank,game/world/chapter12.gd
+C13.06,drip,game/world/chapter12.gd
+C13.06,scratch,game/world/chapter12.gd
+C13.07,below,game/world/chapter12.gd
+C13.08,scratch,game/world/chapter12.gd
+C13.08,scuttle,game/world/chapter12.gd
+C13.09,below,game/world/chapter12.gd
+C14.02,muffled steps,game/world/chapter13.gd
+C14.03,heartbeat,game/world/chapter13.gd
+C14.03,muffle,game/world/chapter13.gd
+C14.04,scuttle,game/world/chapter13.gd
+C14.05,chain,game/world/chapter13.gd
+C14.06,crab,game/world/chapter13.gd
+C14.07,voice (echo),game/world/chapter13.gd
+C14.08,silence,game/world/chapter13.gd
+C14.08,deep,game/world/chapter13.gd
+C14.09,stone,game/world/chapter13.gd
+C14.10,deep,game/world/chapter13.gd
+C15.01,deep,game/world/chapter14.gd
+C15.01,clank,game/world/chapter14.gd
+C15.02,deep,game/world/chapter14.gd
+C15.03,hammer,game/world/chapter14.gd
+C15.05,scratch,game/world/chapter14.gd
+C15.05,impact,game/world/chapter14.gd
+C15.06,impact,game/world/chapter14.gd
+C15.07,crab,game/world/chapter14.gd
+C15.08,steps,game/world/chapter14.gd
+C15.08,hound call,game/world/chapter14.gd
+C15.09,deep,game/world/chapter14.gd
+C16.02,colossus_call,game/world/chapter15.gd
+C16.02,colossus_step,game/world/chapter15.gd
+C16.03,scuttle,game/world/chapter15.gd
+C16.03,bark,game/world/chapter15.gd
+C16.04,deep,game/world/chapter15.gd
+C16.05,deep,game/world/chapter15.gd
+C16.05,stone,game/world/chapter15.gd
+C16.A,steps,game/world/chapter15.gd
+C16.A,wind,game/world/chapter15.gd
+C16.B,deep,game/world/chapter15.gd
+C16.B,stone,game/world/chapter15.gd
+C16.C,knock,game/world/chapter15.gd
+C16.C,voice,game/world/chapter15.gd
 C16.X,music,chapter15.gd
 OPT.ROOF,hiss,game/encounters/roof_skitter.gd
 OPT.ROOF,sting,game/encounters/roof_skitter.gd

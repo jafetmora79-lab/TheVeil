@@ -340,7 +340,7 @@ func _opening() -> void:
 	tw.tween_method(func(p): player.set_yaw_pitch(0.0, p), -0.9, 0.0, 1.6).set_trans(Tween.TRANS_SINE)
 	await tw.finished
 	lamp.light_energy = 0.6
-	Dialogue.say("c14_wake", false, true)
+	Dialogue.say("c14_wake_noah" if _noah_node() != null else "c14_wake", false, true)       # Noah wakes you when he is in the house (story pass B5)
 	while Dialogue.is_busy():
 		await get_tree().process_frame
 	_hold(false)
@@ -416,10 +416,34 @@ func _meeting() -> void:
 	var r := _recall_line()
 	if r != "":
 		await c9._talk_group(r, npcs)
+	await _noah_meeting()
 	Game.set_flag("ch14_meeting_done")
 	_busy["meeting"] = false
 	_refresh_prompts()
 	_guide()
+
+
+## The rescued Noah (null when the storyline went on without the rescue): the watch log, and his evacuation partner and the route (story pass B5).
+func _noah_node() -> Node3D:
+	if not Game.has_flag("ch12_noah_found") or c12 == null or c12.get("noah") == null:
+		return null
+	var n: Variant = c12.noah.get("noah")
+	return n as Node3D if n != null and is_instance_valid(n) else null
+
+
+func _noah_meeting() -> void:
+	var nn := _noah_node()
+	if nn == null:
+		return
+	await c9._talk_group("c14_noah_log", [nn, _node("Eddie")])
+	var partner := "Ruth"
+	if "Marcus" in present() and _health("Marcus") != "serious":
+		partner = "Marcus"
+	elif not ("Ruth" in present()):
+		partner = "Sarah"
+	st()["noah_partner"] = partner
+	if Dialogue.data.has("c14_partner_" + partner) and partner in present():
+		await c9._talk_group("c14_partner_" + partner, [_node(partner), nn])
 
 
 ## A line that remembers what happened before (Chapter 14's choice, injuries, the trip back from the station).
@@ -996,6 +1020,11 @@ func _start_evac(restoring: bool) -> void:
 				f.run_speed = 3.4
 		if restoring:
 			c12._rejoin.call_deferred(k)
+	var nn := _noah_node()
+	if nn != null:                                                  # Noah goes with the group (he is never the one caught at the door or the fence)
+		nn.visible = true
+		if not c12.noah.noah_follow.active:
+			c12.noah.noah_follow.start()
 	if not restoring:
 		await c9._talk_group(_pick("c14_go"), [_node("Eddie")])
 	_set_fog(true, 0.7)
@@ -1103,6 +1132,8 @@ func _ending() -> void:
 		await get_tree().create_timer(0.25).timeout
 		t += 0.25
 	_hold(true)
+	if _noah_node() != null:
+		c12.noah.noah_follow.stop()
 	var cam: Camera3D = player.camera
 	var fov0 := cam.fov
 	await c8._turn_to(house.global_position + Vector3(0, 3.0, 0), 1.6)
