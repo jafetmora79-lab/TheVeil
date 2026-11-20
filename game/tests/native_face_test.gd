@@ -27,12 +27,29 @@ func _run() -> void:
 	ok("face_controller", ft != null and ft._sm != null)
 	var mesh: ArrayMesh
 	for mi in m.find_children("*", "MeshInstance3D", true, false):
-		mesh = (mi as MeshInstance3D).mesh as ArrayMesh
+		if (mi as MeshInstance3D).skin != null:
+			mesh = (mi as MeshInstance3D).mesh as ArrayMesh
 	ok("face_surface", mesh != null and mesh.get_surface_count() == 2)
 	for ex in ["scared", "angry", "worried", "neutral"]:
 		ft.expression = ex
 		await process_frame
 		ok("expression_" + ex, ft.state == ex or ft.state.begins_with(ex), ft.state)
+	# the brows are their own geometry on the Head bone and move with the expression
+	var bm := m.find_child("Brows", true, false) as MeshInstance3D
+	ok("brow_geometry", bm != null and bm.mesh.get_surface_count() == 1)
+	ft.expression = "scared"
+	for i in 60:
+		await process_frame
+	var lift_scared: float = ft._brow.x
+	ft.expression = "angry"
+	for i in 60:
+		await process_frame
+	var lift_angry: float = ft._brow.x
+	ok("brows_move", lift_scared > 0.006 and lift_angry < -0.003, "scared %.4f angry %.4f" % [lift_scared, lift_angry])
+	ft.expression = "neutral"
+	for i in 60:
+		await process_frame
+	ok("brows_return", absf(ft._brow.x) < 0.0005)
 	ft.talking = true
 	for i in 30:
 		await process_frame

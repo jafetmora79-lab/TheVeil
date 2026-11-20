@@ -21,6 +21,10 @@ var auto_blink := true
 var state := "neutral"                          ## the texture currently shown (read by tests)
 var _mat: BaseMaterial3D
 var _sm: ShaderMaterial
+var _brow_sm: ShaderMaterial                    ## the movable eyebrows of a Mixamo model (VeilFaceBrows)
+var _brow := Vector3.ZERO                       ## current lift_in, lift_out, shift_in (metres)
+## per expression: inner lift, outer lift, shift toward the nose (metres, on a head about 0.2 m wide)
+const BROWS := {"neutral": Vector3(0.0, 0.0, 0.0), "scared": Vector3(0.010, 0.004, 0.0), "angry": Vector3(-0.006, 0.002, 0.002), "worried": Vector3(0.008, -0.001, 0.001)}
 var _blink_left := 0.0
 var _next_blink := 2.5
 var _talk_t := 0.0
@@ -63,6 +67,10 @@ func setup(model_root: Node) -> bool:
 			if src is ShaderMaterial:                       # a Mixamo model (VeilFaceFit): the face image over the model's own face where the expression changes it
 				_sm = (src as ShaderMaterial).duplicate() as ShaderMaterial
 				m.set_surface_override_material(1, _sm)
+				var bm := model_root.find_child("Brows", true, false) as MeshInstance3D
+				if bm != null:
+					_brow_sm = (bm.mesh.surface_get_material(0) as ShaderMaterial).duplicate() as ShaderMaterial
+					bm.set_surface_override_material(0, _brow_sm)
 				_apply()
 				return true
 			if src is BaseMaterial3D:
@@ -101,6 +109,12 @@ func _process(delta: float) -> void:
 			dirty = true
 	if dirty:
 		_apply()
+	if _brow_sm != null:
+		var want: Vector3 = BROWS.get(expression, BROWS["neutral"])
+		_brow = _brow.lerp(want, minf(delta * 9.0, 1.0))
+		_brow_sm.set_shader_parameter("lift_in", _brow.x)
+		_brow_sm.set_shader_parameter("lift_out", _brow.y)
+		_brow_sm.set_shader_parameter("shift_in", _brow.z)
 
 
 func _apply() -> void:

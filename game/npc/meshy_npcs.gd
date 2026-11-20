@@ -71,6 +71,7 @@ static func model_for(speaker: String) -> Node3D:
 		if mps != null:
 			var mn := mps.instantiate() as Node3D
 			VeilSarahMeshyProto.psx_look(mn)
+			VeilFaceBrows.apply(mn, slug)                                  # movable brows (before the face fit: it reads the patched texture)
 			if VeilFaceFit.apply(mn, slug):
 				var mf := VeilNpcFaceTex.new()
 				mf.name = "FaceTex"
