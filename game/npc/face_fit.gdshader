@@ -9,6 +9,7 @@ uniform float amount = 0.0;
 uniform vec3 skin_col = vec3(0.6, 0.33, 0.18);
 uniform sampler2D eye_tex : filter_linear;
 uniform float blink = 0.0;
+uniform float blink_eyes_only = 0.0;      // 1 for a kit set: a blink changes only the eyes, the rest of the face stays
 uniform float blink_line_v = 0.505;
 
 void fragment() {
@@ -18,8 +19,9 @@ void fragment() {
 	vec3 f = fc * mix(tint, vec3(1.0), smoothstep(0.62, 0.82, tl));      // the skin tint stops at the eye whites
 	// a blink: the whole painted eye becomes lid skin; only the lash line (dark pixels below blink_line_v) is kept from the image, not the pupil remnants above it
 	float lash = (1.0 - smoothstep(0.18, 0.32, tl)) * smoothstep(blink_line_v, blink_line_v + 0.012, UV.y);
-	f = mix(f, mix(skin_col, f, lash), blink * step(0.5, texture(eye_tex, UV).r));
-	float m = smoothstep(0.35, 0.65, texture(mask_tex, UV).r) * amount;
+	f = mix(f, mix(skin_col, f, lash), blink * (1.0 - blink_eyes_only) * step(0.5, texture(eye_tex, UV).r));
+	float eyes_only = step(0.5, texture(eye_tex, UV).r);
+	float m = smoothstep(0.35, 0.65, texture(mask_tex, UV).r) * amount * mix(1.0, eyes_only, blink_eyes_only);
 	ALBEDO = mix(o, f, m);
 	ROUGHNESS = 1.0;
 	SPECULAR = 0.0;

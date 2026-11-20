@@ -130,5 +130,6 @@ func _apply() -> void:
 		_sm.set_shader_parameter("face_tex", texture(slug, s))
 		_sm.set_shader_parameter("amount", 0.0 if s == "neutral" else 1.0)
 		_sm.set_shader_parameter("blink", 1.0 if s == "blink" else 0.0)
+		_sm.set_shader_parameter("blink_eyes_only", 1.0 if (slug.ends_with("_v2") and s == "blink") else 0.0)
 	else:
 		_mat.albedo_texture = texture(slug, s)

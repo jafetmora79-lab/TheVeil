@@ -9,6 +9,20 @@ extends RefCounted
 const DIFF_T := 0.07
 const FACE_SHADER := preload("res://game/npc/face_fit.gdshader")
 static var _dm := {}
+static var _full := {}                                   ## slugs whose face image replaces the whole face skin (face_mask.png), like the first pipeline
+
+
+static func _full_mask(slug: String) -> PackedByteArray:
+	var img := (load("res://game/prototypes/npc_meshy/face/%s/face_mask.png" % slug) as Texture2D).get_image()
+	if img.is_compressed():
+		img.decompress()
+	img.resize(128, 128, Image.INTERPOLATE_BILINEAR)
+	var m := PackedByteArray()
+	m.resize(128 * 128)
+	for y in 128:
+		for x in 128:
+			m[y * 128 + x] = 1 if img.get_pixel(x, y).r > 0.6 else 0
+	return m
 
 
 static func _mask_texture(slug: String, grow: int, cut: float, diff_t := DIFF_T) -> ImageTexture:
@@ -26,6 +40,8 @@ static func _mask_texture(slug: String, grow: int, cut: float, diff_t := DIFF_T)
 
 ## 128 x 128 mask (1 = changed by some expression, then dilated by `grow` cells) of the face image space.
 static func _diff_mask(slug: String, grow: int, cut := 0.0, diff_t := DIFF_T) -> PackedByteArray:
+	if _full.has(slug):
+		return _full_mask(slug)
 	var key := "%s/%d/%.2f/%.2f" % [slug, grow, cut, diff_t]
 	if _dm.has(key):
 		return _dm[key]
@@ -81,6 +97,8 @@ static func apply(model: Node3D, slug: String, ov := {}) -> bool:
 		return false
 	var fit: Dictionary = JSON.parse_string(jf.get_as_text())
 	fit.merge(ov, true)
+	if fit.get("mask_full", false):
+		_full[slug] = true
 	var sks := model.find_children("*", "Skeleton3D", true, false)
 	if sks.is_empty():
 		return false
