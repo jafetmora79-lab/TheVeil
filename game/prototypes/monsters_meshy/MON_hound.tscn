@@ -12,7 +12,7 @@ size = Vector3(0.26, 0.32, 0.7)
 metadata/veil_creature = "Hound"
 metadata/faces = "+Z"
 metadata/animation_player = "Model/AnimationPlayer"
-metadata/animations = PackedStringArray("Idle", "Walk", "Run", "Alert", "Attack_Bite", "Hit_React", "Death")
+metadata/animations = PackedStringArray("Idle", "Walk", "Run", "Alert", "Sniff", "Detect", "Attack_Bite", "Hit_React", "Death")
 metadata/walk_speed_mps = 0.587
 metadata/run_speed_mps = 3.263
 

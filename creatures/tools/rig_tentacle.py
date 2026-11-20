@@ -124,57 +124,134 @@ def smooth(u):
     return u * u * (3 - 2 * u)
 
 
-def bend(f, fwd_total, side_total=0.0, ripple=0.0, ph=0.0, weight=1.0):
-    """spread a forward bend (+X rotation tilts it toward +Y) and a sideways bend (about Y) along the chain, heavier toward the tip, plus a travelling ripple"""
-    wts = np.array([(i + 1) / N for i in range(N)]) ** 1.2
-    wts = wts / wts.sum()
+NBASE, NMID = 3, 4                                       # the chain in three jobs: T_01-03 (load and direction), T_04-07 (the broad bends), T_08-10 (the precise tip)
+
+
+def seg_bend(f, bf=0.0, mf=0.0, tf=0.0, bs=0.0, ms=0.0, ts=0.0, hook=0.0, ripple=0.0, ph=0.0, tip_ripple=0.0):
+    """a forward bend (+X tilts toward +Y) and a sideways bend (about Y) for each of the three segments, spread evenly over its bones; `hook` curls the last
+    three bones further forward-up; a small travelling ripple on the middle, a finer one on the tip."""
     for i, nm in enumerate(NAMES):
-        a = fwd_total * wts[i] + ripple * math.sin(ph - i * 0.6) * weight
-        b = side_total * wts[i] + ripple * 0.6 * math.sin(ph * 0.8 - i * 0.5 + 1.0) * weight
+        if i < NBASE:
+            a, b = bf / NBASE, bs / NBASE
+            r = 0.0
+        elif i < NBASE + NMID:
+            a, b = mf / NMID, ms / NMID
+            r = ripple
+        else:
+            n_tip = N - NBASE - NMID
+            a, b = (tf + hook) / n_tip, ts / n_tip
+            r = tip_ripple
+        a += r * math.sin(ph - i * 0.6)
+        b += r * 0.6 * math.sin(ph * 0.8 - i * 0.5 + 1.0)
         key(nm, f, wrot(nm, (1, 0, 0), a) @ wrot(nm, (0, 1, 0), b))
+
+
+def wp(t, pts):
+    """smooth, periodic, uneven motion through (time, value) waypoints; equal neighbouring values are the listening pauses"""
+    t = t % 1.0
+    for i in range(len(pts) - 1):
+        t0, v0 = pts[i]
+        t1, v1 = pts[i + 1]
+        if t0 <= t <= t1:
+            return v0 + (v1 - v0) * smooth((t - t0) / (t1 - t0))
+    return pts[-1][1]
 
 
 bpy.context.scene.render.fps = FPS
 info = {"kind": "tentacle", "length_m": LEN, "tip_bone": "T_10"}
 rad = math.radians
-# Emerge: rises out of the mist (Root from -H to 0) while it sways, one shot (2 s)
+# per size: how it moves. thin: fast narrow feeler movements, long pauses. medium: wider sweeps, a clear whole-chain recoil. large: slow base movement, a deep loaded bend,
+# a sudden hooked strike and a heavier recovery.
+PROFILE = {"thin": dict(reps=2, side=0.8, tip=1.5, load=0.7, hook=14.0, heavy=0.6, recoil=0.7),
+           "medium": dict(reps=1, side=1.0, tip=1.0, load=1.0, hook=24.0, heavy=1.0, recoil=1.2),
+           "large": dict(reps=1, side=1.25, tip=0.7, load=1.45, hook=40.0, heavy=1.6, recoil=1.0)}
+REACH_K = 0.73
+PR = PROFILE["thin" if "thin" in outname else ("large" if "large" in outname else "medium")]
+SEARCH_WP = [(0.0, 0.0), (0.16, 1.0), (0.36, 1.0), (0.54, -0.75), (0.74, -0.75), (0.88, 0.35), (1.0, 0.0)]
+
+# Emerge (one shot, 2 s): in stages. The tip appears first and hesitates, listening; then the middle is fed out behind it while the base bends back against the
+# opening (the street / doorway edge); the last bend settles after the tip has stopped.
 new_action("Emerge", 49)
 for f in range(1, 50):
     u = (f - 1) / 48.0
-    key("Root", f, loc=wl("Root", (0, 0, -H * (1 - smooth(u)) * 1.02)))
-    bend(f, rad(-18) * (1 - smooth(u)), rad(12) * math.sin(u * 5), rad(5), u * 9, 1 - u * 0.5)
-# Search: loops (4 s): a slow scan, the tip feeling the air
+    if u < 0.22:
+        rise = 0.16 * smooth(u / 0.22)
+    elif u < 0.42:
+        rise = 0.16
+    else:
+        rise = 0.16 + 0.84 * smooth((u - 0.42) / 0.58)
+    feed = smooth(min(max((u - 0.42) / 0.58, 0.0), 1.0))
+    hes = 1.0 if 0.14 <= u < 0.46 else 0.0
+    key("Root", f, loc=wl("Root", (0, 0, -H * (1 - rise) * 1.02)))
+    seg_bend(f, bf=rad(-16) * (1 - feed), mf=rad(10) * math.sin(feed * 3.0) , tf=rad(-10) * (1 - feed), bs=rad(5) * math.sin(u * 4), ms=rad(12) * math.sin(u * 5) * feed,
+             ts=rad(9) * hes * math.sin(u * 38) * PR["tip"] * (1 - 0.6 * smooth(min(max((u - 0.4) / 0.2, 0.0), 1.0))), ripple=rad(4) * feed, ph=u * 9, tip_ripple=rad(2) * (1 - feed))
+
+# Search (loop, 4 s): uneven arcs with brief listening pauses. The base moves least and slowest, the middle follows, the tip leads and is the most precise; the last bend
+# trails the tip, so it settles after the tip stops. In the pauses the tip makes tiny listening motions.
 new_action("Search", 97)
 for f in range(1, 98):
     t = (f - 1) / 96.0
+    tt = t * PR["reps"]
+    sw_b = wp(tt - 0.00, SEARCH_WP)
+    sw_m = wp(tt - 0.03, SEARCH_WP)
+    sw_t = wp(tt - 0.07, SEARCH_WP)
+    moving = abs(wp(tt + 0.01, SEARCH_WP) - wp(tt - 0.01, SEARCH_WP)) * 40.0
+    pause = max(0.0, 1.0 - moving)
+    listen = math.sin(2 * math.pi * t * 9 * PR["reps"]) * pause
     key("Root", f, loc=(0, 0, 0))
-    bend(f, rad(8) + rad(10) * math.sin(2 * math.pi * t), rad(22) * math.sin(2 * math.pi * t + 1.0), rad(5), 2 * math.pi * t * 2)
-# Coil: draws back and tightens, ready to strike (1.5 s, holds the last pose)
+    seg_bend(f, bf=rad(6) + rad(2) * sw_b, mf=rad(8) + rad(7) * sw_m, tf=rad(10) + rad(8) * PR["tip"] * sw_t + rad(3) * listen,
+             bs=rad(10) * PR["side"] * sw_b, ms=rad(20) * PR["side"] * sw_m, ts=rad(26) * PR["side"] * PR["tip"] * sw_t + rad(4) * listen, ripple=rad(2), ph=2 * math.pi * t * 2, tip_ripple=rad(1.5) * pause)
+
+# Coil (1.5 s, holds the last pose): the tip points at the target first, then the middle settles into a shallow S while the base leans back, loaded.
 new_action("Coil", 37)
+LOAD_B, LOAD_M, LOAD_T = -28.0 * PR["load"], 18.0 * PR["load"], 35.0
 for f in range(1, 38):
-    u = smooth(min((f - 1) / 24.0, 1.0))
+    u = (f - 1) / 36.0
+    tip_in = smooth(min(u / 0.35, 1.0))
+    s2 = smooth(min(max((u - 0.18) / 0.6, 0.0), 1.0))
     key("Root", f, loc=(0, 0, 0))
-    bend(f, rad(-40) * u, rad(8) * u, rad(3) * u, (f - 1) / 6.0, u)
-# Reach: leans out toward the target, the tip probing (1.5 s)
+    seg_bend(f, bf=rad(LOAD_B) * s2, mf=rad(LOAD_M) * s2, tf=rad(LOAD_T) * tip_in, bs=rad(5) * s2, ts=rad(-4) * tip_in, ripple=rad(1.2) * s2, ph=(f - 1) / 5.0, tip_ripple=rad(0.8) * s2)
+
+# Reach (1.5 s): leans out toward the target, the tip probing.
 new_action("Reach", 37)
 for f in range(1, 38):
     u = smooth(min((f - 1) / 20.0, 1.0))
     key("Root", f, loc=(0, 0, 0))
-    bend(f, rad(55) * u, 0.0, rad(3), (f - 1) / 5.0, 0.6 * u)
-# Strike: a short wind-up back, then a whip forward; the tip leads, snaps at ~60 %, recovers (1 s)
+    seg_bend(f, bf=rad(18) * u, mf=rad(24) * u, tf=rad(14) * u, ripple=rad(2.5), ph=(f - 1) / 5.0, tip_ripple=rad(2) * u * PR["tip"])
+
+# Strike (1 s): starts on the Coil's loaded pose. The base releases first, then the middle, then the tip - fastest, and last - so the hit travels down the limb to the tip
+# (the contact is at u ~ 0.55, as before: the AI measures it from this clip), where the last bones hook up. After the impact the tip recoils first, then the middle, and
+# the base settles last (a larger tentacle recovers more slowly).
 new_action("Strike", 25)
+FIN_B, FIN_M, FIN_T = 6.0, 8.0, 10.0
 for f in range(1, 26):
     u = (f - 1) / 24.0
-    wind = smooth(min(u / 0.3, 1.0)) * (1.0 if u < 0.3 else 0.0)
-    whip = 0.0 if u < 0.3 else smooth(min((u - 0.3) / 0.3, 1.0)) * (1.0 - smooth(max((u - 0.62) / 0.38, 0.0)))
+    rb = smooth(min(max((u - 0.30) / 0.14, 0.0), 1.0))               # base release 0.30-0.44
+    rm = smooth(min(max((u - 0.34) / 0.16, 0.0), 1.0))               # middle release 0.34-0.50
+    rt = smooth(min(max((u - 0.40) / 0.15, 0.0), 1.0))               # tip release 0.40-0.55 (the whip)
+    ob = smooth(min(max((u - 0.62) / (0.38 * PR["heavy"] + 0.0001), 0.0), 1.0))   # base settles last
+    om = smooth(min(max((u - 0.60) / (0.30 * PR["heavy"] + 0.0001), 0.0), 1.0))
+    ot = smooth(min(max((u - 0.58) / 0.14, 0.0), 1.0))               # the tip recoils first
+    hook_k = smooth(min(max((u - 0.50) / 0.10, 0.0), 1.0)) * (1.0 - ot)
+    b = rad(LOAD_B) * (1 - rb) + rad(30.0 * REACH_K) * rb
+    b = b * (1 - ob) + rad(FIN_B) * ob
+    m = rad(LOAD_M) * (1 - rm) + rad(40.0 * REACH_K) * rm
+    m = m * (1 - om) + rad(FIN_M) * om
+    t_ = rad(LOAD_T) * (1 - rt) + rad(25.0 * REACH_K) * rt
+    t_ = t_ * (1 - ot) + rad(-18.0 * PR["recoil"]) * ot * (1 - 0.0)
+    t_ = t_ * (1 - smooth(min(max((u - 0.78) / 0.22, 0.0), 1.0))) + rad(FIN_T) * smooth(min(max((u - 0.78) / 0.22, 0.0), 1.0))
     key("Root", f, loc=(0, 0, 0))
-    bend(f, rad(-30) * wind + rad(95) * whip, 0.0, rad(4) * whip, u * 14, whip)
-# Retract: sinks back into the mist (1.5 s)
+    seg_bend(f, bf=b, mf=m, tf=t_, hook=rad(PR["hook"]) * hook_k, ripple=rad(3) * (rm - om), ph=u * 14, tip_ripple=rad(2) * rt * (1 - ot))
+
+# Retract (1.5 s): the tip pulls back first, then the middle and base fold, then it sinks into the mist.
 new_action("Retract", 37)
 for f in range(1, 38):
-    u = smooth((f - 1) / 36.0)
-    key("Root", f, loc=wl("Root", (0, 0, -H * u * 1.02)))
-    bend(f, rad(-25) * u, 0.0, rad(4) * (1 - u), (f - 1) / 5.0, 1 - u)
+    u = (f - 1) / 36.0
+    tipk = smooth(min(u / 0.28, 1.0))
+    foldk = smooth(min(max((u - 0.12) / 0.5, 0.0), 1.0))
+    sink = smooth(min(max((u - 0.25) / 0.75, 0.0), 1.0))
+    key("Root", f, loc=wl("Root", (0, 0, -H * sink * 1.02)))
+    seg_bend(f, bf=rad(-14) * foldk, mf=rad(-8) * foldk, tf=rad(-22) * tipk, ripple=rad(4) * (1 - sink), ph=(f - 1) / 5.0, tip_ripple=rad(2.5) * (1 - tipk))
 bpy.ops.object.mode_set(mode='OBJECT')
 rig.animation_data.action = bpy.data.actions["Search"]
 json.dump(info, open(os.path.join(glb_dir, outname + ".json"), "w"), indent=1)

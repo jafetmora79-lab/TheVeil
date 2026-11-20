@@ -82,6 +82,8 @@ func setup(p_body: CharacterBody3D, p_player: CharacterBody3D, points: Array) ->
 	patrol = points
 	home = points[0] if points.size() > 0 else body.global_position
 	anim = body.get_node_or_null(String(body.get_meta("animation_player", "Model/AnimationPlayer"))) as AnimationPlayer
+	if anim and anim.has_animation("Sniff"):
+		anim.get_animation("Sniff").loop_mode = Animation.LOOP_LINEAR      # the search loop (Detect is a one-shot that ends on the held Alert pose)
 	body.collision_layer = 1
 	body.collision_mask = 1
 	# the scene's long body box + forward head box swing into fences when the Hound turns and wedge it there;
@@ -281,7 +283,7 @@ func _physics_process(delta: float) -> void:
 					_patrol_stuck = 0.0
 			else:
 				_inv_t -= delta
-				_idle(delta, "Alert")
+				_idle(delta, "Sniff")                 # looking about: short sniffing bursts, the paws planted
 				if _inv_t <= 0.0:
 					state = "RETURN"
 					awareness = 0.0
@@ -296,7 +298,7 @@ func _physics_process(delta: float) -> void:
 			elif _flat(body.global_position, _last_seen) > 1.0:
 				_move_to(_last_seen, walk_speed * 1.6, delta, "Walk")
 			else:
-				_idle(delta, "Alert")
+				_idle(delta, "Sniff")
 
 
 ## After a struggle: give the player a moment (mode "back": recover then chase; "flee": run off and leave).
@@ -323,10 +325,14 @@ func investigate(at: Vector3, linger: float) -> bool:
 	return true
 
 
+var _detect_t := 0.0                ## seconds left of the one-shot "Detect" snap (the head snaps to the target, the chest sinks) before the held Alert pose
+
+
 func _suspect(at: Vector3) -> void:
 	_last_seen = at
 	if state != "SUSPICIOUS":
 		state = "SUSPICIOUS"
+		_detect_t = 0.7
 	if awareness >= 1.0:
 		_start_chase()
 
@@ -461,6 +467,12 @@ func _steer(dir: Vector3, delta: float) -> Vector3:
 func _idle(delta: float, clip: String) -> void:
 	body.velocity = Vector3.ZERO
 	_snap_floor()
+	if clip == "Alert" and _detect_t > 0.0 and anim and anim.has_animation("Detect"):
+		_detect_t -= delta
+		_play("Detect")                         # the sniff stops mid-motion: the snap, the sink, the stiff tail, then the held Alert pose
+		return
+	if clip == "Sniff" and (anim == null or not anim.has_animation("Sniff")):
+		clip = "Alert"                          # (a creature without a search clip stands alert instead)
 	_play(clip)
 
 

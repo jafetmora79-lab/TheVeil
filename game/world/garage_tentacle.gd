@@ -244,8 +244,12 @@ func _apply(k: String) -> void:
 ## Bend only the inside part (bones from `from` on): `lean` up / down (about the bone X), `curl` sideways.
 func _pose(k: String, from: int, lean: float, curl := 0.0) -> void:
 	var po: VeilTentaclePoser = trio[k]["poser"]
-	if po:
+	if po and not trio[k].has("grab"):                        # a limb that is grabbing is posed by its VeilTentacleGrab alone
 		po.set_split(from, 0.0, 0.0, curl, lean)
+		# the limb stays low as it feeds under the door; once its tip has cleared the threshold (it has slid in past the sill) the last three bones hook up
+		var hook := clampf((float(trio[k]["slide"]) + 0.9) / 0.9, 0.0, 1.0)
+		for i in range(maxi(po.lean.size() - 3, 0), po.lean.size()):
+			po.lean[i] += 0.16 * hook
 		po.apply()
 
 
@@ -395,6 +399,17 @@ func _survived() -> void:
 	running = false
 
 
+var ankle_hold := Vector3.ZERO
+
+
+## The grab's phases in a quick lash: load, uncoil and reach, wrap, brief squeeze (the drag then pulls).
+func _grab_seq(g: VeilTentacleGrab) -> void:
+	await g.ease_to("load_k", 1.0, 0.12)
+	await g.ease_to("open_k", 1.0, 0.2)
+	await g.ease_to("wrap_k", 1.0, 0.3)
+	await g.ease_to("squeeze", 1.0, 0.2)
+
+
 # ------------------------------------------------------------------ failure: dragged out
 func _taken() -> void:
 	report["taken"] = true
@@ -414,11 +429,24 @@ func _taken() -> void:
 		if trio.has(k):
 			trio[k]["busy"] = false
 			_beat(k, "retract")
+	var grab: VeilTentacleGrab = null
+	var ideal := 3.6
 	if trio.has("A"):
 		var lf: Vector3 = p4.market.to_local(feet) - (trio["A"]["root"] as Vector3)
 		trio["A"]["dir"] = Vector3(lf.x, 0.0, lf.z).normalized()
 		trio["A"]["yaw"] = 0.0
-		_move("A", maxf(lf.length() - 3.6, 0.0), 0.0, -0.05, 0.25, Tween.TRANS_EXPO)   # its tip at his ankle
+		var ta: Node3D = trio["A"]["node"]
+		var pa: VeilTentaclePoser = trio["A"]["poser"]
+		if pa != null:
+			# load, reach, wrap round his ankle (VeilTentacleGrab owns the pose: the old whole-limb lean no longer runs on A)
+			trio["A"]["grab"] = true
+			grab = VeilTentacleGrab.attach(ta, pa)
+			ankle_hold = feet + Vector3(0, 0.2, 0)
+			grab.begin(func(): return ankle_hold, 0.16, 0.0)
+			ideal = float(grab.report.get("s_t", 4.8)) * float(trio["A"]["scale"])
+		_move("A", maxf(lf.length() - ideal, -1.5), 0.0, -0.05, 0.25, Tween.TRANS_EXPO)   # its C closes on his ankle
+		if grab:
+			_grab_seq(grab)
 	Sfx.play("hurt", feet, -2.0, 0.7)
 	await p4._fp_face(cam, feet + Vector3(0, 0.1, 0) - out_dir * 0.15, 0.3)   # looks down: it has his leg
 	await get_tree().create_timer(0.45).timeout
@@ -442,7 +470,10 @@ func _taken() -> void:
 		cam.global_basis = Basis(cam.global_basis.get_rotation_quaternion().slerp(back.get_rotation_quaternion(), minf(get_process_delta_time() * 4.0, 1.0)))
 		if trio.has("A") and is_instance_valid(trio["A"]["node"]):
 			var lc: Vector3 = p4.market.to_local(cam.global_position) - (trio["A"]["root"] as Vector3)
-			trio["A"]["slide"] = maxf(Vector2(lc.x, lc.z).length() - 3.6, -1.5)   # it keeps hold, pulling him to the gap
+			trio["A"]["slide"] = maxf(Vector2(lc.x, lc.z).length() - ideal, -1.5)   # it keeps hold, pulling him to the gap
+			if grab:
+				ankle_hold = Vector3(cam.global_position.x, 0.2, cam.global_position.z)
+				grab.pull_k = clampf(k * 1.4, 0.0, 1.0)
 			_apply("A")
 		await get_tree().process_frame
 	p4._play("slither", gap, 6.0)

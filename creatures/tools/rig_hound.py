@@ -220,7 +220,7 @@ info = {"kind": "hound", "size_m": SIZE, "height_m": H, "facing": "-Z in the GLB
 FOOT_Z = 0.025
 
 
-def gait(name, T, duty, stride, phases, lift_h, bob, pitch_deg, spine_deg, head_nod, speed_key, body_roll=0.0, crouch=0.0):
+def gait(name, T, duty, stride, phases, lift_h, bob, pitch_deg, spine_deg, head_nod, speed_key, body_roll=0.0, crouch=0.0, neck_bias=0.0, head_bias=0.0, neck_gain=0.9, fore_comp=0.0):
     """stride = the foot's travel along the body while planted; the body speed that matches it is stride / (duty * T / FPS)."""
     new_action(name, T + 1)
     info[speed_key] = round(stride / (duty * T / FPS), 3)
@@ -232,8 +232,8 @@ def gait(name, T, duty, stride, phases, lift_h, bob, pitch_deg, spine_deg, head_
         pit = math.radians(pitch_deg) * math.sin(2 * math.pi * ph0 + (2.2 if gal else 0.0))
         key("Body", f, wrot("Body", X, -pit) @ wrot("Body", Z, math.radians(2.5) * math.sin(2 * math.pi * ph0)) @ wrot("Body", Y, math.radians(body_roll) * math.sin(2 * math.pi * ph0)),
             loc=world_loc("Body", (0, 0, bz)))
-        key("Neck", f, wrot("Neck", X, pit * 0.9 + math.radians(spine_deg) * math.sin(2 * math.pi * ph0 + 1.0)))
-        key("Head", f, wrot("Head", X, math.radians(head_nod) * math.sin(2 * math.pi * ph0 * (1 if gal else 2) + 0.7)))
+        key("Neck", f, wrot("Neck", X, pit * neck_gain + math.radians(neck_bias) + math.radians(spine_deg) * math.sin(2 * math.pi * ph0 + 1.0)))
+        key("Head", f, wrot("Head", X, math.radians(head_bias) + math.radians(head_nod) * math.sin(2 * math.pi * ph0 * (1 if gal else 2) + 0.7)))
         key("Tail1", f, wrot("Tail1", Z, math.radians(16) * math.sin(2 * math.pi * ph0 + 1.0)) @ wrot("Tail1", X, math.radians(8 if gal else 0)))
         key("Tail2", f, wrot("Tail2", Z, math.radians(18) * math.sin(2 * math.pi * ph0 + 1.6)))
         for L in LEGS:
@@ -244,7 +244,10 @@ def gait(name, T, duty, stride, phases, lift_h, bob, pitch_deg, spine_deg, head_
             else:                                        # swing: back to front, lifted
                 u = (ph - duty) / (1 - duty)
                 fy, fz = fy0 - stride * 0.5 + stride * smooth(u), FOOT_Z + lift_h * math.sin(math.pi * u) ** 0.8
-            pose_leg(f, L, (fy, fz), bz + math.sin(-pit) * (L["hip"].y - cy))
+            comp = 0.0
+            if fore_comp and L["front"] and ph < duty * 0.35:             # the shoulder compresses as the forepaw takes the weight
+                comp = -fore_comp * math.sin(math.pi * ph / (duty * 0.35))
+            pose_leg(f, L, (fy, fz), bz + math.sin(-pit) * (L["hip"].y - cy) + comp)
 
 
 def lname(front, side):
@@ -252,6 +255,12 @@ def lname(front, side):
 
 
 FRONT_L, FRONT_R, HIND_L, HIND_R = lname(True, "L"), lname(True, "R"), lname(False, "L"), lname(False, "R")
+
+def env(t, c, w):
+    """a periodic bump of width w centred on c (t in 0..1, wraps)"""
+    d = ((t - c + 0.5) % 1.0) - 0.5
+    return math.exp(-(d / w) ** 2)
+
 
 new_action("Idle", 97)
 for f in range(1, 98):
@@ -264,20 +273,74 @@ for f in range(1, 98):
     for L in LEGS:
         pose_leg(f, L, (L["foot"].y, FOOT_Z), 0.006 * math.sin(2 * math.pi * t))
 
-gait("Walk", 30, 0.6, 0.44, {FRONT_L: 0.0, HIND_R: 0.0, FRONT_R: 0.5, HIND_L: 0.5}, 0.10, 0.012, 1.5, 3.0, 3.0, "walk_speed_mps", crouch=0.03)
-gait("Run", 12, 0.38, 0.62, {HIND_L: 0.0, HIND_R: 0.08, FRONT_R: 0.42, FRONT_L: 0.5}, 0.22, 0.03, 7.0, 6.0, 5.0, "run_speed_mps", body_roll=1.5, crouch=0.055)
+# PATROL: a four-beat walk (hind-left, fore-left, hind-right, fore-right): one paw lands at a time, the head carried low, the shoulders rolling over the planted forepaw.
+# The stride is chosen so the body speed stays what it was (0.587 m/s): stride / (duty * cycle seconds).
+WALK_DUTY = 0.72
+gait("Walk", 30, WALK_DUTY, 0.587 * WALK_DUTY * 30 / FPS, {HIND_L: 0.0, FRONT_L: 0.25, HIND_R: 0.5, FRONT_R: 0.75}, 0.10, 0.010, 1.2, 2.5, 2.0, "walk_speed_mps",
+     body_roll=2.5, crouch=0.03, neck_bias=-19.0, head_bias=-6.0)
+# CHASE: the head stays aimed (the neck cancels the body's pitch), the shoulders compress as each forepaw lands, the hind legs come forward under the folding spine.
+gait("Run", 12, 0.38, 0.62, {HIND_L: 0.0, HIND_R: 0.08, FRONT_R: 0.42, FRONT_L: 0.5}, 0.22, 0.03, 7.0, 4.0, 2.5, "run_speed_mps", body_roll=1.5, crouch=0.055,
+     neck_bias=-4.0, neck_gain=1.08, fore_comp=0.03)
+
+# SEARCH: the paws stay planted; three short bursts of sniffing (the nose dips and snuffles), a slow turn of the head between them, a forepaw lifted once,
+# the tail drooping and settling last. A 3 s loop (the clip ends exactly where it starts).
+new_action("Sniff", 73)
+for f in range(1, 74):
+    t = (f - 1) / 72.0
+    burst = max(env(t, 0.14, 0.07), env(t, 0.47, 0.07), env(t, 0.80, 0.07))
+    snuf = math.sin(2 * math.pi * t * 13) * burst
+    look = math.sin(2 * math.pi * t) + 0.35 * math.sin(4 * math.pi * t + 0.5)
+    sh = math.sin(2 * math.pi * t)
+    key("Body", f, wrot("Body", X, math.radians(-3.0 - 1.0 * burst)) @ wrot("Body", Y, math.radians(1.6) * sh), loc=world_loc("Body", (0, 0, -0.04 - 0.008 * burst)))
+    key("Neck", f, wrot("Neck", X, math.radians(-30.0 + 4.0 * snuf)) @ wrot("Neck", Z, math.radians(15.0) * look))
+    key("Head", f, wrot("Head", X, math.radians(-10.0 + 8.0 * snuf)) @ wrot("Head", Z, math.radians(6.0) * look))
+    key("Tail1", f, wrot("Tail1", X, math.radians(-7.0)) @ wrot("Tail1", Z, math.radians(5.0) * math.sin(2 * math.pi * t)))
+    key("Tail2", f, wrot("Tail2", Z, math.radians(10.0) * math.sin(2 * math.pi * t + 0.9) * (1.0 - 0.5 * burst)))      # the tip settles last
+    for L in LEGS:
+        fz = FOOT_Z
+        if L["name"] == FRONT_L:
+            fz += 0.045 * env(t, 0.62, 0.035)                                          # one forepaw lifts and is set down in the same place
+        pose_leg(f, L, (L["foot"].y, fz), -0.04 - 0.008 * burst)
+
+# The held pose of a hound that has noticed something: the chest sunk between the forelegs, the hind paws tucked under the hips, the tail stiff, the head aimed and still.
+A_Z = -0.075
+A_PITCH = math.radians(-6.0)
+
+
+def alert_pose(f, t, micro=1.0):
+    br = math.sin(2 * math.pi * t)
+    key("Body", f, wrot("Body", X, A_PITCH + math.radians(0.35) * br * micro), loc=world_loc("Body", (0, 0, A_Z + 0.003 * br * micro)))
+    key("Neck", f, wrot("Neck", X, math.radians(-8.0) + math.radians(0.8) * br * micro))
+    key("Head", f, wrot("Head", X, math.radians(2.0)) @ wrot("Head", Z, math.radians(1.1) * math.sin(2 * math.pi * t * 2 + 0.6) * micro))
+    key("Tail1", f, wrot("Tail1", X, math.radians(10.0)))
+    key("Tail2", f, wrot("Tail2", X, math.radians(4.0)) @ wrot("Tail2", Z, math.radians(0.8) * math.sin(2 * math.pi * t * 3) * micro))
+    for L in LEGS:
+        pose_leg(f, L, (L["foot"].y + (0.05 if L["front"] else 0.075), FOOT_Z), A_Z + math.sin(A_PITCH) * (L["hip"].y - cy))
+
 
 new_action("Alert", 49)
 for f in range(1, 50):
-    t = (f - 1) / 48.0
-    key("Body", f, wrot("Body", X, math.radians(-4)) @ wrot("Body", Z, math.radians(0.8) * math.sin(2 * math.pi * t * 6)), loc=world_loc("Body", (0, 0, -0.03)))
-    key("Neck", f, wrot("Neck", X, math.radians(-14)) @ wrot("Neck", Z, math.radians(10) * math.sin(2 * math.pi * t)))
-    key("Head", f, wrot("Head", X, math.radians(10)) @ wrot("Head", Z, math.radians(14) * math.sin(2 * math.pi * t * 2)))
-    key("Tail1", f, wrot("Tail1", X, math.radians(-16)))
-    key("Tail2", f, wrot("Tail2", Z, math.radians(3) * math.sin(2 * math.pi * t * 6)))
-    for L in LEGS:
-        pose_leg(f, L, (L["foot"].y + (0.06 if L["front"] else -0.05), FOOT_Z), -0.03)
+    alert_pose(f, (f - 1) / 48.0)
 
+# DETECT (one shot, 0.7 s): the sniff stops mid-motion, the head snaps to the target and holds, the chest sinks, the hind paws tuck, the tail stiffens,
+# and one last small twitch of the jaw (the head rolls) before the launch. It ends on the Alert pose.
+new_action("Detect", 17)
+for f in range(1, 18):
+    u = (f - 1) / 16.0
+    snap = smooth(min(u / 0.18, 1.0))
+    sink = smooth(min(max((u - 0.08) / 0.55, 0.0), 1.0))
+    tw = math.sin(min(max((u - 0.72) / 0.22, 0.0), 1.0) * math.pi * 3) * (1.0 - smooth(min(max((u - 0.94) / 0.06, 0.0), 1.0)))
+    key("Body", f, wrot("Body", X, A_PITCH * sink - math.radians(2.0) * (1 - sink)), loc=world_loc("Body", (0, 0, A_Z * sink - 0.04 * (1 - sink))))
+    key("Neck", f, wrot("Neck", X, math.radians(-30.0) * (1 - snap) + math.radians(-8.0) * snap))
+    key("Head", f, wrot("Head", X, math.radians(-10.0) * (1 - snap) + math.radians(2.0) * snap) @ wrot("Head", Y, math.radians(7.0) * tw))
+    key("Tail1", f, wrot("Tail1", X, math.radians(-7.0) * (1 - sink) + math.radians(10.0) * sink))
+    key("Tail2", f, wrot("Tail2", X, math.radians(4.0) * sink))
+    for L in LEGS:
+        tgt = (L["foot"].y + (0.05 if L["front"] else 0.075) * sink, FOOT_Z)
+        pose_leg(f, L, tgt, (A_Z + math.sin(A_PITCH) * (L["hip"].y - cy)) * sink + (-0.04) * (1 - sink))
+
+# BITE: load low (the haunches and chest drop, the head draws back and rolls), push forward off the hind legs, snap at the impact frame (u 0.575, unchanged),
+# then the forelegs catch the body and it settles. The head rolls one way into the strike and the other out of it (the jaws cannot open out of step: no jaw bones).
 new_action("Attack_Bite", 21)
 for f in range(1, 22):
     u = (f - 1) / 20.0
@@ -286,18 +349,15 @@ for f in range(1, 22):
     settle = 0.0 if u < 0.6 else smooth((u - 0.6) / 0.4)
     reach = drive * (1.0 - settle)
     snap = math.sin(min(max((u - 0.45) / 0.25, 0.0), 1.0) * math.pi) * (1.0 - settle)
-    dyb, dzb = 0.55 * reach - 0.06 * coil, -0.07 * coil + 0.06 * reach
-    key("Body", f, wrot("Body", X, math.radians(10) * coil - math.radians(7) * reach), loc=world_loc("Body", (0, dyb, dzb)))
-    key("Neck", f, wrot("Neck", X, math.radians(-8) * coil + math.radians(22) * reach))
-    key("Head", f, wrot("Head", X, math.radians(-14) * coil + math.radians(-28) * snap))
+    dyb, dzb = 0.55 * reach - 0.06 * coil, -0.065 * coil + 0.06 * reach
+    key("Body", f, wrot("Body", X, math.radians(12) * coil - math.radians(7) * reach), loc=world_loc("Body", (0, dyb, dzb)))
+    key("Neck", f, wrot("Neck", X, math.radians(-10) * coil + math.radians(22) * reach))
+    key("Head", f, wrot("Head", X, math.radians(-16) * coil + math.radians(-28) * snap) @ wrot("Head", Y, math.radians(-9) * coil + math.radians(12) * snap))
     key("Tail1", f, wrot("Tail1", X, math.radians(12) * reach))
     for L in LEGS:
         fy = L["foot"].y
-        tgt = (fy + 0.42 * reach + 0.06 * coil, FOOT_Z + 0.16 * reach * (1.0 - settle)) if L["front"] else (fy + 0.40 * reach - 0.04 * coil, FOOT_Z)
+        tgt = (fy + 0.42 * reach + 0.06 * coil, FOOT_Z + 0.16 * reach * (1.0 - settle)) if L["front"] else (fy + 0.40 * reach - 0.07 * coil, FOOT_Z)
         pose_leg(f, L, tgt, dzb)
-        # the hip also travels with the body along y: shift the target by the body's advance for the legs that stay planted
-        if not L["front"] and reach < 0.01:
-            pass
 
 new_action("Hit_React", 13)
 for f in range(1, 14):
@@ -326,7 +386,7 @@ bpy.ops.object.mode_set(mode='OBJECT')
 
 if measure:
     print("MEASURE IK out-of-reach targets:", CLAMPS[0])
-    for clip in ("Idle", "Walk", "Run", "Alert", "Attack_Bite", "Hit_React", "Death"):
+    for clip in ("Idle", "Walk", "Run", "Alert", "Sniff", "Detect", "Attack_Bite", "Hit_React", "Death"):
         act = bpy.data.actions[clip]
         rig.animation_data.action = act
         lowest = 0.0

@@ -211,9 +211,16 @@ WALK = [L for L in LEGS if not L["arm"]]
 ARMS = [L for L in LEGS if L["arm"]]
 
 
+def arm_rest(L):
+    """the long left hand hangs ready; the small right sickle stays tucked close to the body (the rest every clip starts and ends on)"""
+    if L["side"] == "R":
+        return L["foot"] + Vector((-L["sgn"] * 0.04, -0.06, 0.12))
+    return L["foot"] + Vector((0, 0.02, 0.0))
+
+
 def hold_arms(f, t, sway=0.0, shift=Vector((0, 0, 0))):
     for L in ARMS:
-        tgt = L["foot"] + Vector((L["sgn"] * 0.02 * math.sin(2 * math.pi * t * 2), 0.03 * math.sin(2 * math.pi * t * 2 + L["sgn"]), 0.02 * math.sin(2 * math.pi * t * 3)))
+        tgt = arm_rest(L) + Vector((L["sgn"] * 0.02 * math.sin(2 * math.pi * t * 2), 0.03 * math.sin(2 * math.pi * t * 2 + L["sgn"]), 0.02 * math.sin(2 * math.pi * t * 3)))
         pose_limb(f, L, tgt, shift)
 
 
@@ -243,15 +250,16 @@ def crawl(name, direction, stride, T=24, duty=0.6):
     for f in range(1, T + 2):
         ph0 = ((f - 1) % T) / T
         bob = 0.012 * math.sin(4 * math.pi * ph0)
-        key("Body", f, wrot("Body", Z, math.radians(1.5) * math.sin(2 * math.pi * ph0)), loc=world_loc("Body", (0, 0, bob)))
+        key("Body", f, wrot("Body", Z, math.radians(1.5) * math.sin(2 * math.pi * ph0)) @ wrot("Body", Y, math.radians(-0.8 + 1.4 * math.sin(2 * math.pi * ph0 + 0.8))), loc=world_loc("Body", (0, 0, bob)))
         for L in WALK:
             grp = 0.0 if (L["rank"] % 2 == 0) == (L["side"] == "L") else 0.5          # alternating tetrapod
-            ph = (ph0 + grp) % 1.0
+            stag = 0.022 * L["rank"] + (0.03 if L["side"] == "L" else 0.0)              # contacts staggered within a group; the heavy left side lands a fraction later
+            ph = (ph0 + grp + stag) % 1.0
             if ph < duty:
                 off, lift = d * stride * (0.5 - ph / duty), 0.0
             else:
                 u = (ph - duty) / (1 - duty)
-                off, lift = d * stride * (-0.5 + smooth(u)), 0.09 * math.sin(math.pi * u)
+                off, lift = d * stride * (-0.5 + smooth(u)), (0.075 if L["side"] == "L" else 0.09) * math.sin(math.pi * u)
             tgt = L["foot"] + off
             tgt.z = FOOT_Z + lift
             pose_limb(f, L, tgt, Vector((0, 0, bob)))
@@ -271,7 +279,7 @@ for f in range(1, 38):
     plant_legs(f, Vector((0, 0.03 * u, dz)), pull=0.09 * u)
     for L in ARMS:
         goal = Vector((cx - L["sgn"] * 0.10, yf - 0.12, 0.40))                     # crossed in front, raised
-        tgt = L["foot"].lerp(goal, u) + Vector((0, 0.015 * math.sin(2 * math.pi * t * 4), 0))
+        tgt = arm_rest(L).lerp(goal, u) + Vector((0, 0.015 * math.sin(2 * math.pi * t * 4), 0))
         pose_limb(f, L, tgt, Vector((0, 0.03 * u, dz)))
 
 # attack grasp (one shot, 1.1 s): the claws open and rise, then snap in and forward; at 55 % of the clip they are closed on the target and the struggle freezes it there
@@ -288,10 +296,20 @@ for f in range(1, 28):
     for L in WALK:
         pose_limb(f, L, L["foot"] + Vector((0, 0.25 * close * 0.8, 0)) + Vector((0, 0, 0.0)), shift)
     for L in ARMS:
-        open_pose = L["foot"] + Vector((L["sgn"] * 0.22, -0.02, 0.28))
         shut_pose = Vector((cx - L["sgn"] * 0.04, yf + 0.38, 0.22))                # forward and together
-        tgt = L["foot"].lerp(open_pose, wind)
-        tgt = tgt.lerp(shut_pose, close)
+        base = arm_rest(L)
+        if L["side"] == "L":
+            w1 = smooth(min(u / 0.12, 1.0))                                         # joint one: the whole arm lifts
+            w2 = smooth(min(max((u - 0.09) / 0.17, 0.0), 1.0))                      # joint two: the forearm opens out
+            lift = base + Vector((0, 0, 0.10)) * w1
+            open_pose = L["foot"] + Vector((L["sgn"] * 0.22, -0.02, 0.28))
+            fade = 1.0 if u < 0.3 else 1.0 - smooth(min((u - 0.3) / 0.25, 1.0))
+            tgt = lift.lerp(open_pose, w2 * fade)
+            tgt = tgt.lerp(shut_pose, close)
+            tgt = tgt.lerp(base, 0.0)
+        else:
+            snap = smooth(min(max((u - 0.40) / 0.15, 0.0), 1.0))                    # the sickle stays tucked, then snaps out close to the body
+            tgt = base.lerp(shut_pose, snap * (1.0 - back))
         pose_limb(f, L, tgt, shift)
 
 # hit react: a flinch, the claws jerk up
@@ -302,7 +320,7 @@ for f in range(1, 14):
     key("Body", f, wrot("Body", Z, math.radians(7) * sh) @ wrot("Body", X, math.radians(4) * math.sin(u * math.pi)), loc=world_loc("Body", (0, -0.06 * math.sin(u * math.pi), -0.015 * math.sin(u * math.pi))))
     plant_legs(f, Vector((0, -0.06 * math.sin(u * math.pi), -0.015 * math.sin(u * math.pi))))
     for L in ARMS:
-        pose_limb(f, L, L["foot"] + Vector((0, 0, 0.14 * math.sin(u * math.pi))), Vector((0, -0.06 * math.sin(u * math.pi), -0.015 * math.sin(u * math.pi))))
+        pose_limb(f, L, arm_rest(L) + Vector((0, 0, 0.14 * math.sin(u * math.pi))), Vector((0, -0.06 * math.sin(u * math.pi), -0.015 * math.sin(u * math.pi))))
 
 # death: it sags, the legs curl in under the shell, the claws drop
 new_action("Death", 49)
@@ -316,7 +334,7 @@ for f in range(1, 50):
         tgt.z = max(tgt.z, FOOT_Z)
         pose_limb(f, L, tgt, Vector((0, 0, dz)))
     for L in ARMS:
-        tgt = L["foot"] + Vector((L["sgn"] * 0.18 * k, -0.05 * k, -0.18 * k))
+        tgt = arm_rest(L) + Vector((L["sgn"] * 0.18 * k, -0.05 * k, -0.18 * k))
         tgt.z = max(tgt.z, FOOT_Z)
         pose_limb(f, L, tgt, Vector((0, 0, dz)))
 

@@ -284,21 +284,39 @@ def body_pose(f, pitch=0.0, yaw=0.0, roll=0.0, loc=(0, 0, 0)):
     key("Body", f, q, loc=wloc("Body", loc))
 
 
-def gait(name, T, speed_mps, duty, lift, body_low, head_amp):
-    new_action(name, T + 1)
+def env(t, c, w):
+    """a periodic bump of width w centred on c (t in 0..1, wraps)"""
+    d = ((t - c + 0.5) % 1.0) - 0.5
+    return math.exp(-(d / w) ** 2)
+
+
+def gait(name, T, speed_mps, duty, lift, body_low, head_amp, cycles=1, probe=0.0):
+    """Alternating tripods (L1 R2 L3 | R1 L2 R3): one group stands (its feet slide back at body speed, so they stay planted) while the other lifts and reaches.
+    T = frames per step cycle; `cycles` step cycles per clip (so the clip can vary from step to step); `probe` = extra reach of the longer front-right leg
+    on every second step (it reaches out and feels for the ground before it lands in the normal place)."""
+    N = T * cycles
+    new_action(name, N + 1)
     s = speed_mps * duty * T / FPS                    # how far a foot is carried back while it stands
-    for f in range(1, T + 2):
-        p0 = ((f - 1) % T) / T
+    for f in range(1, N + 2):
+        tt = ((f - 1) % N) / float(T)                 # time in step cycles
+        p0 = tt % 1.0
         offs = {}
         for g in LG:
-            p = (p0 + 0.5 * g["grp"]) % 1.0
+            fi = tt + 0.5 * g["grp"]
+            k = int(math.floor(fi)) % cycles
+            p = fi % 1.0
             if p < duty:
                 u = p / duty
                 off, lf = s * 0.5 * (1 - 2 * u), 0.0
+                extra = Vector((0, 0, 0))
             else:
                 u = (p - duty) / (1 - duty)
                 off, lf = -s * 0.5 + s * u, lift * math.sin(math.pi * u)
-            offs[g["name"]] = FW * off + Vector((0, 0, lf)) + g["out"] * (0.35 * lf)
+                extra = Vector((0, 0, 0))
+                if probe and k == (cycles - 1) and g["rank"] == 0 and g["side"] == "R":
+                    pr = math.sin(math.pi * u) ** 1.5
+                    extra = FW * (probe * pr) + Vector((0, 0, 0.35 * probe * pr))
+            offs[g["name"]] = FW * off + Vector((0, 0, lf)) + g["out"] * (0.35 * lf) + extra
         bob = 0.012 * math.sin(4 * math.pi * p0)
         bo = Vector((0, 0, -body_low + bob))
         plant_all(f, offs, bo)
@@ -308,24 +326,23 @@ def gait(name, T, speed_mps, duty, lift, body_low, head_amp):
     info["crawl_speed_mps" if name == "Crawl" else "scuttle_speed_mps"] = round(speed_mps, 3)
 
 
-# idle: still but alive - the head scans and sniffs, a leg tip twitches now and then, the body breathes
+# idle: almost the whole body is still (it only breathes); three distinct, well spaced events: two quick taps of one foreleg, a quick flick of the head
+# to the side and back, and two small dips of the head (the mandibles clicking: there are no jaw bones). The loop ends exactly where it starts.
 new_action("Idle_Twitch", 97)
+TAPPER = LEG_BY[next(L["name"] for L in legs if L["side"] == "L" and L["rank"] == 0)]
 for f in range(1, 98):
     t = (f - 1) / 96.0
-    offs = {}
-    for g, t0 in ((LEG_BY[next(L["name"] for L in legs if L["side"] == "L" and L["rank"] == 0)], 0.27),
-                  (LEG_BY[next(L["name"] for L in legs if L["side"] == "R" and L["rank"] == 2)], 0.72),
-                  (LEG_BY[next(L["name"] for L in legs if L["side"] == "R" and L["rank"] == 1)], 0.5)):
-        pulse = math.exp(-((t - t0) / 0.045) ** 2)
-        offs[g["name"]] = Vector((0, 0, 0.11 * pulse)) + FW * (0.05 * pulse)
-    bo = Vector((0, 0, 0.006 * math.sin(2 * math.pi * t)))
+    tap = env(t, 0.20, 0.010) + env(t, 0.245, 0.010)
+    flick = env(t, 0.58, 0.022)
+    click = env(t, 0.86, 0.008) + env(t, 0.905, 0.008)
+    offs = {TAPPER["name"]: Vector((0, 0, 0.075 * tap)) + FW * (0.03 * tap)}
+    bo = Vector((0, 0, 0.004 * math.sin(2 * math.pi * t)))
     plant_all(f, offs, bo)
-    body_pose(f, pitch=math.radians(1.2) * math.sin(2 * math.pi * t), roll=math.radians(0.8) * math.sin(2 * math.pi * t + 1), loc=(0, 0, bo.z))
-    sc = max(-1.0, min(1.0, 1.6 * math.sin(2 * math.pi * t) + 0.5 * math.sin(6 * math.pi * t + 1.0)))
-    head_pose(f, yaw=math.radians(32) * sc, pitch=math.radians(6 + 7 * math.sin(4 * math.pi * t + 0.5)) + math.radians(5) * max(0, math.sin(10 * math.pi * t)) ** 6, roll=math.radians(5) * sc)
+    body_pose(f, pitch=math.radians(0.5) * math.sin(2 * math.pi * t), roll=math.radians(0.3) * math.sin(2 * math.pi * t + 1), loc=(0, 0, bo.z))
+    head_pose(f, yaw=math.radians(26) * flick + math.radians(1.5) * math.sin(2 * math.pi * t), pitch=math.radians(6 + 1.0 * math.sin(2 * math.pi * t)) + math.radians(6) * min(click, 1.0), roll=math.radians(4) * flick)
 
-gait("Crawl", 29, 0.472, 0.6, 0.075, 0.012, 14)
-gait("Scuttle_Fast", 10, 2.588, 0.5, 0.11, 0.07, 4)
+gait("Crawl", 29, 0.472, 0.55, 0.075, 0.03, 14, cycles=2, probe=0.06)
+gait("Scuttle_Fast", 10, 2.588, 0.5, 0.13, 0.07, 4)
 
 # alert: the front legs raised and feeling the air, the body tilted up, the head scanning
 new_action("Alert", 49)
@@ -341,28 +358,38 @@ for f in range(1, 50):
     body_pose(f, pitch=math.radians(-12) + math.radians(1.2) * math.sin(2 * math.pi * t * 6), loc=(0, 0, bo.z))
     head_pose(f, yaw=math.radians(34) * math.sin(2 * math.pi * t * 2), pitch=math.radians(-12 + 4 * math.sin(2 * math.pi * t * 4)))
 
-# attack: crouch, then spring forward with the front legs reaching, the head striking, and settle
+# attack: compress the middle and rear legs (the body drops, the haunches coil), spring off them (the contact moment stays at u 0.65, as before), reach with the
+# foretips before the head strikes (the head follows the legs), the front tips land first, the body compresses against them and the abdomen swings forward (the body
+# pitches down at the impact), then the whole creature recoils back. Rear legs stay planted where they stood in the world.
 new_action("Attack_Lunge", 16)
 rear = [g for g in LG if g["rank"] >= 2]
-front4 = [g for g in LG if g["rank"] <= 1]
+mid = [g for g in LG if g["rank"] == 1]
+front2 = [g for g in LG if g["rank"] == 0]
 for f in range(1, 17):
     u = (f - 1) / 15.0
-    crouch = math.sin(min(u / 0.3, 1.0) * math.pi / 2) * (1.0 if u < 0.3 else 0.0)
+    crouch = math.sin(min(u / 0.3, 1.0) * math.pi / 2) * (1.0 if u < 0.3 else max(0.0, 1.0 - (u - 0.3) / 0.07))
     spring = 0.0 if u < 0.3 else math.sin(min((u - 0.3) / 0.35, 1.0) * math.pi / 2) * (1.0 - max(0.0, (u - 0.75) / 0.25))
-    body_off = FW * (0.42 * spring) + Vector((0, 0, -0.07 * crouch + 0.05 * spring))
+    recoil = math.sin(min(max((u - 0.68) / 0.32, 0.0), 1.0) * math.pi)
+    comp = math.sin(min(max((u - 0.62) / 0.10, 0.0), 1.0) * math.pi)
+    hs = smooth_ = min(max((u - 0.42) / 0.23, 0.0), 1.0)
+    hs = hs * hs * (3 - 2 * hs)
+    body_off = FW * (0.42 * spring - 0.07 * recoil) + Vector((0, 0, -0.10 * crouch + 0.05 * spring - 0.03 * comp))
     offs = {}
-    for g in front4:
-        offs[g["name"]] = FW * (0.22 * spring - 0.08 * crouch) + Vector((0, 0, 0.30 * spring + 0.04 * crouch)) + g["out"] * (0.1 * spring)
+    for g in front2:
+        offs[g["name"]] = FW * (0.26 * spring - 0.08 * crouch) + Vector((0, 0, 0.30 * spring + 0.04 * crouch)) + g["out"] * (0.1 * spring)
+    for g in mid:
+        offs[g["name"]] = FW * (0.10 * spring) + Vector((0, 0, 0.10 * spring * (1.0 - comp))) + g["out"] * (0.05 * spring)
     for g in rear:
         offs[g["name"]] = Vector((0, 0, 0))
-    plant_all(f, {k: v for k, v in offs.items()}, body_off * 0.0 + Vector((0, 0, body_off.z)) - FW * 0.0)
-    # the rear legs stay where they stood in the world: compensate the body's travel
+    plant_all(f, {k: v for k, v in offs.items()}, Vector((0, 0, body_off.z)))
     for g in rear:
-        pose_leg(f, g, g["T"] - body_off + Vector((0, 0, 0)))
-    for g in front4:
+        pose_leg(f, g, g["T"] - body_off)
+    for g in mid:
         pose_leg(f, g, g["T"] - body_off + offs[g["name"]])
-    body_pose(f, pitch=math.radians(10) * crouch - math.radians(14) * spring, loc=tuple(body_off))
-    head_pose(f, yaw=0.0, pitch=math.radians(-10) * crouch + math.radians(22) * spring)
+    for g in front2:
+        pose_leg(f, g, g["T"] - body_off + offs[g["name"]])
+    body_pose(f, pitch=math.radians(10) * crouch - math.radians(14) * spring + math.radians(8) * comp - math.radians(6) * recoil, loc=tuple(body_off))
+    head_pose(f, yaw=0.0, pitch=math.radians(-10) * crouch + math.radians(22) * hs + math.radians(6) * recoil)
 
 new_action("Hit_React", 13)
 for f in range(1, 14):

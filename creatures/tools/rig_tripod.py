@@ -290,30 +290,76 @@ for f in range(1, 122):
     key("Body", f, wrot("Body", (1, 0, 0), math.radians(1.1) * math.sin(2 * math.pi * t)) @ wrot("Body", (0, 1, 0), math.radians(0.8) * math.sin(2 * math.pi * t + 1.0)))
 
 # walk: a tripod gait. Each leg is in the air for a third of the cycle, the three take turns (front L, front R, then the rear one); a foot is planted while it is on the ground.
+# The weight goes first: before a leg lifts, the chest and pelvis move over the other two feet (the leg lifts only once it has unloaded) and stay over them through the
+# swing. The heavy left leg swings broader (out to the side, a higher arc) and slower to start; the right leg reaches and plants sooner. The foot rises slowly and drops
+# briskly through the last part of the step, the hooked toes uncurl just before contact, and on contact the foot is locked to the ground while the body gives a short,
+# visible compression (more through the forelegs, less through the rear one). Cycle length, stride and ground speed are unchanged: planted feet slide back at body speed.
 T = 192                                              # 8 s per cycle: it is a huge being
 STRIDE = 0.2 * height_m
 new_action("Walk_Heavy-loop", T + 1)
 PH = {"Leg_L": 0.0, "Leg_R": 1.0 / 3.0, "Leg_B": 2.0 / 3.0}   # the two front legs first (L, R), then the rear one
+HEAVY = {"Leg_L": 1.0, "Leg_R": 0.0, "Leg_B": 0.0}
+
+
+def s01(x):
+    x = min(max(x, 0.0), 1.0)
+    return x * x * (3 - 2 * x)
+
+
+def load_of(ph):
+    """1 while a leg is unloaded and in the air (and for the moment either side of it): the body is over the OTHER feet"""
+    if ph >= 0.88:
+        return s01((ph - 0.88) / 0.12)                 # unloading: the weight moves off this leg before it lifts
+    if ph < 1.0 / 3.0:
+        return 1.0
+    if ph < 1.0 / 3.0 + 0.10:
+        return 1.0 - s01((ph - 1.0 / 3.0) / 0.10)      # after the landing the weight comes back
+    return 0.0
+
+
 for f in range(1, T + 2):
     ph0 = ((f - 1) % T) / T
+    sway_x, roll, pitch, comp = 0.0, 0.0, 0.0, 0.0
     for name, (hip, knee, ankle, toe) in FL.items():
         L = (hip - ankle).length
         reach = math.asin(min(0.9, STRIDE * 0.5 / L))
         ph = (ph0 - PH[name]) % 1.0
+        ld = load_of(ph)
+        side = 0.0 if abs(hip.x) < 0.05 * height_m else (1.0 if hip.x > 0 else -1.0)
+        sway_x += -side * 0.020 * height_m * ld
+        roll += -side * math.radians(3.0) * ld
+        if side == 0.0:
+            pitch += -math.radians(2.0) * ld             # the rear leg lifting: the chest leans forward over the front pair
+        # the landing compression, after the foot has come down (ph = 1/3): the forelegs take most of it
+        pa = ph - 1.0 / 3.0
+        if 0.0 <= pa < 0.2:
+            comp += (1.0 if side != 0.0 else 0.6) * math.exp(-((pa - 0.035) / 0.04) ** 2)
+        side_sw = 0.0
         if ph < 1.0 / 3.0:                           # swing: lifted and carried forward (+Y)
             u = ph * 3.0
-            s, lift = -1.0 + 2.0 * u, math.sin(math.pi * u)
+            ue = u
+            amp = 1.0
+            if name == "Leg_L":
+                ue = u ** 1.25                       # the heavy leg: slower to start, a broader, higher swing
+                amp = 1.25
+                side_sw = math.radians(7.0) * math.sin(math.pi * u) * side * -1.0
+            elif name == "Leg_R":
+                ue = u ** 0.82                       # the lighter foreleg reaches out and plants sooner
+                side_sw = math.radians(2.5) * math.sin(math.pi * u) * side * -1.0
+            v = ue ** 1.3                            # rises slowly, drops briskly through the final part of the step
+            s, lift = -1.0 + 2.0 * ue, math.sin(math.pi * v) * amp
+            uncurl = 1.0 - s01((u - 0.55) / 0.35)   # the hooked digits stay curled through the lift and uncurl before contact
         else:                                        # stance: planted, the body moves over it
             u = (ph - 1.0 / 3.0) / (2.0 / 3.0)
-            s, lift = 1.0 - 2.0 * u, 0.0
+            s, lift, uncurl = 1.0 - 2.0 * u, 0.0, 0.0
         a_up = reach * s + math.radians(22) * lift
         a_lo = -math.radians(55) * lift
-        key(name + "_Up", f, wrot(name + "_Up", (1, 0, 0), a_up))
+        key(name + "_Up", f, wrot(name + "_Up", (1, 0, 0), a_up) @ wrot(name + "_Up", (0, 1, 0), side_sw))
         key(name + "_Lo", f, wrot(name + "_Lo", (1, 0, 0), a_lo))
-        key(name + "_Foot", f, wrot(name + "_Foot", (1, 0, 0), -(a_up + a_lo)))
-    bob = math.sin(2 * math.pi * ph0 * 3.0) * 0.012 * height_m
+        key(name + "_Foot", f, wrot(name + "_Foot", (1, 0, 0), -(a_up + a_lo) + math.radians(14) * uncurl))
+    bz = -0.016 * height_m * comp + 0.004 * height_m
     key("Body", f, wrot("Body", (0, 0, 1), math.radians(2.2) * math.sin(2 * math.pi * ph0))
-        @ wrot("Body", (1, 0, 0), math.radians(1.2) * math.sin(2 * math.pi * ph0 * 3.0)), loc=wloc("Body", (0, 0, bob)))
+        @ wrot("Body", (0, 1, 0), roll) @ wrot("Body", (1, 0, 0), pitch + math.radians(0.6) * comp), loc=wloc("Body", (sway_x, 0, bz)))
 info["walk_ground_speed"] = round(STRIDE / (T * 2.0 / 3.0 / FPS), 3)
 info["walk_cycle_s"] = T / FPS
 bpy.ops.object.mode_set(mode='OBJECT')
