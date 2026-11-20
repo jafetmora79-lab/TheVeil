@@ -1,0 +1,33 @@
+THE VEIL - face expression kit for the Mixamo-rigged NPCs
+=========================================================
+Use ONE image per chat (the attached <name>_face_base_1000.png) and the prompt below. Send it, then ask for the six images one by one if ChatGPT does not make them all at once.
+
+----- PROMPT (copy everything between the lines) -----
+Attached is a front-on, flat-lit crop of a low-poly PSX-style game character's face (1000x1000 px, texture look: soft, slightly blurry, chunky), on a black background.
+Edit ONLY the eyes and the mouth. Everything else must stay pixel-identical: the same image size (1000x1000), the same framing and position, the same hair, the EYEBROWS (do not move, redraw or change the eyebrows at all, in any image), the same skin colour and shading, the same nose, the same beard or moustache, the same lighting, the same black background, the same head outline and the same clothes. Do not zoom, crop, rotate, mirror or re-draw the head.
+Keep the original low-detail PSX painted look (no sharp photo detail, no outlines, no cartoon exaggeration). Subtle, realistic expressions. Keep the eyes the same size and in the same place as in the original; the whites of the eyes stay pure white.
+Make one image per expression, each as a separate 1000x1000 PNG, named exactly:
+1. blink: both eyes gently closed (relaxed lids in the surrounding skin colour with a thin dark lash line), mouth unchanged.
+2. talk_small: mouth slightly open as when speaking, a little of the upper teeth and a dark inside, lips connected to the face, eyes unchanged.
+3. talk_wide: mouth open wider (speaking loudly), teeth and a dark inside, eyes unchanged.
+4. scared: eyes a little wider (same size iris, a bit more white above and below), mouth slightly open and tense. Subtle, not cartoonish.
+5. angry: eyes a little narrowed with the upper lids pressed down, lips pressed together (for a moustache or beard: the moustache or beard stays exactly as it is, the mouth moves under it). Subtle.
+6. worried: eyes a little softer and slightly down-turned, mouth closed and slightly pulled down.
+Again: do not touch the eyebrows, hair, skin, nose or background in any of them.
+----- END OF PROMPT -----
+
+What to send back (all 1000x1000 PNG, one folder per character, exactly these file names):
+  <name>/face_blink.png  face_talk_small.png  face_talk_wide.png  face_scared.png  face_angry.png  face_worried.png
+and copy the base image as face_neutral.png.
+
+The five characters (base images in this folder):
+  eddie_face_base_1000.png          Eddie (red hoodie)   - already working with the old images; new ones will make him match exactly
+  bearded_man_face_base_1000.png    Marcus (beard, tan jacket)
+  police_officer_face_base_1000.png the Officer (grey hair, moustache, blue shirt)
+  tan_jacket_face_base_1000.png     the tan jacket / maroon tee neighbour (curly hair)
+  bomber_face_base_1000.png         the brown bomber jacket man
+
+Notes
+ * The brows are rebuilt in the game as movable geometry, so ChatGPT must NOT change them in any image (they are masked out anyway).
+ * If an image comes back with the head shifted, scaled or the hair changed, ask again: "same framing and position, change only the eyes and mouth". A shifted image will not line up in the game.
+ * Eddie, the tan jacket and the bomber have no beard or moustache; Marcus has a beard, the Officer a moustache: their mouths must move under it.
