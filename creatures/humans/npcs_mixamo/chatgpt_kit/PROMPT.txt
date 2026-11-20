@@ -1,6 +1,7 @@
 THE VEIL - face expression kit for the Mixamo-rigged NPCs
 =========================================================
-Use ONE image per chat (the attached <name>_face_base_1000.png) and the prompt below. Send it, then ask for the six images one by one if ChatGPT does not make them all at once.
+Use ONE image per chat (the attached <name>_face_base_marked_1000.png - the version with four magenta registration squares) and the prompt below. Send it, then ask for ONE separate image at a time (not a combined sheet): each must be 1000x1000 with the head and the four squares in exactly the same place as the original. If you do ask for several at once, get each as its own full-size file.
+If you ask for the six images one by one if ChatGPT does not make them all at once.
 
 ----- PROMPT (copy everything between the lines) -----
 Attached is a front-on, flat-lit crop of a low-poly PSX-style game character's face (1000x1000 px, texture look: soft, slightly blurry, chunky), on a black background.
@@ -13,6 +14,7 @@ Make one image per expression, each as a separate 1000x1000 PNG, named exactly:
 4. scared: eyes a little wider (same size iris, a bit more white above and below), mouth slightly open and tense. Subtle, not cartoonish.
 5. angry: eyes a little narrowed with the upper lids pressed down, lips pressed together (for a moustache or beard: the moustache or beard stays exactly as it is, the mouth moves under it). Subtle.
 6. worried: eyes a little softer and slightly down-turned, mouth closed and slightly pulled down.
+The image has four small magenta squares near the edges (on the black background). They are registration marks: keep all four EXACTLY as they are - same colour, size and position - in every image you make.
 Again: do not touch the eyebrows, hair, skin, nose or background in any of them.
 ----- END OF PROMPT -----
 
