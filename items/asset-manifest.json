@@ -1,0 +1,230 @@
+{
+  "INV_VHSTape.glb": {
+    "group": "Puzzle_Items",
+    "source": "work/veil-characters/THE_VEIL_ASSETS_V2/08_Inventory/Puzzle_Items/INV_VHSTape.glb"
+  },
+  "INV_TornPhotograph.glb": {
+    "group": "Puzzle_Items",
+    "source": "work/veil-characters/THE_VEIL_ASSETS_V2/08_Inventory/Puzzle_Items/INV_TornPhotograph.glb"
+  },
+  "INV_RustyKey.glb": {
+    "group": "Puzzle_Items",
+    "source": "work/veil-characters/THE_VEIL_ASSETS_V2/08_Inventory/Puzzle_Items/INV_RustyKey.glb"
+  },
+  "INV_LockedDiary.glb": {
+    "group": "Puzzle_Items",
+    "source": "work/veil-characters/THE_VEIL_ASSETS_V2/08_Inventory/Puzzle_Items/INV_LockedDiary.glb"
+  },
+  "INV_MissingPoster.glb": {
+    "group": "Puzzle_Items",
+    "source": "work/veil-characters/THE_VEIL_ASSETS_V2/08_Inventory/Puzzle_Items/INV_MissingPoster.glb"
+  },
+  "INV_Photograph.glb": {
+    "group": "Puzzle_Items",
+    "source": "work/veil-characters/THE_VEIL_ASSETS_V2/08_Inventory/Puzzle_Items/INV_Photograph.glb"
+  },
+  "INV_EvidenceEnvelope.glb": {
+    "group": "Puzzle_Items",
+    "source": "work/veil-characters/THE_VEIL_ASSETS_V2/08_Inventory/Puzzle_Items/INV_EvidenceEnvelope.glb"
+  },
+  "INV_Newspaper.glb": {
+    "group": "Puzzle_Items",
+    "source": "work/veil-characters/THE_VEIL_ASSETS_V2/08_Inventory/Puzzle_Items/INV_Newspaper.glb"
+  },
+  "INV_SecurityAccessCard.glb": {
+    "group": "Puzzle_Items",
+    "source": "work/veil-characters/THE_VEIL_ASSETS_V2/08_Inventory/Puzzle_Items/INV_SecurityAccessCard.glb"
+  },
+  "INV_StrangeEmblem.glb": {
+    "group": "Puzzle_Items",
+    "source": "work/veil-characters/THE_VEIL_ASSETS_V2/08_Inventory/Puzzle_Items/INV_StrangeEmblem.glb"
+  },
+  "INV_CassetteTape.glb": {
+    "group": "Puzzle_Items",
+    "source": "work/veil-characters/THE_VEIL_ASSETS_V2/08_Inventory/Puzzle_Items/INV_CassetteTape.glb"
+  },
+  "INV_MysteriousArtifact.glb": {
+    "group": "Puzzle_Items",
+    "source": "work/veil-characters/THE_VEIL_ASSETS_V2/08_Inventory/Puzzle_Items/INV_MysteriousArtifact.glb"
+  },
+  "INV_BandageRoll.glb": {
+    "group": "Medical",
+    "source": "work/veil-characters/THE_VEIL_ASSETS_V2/08_Inventory/Medical/INV_BandageRoll.glb"
+  },
+  "INV_FirstAidKit.glb": {
+    "group": "Medical",
+    "source": "work/veil-characters/THE_VEIL_ASSETS_V2/08_Inventory/Medical/INV_FirstAidKit.glb"
+  },
+  "INV_PainkillerPack.glb": {
+    "group": "Medical",
+    "source": "work/veil-characters/THE_VEIL_ASSETS_V2/08_Inventory/Medical/INV_PainkillerPack.glb"
+  },
+  "INV_MedicineBottle.glb": {
+    "group": "Medical",
+    "source": "work/veil-characters/THE_VEIL_ASSETS_V2/08_Inventory/Medical/INV_MedicineBottle.glb"
+  },
+  "INV_Padlock.glb": {
+    "group": "Tools",
+    "source": "work/veil-characters/THE_VEIL_ASSETS_V2/08_Inventory/Tools/INV_Padlock.glb"
+  },
+  "INV_Screwdriver.glb": {
+    "group": "Tools",
+    "source": "work/veil-characters/THE_VEIL_ASSETS_V2/08_Inventory/Tools/INV_Screwdriver.glb"
+  },
+  "INV_DuctTape.glb": {
+    "group": "Tools",
+    "source": "work/veil-characters/THE_VEIL_ASSETS_V2/08_Inventory/Tools/INV_DuctTape.glb"
+  },
+  "INV_ElectricalSwitch.glb": {
+    "group": "Tools",
+    "source": "work/veil-characters/THE_VEIL_ASSETS_V2/08_Inventory/Tools/INV_ElectricalSwitch.glb"
+  },
+  "INV_PortableFuse.glb": {
+    "group": "Tools",
+    "source": "work/veil-characters/THE_VEIL_ASSETS_V2/08_Inventory/Tools/INV_PortableFuse.glb"
+  },
+  "INV_Crowbar.glb": {
+    "group": "Tools",
+    "source": "work/veil-characters/THE_VEIL_ASSETS_V2/08_Inventory/Tools/INV_Crowbar.glb"
+  },
+  "INV_RopeBundle.glb": {
+    "group": "Tools",
+    "source": "work/veil-characters/THE_VEIL_ASSETS_V2/08_Inventory/Tools/INV_RopeBundle.glb"
+  },
+  "INV_AdjustableWrench.glb": {
+    "group": "Tools",
+    "source": "work/veil-characters/THE_VEIL_ASSETS_V2/08_Inventory/Tools/INV_AdjustableWrench.glb"
+  },
+  "INV_BoltCutters.glb": {
+    "group": "Tools",
+    "source": "work/veil-characters/THE_VEIL_ASSETS_V2/08_Inventory/Tools/INV_BoltCutters.glb"
+  },
+  "INV_Pliers.glb": {
+    "group": "Tools",
+    "source": "work/veil-characters/THE_VEIL_ASSETS_V2/08_Inventory/Tools/INV_Pliers.glb"
+  },
+  "INV_Pocketknife.glb": {
+    "group": "Tools",
+    "source": "work/veil-characters/THE_VEIL_ASSETS_V2/08_Inventory/Tools/INV_Pocketknife.glb"
+  },
+  "INV_Hammer.glb": {
+    "group": "Tools",
+    "source": "work/veil-characters/THE_VEIL_ASSETS_V2/08_Inventory/Tools/INV_Hammer.glb"
+  },
+  "INV_HandheldRadio.glb": {
+    "group": "Story_Items",
+    "source": "work/veil-characters/THE_VEIL_ASSETS_V2/08_Inventory/Story_Items/INV_HandheldRadio.glb"
+  },
+  "INV_Flashlight.glb": {
+    "group": "Story_Items",
+    "source": "work/veil-characters/THE_VEIL_ASSETS_V2/08_Inventory/Story_Items/INV_Flashlight.glb"
+  },
+  "INV_FlashlightBattery.glb": {
+    "group": "Story_Items",
+    "source": "work/veil-characters/THE_VEIL_ASSETS_V2/08_Inventory/Story_Items/INV_FlashlightBattery.glb"
+  },
+  "INV_Wallet.glb": {
+    "group": "Story_Items",
+    "source": "work/veil-characters/THE_VEIL_ASSETS_V2/08_Inventory/Story_Items/INV_Wallet.glb"
+  },
+  "INV_FoldedNote.glb": {
+    "group": "Story_Items",
+    "source": "work/veil-characters/THE_VEIL_ASSETS_V2/08_Inventory/Story_Items/INV_FoldedNote.glb"
+  },
+  "INV_HouseKey.glb": {
+    "group": "Story_Items",
+    "source": "work/veil-characters/THE_VEIL_ASSETS_V2/08_Inventory/Story_Items/INV_HouseKey.glb"
+  },
+  "INV_Keyring.glb": {
+    "group": "Story_Items",
+    "source": "work/veil-characters/THE_VEIL_ASSETS_V2/08_Inventory/Story_Items/INV_Keyring.glb"
+  },
+  "INV_CarKey.glb": {
+    "group": "Story_Items",
+    "source": "work/veil-characters/THE_VEIL_ASSETS_V2/08_Inventory/Story_Items/INV_CarKey.glb"
+  },
+  "INV_Wristwatch.glb": {
+    "group": "Story_Items",
+    "source": "work/veil-characters/THE_VEIL_ASSETS_V2/08_Inventory/Story_Items/INV_Wristwatch.glb"
+  },
+  "INV_TownMap.glb": {
+    "group": "Story_Items",
+    "source": "work/veil-characters/THE_VEIL_ASSETS_V2/08_Inventory/Story_Items/INV_TownMap.glb"
+  },
+  "INV_Notebook.glb": {
+    "group": "Story_Items",
+    "source": "work/veil-characters/THE_VEIL_ASSETS_V2/08_Inventory/Story_Items/INV_Notebook.glb"
+  },
+  "INV_Pen.glb": {
+    "group": "Story_Items",
+    "source": "work/veil-characters/THE_VEIL_ASSETS_V2/08_Inventory/Story_Items/INV_Pen.glb"
+  },
+  "INV_MetalPipe.glb": {
+    "group": "Weapons",
+    "source": "work/veil-characters/THE_VEIL_ASSETS_V2/08_Inventory/Weapons/INV_MetalPipe.glb"
+  },
+  "INV_FireAxe.glb": {
+    "group": "Weapons",
+    "source": "work/veil-characters/THE_VEIL_ASSETS_V2/08_Inventory/Weapons/INV_FireAxe.glb"
+  },
+  "INV_AmmoBox.glb": {
+    "group": "Weapons",
+    "source": "work/veil-characters/THE_VEIL_ASSETS_V2/08_Inventory/Weapons/INV_AmmoBox.glb"
+  },
+  "INV_AmmoPickup.glb": {
+    "group": "Weapons",
+    "source": "work/veil-characters/THE_VEIL_ASSETS_V2/08_Inventory/Weapons/INV_AmmoPickup.glb"
+  },
+  "INV_Handgun.glb": {
+    "group": "Weapons",
+    "source": "work/veil-characters/THE_VEIL_ASSETS_V2/08_Inventory/Weapons/INV_Handgun.glb"
+  },
+  "INV_UtilityHatchet.glb": {
+    "group": "Weapons",
+    "source": "work/veil-characters/THE_VEIL_ASSETS_V2/08_Inventory/Weapons/INV_UtilityHatchet.glb"
+  },
+  "INV_BaseballBat.glb": {
+    "group": "Weapons",
+    "source": "work/veil-characters/THE_VEIL_ASSETS_V2/08_Inventory/Weapons/INV_BaseballBat.glb"
+  },
+  "INV_SpareBatteries.glb": {
+    "group": "Food_And_Supplies",
+    "source": "work/veil-characters/THE_VEIL_ASSETS_V2/08_Inventory/Food_And_Supplies/INV_SpareBatteries.glb"
+  },
+  "INV_EmergencyLantern.glb": {
+    "group": "Food_And_Supplies",
+    "source": "work/veil-characters/THE_VEIL_ASSETS_V2/08_Inventory/Food_And_Supplies/INV_EmergencyLantern.glb"
+  },
+  "INV_EnergySnack.glb": {
+    "group": "Food_And_Supplies",
+    "source": "work/veil-characters/THE_VEIL_ASSETS_V2/08_Inventory/Food_And_Supplies/INV_EnergySnack.glb"
+  },
+  "INV_CannedFood.glb": {
+    "group": "Food_And_Supplies",
+    "source": "work/veil-characters/THE_VEIL_ASSETS_V2/08_Inventory/Food_And_Supplies/INV_CannedFood.glb"
+  },
+  "INV_SmallBackpack.glb": {
+    "group": "Food_And_Supplies",
+    "source": "work/veil-characters/THE_VEIL_ASSETS_V2/08_Inventory/Food_And_Supplies/INV_SmallBackpack.glb"
+  },
+  "INV_WaterBottle.glb": {
+    "group": "Food_And_Supplies",
+    "source": "work/veil-characters/THE_VEIL_ASSETS_V2/08_Inventory/Food_And_Supplies/INV_WaterBottle.glb"
+  },
+  "CarBattery.tscn": {
+    "group": "Car_And_Repair",
+    "source": "work/veil-characters/game/props/car_parts/CarBattery.tscn"
+  },
+  "GasCanister.tscn": {
+    "group": "Car_And_Repair",
+    "source": "work/veil-characters/game/props/car_parts/GasCanister.tscn"
+  },
+  "StarterRelay.tscn": {
+    "group": "Car_And_Repair",
+    "source": "work/veil-characters/game/props/car_parts/StarterRelay.tscn"
+  },
+  "RES_Ext_Window_Boarded_1.0x1.3.glb": {
+    "group": "Car_And_Repair",
+    "source": "work/veil-characters/THE_VEIL_ASSETS_V2/03_Residential/Exterior_Modules/RES_Ext_Window_Boarded_1.0x1.3.glb"
+  }
+}
