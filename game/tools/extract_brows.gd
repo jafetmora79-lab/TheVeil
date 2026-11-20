@@ -3,9 +3,9 @@ extends SceneTree
 ## (right, up, forward). Writes the region image for checking. Usage: godot --headless --path . --script res://game/tools/extract_brows.gd -- <slug> <out_dir>
 const RES := 0.00025                          ## metres per pixel
 var R0 := -0.075
-var U0 := 0.040
+var U0 := 0.028
 var W := 640
-var H := 260
+var H := 300
 var tri_buf := PackedInt32Array()
 var tp := PackedVector3Array()
 var tuv := PackedVector2Array()
@@ -278,6 +278,14 @@ func _extract(slug: String, out: String, tex: Image, depth: PackedFloat32Array, 
 			var col := cd.lerp(cu, tfrac)
 			var key := Vector2i(int(q.x * w) % w, int(q.y * h) % h)
 			patch[key] = col
+			# the texture is finer than the 0.25 mm pixels: the neighbouring dark texels no pixel centre landed on get the same fill
+			for dy2 in range(-2, 3):
+				for dx2 in range(-2, 3):
+					var nk := Vector2i(key.x + dx2, key.y + dy2)
+					if not patch.has(nk) and nk.x >= 0 and nk.x < w and nk.y >= 0 and nk.y < h:
+						var nc := tex.get_pixelv(nk)
+						if nc.r * 0.3 + nc.g * 0.59 + nc.b * 0.11 < 0.48:
+							patch[nk] = col
 	var flat := []
 	for k in patch:
 		var c: Color = patch[k]
@@ -298,3 +306,49 @@ func _extract(slug: String, out: String, tex: Image, depth: PackedFloat32Array, 
 			chk.set_pixel(x, H - 1 - y, patch[key] if patch.has(key) else tex.get_pixelv(key))
 	chk.save_png("%s/%s_nobrow.png" % [out, slug])
 	print("BROWS strips ", strips.size(), " patch texels ", patch.size())
+	_eye_mask(slug, tex, depth, uvb)
+
+
+## The painted eyes (white and pupil pixels) of this model, as a mask in the FACE IMAGE's space (through the fit in face_fit/<slug>.json): the expression image replaces the whole
+## painted eye, so no corner of the old eye is left beside a blink or a wide eye.
+func _eye_mask(slug: String, tex: Image, depth: PackedFloat32Array, uvb: PackedVector2Array) -> void:
+	var fit = JSON.parse_string(FileAccess.get_file_as_string("res://game/prototypes/npc_meshy/face_fit/%s.json" % slug))
+	var sc: float = fit["scale"]
+	var dr: float = fit["dr"]
+	var du: float = fit["du"]
+	var pu: Array = fit["u"]
+	var pv: Array = fit["v"]
+	var em := PackedByteArray()
+	em.resize(128 * 128)
+	for y in H:
+		for x in W:
+			if depth[y * W + x] < -8.0:
+				continue
+			var r := R0 + (x + 0.5) * RES
+			var u := U0 + (y + 0.5) * RES
+			if u < 0.030 or u > 0.0585 or r < -0.05 or r > 0.07:
+				continue
+			var l := _px_lum(tex, uvb[y * W + x])
+			if l > 0.22 and l < 0.72:
+				continue
+			var ux: float = pu[0] * (r / sc + dr) + pu[2]
+			var vy: float = pv[1] * (u / sc + du) + pv[2]
+			if ux < 0.29 or ux > 0.70:
+				continue
+			var ix := clampi(int(ux * 127.0), 0, 127)
+			var iy := clampi(int(vy * 127.0), 0, 127)
+			em[iy * 128 + ix] = 1
+	var out := PackedByteArray()
+	out.resize(128 * 128)
+	for y in 128:
+		for x in 128:
+			if em[y * 128 + x] == 1:
+				for dy in range(-1, 2):
+					for dx in range(-1, 2):
+						var xx := x + dx
+						var yy := y + dy
+						if xx >= 0 and xx < 128 and yy >= 0 and yy < 128:
+							out[yy * 128 + xx] = 255
+	var img := Image.create_from_data(128, 128, false, Image.FORMAT_L8, out)
+	img.save_png("res://game/prototypes/npc_meshy/face_fit/%s_eyes.png" % slug)
+	print("EYES mask saved")

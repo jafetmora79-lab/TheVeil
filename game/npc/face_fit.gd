@@ -13,9 +13,13 @@ static var _dm := {}
 static func _mask_texture(slug: String, grow: int, cut: float) -> ImageTexture:
 	var m := _diff_mask(slug, grow, cut)
 	var img := Image.create(128, 128, false, Image.FORMAT_L8)
+	var eyes: Image = null
+	var ep := "res://game/prototypes/npc_meshy/face_fit/%s_eyes.png" % slug
+	if ResourceLoader.exists(ep):
+		eyes = (load(ep) as Texture2D).get_image()
 	for y in 128:
 		for x in 128:
-			img.set_pixel(x, y, Color(1, 1, 1) if m[y * 128 + x] == 1 else Color(0, 0, 0))
+			img.set_pixel(x, y, Color(1, 1, 1) if (m[y * 128 + x] == 1 or (eyes != null and eyes.get_pixel(x, y).r > 0.5)) else Color(0, 0, 0))
 	return ImageTexture.create_from_image(img)
 
 
@@ -38,6 +42,13 @@ static func _diff_mask(slug: String, grow: int, cut := 0.0) -> PackedByteArray:
 				var d := base.get_pixel(x, y)
 				var e := im.get_pixel(x, y)
 				if maxf(absf(d.r - e.r), maxf(absf(d.g - e.g), absf(d.b - e.b))) > 0.07:
+					m[y * 128 + x] = 1
+	var ep := "res://game/prototypes/npc_meshy/face_fit/%s_eyes.png" % slug
+	if ResourceLoader.exists(ep):                                  # the model's own painted eyes count as changed: the face image replaces all of the eye
+		var eimg := (load(ep) as Texture2D).get_image()
+		for y in 128:
+			for x in 128:
+				if eimg.get_pixel(x, y).r > 0.5:
 					m[y * 128 + x] = 1
 	var g := PackedByteArray()
 	g.resize(128 * 128)
@@ -143,7 +154,10 @@ static func apply(model: Node3D, slug: String, ov := {}) -> bool:
 				inside = false
 		if inside:
 			var hit := false
-			for pt in [c, uvs[idx[t]], uvs[idx[t + 1]], uvs[idx[t + 2]]]:
+			var ta := uvs[idx[t]]
+			var tb := uvs[idx[t + 1]]
+			var tc := uvs[idx[t + 2]]
+			for pt in [c, ta, tb, tc, (ta + tb) * 0.5, (tb + tc) * 0.5, (ta + tc) * 0.5, (ta * 2.0 + tb + tc) * 0.25, (tb * 2.0 + ta + tc) * 0.25, (tc * 2.0 + ta + tb) * 0.25]:
 				var q := Vector2i(int(pt.x * 127.0), int(pt.y * 127.0))
 				if dm[clampi(q.y, 0, 127) * 128 + clampi(q.x, 0, 127)] == 1:
 					hit = true
@@ -209,8 +223,9 @@ static func apply(model: Node3D, slug: String, ov := {}) -> bool:
 	sm.shader = FACE_SHADER
 	sm.set_shader_parameter("face_tex", VeilNpcFaceTex.texture(slug, "neutral"))
 	sm.set_shader_parameter("orig_tex", (mat as BaseMaterial3D).albedo_texture)
-	sm.set_shader_parameter("mask_tex", _mask_texture(slug, int(fit.get("dilate_mask", 2)), float(fit.get("brow_cut", 0.45))))
+	sm.set_shader_parameter("mask_tex", _mask_texture(slug, int(fit.get("dilate_mask", 1)), float(fit.get("brow_cut", 0.45))))
 	sm.set_shader_parameter("amount", 0.0)
+	sm.set_shader_parameter("blink_line_v", float(fit.get("blink_line_v", 0.505)))
 	if tint_n > 5:
 		var fimg := VeilNpcFaceTex.texture(slug, "neutral").get_image()
 		if fimg.is_compressed():
@@ -226,7 +241,27 @@ static func apply(model: Node3D, slug: String, ov := {}) -> bool:
 		if fn > 20:
 			var mine := tint_sum / float(tint_n)
 			var theirs := fs / float(fn)
-			sm.set_shader_parameter("tint", Vector3(clampf(mine.x / maxf(theirs.x, 0.01), 0.5, 1.3), clampf(mine.y / maxf(theirs.y, 0.01), 0.5, 1.3), clampf(mine.z / maxf(theirs.z, 0.01), 0.5, 1.3)))
+			var tn := Vector3(clampf(mine.x / maxf(theirs.x, 0.01), 0.5, 1.3), clampf(mine.y / maxf(theirs.y, 0.01), 0.5, 1.3), clampf(mine.z / maxf(theirs.z, 0.01), 0.5, 1.3))
+			sm.set_shader_parameter("tint", tn)
+	# the lid colour of a blink: this model's own skin just under its eyes (the vertices that sit nearest under the eyes of the face image)
+	if aimg != null:
+		var acc := Vector3.ZERO
+		for target in [Vector2(0.38, 0.60), Vector2(0.62, 0.60)]:
+			var best := 1e9
+			var bi := 0
+			for i in v.size():
+				if front[i] == 1:
+					var dd := uvs[i].distance_squared_to(target)
+					if dd < best:
+						best = dd
+						bi = i
+			var cc := aimg.get_pixelv(Vector2i(int(ouv[bi].x * aimg.get_width()) % aimg.get_width(), int(ouv[bi].y * aimg.get_height()) % aimg.get_height()))
+			acc += Vector3(cc.r, cc.g, cc.b)
+		acc /= 2.0
+		sm.set_shader_parameter("skin_col", Vector3(acc.x, acc.y, acc.z))
+	var epx := "res://game/prototypes/npc_meshy/face_fit/%s_eyes.png" % slug
+	if ResourceLoader.exists(epx):
+		sm.set_shader_parameter("eye_tex", load(epx))
 	nm.surface_set_material(1, sm)
 	mi.mesh = nm
 	print("FACEFIT ", slug, " face triangles ", face.size() / 3, " of ", idx.size() / 3)
