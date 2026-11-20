@@ -53,3 +53,10 @@ Planted-foot slip 0.4-10 mm; toes within 3 mm of the floor; loop seam < 0.002 ra
 
 **Tests:** `game/tests/run_pose_test.gd` (all 15 distinct models: Protagonist, Eddie, Marcus, Noah, Ruth, Sarah, Lena, Frank, Officer, Cashier, Survivor, Civilian_A/B, Res_Walker, Res_Neighbour; two speeds, reaction, walk->run, run->stop) and `gait_test.gd` pass. Preview/recorder: `game/tests/npc_run_preview.gd` (needs a window; side / front / three / close views, `react`, `twist=<deg>`).
 **Needs your visual test:** the real game camera and scenes (chases, the Hound, Frank), and the raised palm's direction (a single value to change).
+
+## Mixamo run (2026-11-20)
+The NPC run is the Mixamo "Running" clip from `creatures/animation_sources/mixamo_bomber_run_walk.glb`, retargeted onto every rig (the walk stays procedural). `game/tools/bake_mixamo_gait.gd`
+bakes it to `game/animation/mixamo_gait.json` (Running and Walking; torso/head as world rotation deltas, limbs as world bone directions so a T-pose source fits our arms-down rest, stride
+speed, left-touchdown time, foot clearance); `game/animation/mixamo_gait.gd` samples it in the same form as `Gait.sample`, and `NpcAnimator` blends it over the procedural run by `_run`
+(`use_mixamo_run`). Cadence: the clip's own 0.63 s cycle, up to 1.12x quicker at higher speeds; the stride lengthens with speed, so the feet slide a little above ~3 m/s (a jog clip).
+The pelvis is placed so the lowest foot is on the floor. `run_pose_test` thresholds for elbows, arm width, weight shift and pelvis bounce follow this clip.

@@ -56,6 +56,9 @@ var _turn_goal = null               ## world-space direction the body should tur
 const Gait = preload("res://game/animation/gait_pose.gd")
 var _gait := {}                     ## sampled rotations (+ "_y" pelvis offset), reused every frame
 var _gait_rig := {}
+var _mx_rest := {}                  ## the rig's rest limb directions for the retargeted Mixamo run (empty: the procedural run only)
+var _mx_pose := {}
+var use_mixamo_run := true          ## the run is the retargeted Mixamo clip (res://game/animation/mixamo_gait.json), blended in by _run
 var _gprof := {}
 var _gait_base_guard := 0.0
 var _gw := 0.0                      ## 0..1 weight of the gait over idle (0 standing, 1 moving)
@@ -139,6 +142,8 @@ func _ready() -> void:
 		_gait_rig = Gait.measure(skel, F)
 		_gprof = Gait.profile_for(String(root.name))
 		_gait_base_guard = float(_gprof.get("guard", 0.0))
+		if MixamoGait.available("running"):
+			_mx_rest = MixamoGait.rest_dirs(skel)
 	_measure_fingers()
 
 
@@ -448,6 +453,8 @@ func _update_walk(delta: float) -> void:
 	_gw = move_toward(_gw, clampf(_speed / 0.4, 0.0, 1.0), delta * 6.0)
 	if not _gait_rig.is_empty():
 		var want_cyc := Gait.cycle_for(_speed, _gprof, _gait_rig)
+		if use_mixamo_run and not _mx_rest.is_empty() and _run > 0.0:
+			want_cyc = lerpf(want_cyc, MixamoGait.cycle("running", _speed, float(_gait_rig["leg"])), _run)
 		if moved > 0.0005 and not _was_moving and _gw < 0.05:
 			# starting from rest: begin in the passing pose (feet together), the stance foot alternating each start
 			_cyc = want_cyc
@@ -578,6 +585,10 @@ func _pose() -> void:
 		if _gait_on > 0.0:
 			_gprof["guard"] = maxf(_gait_base_guard, _scare)
 			Gait.sample(_phase, _speed, _gprof, _gait_rig, Gait.BONES, F, U, R, _gait)
+			if use_mixamo_run and not _mx_rest.is_empty() and _run > 0.0:
+				MixamoGait.sample("running", _phase, F, U, R, _mx_rest, _gait_rig, _mx_pose)
+				for k in _mx_pose:
+					_gait[k] = lerpf(float(_gait[k]), float(_mx_pose[k]), _run) if k == "_y" else (_gait[k] as Quaternion).slerp(_mx_pose[k], _run)
 	var t := _t + _seed
 	var s := _scare
 	var breath_rate := lerpf(0.26, 0.55, s)            # breaths per second
