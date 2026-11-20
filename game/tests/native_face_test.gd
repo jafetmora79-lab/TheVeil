@@ -24,7 +24,7 @@ func _run() -> void:
 	await process_frame
 	var ft := m.get_node_or_null("FaceTex") as VeilNpcFaceTex
 	ok("mixamo_model", a._native)
-	ok("face_controller", ft != null and ft._mat != null)
+	ok("face_controller", ft != null and ft._sm != null)
 	var mesh: ArrayMesh
 	for mi in m.find_children("*", "MeshInstance3D", true, false):
 		mesh = (mi as MeshInstance3D).mesh as ArrayMesh

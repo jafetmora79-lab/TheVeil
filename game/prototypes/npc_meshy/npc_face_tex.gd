@@ -20,6 +20,7 @@ var talking := false:
 var auto_blink := true
 var state := "neutral"                          ## the texture currently shown (read by tests)
 var _mat: BaseMaterial3D
+var _sm: ShaderMaterial
 var _blink_left := 0.0
 var _next_blink := 2.5
 var _talk_t := 0.0
@@ -59,6 +60,11 @@ func setup(model_root: Node) -> bool:
 		var m := mi as MeshInstance3D
 		if m.mesh != null and m.mesh.get_surface_count() >= 2:
 			var src := m.get_active_material(1)
+			if src is ShaderMaterial:                       # a Mixamo model (VeilFaceFit): the face image over the model's own face where the expression changes it
+				_sm = (src as ShaderMaterial).duplicate() as ShaderMaterial
+				m.set_surface_override_material(1, _sm)
+				_apply()
+				return true
 			if src is BaseMaterial3D:
 				_mat = (src as BaseMaterial3D).duplicate() as BaseMaterial3D
 				_mat.texture_filter = BaseMaterial3D.TEXTURE_FILTER_NEAREST
@@ -98,7 +104,7 @@ func _process(delta: float) -> void:
 
 
 func _apply() -> void:
-	if _mat == null or slug == "":
+	if (_mat == null and _sm == null) or slug == "":
 		return
 	var s := expression if expression in ["scared", "angry", "worried"] else "neutral"
 	if talking and expression != "scared":
@@ -106,4 +112,8 @@ func _apply() -> void:
 	if _blink_left > 0.0 and expression == "neutral":
 		s = "blink"
 	state = s
-	_mat.albedo_texture = texture(slug, s)
+	if _sm != null:
+		_sm.set_shader_parameter("face_tex", texture(slug, s))
+		_sm.set_shader_parameter("amount", 0.0 if s == "neutral" else 1.0)
+	else:
+		_mat.albedo_texture = texture(slug, s)

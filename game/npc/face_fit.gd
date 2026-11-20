@@ -6,6 +6,54 @@ extends RefCounted
 ## c = (right, up) of a vertex relative to the Head bone in the rig's own frame (right = forward x up, forward measured from the feet).
 
 
+const FACE_SHADER := preload("res://game/npc/face_fit.gdshader")
+static var _dm := {}
+
+
+static func _mask_texture(slug: String, grow: int, cut: float) -> ImageTexture:
+	var m := _diff_mask(slug, grow, cut)
+	var img := Image.create(128, 128, false, Image.FORMAT_L8)
+	for y in 128:
+		for x in 128:
+			img.set_pixel(x, y, Color(1, 1, 1) if m[y * 128 + x] == 1 else Color(0, 0, 0))
+	return ImageTexture.create_from_image(img)
+
+
+## 128 x 128 mask (1 = changed by some expression, then dilated by `grow` cells) of the face image space.
+static func _diff_mask(slug: String, grow: int, cut := 0.0) -> PackedByteArray:
+	var key := "%s/%d/%.2f" % [slug, grow, cut]
+	if _dm.has(key):
+		return _dm[key]
+	var base := VeilNpcFaceTex.texture(slug, "neutral").get_image()
+	base.decompress() if base.is_compressed() else null
+	base.resize(128, 128, Image.INTERPOLATE_NEAREST)
+	var m := PackedByteArray()
+	m.resize(128 * 128)
+	for n in ["blink", "talk_small", "talk_wide", "scared", "angry", "worried"]:
+		var im := VeilNpcFaceTex.texture(slug, n).get_image()
+		im.decompress() if im.is_compressed() else null
+		im.resize(128, 128, Image.INTERPOLATE_NEAREST)
+		for y in range(int(cut * 128.0), 128):
+			for x in 128:
+				var d := base.get_pixel(x, y)
+				var e := im.get_pixel(x, y)
+				if maxf(absf(d.r - e.r), maxf(absf(d.g - e.g), absf(d.b - e.b))) > 0.07:
+					m[y * 128 + x] = 1
+	var g := PackedByteArray()
+	g.resize(128 * 128)
+	for y in 128:
+		for x in 128:
+			if m[y * 128 + x] == 1:
+				for dy in range(-grow, grow + 1):
+					for dx in range(-grow, grow + 1):
+						var xx := x + dx
+						var yy := y + dy
+						if xx >= 0 and xx < 128 and yy >= 0 and yy < 128:
+							g[yy * 128 + xx] = 1
+	_dm[key] = g
+	return g
+
+
 static func _rel(n: Node3D, top: Node) -> Transform3D:
 	var t := Transform3D()
 	var cur: Node = n
@@ -81,6 +129,8 @@ static func apply(model: Node3D, slug: String, ov := {}) -> bool:
 	var vmin: float = fit.get("v_min", 0.36)
 	var tint_sum := Vector3.ZERO
 	var tint_n := 0
+	# what the expressions change (brows, eyes, mouth), grown a little: only those triangles get the face image, everything else keeps the model's own painted face
+	var dm := _diff_mask(slug, int(fit.get("dilate", 9)), float(fit.get("brow_cut", 0.45)))
 	var rest := PackedInt32Array()
 	var face := PackedInt32Array()
 	for t in range(0, idx.size(), 3):
@@ -92,18 +142,19 @@ static func apply(model: Node3D, slug: String, ov := {}) -> bool:
 			if front[i] == 0 or uvs[i].x < 0.0 or uvs[i].x > 1.0 or uvs[i].y < 0.0 or uvs[i].y > 1.0:
 				inside = false
 		if inside:
-			var px := Vector2i(int(c.x * mimg.get_width()), int(c.y * mimg.get_height()))
-			inside = mimg.get_pixelv(px).r > 0.5
-			if inside and aimg != null:
-				var in_box: bool = c.x >= box[0] and c.x <= box[2] and c.y >= box[1] and c.y <= box[3]
-				if not in_box:
-					var ou := (ouv[idx[t]] + ouv[idx[t + 1]] + ouv[idx[t + 2]]) / 3.0
-					var col := aimg.get_pixelv(Vector2i(int(ou.x * aimg.get_width()) % aimg.get_width(), int(ou.y * aimg.get_height()) % aimg.get_height()))
-					var dc := Vector3(col.r - skin_c.r, col.g - skin_c.g, col.b - skin_c.b).length()
-					inside = dc < skin_tol and c.x >= ur[0] and c.x <= ur[1] and c.y >= vmin
-					if inside:
-						tint_sum += Vector3(col.r, col.g, col.b)
-						tint_n += 1
+			var hit := false
+			for pt in [c, uvs[idx[t]], uvs[idx[t + 1]], uvs[idx[t + 2]]]:
+				var q := Vector2i(int(pt.x * 127.0), int(pt.y * 127.0))
+				if dm[clampi(q.y, 0, 127) * 128 + clampi(q.x, 0, 127)] == 1:
+					hit = true
+			inside = hit
+			# skin samples for the tint (cheeks and nose, the old face mask's skin)
+			if aimg != null and mimg.get_pixelv(Vector2i(int(c.x * mimg.get_width()), int(c.y * mimg.get_height()))).r > 0.5 and c.x >= ur[0] and c.x <= ur[1] and c.y >= vmin:
+				var ou := (ouv[idx[t]] + ouv[idx[t + 1]] + ouv[idx[t + 2]]) / 3.0
+				var col := aimg.get_pixelv(Vector2i(int(ou.x * aimg.get_width()) % aimg.get_width(), int(ou.y * aimg.get_height()) % aimg.get_height()))
+				if Vector3(col.r - skin_c.r, col.g - skin_c.g, col.b - skin_c.b).length() < skin_tol:
+					tint_sum += Vector3(col.r, col.g, col.b)
+					tint_n += 1
 		for k in 3:
 			(face if inside else rest).append(idx[t + k])
 	if face.is_empty():
@@ -121,6 +172,7 @@ static func apply(model: Node3D, slug: String, ov := {}) -> bool:
 	var nv := PackedVector3Array()
 	var nn := PackedVector3Array()
 	var nu := PackedVector2Array()
+	var nou := PackedVector2Array()
 	var bones_src = arr[Mesh.ARRAY_BONES]
 	var weights_src = arr[Mesh.ARRAY_WEIGHTS]
 	var per := 0
@@ -135,6 +187,7 @@ static func apply(model: Node3D, slug: String, ov := {}) -> bool:
 			nv.append(v[i])
 			nn.append(nrm[i])
 			nu.append(uvs[i])
+			nou.append(ouv[i])
 			for j in per:
 				nb.append(bones_src[i * per + j])
 				nw.append(weights_src[i * per + j])
@@ -142,6 +195,7 @@ static func apply(model: Node3D, slug: String, ov := {}) -> bool:
 	a1[Mesh.ARRAY_VERTEX] = nv
 	a1[Mesh.ARRAY_NORMAL] = nn
 	a1[Mesh.ARRAY_TEX_UV] = nu
+	a1[Mesh.ARRAY_TEX_UV2] = nou
 	a1[Mesh.ARRAY_INDEX] = ni
 	if per > 0:
 		a1[Mesh.ARRAY_BONES] = nb
@@ -150,11 +204,17 @@ static func apply(model: Node3D, slug: String, ov := {}) -> bool:
 	if per == 8:
 		flags = Mesh.ARRAY_FLAG_USE_8_BONE_WEIGHTS
 	nm.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES, a1, [], {}, flags)
-	var fm := StandardMaterial3D.new()
-	fm.albedo_texture = VeilNpcFaceTex.texture(slug, "neutral")
+	# the face surface is a shader: the face image only where an expression changes something (the mask), the model's own painted face everywhere else
+	var sm := ShaderMaterial.new()
+	sm.shader = FACE_SHADER
+	sm.set_shader_parameter("face_tex", VeilNpcFaceTex.texture(slug, "neutral"))
+	sm.set_shader_parameter("orig_tex", (mat as BaseMaterial3D).albedo_texture)
+	sm.set_shader_parameter("mask_tex", _mask_texture(slug, int(fit.get("dilate_mask", 2)), float(fit.get("brow_cut", 0.45))))
+	sm.set_shader_parameter("amount", 0.0)
 	if tint_n > 5:
-		# the face image's skin vs this model's own skin: the image is tinted to match (the Mixamo models were textured again)
-		var fimg := fm.albedo_texture.get_image()
+		var fimg := VeilNpcFaceTex.texture(slug, "neutral").get_image()
+		if fimg.is_compressed():
+			fimg.decompress()
 		var fs := Vector3.ZERO
 		var fn := 0
 		for _k in 600:
@@ -166,9 +226,8 @@ static func apply(model: Node3D, slug: String, ov := {}) -> bool:
 		if fn > 20:
 			var mine := tint_sum / float(tint_n)
 			var theirs := fs / float(fn)
-			fm.albedo_color = Color(clampf(mine.x / maxf(theirs.x, 0.01), 0.5, 1.3), clampf(mine.y / maxf(theirs.y, 0.01), 0.5, 1.3), clampf(mine.z / maxf(theirs.z, 0.01), 0.5, 1.3))
-	fm.texture_filter = BaseMaterial3D.TEXTURE_FILTER_NEAREST
-	nm.surface_set_material(1, fm)
+			sm.set_shader_parameter("tint", Vector3(clampf(mine.x / maxf(theirs.x, 0.01), 0.5, 1.3), clampf(mine.y / maxf(theirs.y, 0.01), 0.5, 1.3), clampf(mine.z / maxf(theirs.z, 0.01), 0.5, 1.3)))
+	nm.surface_set_material(1, sm)
 	mi.mesh = nm
 	print("FACEFIT ", slug, " face triangles ", face.size() / 3, " of ", idx.size() / 3)
 	return true
