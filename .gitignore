@@ -4,3 +4,5 @@ __pycache__/
 .godot/
 /build/
 *.tmp
+docs/download/*.zip
+*.blend1
