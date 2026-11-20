@@ -1292,8 +1292,17 @@ func epilogue_lines(ending: String) -> Array:
 			"Marcus": "He looked back more than anyone."}[k]) if t >= 50 else ". " + ({"Eddie": "He did not say much on the road.", "Ruth": "She kept her distance.",
 			"Sarah": "She walked a little apart from the rest.", "Marcus": "He walked alone, a few steps behind."}[k]))
 		out.append(line)
-	if not Game.has_flag("ch9_marcus_lost"):
-		out.append("Noah was never found.")
+	# Noah (story pass, approved): found in 13.0 for every new save; older saves that went on without the rescue keep the truthful old lines
+	var marcus_missing: bool = "Marcus" in ch14s.get("missing", [])
+	if Game.has_flag("ch12_noah_found"):
+		if Game.has_flag("ch9_marcus_lost"):
+			out.append("Noah carried his father's backpack. He did not put it down.")
+		elif marcus_missing:
+			out.append("Noah stopped at every turn in the road and looked back. Nobody told him to stop.")
+		else:
+			out.append("Noah walked beside his father the whole way.")
+	elif not Game.has_flag("ch9_marcus_lost"):
+		out.append("Noah was never found." if marcus_missing else "Marcus never stopped looking for Noah.")
 	out.append({"A": "Behind them, the mist reached a little farther every night.", "B": "Over Greyhaven the mist thinned. Not gone. Quieter.",
 		"C": "Below Greyhaven, something waits behind the stone. Something else waits with it."}[ending])
 	return out

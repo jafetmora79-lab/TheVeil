@@ -151,6 +151,8 @@ func saved_chapter_name() -> String:
 
 func current_step() -> Dictionary:
 	for o in objectives:
+		if o.has("when") and not has_flag(String(o["when"])):
+			continue                                       # a step that only applies while its `when` flag is set (e.g. the Noah rescue)
 		if not has_flag(o["flag"]):
 			return o
 	return {}
@@ -300,7 +302,15 @@ func load_game() -> bool:
 	vehicle_state = d.get("vehicle", {})
 	play_time = d.get("play_time", 0.0)
 	_finale_rollback()
+	_migrate_noah()
 	return true
+
+
+## Story pass (approved): a storyline already past the mill-house stage of displayed Chapter 13 (the district has begun) went on without the Noah rescue; it does not
+## apply to it any more, and nothing claims a rescue happened (the epilogue then uses its truthful old lines). Defaults only: nothing is removed.
+func _migrate_noah() -> void:
+	if has_flag("ch13_started") and not has_flag("ch12_noah_found") and not has_flag("ch12_noah_na"):
+		set_flag("ch12_noah_na")
 
 
 ## (QA-001) A save made anywhere after the finale's last decision (the ending under way, its outside scene, its

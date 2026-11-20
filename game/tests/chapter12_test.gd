@@ -284,6 +284,7 @@ func _run() -> void:
 	dlg.line_started.connect(func(_s, t, _d): said.append(t))
 	dlg.auto_confirm = true
 	DEV.prepare(game)
+	game.flags["ch12_noah_na"] = true                    # this test covers the station arc; the Noah rescue has its own test (chapter12_noah_test)
 	for cp in ["chapter13_start", "chapter13_facility", "chapter13_underground", "chapter13_escaped", "chapter13_return", "chapter13_end"]:
 		if FileAccess.file_exists(game.checkpoint_path(cp)):
 			DirAccess.remove_absolute(game.checkpoint_path(cp))
@@ -432,6 +433,7 @@ func _run() -> void:
 	world.free()
 	said.clear()
 	DEV.prepare(game, true)
+	game.flags["ch12_noah_na"] = true
 	world = ps.instantiate()
 	root.add_child(world)
 	await frames(60)

@@ -487,7 +487,7 @@ func _run() -> void:
 	ok("c15_a_end", await wait_talk(func(): return credits_up(), 120.0) and world.hud.title.text != "" and String(c15.st()["ending"]) == "A"
 		and game.has_flag("chapter_15_complete"))
 	var epi: Array = c15.st()["epilogue"]
-	ok("c15_a_epilogue", epi.any(func(l): return String(l).begins_with("Sarah made it out")) and epi.has("Noah was never found.")
+	ok("c15_a_epilogue", epi.any(func(l): return String(l).begins_with("Sarah made it out")) and epi.has("Marcus never stopped looking for Noah.")
 		and epi.any(func(l): return String(l).begins_with("Marcus made it out")), str(epi))
 	var rec = JSON.parse_string(FileAccess.get_file_as_string("user://veil_endings.json"))
 	ok("c15_endings_file", rec is Dictionary and "A" in rec["endings"])

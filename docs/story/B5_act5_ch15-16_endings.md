@@ -122,7 +122,7 @@ At the seal the flashlight falters, **a vast shadow crosses**, the **stone begin
   - Ending lines (CURRENT): A "Behind them, the mist reached a little farther every night." B "Over Greyhaven the mist thinned. Not gone. Quieter." C "Below Greyhaven, something waits behind the stone. Something else waits with it."
 - **Title, credits, THANK YOU FOR PLAYING, menu return** (CURRENT `_credits`, `_menu_main`, `_menu_replay`, `_menu_load`).
 - **Ending history** stays in `user://veil_endings.json` (CURRENT `_record_ending`); the player's save goes back to `chapter16_decision` with `endings_seen` recorded so the finale is always replayable.
-- **Interrupted-ending resume (NEW design, cannot duplicate seals, casualty, supplies or credit records):**
+- **Interrupted-ending resume. CORRECTION (found while implementing): the code ALREADY does this** - `game_state.gd:_finale_rollback` loads any save made after `ch15_decided` as the complete pre-decision checkpoint (`chapter16_decision`), keeps the endings seen, and applies nothing twice **[V]**. The commit-record design below is therefore **not needed** and is kept only as the fallback if that rollback is ever removed:
   1. Before any side effect, `_finish` writes a **commit record** `ch15_ending_commit = {ending, epilogue, roster}` into `st()` (and sets `ch15_ending_committed`).
   2. `_record_ending` becomes **idempotent**: it keys the history entry by `commit_id` (hash of ending + play_time) and **skips if present**.
   3. On load, if `ch15_ending_committed` and not `ch15_ended`, the game **replays the presentation only** (epilogue cards, credits) from the stored lines - it never re-runs `_ending_a/b/c`, never re-applies injuries, supplies or seals, and never re-records.

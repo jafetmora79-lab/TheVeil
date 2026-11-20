@@ -1,6 +1,6 @@
 # F. Approval list for canon-changing proposals (recommended choice first)
 
-**STATUS: all 17 items APPROVED by the owner as recommended (2026-11-20).** Item 3: keep the specific years unless trimmed later; item 8: keep the current three endings; item 12: no name. Still nothing implemented.
+**STATUS: all 17 items APPROVED by the owner as recommended (2026-11-20). IMPLEMENTED on branch `story/noah-rescue`: items 1, 2, 3, 4, 5 (13.0 as far as it goes, see `IMPLEMENTATION_STATUS.md`), 6 (pin 7/10/13 s), 10 (epilogue lines only), 11 (migration, defaults only), 13 (the "FINN" line), 14 (`c12_symbol_marcus_noah`). Item 9: Noah already has a Meshy model (`teen_blue_jacket` in `game/npc/meshy_npcs.gd`), no stand-in needed.** Item 3: keep the specific years unless trimmed later; item 8: keep the current three endings; item 12: no name. Still nothing implemented.
 
 Every item below changes published events or canon. **Nothing is implemented.** "Recommend" is my recommendation.
 

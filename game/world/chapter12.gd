@@ -87,6 +87,8 @@ var _drip_t := 3.0
 var _flicker_t := 0.0
 var _streams := {}
 var _mats := {}
+var noah: Node                              ## the Noah rescue (13.0)
+const NOAH := preload("res://game/world/chapter12_noah.gd")
 
 
 func begin(w: Node, chapter11: Node, restoring: bool) -> void:
@@ -106,6 +108,10 @@ func begin(w: Node, chapter11: Node, restoring: bool) -> void:
 	_streams["hum"] = Sfx._make(2.0, func(t, i): return sin(TAU * 60.0 * t) * 0.12 + sin(TAU * 120.0 * t) * 0.05, true)
 	_build_exterior()
 	_build_facility()
+	noah = NOAH.new()                                  # 13.0: the Noah rescue (chapter12_noah.gd)
+	noah.name = "NoahRescue"
+	add_child(noah)
+	noah.setup(self)
 	var it: Interactable = p4.its.get("npc_Eddie")
 	if it:
 		it.used.connect(_talk)
@@ -116,6 +122,7 @@ func begin(w: Node, chapter11: Node, restoring: bool) -> void:
 		_opening.call_deferred()
 	else:
 		_apply()
+		noah.restore.call_deferred()
 		if Game.has_flag("chapter_12_complete"):
 			_start_chapter13.call_deferred(true)
 	Game.refresh_objective()
@@ -545,7 +552,10 @@ func _guide() -> void:
 	var t: Variant = null
 	var label := ""
 	var p := player.global_position
-	if not Game.has_flag("ch12_talk_done"):
+	if noah.active():
+		t = noah.goal_point()
+		label = "EDDIE" if not Game.has_flag("ch12_ribbon_read") else ("HOUSE 19" if not Game.has_flag("ch12_noah_found") else "MILL HOUSE")
+	elif not Game.has_flag("ch12_talk_done"):
 		t = _node("Eddie")
 		label = "EDDIE"
 	elif not Game.has_flag("ch12_set_out"):
@@ -596,7 +606,7 @@ func _opening() -> void:
 	player.velocity = Vector3.ZERO
 	var v: Vector3 = _node("Eddie").global_position - player.global_position
 	player.set_yaw_pitch(atan2(-v.x, -v.z), 0.0)
-	hud.location_caption("THE MILL HOUSE  -  BEFORE DAWN", 2.2)
+	hud.location_caption("THE MILL HOUSE  -  FIRST LIGHT" if noah.rescue_open() else "THE MILL HOUSE  -  BEFORE DAWN", 2.2)
 	await get_tree().create_timer(1.2).timeout
 	await hud.fade_to(0.0, 1.2)
 	_hold(false)
@@ -611,6 +621,8 @@ func _opening() -> void:
 func _talk(_b: Node) -> void:
 	if not Game.has_flag("ch12_started") or _busy.get("talk", false) or _busy.get("opening", false):
 		return
+	if noah.eddie_talk():
+		return                                      # 13.0: the ribbon, or a reminder while the rescue is on
 	if Game.has_flag("ch12_talk_done"):
 		if not Game.has_flag("ch12_set_out"):
 			_prepare()
@@ -621,7 +633,7 @@ func _talk(_b: Node) -> void:
 	var npcs: Array = [_node("Eddie"), _node("Ruth")]
 	await c9._talk_group("c12_symbol", npcs)
 	if alive():
-		await c9._talk_group("c12_symbol_marcus", [_node("Marcus"), _node("Eddie")])
+		await c9._talk_group("c12_symbol_marcus_noah" if Game.has_flag("ch12_noah_home") else "c12_symbol_marcus", [_node("Marcus"), _node("Eddie")])
 	Game.set_flag("ch12_talk_done")
 	_busy["talk"] = false
 	_guide()
@@ -1193,6 +1205,8 @@ var chapter13: Node
 func _start_chapter13(restoring: bool) -> void:
 	if chapter13 != null:
 		return
+	if not Game.has_flag("ch12_noah_found"):
+		Game.set_flag("ch12_noah_na")                  # a storyline that went on without the rescue (older saves, chapter select): it does not apply any more
 	chapter13 = load("res://game/world/chapter13.gd").new()
 	chapter13.name = "Chapter13"
 	add_child(chapter13)
@@ -1232,6 +1246,7 @@ func _process(delta: float) -> void:
 	if _tick > 0.0 or player == null:
 		return
 	_tick = 0.2
+	noah.tick(0.2)
 	if its.has("npc_Eddie") and chapter13 == null:
 		var talk: bool = Game.has_flag("ch12_started") and not Game.has_flag("ch12_set_out") and not _busy.get("talk", false) \
 			and not _busy.get("prep", false) and not _busy.get("opening", false)

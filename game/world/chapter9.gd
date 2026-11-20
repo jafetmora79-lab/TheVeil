@@ -150,8 +150,9 @@ func marcus_trust() -> int:
 ## The breakthrough rescue: a ten-second countdown (survival expansion). Marcus's trust (the established choices)
 ## is still recorded in st().marcus_trust for later chapters.
 const PIN_SECONDS := 10.0
+const PIN_BY_TRUST := [7.0, 10.0, 13.0]                 ## story pass (approved): trust 0 / 1 / 2 -> how long Marcus holds on
 func pin_window() -> float:
-	return PIN_SECONDS
+	return float(PIN_BY_TRUST[clampi(int(st().get("marcus_trust", marcus_trust())), 0, 2)])        # (the trust recorded when the chapter began)
 
 
 # ------------------------------------------------------------------ setup

@@ -260,6 +260,20 @@
    "weight": 0.2,
    "model": "res://game/props/car_parts/StarterRelay.tscn",
    "description": "A small starter relay from the pickup past the parking lot. Without it the car won't turn over."
+  },
+  "noahs_ribbon": {
+   "name": "Noah's Ribbon",
+   "category": "note",
+   "weight": 0.01,
+   "model": "res://THE_VEIL_ASSETS_V2/08_Inventory/Story_Items/INV_FoldedNote.glb",
+   "description": "A strip of red cloth, knotted twice.\nIn pencil, small: the mark.\nUnder it, in a child's handwriting:\n\"STILL HERE. COME WHEN ITS LIGHT. KNOCK 3 + 1.\""
+  },
+  "farmers_journal": {
+   "name": "Farmer's Journal",
+   "category": "note",
+   "weight": 0.2,
+   "model": "res://THE_VEIL_ASSETS_V2/08_Inventory/Story_Items/INV_Notebook.glb",
+   "description": "A boy at the fence tonight. Eyes like a rabbit. Fed him. Told him the rules: lamp low, no road after dark.\n\nShowed him the mark the old men used to scratch on the pump-house door. Said the fog sits thinner there. Don't ask me why. They never said.\n\nThe lamp oil's going. The county put that maintenance place on the road after the trouble in '71 and again after '94 and I'd as soon never go near it. But there's fuel there, they say, and a road under it nobody uses. Going at first light. The boy stays. He's to knock three and one for anyone he wants to let in. Nobody else.\n\nNot back by dark. If this is read: the boy is good. Take him under the pump house. The old men never went down. They went across. I don't know what that means."
   }
  },
  "carry_capacity_kg": 15.0,

@@ -572,6 +572,34 @@
    "text": "Chapter 12 complete - The Farm Road"
   },
   {
+   "id": "c12n_ribbon",
+   "flag": "ch12_ribbon_read",
+   "when": "ch12_rescue_started",
+   "goal": "act5_truth",
+   "text": "Look at the ribbon Eddie found"
+  },
+  {
+   "id": "c12n_go",
+   "flag": "ch12_house19_entered",
+   "when": "ch12_rescue_started",
+   "goal": "act5_truth",
+   "text": "Go to HOUSE_19 at first light"
+  },
+  {
+   "id": "c12n_knock",
+   "flag": "ch12_noah_found",
+   "when": "ch12_rescue_started",
+   "goal": "act5_truth",
+   "text": "Knock three short, one long"
+  },
+  {
+   "id": "c12n_home",
+   "flag": "ch12_noah_home",
+   "when": "ch12_rescue_started",
+   "goal": "act5_truth",
+   "text": "Bring Noah back to the mill house"
+  },
+  {
    "id": "c12_talk",
    "flag": "ch12_talk_done",
    "goal": "act5_truth",

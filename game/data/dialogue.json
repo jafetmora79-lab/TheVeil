@@ -7108,7 +7108,7 @@
   "lines": [
    {
     "speaker": "Eddie",
-    "text": "FINN! Over here - the shop, NOW!",
+    "text": "Hey! Over here - the shop, NOW!",
     "time": 2.6
    }
   ]
@@ -7160,6 +7160,471 @@
     "speaker": "Cashier",
     "text": "Rung those up for you. Soup, water and snacks are still on your list, hon.",
     "time": 3.8
+   }
+  ]
+ },
+ "c12_ribbon_alive": {
+  "source": "Chapter 13 opening: the Noah rescue (story pass B4 13.0, approved)",
+  "lines": [
+   {
+    "speaker": "Eddie",
+    "text": "I took it off the fence post last night. I thought it was trash. It had a, uh, picture on it.",
+    "time": 6.0
+   },
+   {
+    "speaker": "Marcus",
+    "text": "That's his handwriting. That's - 'knock three plus one.'",
+    "time": 4.0
+   },
+   {
+    "speaker": "Ruth",
+    "text": "Three plus one what?",
+    "time": 2.0
+   },
+   {
+    "speaker": "Marcus",
+    "text": "Three short, one long. It's how he asked to come in when he was little.",
+    "time": 4.8
+   },
+   {
+    "speaker": "Sarah",
+    "text": "Then it isn't a trick.",
+    "time": 2.1
+   },
+   {
+    "speaker": "Eddie",
+    "text": "Or the best trick I've ever seen.",
+    "time": 2.7
+   },
+   {
+    "speaker": "Marcus",
+    "text": "A trick doesn't know the knock.",
+    "time": 2.6
+   },
+   {
+    "speaker": "",
+    "text": "First light. We keep it.",
+    "time": 2.2
+   }
+  ]
+ },
+ "c12_ribbon_lost": {
+  "source": "Chapter 13 opening: the Noah rescue (story pass B4 13.0, approved)",
+  "lines": [
+   {
+    "speaker": "Eddie",
+    "text": "I took it off the fence post last night. I thought it was trash. It had a picture on it.",
+    "time": 5.7
+   },
+   {
+    "speaker": "",
+    "text": "'Knock three plus one.'",
+    "time": 2.2
+   },
+   {
+    "speaker": "Ruth",
+    "text": "It's a code.",
+    "time": 1.6
+   },
+   {
+    "speaker": "Sarah",
+    "text": "It's a kid's code.",
+    "time": 1.9
+   },
+   {
+    "speaker": "Eddie",
+    "text": "Then it's his.",
+    "time": 1.7
+   },
+   {
+    "speaker": "",
+    "text": "Marcus would have been out the door already. We go.",
+    "time": 3.7
+   }
+  ]
+ },
+ "c12_solo": {
+  "source": "Chapter 13 opening: the Noah rescue (story pass B4 13.0, approved)",
+  "lines": [
+   {
+    "speaker": "Eddie",
+    "text": "You're sure? Alone?",
+    "time": 1.9
+   },
+   {
+    "speaker": "",
+    "text": "Three people crossing a field is a noise. One's a shadow.",
+    "time": 4.0
+   }
+  ]
+ },
+ "c12_marcus_insists": {
+  "source": "Chapter 13 opening: the Noah rescue (story pass B4 13.0, approved)",
+  "lines": [
+   {
+    "speaker": "Marcus",
+    "text": "I'm coming. Don't argue.",
+    "time": 2.2
+   },
+   {
+    "speaker": "",
+    "text": "Then you wait at the fence. He won't open for a voice.",
+    "time": 3.9
+   }
+  ]
+ },
+ "c12_marcus_wait": {
+  "source": "Chapter 13 opening: the Noah rescue (story pass B4 13.0, approved)",
+  "lines": [
+   {
+    "speaker": "Marcus",
+    "text": "I'm not going in until he opens it.",
+    "time": 2.8
+   },
+   {
+    "speaker": "",
+    "text": "He won't open for a voice. He'll open for a knock.",
+    "time": 3.6
+   }
+  ]
+ },
+ "c12_try_again": {
+  "source": "Chapter 13 opening: the Noah rescue (story pass B4 13.0, approved)",
+  "lines": [
+   {
+    "speaker": "Ruth",
+    "text": "It's circling the same two houses. It has a rhythm.",
+    "time": 3.7
+   },
+   {
+    "speaker": "Ruth",
+    "text": "Wait for the gap.",
+    "time": 1.8
+   }
+  ]
+ },
+ "c12_knock_retry": {
+  "source": "Chapter 13 opening: the Noah rescue (story pass B4 13.0, approved)",
+  "lines": [
+   {
+    "speaker": "Noah",
+    "text": "...No.",
+    "time": 1.4
+   }
+  ]
+ },
+ "c12_noah_ask": {
+  "source": "Chapter 13 opening: the Noah rescue (story pass B4 13.0, approved)",
+  "lines": [
+   {
+    "speaker": "Noah",
+    "text": "Who's there?",
+    "time": 1.6
+   }
+  ]
+ },
+ "c12_noah_ask_alive": {
+  "source": "Chapter 13 opening: the Noah rescue (story pass B4 13.0, approved)",
+  "lines": [
+   {
+    "speaker": "",
+    "text": "I'm with your dad. Marcus.",
+    "time": 2.3
+   }
+  ]
+ },
+ "c12_noah_ask_lost": {
+  "source": "Chapter 13 opening: the Noah rescue (story pass B4 13.0, approved)",
+  "lines": [
+   {
+    "speaker": "",
+    "text": "I found your bag. I'm here for you.",
+    "time": 2.8
+   }
+  ]
+ },
+ "c12_noah_test": {
+  "source": "Chapter 13 opening: the Noah rescue (story pass B4 13.0, approved)",
+  "lines": [
+   {
+    "speaker": "Noah",
+    "text": "Say what's wrong with the bag.",
+    "time": 2.5
+   }
+  ]
+ },
+ "c12_noah_wrong": {
+  "source": "Chapter 13 opening: the Noah rescue (story pass B4 13.0, approved)",
+  "lines": [
+   {
+    "speaker": "Noah",
+    "text": "Nope.",
+    "time": 1.4
+   }
+  ]
+ },
+ "c12_noah_keychain": {
+  "source": "Chapter 13 opening: the Noah rescue (story pass B4 13.0, approved)",
+  "lines": [
+   {
+    "speaker": "",
+    "text": "The little bus. One eye missing.",
+    "time": 2.7
+   },
+   {
+    "speaker": "Noah",
+    "text": "...The eye. He picked the eye off. Nobody knows that.",
+    "time": 3.8
+   }
+  ]
+ },
+ "c12_noah_open": {
+  "source": "Chapter 13 opening: the Noah rescue (story pass B4 13.0, approved)",
+  "lines": [
+   {
+    "speaker": "Noah",
+    "text": "...Okay. Okay. Give me a second.",
+    "time": 2.7
+   }
+  ]
+ },
+ "c12_noah_why": {
+  "source": "Chapter 13 opening: the Noah rescue (story pass B4 13.0, approved)",
+  "lines": [
+   {
+    "speaker": "Noah",
+    "text": "The old man took me to his brother's place for fuel. I heard something at night. We went back.",
+    "time": 6.1
+   }
+  ]
+ },
+ "c12_noah_account": {
+  "source": "Chapter 13 opening: the Noah rescue (story pass B4 13.0, approved)",
+  "lines": [
+   {
+    "speaker": "Noah",
+    "text": "He found me at the bus stop on the pump road when the fog came. He said stay low and walk.",
+    "time": 5.9
+   },
+   {
+    "speaker": "Noah",
+    "text": "I left the bag and the note in a car on the way, so Dad could find it. He said that's how you leave a sign.",
+    "time": 6.8
+   },
+   {
+    "speaker": "Noah",
+    "text": "He never told me his name.",
+    "time": 2.3
+   }
+  ]
+ },
+ "c12_reunion_alive": {
+  "source": "Chapter 13 opening: the Noah rescue (story pass B4 13.0, approved)",
+  "lines": [
+   {
+    "speaker": "Marcus",
+    "text": "...Noah.",
+    "time": 1.4
+   },
+   {
+    "speaker": "Noah",
+    "text": "Dad. You came after dark. I said light.",
+    "time": 3.0
+   },
+   {
+    "speaker": "Marcus",
+    "text": "It's light. It's light, bud.",
+    "time": 2.4
+   },
+   {
+    "speaker": "Noah",
+    "text": "You smell terrible.",
+    "time": 1.9
+   },
+   {
+    "speaker": "Marcus",
+    "text": "I know.",
+    "time": 1.4
+   }
+  ]
+ },
+ "c12_bereave": {
+  "source": "Chapter 13 opening: the Noah rescue (story pass B4 13.0, approved)",
+  "lines": [
+   {
+    "speaker": "Noah",
+    "text": "Where's my dad?",
+    "time": 1.7
+   }
+  ]
+ },
+ "c12_bereave_a": {
+  "source": "Chapter 13 opening: the Noah rescue (story pass B4 13.0, approved)",
+  "lines": [
+   {
+    "speaker": "",
+    "text": "He didn't make it.",
+    "time": 1.9
+   }
+  ]
+ },
+ "c12_bereave_b": {
+  "source": "Chapter 13 opening: the Noah rescue (story pass B4 13.0, approved)",
+  "lines": [
+   {
+    "speaker": "",
+    "text": "He was looking for you until the end.",
+    "time": 2.9
+   }
+  ]
+ },
+ "c12_bereave_c": {
+  "source": "Chapter 13 opening: the Noah rescue (story pass B4 13.0, approved)",
+  "lines": [
+   {
+    "speaker": "",
+    "text": "He wanted you to have this.",
+    "time": 2.4
+   }
+  ]
+ },
+ "c12_noah_comfort": {
+  "source": "Chapter 13 opening: the Noah rescue (story pass B4 13.0, approved)",
+  "lines": [
+   {
+    "speaker": "",
+    "text": "He told me you hated the color.",
+    "time": 2.6
+   },
+   {
+    "speaker": "Noah",
+    "text": "...I did.",
+    "time": 1.4
+   },
+   {
+    "speaker": "",
+    "text": "He kept it anyway.",
+    "time": 1.9
+   },
+   {
+    "speaker": "Noah",
+    "text": "Okay. I'll carry it.",
+    "time": 2.0
+   }
+  ]
+ },
+ "c12_noah_held": {
+  "source": "Chapter 13 opening: the Noah rescue (story pass B4 13.0, approved)",
+  "lines": [
+   {
+    "speaker": "Noah",
+    "text": "He bought it for me. I hated the color.",
+    "time": 3.0
+   }
+  ]
+ },
+ "c12_arrive_alive": {
+  "source": "Chapter 13 opening: the Noah rescue (story pass B4 13.0, approved)",
+  "lines": [
+   {
+    "speaker": "Eddie",
+    "text": "Everybody - this is Noah. Noah, this is everybody. Please don't be weird.",
+    "time": 4.9
+   },
+   {
+    "speaker": "Ruth",
+    "text": "Eat first. Questions later.",
+    "time": 2.4
+   }
+  ]
+ },
+ "c12_arrive_lost": {
+  "source": "Chapter 13 opening: the Noah rescue (story pass B4 13.0, approved)",
+  "lines": [
+   {
+    "speaker": "Eddie",
+    "text": "Everybody - this is Noah. Noah, this is everybody. Please don't be weird.",
+    "time": 4.9
+   },
+   {
+    "speaker": "Ruth",
+    "text": "Eat first. Questions later.",
+    "time": 2.4
+   },
+   {
+    "speaker": "Sarah",
+    "text": "Sit by me.",
+    "time": 1.5
+   }
+  ]
+ },
+ "c12_below_why": {
+  "source": "Chapter 13 opening: the Noah rescue (story pass B4 13.0, approved)",
+  "lines": [
+   {
+    "speaker": "Noah",
+    "text": "It was at the gate post three nights ago. Now it's at the road.",
+    "time": 4.4
+   },
+   {
+    "speaker": "Ruth",
+    "text": "That's not a fog. That's a tide.",
+    "time": 2.7
+   },
+   {
+    "speaker": "Eddie",
+    "text": "I would like to vote for a different metaphor.",
+    "time": 3.4
+   },
+   {
+    "speaker": "Sarah",
+    "text": "Where does the old man's 'across' go?",
+    "time": 2.9
+   },
+   {
+    "speaker": "",
+    "text": "Under the station. Then under the district.",
+    "time": 3.3
+   },
+   {
+    "speaker": "Eddie",
+    "text": "The creepy road to the creepy place. Fine. Fine.",
+    "time": 3.5
+   }
+  ]
+ },
+ "c12_below_marcus": {
+  "source": "Chapter 13 opening: the Noah rescue (story pass B4 13.0, approved)",
+  "lines": [
+   {
+    "speaker": "Marcus",
+    "text": "If the old man said under, we go under. But he stays here.",
+    "time": 4.1
+   },
+   {
+    "speaker": "Noah",
+    "text": "I can read the map better than you.",
+    "time": 2.8
+   },
+   {
+    "speaker": "Marcus",
+    "text": "You stay here.",
+    "time": 1.7
+   }
+  ]
+ },
+ "c12_symbol_marcus_noah": {
+  "source": "Chapter 13 opening: the Noah rescue (story pass B4 13.0, approved)",
+  "lines": [
+   {
+    "speaker": "Marcus",
+    "text": "Noah drew that. He told me he copied it off the old man's gatepost.",
+    "time": 4.6
+   },
+   {
+    "speaker": "Marcus",
+    "text": "Go. I'll keep watch here. With him.",
+    "time": 2.8
    }
   ]
  }
