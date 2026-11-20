@@ -14,7 +14,7 @@ func _initialize() -> void:
 	call_deferred("run")
 
 func run() -> void:
-	var cast := ["Protagonist", "Eddie", "Marcus", "Ruth", "Sarah"]
+	var cast := ["Protagonist", "Sarah"]
 	if not OS.get_cmdline_user_args().is_empty():
 		cast = Array(OS.get_cmdline_user_args())
 	for sp in cast:

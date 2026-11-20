@@ -135,3 +135,11 @@ The export filter skips `game/tools/build_*`, `game/tools/*.py` and `game/tests/
 - `Game.no_save` is on while the trailer plays. Anything that saves and then loads must make sure it's off.
 - A chapter's displayed number is not the file's number (see `game/data/chapters.json`).
 - Don't commit `.import` churn from local Godot runs unless it's intended.
+
+## Mixamo-rigged NPCs (2026-11-20) - on branch `story/noah-rescue`
+- Eleven NPC models come from Meshy as Mixamo-rigged GLBs with their own clips (`game/prototypes/npc_meshy/CHR_<slug>_Mixamo.glb`: bomber, woman_red_plaid, tan_jacket, eddie, bearded_man, police_officer,
+  police_redhair, teen_blue_jacket, store_clerk, police_cap, elderly_woman). They are listed in `MIXAMO` / `PLAIN` in `game/npc/meshy_npcs.gd`. `NpcAnimator` "native mode" plays their Walking / Running / Jump /
+  Chair_Sit_Idle_M clips while they move, jump or sit and poses everything else (idle, talk, scared, look-at) through bone aliases. Test: `game/tests/native_clip_test.gd`.
+- Their faces are the painted neutral face only (`VeilPlainFace`): the expression work (face textures, movable brows, baked patches) was tried and removed; it is in git history (commits of 2026-11-20 up to 8eeb2075)
+  if it is resumed. The older non-Mixamo NPCs (Protagonist, Sarah, Lena, the cashier, plaid man) use the procedural gait blended with the retargeted Mixamo walk/run (`game/animation/mixamo_gait.gd`).
+- Known: `gait_test` reports foot slip for those retargeted gaits; `chapter5_test` fails (also with the Mixamo swaps turned off: not caused by them, not investigated).

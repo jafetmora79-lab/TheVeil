@@ -8,7 +8,7 @@ func check(n: String, ok: bool, info := "") -> void:
 	if not ok: fails += 1
 
 func _initialize() -> void:
-	for sp in ["Eddie", "Ruth", "Protagonist", "Cashier"]:
+	for sp in ["Sarah", "Protagonist", "Cashier"]:
 		var holder := Node3D.new()
 		root.add_child(holder)
 		var model := VeilMeshyNpcs.model_for(sp)
@@ -48,7 +48,7 @@ func _initialize() -> void:
 	for mode in [["walk", 1.3], ["run", 4.2]]:
 		var h2 := Node3D.new()
 		root.add_child(h2)
-		var m2 := VeilMeshyNpcs.model_for("Eddie")
+		var m2 := VeilMeshyNpcs.model_for("Sarah")
 		h2.add_child(m2)
 		var a2: Node = NPC_ANIM.new()
 		h2.add_child(a2)

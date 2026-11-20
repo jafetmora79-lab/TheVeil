@@ -22,7 +22,7 @@ func _initialize() -> void:
 
 func run() -> void:
 	# one speaker per distinct model in game/npc/meshy_npcs.gd (the extras share rigs with these)
-	var cast := ["Protagonist", "Eddie", "Marcus", "Noah", "Ruth", "Sarah", "Lena", "Frank", "Officer", "Cashier", "Survivor", "Civilian_B", "Res_Walker", "Res_Neighbour"]
+	var cast := ["Protagonist", "Sarah", "Lena", "Cashier", "Res_Walker"]     # the procedural-gait characters (the Mixamo-rigged ones play their own clips: native_clip_test)
 	if not OS.get_cmdline_user_args().is_empty():
 		cast = Array(OS.get_cmdline_user_args())
 	for sp in cast:

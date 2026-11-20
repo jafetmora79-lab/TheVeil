@@ -21,11 +21,11 @@ const MAP := {
 	"LT_Driver": "bomber", "LT_Window": "woman_red_plaid",
 }
 ## Characters that have only their painted neutral face (no expression sheet): plain rigged GLBs `CHR_<slug>_Meshy.glb`, a VeilPlainFace as their face controller.
-const PLAIN := ["bomber", "clerk_burgundy", "woman_red_plaid", "tan_jacket", "plaid_man"]
-const MIXAMO := ["bomber", "woman_red_plaid", "tan_jacket"]                    ## played by the Mixamo-rigged model that plays its own Walking / Running clips (NpcAnimator native mode)
-const FACE_MIXAMO := ["eddie"]               ## Mixamo-rigged models whose expression faces are cut onto the new mesh (game/npc/face_fit.gd, face_fit/<slug>.json)
-static var face_bake: Array = []                         ## slugs shown with baked expressions (VeilFaceBake); empty: the shipped faces
-const FACE_SET := {}                                    # {"eddie": "eddie_v2"}: the ChatGPT-sheet set for Eddie (works, under review)                                    # {"eddie": "eddie_v2"} tried the ChatGPT sheet: it smears the whole face (see the report), so Eddie keeps the old images
+const PLAIN := ["bomber", "clerk_burgundy", "woman_red_plaid", "tan_jacket", "plaid_man",
+	"eddie", "bearded_man", "police_officer", "police_redhair", "teen_blue_jacket", "store_clerk", "police_cap", "elderly_woman"]
+## Played by the Mixamo-rigged models (CHR_<slug>_Mixamo.glb): they play their own Walking / Running / Jump / Sit clips (NpcAnimator native mode). Their faces are the painted neutral face only
+## for now (VeilPlainFace): the expression work is on hold. The old expression-face models (CHR_<slug>_FaceTex.glb) are still in the repo for when it resumes.
+const MIXAMO := ["bomber", "woman_red_plaid", "tan_jacket", "eddie", "bearded_man", "police_officer", "police_redhair", "teen_blue_jacket", "store_clerk", "police_cap", "elderly_woman"]
 const EXTRAS := ["bomber", "woman_red_plaid", "tan_jacket", "plaid_man"]     # the town's neighbours, walkers and drivers (LT_*)
 const PROTAGONIST_GLB := "res://game/prototypes/protagonist_meshy/face/CHR_Protagonist_FaceTex.glb"
 
@@ -68,30 +68,6 @@ static func model_for(speaker: String) -> Node3D:
 		pf.name = "FaceTex"
 		pn.add_child(pf)
 		return pn
-	if FACE_MIXAMO.has(slug):
-		var mps := load("res://game/prototypes/npc_meshy/CHR_%s_Mixamo.glb" % slug) as PackedScene
-		if mps != null:
-			var mn := mps.instantiate() as Node3D
-			VeilSarahMeshyProto.psx_look(mn)
-			if face_bake.has(slug):
-				var bk := VeilFaceBake.apply(mn, slug)
-				if bk != null:
-					var bf := VeilNpcFaceTex.new()
-					bf.name = "FaceTex"
-					bf.slug = slug
-					mn.add_child(bf)
-					bf.setup(mn)
-					return mn
-			var fs: String = String(FACE_SET.get(slug, slug))                 # the face data set: a kit set made from this model's own face crop (eddie_v2) or the old images
-			VeilFaceBrows.apply(mn, fs)                                    # movable brows (before the face fit: it reads the patched texture)
-			if VeilFaceFit.apply(mn, fs):
-				var mf := VeilNpcFaceTex.new()
-				mf.name = "FaceTex"
-				mf.slug = fs
-				mn.add_child(mf)
-				mf.setup(mn)
-				return mn
-			mn.free()
 	return VeilNpcFaceTex.instantiate(slug)
 
 
