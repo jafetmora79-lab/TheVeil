@@ -1090,7 +1090,7 @@ func _kill_temp() -> void:
 
 
 func _make_hound(at: Vector3) -> Node3D:
-	var ps := load(HOUND_PATH) as PackedScene
+	var ps := load(VeilMeshyNpcs.monster_scene(HOUND_PATH)) as PackedScene
 	var h := ps.instantiate() as Node3D
 	h.name = "C8_Hound"
 	market.add_child(h)

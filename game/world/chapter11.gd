@@ -571,7 +571,7 @@ func _field() -> void:
 	report["field_runs"] += 1
 	Game.set_flag("ch11_field_seen")
 	world.end_conversation()
-	var ps := load(HOUND_PATH) as PackedScene
+	var ps := load(VeilMeshyNpcs.monster_scene(HOUND_PATH)) as PackedScene
 	var h := ps.instantiate() as Node3D
 	h.name = "C11_FieldShape"
 	world.add_child(h)
@@ -677,7 +677,7 @@ func _attack() -> void:
 	world.end_conversation()
 	_hold(true)
 	# a sound outside; the view goes to the side window; a shape goes past it in the fog
-	var ps := load(HOUND_PATH) as PackedScene
+	var ps := load(VeilMeshyNpcs.monster_scene(HOUND_PATH)) as PackedScene
 	var h := ps.instantiate() as Node3D
 	h.name = "C11_WindowShape"
 	world.add_child(h)
@@ -738,7 +738,7 @@ func _attack() -> void:
 func _spawn_chaser(chasing: bool) -> void:
 	if hound and is_instance_valid(hound):
 		return
-	var ps := load(HOUND_PATH) as PackedScene
+	var ps := load(VeilMeshyNpcs.monster_scene(HOUND_PATH)) as PackedScene
 	hound = ps.instantiate() as Node3D
 	hound.name = "C11_Hound"
 	world.add_child(hound)

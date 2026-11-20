@@ -206,7 +206,7 @@ func _spawn_colossus(at: Vector3, dir: Vector3) -> Node3D:
 
 func _spawn_hounds(center: Vector3, dir: Vector3) -> Array:
 	var out: Array = []
-	var ps := load(HOUND) as PackedScene
+	var ps := load(VeilMeshyNpcs.monster_scene(HOUND)) as PackedScene
 	if ps == null:
 		return out
 	for i in 3:

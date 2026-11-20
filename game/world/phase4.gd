@@ -1297,7 +1297,7 @@ var night_bangs := 0
 
 
 func _spawn_hound() -> void:
-	var ps := load(HOUND_PATH) as PackedScene
+	var ps := load(VeilMeshyNpcs.monster_scene(HOUND_PATH)) as PackedScene
 	if ps == null:
 		return
 	hound = ps.instantiate() as Node3D
@@ -1337,7 +1337,7 @@ var strike_report := {}
 ## swing at empty air, no clipping through. Everything inside reacts on that exact frame.
 func _door_strike() -> void:
 	var bd: Node3D = its["back_door"]
-	var ps := load(HOUND_PATH) as PackedScene
+	var ps := load(VeilMeshyNpcs.monster_scene(HOUND_PATH)) as PackedScene
 	var h: Node3D = ps.instantiate() as Node3D if ps else null
 	var t_hit := 0.55
 	if h:

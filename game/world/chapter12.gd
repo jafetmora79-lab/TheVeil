@@ -1085,7 +1085,7 @@ func _spawn_prowler() -> void:
 	if hound != null:
 		return
 	var at := Vector3(-97.0, 0.1, -12.0)
-	hound = (load(HOUND_PATH) as PackedScene).instantiate() as Node3D
+	hound = (load(VeilMeshyNpcs.monster_scene(HOUND_PATH)) as PackedScene).instantiate() as Node3D
 	hound.name = "C12_Hound"
 	world.add_child(hound)
 	hound.global_position = at

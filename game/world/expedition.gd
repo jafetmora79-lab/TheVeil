@@ -1419,7 +1419,7 @@ func _spawn_creature(kind: String, role: String, tgt: Vector3) -> bool:
 		return false
 	var ai: Node
 	if kind == "hound":
-		var h := (load(HOUND_PATH) as PackedScene).instantiate() as CharacterBody3D
+		var h := (load(VeilMeshyNpcs.monster_scene(HOUND_PATH)) as PackedScene).instantiate() as CharacterBody3D
 		h.name = "EXP_Hound"
 		world.add_child(h)
 		h.global_position = at
@@ -1534,7 +1534,7 @@ func _tentacle_rise(at: Vector3) -> void:
 		return
 	if world.has_method("_ground_burst"):
 		world._ground_burst(at)
-	var t := (load(world.TENTACLE_PATH) as PackedScene).instantiate() as Node3D
+	var t := (load(VeilMeshyNpcs.monster_scene(world.TENTACLE_PATH)) as PackedScene).instantiate() as Node3D
 	t.name = "EXP_Tentacle"
 	world.add_child(t)
 	t.global_position = at

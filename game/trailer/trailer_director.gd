@@ -725,7 +725,7 @@ func _seg_survive() -> void:
 	await _shot(M * Vector3(sx, 1.5, 9.0), M * Vector3(sx, 1.5, 9.2), M * Vector3(sx - 0.8, 0.7, 12.6), M * Vector3(sx + 0.8, 0.7, 12.6), 2.6)
 	_watched.clear()
 	# the Hound along the glass, left to right, then into the doors
-	var h := _spawn(HOUND, M * Vector3(-14.0, 0.04, -1.6)) as Node3D
+	var h := _spawn(VeilMeshyNpcs.monster_scene(HOUND), M * Vector3(-14.0, 0.04, -1.6)) as Node3D
 	report["hound_seen_before_hit"] = 0.0
 	if h:
 		_mats_ok(h, "hound")

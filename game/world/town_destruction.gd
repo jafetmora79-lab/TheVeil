@@ -352,7 +352,7 @@ func _dress_tentacle(h: Node3D, meta: Dictionary, box: AABB, r: Dictionary) -> v
 	_prop(h, CORR + "CORR_Asphalt_Cracks_B.glb", Vector3(c.x - 1.0, 0.0, c.z - 5.0), 0.4, 1.0, true)
 	_prop(h, CORR + "CORR_Organic_Growth_Small.glb", Vector3(c.x + 1.4, 0.0, c.z - 0.6), 0.0, 1.0)
 	# the tentacle that did it: still, half out of the ground, its end through the hole (no animation, no AI)
-	var t := (load(TENTACLE) as PackedScene).instantiate() as Node3D
+	var t := (load(VeilMeshyNpcs.monster_scene(TENTACLE)) as PackedScene).instantiate() as Node3D
 	t.name = "Dress_DeadTentacle"
 	t.set("autoplay", "")
 	h.add_child(t)

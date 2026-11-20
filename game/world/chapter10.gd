@@ -502,7 +502,7 @@ func _followed() -> void:
 	report["creature_runs"] += 1
 	Game.set_flag("ch10_creature_seen")
 	await get_tree().create_timer(0.8).timeout
-	var ps := load(HOUND_PATH) as PackedScene
+	var ps := load(VeilMeshyNpcs.monster_scene(HOUND_PATH)) as PackedScene
 	hound = ps.instantiate() as Node3D
 	hound.name = "C10_Follower"
 	world.add_child(hound)

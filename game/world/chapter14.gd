@@ -610,7 +610,7 @@ func _spawn_run_hound() -> void:
 	var back := player.global_transform.basis.z * Vector3(1, 0, 1)
 	var at := p + back.normalized() * 30.0
 	at.y = c10._floor(at)
-	run_hound = (load(HOUND_PATH) as PackedScene).instantiate() as Node3D
+	run_hound = (load(VeilMeshyNpcs.monster_scene(HOUND_PATH)) as PackedScene).instantiate() as Node3D
 	run_hound.name = "C14_RunHound"
 	world.add_child(run_hound)
 	run_hound.global_position = at
@@ -819,7 +819,7 @@ func _hounds() -> void:
 	_play("clank", hl(Vector3(0, 1, -20)), 2.0)
 	await get_tree().create_timer(1.5).timeout
 	for i in 2:
-		var h := _make(HOUND_PATH, "C14_Hound%d" % i, HOUND_FROM[i])
+		var h := _make(VeilMeshyNpcs.monster_scene(HOUND_PATH), "C14_Hound%d" % i, HOUND_FROM[i])
 		hounds.append(h)
 		_anim(h, "run")
 	_hold(true)

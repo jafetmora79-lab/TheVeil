@@ -3133,7 +3133,7 @@ func _p3_spawn_tentacles() -> void:
 	var a: Vector3 = (game_shop.get_node("Doorways/Entrance_Outside") as Node3D).global_position
 	var b: Vector3 = (market.get_node("Doorways/Entrance_Outside") as Node3D).global_position
 	var side := (b - a).cross(Vector3.UP).normalized()
-	var ts := load(TENTACLE_PATH) as PackedScene
+	var ts := load(VeilMeshyNpcs.monster_scene(TENTACLE_PATH)) as PackedScene
 	for k in [[0.3, 3.2], [0.52, -3.2], [0.75, 3.0]]:
 		var t := ts.instantiate() as Node3D
 		t.name = "MistTentacle_%d" % _tentacles.size()

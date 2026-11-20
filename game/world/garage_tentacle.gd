@@ -188,7 +188,7 @@ func _spawn_trio() -> void:
 		"C": [Vector3(22.4, low, right), Vector3(-1.0, 0.02, -0.3), 0.66],
 	}
 	for k in spec:
-		var t := (load(TENTACLE) as PackedScene).instantiate() as Node3D
+		var t := (load(VeilMeshyNpcs.monster_scene(TENTACLE)) as PackedScene).instantiate() as Node3D
 		t.name = "P4_GarageTentacle_" + k
 		t.set("autoplay", "")
 		p4.market.add_child(t)

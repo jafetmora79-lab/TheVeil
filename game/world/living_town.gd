@@ -1263,7 +1263,7 @@ func _joan() -> void:
 	await get_tree().create_timer(0.4).timeout
 	ja.walk_to(route, 4.4)
 	# the Hound bursts round the corner and follows her line (always on her path, a few metres back)
-	var h := (load(HOUND) as PackedScene).instantiate() as Node3D
+	var h := (load(VeilMeshyNpcs.monster_scene(HOUND)) as PackedScene).instantiate() as Node3D
 	h.name = "LT_Hound"
 	world.add_child(h)
 	for co in h.find_children("*", "CollisionObject3D", true, false):

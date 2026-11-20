@@ -1197,7 +1197,7 @@ var veil_tentacles := 0                ## tests
 
 
 func _veil_tentacles() -> void:
-	var ps := load(world.TENTACLE_PATH) as PackedScene
+	var ps := load(VeilMeshyNpcs.monster_scene(world.TENTACLE_PATH)) as PackedScene
 	if ps == null:
 		return
 	var ts: Array = []

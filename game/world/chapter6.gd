@@ -444,7 +444,7 @@ func _voice() -> void:
 func _spawn_hound() -> void:
 	if hound != null and is_instance_valid(hound):
 		return
-	var ps := load(HOUND_PATH) as PackedScene
+	var ps := load(VeilMeshyNpcs.monster_scene(HOUND_PATH)) as PackedScene
 	hound = ps.instantiate() as CharacterBody3D
 	hound.name = "C6_Hound"
 	world.add_child(hound)

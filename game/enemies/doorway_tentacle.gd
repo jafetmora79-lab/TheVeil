@@ -39,7 +39,7 @@ func length() -> float:
 
 
 func _material() -> Material:
-	var ps := load(SOURCE) as PackedScene
+	var ps := load(VeilMeshyNpcs.monster_scene(SOURCE)) as PackedScene
 	if ps == null:
 		return null
 	var src := ps.instantiate()

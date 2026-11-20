@@ -9,7 +9,7 @@ extends Node3D
 ##   handoff Eddie: run! The camera goes back to the player; the tentacle stays (the caller gives it to the chase)
 ## The pose is built bone by bone (VeilTentaclePoser): no canned clip, no lifting of a finished pose.
 
-const TENTACLE := preload("res://THE_VEIL_ASSETS_V2/07_Creatures/Godot_Scenes/CRT_MistTentacle_Medium.tscn")
+var TENTACLE: PackedScene = load(VeilMeshyNpcs.monster_scene("res://THE_VEIL_ASSETS_V2/07_Creatures/Godot_Scenes/CRT_MistTentacle_Medium.tscn"))
 const CAMERA_MARGIN := 0.16
 const EXPOSED := 3.6                      ## metres of tentacle above the street once it is up
 const STING := preload("res://game/audio/the_veil_jumpscare_sting.wav")

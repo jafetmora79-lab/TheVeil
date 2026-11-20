@@ -228,7 +228,7 @@ func _take() -> void:
 	world._shake(cam, 0.6, 0.03)
 	await get_tree().create_timer(1.1).timeout
 	# a tentacle the size of a tree, up out of the ground in front
-	var t := (load(TENTACLE) as PackedScene).instantiate() as Node3D
+	var t := (load(VeilMeshyNpcs.monster_scene(TENTACLE)) as PackedScene).instantiate() as Node3D
 	t.name = "EdgeTentacle"
 	t.set("autoplay", "")
 	add_child(t)

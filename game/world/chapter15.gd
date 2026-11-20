@@ -806,7 +806,7 @@ func _district_pressure() -> void:
 	if Game.has_flag("ch15_in_passage"):
 		return
 	var at := Vector3(-108.0, 0.15, 6.0)
-	var h := (load(HOUND_PATH) as PackedScene).instantiate() as Node3D
+	var h := (load(VeilMeshyNpcs.monster_scene(HOUND_PATH)) as PackedScene).instantiate() as Node3D
 	h.name = "C15_Hound"
 	world.add_child(h)
 	h.global_position = at

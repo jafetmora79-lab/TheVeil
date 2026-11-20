@@ -91,3 +91,18 @@ static func tripod_enabled() -> bool:
 ## The Skitter scene to load: the Meshy Skitter (same bones, clip names and metadata as the old one) unless `-- old_monsters`.
 static func skitter_scene(old_path: String) -> String:
 	return "res://game/prototypes/monsters_meshy/MON_skitter.tscn" if monsters_enabled() else old_path
+
+
+## Creature scenes: the Meshy version of an old creature scene path (same interface: clip names, metadata, markers), unless `-- old_monsters`.
+const MONSTER_SCENES := {
+	"CRT_Hound.tscn": "res://game/prototypes/monsters_meshy/MON_hound.tscn",
+	"CRT_MistTentacle_Thin.tscn": "res://game/prototypes/monsters_meshy/MON_tentacle_thin.tscn",
+	"CRT_MistTentacle_Medium.tscn": "res://game/prototypes/monsters_meshy/MON_tentacle_medium.tscn",
+	"CRT_MistTentacle_Large.tscn": "res://game/prototypes/monsters_meshy/MON_tentacle_large.tscn",
+}
+
+
+static func monster_scene(old_path: String) -> String:
+	if not monsters_enabled():
+		return old_path
+	return String(MONSTER_SCENES.get(old_path.get_file(), old_path))
