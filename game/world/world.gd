@@ -260,14 +260,21 @@ func _opening() -> void:
 		intro_report = intro.report.duplicate()
 		intro.queue_free()
 		player.set_yaw_pitch(sp.global_rotation.y, 0.0)
-	player.play_wake_up(4.6, false)
-	await get_tree().create_timer(1.0).timeout
-	hud.chapter_start(1, 2.8)                     # CHAPTER 1 (upper screen) with the time card below it
-	hud.title_card("FRIDAY  —  6:42 PM", 2.4)
-	await hud.fade_to(0.0, 3.0)
-	Dialogue.say("wake", true)
-	await get_tree().create_timer(0.7).timeout       # the wake-up look-around ends (4.6 s): straight into the wash
-	await bathroom.wash_face()                       # first: the bathroom, a splash of water, the mirror
+	if intro_report.is_empty():
+		player.play_wake_up(4.6, false)
+		await get_tree().create_timer(1.0).timeout
+		hud.chapter_start(1, 2.8)                     # CHAPTER 1 (upper screen) with the time card below it
+		hud.title_card("FRIDAY  —  6:42 PM", 2.4)
+		await hud.fade_to(0.0, 3.0)
+		Dialogue.say("wake", true)
+		await get_tree().create_timer(0.7).timeout       # the wake-up look-around ends (4.6 s): straight into the wash
+		await bathroom.wash_face()                       # first: the bathroom, a splash of water, the mirror
+	else:
+		# the new intro already showed the town: no bed, no wash; fade straight in on your feet
+		hud.chapter_start(1, 2.8)
+		hud.title_card("FRIDAY  —  6:42 PM", 2.4)
+		await hud.fade_to(0.0, 2.0)
+		Dialogue.say("wake", true)
 	player.controls_enabled = true                   # control only now (also if the wash was already done)
 	player.look_enabled = true
 	hud.allow_pause = true
