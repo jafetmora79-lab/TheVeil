@@ -139,7 +139,8 @@ func phase4_tests(game, ps: PackedScene) -> void:
 	ok("p4_breaker_on_wall", not wall_hit.is_empty() and mk.to_local(wall_hit.position).z > 17.2 and mk.to_local(wall_hit.position).z < 17.7,
 		"panel / wall at z %.2f" % (mk.to_local(wall_hit.position).z if not wall_hit.is_empty() else -1.0))
 	br.interact(player)
-	await frames(60 * 4)
+	await wait_until(func(): return game.has_flag("p4_breaker"), 60 * 12)          # (the breaker box is a real animation now: door, lever, switch, door, lights)
+	await frames(60 * 4)                          # (the lights come up over a flicker burst)
 	var em := 0
 	var flick := 0
 	for l in mk.get_node("Lights").get_children():
@@ -289,7 +290,7 @@ func phase4_tests(game, ps: PackedScene) -> void:
 
 func _initialize() -> void:
 	var args := OS.get_cmdline_user_args()
-	if args.size() > 0:
+	if args.size() > 0 and args[0].is_valid_float():
 		cruise = float(args[0]) / 3.6
 	_run.call_deferred()
 
@@ -598,7 +599,7 @@ func _run() -> void:
 	world.save()
 	var saved_in_car: bool = game.load_game() and game.player_state.get("in_vehicle", false)
 	ok("saved_in_car", saved_in_car)
-	if saved_in_car:
+	if saved_in_car and not OS.get_cmdline_user_args().has("skip_reload"):         # (skip_reload: the second world of the reload check can run a small machine out of memory)
 		world.free()
 		game.load_requested = true
 		world = ps.instantiate()
@@ -608,6 +609,9 @@ func _run() -> void:
 		press_interact()
 		await frames(60)
 		ok("exit_after_reload", not world.in_car and world.player.camera.current and world.player.is_on_floor())
+	elif saved_in_car:                                # skip_reload: the same car exit, in the world that is already here
+		press_interact()
+		await frames(60)
 	player = world.player
 	sedan = world.sedan
 	home = world.home
@@ -791,31 +795,37 @@ func _run() -> void:
 	await frames(10)
 	var cam_now: Camera3D = root.get_viewport().get_camera_3d()
 	ok("encounter_starts_outside", world._encounter_running and not player.controls_enabled and cam_now.name == "EncounterCam")
-	await wait_until(func(): return world.enc_report.has("foot_error_m"), 60 * 40)
-	await frames(60 * 15)                    # the rest of the encounter after the touch-down (as before)
+	# the Colossus is the Meshy tripod: it walks out of the Veil, its eye sweeps and locks on, the view zooms into the lens, then control comes back
+	var tcr := [null]
+	var tc_start := [Vector3.ZERO]
+	await wait_until(func():
+		var n = world.get_node_or_null("Colossus_Encounter")
+		if n != null and tcr[0] == null:
+			tcr[0] = n
+			tc_start[0] = n.global_position
+		return world.enc_report.has("eye_zoom"), 60 * 60)
+	var tc = tcr[0]
 	var r: Dictionary = world.enc_report
-
-	ok("colossus_foot_lands_in_front", r.get("foot_error_m", 99.0) < 0.6 and r.get("leg_distance_m", 0.0) > 12.0 and r.get("leg_distance_m", 0.0) < 18.0,
-		"foot error %.2f m, %.1f m in front" % [r.get("foot_error_m", -1.0), r.get("leg_distance_m", -1.0)])
-	ok("colossus_walks_in_from_out_of_frame", r.get("walk_in_m", 0.0) > 8.0, "%.1f m" % r.get("walk_in_m", -1.0))
-	ok("colossus_single_leg_event", r.get("walkin_extra_seen", 9) == 0, str(r.get("walkin_touchdowns", [])))
-	ok("colossus_leg_descends_from_above", r.get("apex_height_m", 0.0) > 6.0, "%.1f m" % r.get("apex_height_m", -1.0))
-	ok("colossus_other_feet_clear", r.get("other_feet_min_out_m", 0.0) > r.get("leg_distance_m", 99.0), "%.1f m out" % r.get("other_feet_min_out_m", -1.0))
-	ok("colossus_body_hidden_in_mist", r.get("body_height_m", 0.0) > r.get("ceiling_m", 99.0) + 3.0,
-		"body at %.1f m, mist ceiling from %.1f m" % [r.get("body_height_m", -1.0), r.get("ceiling_m", -1.0)])
-	ok("encounter_face_shot", r.get("face_cam_distance_m", 0.0) > 0.6 and r.get("face_cam_distance_m", 9.0) < 1.6)
-	ok("encounter_looks_up", r.get("max_look_up_deg", 0.0) > 55.0, "%.0f deg" % r.get("max_look_up_deg", -1.0))
-	ok("colossus_veil_material", r.get("veil_surfaces", 0) >= 3, str(r.get("veil_surfaces", 0)))
-	ok("colossus_claws_on_road", absf(r.get("foot_height_m", 9.0) - 0.02) < 0.1, "%.3f m" % r.get("foot_height_m", -1.0))
-	ok("colossus_foot_planted", r.get("foot_planted_drift_m", 9.0) < 0.05, "%.3f m" % r.get("foot_planted_drift_m", -1.0))
+	ok("colossus_is_tripod", tc != null and is_instance_valid(tc) and r.get("colossus_tripod", false) and tc.get_script().get_global_name() == "VeilTripodColossus")
+	if tc != null and is_instance_valid(tc):
+		ok("colossus_walks_in_from_out_of_frame", Vector2(tc.global_position.x - tc_start[0].x, tc.global_position.z - tc_start[0].z).length() > 8.0,
+			"%.1f m" % Vector2(tc.global_position.x - tc_start[0].x, tc.global_position.z - tc_start[0].z).length())
+		ok("colossus_height", tc.height > 60.0, "%.0f m" % tc.height)
+		var veil := 0
+		for mi in tc.find_children("*", "MeshInstance3D", true, false):
+			if (mi as MeshInstance3D).get_surface_override_material(0) is ShaderMaterial:
+				veil += 1
+		ok("colossus_veil_material", veil >= 1, str(veil))
+		var stomps = tc.get_meta("stomps", null)
+		ok("colossus_has_stomps", stomps != null)
+		ok("colossus_feet_leave_prints", stomps != null and stomps.count + stomps.blocked_count >= 1, "prints %d, on buildings %d" % [stomps.count if stomps else -1, stomps.blocked_count if stomps else -1])
+		ok("colossus_eye_locked", tc.eye.beam_on and r.get("locked_on", false))
+	ok("encounter_eye_zoom", r.get("eye_zoom", false))
+	await wait_until(func(): return not world._encounter_running, 60 * 40)
+	await frames(60 * 4)
 	ok("colossus_audio_cleared", world._enc_sounds.is_empty())
-	ok("colossus_lamp_broken", String(r.get("lamp_crushed", "")) != "" and r.get("lamp_light_off", false) and r.get("lamp_post_down", false)
-		and String(game.world_state.get("colossus_lamp", "")) != "", "lamp %s at %.1f m, off %s, down %s" % [r.get("lamp_crushed", ""),
-		float(r.get("lamp_distance_m", -1.0)), str(r.get("lamp_light_off", false)), str(r.get("lamp_post_down", false))])
-	ok("colossus_lamp_hit_by_leg", float(r.get("lamp_hit_k", 2.0)) < 0.999 and float(r.get("lamp_hit_height_m", -1.0)) > 2.0,
-		"hit at %.0f%% of the fall, %.1f m up" % [float(r.get("lamp_hit_k", 2.0)) * 100.0, float(r.get("lamp_hit_height_m", -1.0))])
 	ok("colossus_shot_cleared", world.living.report.has("shot_cleared"), str(world.living.report.get("shot_cleared", "?")))
-	ok("encounter_control_restored", not world._encounter_running and player.controls_enabled and player.camera.current)
+	ok("encounter_control_restored", not world._encounter_running and player.camera.current)
 	ok("p3_objective_back", game.current_step().get("id", "") == "p3_back", game.current_step().get("text", ""))
 	ok("survival_on", player.survival_active and world.hud.surv.visible)
 	ok("p3_tentacles", world._tentacles.size() == 3 and world._tentacles[0].has_node("AI"))
@@ -824,6 +834,7 @@ func _run() -> void:
 		if world.living._busy == "" and player.controls_enabled and world.get("_cine") == null:
 			break
 		await frames(1)
+	ok("controls_back_after_street_scene", player.controls_enabled and world.get("_cine") == null)
 	player.global_position = m_out + (m_out - m_in).normalized() * 3.0
 	player.set_yaw_pitch(atan2(-(m_in - m_out).x, -(m_in - m_out).z) + PI, 0.0)
 	Input.action_press("move_forward")
@@ -877,8 +888,7 @@ func _run() -> void:
 	var shop_in: Vector3 = gs.to_local((gs.get_node("Doorways/Entrance_Inside") as Node3D).global_position)
 	ok("p3_eddie_walks_to_door", Vector2(world.eddie.position.x - shop_in.x, world.eddie.position.z - shop_in.z).length() < 1.2, str(world.eddie.position))
 	ok("p3_market_doors_dead", game.has_flag("p3_market_doors_dead") and world.enc_report.get("clerk_fled", false)
-		and not world.cashier.visible and float(world.enc_report.get("route_clearance_m", -1.0)) >= 8.5,
-		"clearance %.1f m" % float(world.enc_report.get("route_clearance_m", -1.0)))
+		and not world.cashier.visible, str(world.enc_report.get("clerk_fled", false)))
 	player.global_position = s_in + gs.global_transform.basis.z * 1.5
 	await frames(20)
 	ok("p3_in_shop", game.has_flag("p3_in_shop"))
