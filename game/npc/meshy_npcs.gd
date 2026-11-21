@@ -10,7 +10,7 @@ const MAP := {
 	"Marcus": "bearded_man",
 	"Noah": "teen_blue_jacket",
 	"Ruth": "elderly_woman",
-	"Sarah": "sarah",
+	"Sarah": "police_redhair",                          # the policewoman with the ponytail (Mixamo-rigged, like most of the cast)
 	"Lena": "plaid_shirt",
 	"Frank": "police_cap",
 	"Officer": "police_officer",

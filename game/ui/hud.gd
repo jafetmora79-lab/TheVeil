@@ -75,6 +75,7 @@ func _ready() -> void:
 	chapter_l = _centered_label("", 26, 0.5, 0.17)        # chapter titles: upper screen, clear of signs and subtitles
 	chapter_l.modulate.a = 0.0
 	hint = _centered_label("", 15, 0.5, 0.965)
+	hint.grow_vertical = Control.GROW_DIRECTION_BEGIN               # extra lines grow upward, off the bottom edge
 	hint.add_theme_color_override("font_color", VeilUI.MUTED)
 	speed_l = VeilUI.label("", 16, VeilUI.MUTED)
 	speed_l.anchor_left = 1.0
@@ -194,6 +195,7 @@ func _centered_label(text: String, size: int, ax: float, ay: float) -> Label:
 	l.anchor_top = ay
 	l.anchor_bottom = ay
 	l.grow_vertical = Control.GROW_DIRECTION_BOTH
+	l.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART                 # a long line wraps inside the label's width instead of running off both edges of the screen
 	l.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	root.add_child(l)
 	return l
@@ -358,6 +360,14 @@ func set_hint(t: String) -> void:
 		hint.text = ""
 	else:
 		hint.text = t
+	if t != "" and not t.begins_with("WASD"):
+		# a hint never stays up for good (a line set by a scene that never cleared it was still on screen chapters later)
+		_hint_id += 1
+		var my := _hint_id
+		get_tree().create_timer(14.0).timeout.connect(func(): if my == _hint_id and is_instance_valid(hint): hint.text = "")
+
+
+var _hint_id := 0
 
 
 func set_speed(kmh: float) -> void:
