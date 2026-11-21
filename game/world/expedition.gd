@@ -354,6 +354,27 @@ func cancel_story_departure() -> void:
 ## Normal shelter time with the player inside: the front doors only open through "[E] Leave Shelter" (a choice in
 ## the menu), never because the player or a companion walks up to them. Whenever this holds, that prompt is offered
 ## (same condition), so nobody is shut in; coming back from outside always opens them.
+## Whatever scene or save left the front doors standing open: with no trip, no departure, nobody (player or companion) at the doors and the player inside, they are shut
+## again after a few seconds. State is read from where everyone is now, never from what was happening a while ago (a load, a skipped scene or a chapter start all land here).
+var _door_open_t := 0.0
+
+
+func _door_watchdog(dt: float) -> void:
+	var c5 := _c5()
+	var p := _player()
+	if c5 == null or p == null or not c5._doors_open or active() or story_departure or _busy_menu or world.in_car or not _menu_allowed():
+		_door_open_t = 0.0
+		return
+	var pl: Vector3 = world.market.to_local(p.global_position)
+	if c5._near_doors(pl) or c5._followers_near_doors() or not in_store():
+		_door_open_t = 0.0
+		return
+	_door_open_t += dt
+	if _door_open_t > 4.0:
+		_door_open_t = 0.0
+		c5._set_doors(false)
+
+
 ## The doors are pulled open for the companions too (the supermarket's automatic doors are dead): anyone following the player who comes to the doors on a departure or a trip
 ## opens them, so nobody is left behind the glass.
 func _followers_open_doors() -> void:
@@ -1910,6 +1931,7 @@ func _process(delta: float) -> void:
 		return
 	_tick = 0.25
 	_followers_open_doors()
+	_door_watchdog(0.25)
 	if not _props_placed and Game.has_flag("c5_started"):
 		_props_placed = true                             # (the wrecks: not in the ordinary town of the opening)
 		if not Game.has_flag("ch9_supermarket_lost"):

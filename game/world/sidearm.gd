@@ -509,6 +509,25 @@ func handover(choice: Node) -> void:
 	var who := presenter()
 	var a = world.animators.get(who)
 	var npc: Node3D = a.root if a else null
+	# the one who gives the gun must be here: if they are not at hand they come to the player first (never a scene with nobody in view), and if there is no body at all the gun is simply left for him
+	if npc == null or not is_instance_valid(npc):
+		_quiet_give(who)
+		_handing = false
+		return
+	if not _in_reach(npc):
+		_hint("%s is coming over..." % who, 6.0)
+		var par := npc.get_parent_node_3d()
+		var spot: Vector3 = world.player.global_position - world.player.global_basis.z * 2.0
+		world.npc_walk(who, par.to_local(spot) if par else spot, 2.0)
+		var t := 0.0
+		while t < 14.0 and not _in_reach(npc):
+			await get_tree().process_frame
+			t += get_process_delta_time()
+		a.walk_to([])
+		if not _in_reach(npc):
+			_hint("%s could not reach you. Try the doors again in a moment." % who, 5.0)
+			_handing = false
+			return
 	var c5 = world.phase4.chapter5 if world.phase4 and world.phase4.get("chapter5") else null
 	var id := "gun_%s_intro" % who.to_lower()
 	if c5:
@@ -531,6 +550,31 @@ func handover(choice: Node) -> void:
 		Dialogue.say("gun_%s_skip" % who.to_lower(), false, true)
 		_hint("Left-click or F fires, right-click aims, R reloads, H holsters.", 6.0)
 	_handing = false
+
+
+## Close enough and in plain sight of the player (the same test the talk camera uses).
+func _in_reach(npc: Node3D) -> bool:
+	if not is_instance_valid(npc) or not npc.is_visible_in_tree():
+		return false
+	var p: Node3D = world.player
+	if npc.global_position.distance_to(p.global_position) > 6.0:
+		return false
+	if world.has_method("_talk_ray"):
+		var eye: Vector3 = p.camera.global_position
+		var head := npc.global_position + Vector3(0, 1.4, 0)
+		var ex: Array[RID] = [p.get_rid()]
+		var hit: Dictionary = world._talk_ray(eye, head, ex)
+		return hit.is_empty() or eye.distance_to(hit["position"]) > eye.distance_to(head) - 0.5
+	return true
+
+
+## No body for the presenter anywhere: the gun is on the counter by the doors, no scene.
+func _quiet_give(who: String) -> void:
+	st()["given"] = true
+	st()["tutorial"] = "skipped"
+	st()["from"] = who
+	Game.add_item("handgun")
+	_hint("%s left a handgun for you. Left-click or F fires, right-click aims, R reloads, H holsters." % who, 7.0)
 
 
 func practising() -> bool:
