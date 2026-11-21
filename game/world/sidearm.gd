@@ -139,7 +139,7 @@ func _on_inventory() -> void:
 		st()["drawn"] = true
 		_equip = 0.0
 		if String(st().get("tutorial", "")) == "":
-			_hint("The manager's handgun - six rounds. Left-click or F fires, right-click aims, R reloads, H holsters. Make every shot count.", 8.0)
+			_hint("The manager's handgun - six rounds. Left-click or F fires, right-click aims, R reloads. Its number slot draws it, any other slot puts it away. Make every shot count.", 8.0)
 	for id in Game.inventory.duplicate():
 		var n := int(Game.item_info(String(id)).get("rounds", 0))
 		if n > 0 and Game.has_item(String(id)):
@@ -180,11 +180,7 @@ func _unhandled_input(e: InputEvent) -> void:
 		return
 	if not can_act():
 		return
-	if k == KEY_H:
-		set_drawn(not drawn())
-	elif click and not drawn():
-		set_drawn(true)                                 # a click with the gun away brings it up first
-	elif (click or k == KEY_F) and drawn():
+	if (click or k == KEY_F) and drawn():
 		if can_fire():
 			fire()
 	elif k == KEY_R and drawn():
@@ -577,7 +573,7 @@ func handover(choice: Node) -> void:
 	else:
 		st()["tutorial"] = "skipped"
 		Dialogue.say("gun_%s_skip" % who.to_lower(), false, true)
-		_hint("Left-click or F fires, right-click aims, R reloads, H holsters.", 6.0)
+		_hint("Left-click or F fires, right-click aims, R reloads. Its number slot draws it, any other slot puts it away.", 6.0)
 	_handing = false
 
 
@@ -605,7 +601,7 @@ func _quiet_give(who: String) -> void:
 	st()["tutorial"] = "skipped"
 	st()["from"] = who
 	Game.add_item("handgun")
-	_hint("%s left a handgun for you. Left-click or F fires, right-click aims, R reloads, H holsters." % who, 7.0)
+	_hint("%s left a handgun for you. Left-click or F fires, right-click aims, R reloads. Its number slot draws it, any other slot puts it away." % who, 7.0)
 
 
 func practising() -> bool:
@@ -636,7 +632,7 @@ func _find_cart() -> Node3D:
 	return best
 
 
-const PRACTICE_HINT := {"draw": "PRACTICE  -  H: draw the handgun", "aim": "PRACTICE  -  hold RIGHT-CLICK to aim",
+const PRACTICE_HINT := {"draw": "PRACTICE  -  select the handgun in its quick slot (number key or mouse wheel)", "aim": "PRACTICE  -  hold RIGHT-CLICK to aim",
 	"fire": "PRACTICE  -  LEFT-CLICK or F: shoot the overturned cart", "reload": "PRACTICE  -  R: reload"}
 
 
@@ -709,4 +705,4 @@ func _end_practice(done: bool) -> void:
 	var who := String(st().get("from", "Sarah"))
 	if done:
 		Dialogue.say("gun_%s_done" % who.to_lower(), false, true)
-	_hint("H holsters it. Every shot is noise - out there, they hear it too.", 5.0)
+	_hint("Pick another slot to put it away. Every shot is noise - out there, they hear it too.", 5.0)

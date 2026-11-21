@@ -16,6 +16,23 @@ func ok(name: String, cond: bool, detail := "") -> void:
 		fails += 1
 
 
+## The gun is a quick-slot item now: its slot draws it, any other slot puts it away (what the H key used to do).
+func toggle_gun() -> void:
+	var q = world.hud.quick
+	var slots: Array = VeilQuickSlots.slots()
+	var gi: int = slots.find("handgun")
+	if sa.drawn():
+		var empty := 0
+		for i in 5:
+			if i != gi and String(slots[i]) == "":
+				empty = i
+				break
+		q.use(empty)
+	elif gi >= 0:
+		q.use(gi)
+	await process_frame
+
+
 func frames(n: int) -> void:
 	for i in n:
 		await process_frame
@@ -70,14 +87,14 @@ func _run() -> void:
 	ok("pickup_six_loaded", sa.has_gun() and sa.mag() == 6 and sa.reserve() == 0 and sa.drawn())
 	ok("gun_in_view", sa.view_shown() and sa._equip >= 1.0 and sa._view.position.distance_to(sa.REST) < 0.1, str(sa._view.position if sa._view else null))
 	ok("view_has_no_collision_body", sa._view != null and sa._view.find_children("*", "CollisionObject3D", true, false).is_empty())
-	# ---- holster / draw with H; F is the flashlight's while holstered
-	await key(KEY_H)
+	# ---- holster / draw with the gun's quick slot; F is the flashlight's while holstered
+	await toggle_gun()
 	await frames(2)
 	ok("holster_hides", not sa.drawn() and not sa.view_shown())
 	var on0: bool = fl.on
 	await key(KEY_F)
 	ok("f_flashlight_when_holstered", fl.on != on0 and sa.report["shots"] == 0)
-	await key(KEY_H)
+	await toggle_gun()
 	await frames(3)
 	ok("draw_rises", sa.drawn() and sa.view_shown() and sa._equip < 1.0)
 	await frames(30)
@@ -113,10 +130,10 @@ func _run() -> void:
 	await frames(20)
 	await key(KEY_R)
 	await frames(30)
-	await key(KEY_H)
+	await toggle_gun()
 	await frames(5)
 	ok("interrupted_reload_no_change", sa.mag() == 5 and sa.reserve() == 1 and not sa.reloading())
-	await key(KEY_H)
+	await toggle_gun()
 	await frames(30)
 	# ---- empty
 	for i in 5:

@@ -16,7 +16,7 @@ const DROP_SPEED := 2.4
 const HEARING := 30.0                ## metres: Hounds this close to the impact go to look
 const LINGER := 7.0                  ## seconds a Hound stays at the noise
 const COOLDOWN := 0.6
-const LIFETIME := 60.0               ## a dropped item that nobody picks up is tidied away after this long
+const LIFETIME := 900.0               ## a dropped item that nobody picks up is tidied away after this long
 
 var world: Node
 var report := {"thrown": 0, "impacts": 0, "distracted": 0, "dropped": 0, "drop_impacts": 0}
@@ -134,12 +134,33 @@ func _spawn(id: String, velocity: Vector3, thrown: bool) -> RigidBody3D:
 			model.scale = Vector3.ONE * s
 			model.position = -box.get_center() * s
 			size = (box.size * s).max(Vector3.ONE * 0.04)
+	if path == "" or not ResourceLoader.exists(path):
+		# an item without a 3D model of its own (it used to be an invisible box: "it disappeared"): a small box carrying the item's inventory icon
+		var mi := MeshInstance3D.new()
+		var bm := BoxMesh.new()
+		bm.size = Vector3(0.2, 0.14, 0.2)
+		var mat := StandardMaterial3D.new()
+		mat.albedo_color = Color(0.55, 0.45, 0.3)
+		bm.material = mat
+		mi.mesh = bm
+		rb.add_child(mi)
+		var inv := get_tree().get_first_node_in_group("veil_inventory_panel") as VeilInventoryPanel
+		var tex = inv._icon(id) if inv else null
+		if tex != null:
+			var sp := Sprite3D.new()
+			sp.texture = tex
+			sp.pixel_size = 0.2 / maxf(float((tex as Texture2D).get_width()), 1.0)
+			sp.billboard = BaseMaterial3D.BILLBOARD_ENABLED
+			sp.position = Vector3(0, 0.16, 0)
+			rb.add_child(sp)
+		size = Vector3(0.2, 0.14, 0.2)
 	var cs := CollisionShape3D.new()
 	var bs := BoxShape3D.new()
 	bs.size = size
 	cs.shape = bs
 	rb.add_child(cs)
 	rb.linear_velocity = velocity
+	var floor_y := rb.global_position.y
 	rb.angular_velocity = Vector3(randf_range(-6, 6), randf_range(-6, 6), randf_range(-6, 6)) * (1.0 if thrown else 0.3)
 	var state := {"hit": false, "last": 0.0}
 	rb.body_entered.connect(func(_b):
@@ -151,6 +172,16 @@ func _spawn(id: String, velocity: Vector3, thrown: bool) -> RigidBody3D:
 			get_tree().create_timer(0.4).timeout.connect(func():
 				if is_instance_valid(rb):
 					rb.queue_free()))
+	if not thrown:
+		# never lost under the floor: a dropped item that falls out of the world is set back where it was put down
+		var guard := Timer.new()
+		guard.wait_time = 0.5
+		rb.add_child(guard)
+		guard.timeout.connect(func():
+			if is_instance_valid(rb) and rb.global_position.y < floor_y - 2.5:
+				rb.linear_velocity = Vector3.ZERO
+				rb.global_position = world.player.global_position + Vector3(0, 0.6, 0) - world.player.camera.global_transform.basis.z * 0.8)
+		guard.start()
 	get_tree().create_timer(10.0 if thrown else LIFETIME).timeout.connect(func():
 		if is_instance_valid(rb):
 			rb.queue_free())

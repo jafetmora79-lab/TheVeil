@@ -87,6 +87,11 @@ func _ready() -> void:
 
 
 func refresh() -> void:
+	_auto_slot()
+	var w0 := get_tree().get_first_node_in_group("veil_world")
+	var sa0 = w0.get("sidearm") if w0 else null
+	if sa0 != null and sa0.has_gun() and sa0.drawn() and "handgun" in slots():
+		selected = slots().find("handgun")             # a gun in the hand always has its slot selected
 	var a := slots()
 	var inv := get_tree().get_first_node_in_group("veil_inventory_panel") as VeilInventoryPanel
 	for i in N:
@@ -101,12 +106,13 @@ func refresh() -> void:
 		st.set_border_width_all(2 if i == selected else 1)
 
 
-## Use slot i: select it and run the item's first real action, if any.
+## Use slot i: select it and run the item's first real action, if any. The handgun is just another item: its slot draws it; any other slot, an empty one included, puts it away.
 func use(i: int) -> bool:
 	selected = i
 	var id: String = slots()[i]
 	var used := false
-	if id != "" and Game.has_item(id):
+	_gun(id)
+	if id != "" and id != "handgun" and Game.has_item(id):
 		var inv := get_tree().get_first_node_in_group("veil_inventory_panel") as VeilInventoryPanel
 		var acts: Array = inv.actions_for(id) if inv else []
 		if not acts.is_empty():
@@ -116,10 +122,54 @@ func use(i: int) -> bool:
 	return used
 
 
+## The mouse wheel steps through the five slots (an empty slot = hands free) without using what it lands on (except the gun, which comes up when its slot is selected).
+func step(dir: int) -> void:
+	var from := selected if selected >= 0 else 0
+	selected = posmod(from + dir, N)
+	_gun(String(slots()[selected]))
+	refresh()
+
+
+func _gun(id: String) -> void:
+	var w := get_tree().get_first_node_in_group("veil_world")
+	var sa = w.get("sidearm") if w else null
+	if sa == null or not sa.has_gun():
+		return
+	sa.set_drawn(id == "handgun")
+
+
+var _auto := false
+
+
+## The gun lands in the first free slot by itself when it is picked up.
+func _auto_slot() -> void:
+	if _auto or not Game.has_item("handgun") or "handgun" in slots():
+		return
+	_auto = true
+	var a := slots()
+	for k in N:
+		if String(a[k]) == "" or not Game.has_item(String(a[k])):
+			assign(k, "handgun")
+			var w := get_tree().get_first_node_in_group("veil_world")
+			var sa = w.get("sidearm") if w else null
+			if sa != null and sa.drawn():
+				selected = k                          # it comes into the hand with its slot selected
+			break
+	_auto = false
+
+
 func _unhandled_input(e: InputEvent) -> void:
 	if e is InputEventKey and e.pressed and not e.echo and e.physical_keycode >= KEY_1 and e.physical_keycode <= KEY_5:
 		var inv := get_tree().get_first_node_in_group("veil_inventory_panel") as VeilInventoryPanel
 		if inv and inv.visible:
 			return                                  # the inventory screen assigns with 1-5 instead
 		use(e.physical_keycode - KEY_1)
+		get_viewport().set_input_as_handled()
+	elif e is InputEventMouseButton and e.pressed and (e.button_index == MOUSE_BUTTON_WHEEL_UP or e.button_index == MOUSE_BUTTON_WHEEL_DOWN):
+		var inv2 := get_tree().get_first_node_in_group("veil_inventory_panel") as VeilInventoryPanel
+		var w := get_tree().get_first_node_in_group("veil_world")
+		var pl = w.get("player") if w else null
+		if (inv2 and inv2.visible) or pl == null or not pl.controls_enabled or w.get("in_car") or w.get("conversing"):
+			return
+		step(1 if e.button_index == MOUSE_BUTTON_WHEEL_DOWN else -1)
 		get_viewport().set_input_as_handled()

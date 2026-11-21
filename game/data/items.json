@@ -228,7 +228,7 @@
    "category": "weapon",
    "weight": 0.9,
    "model": "res://THE_VEIL_ASSETS_V2/08_Inventory/Weapons/INV_Handgun.glb",
-   "description": "The store manager's handgun, from the office desk. H draws or holsters it. Drawn: left-click (or F) fires, right-click aims, R reloads from the rounds you carry. A hit makes things flinch and buys time; roaming creatures may back off. It will not kill anything. Bullets are rare."
+   "description": "The store manager's handgun, from the office desk. Its quick slot draws it (number key or mouse wheel); any other slot puts it away. Drawn: left-click (or F) fires, right-click aims, R reloads from the rounds you carry. A hit makes things flinch and buys time; roaming creatures may back off. It will not kill anything. Bullets are rare."
   },
   "handgun_ammo": {
    "name": "Handgun Ammo",
