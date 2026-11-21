@@ -319,6 +319,57 @@ func _b(p: Vector3, size: Vector3, mat: String) -> StaticBody3D:
 	return c12._box(below, "C15", UL(p), size, mat)
 
 
+## Standing places for people: for each name, the nearest spot to its anchor where the floor is clear of anything solid (the real collision: furniture, walls,
+## pedestals, pillars, the models above), not within `keep`'s radii of the player's own spot, and at least `gap` metres from the others already placed.
+## `to_world` turns a point of the anchors' frame into a world point (F for the station, UL for below, the identity in the fields). Returns name -> point in that frame.
+func _free_spots(names: Array, anchors: Dictionary, to_world: Callable, keep := [], gap := 1.5, span := 3.2) -> Dictionary:
+	var space: PhysicsDirectSpaceState3D = world.get_world_3d().direct_space_state
+	var q := PhysicsShapeQueryParameters3D.new()
+	var cap := CapsuleShape3D.new()
+	cap.radius = 0.36
+	cap.height = 1.5
+	q.shape = cap
+	q.collision_mask = 1
+	var out := {}
+	var taken: Array = []
+	for k in names:
+		var a: Vector3 = anchors[k]
+		var best := Vector3.INF
+		var best_d := 1e9
+		var x := -span
+		while x <= span:
+			var z := -span
+			while z <= span:
+				var pt := a + Vector3(x, 0.0, z)
+				var d := Vector2(x, z).length()
+				if d < best_d and d <= span:
+					var ok := true
+					for o in taken:
+						if Vector2(pt.x - o.x, pt.z - o.z).length() < gap:
+							ok = false
+					for kp in keep:
+						if Vector2(pt.x - kp[0].x, pt.z - kp[0].z).length() < float(kp[1]):
+							ok = false
+					if ok:
+						q.transform = Transform3D(Basis(), to_world.call(pt + Vector3(0, 0.95, 0)))
+						for h in space.intersect_shape(q, 6):
+							if not (h["collider"] is VeilSurvivorBody) and h["collider"] != player:
+								ok = false
+					if ok:
+						best = pt
+						best_d = d
+				z += 0.3
+			x += 0.3
+		if best.is_finite():
+			out[k] = best
+			taken.append(best)
+		else:
+			out[k] = a                                   # (nothing clear within reach: where it was meant to be)
+			taken.append(a)
+	report["free_spots"] = int(report.get("free_spots", 0)) + out.size()
+	return out
+
+
 const PROPS := "res://game/prototypes/story_props/"
 var ctrl_models := {}                               ## "A" / "B" / "C" -> the control's model (lever or wheel)
 
@@ -405,12 +456,17 @@ func _back_in() -> void:
 func _place_in_chamber() -> void:
 	for f in 3:
 		await get_tree().physics_frame
-	var i := 0
-	for k in present():
+	var cn: Array = present().duplicate()
+	var ca := {}
+	var ci := 0
+	for k in cn:
+		ca[k] = GREAT + Vector3(-2.4 + 1.6 * ci, 0.0, -12.5)
+		ci += 1
+	var cs := _free_spots(cn, ca, UL, [], 1.3, 2.4)
+	for k in cn:
 		(c9.follows[k] as VeilCompanionFollow).stop()
 		c9.c5._reparent(_node(k), world)
-		world.place_survivor(_node(k), UL(GREAT + Vector3(-2.0 + 1.4 * i, 0.0, -12.5)))
-		i += 1
+		world.place_survivor(_node(k), UL(cs[k]))
 	for k in present():
 		c9._start_follow(k)
 	_slow_injured()
@@ -473,6 +529,32 @@ func _place_refuge() -> void:
 		var a = world.animators.get(k)
 		if a:
 			a.set_mood("scared" if _health(k) != "healthy" else "calm")
+	_refine_refuge.call_deferred()
+
+
+## Once the physics world knows the office (the first frames after it is built it knows nothing): each person to a clear spot near their post, spaced apart.
+func _refine_refuge() -> void:
+	for f in 3:
+		await get_tree().physics_frame
+	if Game.has_flag("ch15_set_out"):
+		return
+	var names: Array = present().duplicate()
+	var anchors := {}
+	for k in names:
+		anchors[k] = REFUGE_SPOTS[k]
+	var nn := _noah_node()
+	if nn != null:
+		names.append("Noah")
+		anchors["Noah"] = REFUGE_SPOTS.get("Sarah", REFUGE_SPOTS["Eddie"]) + Vector3(0.9, 0.0, 0.5)
+	var spots := _free_spots(names, anchors, F, [[REFUGE_PLAYER, 1.2]], 1.6, 2.6)
+	for k in names:
+		var n: Node3D = nn if k == "Noah" else _node(k)
+		if n != null:
+			world.place_survivor(n, F(spots[k]))
+			var a = world.animators.get(k)
+			if a:
+				a.face_towards(F(Vector3(0.0, 1.5, 3.0)))
+	report["refuge_spots"] = spots.size()
 
 
 func _slow_injured() -> void:
@@ -688,10 +770,15 @@ func _set_out(_b: Node) -> void:
 	await hud.fade_to(1.0, 0.5)
 	player.global_position = c12.OUTSIDE_SPOT
 	player.set_yaw_pitch(0.0, 0.0)
-	var i := 0
-	for k in present():
-		world.place_survivor(_node(k), c12.OUTSIDE_SPOT + Vector3(-1.2 + 0.9 * i, 0.0, 1.4 + 0.3 * (i % 2)))
-		i += 1
+	var out_names: Array = present().duplicate()
+	var out_anchors := {}
+	var oi := 0
+	for k in out_names:
+		out_anchors[k] = c12.OUTSIDE_SPOT + Vector3(-1.6 + 1.1 * oi, 0.0, 1.8 + 0.5 * (oi % 2))
+		oi += 1
+	var out_spots := _free_spots(out_names, out_anchors, func(v): return v, [[c12.OUTSIDE_SPOT, 1.4]], 1.3, 2.4)
+	for k in out_names:
+		world.place_survivor(_node(k), out_spots[k])
 	Game.set_flag("ch15_set_out")
 	for k in present():
 		c9._start_follow(k)
@@ -1027,10 +1114,16 @@ func _enter_passage(_b: Node) -> void:
 	creatures.clear()
 	player.global_position = UL(c13.U_ENTRY + Vector3(0, 0, 3.4))
 	player.set_yaw_pitch(PI, 0.0)
-	var i := 0
-	for k in present():
-		world.place_survivor(_node(k), UL(c13.U_ENTRY + Vector3(-0.55 + 1.1 * (i % 2), 0.0, 1.5 - 0.9 * (i / 2) + 0.9)))   # behind, in the corridor
-		i += 1
+	var pn: Array = present().duplicate()
+	var pa := {}
+	var pi := 0
+	for k in pn:
+		pa[k] = c13.U_ENTRY + Vector3(-0.5 + 1.0 * (pi % 2), 0.0, 2.4 - 0.9 * (pi / 2))             # behind, in the corridor
+		pi += 1
+	await get_tree().physics_frame
+	var ps := _free_spots(pn, pa, UL, [[c13.U_ENTRY + Vector3(0, 0, 3.4), 0.9]], 0.95, 2.0)
+	for k in pn:
+		world.place_survivor(_node(k), UL(ps[k]))
 	c13.collapse_block.visible = true
 	c13.collapse_block.collision_layer = 1
 	c13.collapse_block.global_position = UL(c13.COLLAPSE)
@@ -1335,10 +1428,15 @@ func _ending_b() -> void:
 	report["ending_runs"] += 1
 	_busy["final"] = true
 	# back to the mechanism: the chamber comes down around it; two last pulls, then run
-	for k in present():
+	var tn: Array = present().duplicate()
+	var ta := {}
+	for k in tn:
+		ta[k] = Vector3(26.5, 0.0, 66.0 + 1.5 * tn.find(k))
+	var ts := _free_spots(tn, ta, UL, [], 1.4, 2.0)
+	for k in tn:
 		var f: VeilCompanionFollow = c9.follows[k]
 		f.stop()
-		world.npc_walk(k, UL(Vector3(27.0, 0.0, 64.0 + 1.0 * present().find(k))), 2.6)   # by the tunnel, out of its mouth
+		world.npc_walk(k, UL(ts[k]), 2.6)                       # by the tunnel, out of its mouth, each at a clear spot
 	_hint("Back to the mechanism - close it!")
 	st()["seal_steps"] = 0
 	var c: Dictionary = st().get("controls", {})

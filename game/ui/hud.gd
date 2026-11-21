@@ -785,6 +785,20 @@ func is_paused() -> bool:
 	return pause_panel.visible
 
 
+## Alt-tabbing away (the window loses focus): in free play the pause menu opens, so nothing happens while you are not looking. During a scene that has the player
+## in hand (cinematics, conversations, the auto-park, the box shove's lead-in) nothing is paused: those scenes are sequenced with timers and tweens that would fall out
+## of step, so they simply carry on and finish by themselves.
+func _notification(what: int) -> void:
+	if what != NOTIFICATION_APPLICATION_FOCUS_OUT and what != NOTIFICATION_WM_WINDOW_FOCUS_OUT:
+		return
+	if pause_panel == null or is_paused() or not allow_pause or end_panel.visible or modal_open():
+		return
+	var w := get_tree().get_first_node_in_group("veil_world")
+	if w == null or w.get("player") == null or not w.player.controls_enabled or w.get("conversing") == true or w.get("_cine") != null 			or w.get("_encounter_running") == true:
+		return
+	set_paused(true)
+
+
 ## Another full-screen interface is up (inventory, a decision / companion / supplies panel): the pause menu does
 ## not open on top of it.
 func modal_open() -> bool:
