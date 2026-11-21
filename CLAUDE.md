@@ -162,3 +162,14 @@ The export filter skips `game/tools/build_*`, `game/tools/*.py` and `game/tests/
 - Game-shop retreat (`world.gd::_shop_seated_talk`): Eddie runs ahead and opens the stock-room door, the protagonist and Marcus go in, Marcus closes it. Seats: `_seat` edge 0 (on top of the boxes).
 - Tentacles: the back-gate trio is slimmed (`garage_tentacle.gd::THIN`, thickness only, length unchanged); the street tentacle's mound is scaled to its girth (`tentacle_escape_shot.gd::MOUND_SCALE`).
   Both need a visual test.
+
+
+## Review mode - the owner's sticky notes (2026-11-21) - READ THIS WHEN THE OWNER SAYS "I LEFT NOTES"
+In the game (also in the exported exe) F2 turns REVIEW MODE on: aim the crosshair, click, pick BUG / 3D ASSET / OTHER, type a line, SAVE NOTE.
+- Code: `game/review/review_mode.gd` (added to the world by `world.gd` as `ReviewMode`). Tests: `review_mode_test.gd`, `review_mode_ui_test.gd` (windowed).
+- The notes: `%APPDATA%\Godot\app_userdata\THE VEIL\veil_notes.json` (screenshots: `...\review\note_NNN.png`). Each note has: id, status (open / fixed / wontfix), type, the text, chapter, current
+  objective, the story flags, the camera and player position, the screenshot, and `target`: what the crosshair hit (node path, class, script, the instanced scene / .glb it comes from, the mesh and
+  material names, hit position) plus `candidates` (the meshes that contain the point, smallest first = the most specific thing there). Saved notes show in the world as numbered markers in review mode.
+- To work through them: `python game/tools/review_notes.py list` (open notes), `show N` (full note + screenshot path; open the PNG with Read), fix it, then
+  `python game/tools/review_notes.py done N "what was changed" <commit>` (or `wontfix N "why"`). One note at a time, a commit per fix, and say which need the owner's visual test.
+- To get to the place: the chapter number and flags are in the note; `Main Menu > Chapters` starts at a chapter, `game/tests/story_rooms_shots.gd` shows how to put a camera at a position.

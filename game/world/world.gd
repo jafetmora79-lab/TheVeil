@@ -174,6 +174,9 @@ func _ready() -> void:
 	_apply_view_ranges()
 	_setup_night()
 	_restore_crushed_lamp.call_deferred()
+	var review_mode = load("res://game/review/review_mode.gd").new()          # F2: sticky notes for the playtest (game/review/review_mode.gd)
+	review_mode.name = "ReviewMode"
+	add_child(review_mode)
 	_setup_stock_door.call_deferred()
 	living = VeilLivingTown.new()                  # Greyhaven before / as the Veil arrives (game/world/living_town.gd)
 	living.name = "LivingTown"
