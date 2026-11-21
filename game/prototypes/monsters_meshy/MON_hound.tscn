@@ -1,6 +1,7 @@
-[gd_scene load_steps=4 format=3]
+[gd_scene load_steps=5 format=3]
 
-[ext_resource type="PackedScene" path="res://game/prototypes/monsters_meshy/MON_hound.glb" id="1_model"]
+[ext_resource type="PackedScene" path="res://game/prototypes/monsters_meshy/MON_hound_anim.glb" id="1_model"]
+[ext_resource type="Script" path="res://game/prototypes/monsters_meshy/hound_clips.gd" id="2_clips"]
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_0"]
 size = Vector3(0.62, 0.62, 1.55)
@@ -9,15 +10,16 @@ size = Vector3(0.62, 0.62, 1.55)
 size = Vector3(0.26, 0.32, 0.7)
 
 [node name="Hound" type="CharacterBody3D"]
+script = ExtResource("2_clips")
 metadata/veil_creature = "Hound"
 metadata/faces = "+Z"
 metadata/animation_player = "Model/AnimationPlayer"
 metadata/animations = PackedStringArray("Idle", "Walk", "Run", "Alert", "Sniff", "Detect", "Attack_Bite", "Hit_React", "Death")
-metadata/walk_speed_mps = 0.587
-metadata/run_speed_mps = 3.263
+metadata/walk_speed_mps = 6.82
+metadata/run_speed_mps = 6.82
 
 [node name="Model" parent="." instance=ExtResource("1_model")]
-transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 0, 0, 0)
+transform = Transform3D(2.1, 0, 0, 0, 2.1, 0, 0, 0, 2.1, 0, 0, 0)
 
 [node name="BodyShape" type="CollisionShape3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.72, -0.05)

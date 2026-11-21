@@ -3,8 +3,8 @@
  "size_m": 2.0,
  "height_m": 0.8346123099327087,
  "facing": "-Z in the GLB (the scene turns it to +Z)",
- "walk_speed_mps": 0.587,
+ "walk_speed_mps": 6.82,
  "walk_cycle_s": 1.25,
- "run_speed_mps": 3.263,
+ "run_speed_mps": 6.82,
  "run_cycle_s": 0.5
 }

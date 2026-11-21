@@ -53,7 +53,7 @@ func _seam(who: String, ap: AnimationPlayer, sk: Skeleton3D, clip: String, tol_r
 func _run() -> void:
 	# ---------------------------------------------------------------- clip lists and lengths (seconds)
 	var want := {
-		"MON_hound.tscn": {"Idle": 4.0, "Walk": 1.25, "Run": 0.5, "Alert": 2.0, "Sniff": 3.0, "Detect": 0.67, "Attack_Bite": 0.83, "Hit_React": 0.5, "Death": 1.5},
+		"MON_hound.tscn": {"Idle": 4.17, "Walk": 0.37, "Run": 0.37, "Alert": 1.2, "Sniff": 4.17, "Detect": 1.2, "Attack_Bite": 0.43, "Hit_React": 0.43, "Death": 4.17},     # (the Meshy dog's own four clips: game/prototypes/monsters_meshy/hound_clips.gd)
 		"MON_skitter.tscn": {"Idle_Twitch": 4.0, "Crawl": 2.42, "Scuttle_Fast": 0.42, "Alert": 2.0, "Attack_Lunge": 0.63, "Hit_React": 0.5, "Death": 1.5},
 		"MON_crab.tscn": {"Idle": 4.0, "Crawl_Sideways": 1.0, "Crawl_Forward": 1.0, "Defend": 1.5, "Attack_Grasp": 1.08, "Hit_React": 0.5, "Death": 2.0},
 		"MON_tentacle_thin.tscn": {"Emerge": 2.0, "Search": 4.0, "Coil": 1.5, "Reach": 1.5, "Strike": 1.0, "Retract": 1.5},
@@ -77,7 +77,7 @@ func _run() -> void:
 			var ln := ap.get_animation(clip).length if has else 0.0
 			check("%s clip %s (%.2f s, expected %.2f)" % [scn, clip, ln, want[scn][clip]], has and absf(ln - float(want[scn][clip])) < 0.06)
 	# ---------------------------------------------------------------- the speeds the AI and the scenes match the clips to
-	var speeds := {"hound.json": {"walk_speed_mps": 0.587, "run_speed_mps": 3.263}, "skitter.json": {"crawl_speed_mps": 0.472, "scuttle_speed_mps": 2.588},
+	var speeds := {"hound.json": {"walk_speed_mps": 6.82, "run_speed_mps": 6.82}, "skitter.json": {"crawl_speed_mps": 0.472, "scuttle_speed_mps": 2.588},
 		"crab.json": {"crawl_sideways_speed_mps": 0.5, "crawl_forward_speed_mps": 0.367}, "tripod.json": {"walk_ground_speed": 0.45, "walk_cycle_s": 8.0}}
 	for f in speeds:
 		var d: Variant = JSON.parse_string(FileAccess.get_file_as_string(MM + f))

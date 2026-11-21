@@ -2598,6 +2598,7 @@ func _colossus_encounter() -> void:
 
 
 var _tc_birds: Array = []                       ## the Grimtalons wheeling round the encounter's tripod
+const TRIPOD_WALK := 0.95                        ## its walk's speed scale in the encounter (~3 m/s: it crosses the Veil's wall and the street in the scene's time)
 const COLOSSUS_H := 85.0                       ## the tripod Colossus's height in the encounter (m)
 
 
@@ -2640,7 +2641,7 @@ func _tripod_encounter() -> void:
 	tc.name = "Colossus_Encounter"
 	add_child(tc)
 	tc.build(COLOSSUS_H, ground)
-	var A := P + n * 104.0 - side * 14.0                      # far off in the mist, ahead of him: it comes TOWARD him (it faces him the whole way)
+	var A := P + n * 128.0 - side * 14.0                      # far off behind the thick curtain of the Veil, ahead of him: it WALKS OUT of the fog toward him (it faces him the whole way)
 	A.y = ground
 	var wd := ((P + n * 86.0 - side * 3.0) - A) * Vector3(1, 0, 1)
 	wd = wd.normalized()
@@ -2658,10 +2659,18 @@ func _tripod_encounter() -> void:
 			(vm as ShaderMaterial).set_shader_parameter("distance_fade", v), 0.1, 0.006, 13.0).set_trans(Tween.TRANS_SINE)
 	emerge.tween_property(tc.eye, "level", 1.0, 13.0)
 	for c in curtains:
-		emerge.tween_method(func(v: float): ((c as MeshInstance3D).mesh as QuadMesh).material.set_shader_parameter("density", v), 0.97, 0.5, 13.0)
+		emerge.tween_method(func(v: float): ((c as MeshInstance3D).mesh as QuadMesh).material.set_shader_parameter("density", v), 0.97, 0.3, 13.0)
+	# the thick wall of the Veil it comes out of: three layers right across its path; they stay solid until it has walked through them, then thin away behind it
+	var entry := _enc_mist(P, n, ground, [[96.0, 150.0], [102.0, 170.0], [108.0, 190.0]])
+	var te := create_tween().set_parallel(true)
+	for c in entry:
+		var em := ((c as MeshInstance3D).mesh as QuadMesh).material as ShaderMaterial
+		em.set_shader_parameter("density", 0.97)
+		te.tween_method(func(v: float): em.set_shader_parameter("density", v), 0.97, 0.3, 4.0).set_delay(11.0)
+	curtains.append_array(entry)
 	tc.global_position = A
 	tc.rotation.y = atan2(-wd.x, -wd.z)                       # the model faces -Z
-	tc.set_walking(true, 0.45)
+	tc.set_walking(true, TRIPOD_WALK)
 	if VeilMeshyNpcs.monsters_enabled():
 		# the Grimtalons come with it: a swarm wheeling round the tripod, high in the mist, wherever it walks
 		_tc_birds = VeilGrimtalon.flock(self, 9, A, tc, Vector2(26.0, 62.0), Vector2(14.0, 70.0), Vector2(8.0, 13.0))
@@ -2675,7 +2684,7 @@ func _tripod_encounter() -> void:
 	var head_pos := P + Vector3(0, 1.5, 0)
 	var t := 0.0
 	var step_t := 0.0
-	var walk_end := 13.0
+	var walk_end := 14.0
 	var turned := false
 	var lock_t := walk_end + 2.2
 	var aim_to := Vector3.ZERO
@@ -2759,14 +2768,14 @@ func _tripod_encounter() -> void:
 
 
 ## The fog thickens across the street for the Colossus: three tall curtains of the game's mist, ahead of him; it walks out of them.
-func _enc_mist(P: Vector3, n: Vector3, ground: float) -> Array:
+func _enc_mist(P: Vector3, n: Vector3, ground: float, layers := [[34.0, 110.0], [52.0, 130.0], [70.0, 150.0]]) -> Array:
 	var out: Array = []
 	var sh := load("res://THE_VEIL_ASSETS_V2/09_Horror_Atmosphere/Fog/veil_mist_boundary.gdshader") as Shader
 	var noise := load("res://THE_VEIL_ASSETS_V2/09_Horror_Atmosphere/Textures/T_Veil_MistNoise.png") as Texture2D
 	if sh == null:
 		return out
 	var face := Basis.looking_at(n, Vector3.UP)
-	for L in [[34.0, 110.0], [52.0, 130.0], [70.0, 150.0]]:
+	for L in layers:
 		var mi := MeshInstance3D.new()
 		mi.name = "Enc_Mist"
 		var qm := QuadMesh.new()
