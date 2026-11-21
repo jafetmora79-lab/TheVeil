@@ -82,6 +82,7 @@ static func make_holder(parent: Node, h: float, ground_y: float) -> Node3D:
 	tc.build(h, ground_y)
 	tc.rotation.y = PI
 	holder.set_meta("tripod", tc)
+	tc.enable_stomps.call_deferred()
 	return holder
 
 
@@ -92,3 +93,12 @@ func play_old(clip: String, speed_scale := 1.0) -> void:
 		set_walking(true, speed_scale)
 	else:
 		set_walking(false)
+
+
+## The footprints, felled trees and dust it leaves where its feet come down (game/enemies/colossus_stomps.gd). `trees` is the world's VeilScatter (or null).
+func enable_stomps(trees: Node = null) -> Node:
+	if trees == null and is_inside_tree():
+		trees = get_tree().root.find_child("Scatter", true, false)
+	var st = load("res://game/enemies/colossus_stomps.gd").attach(self, trees)
+	set_meta("stomps", st)
+	return st

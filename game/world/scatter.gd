@@ -12,6 +12,8 @@ class_name VeilScatter
 @export var view_distance := 420.0       ## trees (cells), well inside the 600-700 m camera far planes
 @export var detail_distance := 70.0      ## undergrowth / rocks
 const CHUNK := 96.0
+var _tree_chunks := {}                   ## chunk -> the trees in it (so a giant foot can knock some down)
+var _models := {}                        ## model name -> scene path
 
 
 func _ready() -> void:
@@ -21,6 +23,7 @@ func _ready() -> void:
 		return
 	var d: Dictionary = JSON.parse_string(f.get_as_text())
 	var y: float = d.get("y", 0.15)
+	_models = d.get("models", {})
 	var by_model := {}
 	for it in d["items"]:
 		by_model.get_or_add(it[0], []).append(it)
@@ -34,14 +37,21 @@ func _ready() -> void:
 			for smi in inst.find_children("*", "MeshInstance3D", true, false):
 				_make_sway((smi as MeshInstance3D).mesh, 0.0 if m.begins_with("VG_Tree") else 0.5)
 		var xs: Array = []
+		var xs_entries: Array = []
 		var cells := {}
+		var cell_entries := {}
+		var is_tree: bool = m.begins_with("VG_Tree")
 		for it in by_model[m]:
 			var t := Transform3D(Basis(Vector3.UP, it[3]), Vector3(it[1], y, it[2]))
+			var e := {"model": m, "x": float(it[1]), "z": float(it[2]), "yaw": float(it[3]), "hides": [], "cols": [], "alive": true}
 			if it.size() < 5:                         # (the deep-forest fill has a 5th field: no collision, the world edge keeps the player out)
 				xs.append(t)
+				xs_entries.append(e)
 			var key := Vector2i(floori(it[1] / CHUNK), floori(it[2] / CHUNK))
 			cells.get_or_add(key, []).append(t)
-		var is_tree: bool = m.begins_with("VG_Tree")
+			cell_entries.get_or_add(key, []).append(e)
+			if is_tree:
+				_tree_chunks.get_or_add(key, []).append(e)
 		for mi in inst.find_children("*", "MeshInstance3D", true, false):
 			var rel := _rel(inst, mi)
 			for key in cells:
@@ -62,6 +72,10 @@ func _ready() -> void:
 				mmi.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 				mmi.set_meta("cell", [centre.x, centre.z, CHUNK, list.size()])
 				add_child(mmi)
+				if is_tree:
+					var ce: Array = cell_entries[key]
+					for i in list.size():
+						(ce[i]["hides"] as Array).append([mm, i])
 		var shapes: Array = []
 		for cs in inst.find_children("*", "CollisionShape3D", true, false):
 			shapes.append([(cs as CollisionShape3D).shape, _rel(inst, cs)])
@@ -69,12 +83,13 @@ func _ready() -> void:
 			var sb := StaticBody3D.new()
 			sb.name = m + "_Collision"
 			add_child(sb)
-			for x in xs:
+			for xi in xs.size():
 				for s in shapes:
 					var c := CollisionShape3D.new()
 					c.shape = s[0]
-					c.transform = x * s[1]
+					c.transform = xs[xi] * s[1]
 					sb.add_child(c)
+					(xs_entries[xi]["cols"] as Array).append(c)
 		inst.free()
 
 
@@ -133,3 +148,24 @@ func _rel(root: Node3D, n: Node3D) -> Transform3D:
 		t = (p as Node3D).transform * t
 		p = p.get_parent()
 	return t
+
+
+## A giant foot comes down at `centre`: every tree whose trunk stands within `radius` is taken out of the forest (its instance is
+## scaled to nothing and its collision switched off). Returns what was removed ({model, scene, pos, yaw}) so the caller can lay the trunk down.
+func knock_trees(centre: Vector3, radius: float) -> Array:
+	var out: Array = []
+	var k0 := Vector2i(floori((centre.x - radius) / CHUNK), floori((centre.z - radius) / CHUNK))
+	var k1 := Vector2i(floori((centre.x + radius) / CHUNK), floori((centre.z + radius) / CHUNK))
+	for kx in range(k0.x, k1.x + 1):
+		for kz in range(k0.y, k1.y + 1):
+			for e in _tree_chunks.get(Vector2i(kx, kz), []):
+				if not e["alive"] or Vector2(e["x"] - centre.x, e["z"] - centre.z).length() > radius:
+					continue
+				e["alive"] = false
+				for h in e["hides"]:
+					(h[0] as MultiMesh).set_instance_transform(h[1], Transform3D(Basis.from_scale(Vector3.ZERO), Vector3.ZERO))
+				for c in e["cols"]:
+					if is_instance_valid(c):
+						(c as CollisionShape3D).set_deferred("disabled", true)
+				out.append({"model": e["model"], "scene": _models.get(e["model"], ""), "pos": Vector3(e["x"], centre.y, e["z"]), "yaw": e["yaw"]})
+	return out

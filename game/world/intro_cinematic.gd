@@ -387,6 +387,7 @@ func _warm_colossus() -> void:
 	world.add_child(tc)
 	var ground: float = world.sedan.global_position.y if world.get("sedan") else 0.0
 	tc.build(COLOSSUS_H, ground)
+	tc.enable_stomps()
 	tc.global_position = Vector3(10, ground, -12)
 	_colossus = tc
 	if VeilMeshyNpcs.monsters_enabled():
@@ -413,6 +414,7 @@ func _place_colossus(at: Vector3) -> void:
 		tc.name = "Intro_Colossus"
 		world.add_child(tc)
 		tc.build(COLOSSUS_H, at.y)
+		tc.enable_stomps()
 		_colossus = tc
 	_colossus_placed = true
 	tc.visible = true

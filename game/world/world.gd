@@ -2650,6 +2650,7 @@ func _tripod_encounter() -> void:
 	tc.name = "Colossus_Encounter"
 	add_child(tc)
 	tc.build(COLOSSUS_H, ground)
+	tc.enable_stomps()                                        # footprints, dust, felled trees where its feet come down
 	var A := P + n * 128.0 - side * 14.0                      # far off behind the thick curtain of the Veil, ahead of him: it WALKS OUT of the fog toward him (it faces him the whole way)
 	A.y = ground
 	var wd := ((P + n * 86.0 - side * 3.0) - A) * Vector3(1, 0, 1)

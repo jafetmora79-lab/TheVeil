@@ -250,6 +250,7 @@ func _p3_colossus() -> void:
 	world.add_child(tc)
 	_spawned.append(tc)
 	tc.build(85.0, ground)
+	tc.enable_stomps()
 	var A := P + N * 135.0 - S * 14.0
 	A.y = ground
 	var end := P + N * 90.0 - S * 3.0
