@@ -222,6 +222,37 @@ func _mdl(file: String, n: String, at: Vector3, yaw := 0.0, sc := Vector3.ONE) -
 	return o
 
 
+## A wall picture: a flat quad with a poster / notice board on it and a dark backing (yaw turns it to face a direction: 0 = +Z).
+func _poster(tex: String, at: Vector3, yaw: float, size: Vector2) -> void:
+	var path := PROPS + "tex/" + tex
+	if not ResourceLoader.exists(path):
+		return
+	var basis := Basis(Vector3.UP, D_YAW + yaw)
+	var bk := MeshInstance3D.new()
+	var bq := QuadMesh.new()
+	bq.size = size + Vector2(0.06, 0.06)
+	bk.mesh = bq
+	var bm := StandardMaterial3D.new()
+	bm.albedo_color = Color(0.05, 0.045, 0.04)
+	bm.cull_mode = BaseMaterial3D.CULL_DISABLED
+	bk.material_override = bm
+	bk.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+	var mi := MeshInstance3D.new()
+	var qm := QuadMesh.new()
+	qm.size = size
+	mi.mesh = qm
+	var m := StandardMaterial3D.new()
+	m.albedo_texture = load(path)
+	m.texture_filter = BaseMaterial3D.TEXTURE_FILTER_NEAREST_WITH_MIPMAPS
+	m.cull_mode = BaseMaterial3D.CULL_DISABLED
+	mi.material_override = m
+	mi.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+	dist.add_child(bk)
+	dist.add_child(mi)
+	bk.global_transform = Transform3D(basis, D(at) - basis * Vector3(0, 0, 0.005))
+	mi.global_transform = Transform3D(basis, D(at))
+
+
 ## 4 m modules laid end to end along a line (a wall or a fence); `sy` stretches them to the wall's height, `sz` to its thickness.
 func _tile(file: String, a: Vector3, b: Vector3, yaw: float, n: String, sy := 1.0, sz := 1.0) -> void:
 	var len := a.distance_to(b)
@@ -335,23 +366,39 @@ func _build_district() -> void:
 		_solid("03_Residential/House_Variants/%s.tscn" % h[0], "C13_" + String(h[0]), D(h[1]), D_YAW + float(h[2]))
 	for c in CARS:
 		_solid("05_Vehicles/Abandoned_Variants/%s.glb" % c[0], "C13_" + String(c[0]), D(c[1]), D_YAW + float(c[2]))
-	_prop("09_Horror_Atmosphere/Abandoned_Props/ABN_EmptyBarricade.tscn", "C13_Barricade", D(Vector3(7.0, 0.0, 38.5)), D_YAW + 0.2)
+	_prop("09_Horror_Atmosphere/Abandoned_Props/ABN_EmptyBarricade.tscn", "C13_Barricade", D(Vector3(3.4, 0.0, 36.8)), D_YAW + 0.2)
 	_prop("09_Horror_Atmosphere/Abandoned_Props/ABN_PersonalBelongings.tscn", "C13_Belongings", D(Vector3(-8.5, 0.0, 15.0)), 0.7)
 	_prop("09_Horror_Atmosphere/Abandoned_Props/ABN_RoadCones_Abandoned.tscn", "C13_Cones", D(Vector3(-1.5, 0.0, 41.0)), 0.0)
 	_prop("09_Horror_Atmosphere/Abandoned_Props/ABN_ScatteredPapers.glb", "C13_Papers", D(Vector3(2.0, 0.0, 24.0)), 1.1)
 	_prop("09_Horror_Atmosphere/Abandoned_Props/ABN_DamagedStreetlight.tscn", "C13_Lamp", D(Vector3(-1.8, 0.0, 2.0)), 0.0)
 	var lamp: OmniLight3D = c12._light(D(Vector3(-1.0, 4.2, 2.0)), 0.9, 10.0, Color(1.0, 0.8, 0.55))
 	lamp.name = "C13_ClearLamp"
-	for sg in [["DST_Sign_Restricted.glb", Vector3(-6.0, 0.0, WALL_Z - 1.4), PI], ["DST_Sign_Order.glb", Vector3(6.0, 0.0, WALL_Z - 1.4), PI],
+	for sg in [["DST_Sign_Restricted.glb", Vector3(-4.6, 0.0, WALL_Z - 1.4), PI], ["DST_Sign_Order.glb", Vector3(4.2, 0.0, WALL_Z - 1.4), PI],
 			["DST_Sign_Danger.glb", Vector3(-12.0, 0.0, 4.0), PI]]:
 		_mdl(sg[0], "Sign", sg[1], sg[2])
 	# the checkpoint office (south of the wall): a concrete room, its door on the street side
 	var o: Vector3 = OFFICE[0]
 	_dbox("Office", o + Vector3(0, 3.1, 0), Vector3(6.2, 0.2, 6.2), "concrete")
-	_dbox("Office", o + Vector3(3.0, 1.5, 0), Vector3(0.25, 3.0, 6.0), "concrete")
-	_dbox("Office", o + Vector3(0, 1.5, -3.0), Vector3(6.0, 3.0, 0.25), "concrete")
-	_dbox("Office", o + Vector3(-3.0, 1.5, -1.9), Vector3(0.25, 3.0, 2.2), "concrete")
-	_dbox("Office", o + Vector3(-3.0, 1.5, 1.9), Vector3(0.25, 3.0, 2.2), "concrete")
+	_hide(_dbox("Office", o + Vector3(3.0, 1.5, 0), Vector3(0.25, 3.0, 6.0), "concrete"))
+	_hide(_dbox("Office", o + Vector3(0, 1.5, -3.0), Vector3(6.0, 3.0, 0.25), "concrete"))
+	_hide(_dbox("Office", o + Vector3(-3.0, 1.5, -1.9), Vector3(0.25, 3.0, 2.2), "concrete"))
+	_hide(_dbox("Office", o + Vector3(-3.0, 1.5, 1.9), Vector3(0.25, 3.0, 2.2), "concrete"))
+	_tile("DST_ConcreteWall_4m.glb", o + Vector3(3.1, 0.0, -3.0), o + Vector3(3.1, 0.0, 3.0), PI * 0.5, "OfficeE", 0.94, 0.7)
+	_tile("DST_ConcreteWall_4m.glb", o + Vector3(-3.0, 0.0, -3.1), o + Vector3(3.0, 0.0, -3.1), PI, "OfficeS", 0.94, 0.7)
+	_tile("DST_ConcreteWall_4m.glb", o + Vector3(-3.1, 0.0, -3.0), o + Vector3(-3.1, 0.0, -0.8), -PI * 0.5, "OfficeW1", 0.94, 0.7)
+	_tile("DST_ConcreteWall_4m.glb", o + Vector3(-3.1, 0.0, 0.8), o + Vector3(-3.1, 0.0, 3.0), -PI * 0.5, "OfficeW2", 0.94, 0.7)
+	var od := _mdl("PRP_SteelDoor_Hinged.glb", "OfficeDoor", o + Vector3(-3.05, 0.0, 0.0), -PI * 0.5, Vector3(1.38, 1.38, 1.4))
+	if od:
+		var odd := od.find_child("Door", true, false) as Node3D
+		if odd:
+			odd.rotation.y = deg_to_rad(70.0)                 # standing open: the way in
+	# inside: a pin board and the rota on the walls, papers on the desk and the floor
+	_poster("art_pinboard.png", o + Vector3(2.88, 1.7, -0.6), -PI * 0.5, Vector2(1.0, 0.75))
+	_poster("art_schedule.png", o + Vector3(2.88, 1.7, 1.2), -PI * 0.5, Vector2(0.7, 0.93))
+	_poster("art_safety.png", o + Vector3(-1.4, 1.7, -2.88), 0.0, Vector2(0.7, 0.93))
+	_mdl("PRP_Paper_Pile_A.glb", "C13_PaperA", Vector3(7.0, 0.93, 42.2), 0.4)
+	_mdl("PRP_Paper_Pile_B.glb", "C13_PaperB", Vector3(8.6, 0.02, 41.0), 1.9)
+	_mdl("PRP_Paper_Sheet_A.glb", "C13_PaperC", Vector3(10.2, 0.02, 38.8), 0.8)
 	_prop("04_Commercial/Shared_Props/COM_ReceptionDesk.glb", "C13_Desk", D(Vector3(7.0, 0.0, 42.3)), D_YAW + PI)
 	_prop("03_Residential/Interactive_Props/RES_IP_StorageChest.glb", "C13_Locker", D(CRANK_AT), D_YAW - PI * 0.5)
 	_prop("02_Town/Utilities/UT_ElectricalCabinet.glb", "C13_Release", D(RELEASE_AT - Vector3(0, 1.2, 0.35)), D_YAW + PI)

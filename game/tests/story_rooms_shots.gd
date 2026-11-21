@@ -50,6 +50,10 @@ func _run() -> void:
 		await shot("di_hut", D.call(Vector3(2.0, 1.6, 71.0)), D.call(Vector3(0.0, 1.2, 76.0)), 62.0)
 		await shot("di_hut_wide", D.call(Vector3(-8.0, 2.4, 62.0)), D.call(Vector3(0.0, 1.8, 76.0)), 70.0)
 		await shot("di_office", D.call(Vector3(-2.0, 1.7, 38.0)), D.call(Vector3(8.0, 1.5, 42.0)), 70.0)
+		await shot("di_office_out", D.call(Vector3(2.0, 1.7, 33.0)), D.call(Vector3(9.0, 1.5, 40.0)), 70.0)
+		await shot("di_office_in1", D.call(Vector3(6.8, 1.6, 40.0)), D.call(Vector3(11.9, 1.5, 39.4)), 75.0)
+		await shot("di_office_in2", D.call(Vector3(11.2, 1.6, 40.6)), D.call(Vector3(6.0, 1.4, 40.0)), 75.0)
+		await shot("di_signs", D.call(Vector3(0.0, 1.7, 36.0)), D.call(Vector3(0.0, 1.8, 44.0)), 80.0)
 	elif which == "finale":
 		var c13 = c12.chapter13
 		var c14 = c13.chapter14
