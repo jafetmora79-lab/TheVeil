@@ -92,22 +92,25 @@ func play(w: Node) -> void:
 	# ---- 5-8 s: the creatures own the street
 	var eye := cam.global_position
 	var side := street_fwd.cross(Vector3.UP).normalized()
-	var colossus := _spawn_colossus(eye + street_fwd * 30.0 - side * 16.0, side)   # close enough to read in the fog
-	var hounds := _spawn_hounds(eye + street_fwd * 9.0, side)
-	report["creatures"] = (1 if colossus else 0) + hounds.size()
-	_sounds.append(Sfx.play("colossus_call", eye + street_fwd * 40.0 + Vector3(0, 12, 0), 0.0, 0.75))
-	var look := eye + street_fwd * 14.0 + Vector3(0, 2.5, 0)
-	var qc := cam.global_basis.get_rotation_quaternion()
-	var qd := Transform3D(Basis(), cam.global_position).looking_at(look, Vector3.UP).basis.get_rotation_quaternion()
-	var qd_tilt := (Basis(qd) * Basis(Vector3.FORWARD, deg_to_rad(-12.0))).get_rotation_quaternion()   # still lying
-	var t3 := create_tween()
-	t3.tween_method(func(k: float):
-		var e := k * k * (3.0 - 2.0 * k)
-		cam.global_basis = Basis(qc.slerp(qd_tilt, e)), 0.0, 1.0, 1.6)
-	await get_tree().create_timer(1.2).timeout
-	_sounds.append(Sfx.play("colossus_step", eye + street_fwd * 30.0, 2.0, 0.65))
-	await get_tree().create_timer(1.8).timeout
-	report["creatures_shown"] = true
+	if VeilMeshyNpcs.tripod_enabled():
+		await _tripod_pull(eye, street_fwd)
+	else:
+		var colossus := _spawn_colossus(eye + street_fwd * 30.0 - side * 16.0, side)   # close enough to read in the fog
+		var hounds := _spawn_hounds(eye + street_fwd * 9.0, side)
+		report["creatures"] = (1 if colossus else 0) + hounds.size()
+		_sounds.append(Sfx.play("colossus_call", eye + street_fwd * 40.0 + Vector3(0, 12, 0), 0.0, 0.75))
+		var look := eye + street_fwd * 14.0 + Vector3(0, 2.5, 0)
+		var qc := cam.global_basis.get_rotation_quaternion()
+		var qd := Transform3D(Basis(), cam.global_position).looking_at(look, Vector3.UP).basis.get_rotation_quaternion()
+		var qd_tilt := (Basis(qd) * Basis(Vector3.FORWARD, deg_to_rad(-12.0))).get_rotation_quaternion()   # still lying
+		var t3 := create_tween()
+		t3.tween_method(func(k: float):
+			var e := k * k * (3.0 - 2.0 * k)
+			cam.global_basis = Basis(qc.slerp(qd_tilt, e)), 0.0, 1.0, 1.6)
+		await get_tree().create_timer(1.2).timeout
+		_sounds.append(Sfx.play("colossus_step", eye + street_fwd * 30.0, 2.0, 0.65))
+		await get_tree().create_timer(1.8).timeout
+		report["creatures_shown"] = true
 	# ---- 8-10 s: fade, sound out, YOU DIED
 	_fade_sounds()
 	await hud.fade_to(1.0, 1.2)
@@ -136,6 +139,50 @@ static func retry() -> void:
 	else:
 		Game.new_game()
 	tree.change_scene_to_file("res://game/scenes/World.tscn")
+
+
+## The Colossus has found him: the tripod stands out in the fog, its eye turned on the body in the road, and the beam takes hold. The view is drawn slowly up the
+## beam toward the eye (the fog thickening, the light flaring) and fades to black.
+func _tripod_pull(eye: Vector3, street_fwd: Vector3) -> void:
+	var T := eye + street_fwd * 62.0
+	var g0 := _ground_y(T + Vector3(0, 3.0, 0))
+	var hold := VeilTripodColossus.make_holder(self, 60.0, g0)
+	hold.global_position = Vector3(T.x, g0, T.z)
+	hold.rotation.y = atan2(-street_fwd.x, -street_fwd.z)          # (faces him)
+	var tc := hold.get_meta("tripod") as VeilTripodColossus
+	tc.set_walking(true, 0.4)
+	var walk := hold.create_tween()
+	walk.tween_property(hold, "global_position", hold.global_position - street_fwd * tc.ground_speed() * 9.0, 9.0)
+	tc.eye.max_angle = PI
+	tc.eye.search_on = true
+	tc.eye.target = cam
+	tc.eye.level = 1.0
+	report["creatures"] = 1
+	_sounds.append(Sfx.play("colossus_call", eye + street_fwd * 40.0 + Vector3(0, 12, 0), 0.0, 0.75))
+	# the eye finds him
+	var qc := cam.global_basis.get_rotation_quaternion()
+	var look_at_eye := Transform3D(Basis(), cam.global_position).looking_at(tc.eye.eye_world_pos(), Vector3.UP).basis.get_rotation_quaternion()
+	var t3 := create_tween()
+	t3.tween_method(func(k: float):
+		var e := k * k * (3.0 - 2.0 * k)
+		cam.global_basis = Basis(qc.slerp(look_at_eye, e)), 0.0, 1.0, 1.6)
+	await get_tree().create_timer(1.3).timeout
+	tc.eye.beam_on = true
+	tc.eye.level = 1.6
+	_sounds.append(Sfx.play("colossus_step", eye + street_fwd * 30.0, 2.0, 0.65))
+	report["creatures_shown"] = true
+	# the pull: slowly up and along the beam, the view locked on the eye
+	var from := cam.global_position
+	var pull := create_tween().set_parallel(true)
+	pull.tween_method(func(k: float):
+		var e := k * k * (2.2 - 1.2 * k)
+		var eyep := tc.eye.eye_world_pos()
+		cam.global_position = from.lerp(from + street_fwd * 9.0 + Vector3(0, 5.5, 0), e) + Vector3(randf_range(-1, 1), randf_range(-1, 1), randf_range(-1, 1)) * 0.012 * k
+		var want := Transform3D(Basis(), cam.global_position).looking_at(eyep, Vector3.UP).basis.get_rotation_quaternion()
+		cam.global_basis = Basis(cam.global_basis.get_rotation_quaternion().slerp(want, 0.2)), 0.0, 1.0, 4.4)
+	pull.tween_property(cam, "fov", 52.0, 4.4)
+	await get_tree().create_timer(3.4).timeout
+	report["pulled"] = true
 
 
 # ------------------------------------------------------------------ helpers

@@ -671,7 +671,7 @@ func _run() -> void:
 	ok("talk_camera_frames_eddie", root.get_viewport().get_camera_3d().name == "TalkCam" and not player.controls_enabled)
 	ok("conversation_confirm_mode", dlg.confirm_mode and world.conversing)
 	ok("speaker_name_shown", world.hud.speaker_l.text == "EDDIE" or world.hud.speaker_l.text == "PROTAGONIST", world.hud.speaker_l.text)
-	ok("continue_prompt_shown", world.hud.confirm_l.visible and world.hud.confirm_l.text.contains("CONTINUE") and world.hud.confirm_l.text.contains("SKIP"))
+	ok("continue_prompt_shown", world.hud.confirm_l.visible and world.hud.confirm_l.text.contains("NEXT") and world.hud.confirm_l.text.contains("SKIP"))
 	await frames(60 * 7)
 	ok("talk_camera_restores", player.camera.current and player.controls_enabled and world._talk_cam == null and not dlg.confirm_mode)
 	ok("game_bought", game.has_flag("game_bought"))

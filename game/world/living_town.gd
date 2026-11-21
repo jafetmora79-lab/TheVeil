@@ -322,7 +322,10 @@ func _talk(nm: String) -> void:
 	p["anim"].walk_to([], 0.0)
 	p["anim"].face_towards(world.player.global_position)
 	p["wait"] = 4.0
-	Dialogue.say(id, false, true)
+	if world.has_method("converse_extern"):
+		world.converse_extern([id], nm, p["anim"])        # the gaze and the small zoom, like every conversation
+	else:
+		Dialogue.say(id, false, true)
 	report["talks"] = int(report.get("talks", 0)) + 1
 
 
@@ -342,10 +345,10 @@ func _spawn_people() -> void:
 	people["Frank"]["route"] = [Vector3(8.0, 0.2, sw), Vector3(21.0, 0.2, sw)]
 	_person("Civilian_A", CASHIER, "T_Face_Cashier.png", Vector3(30.0, 0.2, sw), Color(0.9, 0.9, 0.9))
 	people["Civilian_A"]["route"] = [Vector3(30.0, 0.2, sw), Vector3(48.0, 0.2, sw)]
-	# the woman who used to pace the car park is shopping inside the supermarket: she browses the aisles (market-local: down the aisle at x -4 and back up the one at x 2, along the cross-aisles; the shelves stand between them)
+	# the woman who used to pace the car park is shopping inside the supermarket: she browses the aisles (market-local; measured with a sphere sweep of the shop floor: the racks run north-south in pairs, the aisles between them are 1 m wide at x -4 and x 2, the free cross-aisles are z 7-7.5 at the front and z 12.5-13 at the back, the back wall's fridges start at z 13.5)
 	var mk := world.get("market") as Node3D
 	var shop: Array = [Vector3(24.0, 0.2, -25.4), Vector3(29.0, 0.2, -25.4)] if mk == null else [
-		mk.to_global(Vector3(-4.0, 0.04, 7.0)), mk.to_global(Vector3(-4.0, 0.04, 13.0)), mk.to_global(Vector3(2.0, 0.04, 13.0)), mk.to_global(Vector3(2.0, 0.04, 7.0))]
+		mk.to_global(Vector3(-4.0, 0.04, 7.2)), mk.to_global(Vector3(-4.0, 0.04, 12.75)), mk.to_global(Vector3(2.0, 0.04, 12.75)), mk.to_global(Vector3(2.0, 0.04, 7.2))]
 	_person("Civilian_B", FRANK, "T_Face_Frank.png", shop[0], Color(0.85, 0.75, 0.7))
 	people["Civilian_B"]["route"] = shop
 	_person("Officer", POLICE, "T_Face_Police_Officer.png", Vector3(60.0, 0.2, sw))
@@ -942,13 +945,15 @@ func _lying(feet: Vector3, head_dir: Vector3) -> Transform3D:
 func _frank() -> void:
 	if _busy != "":
 		return
-	if not people.has("Frank") or not is_instance_valid(people["Frank"]["body"]):
+	# the one taken: the officer, if the Colossus scene stood him across the street (he watched it with them); else Frank
+	var victim := "Officer" if (people.has("Officer") and people["Officer"].get("keep_in_shot", false) and is_instance_valid(people["Officer"]["body"])) else "Frank"
+	if not people.has(victim) or not is_instance_valid(people[victim]["body"]):
 		Game.set_flag("lt_frank_done")
 		return
 	_begin("frank")
 	world.player.controls_enabled = false                  # nobody wanders off mid-scene (the view stays free)
 	world.player.velocity = Vector3.ZERO
-	var p: Dictionary = people["Frank"]
+	var p: Dictionary = people[victim]
 	var body: Node3D = p["body"]
 	var a = p["anim"]
 	# --- staging, from where the player is looking: the street ahead, ~11 m out
@@ -963,6 +968,9 @@ func _frank() -> void:
 	var start := _ground(pin + side * 13.0)
 	var mid := _ground(pin + side * 5.0)
 	frank_report["pin"] = pin
+	if victim == "Officer" and VeilMeshyNpcs.monsters_enabled():
+		await _frank_taken_by_grimtalon(p, body, a, pin, fwd, side, true)
+		return
 	# --- run: across the view, a look back, a stumble
 	_fstate("run")
 	body.visible = true
@@ -1114,9 +1122,14 @@ func _frank() -> void:
 
 
 ## The Grimtalon version: after the Colossus a winged thing drops out of the mist onto the stumbling man, takes him by the shoulders and climbs into the sky with him.
-func _frank_taken_by_grimtalon(p: Dictionary, body: Node3D, a, pin: Vector3, fwd: Vector3, side: Vector3) -> void:
+func _frank_taken_by_grimtalon(p: Dictionary, body: Node3D, a, pin: Vector3, fwd: Vector3, side: Vector3, officer := false) -> void:
 	var t := 0.0
-	while a.is_walking() and t < 4.0:
+	if officer:
+		# he walks from where he watched, across the street, to the spot - at the Walking clip's own pace (no sliding) - looking up at the sky
+		p["state"] = "event"
+		a.set_mood("scared")
+		a.walk_to([pin], 1.5)
+	while a.is_walking() and t < (10.0 if officer else 4.0):
 		await get_tree().process_frame
 		t += get_process_delta_time()
 	a.walk_to([], 0.0)
@@ -1127,7 +1140,7 @@ func _frank_taken_by_grimtalon(p: Dictionary, body: Node3D, a, pin: Vector3, fwd
 	Sfx.play("colossus_call", pin + approach * 45.0 + Vector3(0, 40.0, 0), 4.0, 1.9)          # a screech from the sky
 	a.face_towards(pin + approach * 30.0 + Vector3(0, 30.0, 0))
 	a.set_mood("scared")
-	_say("lt_frank_help")
+	_say("lt_officer_help" if officer else "lt_frank_help")
 	if world.has_method("focus_shot"):
 		world.focus_shot(pin + Vector3(0, 6.0, 0), 46.0, 0.9, 5.5)
 	var state_cb := func(s: String):
@@ -1138,7 +1151,7 @@ func _frank_taken_by_grimtalon(p: Dictionary, body: Node3D, a, pin: Vector3, fwd
 			Sfx.play("colossus_call", body.global_position + Vector3(0, 3.0, 0), 2.0, 2.0)
 		elif s == "carry":
 			Sfx.play("hurt", body.global_position + Vector3(0, 1.4, 0), 2.0, 1.2)
-			_say("lt_eddie_frank")
+			_say("lt_eddie_officer" if officer else "lt_eddie_frank")
 	await bird.abduct(body, exit_dir, state_cb, approach)
 	frank_report["carried_to_m"] = body.global_position.y
 	if is_instance_valid(bird):
@@ -1459,6 +1472,8 @@ func clear_shot(cam_pos: Vector3, dirs: Array, radius := 16.0) -> Array:
 		var b = p.get("body")
 		if not is_instance_valid(b) or not (b as Node3D).visible:
 			continue
+		if p.get("keep_in_shot", false):
+			continue                                     # staged for this shot (the officer across the street)
 		var at: Vector3 = (b as Node3D).global_position
 		var to := (at - cam_pos) * Vector3(1, 0, 1)
 		if to.length() > radius or to.length() < 0.01:
@@ -1492,6 +1507,46 @@ func clear_shot(cam_pos: Vector3, dirs: Array, radius := 16.0) -> Array:
 		moved.append(nm)
 	report["shot_cleared"] = moved
 	return moved
+
+
+## The Colossus scene: the officer is on the far side of the street, in the shot, watching the tripod come (he stays there after the scene until he is taken).
+func stage_officer(P: Vector3, n: Vector3, look_at_point: Vector3) -> void:
+	if not people.has("Officer") or not is_instance_valid(people["Officer"]["body"]):
+		return
+	var o: Dictionary = people["Officer"]
+	var side := n.cross(Vector3.UP).normalized()
+	var spot := Vector3.INF
+	for d in [16.0, 20.0, 13.0, 24.0]:
+		for sd in [5.0, -5.0, 9.0, -9.0, 0.0]:
+			var c := _ground(P + n * d + side * sd)
+			if not c.is_finite() or _on_road(c) or in_house(c):
+				continue
+			var sp := safe_point(c)
+			if sp.is_finite():
+				spot = sp
+				break
+		if spot.is_finite():
+			break
+	if not spot.is_finite():
+		return
+	var b: Node3D = o["body"]
+	b.visible = true
+	b.global_position = spot
+	o["state"] = "event"
+	o["keep_in_shot"] = true
+	var a = o["anim"]
+	a.walk_to([], 0.0)
+	a.set_mood("scared")
+	a.face_towards(look_at_point)
+	report["officer_staged"] = spot
+
+
+## The tripod's eye finds the protagonist: the officer flinches and looks up at it.
+func officer_react(at: Vector3) -> void:
+	if people.has("Officer") and people["Officer"].get("keep_in_shot", false) and is_instance_valid(people["Officer"]["body"]):
+		var a = people["Officer"]["anim"]
+		a.face_towards(at)
+		a.talk(1.4)
 
 
 func restore_after_shot() -> void:

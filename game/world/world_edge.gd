@@ -4,8 +4,8 @@ class_name VeilWorldEdge
 ## lots, story places and supply caches) the mist closes in; keep going and a Colossus tentacle takes you.
 ##   WARN_D  - the mist thickens with distance, a deep call far off, one line: "This road doesn't feel right..."
 ##             Turning back clears it again.
-##   KILL_D  - heavy mist, a rumble, a huge tentacle bursts up in front, grabs and lifts (camera shake), a crushing
-##             thud into black, then the usual YOU DIED - RETRY (last save) / MAIN MENU.
+##   KILL_D  - heavy mist, a rumble, the Veil rises slowly ahead, a pack of hounds runs straight at you out of it and jumps you, into
+##             black, then the usual YOU DIED - RETRY (last save) / MAIN MENU.
 ## Before the story's Veil this is only local fog (no flags, no chapter change); after it the existing fog is used.
 ## Never during a cinematic, an encounter, a conversation, a struggle or a death; never saves, never sets a flag.
 ## Armed only once the player has been inside the playable area (a save far out cannot loop), plus a short grace
@@ -14,6 +14,7 @@ class_name VeilWorldEdge
 const WARN_D := 40.0                   ## metres from the nearest built thing
 const KILL_D := 62.0
 const TENTACLE := "res://THE_VEIL_ASSETS_V2/07_Creatures/Godot_Scenes/CRT_MistTentacle_Medium.tscn"
+const HOUND := "res://THE_VEIL_ASSETS_V2/07_Creatures/Godot_Scenes/CRT_Hound.tscn"
 const STING := "res://game/audio/the_veil_jumpscare_sting.wav"
 const SKIP_NAMES := ["Scatter", "VeilAtmosphere"]
 
@@ -218,66 +219,62 @@ func _take() -> void:
 	cam.environment = src.environment
 	cam.current = true
 	report["cam"] = true
-	_set_fog(3.0)                                        # the mist closes in
+	# the Veil comes up slowly in front of him: the mist thickens round him and curtains of it rise across the way ahead
 	var fwd := -cam.global_basis.z
 	fwd.y = 0.0
 	fwd = fwd.normalized() if fwd.length() > 0.1 else Vector3.FORWARD
 	var at := cam.global_position
-	Sfx.play("colossus_step", at + fwd * 25.0, 4.0, 0.6)
-	Sfx.play("colossus_call", at + fwd * 40.0 + Vector3(0, 15, 0), 2.0, 0.75)
-	world._shake(cam, 0.6, 0.03)
-	await get_tree().create_timer(1.1).timeout
-	# a tentacle the size of a tree, up out of the ground in front
-	var t := (load(VeilMeshyNpcs.monster_scene(TENTACLE)) as PackedScene).instantiate() as Node3D
-	t.name = "EdgeTentacle"
-	t.set("autoplay", "")
-	add_child(t)
-	t.set_process(false)
-	var mats = t.get("_mats")
-	if mats is Array:
-		for m in mats:
-			if m is ShaderMaterial:
-				(m as ShaderMaterial).set_shader_parameter("mist_level", -50.0)
-				(m as ShaderMaterial).set_shader_parameter("fade_height", 0.05)
-	var base := Vector3(at.x, _ground_y(at), at.z) + fwd * 5.5
-	var face := Basis.looking_at(-fwd, Vector3.UP)
-	t.global_transform = Transform3D(face.scaled(Vector3.ONE * 2.6), base - Vector3(0, 9.0, 0))
-	var ap := t.find_child("AnimationPlayer", true, false) as AnimationPlayer
-	if ap and ap.get_animation_list().size() > 0:
-		ap.play(ap.get_animation_list()[0])
-	_sting(at)
-	var up := create_tween().set_trans(Tween.TRANS_EXPO).set_ease(Tween.EASE_OUT)
-	up.tween_property(t, "global_position", base, 0.7)
-	await up.finished
-	report["tentacle"] = true
-	world._shake(cam, 0.35, 0.05)
-	# it lunges and has him: shake, lifted off the ground and pulled toward it
-	var lunge := create_tween().set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_IN)
-	lunge.tween_property(t, "global_position", base - fwd * 3.2 + Vector3(0, -0.6, 0), 0.22)
-	await lunge.finished
-	Sfx.play("hurt", at, 0.0, 0.7)
-	report["grabbed"] = true
-	var lift_to := base + Vector3(0, 6.5, 0) - fwd * 1.0
-	var b0 := cam.global_basis.get_rotation_quaternion()
-	var b1 := Basis.from_euler(Vector3(deg_to_rad(-55.0), cam.global_rotation.y + 0.6, deg_to_rad(35.0))).get_rotation_quaternion()
-	var start := cam.global_position
-	var dur := 1.3
-	var k := 0.0
-	while k < dur:
-		k += get_process_delta_time()
-		var e := clampf(k / dur, 0.0, 1.0)
-		e = e * e * (3.0 - 2.0 * e)
-		cam.global_position = start.lerp(lift_to, e) + Vector3(randf_range(-1, 1), randf_range(-1, 1), randf_range(-1, 1)) * 0.06
-		cam.global_basis = Basis(b0.slerp(b1, e))
-		t.global_position = base.lerp(base + Vector3(0, 2.5, 0), e)
+	var ground := _ground_y(at)
+	var curtains: Array = []
+	if world.has_method("_enc_mist"):
+		curtains = world._enc_mist(Vector3(at.x, ground, at.z), fwd, ground)
+		for c in curtains:
+			((c as MeshInstance3D).mesh as QuadMesh).material.set_shader_parameter("density", 0.0)
+	var rise := create_tween().set_parallel(true)
+	rise.tween_method(func(v: float): _set_fog(v), 0.0, 3.0, 4.2)
+	for c in curtains:
+		var cm := ((c as MeshInstance3D).mesh as QuadMesh).material as ShaderMaterial
+		rise.tween_method(func(v: float): cm.set_shader_parameter("density", v), 0.0, 0.78, 4.2)
+	Sfx.play("colossus_call", at + fwd * 60.0 + Vector3(0, 14, 0), 0.0, 0.6)
+	await get_tree().create_timer(2.6).timeout
+	Sfx.play("colossus_step", at + fwd * 25.0, 2.0, 0.6)
+	# a pack of hounds comes out of it, running straight at him
+	var hounds := _hounds(at, fwd, ground)
+	report["hounds"] = hounds.size()
+	var lead: Node3D = hounds[0] if not hounds.is_empty() else null
+	var guard := 0.0
+	while is_instance_valid(lead) and guard < 9.0 and lead.global_position.distance_to(at) > 3.0:
 		await get_tree().process_frame
-	report["lifted"] = true
-	await hud.fade_to(1.0, 0.18)
-	Sfx.play("colossus_step", cam.global_position, 6.0, 0.5)   # the crush, in the dark
+		guard += get_process_delta_time()
+	report["pack_arrived"] = true
+	# they jump him: the lead hound goes for the throat, the others close in; the view is thrown back
+	Sfx.bank_at("hound_bark", at + fwd * 2.0, 4.0, 20.0)
+	Sfx.play("hurt", at, 2.0, 0.8)
+	_sting(at)
+	world._shake(cam, 0.5, 0.09)
+	var q0 := cam.global_basis.get_rotation_quaternion()
+	var q1 := Basis.from_euler(Vector3(deg_to_rad(38.0), cam.global_rotation.y, deg_to_rad(18.0))).get_rotation_quaternion()
+	var jump := create_tween().set_parallel(true)
+	for i in hounds.size():
+		var h: Node3D = hounds[i]
+		if is_instance_valid(h):
+			if h.has_meta("tween"):
+				(h.get_meta("tween") as Tween).kill()
+			var land := at + fwd * 0.5 + cam.global_basis.x * (i - hounds.size() / 2.0) * 0.5 + Vector3(0, 0.3 + 0.35 * i, 0)
+			jump.tween_property(h, "global_position", land, 0.3 + 0.05 * i).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_IN)
+	jump.tween_method(func(k: float): cam.global_basis = Basis(q0.slerp(q1, k)), 0.0, 1.0, 0.35)
+	await get_tree().create_timer(0.38).timeout
+	report["jumped"] = true
+	await hud.fade_to(1.0, 0.25)
 	Sfx.play("hurt", cam.global_position, 4.0, 0.5)
 	report["fade"] = true
-	await get_tree().create_timer(1.0).timeout
-	t.queue_free()
+	await get_tree().create_timer(1.2).timeout
+	for h in hounds:
+		if is_instance_valid(h):
+			h.queue_free()
+	for c in curtains:
+		if is_instance_valid(c):
+			c.queue_free()
 	var panel := VeilChoicePanel.new()
 	panel.name = "DeathPanel"
 	world.add_child(panel)
@@ -289,6 +286,43 @@ func _take() -> void:
 		(func(): VeilDeathSequence.retry()).call_deferred()      # the last save: never one made out here
 	else:
 		world.call("_to_menu")
+
+
+## Five hounds out of the mist ahead, running straight at `at`, fanned a little; each runs on its own tween until it reaches him.
+func _hounds(at: Vector3, fwd: Vector3, ground: float) -> Array:
+	var out: Array = []
+	var ps := load(VeilMeshyNpcs.monster_scene(HOUND)) as PackedScene
+	if ps == null:
+		return out
+	var side := fwd.cross(Vector3.UP).normalized()
+	for i in 5:
+		var h := ps.instantiate() as Node3D
+		add_child(h)
+		if h is CollisionObject3D:
+			(h as CollisionObject3D).collision_layer = 0
+			(h as CollisionObject3D).collision_mask = 0
+		h.set_physics_process(false)
+		h.scale = Vector3.ONE * 1.35
+		VeilCreatureLook.apply_ground(h, ground)
+		var start := at + fwd * (52.0 + i * 3.0) + side * ((i - 2) * 2.6)
+		start.y = ground
+		h.global_position = start
+		var dv := (Vector3(at.x, ground, at.z) + side * (i - 2) * 0.3) - start
+		h.rotation.y = atan2(dv.x, dv.z)                    # (the hound runs along +Z)
+		var ap := h.get_node_or_null(String(h.get_meta("animation_player", "Model/AnimationPlayer"))) as AnimationPlayer
+		var run_v := 9.0
+		var base_v: float = float(h.get_meta("run_speed_mps", 3.2)) * h.scale.x
+		if ap and ap.has_animation("Run"):
+			ap.play("Run")
+			ap.speed_scale = run_v / maxf(base_v, 0.5)
+			ap.seek(i * 0.13, true)
+		var to := Vector3(at.x, ground, at.z) + side * (i - 2) * 0.3
+		var tw := h.create_tween()
+		tw.tween_interval(i * 0.2)
+		tw.tween_property(h, "global_position", to, start.distance_to(to) / run_v)
+		h.set_meta("tween", tw)
+		out.append(h)
+	return out
 
 
 ## Out of the car without the usual checks (it may be off the road, in thick mist): stopped, the player beside it.

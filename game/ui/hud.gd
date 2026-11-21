@@ -250,7 +250,7 @@ func _process(_d: float) -> void:
 	confirm_l.visible = on
 	if on:
 		var touch := DisplayServer.is_touchscreen_available() and OS.has_feature("mobile")
-		confirm_l.text = "TAP - CONTINUE      HOLD - SKIP" if touch else "CLICK / E - CONTINUE      HOLD E - SKIP"
+		confirm_l.text = "TAP  NEXT      HOLD  SKIP" if touch else "CLICK / E  NEXT      HOLD E  SKIP"
 		var held := Input.is_action_pressed("interact") or Input.is_mouse_button_pressed(MOUSE_BUTTON_LEFT)
 		_hold = _hold + _d if held else 0.0
 		if not held:

@@ -226,12 +226,23 @@ func _clear(p: Vector3, look: Vector3) -> Vector3:
 	if d > 30.0 or d < 0.8 or not is_instance_valid(world):
 		return p
 	var space: PhysicsDirectSpaceState3D = world.get_world_3d().direct_space_state
-	var q := PhysicsRayQueryParameters3D.create(look, p)
-	q.collide_with_areas = false
-	var hit := space.intersect_ray(q)
-	if hit.is_empty():
-		return p
-	return (hit["position"] as Vector3) + (look - p).normalized() * 0.35
+	# only real walls and big solid things count: not the people, parking meters, lamp posts or signs (a camera pulled up against one of them, at the far end of a
+	# dolly, jumped right up to it for a few frames: the "glitch close to the wall")
+	var skip: Array[RID] = []
+	for i in 4:
+		var q := PhysicsRayQueryParameters3D.create(look, p)
+		q.collide_with_areas = false
+		q.exclude = skip
+		var hit := space.intersect_ray(q)
+		if hit.is_empty():
+			return p
+		var col := hit["collider"] as Node
+		var nm := String(col.name)
+		if col is CharacterBody3D or col is RigidBody3D or nm.begins_with("SP_") or nm.begins_with("Civilian") or nm.begins_with("LT_") or nm.contains("Lamp") or nm.contains("Sign"):
+			skip.append(hit["rid"])
+			continue
+		return (hit["position"] as Vector3) + (look - p).normalized() * 0.35
+	return p
 
 
 func _wait(secs: float) -> void:

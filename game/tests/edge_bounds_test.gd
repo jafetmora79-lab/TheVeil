@@ -150,7 +150,7 @@ func _run() -> void:
 	car.global_position = far + Vector3(0, 0.6, 0)
 	var taken := await until(func(): return edge.report.get("death_panel", false), 15.0)
 	ok("taken_from_car", taken and edge.report.get("left_car", false) and not w.in_car and not car.driven, str(edge.report))
-	ok("grab_stages", edge.report.get("tentacle", false) and edge.report.get("grabbed", false) and edge.report.get("lifted", false))
+	ok("grab_stages", int(edge.report.get("hounds", 0)) == 5 and edge.report.get("pack_arrived", false) and edge.report.get("jumped", false))     # the Veil rises, a pack of hounds runs at him and jumps him
 	ok("no_flags_changed", game.flags == flags0)
 	var save_t2 := FileAccess.get_modified_time(game.SAVE_PATH) if FileAccess.file_exists(game.SAVE_PATH) else 0
 	ok("no_save_written", save_t2 == save_t)

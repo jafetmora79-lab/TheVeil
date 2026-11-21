@@ -95,7 +95,7 @@ func _make_overlay() -> void:
 	small.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	small.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	frame.add_child(small)
-	skip = VeilUI.button("SKIP  ·  Esc / Space / Enter")
+	skip = VeilUI.button("SKIP SCENE  ·  Esc")
 	skip.anchor_left = 0.72
 	skip.anchor_top = 0.02
 	skip.anchor_right = 0.98

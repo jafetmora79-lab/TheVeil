@@ -795,7 +795,7 @@ func _talk_camera_allowed() -> bool:
 
 
 ## Returns false only when refused (the NPC spoken to is out of sight behind a wall / door / window).
-func converse(ids: Array, npcs: Array = []) -> bool:
+func converse(ids: Array, npcs: Array = [], confirm := true) -> bool:
 	if conversing:
 		# already talking (a scripted follow-up): the new lines take over inside the same talk camera
 		for i in ids.size():
@@ -815,13 +815,25 @@ func converse(ids: Array, npcs: Array = []) -> bool:
 		var a = animators.get(String(n.name))
 		if a:
 			a.face_towards(player.global_position)
-	Dialogue.confirm_mode = true
+	Dialogue.confirm_mode = confirm
 	for i in ids.size():
 		Dialogue.say(ids[i], false, i == 0)
 	await _talk_camera()
 	Dialogue.confirm_mode = false
 	conversing = false
 	return true
+
+
+## A person who is not one of the story's named NPCs (the townspeople of living_town.gd) speaks to the player: the same talk camera as any conversation (the protagonist's
+## gaze turns to the speaker's face with the small zoom). `anim` is the person's NpcAnimator. Not for the comments of companions on a mission.
+var _talk_extra := {}
+
+
+func converse_extern(ids: Array, nm: String, anim) -> void:
+	_talk_extra[nm] = anim
+	_talk_speaker = nm
+	await converse(ids, [], false)
+	_talk_extra.erase(nm)
 
 
 func _choice_open() -> bool:
@@ -957,7 +969,7 @@ func talk_shot(seconds: float) -> void:
 
 
 func _speaker_head(speaker: String):
-	var a = animators.get(speaker)
+	var a = animators.get(speaker, _talk_extra.get(speaker))
 	if a == null or not is_instance_valid(a) or a.skel == null or not a.root.is_visible_in_tree():
 		return null
 	return a.skel.global_transform * a.skel.get_bone_global_pose(a.bone("Head")).origin + Vector3(0, 0.08, 0)
@@ -2621,6 +2633,8 @@ func _tripod_encounter() -> void:
 	cam.current = true
 	if living and living.has_method("clear_shot"):
 		living.clear_shot(cam.global_position, [-cam.global_basis.z, n * 30.0])
+		if living.has_method("stage_officer"):
+			living.stage_officer(P, n, P + n * 86.0)             # the officer across the street, watching it come
 	# --- the creature comes in from the left, far across the street: huge, and slow (each of its three steps takes seconds)
 	var tc := VeilTripodColossus.new()
 	tc.name = "Colossus_Encounter"
@@ -2699,6 +2713,8 @@ func _tripod_encounter() -> void:
 	tc.eye.level = 1.5
 	tc.eye.beam_on = true
 	_clerk_flees(P + ((tc.global_position - P) * Vector3(1, 0, 1)).normalized() * 15.0)     # the clerk breaks and runs
+	if living and living.has_method("officer_react"):
+		living.officer_react(tc.global_position + Vector3(0, COLOSSUS_H * 0.5, 0))
 	await get_tree().create_timer(0.55).timeout
 	_enc_sounds.append(Sfx.play("colossus_call", P + Vector3(0, 1.6, 0), 14.0, 1.35))      # the jump scare: in his ears, not out there
 	Sfx.play("colossus_call", tc.eye.eye_world_pos(), 10.0, 0.7)
@@ -3624,8 +3640,8 @@ func _seat(speaker: String, seat: Vector3, height: float, toward: Vector3, edge 
 	var to2: Vector3 = toward - seat
 	to2.y = 0.0
 	a.walk_to([])
-	if not place_survivor(a.root, seat + to2.normalized() * edge):
-		return          # on the seat's front edge, not inside the box
+	# exactly on the box (the safe-placement of survivor bodies pushed him off the box, to its side, because his capsule overlapped the box's collision)
+	_place_exact(a.root, X * (seat + to2.normalized() * edge))
 	a.turn_to_face = false
 	a.face_towards(X * toward)
 	a.root.rotate_y(a.world_forward().signed_angle_to((X.basis * to2).normalized(), Vector3.UP))

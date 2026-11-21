@@ -6875,6 +6875,29 @@
    }
   ]
  },
+ "lt_officer_help": {
+  "lines": [
+   {
+    "speaker": "Officer",
+    "text": "Get inside! Everybody get -- Oh God, it's--!",
+    "time": 2.6
+   }
+  ]
+ },
+ "lt_eddie_officer": {
+  "lines": [
+   {
+    "speaker": "Eddie",
+    "text": "The officer! It took him -- it just took him!",
+    "time": 2.4
+   },
+   {
+    "speaker": "Eddie",
+    "text": "We can't... get inside! Now!",
+    "time": 2.4
+   }
+  ]
+ },
  "lt_frank_help": {
   "lines": [
    {
