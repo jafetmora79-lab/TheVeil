@@ -86,6 +86,24 @@
    }
   ]
  },
+ "deer_stop": {
+  "lines": [
+   {
+    "speaker": "",
+    "text": "Jesus! Where did that come from...",
+    "time": 2.4
+   }
+  ]
+ },
+ "deer_after": {
+  "lines": [
+   {
+    "speaker": "",
+    "text": "Just a deer. Just a deer. ...Keep driving.",
+    "time": 3.0
+   }
+  ]
+ },
  "town": {
   "lines": [
    {

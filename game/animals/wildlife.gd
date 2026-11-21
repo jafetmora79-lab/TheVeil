@@ -128,38 +128,119 @@ func _scare_watch(_p: Vector3) -> void:
 	start_scare()
 
 
-## A deer from the roadside, 4.5 m to the car's right, running across; it reaches the car's line 0.4 s before the car does.
+## The deer scare as a little cinematic: sting + tyre screech, the protagonist stands on the brake, the deer leaps out of the roadside and stops a hand's breadth
+## in front of the bumper, freezes (its own idle clip) and stares, then bolts; the protagonist breathes out and the player has the car back.
 func start_scare() -> void:
 	var car: Node3D = world.sedan
 	var fwd := -car.global_transform.basis.z
 	fwd.y = 0.0
 	fwd = fwd.normalized()
-	var right: Vector3 = car.global_transform.basis.x                                  # (to the car's right)
+	var right: Vector3 = car.global_transform.basis.x
 	right.y = 0.0
 	right = right.normalized()
-	var v: float = maxf(float(car.speed), 7.0)
-	var lateral := 4.5
-	var run_speed: float = float(VeilAnimal.DEFS["deer"]["speed"]["run"])
-	var t1 := lateral / run_speed
-	var ahead := v * (t1 + 0.4)
-	var at: Vector3 = car.global_position + fwd * ahead + right * lateral
+	var v: float = maxf(float(car.speed), 6.0)
+	var decel := 15.0                                                       # a hard stop (m/s^2)
+	var stop_d := v * v / (2.0 * decel) + 0.5                             # (the car overruns a little: one frame of lag before it bites)
+	var front := 2.35                                                       # car centre to bumper
+	var gap := 1.9                                                          # bumper to the deer's middle (its body is ~1.6 m long facing the car: the nose ends a few centimetres off the bumper)
+	var at: Vector3 = car.global_position + fwd * (stop_d + front + gap)
 	var g := _ground(at)
 	if not g.is_finite():
 		g = Vector3(at.x, car.global_position.y, at.z)
-	_scare = VeilAnimal.spawn(world, "deer", g, atan2(-right.x, -right.z))
+	var from: Vector3 = g + right * 7.0
+	var gf := _ground(from)
+	if gf.is_finite():
+		from.y = gf.y
+	_scare = VeilAnimal.spawn(world, "deer", from, atan2(-right.x, -right.z))
 	_scare_car = car
-	var exit_at: Vector3 = g - right * 36.0 + fwd * 8.0
-	_scare.run_to(exit_at)
-	_scare_clear = 1e9
 	_scare_t = 0.0
+	_scare_clear = 1e9
 	Game.set_flag(SCARE_FLAG)
 	report["scare"] = true
+	_cine(car, _scare, g, fwd, right, decel)
+
+
+func _cine(car: Node3D, deer: VeilAnimal, stop_at: Vector3, fwd: Vector3, right: Vector3, decel: float) -> void:
+	var old_decel: float = car.script_decel
+	car.script_decel = decel
+	car.drive_script = func(_d): return Vector2(0.0, 0.0)                   # off the throttle, straight, brakes hard
+	_sound(STING, -7.0)
+	_sound_skid()
+	_cam_dip(car)
+	deer.run_to(stop_at)
+	await deer.arrived
+	if not is_instance_valid(deer):
+		car.drive_script = Callable()
+		car.script_decel = old_decel
+		return
+	report["scare_stop_m"] = deer.global_position.distance_to(car.global_position)
+	# it plants its feet and stares into the headlights (its own idle clip), the head turns to the car
+	var face := atan2(-fwd.x, -fwd.z)
+	var tw := deer.create_tween()
+	tw.tween_property(deer, "rotation:y", lerp_angle(deer.rotation.y, face, 1.0), 0.35)
+	deer._yaw = face
+	while absf(float(car.speed)) > 0.15 and is_instance_valid(deer):
+		await world.get_tree().process_frame
+	Dialogue.say("deer_stop", false, true)
+	await world.get_tree().create_timer(2.2).timeout
+	if is_instance_valid(deer):
+		deer.run_to(deer.global_position - right * 40.0 + fwd * 6.0)
+	await world.get_tree().create_timer(2.0).timeout
+	Dialogue.say("deer_after", false, false)
+	await world.get_tree().create_timer(1.6).timeout
+	car.drive_script = Callable()                                            # the drive is the player's again
+	car.script_decel = old_decel
+	report["scare_done"] = true
+
+
+func _sound(path: String, db: float) -> void:
 	var s := AudioStreamPlayer.new()
-	s.stream = load(STING)
-	s.volume_db = -7.0
+	s.stream = load(path)
+	s.volume_db = db
 	add_child(s)
 	s.play()
 	s.finished.connect(s.queue_free)
+
+
+## Tyres locking up: a rough, wavering noise that falls in pitch as the car stops (made here, there is no sample for it).
+func _sound_skid() -> void:
+	var rate := 22050
+	var n := int(rate * 1.3)
+	var data := PackedByteArray()
+	data.resize(n * 2)
+	var rng := RandomNumberGenerator.new()
+	rng.seed = 7
+	var lp := 0.0
+	var ph := 0.0
+	for i in n:
+		var t := float(i) / n
+		var env := minf(t * 14.0, 1.0) * pow(1.0 - t, 0.8)
+		lp = lerpf(lp, rng.randf_range(-1.0, 1.0), 0.35)
+		ph += TAU * lerpf(900.0, 520.0, t) / rate
+		var x := (lp * 0.7 + sin(ph) * 0.25 * sin(t * 40.0)) * env * 0.6
+		data.encode_s16(i * 2, int(clampf(x, -1.0, 1.0) * 32000.0))
+	var w := AudioStreamWAV.new()
+	w.format = AudioStreamWAV.FORMAT_16_BITS
+	w.mix_rate = rate
+	w.data = data
+	var s := AudioStreamPlayer.new()
+	s.stream = w
+	s.volume_db = -6.0
+	add_child(s)
+	s.play()
+	s.finished.connect(s.queue_free)
+
+
+## The windscreen dips forward as the car noses down under braking, then settles.
+func _cam_dip(car: Node3D) -> void:
+	var cam: Camera3D = car.driver_cam
+	if cam == null:
+		return
+	var base := cam.rotation.x
+	var tw := create_tween()
+	tw.tween_property(cam, "rotation:x", base - 0.07, 0.25).set_trans(Tween.TRANS_SINE)
+	tw.tween_interval(0.6)
+	tw.tween_property(cam, "rotation:x", base, 0.9).set_trans(Tween.TRANS_SINE)
 
 
 func _scare_step(delta: float) -> void:
@@ -173,6 +254,6 @@ func _scare_step(delta: float) -> void:
 		var d := _scare.global_position.distance_to(_scare_car.global_position)
 		_scare_clear = minf(_scare_clear, d)
 		report["scare_miss_m"] = _scare_clear
-	if _scare_t > 9.0 or (_scare.state == "idle" and _scare_t > 1.0):
+	if report.get("scare_done", false) and _scare.state == "idle" or _scare_t > 20.0:
 		_scare.queue_free()
 		_scare = null

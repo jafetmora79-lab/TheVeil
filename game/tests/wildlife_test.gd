@@ -78,26 +78,21 @@ func _run() -> void:
 	car.speed = 14.0
 	w.in_car = true
 	car.driven = true
-	for i in 10:
-		await process_frame
-	car.speed = 14.0
-	for i in 10:
+	for i in 3:
 		await process_frame
 	var d = w.wildlife._scare             # (started by the drive itself: out in the woods, heading to town, at speed)
 	ok("scare_deer", d != null)
 	var min_d := 1e9
-	var crossed_at := Vector3.INF
-	var side0 := signf((d.global_position - car.global_position).x)
-	for i in 240:
+	var min_speed := 99.0
+	for i in 600:
 		await process_frame
 		if is_instance_valid(d):
 			min_d = minf(min_d, d.global_position.distance_to(car.global_position))
-			var side := signf((d.global_position - car.global_position).x)
-			if crossed_at == Vector3.INF and side != side0:
-				crossed_at = d.global_position - car.global_position
-	print("TEST scare_numbers INFO closest %.1f m, when the deer crossed the car's line: %s" % [min_d, str(crossed_at)])
-	ok("scare_near_miss", min_d > 1.2 and min_d < 8.0, "%.1f m" % min_d)
-	ok("scare_deer_crosses_ahead", crossed_at != Vector3.INF and crossed_at.z < -0.5, str(crossed_at))
+	var stop_m: float = float(w.wildlife.report.get("scare_stop_m", -1.0))
+	print("TEST scare_numbers INFO deer stopped %.2f m from the car's centre, closest %.2f m, car speed now %.1f" % [stop_m, min_d, car.speed])
+	ok("scare_deer_stops_at_bumper", stop_m > 3.2 and stop_m < 5.2, "%.2f m" % stop_m)
+	ok("scare_never_hits", min_d > 3.0, "%.2f m" % min_d)
+	ok("scare_cinematic_done", w.wildlife.report.get("scare_done", false) and not car.drive_script.is_valid())
 	ok("scare_once", w.wildlife.report["scare"] and game.has_flag("deer_scare_done"))
 	print("RESULT %s fails=%d" % ["PASS" if fails == 0 else "FAIL", fails])
 	quit(1 if fails else 0)
