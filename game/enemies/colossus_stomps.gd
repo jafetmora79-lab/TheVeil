@@ -79,6 +79,10 @@ func _process(dt: float) -> void:
 			cam.v_offset = randf_range(-1.0, 1.0) * _shake * _shake * 0.5
 	if not enabled or _sk == null:
 		return
+	if not tripod.is_visible_in_tree():            # (warmed up out of sight, or hidden between shots: its feet are not on the ground)
+		for i in _lifted.size():
+			_lifted[i] = false
+		return
 	for i in _bones.size():
 		if _bones[i] < 0:
 			continue
