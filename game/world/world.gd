@@ -4473,6 +4473,10 @@ func _setup_night() -> void:
 		sedan.add_child(t)
 	# 5) the night sky / ambient / fog through the Pack 09 controller (it takes over the Core environment)
 	_atmo().apply_preset(night_preset("night"), true)
+	var sky: Node3D = load("res://game/world/night_sky.gd").new()                  # stars, a moon and a few clouds while the night is still ordinary
+	sky.name = "NightSky"
+	add_child(sky)
+	sky.setup(self)
 	print("[World] night: %d street lights (%d added)" % [lights.size(), added])
 
 
