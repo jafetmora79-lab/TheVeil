@@ -2585,6 +2585,7 @@ func _colossus_encounter() -> void:
 	_p3_survival_begins(door_out, shop_door)
 
 
+var _tc_birds: Array = []                       ## the Grimtalons wheeling round the encounter's tripod
 const COLOSSUS_H := 85.0                       ## the tripod Colossus's height in the encounter (m)
 
 
@@ -2647,6 +2648,9 @@ func _tripod_encounter() -> void:
 	tc.global_position = A
 	tc.rotation.y = atan2(-wd.x, -wd.z)                       # the model faces -Z
 	tc.set_walking(true, 0.45)
+	if VeilMeshyNpcs.monsters_enabled():
+		# the Grimtalons come with it: a swarm wheeling round the tripod, high in the mist, wherever it walks
+		_tc_birds = VeilGrimtalon.flock(self, 9, A, tc, Vector2(26.0, 62.0), Vector2(14.0, 70.0), Vector2(8.0, 13.0))
 	tc.eye.search_on = true
 	tc.eye.aim_direct = true
 	var scan := Node3D.new()
@@ -2792,6 +2796,7 @@ func _tripod_watch(tc: VeilTripodColossus, wd: Vector3) -> void:
 	tm.tween_property(tc, "global_position", tc.global_position + wd * tc.ground_speed() * 30.0, 30.0)
 	tm.tween_callback(func():
 		away.queue_free()
+		VeilGrimtalon.retire_all(_tc_birds, wd)
 		tc.queue_free())
 
 
@@ -3352,6 +3357,7 @@ const STOCK_IN := Vector3(-2.0, 0.04, 9.45)
 const SEAT_BOX := Vector3(-0.6, 0.04, 9.3)
 const SEAT_DOCS := Vector3(-5.0, 0.04, 9.2)
 const STOCK_CIRCLE := Vector3(-2.7, 0.04, 9.6)
+const MARCUS_DOOR_WAIT := Vector3(-1.3, 0.04, 9.2)     ## inside, beside the door's free edge: where Marcus stands to pull it shut
 const EDDIE_STAND := Vector3(-2.6, 0.04, 10.4)
 const SEATED_EYE := 1.22                      # box top 0.44 + seated eye height
 const STAND_EYE := 1.62
@@ -3451,39 +3457,52 @@ func _shop_seated_talk() -> void:
 	cam.fov = player.camera.fov
 	cam.current = true
 	seated_report["spawned_seats"] = 0
-	# 1. panic: away from the storefront, a run for the stock room in first person; Eddie and Marcus come too
+	# 1. panic: Eddie sprints ahead to the stock room and pulls the door open; the protagonist runs after him in first person, Marcus right behind.
+	#    Everyone goes in and MARCUS pulls the door shut behind them. Every leg is a collision-free route (npc_route): nobody passes through a wall or the door leaf.
 	for k in ["Eddie", "Marcus"]:
 		if animators.has(k):
 			animators[k].set_mood("scared")
 			animators[k].turn_to_face = false
-	npc_walk("Eddie", STOCK_DOOR_OUT + Vector3(-0.7, 0, -0.9), 3.4)
-	npc_walk("Marcus", STOCK_DOOR_OUT + Vector3(0.6, 0, -1.1), 3.2)
-	await _fp_look(cam, X * (STOCK_DOOR_OUT + Vector3(0, 1.5, 0)), 0.45)
-	await _fp_walk(cam, STOCK_DOOR_OUT, 4.2)
-	await _fp_look(cam, X * (STOCK_IN + Vector3(0, 1.4, 0.6)), 0.2)
-	await _stock_door(true, 0.35)                 # shoved open
-	# Eddie and Marcus go in first; the protagonist holds the door (a step aside) and goes in last
-	npc_walk("Eddie", EDDIE_STAND, 3.0)
-	npc_walk("Marcus", SEAT_DOCS + Vector3(0.62, 0, 0.0), 3.0)
-	await _fp_walk(cam, STOCK_DOOR_OUT + Vector3(0.85, 0, -0.35), 2.4)
+	npc_walk("Eddie", STOCK_DOOR_OUT + Vector3(-0.55, 0, -0.45), 4.0)
+	await _fp_look(cam, X * (STOCK_DOOR_OUT + Vector3(0, 1.5, 0)), 0.4)
+	npc_walk("Marcus", STOCK_DOOR_OUT + Vector3(0.75, 0, -1.2), 3.4)
 	var t := 0.0
-	var inside := func(k: String) -> bool:
-		return not animators.has(k) or game_shop.to_local(animators[k].root.global_position).z > 8.9
-	while t < 6.0 and not (inside.call("Eddie") and inside.call("Marcus")):
-		_fp_track(cam, X * (STOCK_IN + Vector3(0, 1.3, 0)), 5.0)
+	while t < 6.0 and animators.has("Eddie") and animators["Eddie"].is_walking():
+		_fp_track(cam, X * (STOCK_DOOR_OUT + Vector3(-0.5, 1.4, 0)), 4.0)
 		await get_tree().process_frame
 		t += get_process_delta_time()
-	for pair in [["Eddie", EDDIE_STAND], ["Marcus", SEAT_DOCS + Vector3(0.62, 0, 0.0)]]:
+	if animators.has("Eddie"):
+		animators["Eddie"].face_towards(X * (STOCK_DOOR_OUT + Vector3(0, 1.0, 1.0)))
+	await _stock_door(true, 0.35)                 # Eddie shoves the door open...
+	npc_walk("Eddie", EDDIE_STAND, 3.6)           # ...and runs through
+	await _fp_walk(cam, STOCK_DOOR_OUT, 4.2)
+	await _fp_look(cam, X * (STOCK_IN + Vector3(0, 1.4, 0.6)), 0.15)
+	await _fp_walk(cam, STOCK_IN, 3.4)
+	seated_report["fp_retreat"] = true
+	await _fp_walk(cam, MARCUS_DOOR_WAIT + Vector3(-1.6, 0, 0.6), 2.6)       # a few steps on, clear of the door, then round to see it shut
+	# Marcus comes in last and closes the door behind him
+	var inside := func(k: String) -> bool:
+		return not animators.has(k) or game_shop.to_local(animators[k].root.global_position).z > 8.9
+	if animators.has("Marcus"):
+		npc_walk("Marcus", MARCUS_DOOR_WAIT, 3.4)
+	await _fp_look(cam, X * (STOCK_DOOR_OUT + Vector3(0.3, 1.2, 0.4)), 0.4)
+	t = 0.0
+	while t < 6.0 and not (inside.call("Marcus") and not animators["Marcus"].is_walking()):
+		_fp_track(cam, X * (STOCK_DOOR_OUT + Vector3(0.3, 1.2, 0.4)), 5.0)
+		await get_tree().process_frame
+		t += get_process_delta_time()
+	for pair in [["Eddie", EDDIE_STAND], ["Marcus", MARCUS_DOOR_WAIT]]:
 		if not inside.call(pair[0]):                       # never left outside: put in (rare; logged)
 			animators[pair[0]].walk_to([])
 			animators[pair[0]].root.position = pair[1]
 			seated_report["snapped_inside"] = seated_report.get("snapped_inside", 0) + 1
 	seated_report["others_in_first"] = inside.call("Eddie") and inside.call("Marcus")
-	await _fp_walk(cam, STOCK_IN, 3.0)
-	seated_report["fp_retreat"] = true
-	# 2. inside last: turn, pull the door shut
-	await _fp_look(cam, X * (STOCK_DOOR_OUT + Vector3(0, 1.3, 0.6)), 0.45)
-	await _stock_door(false, 0.6)
+	if animators.has("Marcus"):
+		animators["Marcus"].walk_to([])
+		animators["Marcus"].face_towards(X * (STOCK_DOOR_OUT + Vector3(0.0, 1.0, 0.0)))
+		await get_tree().create_timer(0.35).timeout
+	await _stock_door(false, 0.6)                 # Marcus pulls it shut
+	seated_report["marcus_closed_door"] = true
 	_colossus_step_outside(cam, 0.8)
 	await get_tree().create_timer(1.4).timeout   # everyone holds still, listening
 	# 3. take a seat: the protagonist on the cardboard box, Marcus on the document boxes, Eddie stands
@@ -3536,6 +3555,7 @@ func _shop_seated_talk() -> void:
 	Game.set_flag("p3_two_hours_later")
 	for n in find_children("Colossus_Encounter", "", true, false):
 		n.queue_free()                            # it has gone: no more footsteps
+	VeilGrimtalon.retire_all(_tc_birds, Vector3.RIGHT)
 	if market_merch and market_merch.has_method("loot"):
 		market_merch.loot()                       # people raided the supermarket in the meantime
 	_tip_carts()
@@ -3596,7 +3616,7 @@ func _shop_seated_talk() -> void:
 
 
 ## Sit a character on an existing seat (shop-local), facing `toward`.
-func _seat(speaker: String, seat: Vector3, height: float, toward: Vector3, edge := 0.22) -> void:
+func _seat(speaker: String, seat: Vector3, height: float, toward: Vector3, edge := 0.0) -> void:
 	var a = animators.get(speaker)
 	if a == null:
 		return

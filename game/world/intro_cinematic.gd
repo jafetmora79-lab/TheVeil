@@ -179,6 +179,9 @@ func _end() -> void:
 		_radio.queue_free()
 	if is_instance_valid(_colossus):
 		_colossus.queue_free()
+	for b in _birds:
+		if is_instance_valid(b):
+			b.queue_free()
 	if is_instance_valid(cam):
 		cam.queue_free()
 	world.player.camera.current = true
@@ -375,12 +378,21 @@ func _warm_colossus() -> void:
 	tc.build(COLOSSUS_H, ground)
 	tc.global_position = Vector3(10, ground, -12)
 	_colossus = tc
+	if VeilMeshyNpcs.monsters_enabled():
+		# its Grimtalons: a swarm wheeling round it in the haze (drawn once under the black opening, like the tripod, then hidden until its shot)
+		_birds = VeilGrimtalon.flock(world, 10, tc.global_position, tc, Vector2(24.0, 95.0), Vector2(16.0, 80.0), Vector2(8.0, 13.0))
+		for b in _birds:
+			(b as Node3D).visible = false
 	world.get_tree().create_timer(1.6).timeout.connect(func():
 		if is_instance_valid(tc) and not _colossus_placed:
-			tc.visible = false)
+			tc.visible = false
+		for b in _birds:
+			if is_instance_valid(b) and not _colossus_placed:
+				(b as Node3D).visible = false)
 
 
 var _colossus_placed := false
+var _birds: Array = []
 
 
 func _place_colossus(at: Vector3) -> void:
@@ -393,6 +405,9 @@ func _place_colossus(at: Vector3) -> void:
 		_colossus = tc
 	_colossus_placed = true
 	tc.visible = true
+	for b in _birds:
+		if is_instance_valid(b):
+			(b as Node3D).visible = true
 	tc.global_position = at
 	var toward: Vector3 = ((world.sedan.global_position if world.get("sedan") else Vector3.ZERO) - at) * Vector3(1, 0, 1)
 	toward = toward.normalized()

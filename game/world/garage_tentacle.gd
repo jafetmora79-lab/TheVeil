@@ -14,6 +14,7 @@ const TENTACLE := "res://THE_VEIL_ASSETS_V2/07_Creatures/Godot_Scenes/CRT_MistTe
 const ROOT := Vector3(20.3, 0.35, 15.9)              # market frame: just outside the roll-up door's plane (x 20.05)
 const GAP_LOOK := Vector3(19.6, 0.45, 15.9)
 const ESCAPE_S := 10.0
+const THIN := 0.36            ## thickness of the limbs under the door relative to their length scale (base ~0.6 m across: it fits the 0.9 m gap)
 ## Not lying flat along the floor (it read as a tube slid in on its side): it rises from the gap at about 20 degrees,
 ## at the player, its base out of sight outside the door (0.25 m in, it is 9 cm higher: still under the 0.9 m gap).
 const LIFT := PI * 0.5 - 0.35
@@ -206,7 +207,7 @@ func _spawn_trio() -> void:
 			po.straight = true                         # flat along its aim, under the door - not the rest pose's rear-up
 			po.apply()
 		trio[k] = {"node": t, "poser": po, "root": spec[k][0], "dir": (spec[k][1] as Vector3).normalized(),
-			"scale": float(spec[k][2]), "slide": -1.6, "yaw": 0.0, "busy": false, "fix": Basis()}
+			"scale": float(spec[k][2]), "thick": THIN, "slide": -1.6, "yaw": 0.0, "busy": false, "fix": Basis()}
 		_apply(k)
 		# the model's chain is not along its own +Y (its root bone tilts it up into a rear): measure the straight
 		# chain's real axis in the model and turn the model so that axis lies along the aim
@@ -222,14 +223,16 @@ func _spawn_trio() -> void:
 	report["tentacles"] = trio.size()
 
 
-func _aim(dir: Vector3, s: float) -> Basis:
+## `s` is the limb's length scale, `w` its thickness relative to that: the Meshy tentacle is a fat 2 m-wide tube, which does not fit through a 0.9 m gap at
+## full thickness, so these limbs are slimmed (same length, so the reach is unchanged).
+func _aim(dir: Vector3, s: float, w := 1.0) -> Basis:
 	var y := dir.normalized()
 	var x := y.cross(Vector3.UP)
 	if x.length() < 0.05:
 		x = Vector3.RIGHT
 	x = x.normalized()
 	var z := x.cross(y).normalized()
-	return Basis(x, y, z).scaled(Vector3.ONE * s)
+	return Basis(x * s * w, y * s, z * s * w)
 
 
 func _apply(k: String) -> void:
@@ -238,7 +241,7 @@ func _apply(k: String) -> void:
 	if not is_instance_valid(t):
 		return
 	var dir: Vector3 = (d["dir"] as Vector3).rotated(Vector3.UP, float(d["yaw"]))
-	t.transform = Transform3D(_aim(dir, float(d["scale"])) * (d.get("fix", Basis()) as Basis), (d["root"] as Vector3) + dir * float(d["slide"]))
+	t.transform = Transform3D(_aim(dir, float(d["scale"]), float(d.get("thick", 1.0))) * (d.get("fix", Basis()) as Basis), (d["root"] as Vector3) + dir * float(d["slide"]))
 
 
 ## Bend only the inside part (bones from `from` on): `lean` up / down (about the bone X), `curl` sideways.

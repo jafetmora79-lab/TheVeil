@@ -13,6 +13,7 @@ var TENTACLE: PackedScene = load(VeilMeshyNpcs.monster_scene("res://THE_VEIL_ASS
 const CAMERA_MARGIN := 0.16
 const EXPOSED := 3.6                      ## metres of tentacle above the street once it is up
 const STING := preload("res://game/audio/the_veil_jumpscare_sting.wav")
+const MOUND_SCALE := 1.75                 ## the broken ground matches the Meshy tentacle's ~1.1 m girth at street level (the mound was built for a 0.6 m one)
 const DISTANCE := 7.6                     ## from the player (5 m further out than before: seen whole, sudden)
 
 var tentacle: Node3D                      ## left in place for the chase
@@ -88,6 +89,7 @@ func play(world: Node) -> bool:
 	_cue("crack")
 	world._ground_burst(ground)                          # the crack: one sound, chunks, a jolt
 	mound = VeilTentacleMound.make(world, ground, int(ground.x * 13.0 + ground.z * 7.0), 0.12)
+	mound.scale = Vector3.ONE * MOUND_SCALE
 	var heave := create_tween()
 	heave.tween_method(func(k: float): mound.grow(k), 0.12, 0.45, 0.15)
 	await heave.finished
@@ -133,8 +135,8 @@ func play(world: Node) -> bool:
 	var hit_at := Vector3(feet.x, ground.y + 0.05, feet.z)
 	var lash := _solve_lash(hit_at)                      # the forward bend that puts the tip on that spot
 	report["lash_tip_error_m"] = lash[1]
-	_morph(_arr(0.0, 0.0, 0), _arr(-0.04, -0.32, 4), 0.2)
-	await _wait(0.12)
+	_morph(_arr(0.0, 0.0, 0), _arr(-0.06, -0.5, 4), 0.32)
+	await _wait(0.26)
 	# the sidestep starts as it draws back: out of the way before the tip arrives
 	_cue("dodge")
 	var dodge := create_tween().set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_OUT)

@@ -22,6 +22,7 @@ var _scare: VeilAnimal
 var _scare_t := -1.0
 var _scare_clear := 1e9
 var _scare_car: Node3D
+var _yaw_hist: Array = []
 var _rng := RandomNumberGenerator.new()
 
 
@@ -59,6 +60,7 @@ func _process(delta: float) -> void:
 		return
 	_t += delta
 	_scare_step(delta)
+	_town_flocks(delta)
 	if not _active():
 		return
 	var p := _player_pos()
@@ -122,6 +124,13 @@ func _scare_watch(_p: Vector3) -> void:
 	var fwd := -car.global_transform.basis.z
 	var to_town := (TOWN - car.global_position) * Vector3(1, 0, 1)
 	var d_town := to_town.length()
+	# only on a straight stretch: the heading has been steady for the last second and a half (the scene is staged in straight lines, not on a bend)
+	var yaw := atan2(fwd.x, fwd.z)
+	_yaw_hist.append(yaw)
+	if _yaw_hist.size() > 90:
+		_yaw_hist.pop_front()
+	if _yaw_hist.size() < 60 or absf(angle_difference(_yaw_hist[0], yaw)) > 0.04 or absf(float(car.steer)) > 0.03:
+		return
 	# out in the woods (140-420 m from the town centre), heading towards town, at a driving speed
 	if d_town < 140.0 or d_town > 420.0 or fwd.dot(to_town.normalized()) < 0.2 or float(car.speed) < 5.0 or Game.has_flag("arrival_shot"):
 		return
@@ -142,7 +151,7 @@ func start_scare() -> void:
 	var decel := 15.0                                                       # a hard stop (m/s^2)
 	var stop_d := v * v / (2.0 * decel) + 0.5                             # (the car overruns a little: one frame of lag before it bites)
 	var front := 2.35                                                       # car centre to bumper
-	var gap := 1.9                                                          # bumper to the deer's middle (its body is ~1.6 m long facing the car: the nose ends a few centimetres off the bumper)
+	var gap := 3.6                                                          # bumper to the deer's middle (its body is ~1.6 m long facing the car: the nose ends a few centimetres off the bumper)
 	var at: Vector3 = car.global_position + fwd * (stop_d + front + gap)
 	var g := _ground(at)
 	if not g.is_finite():
@@ -184,7 +193,7 @@ func _cine(car: Node3D, deer: VeilAnimal, stop_at: Vector3, fwd: Vector3, right:
 	Dialogue.say("deer_stop", false, true)
 	await world.get_tree().create_timer(2.2).timeout
 	if is_instance_valid(deer):
-		deer.run_to(deer.global_position - right * 40.0 + fwd * 6.0)
+		deer.run_to(deer.global_position - right * 40.0)
 	await world.get_tree().create_timer(2.0).timeout
 	Dialogue.say("deer_after", false, false)
 	await world.get_tree().create_timer(1.6).timeout
@@ -257,3 +266,38 @@ func _scare_step(delta: float) -> void:
 	if report.get("scare_done", false) and _scare.state == "idle" or _scare_t > 20.0:
 		_scare.queue_free()
 		_scare = null
+
+
+# ------------------------------------------------------------------ the Grimtalons over the town
+## Once the Veil is up, flocks of Grimtalons wheel over the town in the mist, high above the roofs: two swarms whose centres drift slowly across the town.
+## They are spawned when the player is within reach of the town and put away (hidden, not freed) when he is far off.
+var _flock_anchors: Array = []
+var _flock_birds: Array = []
+var _flock_t := 0.0
+
+
+func _town_flocks(delta: float) -> void:
+	if world == null or world.player == null or not Game.has_flag("p3_mist") or not VeilMeshyNpcs.monsters_enabled():
+		return
+	var near: bool = world.player.global_position.distance_to(TOWN) < 420.0
+	if _flock_birds.is_empty():
+		if not near:
+			return
+		for spec in [[7, Vector2(55, 130), Vector2(48, 78), Vector2(8, 12), Vector3(0, 0, 0)], [5, Vector2(90, 190), Vector2(62, 95), Vector2(9, 14), Vector3(70, 0, -50)]]:
+			var anchor := Node3D.new()
+			anchor.name = "GrimtalonFlockAnchor"
+			world.add_child(anchor)
+			anchor.global_position = TOWN + (spec[4] as Vector3)
+			_flock_anchors.append([anchor, spec[4]])
+			_flock_birds.append_array(VeilGrimtalon.flock(world, int(spec[0]), anchor.global_position, anchor, spec[1], spec[2], spec[3]))
+		report["flock_birds"] = _flock_birds.size()
+	_flock_t += delta
+	for i in _flock_anchors.size():
+		var an: Node3D = _flock_anchors[i][0]
+		var base: Vector3 = TOWN + (_flock_anchors[i][1] as Vector3)
+		if is_instance_valid(an):
+			an.global_position = base + Vector3(sin(_flock_t * (0.045 + 0.01 * i)) * 80.0, 0.0, cos(_flock_t * (0.038 + 0.012 * i)) * 80.0)
+	for g in _flock_birds:
+		if is_instance_valid(g):
+			g.visible = near
+			g.set_process(near)

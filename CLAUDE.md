@@ -151,3 +151,14 @@ The export filter skips `game/tools/build_*`, `game/tools/*.py` and `game/tests/
 - Trees and grass sway in the wind: `game/world/tree_sway.gdshader` replaces the StandardMaterial3D of the scattered vegetation (`scatter.gd::_make_sway`); the global `veil_wind` is 1 before the Veil, 2.4 after.
 - The intro's last shot starts on the player's roof (not in the car); lamp posts / signs in front of the supermarket arrival shot are hidden for its length (`world.gd::_hide_poles_in_view`).
 - Each Mixamo NPC has its own AnimationLibrary (the imported one is shared by every instance and a native crash followed when one copy replaced a clip another was playing).
+
+## Grimtalons, deer cinematic, stock-room retreat (2026-11-21) - on branch `story/noah-rescue`
+- `game/animals/grimtalon.gd` (VeilGrimtalon): the bat-owl Meshy model (`game/prototypes/animals/MON_grimtalon.glb`, rigged, no clips: wings / legs / tail are posed in code). `flock()` makes swarms,
+  `abduct(victim, exit_dir, cb, approach)` swoops, grabs a person by the shoulders and climbs away. Used by: `wildlife.gd` (two flocks over the town once the Veil is up), `world.gd::_tripod_encounter`
+  (a swarm round the Colossus), `intro_cinematic.gd` (a swarm round the intro's Colossus), `living_town.gd::_frank_taken_by_grimtalon` (replaces the Skitter dragging Frank; `-- old_monsters` keeps the Skitter).
+  Preview GIF: `docs/grimtalon_preview.gif` (made by `game/tests/grimtalon_gif.gd`, windowed). Test: `game/tests/grimtalon_test.gd`. Sizes, colours and the look through the mist need a visual test.
+- The deer on the drive is a cinematic (`wildlife.gd::_cine`): only on a straight stretch, hard brake, deer stops ~1.7 m ahead of the bumper, freezes, bolts, two lines, the drive resumes. `opening_test` sets the flag
+  `deer_scare_done` so its autopilot drive is not stopped.
+- Game-shop retreat (`world.gd::_shop_seated_talk`): Eddie runs ahead and opens the stock-room door, the protagonist and Marcus go in, Marcus closes it. Seats: `_seat` edge 0 (on top of the boxes).
+- Tentacles: the back-gate trio is slimmed (`garage_tentacle.gd::THIN`, thickness only, length unchanged); the street tentacle's mound is scaled to its girth (`tentacle_escape_shot.gd::MOUND_SCALE`).
+  Both need a visual test.

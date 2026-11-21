@@ -978,6 +978,9 @@ func _frank() -> void:
 	a.face_towards(start)                              # a look back over his shoulder
 	await get_tree().create_timer(0.3).timeout
 	a.walk_to([pin], 3.2)                              # the stumble: he loses his pace
+	if VeilMeshyNpcs.monsters_enabled():
+		await _frank_taken_by_grimtalon(p, body, a, pin, fwd, side)
+		return
 	# --- hunt: from cover, a fast scuttle and a hiss
 	var cover := _cover_near(pin)
 	if cover.distance_to(eye) < 6.0:
@@ -1105,6 +1108,46 @@ func _frank() -> void:
 	p["state"] = "taken"
 	_unregister(body)
 	sk.queue_free()
+	report["frank_pin"] = pin
+	await _retreat_player()
+	_end("frank")
+
+
+## The Grimtalon version: after the Colossus a winged thing drops out of the mist onto the stumbling man, takes him by the shoulders and climbs into the sky with him.
+func _frank_taken_by_grimtalon(p: Dictionary, body: Node3D, a, pin: Vector3, fwd: Vector3, side: Vector3) -> void:
+	var t := 0.0
+	while a.is_walking() and t < 4.0:
+		await get_tree().process_frame
+		t += get_process_delta_time()
+	a.walk_to([], 0.0)
+	_fstate("hunt")
+	var approach := (fwd * 0.75 + side * 0.65).normalized()
+	var exit_dir := (fwd * 0.45 - side * 0.9).normalized()
+	var bird := VeilGrimtalon.spawn(world, pin + approach * 75.0 + Vector3(0, 48.0, 0), 0.0)
+	Sfx.play("colossus_call", pin + approach * 45.0 + Vector3(0, 40.0, 0), 4.0, 1.9)          # a screech from the sky
+	a.face_towards(pin + approach * 30.0 + Vector3(0, 30.0, 0))
+	a.set_mood("scared")
+	_say("lt_frank_help")
+	if world.has_method("focus_shot"):
+		world.focus_shot(pin + Vector3(0, 6.0, 0), 46.0, 0.9, 5.5)
+	var state_cb := func(s: String):
+		_fstate(s)
+		if s == "grab":
+			a.set_process(false)
+			Sfx.play("hurt", body.global_position + Vector3(0, 1.4, 0), 4.0, 0.9)
+			Sfx.play("colossus_call", body.global_position + Vector3(0, 3.0, 0), 2.0, 2.0)
+		elif s == "carry":
+			Sfx.play("hurt", body.global_position + Vector3(0, 1.4, 0), 2.0, 1.2)
+			_say("lt_eddie_frank")
+	await bird.abduct(body, exit_dir, state_cb, approach)
+	frank_report["carried_to_m"] = body.global_position.y
+	if is_instance_valid(bird):
+		bird.queue_free()
+	body.visible = false
+	body.rotation.x = 0.0
+	body.rotation.z = 0.0
+	p["state"] = "taken"
+	_unregister(body)
 	report["frank_pin"] = pin
 	await _retreat_player()
 	_end("frank")

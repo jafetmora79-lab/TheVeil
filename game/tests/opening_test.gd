@@ -300,6 +300,7 @@ func _run() -> void:
 	var interaction: Script = load("res://game/interaction/interactable.gd")
 	dlg.auto_confirm = true                      # the "player" confirms each conversation line when its time is up
 	game.new_game()
+	game.set_flag("deer_scare_done")            # (the deer scene takes the wheel for ~8 s: it has its own test, wildlife_test)
 	game.delete_save()
 	var ps: PackedScene = load("res://game/scenes/World.tscn")
 	ok("world_loads", ps != null)
@@ -891,6 +892,7 @@ func _run() -> void:
 		and game.has_flag("p3_two_hours_later") and player.visible and player.controls_enabled, str(sr2))
 	ok("p3_stock_room_retreat", sr2.get("fp_retreat", false) and sr2.get("door_open", false) and sr2.get("door_closed", false)
 		and sr2.get("spawned_seats", -1) == 0 and sr2.get("third_anchor", false), str(sr2))
+	ok("p3_marcus_closes_door", sr2.get("marcus_closed_door", false) and sr2.get("others_in_first", false), str(sr2))
 	ok("p3_no_seat_props", world.game_shop.find_children("Seat_*", "", true, false).is_empty())
 	ok("p3_market_looted", world.market_merch.looted)
 	ok("p3_objective_reach_market", game.current_step().get("text", "") == "Reach the supermarket", game.current_step().get("text", ""))
