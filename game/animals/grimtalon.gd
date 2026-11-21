@@ -52,6 +52,8 @@ var _retire_dir := Vector3.ZERO
 var _retire_t := 0.0
 var _screech_t := 0.0
 var _ph := 0.0
+var _vel := Vector3.ZERO
+var _vprev := Vector3.INF
 
 
 static func spawn(parent: Node, at: Vector3, yaw := 0.0, scale := SCALE) -> VeilGrimtalon:
@@ -243,22 +245,22 @@ static func retire_all(birds: Array, dir: Vector3) -> void:
 ## Swoops out of the sky onto `victim` (a standing person at `victim.global_position`), takes him by the shoulders and climbs away with him, away from `exit_dir`'s
 ## opposite, until he is a speck in the mist. `on_state(s)` is called with "dive" / "grab" / "carry" / "gone". The person keeps the pose he has (the caller
 ## sets his mood), hanging a little and swaying. Returns when it is gone.
-func abduct(victim: Node3D, exit_dir: Vector3, on_state := Callable(), approach := Vector3.ZERO) -> void:
+func abduct(victim: Node3D, exit_dir: Vector3, on_state := Callable(), approach := Vector3.ZERO, dive_scale := 1.0) -> void:
 	scripted()
 	manual_pose = true
 	carrying = true
 	amp = 0.35
 	flap_rate = 1.6
-	var shoulder := 1.45
+	var shoulder := 1.36
 	var exit_flat := Vector3(exit_dir.x, 0.0, exit_dir.z).normalized()
 	var target: Vector3 = victim.global_position + Vector3(0, shoulder, 0)
 	var from_dir := Vector3(approach.x, 0.0, approach.z).normalized() if approach.length() > 0.1 else -exit_flat
-	var start := target + from_dir * 75.0 + Vector3(0, 48.0, 0)
+	var start := target + from_dir * 75.0 * dive_scale + Vector3(0, 48.0 * dive_scale, 0)
 	global_position = start
 	if on_state.is_valid():
 		on_state.call("dive")
 	# the dive: accelerating along a curve that arrives level, about to rise, with its talons reaching down onto his shoulders
-	var T := 2.7
+	var T := 1.0 + 1.7 * dive_scale
 	var t := 0.0
 	var grip_off := Vector3.ZERO
 	while t < T:
@@ -268,6 +270,11 @@ func abduct(victim: Node3D, exit_dir: Vector3, on_state := Callable(), approach 
 		var k := clampf(t / T, 0.0, 1.0)
 		var e := k * k * (3.0 - 2.0 * k)
 		var from := start
+		if is_instance_valid(victim):                                    # a running man: it aims where he will be
+			var vnow: Vector3 = victim.global_position + Vector3(0, shoulder, 0)
+			_vel = _vel.lerp((vnow - _vprev) / maxf(dt, 0.0001), 0.2) if _vprev != Vector3.INF else Vector3.ZERO
+			_vprev = vnow
+			target = vnow + _vel * maxf(T - t, 0.0)
 		var ctrl := start.lerp(target, 0.55) + Vector3(0, -6.0, 0)
 		var p := from.lerp(ctrl, e).lerp(ctrl.lerp(target + Vector3(0, 1.0, 0), e), e)
 		var prev := global_position
@@ -299,8 +306,8 @@ func abduct(victim: Node3D, exit_dir: Vector3, on_state := Callable(), approach 
 		if is_instance_valid(victim):
 			var g := grip_point()
 			victim.global_position = g - Vector3(0, shoulder, 0)
-			victim.rotation.z = sin(s * 3.2) * 0.12
-			victim.rotation.x = sin(s * 2.3 + 1.0) * 0.1
+			victim.rotation.z = sin(s * 9.0) * 0.34                          # he thrashes in its grip
+			victim.rotation.x = sin(s * 7.0 + 1.0) * 0.26
 		if s > 0.6 and on_state.is_valid() and not has_meta("carry_sent"):
 			set_meta("carry_sent", true)
 			on_state.call("carry")
