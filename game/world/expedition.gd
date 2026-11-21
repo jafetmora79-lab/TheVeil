@@ -406,6 +406,7 @@ func start(kind: String, vehicle: bool) -> void:
 	if kind == "scavenge":
 		s["scavenged_day"] = _today()                # the next one waits for tomorrow
 	s["went_out"] = false
+	world._clear_beacon("supplies_hint")                # the green marker at the doors was for planning the trip: the trip has begun
 	s["started_at"] = Game.play_time
 	_encounter_t = 60.0
 	_reset_director(0.0)
@@ -425,6 +426,7 @@ func start(kind: String, vehicle: bool) -> void:
 func secure() -> void:
 	if not active():
 		return
+	world._clear_beacon("supplies_hint")
 	var c5 := _c5()
 	if c5:
 		c5._set_doors(false)

@@ -69,14 +69,14 @@ func request() -> void:
 	if supply_gate.is_valid():
 		var why: String = supply_gate.call()
 		if why != "":
-			if hud and hud.has_method("set_hint"):
-				hud.set_hint(why)                  # (not the story's "not tired" refusal: this is about supplies)
-			supply_refusals += 1
+			supply_refusals += 1                   # (the panel below says it; the long reason is no longer thrown on screen as a hint on top of it)
 			# never a dead end: sleeping hungry is allowed (the night's shortfall costs morale)
 			_busy = true
 			var k: int = await choice.ask("NOT ENOUGH FOR EVERYONE TONIGHT", ["Find More Supplies", "Sleep Anyway - Some Survivors Go Hungry"], player)
 			_busy = false
 			if k != 1:
+				if hud and hud.has_method("set_hint"):
+					hud.set_hint(why.get_slice(". ", 0) + ".")          # just the first sentence: what is missing
 				return
 			hungry_nights += 1
 			_busy = true
