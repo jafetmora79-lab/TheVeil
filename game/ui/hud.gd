@@ -268,6 +268,7 @@ func _process(_d: float) -> void:
 		skip_progress = clampf(_hold / SKIP_HOLD, 0.0, 1.0) if held and not _hold_spent else 0.0
 	else:
 		_hold = 0.0
+	hint.visible = not Dialogue.is_busy()                      # the hint (the shopping list) never sits over a spoken line
 	click_hint.visible = Input.mouse_mode != Input.MOUSE_MODE_CAPTURED and not is_paused() and not end_panel.visible \
 		and fade.color.a < 0.5 and not inv_panel.visible
 
