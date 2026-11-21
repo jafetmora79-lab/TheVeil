@@ -30,6 +30,9 @@ func _ready() -> void:
 			push_error("scatter model failed to load: " + m)
 			continue
 		var inst := ps.instantiate() as Node3D
+		if m.begins_with("VG_Tree") or m in ["VG_TallGrassClump", "VG_Weeds", "VG_DeadVegetation"]:
+			for smi in inst.find_children("*", "MeshInstance3D", true, false):
+				_make_sway((smi as MeshInstance3D).mesh, 0.0 if m.begins_with("VG_Tree") else 0.5)
 		var xs: Array = []
 		var cells := {}
 		for it in by_model[m]:
@@ -72,6 +75,52 @@ func _ready() -> void:
 					c.transform = x * s[1]
 					sb.add_child(c)
 		inst.free()
+
+
+const SWAY_SHADER := "res://game/world/tree_sway.gdshader"
+const FILTERS := ["filter_nearest", "filter_linear", "filter_nearest_mipmap", "filter_linear_mipmap", "filter_nearest_mipmap_anisotropic", "filter_linear_mipmap_anisotropic"]
+static var _sway_shaders := {}
+
+
+## The trees and the grass move in the wind: each surface's StandardMaterial3D becomes a ShaderMaterial with the same texture (tree_sway.gdshader).
+## `bend_k` > 0 overrides the bend for low plants (they lean further, relative to their height).
+func _make_sway(mesh: Mesh, bend_k: float) -> void:
+	if mesh == null:
+		return
+	if not RenderingServer.global_shader_parameter_get_list().has(&"veil_wind"):
+		RenderingServer.global_shader_parameter_add("veil_wind", RenderingServer.GLOBAL_VAR_TYPE_FLOAT, 1.0)
+	var h := maxf(mesh.get_aabb().size.y, 0.5)
+	for i in mesh.get_surface_count():
+		var mat := mesh.surface_get_material(i) as StandardMaterial3D
+		if mat == null or mat.albedo_texture == null:
+			continue
+		var fl: int = clampi(int(mat.texture_filter), 0, 5)
+		var both := mat.cull_mode == BaseMaterial3D.CULL_DISABLED
+		var key := fl * 2 + (1 if both else 0)
+		if not _sway_shaders.has(key):
+			var sh := Shader.new()
+			sh.code = FileAccess.get_file_as_string(SWAY_SHADER).replace("FILTER_HINT", FILTERS[fl]).replace("cull_back", "cull_disabled" if both else "cull_back")
+			_sway_shaders[key] = sh
+		var sm := ShaderMaterial.new()
+		sm.shader = _sway_shaders[key]
+		sm.set_shader_parameter("albedo_tex", mat.albedo_texture)
+		sm.set_shader_parameter("tint", mat.albedo_color)
+		sm.set_shader_parameter("height", h)
+		sm.set_shader_parameter("scissor", mat.transparency == BaseMaterial3D.TRANSPARENCY_ALPHA_SCISSOR)
+		if bend_k > 0.0:
+			sm.set_shader_parameter("bend", 0.09)
+			sm.set_shader_parameter("flutter", 0.1)
+		mesh.surface_set_material(i, sm)
+
+
+func _process(delta: float) -> void:
+	# the wind: steady on a normal evening, much stronger once the Veil is here
+	var want := 2.4 if Game.has_flag("p3_mist") else 1.0
+	_wind = move_toward(_wind, want, delta * 0.25)
+	RenderingServer.global_shader_parameter_set("veil_wind", _wind)
+
+
+var _wind := 1.0
 
 
 func _rel(root: Node3D, n: Node3D) -> Transform3D:

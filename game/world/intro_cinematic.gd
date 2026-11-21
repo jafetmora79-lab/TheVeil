@@ -102,20 +102,21 @@ func play(w: Node) -> void:
 	# 7: the driveway and the car; the rise over the roofs; the Veil coming up with the Colossus in it; the title
 	var car: Node3D = world.sedan
 	if car:
-		var low: Vector3 = car.global_transform * Vector3(1.8, 1.0, 5.5)
 		var dir := (Vector3(30, 0, -20) - car.global_position) * Vector3(1, 0, 1)
 		dir = dir.normalized()
 		var wall_at := car.global_position + dir * 190.0
 		_build_veil_wall(wall_at, dir)
 		_place_colossus(car.global_position + dir * 235.0)      # inside the wall: a huge shape, barely there
-		await _shot(low, low + Vector3(0, 0.6, 0), car.global_position + Vector3(0, 0.8, 0), car.global_position + Vector3(0, 0.8, 0), 2.6, 50.0, 0.015)
+		# the camera starts ON THE ROOF of the player's house (not in the car) and looks out over the town at the Veil, then rises
+		var roof := _roof_point(dir)
+		var haze := wall_at + Vector3(0, 28, 0)
+		await _shot(roof, roof + Vector3(0, 0.5, 0), haze, haze, 2.6, 50.0, 0.015)
 		if not skipped:
 			Sfx.play_music(Sfx.MUSIC_COLOSSUS, false, -4.0, 1.5)    # the ominous turn, as the camera rises
 			Sfx.play("veil_rumble", car.global_position + dir * 60.0 + Vector3(0, 10, 0), 0.0)
-		await _shot(low + Vector3(0, 0.6, 0), car.global_position + Vector3(0, 24, 0) - dir * 6.0, car.global_position + Vector3(0, 0.8, 0),
-			wall_at + Vector3(0, 30, 0), 6.5, 50.0, 0.0)
+		await _shot(roof + Vector3(0, 0.5, 0), roof + Vector3(0, 24, 0) - dir * 6.0, haze, wall_at + Vector3(0, 30, 0), 6.5, 50.0, 0.0)
 		_creep_wall(dir, 30.0, 8.0)                             # it keeps coming
-		await _shot(car.global_position + Vector3(0, 24, 0) - dir * 6.0, car.global_position + Vector3(0, 21, 0) - dir * 10.0,
+		await _shot(roof + Vector3(0, 24, 0) - dir * 6.0, roof + Vector3(0, 21, 0) - dir * 10.0,
 			wall_at + Vector3(0, 30, 0), wall_at + Vector3(0, 26, 0) - dir * 30.0, 5.0, 32.0, 0.0)      # a long lens: it looms
 		if not skipped:
 			Sfx.play("colossus_call", wall_at + Vector3(0, 30, 0), -1.0, 0.55)
@@ -336,6 +337,22 @@ func _build_veil_wall(at: Vector3, dir: Vector3) -> void:
 		mi.global_transform = Transform3D(face, at + dir * float(L[0]) + Vector3(0, float(L[2]) * 0.5 - 2.0, 0))
 		_wall.append(mi)
 	report["veil_wall"] = layers.size()
+
+
+## The top of the player's house (its highest point, a little toward the Veil), a metre above the roof.
+func _roof_point(dir: Vector3) -> Vector3:
+	var top := -1e9
+	var box := AABB()
+	var first := true
+	for m in world.home.find_children("*", "MeshInstance3D", true, false):
+		var bb: AABB = (m as MeshInstance3D).global_transform * (m as MeshInstance3D).get_aabb()
+		box = bb if first else box.merge(bb)
+		first = false
+	if first:
+		return world.sedan.global_position + Vector3(0, 8, 0)
+	top = box.end.y
+	var c := box.get_center()
+	return Vector3(c.x, top + 1.2, c.z) + dir * minf(box.size.x, box.size.z) * 0.25
 
 
 ## The wall (and what walks in it) rolls toward the town.

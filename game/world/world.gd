@@ -54,6 +54,7 @@ var world_edge: Node
 var town_destruction: Node
 var road_home: Node
 var intro: Node
+var wildlife: Node
 var intro_report := {}                        ## (tests) what the intro showed
 var force_intro := false                      ## (tests) headless runs skip the intro unless asked for it
 var drive_time := 0.0
@@ -178,6 +179,10 @@ func _ready() -> void:
 	living.name = "LivingTown"
 	add_child(living)
 	living.setup.call_deferred(self)          # (the lamp the Colossus broke stays broken after a load)
+	wildlife = load("res://game/animals/wildlife.gd").new()     # deer, rabbits and ravens in the woods; the deer on the road (game/animals/)
+	wildlife.name = "Wildlife"
+	add_child(wildlife)
+	wildlife.setup.call_deferred(self)
 	_light_budget_all()
 	# the filler ground (TOWN_Ground_Game) was coplanar with the parking lots / drives laid over it (both at LOT_Y),
 	# so where a ground cell was only partly covered the two z-fought (the brown strips in the supermarket lot).
@@ -1171,8 +1176,40 @@ func _arrival_shot() -> void:
 	sedan.speed_cap = ARRIVAL_SPEED
 	Dialogue.say("town", true)
 	hud.chapter_start(2, 2.6)                     # upper screen: the zoom's target (the sign) stays clear
-	await focus_shot(market.global_transform * Vector3(0.0, 4.2, -0.3), 30.0, 2.0, 1.6, "GREYHAVEN MARKET")
+	var sign_at: Vector3 = market.global_transform * Vector3(0.0, 4.2, -0.3)
+	var hidden := _hide_poles_in_view(sign_at)
+	await focus_shot(sign_at, 30.0, 2.0, 1.6, "GREYHAVEN MARKET")
+	for n in hidden:
+		if is_instance_valid(n):
+			n.visible = true
 	sedan.speed_cap = -1.0
+
+
+## Street lamps and signs that stand between the camera and the thing a shot is about (a lamp post right in front of the store sign) are hidden
+## for the length of the shot (the camera is where it is when the shot begins).
+func _hide_poles_in_view(target: Vector3) -> Array:
+	var out: Array = []
+	var cam := get_viewport().get_camera_3d()
+	var props := get_node_or_null("Core/Static/StreetProps")
+	if cam == null or props == null:
+		return out
+	var a := cam.global_position * Vector3(1, 0, 1)
+	var seg := (target * Vector3(1, 0, 1)) - a
+	var len2 := seg.length_squared()
+	if len2 < 1.0:
+		return out
+	for n in props.get_children():
+		var nm := String(n.name)
+		if not (nm.begins_with("SP_Lamp") or nm.begins_with("SP_Sign") or nm.begins_with("SP_Pole")):
+			continue
+		var p := (n as Node3D).global_position * Vector3(1, 0, 1)
+		var t := (p - a).dot(seg) / len2
+		if t < 0.0 or t > 1.0:
+			continue
+		if (a + seg * t).distance_to(p) < 3.0:
+			(n as Node3D).visible = false
+			out.append(n)
+	return out
 
 
 # ------------------------------------------------------------------ automatic reverse parking

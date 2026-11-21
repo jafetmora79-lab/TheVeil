@@ -143,3 +143,11 @@ The export filter skips `game/tools/build_*`, `game/tools/*.py` and `game/tests/
 - Their faces are the painted neutral face only (`VeilPlainFace`): the expression work (face textures, movable brows, baked patches) was tried and removed; it is in git history (commits of 2026-11-20 up to 8eeb2075)
   if it is resumed. The older non-Mixamo NPCs (Protagonist, Sarah, Lena, the cashier, plaid man) use the procedural gait blended with the retargeted Mixamo walk/run (`game/animation/mixamo_gait.gd`).
 - Known: `gait_test` reports foot slip for those retargeted gaits; `chapter5_test` fails (also with the Mixamo swaps turned off: not caused by them, not investigated).
+
+## Wildlife, wind, intro camera (2026-11-21) - on branch `story/noah-rescue`
+- `game/animals/veil_animal.gd` (deer, rabbit: the clips that came with the Meshy models; raven: no clips came with it, its wing beat / leg tuck is posed in code) and
+  `game/animals/wildlife.gd` (added by `world.gd`): a few animals near the player in the woods before the Veil, and ONE deer that bursts across the road on the drive into town
+  (flag `deer_scare_done`, timed to pass about 0.4 s ahead of the car; it has no collision). Test: `game/tests/wildlife_test.gd`. Sizes, run speeds and foot slip need a visual test.
+- Trees and grass sway in the wind: `game/world/tree_sway.gdshader` replaces the StandardMaterial3D of the scattered vegetation (`scatter.gd::_make_sway`); the global `veil_wind` is 1 before the Veil, 2.4 after.
+- The intro's last shot starts on the player's roof (not in the car); lamp posts / signs in front of the supermarket arrival shot are hidden for its length (`world.gd::_hide_poles_in_view`).
+- Each Mixamo NPC has its own AnimationLibrary (the imported one is shared by every instance and a native crash followed when one copy replaced a clip another was playing).
