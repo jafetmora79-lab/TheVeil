@@ -37,7 +37,8 @@ func _ready() -> void:
 		var cells := {}
 		for it in by_model[m]:
 			var t := Transform3D(Basis(Vector3.UP, it[3]), Vector3(it[1], y, it[2]))
-			xs.append(t)
+			if it.size() < 5:                         # (the deep-forest fill has a 5th field: no collision, the world edge keeps the player out)
+				xs.append(t)
 			var key := Vector2i(floori(it[1] / CHUNK), floori(it[2] / CHUNK))
 			cells.get_or_add(key, []).append(t)
 		var is_tree: bool = m.begins_with("VG_Tree")
