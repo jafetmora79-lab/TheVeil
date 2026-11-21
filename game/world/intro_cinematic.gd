@@ -35,6 +35,7 @@ func play(w: Node) -> void:
 	hud.allow_pause = false
 	world.player.set("controls_enabled", false)
 	world.player.set("look_enabled", false)
+	hud.hide_quick = true
 	if hud.get("quick"):
 		hud.quick.modulate.a = 0.0
 	hud.fade.color.a = 1.0                                   # black from the very first frame
@@ -185,6 +186,7 @@ func _end() -> void:
 	if is_instance_valid(cam):
 		cam.queue_free()
 	world.player.camera.current = true
+	hud.hide_quick = false
 	if hud.get("quick"):
 		hud.quick.modulate.a = 1.0
 	Game.set_flag("intro_seen")

@@ -75,6 +75,11 @@ func _run() -> void:
 	# the game shop: the game off the rack, Eddie calls you back; bought: free to go
 	w.shop_merch.taken.emit("horror_game", "horror_game")
 	game.add_item("horror_game")
+	for i in 60 * 14:                                  # the Hollow Hill pickup scene (case up, zoom, a line, let go) runs first
+		if not w._game_pick_busy:
+			break
+		await process_frame
+	ok("pickup_scene_gives_control_back", not w._game_pick_busy)
 	w._pay_cool = 0.0
 	ok("shop_stops_unpaid", not await _walk_out(w.game_shop) and String(w.pay_report.get("last", "")) == "shop")
 	w._paid("shop")

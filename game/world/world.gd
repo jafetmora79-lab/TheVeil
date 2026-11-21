@@ -177,6 +177,7 @@ func _ready() -> void:
 	var review_mode = load("res://game/review/review_mode.gd").new()          # F2: sticky notes for the playtest (game/review/review_mode.gd)
 	review_mode.name = "ReviewMode"
 	add_child(review_mode)
+	print("[World] home fixes: ", load("res://game/world/home_fixes.gd").apply(home))        # review notes #2-#5: chair, curtains, roof band, the neighbour's wall
 	_setup_stock_door.call_deferred()
 	living = VeilLivingTown.new()                  # Greyhaven before / as the Veil arrives (game/world/living_town.gd)
 	living.name = "LivingTown"
@@ -674,7 +675,7 @@ func _setup_town() -> void:
 	shop_merch = _merch(game_shop, "video_game_store", "shop")
 	shop_merch.taken.connect(func(_g, i): _note_unpaid("shop", i))
 	shop_merch.taken.connect(func(g, _i): if g == "horror_game":
-		Dialogue.say("game_pick", false, true)
+		_game_pick_scene()
 		shop_merch.set_glow("horror_game", null))
 	if not Game.has_item("horror_game") and not Game.has_flag("game_bought"):
 		shop_merch.set_glow("horror_game", _glow_mat(Color(1.0, 0.35, 0.3)))
@@ -1925,6 +1926,7 @@ func _p3_start_mist() -> void:
 	for k in animators:
 		animators[k].set_mood("scared")
 	_atmo().apply_preset(night_preset("approach"))
+	_pre_mist_start()                          # the walls of the Veil start to stand over the street while the player is still inside
 	_build_mist_ceiling()
 	Sfx.play("veil_rumble", player.global_position + Vector3(0, 2, 0), -2.0)
 	_stutter_lights(market if market.to_local(player.global_position).z > -0.4 else game_shop)
@@ -2658,7 +2660,9 @@ func _tripod_encounter() -> void:
 	A.y = ground
 	var wd := ((P + n * 86.0 - side * 3.0) - A) * Vector3(1, 0, 1)
 	wd = wd.normalized()
-	var curtains := _enc_mist(P, n, ground)
+	var curtains: Array = _take_pre_mist("near", _enc_store)
+	if curtains.is_empty():
+		curtains = _enc_mist(P, n, ground)
 	var veil_mats: Array = []
 	for mi in tc.model.find_children("*", "MeshInstance3D", true, false):
 		var vm := (mi as MeshInstance3D).get_surface_override_material(0) as ShaderMaterial
@@ -2674,7 +2678,9 @@ func _tripod_encounter() -> void:
 	for c in curtains:
 		emerge.tween_method(func(v: float): ((c as MeshInstance3D).mesh as QuadMesh).material.set_shader_parameter("density", v), 0.97, 0.3, 13.0)
 	# the thick wall of the Veil it comes out of: three layers right across its path; they stay solid until it has walked through them, then thin away behind it
-	var entry := _enc_mist(P, n, ground, [[96.0, 150.0], [102.0, 170.0], [108.0, 190.0]])
+	var entry: Array = _take_pre_mist("entry", _enc_store)
+	if entry.is_empty():
+		entry = _enc_mist(P, n, ground, [[96.0, 150.0], [102.0, 170.0], [108.0, 190.0]])
 	var te := create_tween().set_parallel(true)
 	for c in entry:
 		var em := ((c as MeshInstance3D).mesh as QuadMesh).material as ShaderMaterial
@@ -2778,6 +2784,94 @@ func _tripod_encounter() -> void:
 		tcw.tween_callback(c.queue_free)
 	_p3_survival_begins(door_out, shop_door)
 	_tripod_watch(tc, wd)
+
+
+## Hollow Hill picked off the shelf (review note #10): the case comes up in front of the view, the view zooms in on its cover, he says what he thinks of it, then lets it go
+## (it is in the bag; it still has to be paid for: Eddie / the pay guard see to that).
+func _game_pick_scene() -> void:
+	if _cine != null or _game_pick_busy:
+		Dialogue.say("game_pick", false, true)
+		return
+	_game_pick_busy = true
+	var cam: Camera3D = player.camera
+	var had_controls: bool = player.controls_enabled
+	player.set("controls_enabled", false)
+	player.velocity = Vector3.ZERO
+	var fov0 := cam.fov
+	var cover := MeshInstance3D.new()
+	var qm := QuadMesh.new()
+	qm.size = Vector2(0.17, 0.235)
+	cover.mesh = qm
+	var m := StandardMaterial3D.new()
+	m.albedo_texture = load("res://game/ui/icons/horror_game_cover.png")
+	m.texture_filter = BaseMaterial3D.TEXTURE_FILTER_NEAREST
+	m.cull_mode = BaseMaterial3D.CULL_DISABLED
+	m.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
+	cover.material_override = m
+	cover.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+	cam.add_child(cover)
+	cover.position = Vector3(0.14, -0.30, -0.42)           # up from the hands
+	cover.rotation_degrees = Vector3(-25.0, 12.0, 6.0)
+	var up := create_tween().set_parallel(true)
+	up.tween_property(cover, "position", Vector3(0.0, 0.0, -0.46), 0.7).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT)
+	up.tween_property(cover, "rotation_degrees", Vector3(0, 0, 0), 0.7).set_trans(Tween.TRANS_SINE)
+	up.tween_property(cam, "fov", fov0 * 0.62, 0.9).set_trans(Tween.TRANS_SINE).set_delay(0.3)
+	await up.finished
+	await get_tree().create_timer(0.35).timeout
+	Dialogue.say("game_pick", false, true)
+	await get_tree().create_timer(0.2).timeout
+	while Dialogue.is_busy():
+		await get_tree().process_frame
+	var down := create_tween().set_parallel(true)
+	down.tween_property(cover, "position", Vector3(0.14, -0.34, -0.40), 0.5).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN)
+	down.tween_property(cam, "fov", fov0, 0.6).set_trans(Tween.TRANS_SINE)
+	await down.finished
+	cover.queue_free()
+	cam.fov = fov0
+	if had_controls:
+		player.set("controls_enabled", true)
+	_game_pick_busy = false
+
+
+var _game_pick_busy := false
+
+
+## The curtains of mist the Colossus comes out of are raised while the player is still inside the store (they used to be created the moment he stepped out: they popped in).
+## They fade in over ~25 s from the first sign of the Veil; the encounter takes them over (so the street is already under it when he talks to Eddie and steps out).
+var _pre_mist := {}                           ## {"store": the Node3D, "near": curtains, "entry": curtains}
+
+
+func _pre_mist_start() -> void:
+	if not _pre_mist.is_empty() or market == null or game_shop == null:
+		return
+	var store: Node3D = market if player.global_position.distance_to(market.global_position) < player.global_position.distance_to(game_shop.global_position) else game_shop
+	var door_in: Vector3 = (store.get_node("Doorways/Entrance_Inside") as Node3D).global_position
+	var door_out: Vector3 = (store.get_node("Doorways/Entrance_Outside") as Node3D).global_position
+	var n := ((door_out - door_in) * Vector3(1, 0, 1)).normalized()
+	var P := door_out + n * 1.5
+	var ground := door_out.y
+	var near := _enc_mist(P, n, ground)
+	var entry := _enc_mist(P, n, ground, [[96.0, 150.0], [102.0, 170.0], [108.0, 190.0]])
+	_pre_mist = {"store": store, "near": near, "entry": entry}
+	var tw := create_tween().set_parallel(true)
+	for c in near + entry:
+		var m := ((c as MeshInstance3D).mesh as QuadMesh).material as ShaderMaterial
+		m.set_shader_parameter("density", 0.0)
+		tw.tween_method(func(v: float): m.set_shader_parameter("density", v), 0.0, 0.97, 25.0).set_trans(Tween.TRANS_SINE)
+
+
+## The encounter takes the raised curtains (if they stand at the store the player really leaves by), or raises its own.
+func _take_pre_mist(which: String, store: Node3D) -> Array:
+	var got: Array = []
+	if not _pre_mist.is_empty():
+		if _pre_mist["store"] == store:
+			got = _pre_mist[which]
+		else:
+			for c in _pre_mist[which]:
+				if is_instance_valid(c):
+					(c as Node).queue_free()
+		_pre_mist[which] = []
+	return got
 
 
 ## The fog thickens across the street for the Colossus: three tall curtains of the game's mist, ahead of him; it walks out of them.

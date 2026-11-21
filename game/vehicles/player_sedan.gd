@@ -118,9 +118,9 @@ func _ready() -> void:
 	entry_area.prompt_text = "[E] Enter Vehicle"
 	var cs := CollisionShape3D.new()
 	var bs := BoxShape3D.new()
-	bs.size = Vector3(0.5, 1.3, 1.4)
+	bs.size = Vector3(0.9, 1.6, 2.0)                          # the whole driver's side of the cabin, standing proud of the body (review note #6)
 	cs.shape = bs
-	cs.position = Vector3(-0.95, 0.9, -0.35)
+	cs.position = Vector3(-1.15, 0.9, -0.3)
 	entry_area.add_child(cs)
 	add_child(entry_area)
 	_setup_audio()

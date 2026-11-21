@@ -47,7 +47,23 @@ func _run() -> void:
 	# the shopper is inside the supermarket
 	var b: Node3D = lt.people["Civilian_B"]["body"]
 	var local: Vector3 = w.market.to_local(b.global_position)
-	ok("shopper_in_market", local.x > -6.0 and local.x < 4.0 and local.z > 6.5 and local.z < 13.5 and absf(local.y - 0.04) < 0.3, str(local))
+	ok("shopper_in_market", local.x > -12.0 and local.x < 16.0 and local.z > 6.5 and local.z < 13.5 and absf(local.y - 0.04) < 0.3, str(local))
+	# the shopper's route keeps off the walls and shelves (review note #7): a 0.45 m sphere at knee and chest height is clear at every waypoint, and she gets from each to the next
+	var rt: Array = lt.people["Civilian_B"]["route"]
+	var clear_all := true
+	var space: PhysicsDirectSpaceState3D = w.get_world_3d().direct_space_state
+	var qs := PhysicsShapeQueryParameters3D.new()
+	var sph := SphereShape3D.new()
+	sph.radius = 0.45
+	qs.shape = sph
+	qs.collision_mask = 1
+	qs.exclude = [w.player.get_rid()]
+	for wp in rt:
+		for hgt in [0.5, 1.3]:
+			qs.transform = Transform3D(Basis(), (wp as Vector3) + Vector3(0, hgt, 0))
+			if not space.intersect_shape(qs, 1).is_empty():
+				clear_all = false
+	ok("shopper_route_clear_of_walls", clear_all and rt.size() >= 8, "%d waypoints" % rt.size())
 	ok("shopper_has_route", (lt.people["Civilian_B"]["route"] as Array).size() >= 3)
 	# she walks the aisles for a while and never leaves the shop
 	w.player.global_position = w.market.to_global(Vector3(-4.0, 1.0, 3.0))          # (people only walk while the player is near)

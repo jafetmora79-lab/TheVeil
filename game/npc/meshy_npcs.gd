@@ -12,7 +12,7 @@ const MAP := {
 	"Ruth": "elderly_woman",
 	"Sarah": "police_redhair",                          # the policewoman with the ponytail (Mixamo-rigged, like most of the cast)
 	"Lena": "plaid_shirt",
-	"Frank": "police_cap",
+	# "Frank": the white-bearded man keeps his own (old) model: the police-cap model was not him (review note #9)
 	"Officer": "police_officer",
 	"Cashier": "clerk_burgundy",                       # the new store clerk
 	"Survivor": "store_clerk",                          # the old clerk: David (his name is set in hud.gd SPEAKER_NAMES)

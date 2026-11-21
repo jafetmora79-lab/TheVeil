@@ -659,9 +659,13 @@ func _run() -> void:
 	eddie_it.interact(player)
 	await frames(10)
 	ok("eddie_needs_game", not game.has_flag("game_bought"))
+	world.end_conversation()                              # (in play you cannot reach the rack while a conversation holds you)
+	await frames(8)
 	game_it.interact(player)
 	await frames(10)
 	ok("game_picked", game.has_item("horror_game"))
+	await wait_until(func(): return not world._game_pick_busy, 60 * 15)          # (the pickup scene: the case up, the zoom, a line, let go)
+	ok("pickup_scene_ends", not world._game_pick_busy and player.camera.fov > 60.0, "fov %.0f" % player.camera.fov)
 	eddie_it.interact(player)
 	var max_fore := 0.0
 	for i in 40:

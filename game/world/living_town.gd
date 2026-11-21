@@ -348,11 +348,14 @@ func _spawn_people() -> void:
 	# the woman who used to pace the car park is shopping inside the supermarket: she browses the aisles (market-local; measured with a sphere sweep of the shop floor: the racks run north-south in pairs, the aisles between them are 1 m wide at x -4 and x 2, the free cross-aisles are z 7-7.5 at the front and z 12.5-13 at the back, the back wall's fridges start at z 13.5)
 	var mk := world.get("market") as Node3D
 	var shop: Array = [Vector3(24.0, 0.2, -25.4), Vector3(29.0, 0.2, -25.4)] if mk == null else [
-		mk.to_global(Vector3(-4.0, 0.04, 7.2)), mk.to_global(Vector3(-4.0, 0.04, 12.75)), mk.to_global(Vector3(2.0, 0.04, 12.75)), mk.to_global(Vector3(2.0, 0.04, 7.2))]
+		mk.to_global(Vector3(-8.0, 0.04, 7.0)), mk.to_global(Vector3(-2.5, 0.04, 7.0)), mk.to_global(Vector3(-2.5, 0.04, 10.3)), mk.to_global(Vector3(-2.5, 0.04, 7.0)),
+		mk.to_global(Vector3(3.5, 0.04, 7.0)), mk.to_global(Vector3(3.5, 0.04, 10.3)), mk.to_global(Vector3(3.5, 0.04, 7.0)),
+		mk.to_global(Vector3(9.5, 0.04, 7.0)), mk.to_global(Vector3(9.5, 0.04, 10.3)), mk.to_global(Vector3(9.5, 0.04, 7.0)), mk.to_global(Vector3(13.0, 0.04, 7.0))]
 	_person("Civilian_B", FRANK, "T_Face_Frank.png", shop[0], Color(0.85, 0.75, 0.7))
 	people["Civilian_B"]["route"] = shop
 	_person("Officer", POLICE, "T_Face_Police_Officer.png", Vector3(60.0, 0.2, sw))
-	people["Officer"]["route"] = []                # stands at the corner, watching the traffic
+	people["Officer"]["route"] = []                # (stands at the corner, watching the traffic: now only once the Colossus scene stages him, review note #9)
+	(people["Officer"]["body"] as Node3D).visible = false
 	_person("Joan", CASHIER, "T_Face_Cashier.png", Vector3(147.0, 0.2, -24.5), Color(1.0, 0.85, 0.85))
 	people["Joan"]["route"] = [Vector3(147.0, 0.2, -24.5), Vector3(152.0, 0.2, -24.8)]
 	for k in people:
