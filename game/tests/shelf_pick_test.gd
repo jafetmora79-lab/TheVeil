@@ -37,6 +37,7 @@ func _run() -> void:
 	var got: String = mm.take_product("bag_chips_a", 0)
 	ok("take_gives_item", got == "energy_snack" and game.inventory.count("energy_snack") == n0 + 1)
 	ok("taken_not_offered_again", mm.find_product(eye, (target - eye).normalized()).get("i", -1) != 0 or mm.find_product(eye, (target - eye).normalized()).get("variant", "") != "bag_chips_a")
+	ok("one_snack_only", mm.take_product("bag_chips_b", 0) == "" and game.inventory.count("energy_snack") == n0 + 1)   # a second snack is refused
 	ok("take_twice_refused", mm.take_product("bag_chips_a", 0) == "")
 	ok("saved", "bag_chips_a:0" in game.world_state.get("merch/supermarket/_free", []))
 	var unp: Array = w.unpaid("market")

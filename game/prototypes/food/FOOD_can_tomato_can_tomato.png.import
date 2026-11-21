@@ -2,13 +2,10 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://b8ivvgvbygn5c"
+uid="uid://2paj1kjdboej"
 path="res://.godot/imported/FOOD_can_tomato_can_tomato.png-57b60faf4b586281a869699816bc6d95.ctex"
 metadata={
 "vram_texture": false
-}
-generator_parameters={
-"md5": "dde579fdd6aeae5f50b90e3e0ffbff73"
 }
 
 [deps]
@@ -24,7 +21,7 @@ compress/lossy_quality=0.7
 compress/hdr_compression=1
 compress/normal_map=0
 compress/channel_pack=0
-mipmaps/generate=true
+mipmaps/generate=false
 mipmaps/limit=-1
 roughness/mode=0
 roughness/src_normal=""

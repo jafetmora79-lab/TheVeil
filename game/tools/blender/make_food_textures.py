@@ -1,5 +1,5 @@
 """Label textures for the supermarket's products (one small PNG per product variant). Pillow only.   python game/tools/blender/make_food_textures.py
-Output: game/prototypes/food/tex/<variant>.png  (128 x 128, drawn big and flat for the PSX look)"""
+Output: game/prototypes/food/tex/<variant>.png  (256 x 256, drawn big and flat for the PSX look)"""
 import os, random
 from PIL import Image, ImageDraw, ImageFont
 
@@ -62,57 +62,102 @@ V = {
 }
 
 
+IMPACT = "C:/Windows/Fonts/impact.ttf"
+ARIAL = "C:/Windows/Fonts/arialbd.ttf"
+W = H = 256
+
+
+def font(path, size):
+    try:
+        return ImageFont.truetype(path, size)
+    except Exception:
+        return ImageFont.load_default()
+
+
+def fit(d, text, path, max_w, start):
+    size = start
+    while size > 8:
+        f = font(path, size)
+        if d.textlength(text, font=f) <= max_w:
+            return f
+        size -= 2
+    return font(path, 8)
+
+
+def shade(c, k):
+    return tuple(max(0, min(255, int(v * k))) for v in c)
+
+
+def outlined(d, xy, text, f, fill, edge, w=3):
+    x, y = xy
+    for dx in range(-w, w + 1):
+        for dy in range(-w, w + 1):
+            if dx * dx + dy * dy <= w * w:
+                d.text((x + dx, y + dy), text, font=f, fill=edge, anchor="mm")
+    d.text((x, y), text, font=f, fill=fill, anchor="mm")
+
+
 def draw(name, spec):
     t1, t2, main, acc, style = spec
     random.seed(hash(name) & 0xffff)
-    W = H = 128
     im = Image.new("RGB", (W, H), main)
     d = ImageDraw.Draw(im)
+    light = sum(main) > 480
+    ink = (25, 25, 30) if light else (255, 255, 255)
+    edge = shade(main, 0.35) if not light else shade(acc, 0.5)
+    brand = {"can": "HOMESTEAD", "bottle": "FIZZ & CO", "bag": "CRUNCHTOWN", "box": "PANTRY PRIDE", "candy": "SWEETWORKS", "choc": "CHOCOLATIER"}[name.split("_")[0]]
     if style == "band":
-        d.rectangle((0, 0, W, 14), fill=acc)
-        d.rectangle((0, H - 14, W, H), fill=acc)
-        d.rectangle((0, 14, W, 20), fill=tuple(max(0, c - 40) for c in main))
+        d.rectangle((0, 0, W, 34), fill=acc)
+        d.rectangle((0, H - 34, W, H), fill=acc)
+        d.rectangle((0, 34, W, 42), fill=shade(main, 0.6))
+        d.ellipse((W // 2 - 62, 120, W // 2 + 62, 244), fill=shade(main, 1.25))
     elif style == "burst":
-        cx, cy = W // 2, H // 2 + 6
-        for i in range(16):
-            import math
-            a0 = i * math.tau / 16 if hasattr(math, "tau") else i * 6.2832 / 16
-            a1 = a0 + 0.2
-            d.polygon([(cx, cy), (cx + 90 * math.cos(a0), cy + 90 * math.sin(a0)), (cx + 90 * math.cos(a1), cy + 90 * math.sin(a1))], fill=tuple(min(255, c + 25) for c in main))
-        d.ellipse((cx - 38, cy - 38, cx + 38, cy + 38), fill=acc)
+        import math
+        cx, cy = W // 2, int(H * 0.60)
+        for i in range(20):
+            a0 = i * math.tau / 20
+            a1 = a0 + 0.17
+            d.polygon([(cx, cy), (cx + 220 * math.cos(a0), cy + 220 * math.sin(a0)), (cx + 220 * math.cos(a1), cy + 220 * math.sin(a1))], fill=shade(main, 1.18))
+        d.ellipse((cx - 96, cy - 96, cx + 96, cy + 96), fill=acc)
     elif style == "stripes":
-        for i in range(-2, 9):
-            d.polygon([(i * 22, 0), (i * 22 + 11, 0), (i * 22 - 20, H), (i * 22 - 31, H)], fill=acc)
+        for i in range(-3, 9):
+            d.polygon([(i * 44, 0), (i * 44 + 22, 0), (i * 44 - 40, H), (i * 44 - 62, H)], fill=acc)
+        d.rectangle((14, 70, W - 14, 190), fill=main)
     elif style == "panel":
-        d.rectangle((10, 10, W - 10, H - 10), fill=acc)
-        d.rectangle((14, 14, W - 14, H - 14), outline=main, width=2)
+        d.rectangle((16, 16, W - 16, H - 16), fill=acc)
+        d.rectangle((24, 24, W - 24, H - 24), outline=main, width=4)
+        d.rectangle((24, H - 70, W - 24, H - 24), fill=main)
     elif style == "fruit":
-        d.ellipse((24, 40, 104, 120), fill=acc)
-        d.ellipse((34, 50, 94, 110), fill=main)
-        d.polygon([(64, 40), (78, 22), (88, 34)], fill=(60, 150, 50))
+        d.ellipse((46, 96, 210, 252), fill=acc)
+        d.ellipse((66, 116, 190, 240), fill=main)
+        d.polygon([(128, 96), (158, 52), (182, 80)], fill=(60, 150, 50))
+        d.ellipse((92, 140, 120, 168), fill=shade(main, 1.4))
     elif style == "water":
-        for i in range(5):
-            d.arc((10, 20 + i * 18, 118, 60 + i * 18), 200, 340, fill=acc, width=3)
-    # the words: big, centred, with a dark outline so they read at any size
-    for line, y, big in ((t1, 40, True), (t2, 74, True)):
-        txt = line
-        w = d.textlength(txt, font=FONT)
-        # the default bitmap font is small: draw it scaled up 2x through a temp image
-        tmp = Image.new("L", (int(w) + 4, 14), 0)
-        ImageDraw.Draw(tmp).text((2, 1), txt, fill=255, font=FONT)
-        sc = max(1, min(int(104 / max(w, 1)), 3))
-        tmp = tmp.resize((tmp.width * sc, tmp.height * sc), Image.NEAREST)
-        x = (W - tmp.width) // 2
-        dark = tuple(max(0, c - 120) for c in main)
-        for dx, dy in ((-2, 0), (2, 0), (0, -2), (0, 2)):
-            im.paste(Image.new("RGB", tmp.size, dark), (x + dx, y + dy), tmp)
-        im.paste(Image.new("RGB", tmp.size, (255, 255, 255) if sum(main) < 520 else (20, 20, 20)), (x, y), tmp)
-    # print wear
+        for i in range(6):
+            d.arc((20, 50 + i * 30, 236, 120 + i * 30), 200, 340, fill=acc, width=5)
+    # brand strip, the big name (Impact), the second line, a small print line
+    fb = fit(d, brand, ARIAL, W - 40, 18 if style == "band" else 22)
+    strip_col = ink if style not in ("stripes", "band") else (25, 25, 30)
+    if style in ("band", "panel"):
+        d.text((W // 2, 19 if style == "band" else 44), brand, font=fb, fill=ink if style == "panel" and False else (25, 25, 30) if light or style == "panel" else (255, 255, 255), anchor="mm")
+    else:
+        d.text((W // 2, 24), brand, font=fb, fill=strip_col if not light else (25, 25, 30), anchor="mm")
+    f1 = fit(d, t1, IMPACT, W - 36, 78)
+    f2 = fit(d, t2, IMPACT, W - 36, 56)
+    c1 = ink if style != "panel" else shade(main, 0.45)
+    if style == "panel":
+        edge = acc
+    c2 = acc if (style not in ("panel",) and sum(acc) > 380 and not light) else ink
+    outlined(d, (W // 2, 108), t1, f1, c1, edge, 1 if style == "panel" else 3)
+    outlined(d, (W // 2, 168), t2, f2, c2 if style != "panel" else shade(main, 0.45), edge, 2)
+    fs = font(ARIAL, 16)
+    small = "NET WT 12 OZ" if name.startswith(("bag", "box", "candy", "choc")) else "FRESH  .  NATURAL"
+    d.text((W // 2, H - 22 if style != "band" else H - 16), small, font=fs, fill=(25, 25, 30) if (light or style == "band") else (255, 255, 255), anchor="mm")
     px = im.load()
-    for _ in range(90):
+    for _ in range(220):
         x, y = random.randrange(W), random.randrange(H)
         r, g, b = px[x, y]
-        k = random.randint(-22, 22)
+        k = random.randint(-18, 18)
         px[x, y] = (max(0, min(255, r + k)), max(0, min(255, g + k)), max(0, min(255, b + k)))
     return im
 

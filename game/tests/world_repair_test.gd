@@ -73,10 +73,10 @@ func _run() -> void:
 	w.player.global_position = w.market.global_transform * Vector3(-3.0, 0.3, 6.0)
 	await frames(10)
 	var groc: Array = w.hud.world_diamonds.keys().filter(func(k): return String(k).begins_with("grocery_"))
-	ok("grocery_diamonds", groc.size() == 3 and not w.hud.world_diamonds.has("cashier"), str(w.hud.world_diamonds.keys()))
+	ok("no_grocery_diamonds", groc.size() == 0 and not w.hud.world_diamonds.has("cashier"), str(w.hud.world_diamonds.keys()))
 	game.add_item("energy_snack")
 	await frames(5)
-	ok("grocery_diamond_goes", w.hud.world_diamonds.keys().filter(func(k): return String(k).begins_with("grocery_")).size() == 2)
+	ok("grocery_diamond_goes", w.hud.world_diamonds.keys().filter(func(k): return String(k).begins_with("grocery_")).size() == 0)
 	for id in w.GROCERIES:
 		if not w._have_grocery(id):
 			game.add_item(w.GROCERY_ITEMS[id][0])

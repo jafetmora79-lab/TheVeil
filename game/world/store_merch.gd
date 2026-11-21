@@ -55,6 +55,25 @@ static func item_of(variant: String) -> String:
 	return "canned_food"
 
 
+## The errand kind an item counts as (the player holds one of each): "snack", "candy", "drink", or "" for anything else.
+static func kind_of(item: String) -> String:
+	match item:
+		"energy_snack": return "snack"
+		"chocolate_bar": return "candy"
+		"water_bottle", "cola_bottle": return "drink"
+	return ""
+
+
+static func holds_kind(item: String) -> bool:
+	var k := kind_of(item)
+	if k == "":
+		return Game.has_item(item)
+	for i in Game.inventory:
+		if kind_of(String(i)) == k:
+			return true
+	return false
+
+
 static func name_of(variant: String) -> String:
 	if _names == null:
 		_names = JSON.parse_string(FileAccess.get_file_as_string(FOOD_DIR + "names.json"))
@@ -207,7 +226,7 @@ func remaining(gid: String) -> int:
 
 func _take(gid: String, by: Node) -> void:
 	var g: Dictionary = groups[gid]
-	if Game.has_item(g["item"]):
+	if holds_kind(g["item"]):
 		Dialogue.say("merch_have_one", false, true)
 		return
 	var cam := get_viewport().get_camera_3d()
@@ -312,6 +331,9 @@ func _hide_static(v: String, i: int) -> void:
 
 func take_product(v: String, i: int) -> String:
 	if _gone.has(v + ":" + str(i)) or not _pos.has(v):
+		return ""
+	if holds_kind(item_of(v)):                                      # one of each kind: a snack, a candy, a drink
+		Dialogue.say("merch_have_one", false, true)
 		return ""
 	_hide_static(v, i)
 	var key := "merch/" + store_key + "/_free"

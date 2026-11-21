@@ -89,7 +89,7 @@ def can(variant, w, h, d):
     rings = [(0.0, r * 0.93), (0.008, r), (0.012, r), (h - 0.012, r), (h - 0.008, r), (h, r * 0.93)]
     metal, lab = solid("can_metal", COL["metal"], 0.4, 0.7), label_mat(variant)
     # material 0 = metal (rims and ends), 1 = label (the wrapped band between the rims)
-    ring_surface(bm, rings, 14, lambda i: 1 if i == 2 else 0, lambda i, u: (u, (rings[i][0] - 0.012) / (h - 0.024)))
+    ring_surface(bm, rings, 14, lambda i: 1 if i == 2 else 0, lambda i, u: ((u - 0.75) * 2.4 + 0.5, (rings[i][0] - 0.012) / (h - 0.024)))    # (the label's middle faces the front: -Y)
     # a pull tab on top
     tab = bmesh.ops.create_cube(bm, size=1.0)
     for v in tab["verts"]:
@@ -118,7 +118,7 @@ def bottle(variant, w, h, d):
         if i >= 9:
             return 2
         return 0
-    ring_surface(bm, prof, 12, band, lambda i, u: (u, min(1.0, max(0.0, (prof[i][0] - 0.18 * h) / (0.38 * h)))), True, True)
+    ring_surface(bm, prof, 12, band, lambda i, u: ((u - 0.75) * 2.0 + 0.5, min(1.0, max(0.0, (prof[i][0] - 0.18 * h) / (0.38 * h)))), True, True)
     ob = new_obj("bottle", bm, [liquid, lab, cap])
     # the label band is a real band: push its two rings out a hair so it stands off the plastic
     for v in ob.data.vertices:
@@ -155,7 +155,7 @@ def bag(variant, w, h, d):
             f = bm.faces.new((front[iy][ix + 1], front[iy][ix], front[iy + 1][ix], front[iy + 1][ix + 1]))
             f.material_index = 1
             for l, (a, b) in zip(f.loops, ((ix + 1, iy), (ix, iy), (ix, iy + 1), (ix + 1, iy + 1))):
-                l[uvl].uv = (1.0 - a / nx, b / ny)
+                l[uvl].uv = (a / nx, b / ny)
             g = bm.faces.new((back[iy][ix], back[iy][ix + 1], back[iy + 1][ix + 1], back[iy + 1][ix]))
             g.material_index = 0
             for l in g.loops:

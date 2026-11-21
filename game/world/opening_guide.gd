@@ -72,10 +72,7 @@ func _shopping(delta: float) -> void:
 		if not world._have_grocery(id):
 			need.append(id)
 	var merch = world.get("market_merch")
-	for id in world.GROCERIES:
-		var gid: String = world.GROCERY_SHOWN[id]
-		var it = merch.groups[gid]["it"] if merch and merch.groups.has(gid) and not Game.has_item(merch.groups[gid]["item"]) else null
-		hud.world_diamond("grocery_" + id, it if on and id in need else null)
+	# (no markers on the groceries: any snack, candy and drink off the shelves will do; review note #16)
 	hud.world_diamond("cashier", world.cashier if on and need.is_empty() and world.cashier and world.cashier.visible else null)
 	if not on:
 		return

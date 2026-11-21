@@ -594,7 +594,13 @@ func _update_turn(delta: float) -> void:
 	root.rotate_y(clampf(a, -rate, rate))
 
 
+## Standing and pondering (a shopper deciding what to buy): head bowed a little towards what they look at, one hand to the chin, the other arm across the body holding that elbow.
+var pondering := false
+var _pond := 0.0
+
+
 func _update_gestures(delta: float) -> void:
+	_pond = move_toward(_pond, 1.0 if (pondering and _walk < 0.05 and not seated and _jump_t < 0.0) else 0.0, delta * 1.2)
 	_gest_timer -= delta
 	if _talk_left > 0.0 and _gest_timer <= 0.0:
 		_gest_timer = randf_range(0.45, 1.1)
@@ -717,7 +723,7 @@ func _pose() -> void:
 	_pose_bone("Chest", _q(R, -br * 1.4 - s * 5.0 - 4.0 * rn) * _q(F, -sway * 0.8))
 	_pose_bone("UpperChest", _q(R, -br * 0.8 - s * 3.0) * _q(U, -sin(ph) * 3.0 * w))
 	# --- head / neck: look-at + nods + tilt
-	var nod: float = _gest["nod"] * 4.0 + sin(t * 2.3) * 1.5 * minf(_talk_left, 1.0)
+	var nod: float = _gest["nod"] * 4.0 + sin(t * 2.3) * 1.5 * minf(_talk_left, 1.0) - _pond * (9.0 + sin(t * 0.5) * 3.0)
 	_pose_bone("Neck", _q(U, rad_to_deg(_look.x) * 0.4) * _q(R, rad_to_deg(_look.y) * 0.4 + s * 6.0))
 	_pose_bone("Head", _q(U, rad_to_deg(_look.x) * 0.6) * _q(R, rad_to_deg(_look.y) * 0.6 + nod - s * 4.0) * _q(F, _gest["tilt"] * 4.0))
 	# --- shoulders: scared = drawn up
@@ -733,8 +739,10 @@ func _pose() -> void:
 		var idle := sin(t * 0.9 + out) * 1.5 * (1.0 - w)
 		var g_up: float = _gest[k + "a"] * 28.0
 		var g_fore: float = _gest[k + "f"] * 55.0
-		_pose_bone(side + "UpperArm", _q(R, swing + idle + g_up + s * 14.0 - 40.0 * cr + 125.0 * air) * _q(F, -out * (g_up * 0.25 + s * 4.0)))
-		_pose_bone(side + "LowerArm", _q(R, g_fore + s * 34.0 + maxf(swing, 0.0) * 0.6 + 4.0 * w + 88.0 * _run * w + 25.0 * air - 10.0 * cr))
+		var pu := _pond * (62.0 if side == "Right" else 28.0)          # the chin hand: upper arm forward / up; the other arm folded across
+		var pl := _pond * (128.0 if side == "Right" else 100.0)
+		_pose_bone(side + "UpperArm", _q(R, swing + idle + g_up + s * 14.0 - 40.0 * cr + 125.0 * air + pu) * _q(F, -out * (g_up * 0.25 + s * 4.0 + _pond * (-8.0 if side == "Right" else 14.0))))
+		_pose_bone(side + "LowerArm", _q(R, g_fore + s * 34.0 + maxf(swing, 0.0) * 0.6 + 4.0 * w + 88.0 * _run * w + 25.0 * air - 10.0 * cr + pl))
 	# --- legs: walk cycle (thigh swing, knee bend on the back swing)
 	for side in ["Left", "Right"]:
 		var sg := 1.0 if side == "Left" else -1.0

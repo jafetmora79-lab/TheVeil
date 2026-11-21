@@ -2,13 +2,10 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://ol04s5tu28u1"
+uid="uid://cw5umot6qlp30"
 path="res://.godot/imported/FOOD_bag_tortilla_c_bag_tortilla_c.png-10ade50ee9330b5550a8f1ca16814685.ctex"
 metadata={
 "vram_texture": false
-}
-generator_parameters={
-"md5": "d52f6f2bbe162e08a09a4247e1660285"
 }
 
 [deps]
@@ -24,7 +21,7 @@ compress/lossy_quality=0.7
 compress/hdr_compression=1
 compress/normal_map=0
 compress/channel_pack=0
-mipmaps/generate=true
+mipmaps/generate=false
 mipmaps/limit=-1
 roughness/mode=0
 roughness/src_normal=""

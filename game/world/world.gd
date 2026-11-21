@@ -654,10 +654,10 @@ func _setup_town() -> void:
 			hud.set_hint(""))
 	# stocked shelves: separate product meshes (MultiMesh), only the pick groups are interactive
 	market_merch = _merch(market, "supermarket", "market")
+	print("[World] market fixtures: ", load("res://game/world/market_fixes.gd").apply(market))       # review notes #14 / #15 / #18: fridges, freezers, produce rebuilt in Blender
+	if game_shop != null:
+		print("[World] shop fixtures: ", load("res://game/world/market_fixes.gd").apply_shop(game_shop))
 	market_merch.taken.connect(func(_g, i): _grocery_hint(); _note_unpaid("market", i))
-	for k in GROCERIES:                                                      # the showcase product of each kind glows (the rest can be taken too)
-		if not _have_grocery(k) and not Game.has_flag("groceries_done"):
-			market_merch.set_glow(GROCERY_SHOWN[k], _glow_mat())
 	_setup_coolers()
 	# checkout: lane 4. The cashier is a generic placeholder (no cashier is named in the bible).
 	# Stand just off the lane 4 approach, with a clear interaction line from the aisle.
@@ -1690,7 +1690,7 @@ func _grocery_hint() -> void:
 		var got := _have_grocery(id)
 		n += int(got)
 		parts.append(("[x] " if got else "[  ] ") + GROCERIES[id])
-	var tail := "  -  then pay the cashier at lane 4, by the doors" if n == 3 else "  -  look for the glowing items"
+	var tail := "  -  then pay the cashier at lane 4, by the doors" if n == 3 else "  -  take one of each from the shelves"
 	if n == 3 and cashier:
 		_glow(cashier, true, Color(0.55, 0.9, 0.6))
 	hud.set_hint("SHOPPING LIST:   " + "     ".join(parts) + tail)
@@ -1880,11 +1880,20 @@ func _setup_phase3() -> void:
 
 
 func _outdoors() -> bool:
-	var lm := market.to_local(player.global_position)
-	if absf(lm.x) < 20.6 and lm.z > -0.4 and lm.z < 18.0:
+	return point_outdoors(player.global_position)
+
+
+func market_fixes_cuts() -> Array:
+	return load("res://game/world/market_fixes.gd").CUTS
+
+
+## Not inside the supermarket or the game shop (with a metre of margin, so staged scenes keep clear of the walls).
+func point_outdoors(p: Vector3, margin := 0.0) -> bool:
+	var lm := market.to_local(p)
+	if absf(lm.x) < 20.6 + margin and lm.z > -0.4 - margin and lm.z < 18.0 + margin:
 		return false
-	var ls := game_shop.to_local(player.global_position)
-	if absf(ls.x) < 6.0 and ls.z > 0.1 and ls.z < 12.0:
+	var ls := game_shop.to_local(p)
+	if absf(ls.x) < 6.0 + margin and ls.z > 0.1 - margin and ls.z < 12.0 + margin:
 		return false
 	return true
 
@@ -2689,7 +2698,9 @@ func _tripod_encounter() -> void:
 			(vm as ShaderMaterial).set_shader_parameter("distance_fade", v), 0.1, 0.006, 13.0).set_trans(Tween.TRANS_SINE)
 	emerge.tween_property(tc.eye, "level", 1.0, 13.0)
 	for c in curtains:
-		emerge.tween_method(func(v: float): ((c as MeshInstance3D).mesh as QuadMesh).material.set_shader_parameter("density", v), 0.97, 0.3, 13.0)
+		var cm := ((c as MeshInstance3D).mesh as QuadMesh).material as ShaderMaterial
+		var d0: float = float(cm.get_shader_parameter("density"))
+		emerge.tween_method(func(v: float): cm.set_shader_parameter("density", v), d0, 0.3, 13.0)   # from whatever it has grown to: no pop when he steps out
 	# the thick wall of the Veil it comes out of: three layers right across its path; they stay solid until it has walked through them, then thin away behind it
 	var entry: Array = _take_pre_mist("entry", _enc_store)
 	if entry.is_empty():
@@ -2697,7 +2708,11 @@ func _tripod_encounter() -> void:
 	var te := create_tween().set_parallel(true)
 	for c in entry:
 		var em := ((c as MeshInstance3D).mesh as QuadMesh).material as ShaderMaterial
-		em.set_shader_parameter("density", 0.97)
+		var e0: float = float(em.get_shader_parameter("density"))
+		if e0 < 0.97:                                                # still thickening (the Veil came a moment ago): carry on smoothly to full
+			te.tween_method(func(v: float): em.set_shader_parameter("density", v), e0, 0.97, clampf((0.97 - e0) * 25.0, 1.0, 10.0))
+		else:
+			em.set_shader_parameter("density", 0.97)
 		te.tween_method(func(v: float): em.set_shader_parameter("density", v), 0.97, 0.3, 4.0).set_delay(11.0)
 	curtains.append_array(entry)
 	tc.global_position = A
@@ -2865,8 +2880,8 @@ func _pre_mist_start() -> void:
 	var ground := door_out.y
 	var near := _enc_mist(P, n, ground)
 	var entry := _enc_mist(P, n, ground, [[96.0, 150.0], [102.0, 170.0], [108.0, 190.0]])
-	_pre_mist = {"store": store, "near": near, "entry": entry}
 	var tw := create_tween().set_parallel(true)
+	_pre_mist = {"store": store, "near": near, "entry": entry, "tw": tw}
 	for c in near + entry:
 		var m := ((c as MeshInstance3D).mesh as QuadMesh).material as ShaderMaterial
 		m.set_shader_parameter("density", 0.0)
@@ -2877,6 +2892,9 @@ func _pre_mist_start() -> void:
 func _take_pre_mist(which: String, store: Node3D) -> Array:
 	var got: Array = []
 	if not _pre_mist.is_empty():
+		if _pre_mist.get("tw") != null and (_pre_mist["tw"] as Tween).is_valid():
+			(_pre_mist["tw"] as Tween).kill()                  # the encounter carries on from wherever the density has got to (no jump)
+			_pre_mist["tw"] = null
 		if _pre_mist["store"] == store:
 			got = _pre_mist[which]
 		else:

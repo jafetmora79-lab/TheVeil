@@ -63,20 +63,15 @@ func _run() -> void:
 			qs.transform = Transform3D(Basis(), (wp as Vector3) + Vector3(0, hgt, 0))
 			if not space.intersect_shape(qs, 1).is_empty():
 				clear_all = false
-	ok("shopper_route_clear_of_walls", clear_all and rt.size() >= 8, "%d waypoints" % rt.size())
-	ok("shopper_has_route", (lt.people["Civilian_B"]["route"] as Array).size() >= 3)
-	# she walks the aisles for a while and never leaves the shop
-	w.player.global_position = w.market.to_global(Vector3(-4.0, 1.0, 3.0))          # (people only walk while the player is near)
+	ok("shopper_route_clear_of_walls", clear_all and rt.size() >= 1, "%d waypoints" % rt.size())
+	ok("shopper_browses_one_aisle", lt.people["Civilian_B"].has("browse") and rt.size() == 1)
+	# she stands in her aisle looking at the shelf, a hand to the chin (review note #17): she stays put and the pose comes in
+	w.player.global_position = w.market.to_global(Vector3(-4.0, 1.0, 3.0))          # (people only act while the player is near)
 	await process_frame
 	var start := b.global_position
-	var inside := true
-	var far := 0.0
-	for i in 2400:
+	for i in 240:
 		await process_frame
-		var l: Vector3 = w.market.to_local(b.global_position)
-		if l.x < -11.0 or l.x > 7.0 or l.z < 3.0 or l.z > 14.0:
-			inside = false
-		far = maxf(far, b.global_position.distance_to(start))
-	ok("shopper_walks_aisles_inside", inside and far > 4.0, "max %.1f m from the start" % far)
+	ok("shopper_stays_in_aisle", b.global_position.distance_to(start) < 0.3, str(b.global_position.distance_to(start)))
+	ok("shopper_ponders", lt.people["Civilian_B"]["anim"].pondering and lt.people["Civilian_B"]["anim"]._pond > 0.95, str(lt.people["Civilian_B"]["anim"]._pond))
 	print("RESULT %s fails=%d" % ["PASS" if fails == 0 else "FAIL", fails])
 	quit(1 if fails else 0)

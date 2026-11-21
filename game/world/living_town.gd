@@ -351,8 +351,12 @@ func _spawn_people() -> void:
 		mk.to_global(Vector3(-8.0, 0.04, 7.0)), mk.to_global(Vector3(-2.5, 0.04, 7.0)), mk.to_global(Vector3(-2.5, 0.04, 10.3)), mk.to_global(Vector3(-2.5, 0.04, 7.0)),
 		mk.to_global(Vector3(3.5, 0.04, 7.0)), mk.to_global(Vector3(3.5, 0.04, 10.3)), mk.to_global(Vector3(3.5, 0.04, 7.0)),
 		mk.to_global(Vector3(9.5, 0.04, 7.0)), mk.to_global(Vector3(9.5, 0.04, 10.3)), mk.to_global(Vector3(9.5, 0.04, 7.0)), mk.to_global(Vector3(13.0, 0.04, 7.0))]
+	if mk != null:                                   # the shopper stands in the first aisle, facing the shelf: she has her eye on something (review note #17)
+		shop = [mk.to_global(Vector3(2.0, 0.04, 9.5))]
 	_person("Civilian_B", FRANK, "T_Face_Frank.png", shop[0], Color(0.85, 0.75, 0.7))
 	people["Civilian_B"]["route"] = shop
+	if mk != null:
+		people["Civilian_B"]["browse"] = mk.to_global(Vector3(3.4, 1.2, 9.5))
 	_person("Officer", POLICE, "T_Face_Police_Officer.png", Vector3(60.0, 0.2, sw))
 	people["Officer"]["route"] = []                # (stands at the corner, watching the traffic: now only once the Colossus scene stages him, review note #9)
 	(people["Officer"]["body"] as Node3D).visible = false
@@ -452,6 +456,10 @@ func _restore_after_veil() -> void:
 func _routine(nm: String, p: Dictionary, delta: float) -> void:
 	var a = p["anim"]
 	var route: Array = p["route"]
+	if p.has("browse"):                              # the shopper: one aisle, one shelf, a hand to the chin, deciding what to buy (review note #17)
+		a.pondering = true
+		a.face_towards(p["browse"])
+		return
 	if route.is_empty():
 		var c := Vector3(60.0, 0.0, road_z)
 		a.face_towards(c + Vector3(-8.0 if fmod(Time.get_ticks_msec() / 7000.0, 2.0) < 1.0 else 8.0, 0, 0))
@@ -965,6 +973,15 @@ func _frank() -> void:
 	var fwd: Vector3 = (-cam.global_basis.z if cam else Vector3.FORWARD) * Vector3(1, 0, 1)
 	fwd = fwd.normalized() if fwd.length() > 0.1 else Vector3.FORWARD
 	var side := fwd.cross(Vector3.UP).normalized()
+	# (review note #21: at a shop door the street ahead used to be the shop's inside: Frank was staged in the game store. The scene happens on the street: turn to a direction that is open.)
+	if world.has_method("point_outdoors"):
+		for turn in [0.0, 0.6, -0.6, 1.2, -1.2, 1.9, -1.9, PI]:
+			var f2: Vector3 = fwd.rotated(Vector3.UP, turn)
+			var probe: Vector3 = world.player.global_position + f2 * 11.0
+			if world.point_outdoors(probe, 2.0) and world.point_outdoors(world.player.global_position + f2 * 5.0, 1.0) and world.point_outdoors(world.player.global_position + f2 * 17.0, 1.0):
+				fwd = f2
+				side = fwd.cross(Vector3.UP).normalized()
+				break
 	var pin := safe_point(_ground(world.player.global_position + fwd * 11.0))
 	if not pin.is_finite():
 		pin = _ground(world.player.global_position + fwd * 11.0)

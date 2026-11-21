@@ -739,7 +739,6 @@ func _run() -> void:
 		"%d products, %d multimeshes, %d interactables" % [mmc.instance_count, mmc.mmi_count, decor_its])
 	for id in ["chocolate_bar", "energy_snack", "water_bottle"]:
 		var gi = world.interactables["market/" + id]
-		ok("grocery_glow_" + id, mmc.groups[id]["mmi"].material_overlay != null)
 		var outward: Vector3 = mk.global_transform.basis * mmc.groups[id]["normal"]
 		if id == "water_bottle":
 			# the water is behind the glass: the closed door blocks it, then "[E] Open Fridge" opens it
