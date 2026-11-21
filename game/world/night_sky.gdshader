@@ -3,6 +3,9 @@
 shader_type spatial;
 render_mode unshaded, blend_add, cull_front, depth_draw_never, fog_disabled, shadows_disabled;
 
+// (the sky direction is taken in the dome's own space in vertex(): VERTEX in fragment() is view space and would turn with the camera)
+varying vec3 sky_dir;
+
 uniform vec3 moon_dir = vec3(0.3, 0.6, 0.7);
 uniform float fade : hint_range(0.0, 1.0) = 1.0;
 uniform float star_density : hint_range(0.0, 1.0) = 0.9;
@@ -38,8 +41,12 @@ float fbm(vec2 p) {
 	return s;
 }
 
+void vertex() {
+	sky_dir = VERTEX;
+}
+
 void fragment() {
-	vec3 d = normalize(VERTEX);
+	vec3 d = normalize(sky_dir);
 	float up = smoothstep(-0.02, 0.12, d.y);              // nothing below / on the horizon
 	vec3 md = normalize(moon_dir);
 
@@ -60,7 +67,7 @@ void fragment() {
 	float r = length(f - jit * 0.55);
 	float size = 0.10 + 0.12 * hash13(cell + 41.0);
 	float star = present * smoothstep(size, size * 0.25, r);
-	float tw = 0.75 + 0.25 * sin(TIME * (1.5 + 4.0 * hash13(cell + 3.0)) + h * 60.0);
+	float tw = 0.88 + 0.12 * sin(TIME * (0.8 + 1.6 * hash13(cell + 3.0)) + h * 60.0);       // (a faint, slow blink)
 	vec3 tint = mix(vec3(0.75, 0.85, 1.0), vec3(1.0, 0.92, 0.78), hash13(cell + 5.0));
 	vec3 stars = tint * star * tw * (0.55 + 1.2 * hash13(cell + 9.0));
 	// the very dense backdrop of faint stars (the milky dust)
