@@ -645,7 +645,7 @@ func _process(delta: float) -> void:
 	var el: Vector3 = market.to_local(eddie.global_position)
 	var rs_following := String(st().get("ruth_sarah", "")) == "following"
 	# front doors: open while anyone of the group is at them, shut when everyone is clear
-	var near: bool = c5._near_doors(pl) or c5._near_doors(el)
+	var near: bool = c5._near_doors(pl) or c5._near_doors(el) or c5._followers_near_doors()
 	if rs_following:
 		near = near or c5._near_doors(market.to_local(ruth.global_position)) or c5._near_doors(market.to_local(sarah.global_position))
 	if near != c5._doors_open and (c5._near_doors(pl) or not near) and not (world.expedition != null and world.expedition.active()) \

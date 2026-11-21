@@ -475,8 +475,27 @@ func _talk_marcus(_b: Node) -> void:
 
 func _after_talk() -> void:
 	if Game.has_flag("c5_eddie_talked") and Game.has_flag("c5_marcus_talked"):
+		var first := not Game.has_flag("c5_talked_both")
 		Game.set_flag("c5_talked_both")
+		if first:
+			await _marcus_gives_map()
 	_refresh_prompts()
+
+
+## The morning talks are over: Marcus hands the player the old town map on the spot (no waiting around next to Eddie for it).
+func _marcus_gives_map() -> void:
+	var nav = world.get("nav")
+	if nav == null or Game.has_flag("map_acquired") or marcus == null:
+		return
+	nav._giving = true
+	await get_tree().create_timer(0.4).timeout
+	var ok: bool = await world.converse(["map_intro_marcus"], [marcus]) if world.has_method("converse") else false
+	if not ok:
+		Dialogue.say("map_intro_marcus", false, true)
+	while Dialogue.is_busy() or world.conversing:
+		await get_tree().process_frame
+	nav._acquired("")
+	nav._giving = false
 
 
 # ------------------------------------------------------------------ scene 2: prepare (closest existing storage UI: the inventory panel)
@@ -634,7 +653,7 @@ func _process(delta: float) -> void:
 	var el := market.to_local(eddie.global_position)
 	var following := String(st().get("eddie", "")) == "following"
 	# the front doors (unpowered since Chapter 3) are pulled open while someone is at them, shut when all are clear
-	var near := _near_doors(pl) or _near_doors(el)
+	var near := _near_doors(pl) or _near_doors(el) or _followers_near_doors()
 	if survivor.visible:
 		near = near or _near_doors(market.to_local(survivor.global_position))
 	if Game.has_flag("ch6_started") or (world.expedition != null and world.expedition.active()):
@@ -676,6 +695,14 @@ func _away_from_store(l: Vector3, m: float) -> bool:
 	var dx := maxf(absf(l.x) - 20.0, 0.0)
 	var dz := maxf(maxf(-l.z, l.z - 17.6), 0.0)
 	return Vector2(dx, dz).length() > m
+
+
+## Any companion who is following the player (Eddie, Marcus, Ruth, Sarah, a rescued survivor, a scavenging partner) is at the doors: they open for them too, and stay open until they are through.
+func _followers_near_doors() -> bool:
+	for f in get_tree().get_nodes_in_group("veil_companion_follow"):
+		if f.get("active") == true and is_instance_valid(f.npc) and _near_doors(market.to_local((f.npc as Node3D).global_position)):
+			return true
+	return false
 
 
 func _near_doors(l: Vector3) -> bool:

@@ -55,7 +55,7 @@ const COMPANION_BEDS := {"Eddie": [Vector3(-14.5, 0.04, 16.0), Vector3(-15.5, 0.
 	"Marcus": [Vector3(-16.0, 0.04, 15.6), Vector3(-13.5, 0.04, 13.2), Vector3(-15.2, 0.04, 13.7)]}
 const EDDIE_POS := Vector3(6.2, 0.04, 4.05)
 const MARCUS_POS := Vector3(-2.0, 0.04, 6.9)
-const LOADING_GAP := 0.9                                   # metres the roll-up door is left open
+const LOADING_GAP := 0.65                                   # metres the roll-up door is left open
 
 var world: Node
 var market: Node3D
@@ -261,6 +261,7 @@ func _settle_items() -> void:
 func _setup_back_room() -> void:
 	var br := _spot("P4_Breaker", BREAKER_BOX[0], BREAKER_BOX[1], "[E] Throw the Breaker", _throw_breaker)
 	its["breaker"] = br
+	_build_breaker_box()
 	for pair in [["loading", LOADING_PALLET], ["back", BACK_PALLET]]:
 		var p := PALLET.instantiate() as Node3D
 		p.name = "P4_Pallet_" + pair[0]
@@ -384,6 +385,7 @@ func _take_bedding(which: String) -> void:
 		return
 	Game.set_flag("p4_bed_" + which)
 	Sfx.play("pickup", (it as Node3D).global_position, -6.0, 0.9)
+	(it.target if it.target != null else it.get_parent() as Node3D).visible = false
 	_bed_state()
 	if Game.has_flag("p4_bed_card") and Game.has_flag("p4_bed_soft"):
 		Game.set_flag("p4_bed_gathered")
@@ -447,7 +449,8 @@ func _bed_state() -> void:
 		if it == null:
 			continue
 		var taken := Game.has_flag("p4_bed_" + k)
-		(it as Node3D).visible = threat and not taken
+		var pile: Node3D = it.target if it.target != null else (it.get_parent() as Node3D)         # the pile itself (the Interactable is only its child): it disappears once taken
+		pile.visible = threat and not taken
 		it.prompt_text = "" if taken or not threat else ("[E] Take Flattened Cardboard" if k == "card" else "[E] Take Blanket and Pillow")
 		it.collision_layer = 8 if threat and not taken else 0
 	var ready := threat and Game.has_flag("p4_bed_card") and Game.has_flag("p4_bed_soft") and not bed_made()
@@ -628,18 +631,128 @@ func _need_light() -> bool:
 	return true
 
 
+# ------------------------------------------------------------------ the breaker box
+## A real box on the back wall (over the wall's panel): grey metal, a door on the left hinge, inside two columns of breakers, a big lever and a main switch.
+## [E] opens it, the lever is thrown, the main switch flipped, the door shut - and only then do the lights come back.
+var _bx: Node3D
+var _bx_door: Node3D
+var _bx_lever: Node3D
+var _bx_switch: Node3D
+var _bx_busy := false
+
+
+func _metal(c: Color, rough := 0.6) -> StandardMaterial3D:
+	var m := StandardMaterial3D.new()
+	m.albedo_color = c
+	m.roughness = rough
+	m.metallic = 0.3
+	return m
+
+
+func _bx_part(parent: Node3D, size: Vector3, at: Vector3, mat: Material, nm := "") -> MeshInstance3D:
+	var mi := MeshInstance3D.new()
+	var bm := BoxMesh.new()
+	bm.size = size
+	bm.material = mat
+	mi.mesh = bm
+	mi.position = at
+	if nm != "":
+		mi.name = nm
+	parent.add_child(mi)
+	return mi
+
+
+func _build_breaker_box() -> void:
+	_bx = Node3D.new()
+	_bx.name = "P4_BreakerBox"
+	market.add_child(_bx)
+	_bx.position = Vector3(BREAKER.x, BREAKER.y, BREAKER.z - 0.07)      # its back against the wall; the front faces the room (-z)
+	var grey := _metal(Color(0.34, 0.36, 0.37))
+	var dark := _metal(Color(0.05, 0.05, 0.055), 0.9)
+	# back plate and rim (open front)
+	_bx_part(_bx, Vector3(0.62, 0.74, 0.02), Vector3(0, 0, 0.05), dark)
+	for e in [[Vector3(0.62, 0.03, 0.1), Vector3(0, 0.355, 0)], [Vector3(0.62, 0.03, 0.1), Vector3(0, -0.355, 0)], [Vector3(0.03, 0.74, 0.1), Vector3(0.295, 0, 0)], [Vector3(0.03, 0.74, 0.1), Vector3(-0.295, 0, 0)]]:
+		_bx_part(_bx, e[0], e[1], grey)
+	# the breakers: two columns of six small switches
+	for col in 2:
+		for row in 6:
+			_bx_part(_bx, Vector3(0.07, 0.07, 0.04), Vector3(0.14 - col * 0.2 + 0.0, 0.25 - row * 0.085, 0.015), _metal(Color(0.1, 0.1, 0.11)))
+			var tog := _bx_part(_bx, Vector3(0.02, 0.035, 0.03), Vector3(0.14 - col * 0.2, 0.25 - row * 0.085 + (0.012 if row % 3 else -0.012), -0.012), _metal(Color(0.8, 0.8, 0.78)))
+			tog.name = "Tog_%d_%d" % [col, row]
+	# the main lever (a pivot at its foot; down = off, up = on) and the main switch (red, beside it)
+	_bx_lever = Node3D.new()
+	_bx_lever.name = "Lever"
+	_bx.add_child(_bx_lever)
+	_bx_lever.position = Vector3(-0.03, -0.28, -0.015)
+	_bx_part(_bx_lever, Vector3(0.05, 0.16, 0.03), Vector3(0, 0.08, 0), _metal(Color(0.85, 0.15, 0.1)))
+	_bx_part(_bx_lever, Vector3(0.09, 0.03, 0.04), Vector3(0, 0.17, 0), _metal(Color(0.9, 0.9, 0.9)))
+	_bx_switch = Node3D.new()
+	_bx_switch.name = "MainSwitch"
+	_bx.add_child(_bx_switch)
+	_bx_switch.position = Vector3(0.2, -0.28, -0.015)
+	_bx_part(_bx_switch, Vector3(0.05, 0.1, 0.04), Vector3(0, 0.0, 0), _metal(Color(0.15, 0.15, 0.16)))
+	_bx_part(_bx_switch, Vector3(0.025, 0.07, 0.035), Vector3(0, 0.05, 0), _metal(Color(0.9, 0.75, 0.1)))
+	# the door: hinged at the left edge as you face the wall (+x in market space), swinging out into the room
+	_bx_door = Node3D.new()
+	_bx_door.name = "Door"
+	_bx.add_child(_bx_door)
+	_bx_door.position = Vector3(0.31, 0, -0.065)
+	_bx_part(_bx_door, Vector3(0.62, 0.74, 0.015), Vector3(-0.31, 0, 0), grey)
+	_bx_part(_bx_door, Vector3(0.04, 0.1, 0.03), Vector3(-0.55, 0, -0.012), _metal(Color(0.1, 0.1, 0.1)))      # the handle
+	_bx_lever.rotation.x = deg_to_rad(-70.0)                  # down (off)
+	_bx_switch.rotation.x = deg_to_rad(-45.0)
+	if Game.has_flag("p4_breaker"):
+		_bx_lever.rotation.x = deg_to_rad(10.0)
+		_bx_switch.rotation.x = deg_to_rad(30.0)
+
+
+func _bx_tween(n: Node3D, prop: String, to: float, secs: float, trans := Tween.TRANS_SINE) -> void:
+	var tw := create_tween().set_trans(trans).set_ease(Tween.EASE_IN_OUT)
+	tw.tween_property(n, prop, to, secs)
+	await tw.finished
+
+
 func _throw_breaker(_b: Node) -> void:
 	if _need_light():
 		return
 	if Game.has_flag("p4_breaker"):
 		Dialogue.say("p4_breaker_again", false, true)
 		return
-	Sfx.play("door_close", ml(BREAKER), 2.0, 0.5)
+	if _bx_busy:
+		return
+	_bx_busy = true
+	player.set("controls_enabled", false)
+	player.set("look_enabled", false)
+	player.set("velocity", Vector3.ZERO)
+	var face: Vector3 = _bx.global_position + Vector3(0, 0.05, 0)
+	var v: Vector3 = (face - player.camera.global_position).normalized()
+	player.set_yaw_pitch(atan2(-v.x, -v.z), clampf(asin(clampf(v.y, -1.0, 1.0)), -0.5, 0.5))
 	Dialogue.say("p4_breaker", false, true)
-	await get_tree().create_timer(1.2).timeout
+	await get_tree().create_timer(0.5).timeout
+	# 1. the door: the latch, then it swings open
+	Sfx.play("door_open", face, -2.0, 1.3)
+	await _bx_tween(_bx_door, "rotation:y", deg_to_rad(-105.0), 0.7)
+	await get_tree().create_timer(0.35).timeout
+	# 2. the breakers: the lever thrown up with both hands' weight - a hard clunk
+	Sfx.play("door_close", face, 3.0, 1.9)
+	await _bx_tween(_bx_lever, "rotation:x", deg_to_rad(10.0), 0.55, Tween.TRANS_BACK)
+	Sfx.play("pickup", face, 0.0, 0.6)
+	await get_tree().create_timer(0.4).timeout
+	# 3. the main switch, flipped
+	await _bx_tween(_bx_switch, "rotation:x", deg_to_rad(30.0), 0.25)
+	Sfx.play("pickup", face, 0.0, 1.5)
+	await get_tree().create_timer(0.45).timeout
+	# 4. the door shut
+	await _bx_tween(_bx_door, "rotation:y", 0.0, 0.6)
+	Sfx.play("door_close", face, 0.0, 1.1)
+	await get_tree().create_timer(0.5).timeout
+	# 5. only now: the hum, and the lights come back
 	Game.set_flag("p4_breaker")
 	_apply()
 	_flicker_burst(1.2)
+	_bx_busy = false
+	player.set("controls_enabled", true)
+	player.set("look_enabled", true)
 
 
 func _pull_loading(_b: Node) -> void:

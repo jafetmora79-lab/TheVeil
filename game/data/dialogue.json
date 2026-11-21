@@ -2191,6 +2191,36 @@
    }
   ]
  },
+ "map_intro_marcus": {
+  "source": "Town map: Marcus hands it over after the morning talks",
+  "lines": [
+   {
+    "speaker": "Marcus",
+    "text": "Hold on. Before you go out there, take this.",
+    "time": 2.8
+   },
+   {
+    "speaker": "",
+    "text": "What is it?",
+    "time": 1.4
+   },
+   {
+    "speaker": "Marcus",
+    "text": "A map of Greyhaven. Old, but the streets haven't moved. Houses, shops, places worth checking.",
+    "time": 4.4
+   },
+   {
+    "speaker": "Marcus",
+    "text": "Mark where you want to search. Cross it off if it's empty. Come back to it in a few days.",
+    "time": 4.4
+   },
+   {
+    "speaker": "",
+    "text": "Better than wandering around blind. Thanks.",
+    "time": 2.4
+   }
+  ]
+ },
  "gh_reminder": {
   "source": "Opening: the Game Haven reminder after the groceries",
   "lines": [

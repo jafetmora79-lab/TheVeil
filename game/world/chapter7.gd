@@ -442,7 +442,7 @@ func _process(delta: float) -> void:
 	var following := String(st().get("marcus", "")) == "following"
 	# the front doors close by themselves once nobody of the group is at them (they are opened by hand)
 	var on_trip: bool = world.expedition != null and world.expedition.active()     # a supply run keeps them open
-	if c5._doors_open and not on_trip and not c5._near_doors(pl) and not (following and c5._near_doors(ml_)):
+	if c5._doors_open and not on_trip and not c5._near_doors(pl) and not (following and c5._near_doors(ml_)) and not c5._followers_near_doors():
 		c5._set_doors(false)
 	if following and not Game.has_flag("ch7_departure_complete") and c5._away_from_store(pl, 3.0):
 		Game.set_flag("ch7_departure_complete")

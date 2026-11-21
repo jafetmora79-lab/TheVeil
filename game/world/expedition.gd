@@ -179,6 +179,10 @@ func _use_exit(_b: Node) -> void:
 		await sa.handover(p4.choice)
 		_busy_menu = false
 		return
+	var sd0 := story_door()
+	if sd0 != null and String(sd0.own_prompt()).begins_with("NOT YET - TALK"):
+		_hint("Talk to the others first.")          # the story needs a conversation before anyone goes out: no menu, no trip, nothing half-started
+		return
 	_busy_menu = true
 	var m := menu_options()
 	var opts: Array = m["labels"]
@@ -248,6 +252,9 @@ func menu_options() -> Dictionary:
 
 ## One supply run per in-game day (a day = one shelter night; saved in the trip state).
 func scavenge_available() -> bool:
+	var sd := story_door()
+	if sd != null and String(sd.own_prompt()).begins_with("NOT YET - TALK"):
+		return false                                 # the story's conversations come first
 	return can_scavenge() and int(st().get("scavenged_day", -1)) != _today()
 
 
@@ -347,6 +354,16 @@ func cancel_story_departure() -> void:
 ## Normal shelter time with the player inside: the front doors only open through "[E] Leave Shelter" (a choice in
 ## the menu), never because the player or a companion walks up to them. Whenever this holds, that prompt is offered
 ## (same condition), so nobody is shut in; coming back from outside always opens them.
+## The doors are pulled open for the companions too (the supermarket's automatic doors are dead): anyone following the player who comes to the doors on a departure or a trip
+## opens them, so nobody is left behind the glass.
+func _followers_open_doors() -> void:
+	var c5 := _c5()
+	if c5 == null or c5._doors_open or not (active() or story_departure or not in_store()):
+		return
+	if c5._followers_near_doors():
+		c5._set_doors(true)
+
+
 func doors_held() -> bool:
 	return can_scavenge() and not story_departure and not _busy_menu and in_store()
 
@@ -1892,6 +1909,7 @@ func _process(delta: float) -> void:
 	if _tick > 0.0:
 		return
 	_tick = 0.25
+	_followers_open_doors()
 	if not _props_placed and Game.has_flag("c5_started"):
 		_props_placed = true                             # (the wrecks: not in the ordinary town of the opening)
 		if not Game.has_flag("ch9_supermarket_lost"):

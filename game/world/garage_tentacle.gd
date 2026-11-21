@@ -14,7 +14,7 @@ const TENTACLE := "res://THE_VEIL_ASSETS_V2/07_Creatures/Godot_Scenes/CRT_MistTe
 const ROOT := Vector3(20.3, 0.35, 15.9)              # market frame: just outside the roll-up door's plane (x 20.05)
 const GAP_LOOK := Vector3(19.6, 0.45, 15.9)
 const ESCAPE_S := 10.0
-const THIN := 0.36            ## thickness of the limbs under the door relative to their length scale (base ~0.6 m across: it fits the 0.9 m gap)
+const THIN := 1.0            ## thickness of the limbs under the door relative to their length scale (base ~0.6 m across: it fits the 0.9 m gap)
 ## Not lying flat along the floor (it read as a tube slid in on its side): it rises from the gap at about 20 degrees,
 ## at the player, its base out of sight outside the door (0.25 m in, it is 9 cm higher: still under the 0.9 m gap).
 const LIFT := PI * 0.5 - 0.35
@@ -90,17 +90,19 @@ func _reveal() -> void:
 	# 2. the three, one beat at a time
 	_spawn_trio()
 	world._shake(cam, 0.3, 0.04)
-	await p4._fp_face(cam, p4.ml(GAP_LOOK + Vector3(-0.8, 0.3, 0)), 0.3)
-	await _beat("A", "push")
-	await _beat("A", "sense")
-	await _beat("A", "sweep")
-	Sfx.play("hurt", player.global_position, -10.0, 1.4)            # a gasp: it missed, just
-	world._shake(cam, 0.25, 0.05)
-	await p4._fp_face(cam, p4.ml(Vector3(19.4, 0.5, float(trio["B"]["root"].z))), 0.25)
-	await _beat("B", "reach")
-	await p4._fp_face(cam, p4.ml(Vector3(19.4, 0.45, float(trio["C"]["root"].z) - 0.4)), 0.2)
-	_beat("C", "lash")
+	await p4._fp_face(cam, p4.ml(GAP_LOOK + Vector3(-0.8, 0.3, 0)), 0.25)
+	# all three at once, quick and overlapping (one at a time, slowly, read as weird, not frightening): the first shoves in, the others are on it a beat later
+	_beat("A", "push", 0.35)
 	await get_tree().create_timer(0.3).timeout
+	_beat("B", "reach", 0.75)
+	await p4._fp_face(cam, p4.ml(Vector3(19.4, 0.5, float(trio["B"]["root"].z))), 0.2)
+	_beat("C", "lash", 0.75)
+	world._shake(cam, 0.3, 0.05)
+	await get_tree().create_timer(0.55).timeout
+	_beat("A", "sweep", 0.8)
+	Sfx.play("hurt", player.global_position, -10.0, 1.4)            # a gasp: it missed, just
+	await p4._fp_face(cam, p4.ml(Vector3(19.4, 0.45, float(trio["C"]["root"].z) - 0.4)), 0.2)
+	await get_tree().create_timer(0.5).timeout
 	report["revealed"] = trio.size() == 3
 	report["through_gap"] = _through_gap()
 	report["clearance_hits"] = _clearance()
@@ -179,14 +181,14 @@ func _spawn_trio() -> void:
 	# all three come in UNDER the door, through the gap (as the player sees it from the bay): A in the middle, B along
 	# the floor at the left of the gap, C at the right edge by the boxes. Low enough to clear the door's bottom edge
 	# with their thickness; roots well outside, in the dark beyond the door.
-	var low := clampf(gap_top * 0.38, 0.12, 0.3)
+	var low := clampf(gap_top * 0.27, 0.1, 0.25)
 	var left := span.x + 0.45                          # (from the bay, looking at the door: -z is the left)
 	var right := span.y - 0.45
 	# [root (market frame, outside), aim (into the bay), scale]
 	var spec := {
-		"A": [Vector3(22.6, low, zc), Vector3(-1.0, 0.02, 0.0), 0.75],
-		"B": [Vector3(22.4, low * 0.85, left), Vector3(-1.0, 0.02, 0.25), 0.66],
-		"C": [Vector3(22.4, low, right), Vector3(-1.0, 0.02, -0.3), 0.66],
+		"A": [Vector3(22.6, low, zc), Vector3(-1.0, 0.02, 0.0), 0.42],
+		"B": [Vector3(22.4, low * 0.85, left), Vector3(-1.0, 0.02, 0.25), 0.36],
+		"C": [Vector3(22.4, low, right), Vector3(-1.0, 0.02, -0.3), 0.36],
 	}
 	for k in spec:
 		var t := (load(VeilMeshyNpcs.monster_scene(TENTACLE)) as PackedScene).instantiate() as Node3D
@@ -319,7 +321,7 @@ func _trio_tick(dt: float) -> void:
 	if _beat_t > 0.0:
 		return
 	var k := 1.0 - clampf(time_left / ESCAPE_S, 0.0, 1.0)
-	_beat_t = lerpf(2.2, 0.9, k)
+	_beat_t = lerpf(1.2, 0.55, k)
 	var order := [["A", "sweep_back"], ["B", "reach"], ["C", "lash"], ["A", "sweep"]]
 	var step: Array = order[_beat_next % order.size()]
 	_beat_next += 1

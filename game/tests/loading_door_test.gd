@@ -79,7 +79,7 @@ func _run() -> void:
 	var roots_out: bool = g.trio.values().all(func(d): return (d["root"] as Vector3).x > 20.6)
 	ok("roots_outside", roots_out)
 	var first5: Array = g.beat_log.slice(0, 5)
-	ok("beat_order", first5 == ["A:push", "A:sense", "A:sweep", "B:reach", "C:lash"], str(g.beat_log))
+	ok("beat_order", first5.slice(0, 3) == ["A:push", "B:reach", "C:lash"], str(g.beat_log))
 	ok("under_the_door", float(g.report.get("through_gap", -1.0)) > 0.05, "worst %.2f m under the door edge (gap %.2f m)" % [float(g.report.get("through_gap", -1.0)), float(g.report.get("gap_top", -1.0))])
 	var zs: Array = ["A", "B", "C"].map(func(k): return float(g.trio[k]["root"].z))
 	ok("left_centre_right", zs[1] < zs[0] and zs[0] < zs[2], str(zs))
