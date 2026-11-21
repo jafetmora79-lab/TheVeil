@@ -69,11 +69,12 @@ func _shopping(delta: float) -> void:
 		and world.player.global_position.distance_to(world.market.global_position) < 45.0
 	var need := []
 	for id in world.GROCERIES:
-		if not Game.has_item(id):
+		if not world._have_grocery(id):
 			need.append(id)
 	var merch = world.get("market_merch")
 	for id in world.GROCERIES:
-		var it = merch.groups[id]["it"] if merch and merch.groups.has(id) else null
+		var gid: String = world.GROCERY_SHOWN[id]
+		var it = merch.groups[gid]["it"] if merch and merch.groups.has(gid) and not Game.has_item(merch.groups[gid]["item"]) else null
 		hud.world_diamond("grocery_" + id, it if on and id in need else null)
 	hud.world_diamond("cashier", world.cashier if on and need.is_empty() and world.cashier and world.cashier.visible else null)
 	if not on:

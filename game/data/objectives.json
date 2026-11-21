@@ -59,7 +59,7 @@
    "id": "buy_groceries",
    "flag": "groceries_done",
    "goal": "errands",
-   "text": "Buy groceries: soup, a snack bar, water"
+   "text": "Buy groceries: any snack, any candy, any drink"
   },
   {
    "id": "buy_game",

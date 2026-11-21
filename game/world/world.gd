@@ -29,12 +29,19 @@ const GLOW_SHADER := preload("res://game/world/veil_highlight.gdshader")
 const NPC_ANIM := preload("res://game/npc/npc_animator.gd")
 const MERCH_SCRIPT := preload("res://game/world/store_merch.gd")
 ## the shopping list: item -> where to find it (pick groups in Pack 04 Merchandise/MERCH_LAYOUT.json)
+## the shopping list: ANY snack, ANY candy and ANY drink off the shelves (every product can be taken: review note #8)
 const GROCERIES := {
-	"canned_food": "Soup (aisle 1)",
-	"energy_snack": "Snack bar (candy rack, lane 4)",
-	"water_bottle": "Water (drinks cooler, back wall)",
+	"snack": "a snack (chips, crackers, cookies...)",
+	"candy": "a candy (a bar, chocolate)",
+	"drink": "a drink (water, soda...)",
 }
-const EXTRAS := ["cola_bottle", "chocolate_bar"]       ## optional extras, paid at the same checkout
+const GROCERY_SHOWN := {"snack": "energy_snack", "candy": "chocolate_bar", "drink": "water_bottle"}      ## the pick group that glows / gets the diamond for each kind
+const GROCERY_ITEMS := {"snack": ["energy_snack"], "candy": ["chocolate_bar"], "drink": ["water_bottle", "cola_bottle"]}
+const EXTRAS := ["cola_bottle", "chocolate_bar", "energy_snack", "water_bottle", "canned_food"]       ## everything else taken, paid at the same checkout
+
+
+func _have_grocery(kind: String) -> bool:
+	return (GROCERY_ITEMS[kind] as Array).any(func(i): return Game.has_item(i))
 
 const OBSERVE := {
 	"AlarmClock_01": ["Alarm Clock", "obs_alarm"], "WallCalendar_01": ["Calendar", "obs_calendar"],
@@ -648,9 +655,9 @@ func _setup_town() -> void:
 	# stocked shelves: separate product meshes (MultiMesh), only the pick groups are interactive
 	market_merch = _merch(market, "supermarket", "market")
 	market_merch.taken.connect(func(_g, i): _grocery_hint(); _note_unpaid("market", i))
-	for id in GROCERIES:
-		if not Game.has_item(id) and not Game.has_flag("groceries_done"):
-			market_merch.set_glow(id, _glow_mat())
+	for k in GROCERIES:                                                      # the showcase product of each kind glows (the rest can be taken too)
+		if not _have_grocery(k) and not Game.has_flag("groceries_done"):
+			market_merch.set_glow(GROCERY_SHOWN[k], _glow_mat())
 	_setup_coolers()
 	# checkout: lane 4. The cashier is a generic placeholder (no cashier is named in the bible).
 	# Stand just off the lane 4 approach, with a clear interaction line from the aisle.
@@ -1680,7 +1687,7 @@ func _grocery_hint() -> void:
 	var parts := []
 	var n := 0
 	for id in GROCERIES:
-		var got := Game.has_item(id)
+		var got := _have_grocery(id)
 		n += int(got)
 		parts.append(("[x] " if got else "[  ] ") + GROCERIES[id])
 	var tail := "  -  then pay the cashier at lane 4, by the doors" if n == 3 else "  -  look for the glowing items"
@@ -1690,8 +1697,8 @@ func _grocery_hint() -> void:
 
 
 func _checkout(_by: Node) -> void:
-	var need := ["canned_food", "water_bottle", "energy_snack"]
-	if Game.has_flag("groceries_done") or not need.all(func(i): return Game.has_item(i)):
+	var need: Array = GROCERIES.keys()
+	if Game.has_flag("groceries_done") or not need.all(func(k): return _have_grocery(k)):
 		if not unpaid("market").is_empty():                    # extras (or a second cola) rung up on their own
 			_paid("market")
 			Sfx.play("pickup", market.global_transform * Vector3(-4.1, 1.1, 4.0))
@@ -1702,8 +1709,14 @@ func _checkout(_by: Node) -> void:
 			converse(["market_need_items"], [cashier])
 		return
 	_paid("market")
-	for i in need + EXTRAS:
-		Game.remove_item(i)
+	for k in need:                                                   # the three on the list are bought (one of each); extras go through the same till
+		for i in GROCERY_ITEMS[k]:
+			if Game.has_item(i):
+				Game.remove_item(i)
+				break
+	for i in EXTRAS:
+		while Game.has_item(i):
+			Game.remove_item(i)
 	Game.add_item("groceries")
 	Sfx.play("pickup", market.global_transform * Vector3(-4.1, 1.1, 4.0))
 	_glow(cashier, false)
@@ -3487,7 +3500,8 @@ func _p3_reach_shop() -> void:
 const STOCK_DOOR_OUT := Vector3(-2.0, 0.04, 7.55)
 const STOCK_IN := Vector3(-2.0, 0.04, 9.45)
 const SEAT_BOX := Vector3(-0.6, 0.04, 9.3)
-const SEAT_DOCS := Vector3(-5.0, 0.04, 9.2)
+const SEAT_DOCS := Vector3(-5.0, 0.04, 9.4)          ## on the visible stack's high step (top 0.58 at z 9.2..9.6; the old 0.80 floated, review note #12)
+const SEAT_DOCS_H := 0.58
 const STOCK_CIRCLE := Vector3(-2.7, 0.04, 9.6)
 const MARCUS_DOOR_WAIT := Vector3(-1.3, 0.04, 9.2)     ## inside, beside the door's free edge: where Marcus stands to pull it shut
 const EDDIE_STAND := Vector3(-2.6, 0.04, 10.4)
@@ -3647,7 +3661,7 @@ func _shop_seated_talk() -> void:
 	while t < 5.0 and ["Eddie", "Marcus"].any(func(k): return animators.has(k) and animators[k].is_walking()):
 		await get_tree().process_frame
 		t += get_process_delta_time()
-	_seat("Marcus", SEAT_DOCS, 0.80, STOCK_CIRCLE)
+	_seat("Marcus", SEAT_DOCS, SEAT_DOCS_H, STOCK_CIRCLE)
 	if animators.has("Eddie"):
 		animators["Eddie"].walk_to([])
 		animators["Eddie"].face_towards(X * STOCK_CIRCLE)

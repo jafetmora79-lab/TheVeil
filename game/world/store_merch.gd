@@ -17,7 +17,11 @@ var groups := {}                    ## group id -> {"mmi", "it", "item", "label"
 var instance_count := 0
 var mmi_count := 0
 
+const FOOD_DIR := "res://game/prototypes/food/"
+const REACH := 2.6                  ## how far the player can take a product off a shelf
+const PICK_R := 0.2                 ## ... within this distance of the view line
 static var _lib_cache: Dictionary = {}
+static var _names = null
 static var _layout_cache = null
 
 
@@ -27,7 +31,34 @@ static func _library() -> Dictionary:
 		for mi in scene.find_children("*", "MeshInstance3D", true, false):
 			_lib_cache[String(mi.name)] = (mi as MeshInstance3D).mesh
 		scene.free()
+		for v in _lib_cache.keys():                  # the supermarket's own food models (Blender, game/tools/blender/make_food_models.py) replace the pack's where we made one
+			var path: String = FOOD_DIR + "FOOD_" + String(v) + ".glb"
+			if ResourceLoader.exists(path):
+				var fs := (load(path) as PackedScene).instantiate()
+				var fm := fs.find_children("*", "MeshInstance3D", true, false)
+				if not fm.is_empty():
+					_lib_cache[v] = (fm[0] as MeshInstance3D).mesh
+				fs.free()
 	return _lib_cache
+
+
+## What a product off the shelf is in the inventory: every item keeps one of the game's own ids, so food counts, the shelter and the errands all just work.
+static func item_of(variant: String) -> String:
+	if variant.begins_with("bottle_"):
+		return "water_bottle" if variant in ["bottle_water", "bottle_sport", "bottle_tea"] else "cola_bottle"
+	if variant.begins_with("candy_bar"):
+		return "energy_snack"
+	if variant.begins_with("choc_"):
+		return "chocolate_bar"
+	if variant.begins_with("bag_chips") or variant.begins_with("bag_tortilla") or variant.begins_with("box_snack") or variant.begins_with("box_cookies") or variant.begins_with("box_crackers"):
+		return "energy_snack"
+	return "canned_food"
+
+
+static func name_of(variant: String) -> String:
+	if _names == null:
+		_names = JSON.parse_string(FileAccess.get_file_as_string(FOOD_DIR + "names.json"))
+	return String(_names.get(variant, variant.replace("_", " ").capitalize()))
 
 
 static func _layout() -> Dictionary:
@@ -41,7 +72,16 @@ func build(key: String) -> void:
 	meshes = _library()
 	var lay: Dictionary = _layout().get(key, {})
 	for v in lay.get("static", {}):
-		_mmi("Merch_" + v, v, lay["static"][v])
+		var sm := _mmi("Merch_" + v, v, lay["static"][v])
+		if sm != null:
+			var ps := PackedVector3Array()
+			for r in lay["static"][v]:
+				ps.append(Vector3(r[0], r[1], r[2]))
+			_pos[v] = ps
+			_mm_of[v] = sm
+	for gone in Game.world_state.get("merch/" + key + "/_free", []):
+		_hide_static(String(gone).get_slice(":", 0), int(String(gone).get_slice(":", 1)))
+	_make_picker()
 	for g in lay.get("groups", []):
 		var mmi := _mmi("Pick_" + g["id"], g["variant"], g["inst"])
 		var area := Node3D.new()
@@ -120,6 +160,13 @@ func _remove_one(gid: String, near: Vector3) -> bool:
 ## Interactive pick groups are left alone.
 var looted := false
 var looted_hidden := 0
+var _pos := {}                      ## static variant -> PackedVector3Array of the instances' positions (store space)
+var _mm_of := {}                    ## static variant -> its MultiMeshInstance3D
+var _gone := {}                     ## "variant:i" -> true: taken, or raided away (not offered any more)
+var _picker: Interactable
+var _pick_node: Node3D
+var _pick_at := ["", -1]
+var _tick := 0.0
 
 
 func loot() -> void:
@@ -139,10 +186,14 @@ func loot() -> void:
 			var h := absi(hash(String(mmi.name) + str(i))) % 100
 			var run := absi(hash(String(mmi.name) + str(i / 6))) % 100            # whole runs of six go together
 			var t := mm.get_instance_transform(i)
+			if _gone.has(String(mmi.name).trim_prefix("Merch_") + ":" + str(i)):
+				continue                                                   # already taken off the shelf by the player
 			if run < gone - 8 or h < gone - 30:
 				mm.set_instance_transform(i, Transform3D(t.basis.scaled(Vector3.ONE * 0.001), t.origin))
+				_gone[String(mmi.name).trim_prefix("Merch_") + ":" + str(i)] = true
 				looted_hidden += 1
 			elif h < gone - 26:
+				_gone[String(mmi.name).trim_prefix("Merch_") + ":" + str(i)] = true
 				# knocked off: lying on the floor in front of the shelf
 				var fwd := t.basis.z.normalized()
 				var b := Basis(Vector3.RIGHT, PI * 0.5) * Basis(Vector3.UP, float(h) * 0.7)
@@ -173,3 +224,110 @@ func _take(gid: String, by: Node) -> void:
 func set_glow(gid: String, mat: Material) -> void:
 	if groups.has(gid):
 		(groups[gid]["mmi"] as MultiMeshInstance3D).material_overlay = mat
+
+
+# ------------------------------------------------------------------ take any product off any shelf
+## One pooled interaction follows the view: the product nearest the crosshair (within reach) gets the "[E] Take" box.
+func _make_picker() -> void:
+	_pick_node = Node3D.new()
+	_pick_node.name = "ShelfPick"
+	add_child(_pick_node)
+	_picker = Interactable.attach(_pick_node, {"kind": "custom", "label": "Product", "prompt_text": ""})
+	_picker.used.connect(func(by): _take_shelf())
+	_picker.collision_layer = 0                    # off until something is under the crosshair
+
+
+func _process(delta: float) -> void:
+	if _picker == null:
+		return
+	_tick += delta
+	if _tick < 0.08:
+		return
+	_tick = 0.0
+	var cam := get_viewport().get_camera_3d()
+	if cam == null or not is_visible_in_tree() or cam.global_position.distance_to(global_position) > 60.0:
+		return
+	var hit := find_product(cam.global_position, -cam.global_transform.basis.z)
+	if hit.is_empty():
+		_picker.collision_layer = 0
+		_pick_at = ["", -1]
+		return
+	_pick_at = [hit["variant"], hit["i"]]
+	var d: Vector3 = (_dims_of(hit["variant"]))
+	_pick_node.position = (hit["pos"] as Vector3) + Vector3(0, d.y * 0.5, 0)
+	_picker.prompt_text = "[E] Take " + name_of(hit["variant"])
+	_picker.label = name_of(hit["variant"])
+	(_picker.get_child(0) as CollisionShape3D).shape = _box(d)
+	_picker.collision_layer = 8
+
+
+static var _dims_cache := {}
+
+
+func _dims_of(variant: String) -> Vector3:
+	if not _dims_cache.has(variant):
+		var m: Mesh = meshes.get(variant)
+		_dims_cache[variant] = m.get_aabb().size if m else Vector3(0.1, 0.1, 0.1)
+	return _dims_cache[variant]
+
+
+func _box(d: Vector3) -> BoxShape3D:
+	var b := BoxShape3D.new()
+	b.size = d.max(Vector3.ONE * 0.12) + Vector3.ONE * 0.05
+	return b
+
+
+## The visible product nearest the view line within reach: {"variant", "i", "pos"} (store space), or {}.
+func find_product(eye_w: Vector3, fwd_w: Vector3) -> Dictionary:
+	var eye := to_local(eye_w)
+	var fwd := (global_transform.basis.inverse() * fwd_w).normalized()
+	var best := {}
+	var best_score := INF
+	for v in _pos:
+		var ps: PackedVector3Array = _pos[v]
+		var mid := Vector3(0, _dims_of(v).y * 0.5, 0)
+		for i in ps.size():
+			var to: Vector3 = ps[i] + mid - eye
+			var along := to.dot(fwd)
+			if along < 0.15 or along > REACH:
+				continue
+			var off := (to - fwd * along).length()
+			if off > PICK_R or _gone.has(v + ":" + str(i)):
+				continue
+			var score := off + along * 0.03
+			if score < best_score:
+				best_score = score
+				best = {"variant": v, "i": i, "pos": ps[i]}
+	return best
+
+
+func _hide_static(v: String, i: int) -> void:
+	var m: MultiMeshInstance3D = _mm_of.get(v)
+	if m == null or i >= m.multimesh.instance_count:
+		return
+	var t := m.multimesh.get_instance_transform(i)
+	m.multimesh.set_instance_transform(i, Transform3D(t.basis.scaled(Vector3.ONE * 0.001), t.origin))
+	_gone[v + ":" + str(i)] = true
+
+
+func take_product(v: String, i: int) -> String:
+	if _gone.has(v + ":" + str(i)) or not _pos.has(v):
+		return ""
+	_hide_static(v, i)
+	var key := "merch/" + store_key + "/_free"
+	var l: Array = Game.world_state.get(key, [])
+	l.append(v + ":" + str(i))
+	Game.world_state[key] = l
+	var item := item_of(v)
+	Game.add_item(item)
+	Sfx.play("pickup", to_global(_pos[v][i]))
+	taken.emit("shelf_" + v, item)
+	return item
+
+
+func _take_shelf() -> void:
+	if _pick_at[1] < 0:
+		return
+	take_product(String(_pick_at[0]), int(_pick_at[1]))
+	_picker.collision_layer = 0
+	_pick_at = ["", -1]

@@ -735,9 +735,9 @@ func _run() -> void:
 	var reach_fail := []
 	var mmc: Node = world.market_merch
 	var decor_its := mmc.find_children("*", "Interactable", true, false).size()
-	ok("merch_decor_not_interactive", decor_its == mmc.groups.size() and mmc.instance_count > 2000,
+	ok("merch_decor_not_interactive", decor_its == mmc.groups.size() + 1 and mmc.instance_count > 2000,
 		"%d products, %d multimeshes, %d interactables" % [mmc.instance_count, mmc.mmi_count, decor_its])
-	for id in ["canned_food", "energy_snack", "water_bottle"]:
+	for id in ["chocolate_bar", "energy_snack", "water_bottle"]:
 		var gi = world.interactables["market/" + id]
 		ok("grocery_glow_" + id, mmc.groups[id]["mmi"].material_overlay != null)
 		var outward: Vector3 = mk.global_transform.basis * mmc.groups[id]["normal"]
@@ -776,11 +776,11 @@ func _run() -> void:
 		await frames(15)
 		ok("take_one_" + id, game.has_item(id) and mmc.remaining(id) == before2 - 1, "%d -> %d" % [before2, mmc.remaining(id)])
 	ok("groceries_reachable", reach_fail.is_empty(), str(reach_fail))
-	ok("groceries_picked", game.has_item("canned_food") and game.has_item("water_bottle") and game.has_item("energy_snack"))
+	ok("groceries_picked", game.has_item("chocolate_bar") and game.has_item("water_bottle") and game.has_item("energy_snack"))
 	await aim_at(player, pay, ((mk.get_node("NavTargets/Checkout_4") as Node3D).global_position - pay.global_position) * Vector3(1, 0, 1), 1.6)
 	pay.interact(player)
 	await frames(10)
-	ok("checkout", game.has_flag("groceries_done") and game.has_item("groceries") and not game.has_item("canned_food"))
+	ok("checkout", game.has_flag("groceries_done") and game.has_item("groceries") and not game.has_item("chocolate_bar"))
 	ok("mist_waits_for_conversation", world.conversing and not game.has_flag("p3_mist"))
 	while world.conversing:
 		await frames(5)
