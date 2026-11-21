@@ -118,4 +118,35 @@ def photo_board(name):
 
 
 photo_board("art_pinboard.png")
+
+
+def sign(name, bg, fg, title, lines, w=320, h=210):
+    im = Image.new("RGB", (w, h), bg)
+    d = ImageDraw.Draw(im)
+    d.rectangle((6, 6, w - 7, h - 7), outline=fg, width=4)
+    d.text((22, 24), title, fill=fg, font=FONT)
+    d.line((20, 42, w - 20, 42), fill=fg, width=2)
+    y = 60
+    for ln in lines:
+        d.text((22, y), ln, fill=fg, font=FONT)
+        y += 16
+    px = im.load()
+    for yy in range(h):
+        for xx in range(w):
+            n = random.randint(-10, 10)
+            r, g, b = px[xx, yy]
+            px[xx, yy] = (max(0, min(255, r + n)), max(0, min(255, g + n)), max(0, min(255, b + n)))
+    for _ in range(6):
+        stain(im, random.randint(20, w - 20), random.randint(20, h - 20), random.randint(12, 26), (70, 45, 25))
+    for _ in range(10):                      # chipped paint
+        x, y = random.randint(8, w - 12), random.randint(8, h - 12)
+        d2 = ImageDraw.Draw(im)
+        d2.rectangle((x, y, x + random.randint(2, 7), y + random.randint(1, 4)), fill=(90, 80, 70))
+    im.save(os.path.join(OUT, name))
+
+
+sign("sign_restricted.png", (150, 28, 24), (240, 235, 225), "RESTRICTED AREA", ["", "NO ENTRY", "", "AUTHORISED PERSONNEL ONLY"])
+sign("sign_order.png", (40, 52, 64), (225, 225, 215), "BY ORDER OF THE", ["TOWN OF GREYHAVEN", "", "THIS DISTRICT IS CLOSED", "PUBLIC WORKS DEPT.", "", "TRESPASSERS WILL BE", "REPORTED"])
+sign("sign_danger.png", (214, 170, 24), (25, 25, 25), "DANGER", ["", "KEEP OUT", "", "UNSTABLE GROUND", "OLD WORKINGS BELOW"])
+sign("sign_passage.png", (60, 66, 60), (230, 225, 200), "ACCESS 3", ["MAINTENANCE", "PASSAGE", "", "ONE PERSON AT A TIME"], 240, 160)
 print("textures written to", OUT)

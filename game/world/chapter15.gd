@@ -264,6 +264,17 @@ func _setup_below() -> void:
 	_b(Vector3(12.0, 6.0, 88.0), Vector3(8.0, 2.0, 8.0), "stone")
 	_b(Vector3(12.0, 3.0, 92.2), Vector3(8.0, 6.0, 0.4), "stone")
 	seal_slab = _b(SEAL + Vector3(0, 2.5 + 4.6, 0), Vector3(8.0, 5.0, 0.6), "stone")
+	for c in seal_slab.get_children():
+		if c is MeshInstance3D:
+			(c as MeshInstance3D).visible = false
+	var sm := _mdl("ANC_SealSlab.glb", UL(SEAL + Vector3(0, 2.5 + 4.6, 0)), PI)
+	if sm:
+		sm.reparent(seal_slab, true)
+	_mdl("ANC_SealFrame.glb", UL(Vector3(12.0, 0.0, 84.6)), PI, Vector3(1.17, 0.74, 1.0))
+	# the great chamber's carved pillars (collision under each)
+	for pp in [Vector3(1.0, 0.0, 67.0), Vector3(23.0, 0.0, 67.0), Vector3(1.0, 0.0, 77.0), Vector3(23.0, 0.0, 77.0), Vector3(1.0, 0.0, 86.0), Vector3(23.0, 0.0, 86.0)]:
+		_bh(pp + Vector3(0, 4.5, 0), Vector3(1.2, 9.0, 1.2))
+		_mdl("ANC_Pillar.glb", UL(pp), 0.0)
 	for p in [[Vector3(-5.78, 3.0, 70.0), Vector3(1, 0, 0), 1.4], [Vector3(-5.78, 2.4, 80.0), Vector3(1, 0, 0), 1.0], [Vector3(-5.78, 3.4, 90.0), Vector3(1, 0, 0), 1.6],
 			[Vector3(29.78, 3.0, 80.0), Vector3(-1, 0, 0), 1.2], [Vector3(29.78, 3.4, 90.0), Vector3(-1, 0, 0), 1.4], [Vector3(12.0, 5.6, 83.7), Vector3(0, 0, -1), 2.4],
 			[Vector3(2.0, 3.0, 95.78), Vector3(0, 0, -1), 1.2], [Vector3(22.0, 3.0, 95.78), Vector3(0, 0, -1), 1.2], [Vector3(11.0, 1.8, 61.8), Vector3(0, 0, -1), 0.8]]:
@@ -291,11 +302,11 @@ func _setup_below() -> void:
 	for k in 3:
 		c13._mist_quad(below, UL(MIST_POCKET[0] + Vector3(0, 0.3 + k * 0.7, 0)), Vector2(7.6, 7.6), 0.55 - k * 0.12)
 	# props: the controls (existing utility props), old tools
-	for c in [[CTRL_A, -PI * 0.5, "02_Town/Utilities/UT_JunctionBox.glb"], [CTRL_B, PI * 0.5, "02_Town/Utilities/UT_JunctionBox.glb"],
-			[CTRL_C, PI, "02_Town/Utilities/UT_ElectricalCabinet.glb"]]:
-		var o: Node3D = c12._prop(c[2], "C15_Ctrl", UL(c[0]), c[1])
+	for c in [["A", CTRL_A, PI * 0.5, "ANC_ControlLever.glb"], ["B", CTRL_B, -PI * 0.5, "ANC_ControlLever.glb"], ["C", CTRL_C, PI, "ANC_ControlWheel.glb"]]:
+		var o := _mdl(c[3], UL(c[1]), c[2])
 		if o:
-			o.reparent(below)
+			ctrl_models[c[0]] = o
+			_bh(c[1] + Vector3(0, 0.6, 0), Vector3(1.1, 1.2, 1.1))
 	its["ctrl_A"] = c10._spot("C15_CtrlA", UL(CTRL_A + Vector3(0.4, 1.1, 0)), Vector3(0.9, 1.4, 1.4), _control.bind("A"))
 	its["ctrl_B"] = c10._spot("C15_CtrlB", UL(CTRL_B + Vector3(-0.4, 1.1, 0)), Vector3(0.9, 1.4, 1.4), _control.bind("B"))
 	its["ctrl_C"] = c10._spot("C15_CtrlC", UL(CTRL_C + Vector3(0, 1.1, -0.5)), Vector3(1.6, 1.6, 0.8), _control.bind("C"))
@@ -306,6 +317,30 @@ func _setup_below() -> void:
 
 func _b(p: Vector3, size: Vector3, mat: String) -> StaticBody3D:
 	return c12._box(below, "C15", UL(p), size, mat)
+
+
+const PROPS := "res://game/prototypes/story_props/"
+var ctrl_models := {}                               ## "A" / "B" / "C" -> the control's model (lever or wheel)
+
+
+## A solid that is not drawn (the model over it is): the collision stays.
+func _bh(p: Vector3, size: Vector3) -> StaticBody3D:
+	var b := _b(p, size, "stone")
+	for c in b.get_children():
+		if c is MeshInstance3D:
+			(c as MeshInstance3D).visible = false
+	return b
+
+
+## A model in the chamber (world position, yaw, scale), under `below`.
+func _mdl(file: String, at: Vector3, yaw := 0.0, sc := Vector3.ONE) -> Node3D:
+	var ps := load(PROPS + file) as PackedScene
+	if ps == null:
+		return null
+	var o := ps.instantiate() as Node3D
+	below.add_child(o)
+	o.global_transform = Transform3D(Basis(Vector3.UP, yaw).scaled(sc), at)
+	return o
 
 
 # ------------------------------------------------------------------ state from flags (fresh start and loads)
@@ -672,6 +707,89 @@ func _set_out(_b: Node) -> void:
 	_guide()
 
 
+# ------------------------------------------------------------------ stakes: a player who stops is found
+## Out on the road, the fields and the district the Colossus is looking for them. Keep moving (or take cover and move on) and it only walks the fields; stand
+## still and it turns, calls, closes in and puts its eye on them: after the last warning it takes them (the death scene, then RETRY from the last checkpoint).
+const STALL_WARN := 14.0               ## seconds without moving about: the first warning
+const STALL_COMES := 22.0              ## it starts walking at them
+const STALL_KILLS := 8.0               ## seconds from the beam to the end, unless they run
+var _stall_t := 0.0
+var _stall_pos := Vector3.ZERO
+var _stall_stage := 0
+var _beam_t := 0.0
+
+
+func _stall_tick(delta: float) -> void:
+	if player == null or not Game.has_flag("ch15_set_out") or Game.has_flag("ch15_in_passage") or Game.has_flag("ch15_ended") \
+			or not player.controls_enabled or Dialogue.is_busy() or world.conversing or _busy.get("colossus", false) or player.health <= 0.0:
+		_stall_t = 0.0
+		return
+	var p := player.global_position
+	if Vector2(p.x - _stall_pos.x, p.z - _stall_pos.z).length() > 3.0:
+		_stall_pos = p
+		if _stall_stage > 0:
+			_stall_release()
+		_stall_t = 0.0
+		return
+	_stall_t += delta
+	if _stall_stage == 0 and _stall_t > STALL_WARN:
+		_stall_stage = 1
+		report["stall_warnings"] = int(report.get("stall_warnings", 0)) + 1
+		_hint("KEEP MOVING - it has turned toward you.")
+		c12._shake(1.2, 0.03)
+		_play("deep", p + Vector3(-30, 0, 0), 6.0)
+	elif _stall_stage == 1 and _stall_t > STALL_COMES:
+		_stall_stage = 2
+		_busy["stalk"] = true
+		_spawn_colossus()
+		if colossus != null:
+			colossus.visible = true
+			var away := Vector3(-1, 0, 0.4).normalized()
+			colossus.global_position = Vector3(p.x, 0.15, p.z) + away * 70.0
+		_col_play("Walk_Heavy")
+		Sfx.play("colossus_call", p + Vector3(-40, 12, 0), 8.0, 0.75)
+		_hint("IT'S COMING - RUN!")
+	elif _stall_stage >= 2 and colossus != null and is_instance_valid(colossus):
+		var to := Vector3(p.x, 0.15, p.z)
+		var d := to - colossus.global_position
+		colossus.rotation.y = atan2(d.x, d.z)
+		colossus.global_position = colossus.global_position.move_toward(to, 5.0 * delta)
+		if _stall_stage == 2 and d.length() < 22.0:
+			_stall_stage = 3
+			_beam_t = 0.0
+			if colossus.has_meta("tripod"):
+				var tc: VeilTripodColossus = colossus.get_meta("tripod")
+				tc.eye.target = player.camera
+				tc.eye.max_angle = PI
+				tc.eye.level = 1.5
+				tc.eye.beam_on = true
+			_col_play("Attack_Heavy")
+			_hint("IT HAS FOUND YOU - MOVE!")
+		if _stall_stage == 3:
+			_beam_t += delta
+			c12._shake(0.2, 0.02 + 0.01 * _beam_t)
+			if _beam_t > STALL_KILLS or d.length() < 6.0:
+				_stall_stage = 4
+				report["stall_deaths"] = int(report.get("stall_deaths", 0)) + 1
+				player.damage(9999.0, colossus.global_position)             # the world's death scene plays; RETRY loads the last checkpoint
+
+
+## They moved: it loses them, turns back to its fields.
+func _stall_release() -> void:
+	_stall_stage = 0
+	_stall_t = 0.0
+	_hint("")
+	if _busy.get("stalk", false):
+		_busy["stalk"] = false
+		if colossus != null and is_instance_valid(colossus):
+			if colossus.has_meta("tripod"):
+				var tc: VeilTripodColossus = colossus.get_meta("tripod")
+				tc.eye.beam_on = false
+				tc.eye.level = 1.0
+			colossus.global_position = Vector3(COLOSSUS_X, 0.15, colossus.global_position.z)   # back to the fields it was crossing
+			_col_play("Walk_Heavy")
+
+
 # ------------------------------------------------------------------ the road, the Colossus
 func _road_tick(delta: float) -> void:
 	if not Game.has_flag("ch15_set_out") or Game.has_flag("ch15_crossed"):
@@ -680,7 +798,7 @@ func _road_tick(delta: float) -> void:
 	if not Game.has_flag("ch15_colossus_seen") and p.distance_to(COVERS[0]) < 5.0 and not Dialogue.is_busy() and not world.conversing \
 			and not _busy.get("colossus", false):
 		_colossus_reveal()
-	if Game.has_flag("ch15_colossus_seen") and not _busy.get("colossus", false):
+	if Game.has_flag("ch15_colossus_seen") and not _busy.get("colossus", false) and not _busy.get("stalk", false):
 		_crossing_tick(delta)
 
 
@@ -1019,8 +1137,29 @@ func _control(_b: Node, k: String) -> void:
 	_guide()
 
 
-func _control_done_look(_k: String) -> void:
-	pass
+func _control_done_look(k: String) -> void:
+	var m: Node3D = ctrl_models.get(k)
+	if m == null:
+		return
+	var lamp := StandardMaterial3D.new()
+	lamp.albedo_color = Color(0.3, 0.7, 1.0)
+	lamp.emission_enabled = true
+	lamp.emission = Color(0.4, 0.8, 1.0)
+	lamp.emission_energy_multiplier = 2.5
+	for i in 3:
+		var r := m.find_child("Rune%d" % (i + 1), true, false) as MeshInstance3D
+		if r:
+			r.material_override = lamp
+	if k == "C":
+		var w := m.find_child("Wheel", true, false) as Node3D
+		if w:
+			var tw := create_tween()
+			tw.tween_property(w, "rotation:z", TAU * 2.0, 1.8).set_trans(Tween.TRANS_SINE)
+	else:
+		var lv := m.find_child("Lever", true, false) as Node3D
+		if lv:
+			var tw := create_tween()
+			tw.tween_property(lv, "rotation:x", deg_to_rad(35.0), 0.7).set_trans(Tween.TRANS_BACK)
 
 
 ## The seal: the camera drawn toward it, the flashlight flickers, a vast shadow moves behind the stone, the chamber
@@ -1053,17 +1192,32 @@ func _horror() -> void:
 
 
 ## Falling stone while the controls are worked: a warning puff of dust, then a block lands (a fair dodge).
+var _ug_idle := 0.0
+var _ug_pos := Vector3.ZERO
+
+
 func _debris_tick(delta: float) -> void:
 	if not Game.has_flag("ch15_horror") or (Game.has_flag("ch15_mechanism_done") and not _busy.get("seal_mode", false)) or Game.has_flag("ch15_ended") \
 			or player.global_position.y > c13.U.y + 20.0:
 		return
 	_debris_t -= delta
+	var pp := player.global_position
+	if Vector2(pp.x - _ug_pos.x, pp.z - _ug_pos.z).length() > 2.0:
+		_ug_pos = pp
+		_ug_idle = 0.0
+	else:
+		_ug_idle += delta
 	if _debris_t > 0.0:
 		return
-	_debris_t = randf_range(2.2, 3.6)
+	var idle := _ug_idle > 7.0
+	_debris_t = randf_range(2.2, 3.6) if not idle else 1.1          # nobody stands still under a roof that is coming down
 	var p := player.global_position
-	var at := p + Vector3(randf_range(-2.5, 2.5), 0, randf_range(-2.5, 2.5))
+	var at := p + Vector3(randf_range(-2.5, 2.5), 0, randf_range(-2.5, 2.5)) if not idle else p
 	at.y = p.y - 1.0
+	if idle:
+		report["debris_on_idle"] = int(report.get("debris_on_idle", 0)) + 1
+		if _ug_idle < 9.0:
+			_hint("THE ROOF IS COMING DOWN - MOVE!")
 	_drop_stone(at)
 
 
@@ -1082,12 +1236,14 @@ func _drop_stone(at: Vector3) -> void:
 	dust.global_position = Vector3(at.x, c13.U.y + 8.6, at.z)
 	dust.emitting = true
 	await get_tree().create_timer(0.9).timeout
-	var stone := MeshInstance3D.new()
-	var bm := BoxMesh.new()
-	bm.size = Vector3(0.7, 0.5, 0.6)
-	stone.mesh = bm
-	stone.material_override = c12._mat("stone")
+	var stone := Node3D.new()
+	var rk := load(PROPS + ["ANC_Rock_A.glb", "ANC_Rock_B.glb", "ANC_Rock_C.glb"][randi() % 3]) as PackedScene
+	if rk:
+		var rm := rk.instantiate() as Node3D
+		rm.position.y = -0.3
+		stone.add_child(rm)
 	world.add_child(stone)
+	stone.rotation = Vector3(randf() * TAU, randf() * TAU, 0.0)
 	stone.global_position = Vector3(at.x, c13.U.y + 8.4, at.z)
 	var tw := create_tween()
 	tw.tween_property(stone, "global_position:y", c13.U.y + 0.25, 0.55).set_ease(Tween.EASE_IN).set_trans(Tween.TRANS_QUAD)
@@ -1095,7 +1251,7 @@ func _drop_stone(at: Vector3) -> void:
 	Sfx.play("door_close", stone.global_position, 2.0, 0.5)
 	if Vector2(player.global_position.x - at.x, player.global_position.z - at.z).length() < 0.8:
 		report["debris_hits"] += 1
-		player.damage(10.0, stone.global_position)
+		player.damage(10.0 if _ug_idle < 7.0 else 22.0, stone.global_position)
 	dust.queue_free()
 	get_tree().create_timer(6.0).timeout.connect(stone.queue_free)
 
@@ -1515,6 +1671,7 @@ func _play(id: String, at: Vector3, db := 0.0) -> void:
 func _process(delta: float) -> void:
 	if world == null:
 		return
+	_stall_tick(delta)
 	_road_tick(delta)
 	_below_tick(delta)
 	_debris_tick(delta)

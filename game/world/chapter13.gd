@@ -78,6 +78,7 @@ var crab: CharacterBody3D
 var crab_anim: AnimationPlayer
 var void_shape: MeshInstance3D
 var gate: Node3D
+var gate_model: Node3D
 var collapse_block: Node3D
 var doorway_slab: Node3D
 var beam: Node3D
@@ -198,6 +199,38 @@ func _dbox(n: String, p: Vector3, size: Vector3, mat: String, collide := true) -
 	return _box(dist, n, D(p), size, mat, collide, Basis(Vector3.UP, D_YAW))
 
 
+const PROPS := "res://game/prototypes/story_props/"
+
+
+## The box stays as the collision; its own drawing is hidden (the real model is drawn over it).
+func _hide(b: StaticBody3D) -> StaticBody3D:
+	for c in b.get_children():
+		if c is MeshInstance3D:
+			(c as MeshInstance3D).visible = false
+	return b
+
+
+## A model on a spot of the district (district-local position, yaw about Y, optional scale).
+func _mdl(file: String, n: String, at: Vector3, yaw := 0.0, sc := Vector3.ONE) -> Node3D:
+	var ps := load(PROPS + file) as PackedScene
+	if ps == null:
+		return null
+	var o := ps.instantiate() as Node3D
+	o.name = n
+	dist.add_child(o)
+	o.global_transform = Transform3D(Basis(Vector3.UP, D_YAW + yaw).scaled(sc), D(at))
+	return o
+
+
+## 4 m modules laid end to end along a line (a wall or a fence); `sy` stretches them to the wall's height, `sz` to its thickness.
+func _tile(file: String, a: Vector3, b: Vector3, yaw: float, n: String, sy := 1.0, sz := 1.0) -> void:
+	var len := a.distance_to(b)
+	var count := maxi(int(ceil(len / 4.0)), 1)
+	var step := (b - a) / float(count)
+	for i in count:
+		_mdl(file, "%s%d" % [n, i], a + step * (float(i) + 0.5), yaw, Vector3(step.length() / 4.0, sy, sz))
+
+
 func _ubox(n: String, p: Vector3, size: Vector3, mat: String, collide := true) -> StaticBody3D:
 	return _box(under, n, UL(p), size, mat, collide)
 
@@ -274,17 +307,29 @@ func _build_district() -> void:
 	_set_prompt("sign2", "")
 	# boundary walls (the district was closed off long ago), the checkpoint wall with its gate, the back wall
 	for side in [-1.0, 1.0]:
-		_dbox("Fence", Vector3(side * 19.5, 1.6, 40.0), Vector3(0.4, 3.2, 72.0), "grime")
-	_dbox("Wall", Vector3(-11.0, 1.75, WALL_Z), Vector3(17.0, 3.5, 0.5), "concrete")
-	_dbox("Wall", Vector3(11.0, 1.75, WALL_Z), Vector3(17.0, 3.5, 0.5), "concrete")
-	gate = _dbox("Gate", Vector3(0.0, 1.6, WALL_Z), Vector3(5.0, 3.2, 0.3), "steel")
-	_dbox("BackWall", Vector3(-10.5, 2.0, 76.0), Vector3(18.0, 4.0, 0.5), "concrete")
-	_dbox("BackWall", Vector3(10.5, 2.0, 76.0), Vector3(18.0, 4.0, 0.5), "concrete")
-	_dbox("PassageHut", Vector3(0.0, 3.0, 76.0), Vector3(3.0, 2.0, 0.5), "concrete")
-	_dbox("PassageSide", Vector3(-1.45, 1.0, 77.2), Vector3(0.3, 2.0, 2.4), "concrete")
-	_dbox("PassageSide", Vector3(1.45, 1.0, 77.2), Vector3(0.3, 2.0, 2.4), "concrete")
-	_dbox("PassageBack", Vector3(0.0, 1.0, 78.4), Vector3(2.6, 2.0, 0.3), "grime")
-	_dbox("PassageRoof", Vector3(0.0, 2.1, 77.2), Vector3(3.2, 0.2, 2.6), "concrete")
+		_hide(_dbox("Fence", Vector3(side * 19.5, 1.6, 40.0), Vector3(0.4, 3.2, 72.0), "grime"))
+		_tile("DST_FenceSection_4m.glb", Vector3(side * 19.5, 0.0, 4.0), Vector3(side * 19.5, 0.0, 76.0), -PI * 0.5 * side, "Fence" + ("L" if side < 0 else "R"))
+	_hide(_dbox("Wall", Vector3(-11.0, 1.75, WALL_Z), Vector3(17.0, 3.5, 0.5), "concrete"))
+	_hide(_dbox("Wall", Vector3(11.0, 1.75, WALL_Z), Vector3(17.0, 3.5, 0.5), "concrete"))
+	_tile("DST_ConcreteWall_4m.glb", Vector3(-19.5, 0.0, WALL_Z), Vector3(-2.5, 0.0, WALL_Z), PI, "CheckWallL", 1.09, 1.25)
+	_tile("DST_ConcreteWall_4m_Broken.glb", Vector3(2.5, 0.0, WALL_Z), Vector3(19.5, 0.0, WALL_Z), PI, "CheckWallR", 1.09, 1.25)
+	# the checkpoint gate: a double steel gate on hinges (the leaves swing open on the crank; the box keeps the opening shut until then)
+	gate = _hide(_dbox("Gate", Vector3(0.0, 1.6, WALL_Z), Vector3(5.0, 3.2, 0.3), "steel"))
+	gate_model = _mdl("DST_SteelGate.glb", "GateModel", Vector3(0.0, 0.0, WALL_Z), PI)
+	_hide(_dbox("BackWall", Vector3(-10.5, 2.0, 76.0), Vector3(18.0, 4.0, 0.5), "concrete"))
+	_hide(_dbox("BackWall", Vector3(10.5, 2.0, 76.0), Vector3(18.0, 4.0, 0.5), "concrete"))
+	_tile("DST_ConcreteWall_4m.glb", Vector3(-19.5, 0.0, 76.0), Vector3(-1.9, 0.0, 76.0), PI, "BackWallL", 1.25, 1.25)
+	_tile("DST_ConcreteWall_4m_Broken.glb", Vector3(1.9, 0.0, 76.0), Vector3(19.5, 0.0, 76.0), PI, "BackWallR", 1.25, 1.25)
+	# the passage hut: a concrete bunker head over the maintenance stair, its heavy steel door on hinges (the boxes are its collision)
+	for hb in [["PassageHut", Vector3(0.0, 3.0, 76.0), Vector3(3.0, 2.0, 0.5), "concrete"], ["PassageSide", Vector3(-1.45, 1.0, 77.2), Vector3(0.3, 2.0, 2.4), "concrete"],
+			["PassageSide", Vector3(1.45, 1.0, 77.2), Vector3(0.3, 2.0, 2.4), "concrete"], ["PassageBack", Vector3(0.0, 1.0, 78.4), Vector3(2.6, 2.0, 0.3), "grime"],
+			["PassageRoof", Vector3(0.0, 2.1, 77.2), Vector3(3.2, 0.2, 2.6), "concrete"]]:
+		_hide(_dbox(hb[0], hb[1], hb[2], hb[3]))
+	var hut := _mdl("DST_PassageHut.glb", "PassageHutModel", Vector3(0.0, 0.0, 75.72), PI)
+	if hut:
+		var hd := hut.find_child("Door", true, false) as Node3D
+		if hd:
+			hd.rotation.y = deg_to_rad(-75.0)                 # ajar: the way down
 	# the street: houses left in a hurry, cars, barricades, warning signs
 	for h in HOUSES:
 		_solid("03_Residential/House_Variants/%s.tscn" % h[0], "C13_" + String(h[0]), D(h[1]), D_YAW + float(h[2]))
@@ -297,14 +342,9 @@ func _build_district() -> void:
 	_prop("09_Horror_Atmosphere/Abandoned_Props/ABN_DamagedStreetlight.tscn", "C13_Lamp", D(Vector3(-1.8, 0.0, 2.0)), 0.0)
 	var lamp: OmniLight3D = c12._light(D(Vector3(-1.0, 4.2, 2.0)), 0.9, 10.0, Color(1.0, 0.8, 0.55))
 	lamp.name = "C13_ClearLamp"
-	for i in 3:
-		var sign := Label3D.new()
-		sign.text = ["RESTRICTED AREA\nNO ENTRY", "BY ORDER OF THE\nTOWN OF GREYHAVEN", "DANGER\nKEEP OUT"][i]
-		sign.font_size = 30
-		sign.pixel_size = 0.004
-		sign.modulate = Color(0.7, 0.62, 0.45)
-		dist.add_child(sign)
-		sign.global_transform = Transform3D(Basis(Vector3.UP, D_YAW + PI), D(Vector3([-6.0, 6.0, -12.0][i], 2.2, [WALL_Z - 0.3, WALL_Z - 0.3, 4.0][i])))
+	for sg in [["DST_Sign_Restricted.glb", Vector3(-6.0, 0.0, WALL_Z - 1.4), PI], ["DST_Sign_Order.glb", Vector3(6.0, 0.0, WALL_Z - 1.4), PI],
+			["DST_Sign_Danger.glb", Vector3(-12.0, 0.0, 4.0), PI]]:
+		_mdl(sg[0], "Sign", sg[1], sg[2])
 	# the checkpoint office (south of the wall): a concrete room, its door on the street side
 	var o: Vector3 = OFFICE[0]
 	_dbox("Office", o + Vector3(0, 3.1, 0), Vector3(6.2, 0.2, 6.2), "concrete")
@@ -372,6 +412,15 @@ func _build_under() -> void:
 	_ubox("FarWall", Vector3(17.0, 2.5, 40.0), Vector3(6.0, 5.0, 0.4), "stone")
 	_ubox("FarWallTop", Vector3(12.0, 4.6, 40.0), Vector3(4.0, 1.2, 0.4), "stone")
 	doorway_slab = _ubox("Doorway", DOORWAY, Vector3(4.0, 4.0, 0.35), "stone")
+	for dc in doorway_slab.get_children():
+		if dc is MeshInstance3D:
+			(dc as MeshInstance3D).visible = false
+	var dm := load(PROPS + "ANC_DoorwaySlab.glb") as PackedScene
+	if dm:
+		var dn := dm.instantiate() as Node3D
+		doorway_slab.add_child(dn)                          # carried with the slab when it is moved
+		dn.position = Vector3(0, -2.0, 0)
+		dn.rotation.y = PI
 	beam = _ubox("Beam", BEAM + Vector3(0, 1.2, 0), Vector3(0.4, 0.4, 3.4), "rust")
 	beam.rotation = Vector3(0.6, 0.0, 0.0)
 	# the dark beyond the doorway; the vast shape in it (unlit, never detailed)
@@ -885,11 +934,22 @@ func _use_release(_b: Node) -> void:
 
 func _open_gate(instant: bool) -> void:
 	var to: Vector3 = D(Vector3(5.2, 1.6, WALL_Z + 0.4))
+	var l := gate_model.find_child("GateL", true, false) as Node3D if gate_model else null
+	var r := gate_model.find_child("GateR", true, false) as Node3D if gate_model else null
 	if instant:
 		gate.global_position = to
+		if l:
+			l.rotation.y = deg_to_rad(100.0)
+		if r:
+			r.rotation.y = deg_to_rad(-100.0)
 		return
-	var tw := create_tween()
-	tw.tween_property(gate, "global_position", to, 2.8).set_trans(Tween.TRANS_SINE)
+	var tw := create_tween().set_parallel(true)
+	# the leaves swing away from the street on their hinges; the opening box slides clear once they are well open
+	if l:
+		tw.tween_property(l, "rotation:y", deg_to_rad(100.0), 3.4).set_trans(Tween.TRANS_SINE)
+	if r:
+		tw.tween_property(r, "rotation:y", deg_to_rad(-100.0), 3.2).set_trans(Tween.TRANS_SINE)
+	tw.tween_property(gate, "global_position", to, 0.2).set_delay(1.0)
 	await tw.finished
 
 

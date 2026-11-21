@@ -46,8 +46,15 @@ func _run() -> void:
 	stage.add_child(cam)
 	cam.current = true
 	var P := "res://game/prototypes/story_props/"
+	var finale := ["DST_ConcreteWall_4m", "DST_FenceSection_4m", "DST_SteelGate", "DST_PassageHut", "PRP_SteelDoor_Hinged", "DST_Sign_Order", "ANC_Pillar", "ANC_SealFrame", "ANC_SealSlab", "ANC_ControlLever", "ANC_ControlWheel", "ANC_DoorwaySlab", "ANC_Rock_C"]
 	var items := [["FAC_PowerControl", 0], ["FAC_SlidingDoor", 0], ["FAC_SlidingDoor_Rust", 0], ["FAC_VentDuct", 0], ["FAC_DuctRun_3m", 0],
 		["PRP_Plank_1.4", 1], ["PRP_Plank_1.0_Broken", 1], ["PRP_Paper_Pile_A", 2], ["PRP_Paper_Pile_B", 2], ["PRP_Paper_Pile_C", 2]]
+	var which_set := "story"
+	for a2 in OS.get_cmdline_user_args():
+		if a2 == "set=finale": which_set = "finale"
+	if which_set == "finale":
+		items = []
+		for f in finale: items.append([f, 0])
 	for it in items:
 		var n: Node3D = load(P + it[0] + ".glb").instantiate()
 		stage.add_child(n)
@@ -66,7 +73,9 @@ func _run() -> void:
 		n.queue_free()
 		await process_frame
 	# wall pictures, face on
-	for art in ["art_safety", "art_grid", "art_schedule", "art_warning", "art_pinboard", "paper_a"]:
+	var arts := ["art_safety", "art_grid", "art_schedule", "art_warning", "art_pinboard", "paper_a"]
+	if which_set == "finale": arts = ["sign_restricted", "sign_order", "sign_danger", "sign_passage"]
+	for art in arts:
 		var mi := MeshInstance3D.new()
 		var q := QuadMesh.new()
 		q.size = Vector2(1.0, 1.0) * (1.0 if art != "paper_a" else 0.8)

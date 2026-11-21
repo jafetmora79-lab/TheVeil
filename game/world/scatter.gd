@@ -12,6 +12,14 @@ class_name VeilScatter
 @export var view_distance := 420.0       ## trees (cells), well inside the 600-700 m camera far planes
 @export var detail_distance := 70.0      ## undergrowth / rocks
 const CHUNK := 96.0
+## Places the story builds out in the woods (the closed district, the station, the fields and road of the finale): no forest grows there.
+## Rect2(x, z, width, depth) in world metres.
+const STORY_CLEAR := [Rect2(-147.0, 26.0, 44.0, 84.0),        # the closed public-works district (chapter 14)
+	Rect2(-92.0, -40.0, 24.0, 24.0),                         # the maintenance station and its yard
+	Rect2(-100.0, -26.0, 26.0, 38.0),                        # the road past the mill-worker house
+	Rect2(-130.0, -6.0, 32.0, 40.0),                         # the fields the Colossus crosses (finale)
+	Rect2(-110.0, 24.0, 22.0, 40.0),                         # the escape across the fence and the safe spot (chapter 15)
+	Rect2(-150.0, -118.0, 72.0, 78.0)]                       # the campsite, the farm field and the fields beyond the town
 var _tree_chunks := {}                   ## chunk -> the trees in it (so a giant foot can knock some down)
 var _models := {}                        ## model name -> scene path
 
@@ -91,6 +99,8 @@ func _ready() -> void:
 					sb.add_child(c)
 					(xs_entries[xi]["cols"] as Array).append(c)
 		inst.free()
+	for r in STORY_CLEAR:
+		clear_rect(r)
 
 
 const SWAY_SHADER := "res://game/world/tree_sway.gdshader"
@@ -169,3 +179,20 @@ func knock_trees(centre: Vector3, radius: float) -> Array:
 						(c as CollisionShape3D).set_deferred("disabled", true)
 				out.append({"model": e["model"], "scene": _models.get(e["model"], ""), "pos": Vector3(e["x"], centre.y, e["z"]), "yaw": e["yaw"]})
 	return out
+
+
+## Takes every tree standing inside `r` (x, z, width, depth) out of the forest (instances hidden, collision off). Returns how many.
+func clear_rect(r: Rect2) -> int:
+	var n := 0
+	for key in _tree_chunks:
+		for e in _tree_chunks[key]:
+			if not e["alive"] or not r.has_point(Vector2(e["x"], e["z"])):
+				continue
+			e["alive"] = false
+			n += 1
+			for h in e["hides"]:
+				(h[0] as MultiMesh).set_instance_transform(h[1], Transform3D(Basis.from_scale(Vector3.ZERO), Vector3.ZERO))
+			for c in e["cols"]:
+				if is_instance_valid(c):
+					(c as CollisionShape3D).set_deferred("disabled", true)
+	return n

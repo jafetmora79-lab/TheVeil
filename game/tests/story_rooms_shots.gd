@@ -21,7 +21,7 @@ func _run() -> void:
 	var game = root.get_node("Game")
 	var dlg = root.get_node("Dialogue")
 	dlg.auto_confirm = true
-	var DEV = load("res://game/chapters/setups/dev_chapter12.gd") if which == "station" else load("res://game/chapters/setups/dev_chapter14.gd")
+	var DEV = load("res://game/chapters/setups/dev_chapter12.gd") if which == "station" else (load("res://game/chapters/setups/dev_chapter13.gd") if which == "district" else (load("res://game/chapters/setups/dev_chapter15.gd") if which == "finale" else load("res://game/chapters/setups/dev_chapter14.gd")))
 	DEV.prepare(game)
 	if which == "station":
 		game.flags["ch12_noah_na"] = true
@@ -38,7 +38,45 @@ func _run() -> void:
 	world.add_child(cam)
 	cam.current = true
 	world.player.visible = false
-	if which == "station":
+	if which == "district":
+		var c13 = c12.chapter13
+		var D = c13.D
+		await shot("di_street", D.call(Vector3(-2.0, 1.7, 36.0)), D.call(Vector3(2.0, 1.8, 44.0)), 70.0)
+		await shot("di_gate_closed", D.call(Vector3(0.0, 1.7, 39.0)), D.call(Vector3(0.0, 1.6, 44.0)), 65.0)
+		await shot("di_fence", D.call(Vector3(-14.0, 1.7, 20.0)), D.call(Vector3(-19.5, 1.5, 34.0)), 65.0)
+		c13._open_gate(true)
+		await shot("di_gate_open", D.call(Vector3(0.0, 1.7, 39.0)), D.call(Vector3(0.0, 1.6, 44.0)), 65.0)
+		await shot("di_courtyard", D.call(Vector3(0.0, 1.7, 50.0)), D.call(Vector3(0.0, 2.0, 76.0)), 70.0)
+		await shot("di_hut", D.call(Vector3(2.0, 1.6, 71.0)), D.call(Vector3(0.0, 1.2, 76.0)), 62.0)
+		await shot("di_hut_wide", D.call(Vector3(-8.0, 2.4, 62.0)), D.call(Vector3(0.0, 1.8, 76.0)), 70.0)
+		await shot("di_office", D.call(Vector3(-2.0, 1.7, 38.0)), D.call(Vector3(8.0, 1.5, 42.0)), 70.0)
+	elif which == "finale":
+		var c13 = c12.chapter13
+		var c14 = c13.chapter14
+		var c15 = c14.chapter15
+		# light the chamber (the game lights it with the flashlight and the mist; this is only to see the models)
+		var lt := OmniLight3D.new()
+		lt.light_energy = 2.5
+		lt.omni_range = 40.0
+		world.add_child(lt)
+		var UL = c13.UL
+		lt.global_position = UL.call(Vector3(12.0, 6.0, 74.0))
+		var lt2 := OmniLight3D.new()
+		lt2.light_energy = 1.5
+		lt2.omni_range = 25.0
+		world.add_child(lt2)
+		lt2.global_position = UL.call(Vector3(12.0, 3.0, 40.0))
+		await shot("fi_chamber", UL.call(Vector3(12.0, 2.0, 63.5)), UL.call(Vector3(12.0, 3.0, 88.0)), 75.0)
+		await shot("fi_seal", UL.call(Vector3(12.0, 1.8, 76.0)), UL.call(Vector3(12.0, 3.2, 87.0)), 65.0)
+		await shot("fi_ctrl_a", UL.call(Vector3(0.0, 1.7, 70.0)), UL.call(Vector3(-3.2, 1.0, 74.0)), 60.0)
+		await shot("fi_ctrl_c", UL.call(Vector3(12.0, 1.7, 74.5)), UL.call(Vector3(12.0, 1.1, 80.4)), 60.0)
+		c15._control_done_look("A")
+		c15._control_done_look("C")
+		await create_timer(2.2).timeout
+		await shot("fi_ctrl_c_done", UL.call(Vector3(12.0, 1.7, 74.5)), UL.call(Vector3(12.0, 1.1, 80.4)), 60.0)
+		await shot("fi_pillars", UL.call(Vector3(12.0, 1.7, 64.0)), UL.call(Vector3(1.0, 4.0, 80.0)), 70.0)
+		await shot("fi_doorway", UL.call(Vector3(12.0, 1.7, 33.0)), UL.call(Vector3(12.0, 2.0, 40.0)), 65.0)
+	elif which == "station":
 		c12._set_power(true, true)
 		c12._slide_now(c12.access_door, false)
 		var L = c12.L
