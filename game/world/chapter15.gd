@@ -1290,8 +1290,8 @@ var _ug_pos := Vector3.ZERO
 
 
 func _debris_tick(delta: float) -> void:
-	if not Game.has_flag("ch15_horror") or (Game.has_flag("ch15_mechanism_done") and not _busy.get("seal_mode", false)) or Game.has_flag("ch15_ended") \
-			or player.global_position.y > c13.U.y + 20.0:
+	var running: bool = _busy.get("outer_open", false)                       # the way out is open (endings A and B): the barrier is failing behind them
+	if not Game.has_flag("ch15_horror") or (Game.has_flag("ch15_mechanism_done") and not _busy.get("seal_mode", false) and not running) or Game.has_flag("ch15_ended") 			or player.global_position.y > c13.U.y + 20.0:
 		return
 	_debris_t -= delta
 	var pp := player.global_position
@@ -1303,6 +1303,9 @@ func _debris_tick(delta: float) -> void:
 	if _debris_t > 0.0:
 		return
 	var idle := _ug_idle > 7.0
+	if running and not idle:                                       # on the way out nothing falls on someone who keeps going
+		_debris_t = 1.0
+		return
 	_debris_t = randf_range(2.2, 3.6) if not idle else 1.1          # nobody stands still under a roof that is coming down
 	var p := player.global_position
 	var at := p + Vector3(randf_range(-2.5, 2.5), 0, randf_range(-2.5, 2.5)) if not idle else p

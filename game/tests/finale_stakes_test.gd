@@ -41,5 +41,24 @@ func _run() -> void:
 	c15._stall_pos = player.global_position
 	for i in 200: c15._stall_tick(0.5)
 	ok("idle_is_fatal", int(c15.report.get("stall_deaths", 0)) >= 1 and player.health <= 0.0, "health %.0f deaths %d" % [player.health, int(c15.report.get("stall_deaths", 0))])
+	# the run for the tunnel (endings A and B): moving is safe, stopping brings the stone down
+	game.flags["ch15_horror"] = true
+	game.flags["ch15_mechanism_done"] = true
+	game.flags.erase("ch15_ended")
+	c15._busy.clear()
+	c15._busy["outer_open"] = true
+	player.health = 100.0
+	player.global_position = c15.UL(Vector3(14.0, 0.2, 70.0))
+	c15._ug_pos = player.global_position
+	c15._ug_idle = 0.0
+	c15.report["debris_on_idle"] = 0
+	for i in 12: c15._debris_tick(0.5)           # 6 s standing: nothing yet
+	ok("run_still_safe_at_first", int(c15.report.get("debris_on_idle", 0)) == 0)
+	for i in 10: c15._debris_tick(0.5)           # past 7 s: stone on them
+	ok("run_idle_brings_stone", int(c15.report.get("debris_on_idle", 0)) >= 1, str(c15.report.get("debris_on_idle", 0)))
+	var before := int(c15.report.get("debris_on_idle", 0))
+	player.global_position += Vector3(6.0, 0, 0)
+	for i in 8: c15._debris_tick(0.5)
+	ok("run_moving_is_safe", int(c15.report.get("debris_on_idle", 0)) == before)
 	print("RESULT %s fails=%d" % ["PASS" if fails == 0 else "FAIL", fails])
 	quit(fails)
