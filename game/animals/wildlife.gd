@@ -119,9 +119,11 @@ func _scare_watch(_p: Vector3) -> void:
 	if _scare != null or Game.has_flag(SCARE_FLAG) or not world.in_car or world.sedan == null or not world.sedan.driven:
 		return
 	var car: Node3D = world.sedan
-	var z := car.global_position.z
 	var fwd := -car.global_transform.basis.z
-	if z > 330.0 or z < 110.0 or fwd.z > -0.5 or float(car.speed) < 7.0 or Game.has_flag("arrival_shot"):
+	var to_town := (TOWN - car.global_position) * Vector3(1, 0, 1)
+	var d_town := to_town.length()
+	# out in the woods (140-420 m from the town centre), heading towards town, at a driving speed
+	if d_town < 140.0 or d_town > 420.0 or fwd.dot(to_town.normalized()) < 0.2 or float(car.speed) < 5.0 or Game.has_flag("arrival_shot"):
 		return
 	start_scare()
 

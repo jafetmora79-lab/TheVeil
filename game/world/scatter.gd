@@ -80,6 +80,7 @@ func _ready() -> void:
 const SWAY_SHADER := "res://game/world/tree_sway.gdshader"
 const FILTERS := ["filter_nearest", "filter_linear", "filter_nearest_mipmap", "filter_linear_mipmap", "filter_nearest_mipmap_anisotropic", "filter_linear_mipmap_anisotropic"]
 static var _sway_shaders := {}
+static var _wind_added := false
 
 
 ## The trees and the grass move in the wind: each surface's StandardMaterial3D becomes a ShaderMaterial with the same texture (tree_sway.gdshader).
@@ -87,7 +88,8 @@ static var _sway_shaders := {}
 func _make_sway(mesh: Mesh, bend_k: float) -> void:
 	if mesh == null:
 		return
-	if not RenderingServer.global_shader_parameter_get_list().has(&"veil_wind"):
+	if not _wind_added:                                       # (once: the list of globals can only be read in the editor)
+		_wind_added = true
 		RenderingServer.global_shader_parameter_add("veil_wind", RenderingServer.GLOBAL_VAR_TYPE_FLOAT, 1.0)
 	var h := maxf(mesh.get_aabb().size.y, 0.5)
 	for i in mesh.get_surface_count():

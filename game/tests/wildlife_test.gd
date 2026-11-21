@@ -73,11 +73,17 @@ func _run() -> void:
 	rav.queue_free()
 	# the deer on the road: a car at 14 m/s heading north (-z); the deer must cross its line ahead of it and clear it by 1.5-6 m
 	var car: Node3D = w.sedan
-	car.global_position = Vector3(58.0, 0.15, 320.0)
+	car.global_position = Vector3(184.0, 0.15, 250.0)
 	car.global_transform.basis = Basis.IDENTITY
 	car.speed = 14.0
-	w.wildlife.start_scare()
-	var d = w.wildlife._scare
+	w.in_car = true
+	car.driven = true
+	for i in 10:
+		await process_frame
+	car.speed = 14.0
+	for i in 10:
+		await process_frame
+	var d = w.wildlife._scare             # (started by the drive itself: out in the woods, heading to town, at speed)
 	ok("scare_deer", d != null)
 	var min_d := 1e9
 	var crossed_at := Vector3.INF
