@@ -821,6 +821,10 @@ func _run() -> void:
 		ok("colossus_feet_leave_prints", stomps != null and stomps.count + stomps.blocked_count >= 1, "prints %d, on buildings %d" % [stomps.count if stomps else -1, stomps.blocked_count if stomps else -1])
 		ok("colossus_eye_locked", tc.eye.beam_on and r.get("locked_on", false))
 	ok("encounter_eye_zoom", r.get("eye_zoom", false))
+	# the street scenes that follow (the officer taken by a Grimtalon, then the crash) each take the player in hand and walk them toward the game shop: this test is
+	# about the survival rules, so they are marked done (frank_skitter_test and living_town_test cover them)
+	game.set_flag("lt_frank_done")
+	game.set_flag("lt_crash_done")
 	await wait_until(func(): return not world._encounter_running, 60 * 40)
 	await frames(60 * 4)
 	ok("colossus_audio_cleared", world._enc_sounds.is_empty())
