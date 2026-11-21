@@ -86,7 +86,7 @@ def box(name, size, center, m, pivot=None, scale=1.0, parent=None, rot=(0, 0, 0)
     bm.free()
     ob = bpy.data.objects.new(name, me)
     bpy.context.scene.collection.objects.link(ob)
-    ob.location = pivot
+    ob.location = pivot - (parent.location if parent is not None else Vector((0, 0, 0)))
     ob.rotation_euler = rot
     me.materials.append(m)
     if parent is not None:
@@ -113,7 +113,7 @@ def cyl(name, r, h, center, m, axis="Z", pivot=None, seg=12, parent=None):
     bm.free()
     ob = bpy.data.objects.new(name, me)
     bpy.context.scene.collection.objects.link(ob)
-    ob.location = pivot
+    ob.location = pivot - (parent.location if parent is not None else Vector((0, 0, 0)))
     me.materials.append(m)
     if parent is not None:
         ob.parent = parent

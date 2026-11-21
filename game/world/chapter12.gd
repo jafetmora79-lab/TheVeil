@@ -417,8 +417,10 @@ func _build_facility() -> void:
 	# the vent the Skitters live behind: a duct with a hinged grate (faces west, into the chamber)
 	vent_node = _prop_abs(PROPS + "FAC_VentDuct.glb", "C12_Vent", L(Vector3(24.0, -5.98, 64.7)), -PI * 0.5)
 	grate = vent_node.find_child("Grate", true, false) if vent_node else null
-	_prop_abs(PROPS + "FAC_DuctRun_3m.glb", "C12_DuctA", L(Vector3(22.5, -3.4, 56.2)), 0.0)
-	_prop_abs(PROPS + "FAC_DuctRun_3m.glb", "C12_DuctB", L(Vector3(19.5, -3.4, 56.2)), 0.0)
+	for dx in [4.5, 7.5, 10.5]:                          # a duct run hung from the tunnel ceiling beside the way through (shorter, so there is headroom)
+		var run := _prop_abs(PROPS + "FAC_DuctRun_3m.glb", "C12_DuctRun", L(Vector3(dx, -3.4 - 0.5, 60.55)), 0.0)
+		if run:
+			run.scale = Vector3(1.0, 0.7, 0.7)
 	# furniture and clues (existing props)
 	_prop("04_Commercial/Shared_Props/COM_ReceptionDesk.glb", "C12_Desk", L(Vector3(3.0, 0.0, 3.0)), -PI * 0.5)
 	_prop("04_Commercial/Shared_Props/COM_FilingCabinet.glb", "C12_Filing", L(Vector3(-3.4, 0.0, 5.3)), PI * 0.5)
@@ -618,7 +620,6 @@ func _dress() -> void:
 	_art("art_safety.png", L(Vector3(6.84, 1.7, 14.2)), -PI * 0.5, Vector2(0.7, 0.93))
 	# the access chamber and the way down
 	_art("art_warning.png", L(Vector3(-2.84, 1.7, 25.0)), PI * 0.5, Vector2(0.6, 0.75))
-	_art("art_warning.png", L(Vector3(0.0, 1.9, 27.8)), PI, Vector2(0.9, 1.1))
 	_paper("Pile_C", Vector3(1.4, 0.03, 24.2), 2.1)
 	_paper("Sheet_A", Vector3(-1.5, 0.03, 26.4), 0.4)
 	# below: what the crew left behind

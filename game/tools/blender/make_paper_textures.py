@@ -72,8 +72,8 @@ def poster(name, w, h, bg, title, lines, accent):
     d = ImageDraw.Draw(im)
     d.rectangle((0, 0, w - 1, 40), fill=accent)
     d.text((10, 14), title, fill=(15, 15, 15), font=FONT)
-    for i in range(0, 40, 8):                        # hazard stripes
-        d.polygon([(w - 90 + i, 0), (w - 80 + i, 0), (w - 90 + i - 10, 40), (w - 100 + i, 40)], fill=(20, 20, 20))
+    for i in range(0, 32, 8):                        # hazard stripes (kept to the right edge, clear of the title)
+        d.polygon([(w - 50 + i, 0), (w - 40 + i, 0), (w - 50 + i - 10, 40), (w - 60 + i, 40)], fill=(20, 20, 20))
     y = 54
     for ln in lines:
         d.text((12, y), ln, fill=(235, 235, 225), font=FONT)
