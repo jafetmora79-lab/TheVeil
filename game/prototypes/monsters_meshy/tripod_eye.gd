@@ -76,7 +76,10 @@ var _held := false
 var _inited := false
 var _ap: AnimationPlayer
 var _spot_deg := 5.0
-const BALL_RANGE := 0.95               ## how far the eyeball can turn inside its socket (radians)
+const BALL_RANGE := 0.2                ## how far the (invisible) eyeball can turn inside the pod (radians): the beam goes where the POD faces, with only a little play
+var show_ball := false                 ## the separate eyeball is not drawn: the light comes out of the model's own eye (the glowing patch of the pod)
+var _front := 0.5                      ## from the eye patch to the front of the pod's bulb (model units): the beam starts there
+var _patch_mat: StandardMaterial3D
 const RANGE_M := 170.0
 const BALL_SHADER := """shader_type spatial;
 render_mode unshaded;
@@ -166,11 +169,15 @@ func _pod_centre() -> Vector3:
 	var c := skel.get_bone_global_rest(eye).origin
 	if mesh == null or mesh.mesh == null:
 		return c
-	var mn := Vector3(1e9, 1e9, 1e9)
-	var mx := Vector3(-1e9, -1e9, -1e9)
+	# the pod's bulb (everything the Eye bone carries, surface 0) gives the front of the bulb; the glowing patch (surface 1, all Eye bone) is the eye itself
+	var bulb_min := Vector3(1e9, 1e9, 1e9)
+	var bulb_max := Vector3(-1e9, -1e9, -1e9)
+	var patch_min := Vector3(1e9, 1e9, 1e9)
+	var patch_max := Vector3(-1e9, -1e9, -1e9)
 	var n := 0
-	for s in mesh.mesh.get_surface_count():
-		var arr := mesh.mesh.surface_get_arrays(s)
+	var np := 0
+	for sidx in mesh.mesh.get_surface_count():
+		var arr := mesh.mesh.surface_get_arrays(sidx)
 		var v: PackedVector3Array = arr[Mesh.ARRAY_VERTEX]
 		var bn: PackedInt32Array = arr[Mesh.ARRAY_BONES]
 		var wt: PackedFloat32Array = arr[Mesh.ARRAY_WEIGHTS]
@@ -186,12 +193,21 @@ func _pod_centre() -> Vector3:
 				if b == eye:
 					w += wt[i * per + k]
 			if w > 0.5:
-				mn = mn.min(v[i])
-				mx = mx.max(v[i])
-				n += 1
-	if n > 20:
-		c = Vector3((mn.x + mx.x) * 0.5, (mn.y + mx.y) * 0.5, mn.z - 0.02)             # at the front of the bulb (the model faces -Z)
-		_ball_r = 0.5 * maxf(mx.x - mn.x, mx.y - mn.y) * 0.9
+				if sidx == 1:
+					patch_min = patch_min.min(v[i])
+					patch_max = patch_max.max(v[i])
+					np += 1
+				else:
+					bulb_min = bulb_min.min(v[i])
+					bulb_max = bulb_max.max(v[i])
+					n += 1
+	if np > 20 and n > 20:
+		c = (patch_min + patch_max) * 0.5                                            # the middle of the model's own eye
+		_front = maxf(c.z - bulb_min.z, 0.0) + 0.06                                  # the bulb faces -Z: the beam leaves its front, a little outside it
+		_ball_r = 0.5 * minf(patch_max.x - patch_min.x, patch_max.y - patch_min.y) * 0.8
+	elif n > 20:
+		c = Vector3((bulb_min.x + bulb_max.x) * 0.5, (bulb_min.y + bulb_max.y) * 0.5, bulb_min.z - 0.02)
+		_ball_r = 0.5 * maxf(bulb_max.x - bulb_min.x, bulb_max.y - bulb_min.y) * 0.9
 	return c
 
 
@@ -229,17 +245,22 @@ func _build_ball() -> void:
 	glow.extra_cull_margin = 100.0
 	ball.add_child(glow)
 	glow.position = Vector3(0, 0, -_ball_r * 1.02)
+	ball_mesh.visible = show_ball
+	glow.visible = show_ball
 	aim_point = Marker3D.new()
 	aim_point.name = "AimPoint"
 	ball.add_child(aim_point)
-	aim_point.position = Vector3(0, 0, -_ball_r * 1.05)        # in front of the pupil: it turns with the eyeball
-	# the pod's own flat glowing patch would sit behind the eyeball: it is dimmed to a socket rim
+	aim_point.position = Vector3(0, 0, -_front)                  # the front of the pod's bulb: the beam starts there
+	# the pod's own glowing patch IS the eye now: its texture, made emissive (the brightness follows `level` and the lock, see _process)
 	if mesh and mesh.mesh and mesh.mesh.get_surface_count() > 1:
-		var rim := StandardMaterial3D.new()
-		rim.albedo_color = Color(0.10, 0.075, 0.07)
-		rim.roughness = 1.0
-		rim.texture_filter = BaseMaterial3D.TEXTURE_FILTER_NEAREST
-		mesh.set_surface_override_material(1, rim)
+		var src := mesh.mesh.surface_get_material(1) as StandardMaterial3D
+		if src != null:
+			_patch_mat = src.duplicate() as StandardMaterial3D
+			_patch_mat.emission_enabled = true
+			_patch_mat.emission_texture = _patch_mat.albedo_texture
+			_patch_mat.emission = Color(1, 1, 1)
+			_patch_mat.emission_energy_multiplier = 1.0
+			mesh.set_surface_override_material(1, _patch_mat)
 
 
 func _build_light() -> void:
@@ -254,7 +275,7 @@ func _build_light() -> void:
 	spot.shadow_enabled = true
 	spot.shadow_bias = 0.08
 	ball.add_child(spot)
-	spot.position = Vector3(0, 0, -_ball_r * 0.9)
+	spot.position = Vector3(0, 0, -_front)
 	omni = OmniLight3D.new()
 	omni.light_color = Color(1.0, 0.55, 0.18)
 	omni.omni_range = 16.0 * minf(maxf(skel.global_transform.basis.get_scale().x, 1.0), 4.0)
@@ -455,6 +476,8 @@ func _process(delta: float) -> void:
 	_ball_mat.set_shader_parameter("k", (0.75 + 0.5 * _hot) * pulse * clampf(level, 0.0, 2.0) * 0.8 + 0.2)
 	_ball_mat.set_shader_parameter("hot", _hot)
 	_glow_mat.set_shader_parameter("k", (0.35 + 0.6 * _hot) * pulse * clampf(level, 0.0, 2.0) * 0.8)
+	if _patch_mat != null:
+		_patch_mat.emission_energy_multiplier = (0.5 + 1.8 * maxf(_search_k * 0.5, _hot)) * pulse * clampf(level, 0.0, 2.0)
 	omni.global_position = pos + ball_goal * _ball_r * 2.0
 	omni.light_energy = (0.5 + 2.2 * _hot) * pulse * level
 	# the spot: steady while it searches (its brightness does not follow the twitching), brighter once locked
