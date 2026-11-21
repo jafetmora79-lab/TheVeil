@@ -15,7 +15,7 @@ func _initialize() -> void:
 
 
 func _run() -> void:
-	for sp in ["Civilian_A", "Civilian_B", "Res_Neighbour", "Eddie", "Marcus", "Officer", "Frank", "Noah", "Ruth", "Survivor"]:
+	for sp in ["Civilian_A", "Civilian_B", "Res_Neighbour", "Eddie", "Marcus", "Officer", "Noah", "Ruth", "Survivor"]:
 		var holder := Node3D.new()
 		root.add_child(holder)
 		var m := VeilMeshyNpcs.model_for(sp)

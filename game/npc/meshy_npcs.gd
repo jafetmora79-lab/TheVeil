@@ -43,7 +43,18 @@ static func slug_for(speaker: String) -> String:
 
 
 ## The Meshy model for this speaker, or null (old characters selected / no Meshy model for this speaker).
+## The models came out 1.64 m tall: the player's eyes (1.62 m) met them at the top of the head, not the eye line. Every character is scaled up so their eyes are where the player's are.
+const HEIGHT_K := 1.07
+
+
 static func model_for(speaker: String) -> Node3D:
+	var n := _model_for(speaker)
+	if n != null:
+		n.scale *= HEIGHT_K
+	return n
+
+
+static func _model_for(speaker: String) -> Node3D:
 	var slug := slug_for(speaker)
 	if not enabled() or slug == "":
 		return null
