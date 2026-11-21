@@ -310,13 +310,15 @@ func _talk(nm: String) -> void:
 	var p: Dictionary = people[nm]
 	var veil := Game.has_flag("p3_mist")
 	var key := String(nm).to_lower()
-	if key.begins_with("res_"):
-		key = "resident"
-	elif key.begins_with("civilian"):
-		key = "civilian"
-	var id := "lt_talk_%s_%s" % [key, "post" if veil else "pre"]
-	if not Dialogue.data.has(id):
-		id = "lt_talk_civilian_%s" % ("post" if veil else "pre")
+	var phase := "post" if veil else "pre"
+	var n := int(p.get("talk_n", 0))                  # three lines of their own, one after the other (then round again)
+	p["talk_n"] = n + 1
+	var id := "lt_talk_%s_%s_%d" % [key, phase, n % 3 + 1]
+	if not Dialogue.data.has(id):                       # (no lines of their own for this moment: the older single line)
+		var old_key := "resident" if key.begins_with("res_") else ("civilian" if key.begins_with("civilian") else key)
+		id = "lt_talk_%s_%s" % [old_key, phase]
+		if not Dialogue.data.has(id):
+			id = "lt_talk_civilian_%s" % phase
 	p["anim"].walk_to([], 0.0)
 	p["anim"].face_towards(world.player.global_position)
 	p["wait"] = 4.0
@@ -340,8 +342,12 @@ func _spawn_people() -> void:
 	people["Frank"]["route"] = [Vector3(8.0, 0.2, sw), Vector3(21.0, 0.2, sw)]
 	_person("Civilian_A", CASHIER, "T_Face_Cashier.png", Vector3(30.0, 0.2, sw), Color(0.9, 0.9, 0.9))
 	people["Civilian_A"]["route"] = [Vector3(30.0, 0.2, sw), Vector3(48.0, 0.2, sw)]
-	_person("Civilian_B", FRANK, "T_Face_Frank.png", Vector3(24.0, 0.2, -25.4), Color(0.85, 0.75, 0.7))
-	people["Civilian_B"]["route"] = [Vector3(24.0, 0.2, -25.4), Vector3(29.0, 0.2, -25.4)]   # the store front, clear of the lot
+	# the woman who used to pace the car park is shopping inside the supermarket: she browses the aisles (market-local: down the aisle at x -4 and back up the one at x 2, along the cross-aisles; the shelves stand between them)
+	var mk := world.get("market") as Node3D
+	var shop: Array = [Vector3(24.0, 0.2, -25.4), Vector3(29.0, 0.2, -25.4)] if mk == null else [
+		mk.to_global(Vector3(-4.0, 0.04, 7.0)), mk.to_global(Vector3(-4.0, 0.04, 13.0)), mk.to_global(Vector3(2.0, 0.04, 13.0)), mk.to_global(Vector3(2.0, 0.04, 7.0))]
+	_person("Civilian_B", FRANK, "T_Face_Frank.png", shop[0], Color(0.85, 0.75, 0.7))
+	people["Civilian_B"]["route"] = shop
 	_person("Officer", POLICE, "T_Face_Police_Officer.png", Vector3(60.0, 0.2, sw))
 	people["Officer"]["route"] = []                # stands at the corner, watching the traffic
 	_person("Joan", CASHIER, "T_Face_Cashier.png", Vector3(147.0, 0.2, -24.5), Color(1.0, 0.85, 0.85))
@@ -461,7 +467,7 @@ func _routine(nm: String, p: Dictionary, delta: float) -> void:
 func _panic(delta: float) -> void:
 	_panic_t += delta
 	var plan := {"Civilian_A": [1.5, "building", Vector3(37.5, 0.2, 6.6)], "Joan": [3.0, "building", Vector3(152.0, 0.2, -26.6)],
-		"Civilian_B": [7.0, "fog", Vector3(70.0, 0.2, -23.0)], "Frank": [0.5, "freeze", Vector3.ZERO],
+		"Civilian_B": [7.0, "hide", Vector3.ZERO], "Frank": [0.5, "freeze", Vector3.ZERO],
 		"Officer": [0.0, "stay", Vector3.ZERO], "Res_Walker": [2.0, "hide", Vector3.ZERO],
 		"Res_Neighbour": [4.0, "hide", Vector3.ZERO], "Res_Driveway": [6.0, "hide", Vector3.ZERO]}
 	for nm in plan:

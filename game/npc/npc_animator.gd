@@ -343,7 +343,8 @@ func _setup_native() -> void:
 	var aps := root.find_children("*", "AnimationPlayer", true, false)
 	if not aps.is_empty():
 		_ap = aps[0] as AnimationPlayer
-		for c in ["Walking", "Running", "Jump", "Chair_Sit_Idle_M"]:
+		var own := AnimationLibrary.new()                  # a library of its own: the imported one is SHARED by every instance of the model, and replacing a clip in it freed
+		for c in ["Walking", "Running", "Jump", "Chair_Sit_Idle_M"]:         # the clip another instance was playing (a native crash on the GPU driver)
 			if _ap.has_animation(c):
 				var an := _ap.get_animation(c).duplicate() as Animation
 				an.loop_mode = Animation.LOOP_NONE if c == "Jump" else Animation.LOOP_LINEAR
@@ -353,10 +354,11 @@ func _setup_native() -> void:
 						for k in an.track_get_key_count(t):
 							var v: Vector3 = an.track_get_key_value(t, k)
 							an.track_set_key_value(t, k, Vector3(x0.x, v.y, x0.z))
-				var lib := _ap.get_animation_library("")
-				lib.remove_animation(c)
-				lib.add_animation(c, an)
+				own.add_animation(c, an)
 		_ap.stop()
+		for ln in _ap.get_animation_library_list():
+			_ap.remove_animation_library(ln)
+		_ap.add_animation_library("", own)
 
 
 func _play_native(clip: String, speed: float, y: float) -> void:

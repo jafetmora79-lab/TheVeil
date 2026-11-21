@@ -46,6 +46,16 @@ func play(w: Node) -> void:
 	cam.global_transform = Transform3D(Basis.looking_at(Vector3(10, 0, -12) - Vector3(-30, 26, 30), Vector3.UP), Vector3(-30, 26, 30))
 	cam.current = true                                       # parked outside already: the home is never on screen
 	_note_on_fridge()
+	for slug in VeilMeshyNpcs.EXTRAS:                                 # the town's people are loaded on a thread now, not in the middle of a shot
+		var kind := "Mixamo" if VeilMeshyNpcs.MIXAMO.has(slug) else "Meshy"
+		ResourceLoader.load_threaded_request("res://game/prototypes/npc_meshy/CHR_%s_%s.glb" % [slug, kind])
+	_warm_colossus()
+	_build_veil_wall(Vector3(-10, 0, 0), Vector3(0.6, 0, 0.8))       # (the first draw of the mist shader hitched in the last shot)
+	world.get_tree().create_timer(1.6).timeout.connect(func():
+		if not _colossus_placed:
+			for wl in _wall:
+				if is_instance_valid(wl):
+					wl.visible = false)
 	# 0: black, the radio
 	if ResourceLoader.exists(RADIO):
 		_radio = AudioStreamPlayer.new()
@@ -298,7 +308,15 @@ func _build_veil_wall(at: Vector3, dir: Vector3) -> void:
 		return
 	var face := Basis.looking_at(dir, Vector3.UP)              # its face toward the town (and the camera)
 	var layers := [[-20.0, 0.8, 150.0], [0.0, 0.9, 160.0], [18.0, 0.95, 180.0], [34.0, 0.9, 200.0], [80.0, 0.98, 220.0]]   # thick: the Colossus stands behind the first four
+	var k := 0
 	for L in layers:
+		if k < _wall.size() and is_instance_valid(_wall[k]):            # drawn once already, hidden, while the screen was black: only moved and shown now
+			var old: MeshInstance3D = _wall[k]
+			old.visible = true
+			old.global_transform = Transform3D(face, at + dir * float(L[0]) + Vector3(0, float(L[2]) * 0.5 - 2.0, 0))
+			k += 1
+			continue
+		k += 1
 		var mi := MeshInstance3D.new()
 		mi.name = "Intro_VeilWall"
 		var qm := QuadMesh.new()
@@ -330,12 +348,34 @@ func _creep_wall(dir: Vector3, metres: float, secs: float) -> void:
 
 ## Far off in the haze, the Colossus: the Meshy tripod, huge, walking toward the town very slowly - the two front legs first, then the rear one.
 ## It is not carried along with the mist: it moves only as fast as its own legs walk (ground_speed), so its feet do not slide.
-func _place_colossus(at: Vector3) -> void:
+## The Colossus is built, and drawn once, while the screen is still black at the start (the first time it is drawn its mesh and shaders are uploaded, which
+## was a visible hitch in the last shot); it is then hidden until its shot.
+func _warm_colossus() -> void:
 	var tc := VeilTripodColossus.new()
 	tc.name = "Intro_Colossus"
 	world.add_child(tc)
-	tc.build(COLOSSUS_H, at.y)
+	var ground: float = world.sedan.global_position.y if world.get("sedan") else 0.0
+	tc.build(COLOSSUS_H, ground)
+	tc.global_position = Vector3(10, ground, -12)
 	_colossus = tc
+	world.get_tree().create_timer(1.6).timeout.connect(func():
+		if is_instance_valid(tc) and not _colossus_placed:
+			tc.visible = false)
+
+
+var _colossus_placed := false
+
+
+func _place_colossus(at: Vector3) -> void:
+	var tc: VeilTripodColossus = _colossus as VeilTripodColossus
+	if tc == null or not is_instance_valid(tc):
+		tc = VeilTripodColossus.new()
+		tc.name = "Intro_Colossus"
+		world.add_child(tc)
+		tc.build(COLOSSUS_H, at.y)
+		_colossus = tc
+	_colossus_placed = true
+	tc.visible = true
 	tc.global_position = at
 	var toward: Vector3 = ((world.sedan.global_position if world.get("sedan") else Vector3.ZERO) - at) * Vector3(1, 0, 1)
 	toward = toward.normalized()

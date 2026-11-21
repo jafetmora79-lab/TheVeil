@@ -914,7 +914,9 @@ func _run() -> void:
 		await frames(10)
 		var ea2 = world.animators["Eddie"]
 		var es: Skeleton3D = ea2.skel
-		var ld: Vector3 = (es.get_bone_global_pose(es.find_bone("LeftLowerLeg")).origin - es.get_bone_global_pose(es.find_bone("LeftUpperLeg")).origin).normalized()
+		var bl := es.find_bone("LeftLowerLeg") if es.find_bone("LeftLowerLeg") >= 0 else es.find_bone("mixamorig_LeftLeg")          # (Eddie is a Mixamo-rigged model)
+		var bu := es.find_bone("LeftUpperLeg") if es.find_bone("LeftUpperLeg") >= 0 else es.find_bone("mixamorig_LeftUpLeg")
+		var ld: Vector3 = (es.get_bone_global_pose(bl).origin - es.get_bone_global_pose(bu).origin).normalized()
 		var la: float = rad_to_deg(ld.signed_angle_to(-ea2.U, ea2.R))
 		leg_min = minf(leg_min, la)
 		leg_max = maxf(leg_max, la)

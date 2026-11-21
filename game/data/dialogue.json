@@ -7862,5 +7862,275 @@
     "time": 1.4
    }
   ]
+ },
+ "lt_talk_frank_pre_1": {
+  "lines": [
+   {
+    "speaker": "Frank",
+    "text": "Evening. Pretty quiet around here tonight.",
+    "time": 3.0
+   }
+  ]
+ },
+ "lt_talk_frank_pre_2": {
+  "lines": [
+   {
+    "speaker": "Frank",
+    "text": "I've walked this strip every night for thirty years. Never gets old.",
+    "time": 3.0
+   }
+  ]
+ },
+ "lt_talk_frank_pre_3": {
+  "lines": [
+   {
+    "speaker": "Frank",
+    "text": "If you're heading to the supermarket, get there before it empties out.",
+    "time": 3.0
+   }
+  ]
+ },
+ "lt_talk_joan_pre_1": {
+  "lines": [
+   {
+    "speaker": "Joan",
+    "text": "Heading out this late? Most places are about to close.",
+    "time": 3.0
+   }
+  ]
+ },
+ "lt_talk_joan_pre_2": {
+  "lines": [
+   {
+    "speaker": "Joan",
+    "text": "Slow night at the pumps. Everyone's already home for the weekend.",
+    "time": 3.0
+   }
+  ]
+ },
+ "lt_talk_joan_pre_3": {
+  "lines": [
+   {
+    "speaker": "Joan",
+    "text": "Careful on the road tonight. The lights out past the trees keep flickering.",
+    "time": 3.0
+   }
+  ]
+ },
+ "lt_talk_officer_pre_1": {
+  "lines": [
+   {
+    "speaker": "Officer",
+    "text": "Evening. Drive safe out there.",
+    "time": 3.0
+   }
+  ]
+ },
+ "lt_talk_officer_pre_2": {
+  "lines": [
+   {
+    "speaker": "Officer",
+    "text": "Nothing to report. Just keeping an eye on the traffic.",
+    "time": 3.0
+   }
+  ]
+ },
+ "lt_talk_officer_pre_3": {
+  "lines": [
+   {
+    "speaker": "Officer",
+    "text": "Radio's been full of static all afternoon. Probably the weather.",
+    "time": 3.0
+   }
+  ]
+ },
+ "lt_talk_res_walker_pre_1": {
+  "lines": [
+   {
+    "speaker": "Neighbour",
+    "text": "Hey, neighbor. Nice night for a walk.",
+    "time": 3.0
+   }
+  ]
+ },
+ "lt_talk_res_walker_pre_2": {
+  "lines": [
+   {
+    "speaker": "Neighbour",
+    "text": "I do this loop after dinner. Keeps the knees working.",
+    "time": 3.0
+   }
+  ]
+ },
+ "lt_talk_res_walker_pre_3": {
+  "lines": [
+   {
+    "speaker": "Neighbour",
+    "text": "Heard a dog going crazy over on Maple earlier. Wonder what got into it.",
+    "time": 3.0
+   }
+  ]
+ },
+ "lt_talk_res_neighbour_pre_1": {
+  "lines": [
+   {
+    "speaker": "Neighbour",
+    "text": "Evening. Your lights are on, so you're home. Good.",
+    "time": 3.0
+   }
+  ]
+ },
+ "lt_talk_res_neighbour_pre_2": {
+  "lines": [
+   {
+    "speaker": "Neighbour",
+    "text": "Mind the kerb outside my place, the car clips it every time.",
+    "time": 3.0
+   }
+  ]
+ },
+ "lt_talk_res_neighbour_pre_3": {
+  "lines": [
+   {
+    "speaker": "Neighbour",
+    "text": "Friday night and the whole street is quiet. I'll take it.",
+    "time": 3.0
+   }
+  ]
+ },
+ "lt_talk_res_driveway_pre_1": {
+  "lines": [
+   {
+    "speaker": "Neighbour",
+    "text": "Just washing the car. Never works, it rains the next day.",
+    "time": 3.0
+   }
+  ]
+ },
+ "lt_talk_res_driveway_pre_2": {
+  "lines": [
+   {
+    "speaker": "Neighbour",
+    "text": "Weekend plans? Mine are the couch and whatever's in the freezer.",
+    "time": 3.0
+   }
+  ]
+ },
+ "lt_talk_res_driveway_pre_3": {
+  "lines": [
+   {
+    "speaker": "Neighbour",
+    "text": "If you see my cat out there, tell her dinner's ready.",
+    "time": 3.0
+   }
+  ]
+ },
+ "lt_talk_civilian_a_pre_1": {
+  "lines": [
+   {
+    "speaker": "Passer-by",
+    "text": "Think we're getting rain tonight?",
+    "time": 3.0
+   }
+  ]
+ },
+ "lt_talk_civilian_a_pre_2": {
+  "lines": [
+   {
+    "speaker": "Passer-by",
+    "text": "Always forget something at the store. Every single time.",
+    "time": 3.0
+   }
+  ]
+ },
+ "lt_talk_civilian_a_pre_3": {
+  "lines": [
+   {
+    "speaker": "Passer-by",
+    "text": "You smell that? Like a storm coming. Or someone burning leaves.",
+    "time": 3.0
+   }
+  ]
+ },
+ "lt_talk_civilian_b_pre_1": {
+  "lines": [
+   {
+    "speaker": "Shopper",
+    "text": "Oh, hello. Sorry, I'm just trying to remember what I came in for.",
+    "time": 3.0
+   }
+  ]
+ },
+ "lt_talk_civilian_b_pre_2": {
+  "lines": [
+   {
+    "speaker": "Shopper",
+    "text": "The soup's on the left, I think. Or the right. I never remember.",
+    "time": 3.0
+   }
+  ]
+ },
+ "lt_talk_civilian_b_pre_3": {
+  "lines": [
+   {
+    "speaker": "Shopper",
+    "text": "Don't take the last cola. I saw it first.",
+    "time": 3.0
+   }
+  ]
+ },
+ "lt_talk_frank_post_1": {
+  "lines": [
+   {
+    "speaker": "Frank",
+    "text": "What the hell is happening? Where did everybody go?",
+    "time": 3.0
+   }
+  ]
+ },
+ "lt_talk_frank_post_2": {
+  "lines": [
+   {
+    "speaker": "Frank",
+    "text": "The street was full a minute ago. I don't understand.",
+    "time": 3.0
+   }
+  ]
+ },
+ "lt_talk_frank_post_3": {
+  "lines": [
+   {
+    "speaker": "Frank",
+    "text": "Don't just stand there. Please, tell me you can see this too.",
+    "time": 3.0
+   }
+  ]
+ },
+ "lt_talk_officer_post_1": {
+  "lines": [
+   {
+    "speaker": "Officer",
+    "text": "Keep off the street. Get indoors and stay there.",
+    "time": 3.0
+   }
+  ]
+ },
+ "lt_talk_officer_post_2": {
+  "lines": [
+   {
+    "speaker": "Officer",
+    "text": "I can't raise anyone on the radio. Not one voice.",
+    "time": 3.0
+   }
+  ]
+ },
+ "lt_talk_officer_post_3": {
+  "lines": [
+   {
+    "speaker": "Officer",
+    "text": "I mean it. Inside, lock the door, and don't open it for anything.",
+    "time": 3.0
+   }
+  ]
  }
 }
