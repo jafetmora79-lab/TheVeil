@@ -366,7 +366,7 @@ func _build_district() -> void:
 		_solid("03_Residential/House_Variants/%s.tscn" % h[0], "C13_" + String(h[0]), D(h[1]), D_YAW + float(h[2]))
 	for c in CARS:
 		_solid("05_Vehicles/Abandoned_Variants/%s.glb" % c[0], "C13_" + String(c[0]), D(c[1]), D_YAW + float(c[2]))
-	_prop("09_Horror_Atmosphere/Abandoned_Props/ABN_EmptyBarricade.tscn", "C13_Barricade", D(Vector3(3.4, 0.0, 36.8)), D_YAW + 0.2)
+	_prop("09_Horror_Atmosphere/Abandoned_Props/ABN_EmptyBarricade.tscn", "C13_Barricade", D(Vector3(14.5, 0.0, 35.0)), D_YAW + 0.2)
 	_prop("09_Horror_Atmosphere/Abandoned_Props/ABN_PersonalBelongings.tscn", "C13_Belongings", D(Vector3(-8.5, 0.0, 15.0)), 0.7)
 	_prop("09_Horror_Atmosphere/Abandoned_Props/ABN_RoadCones_Abandoned.tscn", "C13_Cones", D(Vector3(-1.5, 0.0, 41.0)), 0.0)
 	_prop("09_Horror_Atmosphere/Abandoned_Props/ABN_ScatteredPapers.glb", "C13_Papers", D(Vector3(2.0, 0.0, 24.0)), 1.1)
