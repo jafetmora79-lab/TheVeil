@@ -53,6 +53,23 @@ func _run() -> void:
 		await shot("di_office_out", D.call(Vector3(2.0, 1.7, 33.0)), D.call(Vector3(9.0, 1.5, 40.0)), 70.0)
 		await shot("di_office_in1", D.call(Vector3(6.8, 1.6, 40.0)), D.call(Vector3(11.9, 1.5, 39.4)), 75.0)
 		await shot("di_office_in2", D.call(Vector3(11.2, 1.6, 40.6)), D.call(Vector3(6.0, 1.4, 40.0)), 75.0)
+		await shot("h_over", D.call(Vector3(0.0, 1.7, 70.0)), D.call(Vector3(0.0, 2.6, 76.0)), 70.0)
+		await shot("h_over2", D.call(Vector3(-5.0, 1.7, 68.0)), D.call(Vector3(0.0, 2.8, 76.0)), 70.0)
+		var hdn = c13.hut_door
+		if hdn: hdn.rotation.y = deg_to_rad(-105.0)
+		await shot("h_door_wide", D.call(Vector3(1.2, 1.6, 72.0)), D.call(Vector3(-0.2, 1.1, 76.0)), 62.0)
+		await shot("h_office_gap", D.call(Vector3(3.5, 3.8, 45.5)), D.call(Vector3(9.0, 3.0, 40.0)), 70.0)
+		await shot("g_hut_front", D.call(Vector3(0.6, 1.5, 73.5)), D.call(Vector3(0.0, 1.3, 76.0)), 60.0)
+		await shot("g_hut_side", D.call(Vector3(5.0, 1.8, 73.0)), D.call(Vector3(1.6, 1.8, 77.0)), 65.0)
+		await shot("g_hut_roof", D.call(Vector3(3.0, 5.0, 72.0)), D.call(Vector3(0.0, 2.6, 77.0)), 65.0)
+		await shot("g_hut_back", D.call(Vector3(-3.0, 3.0, 82.0)), D.call(Vector3(0.0, 1.8, 77.0)), 70.0)
+		await shot("g_hut_wall_l", D.call(Vector3(-4.5, 2.0, 73.0)), D.call(Vector3(-1.6, 2.0, 76.0)), 65.0)
+		await shot("g_office_roof", D.call(Vector3(14.5, 4.2, 33.5)), D.call(Vector3(9.0, 3.0, 40.0)), 70.0)
+		await shot("g_office_roof2", D.call(Vector3(3.5, 3.8, 45.5)), D.call(Vector3(9.0, 3.0, 40.0)), 70.0)
+		await shot("g_wall_gatepost", D.call(Vector3(-5.0, 2.2, 40.0)), D.call(Vector3(-2.6, 2.0, 44.0)), 65.0)
+		await shot("g_wall_corner", D.call(Vector3(-15.0, 2.2, 40.0)), D.call(Vector3(-19.5, 2.0, 44.0)), 65.0)
+		await shot("g_back_corner", D.call(Vector3(-15.0, 2.2, 70.0)), D.call(Vector3(-19.5, 2.4, 76.0)), 65.0)
+		await shot("g_back_gap", D.call(Vector3(-3.0, 2.0, 70.0)), D.call(Vector3(-1.9, 2.4, 76.0)), 65.0)
 		await shot("di_signs", D.call(Vector3(0.0, 1.7, 36.0)), D.call(Vector3(0.0, 1.8, 44.0)), 80.0)
 	elif which == "finale":
 		var c13 = c12.chapter13

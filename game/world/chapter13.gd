@@ -79,6 +79,7 @@ var crab_anim: AnimationPlayer
 var void_shape: MeshInstance3D
 var gate: Node3D
 var gate_model: Node3D
+var hut_door: Node3D
 var collapse_block: Node3D
 var doorway_slab: Node3D
 var beam: Node3D
@@ -361,6 +362,9 @@ func _build_district() -> void:
 		var hd := hut.find_child("Door", true, false) as Node3D
 		if hd:
 			hd.rotation.y = deg_to_rad(-75.0)                 # ajar: the way down
+			hut_door = hd
+	# the back wall carries on over the hut (the hut is lower than the wall: no gap of sky above it)
+	_mdl("DST_ConcreteWall_4m.glb", "OverHut", Vector3(0.0, 2.72, 76.0), PI, Vector3(3.9 / 4.0, 1.28 / 3.2, 1.25))
 	# the street: houses left in a hurry, cars, barricades, warning signs
 	for h in HOUSES:
 		_solid("03_Residential/House_Variants/%s.tscn" % h[0], "C13_" + String(h[0]), D(h[1]), D_YAW + float(h[2]))
@@ -378,7 +382,7 @@ func _build_district() -> void:
 		_mdl(sg[0], "Sign", sg[1], sg[2])
 	# the checkpoint office (south of the wall): a concrete room, its door on the street side
 	var o: Vector3 = OFFICE[0]
-	_dbox("Office", o + Vector3(0, 3.1, 0), Vector3(6.2, 0.2, 6.2), "concrete")
+	_dbox("Office", o + Vector3(0, 3.1, 0.3), Vector3(6.2, 0.2, 6.8), "concrete")          # (reaches the checkpoint wall: no slit of sky between them)
 	_hide(_dbox("Office", o + Vector3(3.0, 1.5, 0), Vector3(0.25, 3.0, 6.0), "concrete"))
 	_hide(_dbox("Office", o + Vector3(0, 1.5, -3.0), Vector3(6.0, 3.0, 0.25), "concrete"))
 	_hide(_dbox("Office", o + Vector3(-3.0, 1.5, -1.9), Vector3(0.25, 3.0, 2.2), "concrete"))
@@ -1125,6 +1129,8 @@ func _enter_passage(_b: Node) -> void:
 		_hint("Wait for %s." % companion())
 		return
 	_busy["passage"] = true
+	if hut_door:                                         # the heavy door is pushed wide as they go in
+		create_tween().tween_property(hut_door, "rotation:y", deg_to_rad(-105.0), 0.9).set_trans(Tween.TRANS_SINE)
 	# its claws strike the mouth of the passage as they squeeze in; then it gives up
 	if crab and is_instance_valid(crab) and crab.global_position.distance_to(player.global_position) < 14.0:
 		_crab_play("Attack_Grasp")
