@@ -436,7 +436,7 @@ func _voice() -> void:
 	await c5._say_wait("c6_voice")
 	await get_tree().create_timer(0.8).timeout
 	_busy["voice_reoffer"] = true
-	Dialogue.say("c6_voice_eddie", false, true)
+	await c5._talk("c6_voice_eddie", eddie)
 	_busy["voice"] = false
 
 
@@ -657,7 +657,7 @@ func _process(delta: float) -> void:
 	if Game.has_flag("ch6_left_supermarket") and not Game.has_flag("ch6_walk_said") and c5._away_from_store(pl, 12.0) \
 			and not Dialogue.is_busy():
 		Game.set_flag("ch6_walk_said")
-		Dialogue.say("c6_walk", false, true)
+		c5._talk("c6_walk", eddie)                 # a real conversation: the view locked on Eddie with the small zoom, nobody wanders back to the store mid-talk
 	# the voice: once the group has left Ruth and Sarah's yard
 	if Game.has_flag("ch6_ruth_sarah_met") and not Game.has_flag("ch6_voice_heard") and not _yard.overlaps_body(player) \
 			and player.global_position.distance_to(hl(Vector3(2.6, 0.6, 3.2))) > 9.0 and not Dialogue.is_busy():
@@ -668,7 +668,7 @@ func _process(delta: float) -> void:
 	if Game.has_flag("ch6_voice_heard") and not Game.has_flag("ch6_voice_choice_made") and not _busy.get("voice", false) \
 			and not _busy.get("voice_reoffer", false) and not Dialogue.is_busy() and not p4.choice.is_open():
 		_busy["voice_reoffer"] = true
-		Dialogue.say("c6_voice_eddie", false, true)
+		c5._talk("c6_voice_eddie", eddie)
 	_branch_area_tick()
 	_chase_tick()
 	_encounter_tick()
@@ -681,7 +681,7 @@ func _process(delta: float) -> void:
 	if Game.has_flag("ch6_hound_encounter_complete") and not Game.has_flag("ch6_return_said") \
 			and not c5._away_from_store(pl, 30.0) and not Dialogue.is_busy():
 		Game.set_flag("ch6_return_said")
-		Dialogue.say("c6_return", false, true)
+		c5._talk("c6_return", eddie)               # on the way back: locked on Eddie with the zoom
 	if Game.has_flag("ch6_hound_encounter_complete") and not Game.has_flag("ch6_returned_to_supermarket"):
 		var player_in: bool = c5._in_store(pl)
 		c5.eddie_follow.gap = 1.0 if player_in else 2.4

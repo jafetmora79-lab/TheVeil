@@ -777,6 +777,15 @@ func can_talk(npc: Node3D) -> bool:
 
 ## A sight line for conversations. Invisible blockers that only keep the player out of a space (group
 ## "veil_talk_transparent", e.g. Ruth and Sarah's doorway) do not hide anyone; real walls, doors and glass do.
+## What the talk camera's sight line ignores: the player and the speaker's own body (a follower standing a step behind would otherwise be "hidden" by his own shoulders).
+func _talk_ex() -> Array[RID]:
+	var ex: Array[RID] = [player.get_rid()]
+	var a = animators.get(_talk_speaker, _talk_extra.get(_talk_speaker))
+	if a != null and is_instance_valid(a) and a.root is CollisionObject3D:
+		ex.append((a.root as CollisionObject3D).get_rid())
+	return ex
+
+
 func _talk_ray(from: Vector3, to: Vector3, ex: Array[RID]) -> Dictionary:
 	var q := PhysicsRayQueryParameters3D.create(from, to, 1, ex)
 	var space := get_world_3d().direct_space_state
@@ -892,7 +901,7 @@ func _talk_camera() -> void:
 			fov = fov0 * _talk_fov_scale(eye.distance_to(at))
 			# a speaker hidden from the protagonist's eyes (behind a wall beside a doorway, behind another NPC) is
 			# never framed: the view stays on the last visible speaker instead of turning to a wall
-			var hit := _talk_ray(eye, at, [player.get_rid()])
+			var hit := _talk_ray(eye, at, _talk_ex())
 			var hidden: bool = not hit.is_empty() and eye.distance_to(hit["position"]) < eye.distance_to(at) - 0.45
 			if hidden:
 				talk_report["hidden_speaker"] = int(talk_report.get("hidden_speaker", 0)) + 1
@@ -906,7 +915,7 @@ func _talk_camera() -> void:
 				talk_report["min_face_dist"] = minf(talk_report["min_face_dist"], eye.distance_to(at))
 		# the camera is aimed at a speaker the player cannot see (should never happen: tests)
 		if aimed != "" and aimed == _talk_speaker and at != null and idle == 0.0:
-			var chk := _talk_ray(eye, at, [player.get_rid()])
+			var chk := _talk_ray(eye, at, _talk_ex())
 			if not chk.is_empty() and eye.distance_to(chk["position"]) < eye.distance_to(at) - 0.45 and cam.global_transform.basis.z.dot(-(at - eye).normalized()) > 0.99:
 				talk_report["cam_hits"] += 1
 		var k := 1.0 - exp(-rate * dt)

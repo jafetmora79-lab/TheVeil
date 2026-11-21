@@ -51,6 +51,7 @@ func wait_talk(cond: Callable, max_seconds := 90.0) -> bool:
 	return r
 
 
+var _dbg := 0
 var _trace := false
 var _trace_t := 0
 
@@ -101,6 +102,14 @@ func walk_to(target: Vector3, timeout := 30.0) -> bool:
 	var still := 0.0
 	Input.action_press("move_forward")
 	while t < timeout:
+		if world._choice_open():
+			break                                      # (the scene has put a choice up: the walk is over)
+		if world.conversing:                        # a conversation holds the player (locked on the speaker): wait for it, as a player would
+			still = 0.0
+				print("DBG conv busy=%s active=%s q=%d choice=%s cam=%s" % [root.get_node("Dialogue").is_busy(), root.get_node("Dialogue").is_active(), root.get_node("Dialogue")._queue.size(), world._choice_open(), world._talk_cam != null])
+			await process_frame
+			_physics_watch()
+			continue
 		var d: Vector3 = (target - player.global_position) * Vector3(1, 0, 1)
 		if d.length() < 0.5:
 			break
