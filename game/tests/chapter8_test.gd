@@ -49,6 +49,8 @@ func wait_talk(cond: Callable, max_seconds := 90.0) -> bool:
 
 
 func walk_to(target: Vector3, timeout := 30.0) -> bool:
+	if world != null and world.conversing:                      # (the story talks take the player in hand; wait them out)
+		await wait_until(func(): return not world.conversing, 60 * 60)
 	var player = world.player
 	var t := 0.0
 	var last: Vector3 = player.global_position
@@ -73,7 +75,7 @@ func walk_to(target: Vector3, timeout := 30.0) -> bool:
 	await frames(6)
 	var left: float = ((target - player.global_position) * Vector3(1, 0, 1)).length()
 	if left > 0.8:
-		print("  walk stuck at %s (target %s, %.1f m left)" % [world.market.to_local(player.global_position), world.market.to_local(target), left])
+		print("  walk stuck at %s (target %s, %.1f m left) ctrl=%s conv=%s cam_cur=%s busy=%s" % [world.market.to_local(player.global_position), world.market.to_local(target), left, player.controls_enabled, world.conversing, player.camera.current, world.get("_cine")])
 	return left <= 0.8
 
 
@@ -86,6 +88,8 @@ func walk_route(pts: Array) -> bool:
 
 ## Stand `dist` metres from the interactable (first clear direction) and aim at it; true if the real ray finds it.
 func aim(it: Node3D, dirs: Array, dist := 1.2) -> bool:
+	if world != null and world.conversing:                      # (the story talks take the player in hand; wait them out)
+		await wait_until(func(): return not world.conversing, 60 * 60)
 	var player = world.player
 	var c: Vector3 = it.global_position
 	for cs in it.get_children():
@@ -283,6 +287,7 @@ func _run() -> void:
 
 	# ---- scene 2: the damaged barricade
 	await reload()
+	await wait_until(func(): return not world.conversing and not dlg.confirm_mode, 60 * 40)          # (a conversation can be playing as the save loads)
 	ok("c8_load_after_eddie", game.has_flag("ch8_eddie_talked") and c8.its["barricade"].prompt_text == "[E] Inspect the Barricade"
 		and root.get_viewport().get_camera_3d() == world.player.camera and world.player.controls_enabled and not dlg.confirm_mode)
 	ok("c8_barricade_damaged", c8.report.get("barricade", "") == "damaged" and p4._pallets["back"].position.distance_to(c8.BACK_PALLET_DAMAGED) < 0.05

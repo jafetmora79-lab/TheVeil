@@ -49,6 +49,8 @@ func wait_talk(cond: Callable, max_seconds := 90.0) -> bool:
 
 
 func walk_to(target: Vector3, timeout := 30.0) -> bool:
+	if world != null and world.conversing:                      # (the story talks take the player in hand; wait them out)
+		await wait_until(func(): return not world.conversing, 60 * 60)
 	var player = world.player
 	var t := 0.0
 	var last: Vector3 = player.global_position
@@ -92,6 +94,8 @@ func walk_world(pts: Array) -> bool:
 
 
 func aim(it: Node3D, dirs: Array, dist := 1.2) -> bool:
+	if world != null and world.conversing:                      # (the story talks take the player in hand; wait them out)
+		await wait_until(func(): return not world.conversing, 60 * 60)
 	var player = world.player
 	var c: Vector3 = it.global_position
 	for cs in it.get_children():
