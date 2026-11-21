@@ -772,6 +772,9 @@ func _on_rest(_id: String) -> void:
 func _set_doors(open: bool) -> void:
 	if open == _doors_open:
 		return
+	# the doors stay SHUT while something has to happen inside first (the gun handover): nobody inside gets out until it is done (a player outside can always come in)
+	if open and world.get("sidearm") != null and world.sidearm.handover_pending() and _in_store(market.to_local(world.player.global_position)):
+		return
 	_doors_open = open
 	for tw in _door_tweens:
 		if tw and tw.is_valid():

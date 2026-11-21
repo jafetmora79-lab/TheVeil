@@ -1132,7 +1132,16 @@ func _in_shelter(p: Vector3) -> bool:
 const SAFE_R := 30.0
 
 
+## The supermarket's ward is the entrance only (not the whole building and lot): inside the store, or within 9 m of the doors. Other shelters keep SAFE_R.
+func ward_radius() -> float:
+	return 9.0 if shelter() == "supermarket" else SAFE_R
+
+
 func shelter_spot() -> Vector3:
+	if shelter() == "supermarket" and world.market != null:
+		var eo := world.market.get_node_or_null("Doorways/Entrance_Outside") as Node3D
+		if eo:
+			return eo.global_position
 	var nm = world.get("nav")
 	var sh: Array = nm.shelter() if nm and nm.has_method("shelter") else []
 	return sh[0] if not sh.is_empty() else Vector3.INF
@@ -1142,7 +1151,7 @@ func shelter_safe(p: Vector3) -> bool:
 	if _in_shelter(p):
 		return true
 	var c := shelter_spot()
-	return c.is_finite() and Vector2(p.x - c.x, p.z - c.z).length() < SAFE_R
+	return c.is_finite() and Vector2(p.x - c.x, p.z - c.z).length() < ward_radius()
 
 
 func _shelter_ward() -> void:
@@ -1155,7 +1164,7 @@ func _shelter_ward() -> void:
 		var n: Node3D = cr["node"]
 		if ai == null or not is_instance_valid(n) or not is_instance_valid(ai):
 			continue
-		var near := Vector2(n.global_position.x - c.x, n.global_position.z - c.z).length() < SAFE_R + 6.0
+		var near := Vector2(n.global_position.x - c.x, n.global_position.z - c.z).length() < ward_radius() + 4.0
 		var hunting := String(ai.state) in ["CHASE", "SUSPICIOUS", "SEARCH"]
 		if (player_safe and hunting) or near:
 			if String(cr.get("role", "")) == "leaving" and not near:
@@ -1163,7 +1172,8 @@ func _shelter_ward() -> void:
 			_leave(cr, "the shelter's ward")
 			var away := (n.global_position - c) * Vector3(1, 0, 1)
 			away = away.normalized() if away.length() > 0.1 else Vector3.FORWARD
-			ai.home = c + away * (SAFE_R + 40.0)               # out past the ward, never towards the doors
+			ai.home = c + away * (ward_radius() + 55.0)         # well out past the ward, never towards the doors
+			ai.set("flee", true)
 			ai.leash = 999.0
 			ai.state = "RETURN"
 
@@ -1512,9 +1522,10 @@ func _leave(c: Dictionary, why: String) -> void:
 	if ai and is_instance_valid(ai) and is_instance_valid(b):
 		var away := (b.global_position - threat_target()) * Vector3(1, 0, 1)
 		away = away.normalized() if away.length() > 0.1 else Vector3.FORWARD
-		ai.home = b.global_position + away * 40.0
+		ai.home = b.global_position + away * 60.0
 		ai.leash = 999.0
 		ai.state = "RETURN"
+		ai.set("flee", why.contains("shelter") or why.contains("ward"))     # driven off by the shelter: it runs
 		ai.set("awareness", 0.0)
 	if why.begins_with("hunter"):                          # a breather before the next one comes
 		_next_hunt = maxf(_next_hunt, float(st().get("elapsed", 0.0)) + _lvv("encounter_cooldown_s", level(), [60, 50, 40, 30, 22]) * 0.5)

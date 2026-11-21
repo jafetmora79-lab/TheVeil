@@ -471,6 +471,30 @@ func _process(delta: float) -> void:
 	_cd = maxf(_cd - delta, 0.0)
 	_animate(delta)
 	_practice_tick(delta)
+	_auto_handover(delta)
+
+
+## The morning after Sarah (or Marcus) is taken in, whoever has the gun waits by the doors: when the player comes up to them the handover starts by itself
+## (no menu, no trip first). Checked twice a second, only when the player is free and in the shelter.
+var _auto_t := 0.0
+
+
+func _auto_handover(delta: float) -> void:
+	_auto_t -= delta
+	if _auto_t > 0.0 or _handing or world == null or world.player == null:
+		return
+	_auto_t = 0.5
+	if not handover_pending() or world.in_car or world.conversing or Dialogue.is_busy() or not world.player.controls_enabled:
+		return
+	var ex = world.get("expedition")
+	if ex != null and (ex.active() or not ex.in_store()):
+		return
+	var who := presenter()
+	var a = world.animators.get(who)
+	if a == null or not is_instance_valid(a.root) or not _in_reach(a.root):
+		return
+	if world.phase4 != null and world.phase4.get("choice") != null:
+		handover(world.phase4.choice)
 
 
 # ------------------------------------------------------------------ the handover and the practice
@@ -517,14 +541,19 @@ func handover(choice: Node) -> void:
 	if not _in_reach(npc):
 		_hint("%s is coming over..." % who, 6.0)
 		var par := npc.get_parent_node_3d()
-		var spot: Vector3 = world.player.global_position - world.player.global_basis.z * 2.0
-		world.npc_walk(who, par.to_local(spot) if par else spot, 2.0)
+		var spot: Vector3 = world.player.global_position + world.player.global_basis.z * 1.8
+		var sb := npc as VeilSurvivorBody
+		if sb:
+			var safe := sb.nearest_safe(spot, 3.0)
+			if safe.is_finite():
+				spot = safe
+		world.npc_walk(who, par.to_local(spot) if par else spot, 2.6)
 		var t := 0.0
-		while t < 14.0 and not _in_reach(npc):
+		while t < 40.0 and not _in_reach(npc) and not (t > 1.0 and not a.is_walking()):
 			await get_tree().process_frame
 			t += get_process_delta_time()
 		a.walk_to([])
-		if not _in_reach(npc):
+		if not _in_reach(npc) and npc.global_position.distance_to(world.player.global_position) > 6.0:
 			_hint("%s could not reach you. Try the doors again in a moment." % who, 5.0)
 			_handing = false
 			return
@@ -563,8 +592,10 @@ func _in_reach(npc: Node3D) -> bool:
 		var eye: Vector3 = p.camera.global_position
 		var head := npc.global_position + Vector3(0, 1.4, 0)
 		var ex: Array[RID] = [p.get_rid()]
+		if npc is CollisionObject3D:
+			ex.append((npc as CollisionObject3D).get_rid())          # (her own body is not something in the way of seeing her)
 		var hit: Dictionary = world._talk_ray(eye, head, ex)
-		return hit.is_empty() or eye.distance_to(hit["position"]) > eye.distance_to(head) - 0.5
+		return hit.is_empty() or eye.distance_to(hit["position"]) > eye.distance_to(head) - 1.2
 	return true
 
 

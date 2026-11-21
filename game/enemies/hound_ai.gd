@@ -25,6 +25,7 @@ var patrol: Array = []              # world points
 var home := Vector3.ZERO
 var leash := 34.0
 var walk_speed := 1.4
+var flee := false                   ## driven off (the shelter's doors): it RUNS home at its chase pace, blind to the player, until it is back
 var chase_speed := 4.1              # player sprint is 4.3, walk ~2.6 (still outrunnable)
 var sight_range := 15.0
 var sight_range_crouch := 6.5
@@ -147,8 +148,8 @@ func _physics_process(delta: float) -> void:
 	var far_home := Vector2(body.global_position.x - home.x, body.global_position.z - home.z).length() > leash
 	match state:
 		"PATROL", "RETURN":
-			if far_home:
-				sees = false                          # beyond its leash it ignores the player and heads home
+			if far_home or (flee and state == "RETURN"):
+				sees = false                          # beyond its leash (or driven off) it ignores the player and heads home
 				hears = false
 			if sees:
 				awareness = minf(awareness + delta * lerpf(1.6, 0.45, clampf(dist / sight_range, 0.0, 1.0)), 1.0)
@@ -159,6 +160,7 @@ func _physics_process(delta: float) -> void:
 				awareness = maxf(awareness - delta * 0.25, 0.0)
 				if state == "RETURN" and _flat(body.global_position, home) < 1.5:
 					state = "PATROL"
+					flee = false
 			if state == "PATROL" or state == "RETURN":
 				var goal: Vector3 = home if state == "RETURN" else _target
 				# real progress check: under 0.5 m in 3 s means the patrol point is not reachable from here
@@ -173,7 +175,10 @@ func _physics_process(delta: float) -> void:
 				if state == "PATROL" and _flat(body.global_position, _target) < 1.3 and patrol.size() > 0:
 					_pi = (_pi + 1) % patrol.size()
 					_target = patrol[_pi]
-				_move_to(goal, walk_speed, delta, "Walk")
+				if flee and state == "RETURN":
+					_move_to(goal, chase_speed * 1.1, delta, "Run")          # driven off: it bolts, it does not stroll
+				else:
+					_move_to(goal, walk_speed, delta, "Walk")
 		"SUSPICIOUS":
 			if far_home:
 				state = "RETURN"                      # never investigates beyond its leash

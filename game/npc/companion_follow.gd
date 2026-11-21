@@ -128,7 +128,7 @@ func _physics_process(delta: float) -> void:
 		var world := get_tree().get_first_node_in_group("veil_world")
 		var motion := (next - npc.global_position) * Vector3(1, 0, 1)
 		if body and world and parent and _detour_retry <= 0.0 and body.test_move(body.global_transform, motion):
-			_detour_retry = 0.8
+			_detour_retry = 0.4
 			for i in range(mini(pts.size(), 7) - 1, -1, -1):
 				var safe := body.nearest_safe(parent.to_global(pts[i]), 0.5)
 				if not safe.is_finite():
@@ -148,8 +148,8 @@ func _physics_process(delta: float) -> void:
 ## the crumbs ran past, a leader moved by a scene); if that does not bring him back, he is put behind the leader while nobody is
 ## looking (or at once when very far away). Returns true when it took over this tick.
 const JUMP := 8.0                    # a leader that moves this far between two ticks was teleported
-const LOST_ROUTE := 3.0              # seconds without closing in before he takes the world route
-const LOST_RECOVER := 9.0            # ... before he is put behind the leader (out of sight)
+const LOST_ROUTE := 2.0              # seconds without closing in before he takes the world route
+const LOST_RECOVER := 6.0            # ... before he is put behind the leader (out of sight)
 const VERY_FAR := 45.0
 var _lost_t := 0.0
 var _best := INF
@@ -237,8 +237,10 @@ func _stuck_check(to_leader: float) -> void:
 		_stuck_at = npc.global_position
 		return
 	_stuck_t += 0.25
-	if absf(_stuck_t - 3.0) < 0.01:
+	if absf(_stuck_t - 2.0) < 0.01:
 		_open_doors_ahead(leader.global_position)
+	if absf(_stuck_t - 3.0) < 0.01 or absf(_stuck_t - 5.0) < 0.01:
+		_world_route_to_leader()                     # the crumbs lead into something: take the world's own collision-free route to the leader instead
 	if _stuck_t < 7.0:
 		return
 	var cam := get_viewport().get_camera_3d()
@@ -250,6 +252,28 @@ func _stuck_check(to_leader: float) -> void:
 	recoveries += 1
 	_stuck_t = 0.0
 	_stuck_at = npc.global_position
+
+
+## A route to (or towards) the leader along the world's collision-free graph: legs of at most 22 m.
+func _world_route_to_leader() -> void:
+	var parent := npc.get_parent_node_3d()
+	var world := get_tree().get_first_node_in_group("veil_world")
+	if parent == null or world == null or not world.has_method("npc_route"):
+		return
+	var body := npc as VeilSurvivorBody
+	var goal := _floor(leader.global_position)
+	var to_leader := Vector3(leader.global_position.x - npc.global_position.x, 0.0, leader.global_position.z - npc.global_position.z)
+	if to_leader.length() > 24.0:
+		goal = _floor(npc.global_position + to_leader.normalized() * 22.0)
+	if body:
+		var safe := body.nearest_safe(goal, 4.0)
+		if safe.is_finite():
+			goal = safe
+	var route: Array = world.npc_route(parent, npc.position, parent.to_local(goal), body)
+	if not route.is_empty():
+		anim.walk_to(route, run_speed)
+		_join_for = 4.0
+		watchdog_routes += 1
 
 
 ## Several companions walk the same trail: one that comes within SPACING of another companion who is nearer the

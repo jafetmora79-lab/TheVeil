@@ -25,7 +25,7 @@ const RS_HOUSE := "HOUSE_06"                          # single-storey bungalow, 
 const MARCUS_WATCH := Vector3(-2.0, 0.04, 6.9)
 const EDDIE_SHELTER := Vector3(6.2, 0.04, 4.05)
 const RUTH_SPOT := Vector3(8.6, 0.04, 6.8)
-const SARAH_SPOT := Vector3(-16.3, 0.04, 10.9)           # outside the office, by the bedding piles (the old spot was on the made bedroll)
+const SARAH_SPOT := Vector3(2.5, 0.04, 3.5)             # by the front doors, just inside: she waits there to hand over the gun the morning after she is taken in
 # HOUSE_06-local
 const RUTH_DOOR := Vector3(2.6, 0.6, 4.2)
 const SARAH_DOOR := Vector3(1.9, 0.6, 4.9)

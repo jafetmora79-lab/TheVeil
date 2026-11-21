@@ -69,8 +69,15 @@ func _run() -> void:
 		await physics_frame
 		t += 1
 	ok("handover_ran_with_her_in_view", done[0] and (game.has_item("handgun") or bool(sa.st().get("given", false)) or sa.st().get("from", "") == who), str(sa.st()))
-	# a door left open with nobody at it
+	# while a handover is pending the doors stay shut for someone inside
+	sa.st()["given"] = false
+	game.inventory.erase("handgun")
+	w.player.global_position = m.to_global(Vector3(0.0, 0.3, 9.0))
 	var c5 = w.phase4.chapter5
+	c5._set_doors(true)
+	ok("doors_stay_shut_while_handover_pending", not c5._doors_open)
+	sa.st()["given"] = true
+	# a door left open with nobody at it
 	w.player.global_position = m.to_global(Vector3(-6.0, 0.3, 12.0))
 	c5._set_doors(true)
 	w.expedition.story_departure = false
