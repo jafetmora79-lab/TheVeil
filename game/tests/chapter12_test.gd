@@ -345,7 +345,7 @@ func _run() -> void:
 	# ---- the access door, the ramp, the tunnels
 	ok("c12_walk_access", await walk_world([c12.L(Vector3(2.0, 0.2, 11.8)), c12.L(Vector3(0, 0.2, 12.0)), c12.L(Vector3(0, 0.2, 24.5))]))
 	ok("c12_access_open", await use(c12.its["access"], [Vector3(0, 0, -1)], 1.4) and await wait_until(func(): return (game.has_flag("ch12_access_open")
-		and c12.access_door.global_position.y > c12.L(c12.ACCESS).y + 2.0), 300))
+		and (c12.access_door.find_child("LeafL", true, false) as Node3D).position.x < float((c12.access_door.find_child("LeafL", true, false) as Node3D).get_meta("x0")) - 0.9), 300))
 	ok("c12_walk_ramp", await walk_world([c12.L(Vector3(0, 0.2, 27.0)), c12.L(Vector3(0, 0.2, 31.0)), c12.L(Vector3(0, -5.8, 41.0))]),
 		str(world.player.global_position - c12.FAC))
 	ok("c12_descended", await wait_until(func(): return game.has_flag("ch12_descended"), 60))

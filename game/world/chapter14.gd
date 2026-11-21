@@ -161,6 +161,7 @@ func _setup() -> void:
 			_door_collision.call_deferred(it)
 			its[n] = it
 	lamp = c12._light(hl(SAFE_LIGHT), 0.6, 7.0, Color(1.0, 0.78, 0.5))
+	_dress_house()
 	props["pickup"] = c13._solid("05_Vehicles/Abandoned_Variants/VEH_Pickup_Abandoned.glb", "C14_Pickup", PICKUP_POS, 0.4)
 	props["fence"] = c12._prop("02_Town/Fences/FN_Picket_2.5m.glb", "C14_Fence", FENCE_AT, 1.2)
 	props["supplies"] = c12._prop("03_Residential/Interactive_Props/RES_IP_StorageBin.glb", "C14_Supplies", hl(SUPPLIES), 0.0)
@@ -211,6 +212,94 @@ func _setup() -> void:
 		props["find%d" % i] = n
 
 
+## The shelter lived in: papers (the plans, Noah's log, the map) drifted over the floor and the furniture, a few more things left about.
+func _dress_house() -> void:
+	var root := Node3D.new()
+	root.name = "C14_Clutter"
+	house.add_child(root)
+	for it in [["Pile_A", Vector3(1.9, 0.62, 8.1), 0.6], ["Pile_B", Vector3(-1.1, 0.62, 6.9), 2.1], ["Pile_C", Vector3(0.9, 0.62, 9.7), 1.3],
+			["Sheet_A", Vector3(-2.3, 0.62, 5.7), 0.4], ["Sheet_A", Vector3(1.6, 0.62, 5.0), 2.8], ["Pile_A", Vector3(-0.2, 0.62, 4.4), 0.2],
+			["Pile_B", Vector3(-2.0, 0.62, 10.2), 1.7], ["Sheet_A", Vector3(2.3, 0.62, 10.8), 0.9]]:
+		_put(PROPS + "PRP_Paper_%s.glb" % it[0], root, it[1], it[2], 0.0, 0.0, "Paper")
+
+
+## Where each survivor stands in the house: spread over the living room and the kitchen (clear floor, not on the bed, the supplies, the table or a door),
+## each near their own post, never closer than ~2 m to one another. Worked out once from the house's real collision.
+const CROWD_ANCHORS := {"Eddie": Vector3(-2.2, 0.61, 4.5), "Sarah": Vector3(2.2, 0.61, 4.7), "Ruth": Vector3(2.3, 0.61, 9.0),
+	"Marcus": Vector3(-1.6, 0.61, 10.6), "Noah": Vector3(-0.4, 0.61, 8.2)}
+var _spots := {}
+
+
+func spot(k: String) -> Vector3:
+	if _spots.is_empty():
+		_compute_spots()
+	return _spots.get(k, c10.SPOTS.get(k, Vector3(0.0, 0.61, 7.0)))
+
+
+func _compute_spots() -> void:
+	var keep := [[BED, 1.2], [SUPPLIES, 1.0], [TABLE, 1.2], [FRONT_IN, 1.1], [BACK_IN, 1.1], [Vector3(c10.WINDOW.x, 0.61, c10.WINDOW.z + 0.9), 0.9]]
+	var space: PhysicsDirectSpaceState3D = world.get_world_3d().direct_space_state
+	var q := PhysicsShapeQueryParameters3D.new()
+	var cap := CapsuleShape3D.new()
+	cap.radius = 0.36
+	cap.height = 1.5
+	q.shape = cap
+	q.collision_mask = 1
+	var cand: Array = []
+	var x := -2.8
+	while x <= 2.8:
+		var z := 3.9
+		while z <= 11.2:
+			var pt := Vector3(x, 0.61, z)
+			var ok := true
+			for kp in keep:
+				if Vector2(pt.x - kp[0].x, pt.z - kp[0].z).length() < float(kp[1]):
+					ok = false
+			if ok:
+				q.transform = Transform3D(Basis(), hl(pt + Vector3(0, 0.95, 0)))
+				for h in space.intersect_shape(q, 6):
+					if not (h["collider"] is VeilSurvivorBody) and h["collider"] != player:
+						ok = false
+			if ok:
+				cand.append(pt)
+			z += 0.35
+		x += 0.35
+	var chosen: Array = []
+	for k in ["Eddie", "Marcus", "Sarah", "Ruth", "Noah"]:
+		var anchor: Vector3 = CROWD_ANCHORS[k]
+		var best := Vector3.INF
+		var best_d := 1e9
+		for c in cand:
+			var far := true
+			for o in chosen:
+				if Vector2(c.x - o.x, c.z - o.z).length() < 2.0:
+					far = false
+			if not far:
+				continue
+			var d := Vector2(c.x - anchor.x, c.z - anchor.z).length()
+			if d < best_d:
+				best_d = d
+				best = c
+		if best.is_finite():
+			_spots[k] = best
+			chosen.append(best)
+	report["crowd_spots"] = _spots.size()
+
+
+func _spread() -> void:
+	for k in present():
+		var n := _node(k)
+		if n == null:
+			continue
+		world.place_survivor(n, hl(spot(k)))
+		var a = world.animators.get(k)
+		if a:
+			a.face_towards(hl(Vector3(0.0, 1.5, 6.5)))
+	var nn := _noah_node()
+	if nn != null and _spots.has("Noah"):
+		nn.global_position = hl(spot("Noah"))
+
+
 ## An open door does not block (the same rule as the farmhouse); a closed one does.
 func _door_collision(it: Interactable) -> void:
 	c12.c11._door_collision(it)
@@ -235,6 +324,7 @@ func _apply() -> void:
 		_start_evac(true)
 	else:
 		c10._place_inside()
+		_spread()
 		for k in st().get("missing", []):
 			_node(k).visible = false
 		if Game.has_flag("ch14_run_started") and not Game.has_flag("ch14_run_done"):
@@ -324,6 +414,7 @@ func _opening() -> void:
 	_hold(true)
 	await hud.fade_to(1.0, 0.6)
 	c10._place_inside()
+	_spread()
 	_node("Marcus").visible = alive()
 	player.global_position = hl(BED + Vector3(0, 0.1, 0))
 	player.velocity = Vector3.ZERO
@@ -548,18 +639,87 @@ func _defend(_b: Node, k: String) -> void:
 	_check_prep_done()
 
 
-## The defence itself: furniture and boards from the existing packs, placed against that opening.
+## The defence itself: nailed planks (Blender models, game/prototypes/story_props) across the opening, with real furniture from the packs shoved
+## in front of it (a dresser and a chair at the front door, a tall bookshelf and a chair at the back, a chair and boards at the window).
+## Built in the house's own frame, so it sits right wherever the house stands.
+const PROPS := "res://game/prototypes/story_props/"
+const FURN := "res://THE_VEIL_ASSETS_V2/03_Residential/Furniture/"
+
+
+func _put(path: String, parent: Node3D, pos: Vector3, yaw := 0.0, roll := 0.0, pitch := 0.0, nm := "") -> Node3D:
+	var ps := load(path) as PackedScene
+	if ps == null:
+		return null
+	var o := ps.instantiate() as Node3D
+	if nm != "":
+		o.name = nm
+	parent.add_child(o)
+	o.transform = Transform3D(Basis.from_euler(Vector3(pitch, yaw, roll)), pos)
+	return o
+
+
+## Where a door sits, in the house's frame (from the door node's own geometry).
+func _door_local(n: String, fallback: Vector3) -> Vector3:
+	var d := house.find_child(n, true, false) as Node3D
+	if d == null:
+		return fallback
+	var box := AABB()
+	var first := true
+	for mi in d.find_children("*", "MeshInstance3D", true, false):
+		var m := mi as MeshInstance3D
+		if m.mesh == null:
+			continue
+		var a := m.global_transform * m.get_aabb()
+		box = a if first else box.merge(a)
+		first = false
+	if first:
+		return fallback
+	var c := house.to_local(box.get_center())
+	return Vector3(c.x, fallback.y, c.z)
+
+
+## `dirz` is +1 when the room is on the +Z side of the wall (front door, window), -1 when it is on the -Z side (the back door).
+func _barricade(kind: String, wall: Vector3, dirz: float, _width: float, bottom: float, height: float) -> Node3D:
+	var root := Node3D.new()
+	root.name = "C14_Barricade_" + kind
+	house.add_child(root)
+	var yaw := 0.0 if dirz > 0.0 else PI
+	var rng := RandomNumberGenerator.new()
+	rng.seed = hash(kind)
+	var models := ["PRP_Plank_1.4.glb", "PRP_Plank_1.0_Broken.glb", "PRP_Plank_1.6_Dark.glb", "PRP_Plank_1.4.glb", "PRP_Plank_1.6_Dark.glb"]
+	var n := 5 if height > 1.8 else 4
+	for i in n:
+		var y := bottom + 0.22 + (height - 0.44) * float(i) / float(n - 1)
+		var path: String = PROPS + String(models[i % models.size()])
+		_put(path, root, Vector3(wall.x + rng.randf_range(-0.07, 0.07), y, wall.z + dirz * (0.1 + 0.012 * float(i % 2))), yaw, rng.randf_range(-0.06, 0.06), 0.0, "Plank%d" % i)
+	for sgn in [-1.0, 1.0]:                                           # two diagonal braces across the boards
+		_put(PROPS + "PRP_Plank_1.6_Dark.glb", root, Vector3(wall.x, bottom + height * 0.5, wall.z + dirz * 0.16), yaw, deg_to_rad(40.0) * sgn * dirz, 0.0, "Brace")
+	match kind:
+		"front":
+			_put(FURN + "RES_Dresser.glb", root, Vector3(wall.x, 0.61, wall.z + dirz * 0.5), yaw, 0.0, 0.0, "Dresser")
+			_put(FURN + "RES_DiningChair_Wood.glb", root, Vector3(wall.x + 0.75, 0.61, wall.z + dirz * 0.55), yaw + 0.5, 0.0, 0.0, "Chair")
+			_put(FURN + "RES_DiningChair_Wood.glb", root, Vector3(wall.x - 0.7, 0.61 + 0.24, wall.z + dirz * 0.9), yaw - 0.4, 1.35, 0.0, "ChairOver")
+		"back":
+			_put(FURN + "RES_Bookshelf_Tall.glb", root, Vector3(wall.x, 0.61, wall.z + dirz * 0.35), yaw, 0.0, 0.0, "Shelf")
+			_put(FURN + "RES_DiningChair_Wood.glb", root, Vector3(wall.x + 0.8, 0.61, wall.z + dirz * 0.6), yaw - 0.3, 0.0, 0.0, "Chair")
+		"window":
+			_put(FURN + "RES_DiningChair_Wood.glb", root, Vector3(wall.x - 0.3, 0.61, wall.z + dirz * 0.7), yaw + 0.25, 0.0, 0.0, "Chair")
+	return root
+
+
 func _place_defense(k: String, _instant: bool) -> void:
 	if props.has("def_" + k):
 		return
 	var n: Node3D
 	match k:
 		"front":
-			n = c12._prop("09_Horror_Atmosphere/Abandoned_Props/ABN_EmptyBarricade.tscn", "C14_FrontBarricade", hl(FRONT_IN + Vector3(0, 0, 0.3)), 0.0)
+			var d := _door_local("INT_Door_Front", Vector3(0.85, 0.61, 3.3))
+			n = _barricade("front", Vector3(d.x, 0.61, d.z), 1.0, 0.95, 0.61, 2.1)
 		"window":
-			n = c12._box(world, "C14_WindowBoards", hl(c10.WINDOW + Vector3(0, 0, 0.12)), Vector3(1.5, 1.1, 0.06), "rust", false)
+			n = _barricade("window", Vector3(c10.WINDOW.x, 0.61, c10.WINDOW.z + 0.04), 1.0, 1.15, c10.WINDOW.y - 0.62, 1.25)
 		"back":
-			n = c12._box(world, "C14_BackWedge", hl(BACK_IN + Vector3(0.0, 0.5, 0.5)), Vector3(0.9, 1.0, 0.25), "rust", false)
+			var b := _door_local("INT_Door_Back", Vector3(BACK_IN.x, 0.61, 11.6))
+			n = _barricade("back", Vector3(b.x, 0.61, b.z), -1.0, 0.95, 0.61, 2.1)
 	props["def_" + k] = n
 
 
@@ -657,7 +817,7 @@ func _end_run() -> void:
 		run_hound = null
 	if "Eddie" in present():
 		(c9.follows["Eddie"] as VeilCompanionFollow).stop()
-		world.npc_walk("Eddie", hl(c10.SPOTS["Eddie"]), 1.4)
+		world.npc_walk("Eddie", hl(spot("Eddie")), 1.4)
 	_set_fog(false)
 	_refresh_prompts()
 	_guide()
@@ -920,7 +1080,7 @@ func _rescue(in_pt: Vector3, out_pt: Vector3) -> void:
 		_move(h, [h.global_position + (h.global_position - house.global_position).normalized() * 25.0], 6.0)
 	await get_tree().create_timer(4.0).timeout
 	_free_unseen(hounds)
-	world.npc_walk(target, hl(c10.SPOTS[target]), 1.0 if not saved else 1.5)
+	world.npc_walk(target, hl(spot(target)), 1.0 if not saved else 1.5)
 	await c9._talk_group("c14_after_" + ("saved" if saved else "hurt"), [_node(target), _node("Eddie")])
 
 

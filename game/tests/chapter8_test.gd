@@ -226,7 +226,7 @@ func _run() -> void:
 	ok("dlg_eye_position", cs.get("eye_off", 9.0) < 0.03, str(cs))
 	ok("dlg_frames_speaker", cs.get("aim_deg", 99.0) < 12.0, str(cs))
 	ok("dlg_speaker_name", world.hud.speaker_l.text == "EDDIE", world.hud.speaker_l.text)
-	ok("dlg_prompt_visible", world.hud.confirm_l.visible and world.hud.confirm_l.text.contains("CONTINUE"), world.hud.confirm_l.text)
+	ok("dlg_prompt_visible", world.hud.confirm_l.visible and world.hud.confirm_l.text.contains("NEXT"), world.hud.confirm_l.text)
 	ok("dlg_waits_for_player", await wait_until(func(): return dlg.is_waiting(), 60 * 6) and said.size() > 0 and dlg.is_active())
 	var n0 := said.size()
 	var ev := InputEventAction.new()

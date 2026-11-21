@@ -411,16 +411,22 @@ func _build_facility() -> void:
 		fac.add_child(mi)
 		mi.global_position = L(m[0])
 	# doors and moving parts
-	access_door = _box(fac, "AccessDoor", L(Vector3(0.0, 1.3, 28.0)), Vector3(2.0, 2.6, 0.22), "steel")
-	seal_door = _box(fac, "SealDoor", L(Vector3(16.0, -4.8, 61.0)), Vector3(0.22, 2.4, 2.4), "rust")
-	grate = _box(fac, "Grate", L(Vector3(24.0, -5.5, 64.7)), Vector3(0.08, 1.0, 1.4), "steel")
+	# metal sliding doors: a frame that fills the opening up to the ceiling (nothing open above it), two leaves that slide apart
+	access_door = _door_model("FAC_SlidingDoor.glb", "AccessDoor", L(Vector3(0.0, 0.0, 28.0)), PI, 1.0, 3.2)
+	seal_door = _door_model("FAC_SlidingDoor_Rust.glb", "SealDoor", L(Vector3(16.0, -6.0, 61.0)), -PI * 0.5, 1.2, 2.9)
+	# the vent the Skitters live behind: a duct with a hinged grate (faces west, into the chamber)
+	vent_node = _prop_abs(PROPS + "FAC_VentDuct.glb", "C12_Vent", L(Vector3(24.0, -5.98, 64.7)), -PI * 0.5)
+	grate = vent_node.find_child("Grate", true, false) if vent_node else null
+	_prop_abs(PROPS + "FAC_DuctRun_3m.glb", "C12_DuctA", L(Vector3(22.5, -3.4, 56.2)), 0.0)
+	_prop_abs(PROPS + "FAC_DuctRun_3m.glb", "C12_DuctB", L(Vector3(19.5, -3.4, 56.2)), 0.0)
 	# furniture and clues (existing props)
 	_prop("04_Commercial/Shared_Props/COM_ReceptionDesk.glb", "C12_Desk", L(Vector3(3.0, 0.0, 3.0)), -PI * 0.5)
 	_prop("04_Commercial/Shared_Props/COM_FilingCabinet.glb", "C12_Filing", L(Vector3(-3.4, 0.0, 5.3)), PI * 0.5)
 	_prop("04_Commercial/Shared_Props/COM_PalletRack.glb", "C12_Rack", L(Vector3(-4.0, 0.0, 14.3)), 0.0)
 	_prop("04_Commercial/Shared_Props/COM_DocumentBoxes.glb", "C12_Boxes", L(Vector3(-6.2, 0.0, 9.8)), 0.0)
 	_prop("03_Residential/Interactive_Props/RES_IP_StorageChest.glb", "C12_Locker", L(LOCKER), PI * 0.5)
-	_prop("02_Town/Utilities/UT_ElectricalCabinet.glb", "C12_Panel", L(PANEL), -PI * 0.5)
+	panel_node = _prop_abs(PROPS + "FAC_PowerControl.glb", "C12_Panel", L(Vector3(6.5, 0.0, 12.0)), -PI * 0.5)       # the control cabinet (levers, breakers, gauges, lamps)
+	_panel_idle()
 	_prop("09_Horror_Atmosphere/Abandoned_Props/ABN_BrokenElectricalBox.tscn", "C12_Broken", L(Vector3(6.6, 0.0, 9.8)), -PI * 0.5)
 	_prop("04_Commercial/Shared_Props/COM_ReadingTable.glb", "C12_MapTable", L(Vector3(4.0, 0.0, 14.0)), 0.0)
 	_prop("03_Residential/Interactive_Props/RES_IP_CabinetDoorUnit.glb", "C12_SupplyCabinet", L(CABINET), -PI * 0.5)
@@ -446,6 +452,7 @@ func _build_facility() -> void:
 	its["records"] = _spot("C12_RecordsUse", L(RECORDS + Vector3(0, 0.6, 0)), Vector3(1.2, 1.2, 1.2), _take_records)
 	for k in CLUES:
 		its["clue_" + k] = _spot("C12_Clue_" + k, L(CLUES[k][0]), Vector3(0.9, 0.9, 0.9), _examine.bind(k))
+	_dress()
 	_hum_player = AudioStreamPlayer3D.new()
 	_hum_player.stream = _streams["hum"]
 	_hum_player.volume_db = -14.0
@@ -454,6 +461,176 @@ func _build_facility() -> void:
 
 
 var _hum_player: AudioStreamPlayer3D
+var vent_node: Node3D
+var panel_node: Node3D
+const PROPS := "res://game/prototypes/story_props/"
+
+
+func _prop_abs(path: String, n: String, at: Vector3, yaw: float) -> Node3D:
+	var ps := load(path) as PackedScene
+	if ps == null:
+		return null
+	var o := ps.instantiate() as Node3D
+	o.name = n
+	world.add_child(o)
+	o.global_transform = Transform3D(Basis(Vector3.UP, yaw), at)
+	return o
+
+
+## A sliding door model in a wall opening: its own solid body closes the opening until it slides open.
+func _door_model(file: String, n: String, at: Vector3, yaw: float, half: float, height: float) -> Node3D:
+	var d := _prop_abs(PROPS + file, n, at, yaw)
+	if d == null:
+		return null
+	var body := StaticBody3D.new()
+	body.name = "Block"
+	body.collision_layer = 1
+	var cs := CollisionShape3D.new()
+	var sh := BoxShape3D.new()
+	sh.size = Vector3(half * 2.0, height, 0.22)
+	cs.shape = sh
+	cs.position = Vector3(0, height * 0.5, 0)
+	body.add_child(cs)
+	d.add_child(body)
+	d.set_meta("half", half)
+	d.set_meta("block", cs)
+	for lf in ["LeafL", "LeafR"]:
+		var l := d.find_child(lf, true, false) as Node3D
+		if l:
+			l.set_meta("x0", l.position.x)
+	return d
+
+
+func _slide_now(door: Node3D, open: bool) -> void:
+	if door == null:
+		return
+	var half: float = door.get_meta("half", 1.0)
+	for lf in ["LeafL", "LeafR"]:
+		var l := door.find_child(lf, true, false) as Node3D
+		if l:
+			l.position.x = float(l.get_meta("x0", l.position.x)) + ((half + 0.08) * (-1.0 if lf == "LeafL" else 1.0) if open else 0.0)
+	var cs: CollisionShape3D = door.get_meta("block")
+	cs.disabled = open
+
+
+## The cabinet as the state says: lamps green, gauges up, breakers and lever thrown once the power is on.
+func _panel_state(on: bool) -> void:
+	if panel_node == null:
+		return
+	for i in 6:
+		_lamp(i + 1, Color(0.2, 1.0, 0.35) if on else Color(0.25, 0.03, 0.02))
+	for i in 3:
+		var nd := panel_node.find_child("Needle%d" % (i + 1), true, false) as Node3D
+		if nd:
+			nd.rotation.z = deg_to_rad((-60.0 + 30.0 * i) if on else 70.0)
+		var sw := panel_node.find_child("Switch%d" % (i + 1), true, false) as Node3D
+		if sw:
+			sw.rotation.x = deg_to_rad(35.0 if on else -35.0)
+	var lever := panel_node.find_child("MainLever", true, false) as Node3D
+	if lever:
+		lever.rotation.x = deg_to_rad(35.0 if on else -40.0)
+
+
+func _slide(door: Node3D, open: bool, secs: float) -> void:
+	if door == null:
+		return
+	var half: float = door.get_meta("half", 1.0)
+	var cs: CollisionShape3D = door.get_meta("block")
+	var tw := create_tween().set_parallel(true).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
+	for lf in ["LeafL", "LeafR"]:
+		var l := door.find_child(lf, true, false) as Node3D
+		if l == null:
+			continue
+		var x0: float = l.get_meta("x0", l.position.x)
+		var dx := (half + 0.08) * (-1.0 if lf == "LeafL" else 1.0)
+		tw.tween_property(l, "position:x", x0 + (dx if open else 0.0), secs)
+	if open:
+		cs.set_deferred("disabled", true)
+	else:
+		tw.chain().tween_callback(func(): cs.disabled = false)
+	await tw.finished
+
+
+## Wall pictures: a flat quad with a poster / schedule / pin board on it, a dark backing behind (`yaw` turns it to face a direction: 0 = +Z).
+func _art(tex: String, at: Vector3, yaw: float, size: Vector2) -> void:
+	var path := PROPS + "tex/" + tex
+	if not ResourceLoader.exists(path):
+		return
+	var mi := MeshInstance3D.new()
+	var qm := QuadMesh.new()
+	qm.size = size
+	mi.mesh = qm
+	var m := StandardMaterial3D.new()
+	m.albedo_texture = load(path)
+	m.texture_filter = BaseMaterial3D.TEXTURE_FILTER_NEAREST_WITH_MIPMAPS
+	m.roughness = 1.0
+	m.cull_mode = BaseMaterial3D.CULL_DISABLED
+	mi.material_override = m
+	mi.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+	var bk := MeshInstance3D.new()
+	var bq := QuadMesh.new()
+	bq.size = size + Vector2(0.06, 0.06)
+	bk.mesh = bq
+	var bm := StandardMaterial3D.new()
+	bm.albedo_color = Color(0.05, 0.045, 0.04)
+	bm.cull_mode = BaseMaterial3D.CULL_DISABLED
+	bk.material_override = bm
+	bk.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+	fac.add_child(bk)
+	fac.add_child(mi)
+	bk.global_transform = Transform3D(Basis(Vector3.UP, yaw), at - Basis(Vector3.UP, yaw) * Vector3(0, 0, 0.004))
+	mi.global_transform = Transform3D(Basis(Vector3.UP, yaw), at)
+
+
+## Paper everywhere it would be: on the desks, strewn across the floors, drifted against the walls (Blender sheets / piles).
+func _paper(kind: String, at: Vector3, yaw := 0.0) -> void:
+	_prop_abs(PROPS + "PRP_Paper_%s.glb" % kind, "C12_Paper", L(at), yaw)
+
+
+func _dress() -> void:
+	# the office: the rota and the grid map over the desk, safety poster by the door, a pin board of the crew, paper all over
+	_art("art_schedule.png", L(Vector3(-3.84, 1.7, 2.6)), PI * 0.5, Vector2(0.75, 1.0))
+	_art("art_grid.png", L(Vector3(3.84, 1.75, 4.2)), -PI * 0.5, Vector2(1.1, 0.82))
+	_art("art_pinboard.png", L(Vector3(3.84, 1.6, 1.5)), -PI * 0.5, Vector2(1.0, 0.75))
+	_art("art_safety.png", L(Vector3(-1.7, 1.7, 0.16)), 0.0, Vector2(0.7, 0.93))
+	_paper("Pile_A", Vector3(3.0, 0.9, 2.6), 0.5)
+	_paper("Pile_B", Vector3(2.6, 0.9, 3.5), 2.0)
+	_paper("Sheet_A", Vector3(-1.2, 0.03, 2.2), 0.9)
+	_paper("Pile_C", Vector3(-1.9, 0.03, 3.4), 1.4)
+	_paper("Pile_A", Vector3(0.6, 0.03, 4.6), 3.0)
+	_paper("Pile_B", Vector3(-2.8, 0.03, 4.9), 0.2)
+	_paper("Sheet_A", Vector3(0.1, 0.03, 1.2), 2.4)
+	# the corridor and storage
+	_art("art_warning.png", L(Vector3(-0.84, 1.7, 8.0)), PI * 0.5, Vector2(0.6, 0.75))
+	_art("art_safety.png", L(Vector3(0.84, 1.7, 17.0)), -PI * 0.5, Vector2(0.7, 0.93))
+	_paper("Pile_C", Vector3(0.2, 0.03, 8.2), 0.3)
+	_paper("Sheet_A", Vector3(-0.4, 0.03, 10.2), 1.2)
+	_paper("Pile_B", Vector3(0.5, 0.03, 12.6), 2.2)
+	_paper("Pile_A", Vector3(-0.3, 0.03, 18.4), 0.7)
+	_paper("Sheet_A", Vector3(0.3, 0.03, 21.0), 3.0)
+	_paper("Pile_A", Vector3(-5.6, 0.03, 12.6), 1.0)
+	_paper("Pile_B", Vector3(-4.8, 0.03, 10.6), 2.6)
+	_paper("Pile_C", Vector3(5.2, 0.03, 12.6), 0.4)
+	# the control room
+	_art("art_grid.png", L(Vector3(-6.84, 1.9, 12.0)), PI * 0.5, Vector2(1.4, 1.05))
+	_art("art_schedule.png", L(Vector3(-6.84, 1.7, 14.0)), PI * 0.5, Vector2(0.75, 1.0))
+	_art("art_warning.png", L(Vector3(6.84, 2.1, 9.7)), -PI * 0.5, Vector2(0.55, 0.69))
+	_art("art_safety.png", L(Vector3(6.84, 1.7, 14.2)), -PI * 0.5, Vector2(0.7, 0.93))
+	# the access chamber and the way down
+	_art("art_warning.png", L(Vector3(-2.84, 1.7, 25.0)), PI * 0.5, Vector2(0.6, 0.75))
+	_art("art_warning.png", L(Vector3(0.0, 1.9, 27.8)), PI, Vector2(0.9, 1.1))
+	_paper("Pile_C", Vector3(1.4, 0.03, 24.2), 2.1)
+	_paper("Sheet_A", Vector3(-1.5, 0.03, 26.4), 0.4)
+	# below: what the crew left behind
+	_paper("Pile_B", Vector3(1.0, -5.97, 46.0), 0.8)
+	_paper("Pile_A", Vector3(-0.6, -5.97, 52.4), 2.2)
+	_paper("Pile_C", Vector3(0.4, -5.97, 58.2), 1.1)
+	_paper("Pile_A", Vector3(7.0, -5.97, 61.0), 0.6)
+	_paper("Sheet_A", Vector3(12.0, -5.97, 60.6), 1.9)
+	_paper("Pile_B", Vector3(18.0, -5.97, 62.5), 0.3)
+	_paper("Sheet_A", Vector3(21.6, -5.97, 58.4), 2.7)
+	_art("art_safety.png", L(Vector3(-1.08, -4.5, 44.0)), PI * 0.5, Vector2(0.7, 0.93))
+	_art("art_warning.png", L(Vector3(1.08, -4.5, 50.0)), -PI * 0.5, Vector2(0.55, 0.69))
 
 
 # ------------------------------------------------------------------ state from flags (fresh start and loads)
@@ -469,11 +646,14 @@ func _apply() -> void:
 	var power := Game.has_flag("ch12_power_on")
 	_set_power(power, true)
 	var open_access := Game.has_flag("ch12_access_open") and not Game.has_flag("ch12_door_secured")
-	access_door.position = L(Vector3(0.0, 1.3 + (2.5 if open_access else 0.0), 28.0))
+	_slide_now(access_door, open_access)
 	if Game.has_flag("ch12_chamber_open"):
-		seal_door.position = L(Vector3(16.0, -4.8, 63.4))
+		_slide_now(seal_door, true)
 	if Game.has_flag("ch12_chase_started") and is_instance_valid(grate):
-		grate.queue_free()
+		grate.rotation.x = deg_to_rad(-100.0)             # (torn off its hinge, hanging open)
+		grate.position.y -= 0.25
+		_grate_burst = true
+	_panel_state(power)
 	if records_prop and Game.has_flag("ch12_records_taken"):
 		records_prop.visible = false
 	var out := Game.has_flag("ch12_set_out") and not Game.has_flag("ch12_returned")
@@ -759,10 +939,11 @@ func _use_panel(_b: Node) -> void:
 		return
 	_busy["power"] = true
 	report["power_runs"] += 1
+	_hold(true)
+	await _panel_sequence()
 	Game.remove_item("station_fuse")
 	Game.set_flag("ch12_power_on")
-	# the lights flicker on; a deep sound from below; the building shakes; the companion reacts
-	_hold(true)
+	# the lights come back; a deep sound from below; the building shakes; the companion reacts
 	_set_power(true, false)
 	await get_tree().create_timer(1.2).timeout
 	_play("below", L(Vector3(8.0, -8.0, 50.0)), 4.0)
@@ -772,6 +953,118 @@ func _use_panel(_b: Node) -> void:
 	_busy["power"] = false
 	_refresh_prompts()
 	_guide()
+
+
+func _lamp(i: int, col: Color) -> void:
+	if panel_node == null:
+		return
+	var mi := panel_node.find_child("Lamp%d" % i, true, false) as MeshInstance3D
+	if mi == null:
+		return
+	var m := StandardMaterial3D.new()
+	m.albedo_color = col * 0.5
+	m.emission_enabled = true
+	m.emission = col
+	m.emission_energy_multiplier = 2.4 if col.g > 0.4 or col.r > 0.4 else 0.2
+	mi.material_override = m
+
+
+func _panel_idle() -> void:
+	for i in 6:
+		_lamp(i + 1, Color(0.25, 0.03, 0.02))
+	if panel_node == null:
+		return
+	for i in 3:
+		var nd := panel_node.find_child("Needle%d" % (i + 1), true, false) as Node3D
+		if nd:
+			nd.rotation.z = deg_to_rad(70.0)
+
+
+## The control cabinet, step by step (first person, the camera close on the panel): the fuse goes in, the three breakers are thrown one by one
+## (a lamp and a gauge answer each), then the main lever comes down: a clunk, a spark, and the building hums.
+func _panel_sequence() -> void:
+	var cam := Camera3D.new()
+	cam.name = "PanelCam"
+	world.add_child(cam)
+	cam.fov = 52.0
+	cam.global_transform = player.camera.global_transform
+	cam.current = true
+	var front := L(PANEL) + Vector3(-1.5, 1.35, 0.0)
+	var look := L(PANEL) + Vector3(0.3, 1.2, 0.0)
+	var tw := create_tween()
+	tw.tween_property(cam, "global_position", front, 0.9).set_trans(Tween.TRANS_SINE)
+	tw.parallel().tween_method(func(k: float): cam.look_at(cam.global_position.lerp(look, 1.0) + Vector3(0, 0, 0), Vector3.UP), 0.0, 1.0, 0.9)
+	await tw.finished
+	cam.look_at(look, Vector3.UP)
+	# the fuse
+	Sfx.play("pickup", L(PANEL) + Vector3(-0.3, 1.2, 0), -2.0, 0.8)
+	_lamp(1, Color(1.0, 0.7, 0.1))
+	await get_tree().create_timer(0.7).timeout
+	# the three breakers
+	for i in 3:
+		var sw := panel_node.find_child("Switch%d" % (i + 1), true, false) as Node3D
+		var nd := panel_node.find_child("Needle%d" % (i + 1), true, false) as Node3D
+		await get_tree().create_timer(0.35).timeout
+		var t2 := create_tween().set_parallel(true)
+		if sw:
+			t2.tween_property(sw, "rotation:x", deg_to_rad(35.0), 0.25).set_trans(Tween.TRANS_BACK)
+		if nd:
+			t2.tween_property(nd, "rotation:z", deg_to_rad(-10.0 + 25.0 * i), 0.9).set_trans(Tween.TRANS_ELASTIC)
+		Sfx.play("door_close", L(PANEL) + Vector3(-0.2, 0.8, -0.5 + 0.5 * i), -4.0, 1.7)
+		await get_tree().create_timer(0.3).timeout
+		_lamp(2 + i, Color(1.0, 0.7, 0.1))
+		await t2.finished
+	await get_tree().create_timer(0.6).timeout
+	# the main lever
+	var lever := panel_node.find_child("MainLever", true, false) as Node3D
+	if lever:
+		var t3 := create_tween()
+		t3.tween_property(lever, "rotation:x", deg_to_rad(35.0), 0.7).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_IN)
+		await t3.finished
+	Sfx.play("door_close", L(PANEL), 6.0, 0.55)
+	_spark(L(PANEL) + Vector3(-0.2, 0.3, 0.0))
+	for i in 6:
+		_lamp(i + 1, Color(0.2, 1.0, 0.35))
+	for i in 3:
+		var nd := panel_node.find_child("Needle%d" % (i + 1), true, false) as Node3D
+		if nd:
+			create_tween().tween_property(nd, "rotation:z", deg_to_rad(-60.0 + 30.0 * i), 0.6).set_trans(Tween.TRANS_ELASTIC)
+	await get_tree().create_timer(0.8).timeout
+	player.camera.current = true
+	cam.queue_free()
+
+
+func _spark(at: Vector3) -> void:
+	var p := CPUParticles3D.new()
+	p.emitting = false
+	p.one_shot = true
+	p.explosiveness = 1.0
+	p.amount = 18
+	p.lifetime = 0.5
+	p.direction = Vector3(-1, 0.4, 0)
+	p.spread = 50.0
+	p.initial_velocity_min = 2.0
+	p.initial_velocity_max = 4.5
+	p.gravity = Vector3(0, -9.0, 0)
+	var sm := SphereMesh.new()
+	sm.radius = 0.012
+	sm.height = 0.024
+	sm.radial_segments = 4
+	sm.rings = 2
+	var m := StandardMaterial3D.new()
+	m.albedo_color = Color(1.0, 0.85, 0.4)
+	m.emission_enabled = true
+	m.emission = Color(1.0, 0.8, 0.3)
+	m.emission_energy_multiplier = 3.0
+	m.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
+	sm.material = m
+	p.mesh = sm
+	world.add_child(p)
+	p.global_position = at
+	p.emitting = true
+	get_tree().create_timer(1.5).timeout.connect(p.queue_free)
+	var l := _light(at, 4.0, 4.0, Color(0.7, 0.8, 1.0))
+	get_tree().create_timer(0.25).timeout.connect(l.queue_free)
 
 
 func _set_power(on: bool, instant: bool) -> void:
@@ -803,9 +1096,7 @@ func _use_access(_b: Node) -> void:
 	_busy["access"] = true
 	Game.set_flag("ch12_access_open")
 	Sfx.play("door_open", L(ACCESS), -2.0, 0.5)
-	var tw := create_tween()
-	tw.tween_property(access_door, "position:y", L(ACCESS).y + 2.5, 2.2).set_trans(Tween.TRANS_SINE)
-	await tw.finished
+	await _slide(access_door, true, 2.0)
 	_busy["access"] = false
 	_refresh_prompts()
 	_guide()
@@ -832,9 +1123,7 @@ func _force_seal(_b: Node) -> void:
 	_busy["seal"] = true
 	_hold(true)
 	Sfx.play("door_open", L(SEAL), 0.0, 0.4)
-	var tw := create_tween()
-	tw.tween_property(seal_door, "position:z", L(SEAL).z + 2.4, 2.4).set_trans(Tween.TRANS_SINE)
-	await tw.finished
+	await _slide(seal_door, true, 2.6)
 	Game.set_flag("ch12_chamber_open")
 	world.save_checkpoint("chapter13_underground")
 	_hold(false)
@@ -862,7 +1151,8 @@ func _take_records(_b: Node) -> void:
 		records_prop.visible = false
 	Sfx.play("pickup", player.global_position, -4.0)
 	Game.set_flag("ch12_records_taken")
-	# it comes out through the vent (the grate falls), the companion shouts, control is back
+	# the nest comes out of the vent (a cinematic: the grate tears off, the Skitters pour out and scatter), then the one that hunts: the companion shouts, control is back
+	await _vent_cinematic()
 	_start_chase(false)
 	await get_tree().create_timer(0.5).timeout
 	Dialogue.say("c12_move", false, true)
@@ -875,11 +1165,146 @@ func _take_records(_b: Node) -> void:
 func _shake_grate() -> void:
 	if not is_instance_valid(grate):
 		return
-	var x0 := grate.position.x
 	var tw := create_tween()
-	for i in 6:
-		tw.tween_property(grate, "position:x", x0 + (0.04 if i % 2 == 0 else -0.03), 0.08)
-	tw.tween_property(grate, "position:x", x0, 0.08)
+	for i in 8:
+		tw.tween_property(grate, "rotation:x", deg_to_rad(-3.0 if i % 2 == 0 else 1.5), 0.07)
+	tw.tween_property(grate, "rotation:x", 0.0, 0.08)
+
+
+var _grate_burst := false
+
+
+func _spawn_skitter(n: String, at: Vector3) -> Node3D:
+	var ps := load(VeilMeshyNpcs.monster_scene(SKITTER_PATH)) as PackedScene
+	var sk := ps.instantiate() as Node3D
+	sk.name = n
+	world.add_child(sk)
+	if sk is CollisionObject3D:
+		(sk as CollisionObject3D).collision_layer = 0
+		(sk as CollisionObject3D).collision_mask = 0
+	sk.set_physics_process(false)
+	sk.global_position = at
+	VeilCreatureLook.apply_skitter(sk, at.y)
+	VeilCreatureLook.skitter_anim(sk, "scuttle", 3.6)
+	return sk
+
+
+## The Skitters in the vent: legs and eyes behind the grate, the grate rattling; it tears off and the nest pours out of the duct, across the chamber,
+## and off down the tunnels. The camera is taken for it (first person afterwards, the way out already clear for the one that hunts).
+func _vent_cinematic() -> void:
+	var cam := Camera3D.new()
+	cam.name = "VentCam"
+	world.add_child(cam)
+	cam.fov = 58.0
+	cam.global_transform = player.camera.global_transform
+	cam.current = true
+	var vent := L(Vector3(24.0, -5.5, 64.7))
+	var c0 := L(Vector3(18.5, -4.7, 62.6))
+	var c1 := L(Vector3(20.6, -5.0, 63.9))
+	var tw := create_tween().set_parallel(true)
+	tw.tween_property(cam, "global_position", c0, 0.7).set_trans(Tween.TRANS_SINE)
+	tw.tween_method(func(k: float): cam.global_basis = Basis(cam.global_basis.get_rotation_quaternion().slerp(Transform3D(Basis(), cam.global_position).looking_at(vent, Vector3.UP).basis.get_rotation_quaternion(), k)), 0.0, 1.0, 0.7)
+	await tw.finished
+	# shot 1: the grate trembling, a shape behind it
+	var inside: Array[Node3D] = []
+	for i in 3:
+		inside.append(_spawn_skitter("C12_Nest%d" % i, L(Vector3(25.4 + 0.5 * i, -5.7, 64.4 + 0.35 * i))))
+	_play("scratch", vent, 4.0)
+	_shake_grate()
+	var push := create_tween().set_parallel(true)
+	push.tween_property(cam, "global_position", c1, 2.4).set_trans(Tween.TRANS_SINE)
+	push.tween_property(cam, "fov", 46.0, 2.4)
+	await get_tree().create_timer(1.1).timeout
+	_play("scratch", vent, 6.0)
+	_shake_grate()
+	await get_tree().create_timer(1.0).timeout
+	_play("clank", vent, 6.0)
+	_shake_grate()
+	await get_tree().create_timer(0.6).timeout
+	# shot 2: it tears off its hinge; the nest pours out
+	_grate_burst = true
+	if is_instance_valid(grate):
+		var g := create_tween().set_parallel(true)
+		g.tween_property(grate, "rotation:x", deg_to_rad(-100.0), 0.22).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_IN)
+		g.tween_property(grate, "position:y", grate.position.y - 0.25, 0.4)
+	Sfx.play("door_close", vent, 8.0, 1.3)
+	_play("clank", vent, 8.0)
+	_dust_at(vent + Vector3(-0.6, 0.0, 0.0))
+	_shake_cam(cam, 0.9, 0.05)
+	var exits := [[L(Vector3(19.0, -6.0, 56.5)), L(Vector3(15.0, -6.0, 56.2))], [L(Vector3(19.5, -6.0, 66.0)), L(Vector3(17.0, -6.0, 66.6))], [L(Vector3(21.5, -6.0, 56.2)), L(Vector3(23.5, -6.0, 55.4))]]
+	for i in inside.size():
+		var sk := inside[i]
+		var e: Array = exits[i]
+		var pts: Array = [L(Vector3(23.0, -6.0, 64.7 + (i - 1) * 0.5)), L(Vector3(21.2, -6.0, 64.2 + (i - 1) * 1.1)), e[0], e[1]]
+		_run_skitter(sk, pts, 5.0 + 0.6 * i, 0.25 * i)
+	await get_tree().create_timer(1.1).timeout
+	# shot 3: the camera swings to the chamber's mouth where the others scatter, then back to the player
+	var back: Transform3D = player.camera.global_transform
+	var tb := create_tween().set_parallel(true)
+	tb.tween_property(cam, "global_transform", back, 0.8).set_trans(Tween.TRANS_SINE)
+	tb.tween_property(cam, "fov", player.camera.fov, 0.8)
+	await tb.finished
+	player.camera.current = true
+	cam.queue_free()
+
+
+## One Skitter runs a path (it faces its way, scuttles) and is gone into the dark at the end of it.
+func _run_skitter(sk: Node3D, pts: Array, speed: float, delay: float) -> void:
+	await get_tree().create_timer(delay).timeout
+	for p in pts:
+		if not is_instance_valid(sk):
+			return
+		var d: Vector3 = (p as Vector3) - sk.global_position
+		var secs := maxf(d.length() / speed, 0.05)
+		sk.rotation.y = atan2(d.x, d.z)
+		var t := create_tween()
+		t.tween_property(sk, "global_position", p, secs)
+		await t.finished
+	if is_instance_valid(sk):
+		sk.queue_free()
+
+
+func _shake_cam(cam: Camera3D, seconds: float, amp: float) -> void:
+	var t := 0.0
+	while t < seconds and is_instance_valid(cam):
+		cam.h_offset = randf_range(-amp, amp)
+		cam.v_offset = randf_range(-amp, amp)
+		await get_tree().process_frame
+		t += get_process_delta_time()
+	if is_instance_valid(cam):
+		cam.h_offset = 0.0
+		cam.v_offset = 0.0
+
+
+func _dust_at(at: Vector3) -> void:
+	var p := CPUParticles3D.new()
+	p.emitting = false
+	p.one_shot = true
+	p.explosiveness = 0.9
+	p.amount = 30
+	p.lifetime = 2.2
+	p.direction = Vector3(-1, 0.2, 0)
+	p.spread = 70.0
+	p.initial_velocity_min = 0.8
+	p.initial_velocity_max = 2.2
+	p.gravity = Vector3(0, -0.15, 0)
+	p.damping_min = 1.0
+	p.damping_max = 2.0
+	var sm := SphereMesh.new()
+	sm.radius = 0.18
+	sm.height = 0.36
+	sm.radial_segments = 6
+	sm.rings = 3
+	var m := StandardMaterial3D.new()
+	m.albedo_color = Color(0.3, 0.28, 0.24, 0.5)
+	m.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
+	m.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
+	sm.material = m
+	p.mesh = sm
+	world.add_child(p)
+	p.global_position = at
+	p.emitting = true
+	get_tree().create_timer(3.5).timeout.connect(p.queue_free)
 
 
 func _start_chase(restoring: bool) -> void:
@@ -902,12 +1327,12 @@ func _start_chase(restoring: bool) -> void:
 	_skitter_prev = start
 	VeilCreatureLook.skitter_anim(skitter, "scuttle", 3.7)
 	if not restoring:
-		_emerging = 1.2                              # out through the vent: the grate falls first
-		if is_instance_valid(grate):
+		_emerging = 0.6                              # out through the vent (the cinematic has already torn the grate off)
+		if is_instance_valid(grate) and not _grate_burst:
 			var tw := create_tween()
-			tw.tween_property(grate, "rotation:z", -PI * 0.5, 0.35)
-			tw.parallel().tween_property(grate, "position", L(Vector3(23.5, -5.95, 64.7)), 0.35)
+			tw.tween_property(grate, "rotation:x", deg_to_rad(-100.0), 0.3)
 			Sfx.play("door_close", L(VENT), 2.0, 1.4)
+		_grate_burst = true
 	# the companion runs for the stairs (ahead of the player)
 	var k := companion()
 	(c9.follows[k] as VeilCompanionFollow).stop()
@@ -989,9 +1414,7 @@ func _secure_door() -> void:
 		_hint("Wait for %s!" % companion())
 		return
 	_busy["secure"] = true
-	var tw := create_tween()
-	tw.tween_property(access_door, "position:y", L(ACCESS).y, 0.45).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_IN)
-	await tw.finished
+	await _slide(access_door, false, 0.55)
 	Sfx.play("door_close", L(ACCESS), 6.0, 0.6)
 	Game.set_flag("ch12_door_secured")
 	if skitter and is_instance_valid(skitter):
