@@ -359,13 +359,13 @@ func _examine_backpack(_b: Node) -> void:
 	await c5._talk("c7_backpack", marcus)
 	# a key item, through the normal inventory (no new interface); the note inside is its own document
 	Game.add_item("noahs_backpack")
-	Game.add_item("noahs_note")
+	Game.add_item("noahs_note")                             # (inside the backpack: the inventory's OPEN THE BACKPACK shows it; review notes #94 / #96)
 	Sfx.play("pickup", backpack.global_position, -6.0, 0.9)
 	backpack.visible = false
 	its["backpack"].collision_layer = 0
 	Game.set_flag("ch7_backpack_found")
 	if hud.has_method("set_hint"):
-		hud.set_hint("TAB  -  INVENTORY: read Noah's note")
+		hud.set_hint("TAB  -  INVENTORY: select Noah's backpack and OPEN it")
 	_busy["bag"] = false
 	_refresh_prompts()
 

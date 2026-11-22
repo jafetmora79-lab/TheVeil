@@ -21,7 +21,7 @@ func can_start() -> bool:
 		and player.global_position.y > -5.0 and player.health > 0.0 and world._outdoors()
 
 
-func trigger() -> void:
+func trigger(no_escape := false) -> void:
 	if busy:
 		return
 	busy = true
@@ -33,7 +33,8 @@ func trigger() -> void:
 	away = away.normalized() if away.length() > 0.1 else Vector3.FORWARD
 	Sfx.play("colossus_call", p0 + Vector3(0, 30, 0), 2.0, 1.6)                # the screech first
 	world.hud.set_hint("")
-	world.hud.title_card("CROUCH!", 0.8)
+	if not no_escape:
+		world.hud.title_card("CROUCH!", 0.8)
 	var birds: Array = []
 	for i in 3:
 		var side := (i - 1) * 7.0
@@ -62,10 +63,10 @@ func trigger() -> void:
 			g.global_position = start2.lerp(tgt, e)
 			g._look_along(g.global_position - prev if (g.global_position - prev).length() > 0.001 else -away, 0.0)
 			g.pitch_angle = -0.5
-		if t > WINDOW * 0.5 and int(t * 4.0) % 2 == 0:
+		if not no_escape and t > WINDOW * 0.5 and int(t * 4.0) % 2 == 0:
 			world.hud.set_hint("CROUCH!")
 	# the moment of contact
-	var safe: bool = ducked or bool(player.crouching)
+	var safe: bool = (ducked or bool(player.crouching)) and not no_escape
 	if safe:
 		report["ducked"] += 1
 		Sfx.play("colossus_step", player.global_position + Vector3(0, 3, 0), 3.0, 1.8)

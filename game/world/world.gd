@@ -180,6 +180,10 @@ func _ready() -> void:
 	# (no floating [E] markers in the game shop: the prompt shows when the player is close, which is enough)
 	_apply_view_ranges()
 	_setup_night()
+	var street_life = load("res://game/world/street_life.gd").new()           # traffic lights step through their colours, street lamps flicker (review notes #92 / #93)
+	street_life.name = "StreetLife"
+	add_child(street_life)
+	street_life.setup.call_deferred(self)
 	_restore_crushed_lamp.call_deferred()
 	var review_mode = load("res://game/review/review_mode.gd").new()          # F2: sticky notes for the playtest (game/review/review_mode.gd)
 	review_mode.name = "ReviewMode"

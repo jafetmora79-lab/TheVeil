@@ -93,3 +93,12 @@ STILL OPEN (the owner has these in the notes file):
 - **#26** extra: soft fog banks (`world.gd::_pre_mist_banks`) rise down the street ahead of the Colossus over ~25 s, so it walks out of a veil that was already there. Needs a play session to judge.
 - **#46** not reproducible headless; the picker scan (the one measured hitch) is fixed. If the lag returns, capture `Performance` monitors during a long chapter 7 session.
 - `chapter14_test` keeps its pre-existing failures (11 before any of this work); `chapter15_test`, `opening_test` (229/0) and the rest of the suite pass.
+
+## Update 2026-11-22 (night): notes #88 - #96
+
+- **#94 / #96 / #95** Chapter 8's backpack: the stuck objective was a pause bug (the note-view timer in `chapter7.gd::_note_tick` never ran while the inventory was open). The backpack now has an **OPEN THE BACKPACK** action in
+  the inventory (`inventory_panel.gd::_open_backpack`), which shows Noah's note and sets `ch7_note_read`; closing the panel runs `_after_note`. The detail row is never squeezed by the weight line (`body.custom_minimum_size`, a gap before the foot). Test: `backpack_open_test.gd`.
+- **#91** `game/world/bird_snatch.gd` (`VeilBirdSnatch`): scavenging at danger level 2+, three Grimtalons dive out of the mist; crouch within 3 s or be scratched, the second miss (or low health) = taken by the shoulders into the mist = YOU DIED. Hooked in `expedition.gd` (`_next_birds`, cooldown `birds_cooldown_s`). Test: `bird_snatch_test.gd`. *Needs visual test* (timing, framing, the lift).
+- **#90** `street_life.gd::_edge_check`: within 35 m of the ground's edge a warning, within 6 m the no-escape snatch (same scene). "More forest at the edge" is NOT done: needs a visual pass.
+- **#92 / #93** `game/world/street_life.gd`: traffic lights cycle green/amber/red by switching the lens materials per light (blink amber after the Veil); street lamps stutter now and then. Test: `street_life_test.gd`. *Needs visual test.*
+- **#88 / #89** the two floating `VG_IvyPatch` instances were removed from `Greyhaven_Core.tscn`.

@@ -104,6 +104,7 @@ func _ready() -> void:
 	var body := HBoxContainer.new()
 	body.add_theme_constant_override("separation", 16)
 	body.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	body.custom_minimum_size = Vector2(0, 160)           # the picture (150 px + its highlight) is never squeezed by the weight line (review note #95)
 	col.add_child(body)
 	var pv := Button.new()                         # the picture: click it to inspect the item
 	pv.custom_minimum_size = Vector2(150, 150)
@@ -160,6 +161,9 @@ func _ready() -> void:
 	_quick = HBoxContainer.new()
 	_quick.add_theme_constant_override("separation", 4)
 	det.add_child(_quick)
+	var gap := Control.new()
+	gap.custom_minimum_size = Vector2(0, 8)
+	col.add_child(gap)
 	var foot := HBoxContainer.new()
 	foot.add_theme_constant_override("separation", 10)
 	col.add_child(foot)
@@ -381,8 +385,10 @@ func actions_for(id: String) -> Array:
 	elif id == "handgun" and world and world.get("sidearm"):
 		var sa = world.sidearm
 		out.append(["HOLSTER" if sa.drawn() else "DRAW", func(): sa.set_drawn(not sa.drawn())])
+	elif id == "noahs_backpack" and Game.has_item("noahs_note"):
+		out.append(["OPEN THE BACKPACK", func(): _open_backpack()])
 	elif cat == "note":
-		out.append(["READ", func(): inspect()])
+		out.append(["READ", func(): _read_note(id)])
 	return out
 
 
@@ -545,6 +551,22 @@ static func _list_text() -> String:
 
 
 ## Open the large view of the selected item: its model turns slowly; name and full description below.
+## Chapter 8 (review notes #94 / #96): the backpack is opened from the inventory, which shows Noah's note; reading it is what moves the story on (set here, not by a timer: the tree is paused while
+## this panel is open, so a delta timer in the chapter never ran and the objective stayed stuck).
+func _open_backpack() -> void:
+	var i := _ids.find("noahs_note")
+	if i >= 0:
+		_sel = i
+		refresh()
+		_read_note("noahs_note")
+
+
+func _read_note(id: String) -> void:
+	inspect()
+	if id == "noahs_note":
+		Game.set_flag("ch7_note_read")
+
+
 func inspect() -> void:
 	if _sel >= _ids.size():
 		return

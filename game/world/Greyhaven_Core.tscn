@@ -3404,14 +3404,6 @@ metadata/tag = "ARCHIVE"
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -32.5, 0.15, -6.8)
 metadata/tag = "ARCHIVE"
 
-[node name="VG_IvyPatch_001" parent="Static/Vegetation" instance=ExtResource("125_VG_IvyPatch")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -45, 0.15, -6.6)
-metadata/tag = "ARCHIVE"
-
-[node name="VG_IvyPatch_002" parent="Static/Vegetation" instance=ExtResource("125_VG_IvyPatch")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -22, 0.15, -6.6)
-metadata/tag = "ARCHIVE"
-
 [node name="VG_Tree_DeciduousLarge_014" parent="Static/Vegetation" instance=ExtResource("127_VG_Tree_DeciduousLarge")]
 transform = Transform3D(0.76484, 0, 0.64422, 0, 1, 0, -0.64422, 0, 0.76484, -44, 0.15, -11)
 metadata/tag = "ARCHIVE"
