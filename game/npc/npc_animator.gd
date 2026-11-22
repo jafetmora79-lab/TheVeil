@@ -272,6 +272,9 @@ func _update_downed(delta: float) -> void:
 		while _model.get_parent() != root and _model.get_parent() != null:
 			_model = _model.get_parent() as Node3D
 		_model_rest = _model.transform
+	if _lying_native() != "":
+		_model.transform = _model_rest                       # the clip lies the body down itself
+		return
 	if _down <= 0.001 and _model.transform == _model_rest:
 		_face_l = (root.global_transform.basis.inverse() * world_forward()).normalized()      # measured while upright (lying down changes the skeleton's own facing)
 		return
@@ -407,10 +410,51 @@ func _setup_native() -> void:
 							var v: Vector3 = an.track_get_key_value(t, k)
 							an.track_set_key_value(t, k, Vector3(x0.x, v.y, x0.z))
 				own.add_animation(c, an)
+		for c in LYING_CLIPS.values():                       # hurt on the floor: the two lying clips that came with the Meshy police officer (same Mixamo skeleton, so they play on every Mixamo model)
+			var la := _lying_clip_source(String(c))
+			if la != null:
+				own.add_animation(c, la.duplicate() as Animation)
 		_ap.stop()
 		for ln in _ap.get_animation_library_list():
 			_ap.remove_animation_library(ln)
 		_ap.add_animation_library("", own)
+
+
+const LYING_CLIPS := {"side": "SideLying_Reach_Help", "back": "Prone_Reach_Help"}
+const LYING_SOURCES := {"SideLying_Reach_Help": "res://game/prototypes/npc_meshy/CHR_police_redhair_SideLying.glb", "Prone_Reach_Help": "res://game/prototypes/npc_meshy/CHR_police_redhair_Prone.glb"}
+static var _lying_cache := {}
+
+
+## The lying clip (hips fixed over the character's own spot, looping), cut once from the Meshy glb that carries it.
+static func _lying_clip_source(clip: String) -> Animation:
+	if _lying_cache.has(clip):
+		return _lying_cache[clip]
+	var out: Animation = null
+	var ps := load(String(LYING_SOURCES.get(clip, ""))) as PackedScene if ResourceLoader.exists(String(LYING_SOURCES.get(clip, ""))) else null
+	if ps != null:
+		var n := ps.instantiate()
+		for ap in n.find_children("*", "AnimationPlayer", true, false):
+			if (ap as AnimationPlayer).has_animation(clip):
+				out = (ap as AnimationPlayer).get_animation(clip).duplicate() as Animation
+		n.free()
+	if out != null:
+		out.loop_mode = Animation.LOOP_LINEAR
+		for t in out.get_track_count():
+			if out.track_get_type(t) == Animation.TYPE_POSITION_3D and String(out.track_get_path(t)).ends_with("mixamorig_Hips"):
+				var x0: Vector3 = out.track_get_key_value(t, 0)
+				for k in out.track_get_key_count(t):
+					var v: Vector3 = out.track_get_key_value(t, k)
+					out.track_set_key_value(t, k, Vector3(x0.x, v.y, x0.z))
+	_lying_cache[clip] = out
+	return out
+
+
+## The native clip for the current downed mode, or "" (not a Mixamo model / no clip: the procedural lie-down is used).
+func _lying_native() -> String:
+	if not _native or _ap == null or downed == "":
+		return ""
+	var c := String(LYING_CLIPS.get(downed, ""))
+	return c if c != "" and _ap.has_animation(c) else ""
 
 
 func _play_native(clip: String, speed: float, y: float) -> void:
@@ -436,6 +480,10 @@ func _native_step() -> void:
 	if _ap == null:
 		return
 	var want := ""
+	var lc := _lying_native()
+	if lc != "":
+		_play_native(lc, 1.0, 0.0)
+		return
 	if _jump_t >= 0.0 and _ap.has_animation("Jump"):
 		_play_native("Jump", _ap.get_animation("Jump").length / maxf(_jump_dur, 0.3), 0.0)
 		return
