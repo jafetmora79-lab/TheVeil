@@ -37,6 +37,17 @@ func _run() -> void:
 		ok("take_one", int(game.shelter_stock().get("food", 0)) == f0 and game.inventory.count("canned_food") == 2)
 		pn._put("flashlight", false)
 		ok("flashlight_refused", game.has_item("flashlight"))
+		# drag and drop: swap inside the carry grid, store by dropping on the left grid, take by dropping on the right grid
+		var fi: int = pn._mem_r.find("flashlight")
+		pn._drop(Vector2.ZERO, {"side": 1, "idx": fi, "token": "flashlight"}, 1, 20)
+		ok("drop_move", pn._mem_r[20] == "flashlight" and pn._mem_r[fi] == "")
+		ok("drop_refuse", not pn._can_drop(Vector2.ZERO, {"side": 1, "idx": 20, "token": "flashlight"}, 0, 7))
+		var f1: int = int(game.shelter_stock().get("food", 0))
+		var cf: int = game.inventory.count("canned_food")
+		pn._drop(Vector2.ZERO, {"side": 1, "idx": pn._mem_r.find("canned_food"), "token": "canned_food"}, 0, 12)
+		ok("drop_store", int(game.shelter_stock().get("food", 0)) == f1 + cf and pn._mem_l[12] == "food")
+		pn._drop(Vector2.ZERO, {"side": 0, "idx": 12, "token": "food"}, 1, 24)
+		ok("drop_take", game.inventory.count("canned_food") == f1 + cf and pn._mem_r[24] == "canned_food")
 		pn._close(false)
 	for i in 3: await process_frame
 	ok("closed_unpaused", not w.get_tree().paused)
