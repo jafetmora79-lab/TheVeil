@@ -563,16 +563,16 @@ func _place_relay(c: Dictionary, truck: Node3D) -> void:
 	var hood := truck.find_child("Hood", true, false) as Node3D
 	if hood:
 		hood.rotation.x = deg_to_rad(52.0)              # up: someone was working on it
-	# the relay box low on the front bumper's face (in plain view, nothing over it), the relay inside
-	var front := -2.672
-	for mi in truck.find_children("*", "MeshInstance3D", true, false):
-		var ab: AABB = (truck.global_transform.affine_inverse() * (mi as MeshInstance3D).global_transform) * (mi as MeshInstance3D).get_aabb()
-		front = minf(front, ab.position.z)
-	var bx := _relay_box(truck, "CQ_RelayBox", Vector3(-0.45, 0.5, front - 0.012), true)
+	# the relay box in the ENGINE BAY, under the raised hood (it used to be stuck on the bumper's face, which made no sense): a junction box on the inner fender, its lid facing up
+	var bay_w: Vector3 = truck.global_transform * Vector3(BAY_RELAY_TRUCK.x, 0.0, BAY_RELAY_TRUCK.z)
+	var top := _surface(truck, bay_w)
+	var local_y: float = (top - truck.global_position.y) if is_finite(top) else 0.95
+	var bx := _relay_box(truck, "CQ_RelayBox", Vector3(BAY_RELAY_TRUCK.x, local_y + 0.03, BAY_RELAY_TRUCK.z), true)
+	(bx["root"] as Node3D).rotation.x = PI * 0.5                      # the open face up
 	var relay: Node3D = bx["relay"]
 	sites["starter_relay"] = {"root": truck, "relay": relay, "box": bx}
 	_anchor("starter_relay", truck, (bx["root"] as Node3D).position)
-	_step("relay/take", truck, (bx["root"] as Node3D).position + Vector3(0, 0.05, -0.35), Vector3(0.8, 0.7, 0.8), "[E] Take Starter Relay", _take_relay)
+	_step("relay/take", truck, (bx["root"] as Node3D).position + Vector3(0, 0.3, -0.45), Vector3(1.0, 0.9, 0.9), "[E] Take Starter Relay", _take_relay)
 	if acquired("starter_relay"):
 		relay.visible = false
 	_on("relay/take", not acquired("starter_relay"))
@@ -596,7 +596,7 @@ func _take_relay() -> void:
 	_on("relay/take", false)
 	var relay: Node3D = sites["starter_relay"]["relay"]
 	var bx = sites["starter_relay"].get("box")
-	await _peek(relay.global_position, 0.55, 0.05, true)               # down on one knee at the bumper
+	await _peek(relay.global_position + Vector3(0, 0.12, 0), 0.8, 0.15)  # leaning in over the open engine bay
 	if bx:
 		await _relay_lid(bx, true)
 	await get_tree().create_timer(0.3).timeout
@@ -963,7 +963,8 @@ func _build_ui() -> void:
 ## (Car-local: the front is -Z, the driver's side -X.)
 const BAY_BATTERY := Vector3(0.42, 0.0, -1.85)
 const BAY_FUSE := Vector3(-0.48, 0.0, -1.7)
-const RELAY_BOX := Vector3(-0.5, 0.36, -2.44)          ## on the front bumper's face, left of centre
+const BAY_RELAY := Vector3(-0.05, 0.0, -2.0)           ## the sedan's relay box: in the engine bay, between the fuse box and the battery
+const BAY_RELAY_TRUCK := Vector3(-0.45, 0.0, -1.75)    ## the pickup truck's relay box: on the inner fender under the raised hood
 const CAP := Vector3(-0.9, 0.86, 1.35)                 ## the filler on the left rear quarter
 
 
@@ -1022,9 +1023,10 @@ func install(id: String) -> void:
 			await _peek_back()
 			await _hood(hood, false)
 		"starter_relay":
-			var bx := _relay_box(car, "CQ_Fitted_relay_box", RELAY_BOX, false)
-			await _walk_player(car.global_transform * Vector3(RELAY_BOX.x, 0.0, -3.2), bx["root"].global_position)
-			await _peek(bx["root"].global_position, 0.55, 0.05, true)        # down on one knee at the bumper
+			await _walk_player(car.global_transform * Vector3(BAY_RELAY.x, 0.0, -3.2), car.global_transform * Vector3(BAY_RELAY.x, 0.6, -1.9))
+			await _hood(hood, true)
+			var bx := _relay_box_in_bay(car, false)
+			await _peek(bx["root"].global_position + Vector3(0, 0.05, 0), 0.8, 0.1)
 			await _relay_lid(bx, true)
 			var relay: Node3D = bx["relay"]
 			var dest := relay.global_transform
@@ -1039,6 +1041,7 @@ func install(id: String) -> void:
 			await get_tree().create_timer(0.5).timeout
 			await _relay_lid(bx, false)
 			await _peek_back()
+			await _hood(hood, false)
 		_:
 			await get_tree().create_timer(0.8).timeout
 	fitted_props()
@@ -1154,6 +1157,14 @@ func _fuse_box(car: Node3D) -> Node3D:
 	return box
 
 
+## The relay box in the sedan's engine bay (lid up), made once and kept.
+func _relay_box_in_bay(car: Node3D, filled: bool) -> Dictionary:
+	var at: Vector3 = car.to_local(_bay_point(car, BAY_RELAY))
+	var bx := _relay_box(car, "CQ_Fitted_relay_box", at + Vector3(0, 0.03, 0), filled)
+	(bx["root"] as Node3D).rotation.x = PI * 0.5
+	return bx
+
+
 ## A starter relay box (made in code from the relay's own materials): a dark box with a hinged lid, the relay
 ## inside (drawn twice its tiny model size so it reads). `parent`-local position; its open face toward -Z.
 func _relay_box(parent: Node3D, nm: String, local: Vector3, filled: bool) -> Dictionary:
@@ -1229,7 +1240,7 @@ func fitted_props() -> void:
 	if ex.installed("car_fuse"):
 		_fuse_box(car)
 	if ex.installed("starter_relay"):
-		var bx := _relay_box(car, "CQ_Fitted_relay_box", RELAY_BOX, true)
+		var bx := _relay_box_in_bay(car, true)
 		(bx["relay"] as Node3D).visible = true
 
 

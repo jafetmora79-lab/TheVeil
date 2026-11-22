@@ -217,10 +217,7 @@ func _debug_pushed_back(delta: float) -> void:
 				who = "%s (%s)" % [(c as Node).name, (c as Node).get_class()]
 				break
 		var msg := "DEV: pushed backwards by " + who
-		print(msg)
-		var w := get_tree().get_first_node_in_group("veil_world")
-		if w and w.get("hud") and w.hud.has_method("set_hint"):
-			w.hud.set_hint(msg)
+		print(msg)                                    # (console only: the on-screen "DEV: pushed backwards" line was showing in play)
 
 
 ## Stair-step: when the way ahead is blocked by a low vertical face (a curb, a door sill), lift the capsule onto it.

@@ -49,10 +49,23 @@ Rules the owner set (they apply here too):
 - `safe_point()` in `living_town.gd` used to pick spots inside shops; use `outdoors_only=true` for scenes that must stay on the street.
 - The notes file is the owner's: never edit it by hand, use `review_notes.py`.
 
-## State of the notes at the time of writing (2026-11-21)
+## State of the notes (2026-11-21, end of the session)
 
-Fixed and marked done: #1-#21 (see `review_notes.py list --all` / `show N` for the commit each names).
-Fixed in the working branch this session (marked done with the commit): see the commit "Review notes #22-#48 batch".
-Still open at the time of writing (need real work, not a quick fix): see the list printed by `review_notes.py list` - the big ones are the tentacle re-animation (#27, #29),
-the monster emerging from the Veil instead of popping in (#26), the skitter / dog / crab reaction to shots and noise (#37, #39, #40, #45), lootable interiors for the gas station
-and the storefronts (#42, #43), the battery-lift animation (#44), furniture clearance in the houses (#47, #48), the interaction lag after long play (#46), the paper shopping-list item (#25).
+Done (marked `done` in the notes file with the commit): #1-#25, #27-#41 except where noted below, #42-#45, #48. The fixes, by area:
+- **Supermarket / game shop:** food models + labels, take-anything shelf picker (`store_merch.gd`), rebuilt fridges / freezers / produce / display case (`market_fixes.gd`, `make_market_props.py`),
+  paper shopping-list item (inventory "READ", trashed at the till), one-of-each errand kinds, shelf highlight, no pickups after the shopping.
+- **Creatures:** `hound_ai.gd` `shot()` (hound bolts after 1 hit, skitter after 2, crab only stung) and `investigate(at, linger, hunt_after)` (noise -> search -> hunt after 20 s: gunshots, thrown things, alarms);
+  the tentacle attack is now an octopus-arm coil / unravel / grip / release (`tentacle_ai.gd` + `tentacle_grab.gd`); the garage jumpscare is ONE big writhing tentacle; faster skitter lunge (`chapter7.gd::_lunge`);
+  the Hound leaps in (`chapter6.gd::_hound_entrance`) and the group runs for the store (`_group_flees`).
+- **Props / world:** relay + relay box (Blender, `make_car_parts.py`), battery pull follows the clicks + tray (`car_quest.gd`), furniture clearance audit (`game/tests/furniture_audit.gd`, run with `-- fix` to move
+  pieces and rewrite `scavenge_houses.json`; door swings capped at 90 degrees), gas station + clothing stores furnished and lootable (`store_interiors.gd`, `make_store_props.py`).
+- **UI:** inventory panel fits the window (a Container resets scale: it is a plain Control now), the quick slots hide behind it, the flashlight is always in a quick slot and infinite.
+- **Story flow:** chapter 5 diamonds on the next step, music stays until both exits are secured, Ruth hands over the gun at the end of the voices chapter (`sidearm.presenter_override`).
+
+STILL OPEN (the owner has these in the notes file):
+- **#26** the Colossus / monster "appearing out of nowhere" in chapter 3: the pre-raised mist curtains were added (`world.gd::_pre_mist_start`) but the owner still saw it pop in; needs a visual session on `_tripod_encounter`.
+- **#47** the kitchen: door swings are capped and the audit moves blockers, but the fridge interiors / the toilet bowl are not re-modelled (the pack's fridge already has a hollow body with porcelain shelves).
+- **#46** the lag after a long play: a probe showed no growth from drawers / saves in a fresh world; the one measured hitch was my own shelf picker scanning every product (now a 1 m grid); if it comes back, record
+  `Performance` monitors during a long chapter 7 session.
+- **Pre-existing test failures** (not from these changes; `git stash` baseline runs gave the same): `car_quest_test` (struggle_won_recover, fit_once), `house_loot_test` (3), `expedition_test` (5), `chapter7_test` (early walks),
+  `monsters_meshy_test` (hound_clips), `house_audit_test` (2 door checks), `chapter6_test` c6_rs_talk_camera.

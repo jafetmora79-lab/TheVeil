@@ -97,7 +97,7 @@ func refresh() -> void:
 	for i in N:
 		var b: Button = _btn[i]
 		var id: String = a[i]
-		var have := id != "" and Game.has_item(id)
+		var have := id != "" and Game.has_item(id) and VeilInventoryPanel.usable(id)
 		(b.get_node("Icon") as TextureRect).texture = inv._icon(id) if have and inv else null
 		var n := VeilInventoryPanel.quantity(id) if have else 0
 		(b.get_node("Qty") as Label).text = "x%d" % n if n > 1 else ""

@@ -98,6 +98,11 @@ func build(key: String) -> void:
 				ps.append(Vector3(r[0], r[1], r[2]))
 			_pos[v] = ps
 			_mm_of[v] = sm
+			for i in ps.size():                                         # a 1 m grid of the products: the aim search only looks at the cells near the eye (review note #46: a scan of every product was a hitch)
+				var cell := Vector3i(floori(ps[i].x), floori(ps[i].y), floori(ps[i].z))
+				if not _cells.has(cell):
+					_cells[cell] = []
+				(_cells[cell] as Array).append([v, i])
 	for gone in Game.world_state.get("merch/" + key + "/_free", []):
 		_hide_static(String(gone).get_slice(":", 0), int(String(gone).get_slice(":", 1)))
 	_make_picker()
@@ -181,6 +186,7 @@ var looted := false
 var looted_hidden := 0
 var _pos := {}                      ## static variant -> PackedVector3Array of the instances' positions (store space)
 var _mm_of := {}                    ## static variant -> its MultiMeshInstance3D
+var _cells := {}                    ## Vector3i cell -> [[variant, index], ...]
 var _gone := {}                     ## "variant:i" -> true: taken, or raided away (not offered any more)
 var _hl: MeshInstance3D
 var _picker: Interactable
@@ -325,21 +331,29 @@ func find_product(eye_w: Vector3, fwd_w: Vector3) -> Dictionary:
 	var fwd := (global_transform.basis.inverse() * fwd_w).normalized()
 	var best := {}
 	var best_score := INF
-	for v in _pos:
-		var ps: PackedVector3Array = _pos[v]
-		var mid := Vector3(0, _dims_of(v).y * 0.5, 0)
-		for i in ps.size():
-			var to: Vector3 = ps[i] + mid - eye
-			var along := to.dot(fwd)
-			if along < 0.15 or along > REACH:
-				continue
-			var off := (to - fwd * along).length()
-			if off > PICK_R or _gone.has(v + ":" + str(i)):
-				continue
-			var score := off + along * 0.03
-			if score < best_score:
-				best_score = score
-				best = {"variant": v, "i": i, "pos": ps[i]}
+	var lo := Vector3i(floori(eye.x - REACH), floori(eye.y - REACH), floori(eye.z - REACH))
+	var hi := Vector3i(floori(eye.x + REACH), floori(eye.y + REACH), floori(eye.z + REACH))
+	for cx in range(lo.x, hi.x + 1):
+		for cy in range(maxi(lo.y, -1), mini(hi.y, 4) + 1):
+			for cz in range(lo.z, hi.z + 1):
+				var list = _cells.get(Vector3i(cx, cy, cz))
+				if list == null:
+					continue
+				for e in list:
+					var v: String = e[0]
+					var i: int = e[1]
+					var p: Vector3 = (_pos[v] as PackedVector3Array)[i]
+					var to: Vector3 = p + Vector3(0, _dims_of(v).y * 0.5, 0) - eye
+					var along := to.dot(fwd)
+					if along < 0.15 or along > REACH:
+						continue
+					var off := (to - fwd * along).length()
+					if off > PICK_R or _gone.has(v + ":" + str(i)):
+						continue
+					var score := off + along * 0.03
+					if score < best_score:
+						best_score = score
+						best = {"variant": v, "i": i, "pos": p}
 	return best
 
 

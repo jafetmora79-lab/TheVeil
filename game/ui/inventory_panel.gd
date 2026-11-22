@@ -258,13 +258,21 @@ static func _flashlight() -> VeilFlashlight:
 static func carried_weight() -> float:
 	var w := 0.0
 	for id in Game.inventory:
+		if id in SHOPPING_ONLY and Game.has_flag("p3_mist"):
+			continue
 		w += float(Game.item_info(id).get("weight", 0.0)) * quantity(id) / maxi(1, Game.inventory.count(id))
 	return w
 
 
 ## Shown in the inventory: only items the player can actually use (key / story items without a use are carried
 ## but not listed; groceries still to be paid for are not the player's yet).
+## Items that stop mattering once the Veil has come (the shopping trip is over): never listed, never in a slot (the owner: "the Hollow Hill game and the supplies are no longer relevant").
+const SHOPPING_ONLY := ["horror_game", "groceries", "shopping_list"]
+
+
 static func usable(id: String) -> bool:
+	if id in SHOPPING_ONLY and Game.has_flag("p3_mist"):
+		return false
 	# every carried item is listed (tools, keys, car parts, the handgun included): items that were carried but never
 	# shown read as "lost" after a load. Groceries still to be paid for are the only exception.
 	match String(Game.item_info(id).get("category", "")):
