@@ -133,3 +133,11 @@ STILL OPEN (the owner has these in the notes file):
 - #116: a bottle lies on the road at THROW_POS (`_bottle_prop`). E: Marcus turns, points out the sedan (`c7_throw`), the player turns to the car, picks the bottle up, winds up and throws it (spin, arc), glass on the car, alarm + four amber lights blinking 8 s (`_alarm_lights`).
 - #117: when the pack chase starts Eddie walks to the doors and holds them open (`_eddie_holds_door`, `c7_pack_eddie`). Skitters can never cross the door line (`_pack_step`). Near the doors `_pack_door_cine`: first-person sprint through, turn, Eddie shuts the doors (`c7_pack_door`), three slams, they scatter and leave unseen.
 - All need the owner's visual / play test (timing, Eddie's walk to the door, light blink look). chapter7_test fails from the first walking steps headless as before.
+
+## Notes #118-#120 (2026-11-22)
+- #118: the backpack interactable joins the `veil_pickup` group with the car's colliders in `los_ignore`, so the player's aim assist offers it through the cabin collision.
+- #119: only the backpack is added on pickup; "OPEN THE BACKPACK" (inventory) adds Noah's note and shows it (`inventory_panel._open_backpack`).
+- #120: `game/encounters/run_struggle.gd` = click-to-run along a SET PATH (no world collision): bar progress = distance along the path, chasers run the same path from behind; idle / slow = caught. Needs `Struggle.rescue_progress()` / `abort_rescue()`. Test `run_struggle_test.gd`.
+  - Chapter 8 skitter pack (`chapter7.gd::_pack_run_struggle`): Eddie is placed inside the vestibule (left of the way in) holding the doors; path = road -> door -> vestibule opening (1.1,1.4) -> (1.5,3.0) -> hall. Win: `_pack_door_finish` (turn, Eddie shuts the doors, three slams, they run back WEST). Lose: `_pack_caught` (dragged into the mist, YOU DIED).
+  - Chapter 7 Hound (`chapter6.gd::_hound_struggle`, only when `flee_enabled and scripted_chase`): after the entrance leap the same cinematic along CHASE_ROUTE; win = `_complete_encounter`, lose = pounce + the bad-bite `_checkpoint`.
+- All need the owner's play test (path lines, timing: lead 34 m / 5 m/s for the pack, 10 s for the Hound, Eddie's spot). chapter6_test still has one failure (c6_rs_talk_camera, talk camera, not touched).

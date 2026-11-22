@@ -385,7 +385,7 @@ func actions_for(id: String) -> Array:
 	elif id == "handgun" and world and world.get("sidearm"):
 		var sa = world.sidearm
 		out.append(["HOLSTER" if sa.drawn() else "DRAW", func(): sa.set_drawn(not sa.drawn())])
-	elif id == "noahs_backpack" and Game.has_item("noahs_note"):
+	elif id == "noahs_backpack" and (Game.has_item("noahs_note") or not Game.has_flag("noah_clue_backpack")):
 		out.append(["OPEN THE BACKPACK", func(): _open_backpack()])
 	elif cat == "note":
 		out.append(["READ", func(): _read_note(id)])
@@ -554,6 +554,9 @@ static func _list_text() -> String:
 ## Chapter 8 (review notes #94 / #96): the backpack is opened from the inventory, which shows Noah's note; reading it is what moves the story on (set here, not by a timer: the tree is paused while
 ## this panel is open, so a delta timer in the chapter never ran and the objective stayed stuck).
 func _open_backpack() -> void:
+	if not Game.has_item("noahs_note"):
+		Game.add_item("noahs_note")                       # review note #119: the note is only found once the backpack is opened
+		refresh()
 	var i := _ids.find("noahs_note")
 	if i >= 0:
 		_sel = i

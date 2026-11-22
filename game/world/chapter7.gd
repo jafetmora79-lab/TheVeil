@@ -179,6 +179,10 @@ func _setup_route() -> void:
 	it.global_position = seat_pos + outward * 0.9 + Vector3(0, 0.5, 0)
 	it.used.connect(_examine_backpack)
 	its["backpack"] = it
+	# review note #118: the cabin's collision sits between the eye and the backpack: the player's aim assist (a pickup near the crosshair, within reach) sees through the car's own colliders
+	it.add_to_group("veil_pickup")
+	for co in car.find_children("*", "CollisionObject3D", true, false):
+		it.los_ignore.append((co as CollisionObject3D).get_rid())
 	if Game.has_flag("ch7_backpack_found"):           # already taken (continue / load): gone from the seat
 		backpack.visible = false
 		it.collision_layer = 0
@@ -359,7 +363,6 @@ func _examine_backpack(_b: Node) -> void:
 	await c5._talk("c7_backpack", marcus)
 	# a key item, through the normal inventory (no new interface); the note inside is its own document
 	Game.add_item("noahs_backpack")
-	Game.add_item("noahs_note")                             # (inside the backpack: the inventory's OPEN THE BACKPACK shows it; review notes #94 / #96)
 	Sfx.play("pickup", backpack.global_position, -6.0, 0.9)
 	backpack.visible = false
 	its["backpack"].collision_layer = 0
@@ -537,26 +540,13 @@ func _pack_cinematic() -> void:
 	turn.tween_method(func(k: float): player.set_yaw_pitch(lerp_angle(yaw1, yaw0, k), 0.0), 0.0, 1.0, 0.6)
 	await turn.finished
 	cam.fov = fov0
-	player.controls_enabled = true
 	_pack_on = true
-	if hud.has_method("set_hint"):
-		hud.set_hint("THEY'RE BACK - RUN FOR THE STORE!")
 	_busy["pack"] = false
 	_eddie_holds_door()
+	_pack_run_struggle()                              # click to run the set path to the doors (review note #120)
 
 
 var _pack_bite_t := 0.0
-
-
-## Eddie hears it and holds the doors open for them, standing just inside.
-func _eddie_holds_door() -> void:
-	c5._set_doors(true)
-	var ea = world.animators.get("Eddie")
-	if ea and eddie and is_instance_valid(eddie):
-		var dz: float = c5._door_spot().z
-		c5._reparent(eddie, market)
-		ea.walk_to([Vector3(1.5, 0.04, 3.0), Vector3(1.1, 0.04, 1.4), Vector3(2.3, 0.04, dz + 0.7)], 2.4)
-		Dialogue.say("c7_pack_eddie", false, true)
 
 
 ## One chase step for a skitter: toward the player, but never through the glass line of the front doors.
@@ -569,45 +559,98 @@ func _pack_step(sk: Node3D, d: Vector3, speed: float, delta: float) -> void:
 	sk.global_position = np
 
 
+var _eddie_prev := Vector3.ZERO
 var _pack_cine := false
 
 
-## First person: the player sprints through the open doors with the pack at their heels, turns, and Eddie shuts the doors; they slam into the glass, then scatter.
-func _pack_door_cine() -> void:
+## Eddie hears it: he is at the doors, holding them open, when the player arrives (placed while the player is still far away in the mist).
+func _eddie_holds_door() -> void:
+	c5._set_doors(true)
+	var ea = world.animators.get("Eddie")
+	if ea and eddie and is_instance_valid(eddie):
+		var dz: float = c5._door_spot().z
+		c5._reparent(eddie, market)
+		_eddie_prev = eddie.position
+		eddie.position = Vector3(-1.9, 0.04, dz + 0.9)             # inside the vestibule, left of the way in (the way in is on the right)
+		ea.face_towards(market.to_global(Vector3(0, 0, dz - 6.0)))
+		Dialogue.say("c7_pack_eddie", false, true)
+
+
+## The run for the store (review note #120): click to run along a set path to the doors and in; the skitters run it behind. Fail = caught and dragged off into the veil.
+func _pack_run_struggle() -> void:
 	_pack_cine = true
 	var dz: float = c5._door_spot().z
-	player.controls_enabled = false
-	player.auto_sprint = true
-	if hud.has_method("set_hint"):
-		hud.set_hint("")
-	c5._set_doors(true)
+	var p0: Vector3 = player.global_position
+	var l0: Vector3 = market.to_local(p0)
+	var gy: float = p0.y
+	var iy: float = market.to_global(Vector3(0, 0.04, 0)).y
+	var w := func(x: float, z: float, y: float) -> Vector3:
+		var g: Vector3 = market.to_global(Vector3(x, 0.0, z))
+		return Vector3(g.x, y, g.z)
+	var pts: Array = [p0, w.call(clampf(l0.x, -30.0, 30.0), dz - 8.0, gy), w.call(0.0, dz - 8.0, gy), w.call(0.0, dz - 1.5, gy)]
+	var door_i := pts.size()
+	pts.append(w.call(0.0, dz, iy))
+	pts.append(w.call(1.1, 1.4, iy))                       # the way through the vestibule wall is on the right
+	pts.append(w.call(1.5, 3.0, iy))
+	pts.append(w.call(1.8, 6.5, iy))
+	var rs = load("res://game/encounters/run_struggle.gd").new()
+	add_child(rs)
+	var r: Dictionary = await rs.run(world, pts, _pack, {"from_dir": Vector3(-1, 0, 0), "lead": 34.0, "chase_speed": 5.0, "spacing": 3.0, "seconds": 12.0,
+		"title": "RUN!  CLICK RAPIDLY", "hint": "LEFT CLICK, AGAIN AND AGAIN  -  GET TO THE STORE", "cap_index": door_i, "cap_gap": 0.9})
+	rs.queue_free()
+	if bool(r.get("won", false)):
+		await _pack_door_finish(dz)
+	else:
+		await _pack_caught()
+
+
+## They catch up: they pile on, drag the player back into the mist, black, YOU DIED.
+func _pack_caught() -> void:
+	var pp: Vector3 = player.global_position
+	var cam: Camera3D = get_viewport().get_camera_3d()
+	Sfx.play("hurt", pp, 4.0)
+	var k := 0
+	for sk in _pack:
+		if is_instance_valid(sk):
+			var off := Vector3(-1.1 - k * 0.3, 0.0, (k - 1) * 0.9)
+			sk.global_position = Vector3(pp.x + off.x, sk.global_position.y, pp.z + off.z)
+			sk.rotation.y = atan2(pp.x - sk.global_position.x, pp.z - sk.global_position.z)
+			VeilCreatureLook.skitter_anim(sk, "attack", 0.0, 0.05)
+		k += 1
+	var away := pp + Vector3(-16.0, 0.0, 3.0)
+	var tw := create_tween().set_parallel(true)
+	tw.tween_property(player, "global_position", away, 2.8).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_IN)
+	tw.tween_method(func(f: float): player.set_yaw_pitch(player.rotation.y, lerpf(player.head.rotation.x, -0.9, f)), 0.0, 1.0, 1.6)
+	var follow := true
+	var tf := create_tween()
+	tf.tween_method(func(_v: float):
+		if follow:
+			var j := 0
+			for sk in _pack:
+				if is_instance_valid(sk):
+					sk.global_position = Vector3(player.global_position.x + 1.0 + j * 0.4, sk.global_position.y, player.global_position.z + (j - 1) * 0.8)
+				j += 1, 0.0, 1.0, 2.8)
+	for i in 5:
+		world._shake(cam, 0.4, 0.05)
+		Sfx.play("colossus_call", player.global_position, 1.0, 1.9)
+		await get_tree().create_timer(0.5).timeout
+	await hud.fade_to(1.0, 0.6)
+	follow = false
+	for sk in _pack:
+		if is_instance_valid(sk):
+			sk.queue_free()
+	_pack.clear()
+	_pack_on = false
+	_pack_cine = false
+	player.set_physics_process(true)
+	player.damage(9999.0, away)                        # the death scene: YOU DIED, RETRY
+
+
+## Inside: the player turns, Eddie shoves the doors shut, the skitters hit the glass three times, then run back the way they came.
+func _pack_door_finish(dz: float) -> void:
 	var door_w: Vector3 = market.to_global(Vector3(0, 0, dz))
-	var in_w: Vector3 = market.to_global(Vector3(0, 0, dz + 6.0))
-	var t := 0.0
-	while t < 6.0:
-		await get_tree().process_frame
-		var delta := get_process_delta_time()
-		t += delta
-		var pl: Vector3 = market.to_local(player.global_position)
-		var target: Vector3 = door_w if pl.z < dz - 1.2 else in_w
-		var dd: Vector3 = target - player.global_position
-		dd.y = 0.0
-		player.set_yaw_pitch(lerp_angle(player.rotation.y, atan2(-dd.x, -dd.z), minf(1.0, 8.0 * delta)), lerpf(player.head.rotation.x, 0.0, minf(1.0, 6.0 * delta)))
-		player.auto_input = Vector2(0, -1)
-		for sk in _pack:
-			if is_instance_valid(sk):
-				var d: Vector3 = player.global_position - sk.global_position
-				d.y = 0.0
-				sk.rotation.y = atan2(d.x, d.z)
-				VeilCreatureLook.skitter_anim(sk, "scuttle", 14.0)
-				if d.length() > 2.4:
-					_pack_step(sk, d, 6.8, delta)
-		if pl.z > dz + 2.8:
-			break
-	player.auto_input = Vector2.ZERO
-	player.auto_sprint = false
+	player.set_physics_process(true)
 	player.velocity = Vector3.ZERO
-	# turn round to face the doors
 	var y0: float = player.rotation.y
 	var dback: Vector3 = door_w - player.global_position
 	dback.y = 0.0
@@ -616,43 +659,37 @@ func _pack_door_cine() -> void:
 	var ea = world.animators.get("Eddie")
 	if ea:
 		ea.face_towards(door_w)
+		ea.talk(2.0)
 	Dialogue.say("c7_pack_door", false, true)
-	await get_tree().create_timer(0.3).timeout
+	await get_tree().create_timer(0.5).timeout
 	c5._set_doors(false)                         # Eddie shoves the doors shut
-	var t2 := 0.0
-	while t2 < 0.9:                              # they run up to the glass in the same second
-		await get_tree().process_frame
-		var delta2 := get_process_delta_time()
-		t2 += delta2
-		for sk in _pack:
-			if is_instance_valid(sk):
-				var d2: Vector3 = door_w - sk.global_position
-				d2.y = 0.0
-				sk.rotation.y = atan2(d2.x, d2.z)
-				_pack_step(sk, player.global_position - sk.global_position, 7.5, delta2)
 	for i in 3:                                  # the slams
 		for sk in _pack:
 			if is_instance_valid(sk):
+				sk.rotation.y = atan2(0.0, 1.0)
 				VeilCreatureLook.skitter_anim(sk, "attack", 0.0, 0.05)
 		Sfx.play("impact", door_w + Vector3(0, 1.0, 0), 4.0, 0.8 + i * 0.1)
 		world._shake(get_viewport().get_camera_3d(), 0.3, 0.04)
 		await get_tree().create_timer(0.45).timeout
-	# scattering: away in all directions, gone once unseen
+	# they give up and run back west, the way they came
 	var k := 0
 	for sk in _pack:
 		if is_instance_valid(sk):
-			var ang := -PI * 0.5 + (k - 1) * 0.9
-			var away := market.to_global(Vector3(sin(ang) * 40.0, 0.0, -cos(ang) * 40.0))
-			away.y = sk.global_position.y
+			var away: Vector3 = sk.global_position + Vector3(-50.0, 0.0, (k - 1) * 10.0)
 			sk.rotation.y = atan2(away.x - sk.global_position.x, away.z - sk.global_position.z)
 			VeilCreatureLook.skitter_anim(sk, "scuttle", 12.0)
 			var mv: Tween = sk.create_tween()
-			mv.tween_property(sk, "global_position", away, 4.0)
+			mv.tween_property(sk, "global_position", away, 5.0)
 			mv.tween_callback(_leave_unseen.bind(sk))
 		k += 1
 	_pack.clear()
-	await get_tree().create_timer(0.6).timeout
+	await get_tree().create_timer(0.8).timeout
 	player.controls_enabled = true
+	if hud.has_method("set_hint"):
+		hud.set_hint("")
+	# Eddie goes back to where he was
+	if ea and eddie and is_instance_valid(eddie):
+		ea.walk_to([Vector3(1.1, 0.04, 1.4), Vector3(1.5, 0.04, 3.0), _eddie_prev], 1.6)
 	_pack_on = false
 	_pack_cine = false
 
@@ -660,11 +697,6 @@ func _pack_door_cine() -> void:
 func _pack_run(delta: float) -> void:
 	if _pack_cine:
 		return
-	if not Game.has_flag("ch7_returned_to_supermarket") and not c5._in_store(market.to_local(player.global_position)):
-		var pl: Vector3 = market.to_local(player.global_position)
-		if pl.z > c5._door_spot().z - 9.0 and absf(pl.x) < 12.0 and player.controls_enabled:
-			_pack_door_cine()
-			return
 	_pack_bite_t = maxf(_pack_bite_t - delta, 0.0)
 	var done: bool = c5._in_store(market.to_local(player.global_position)) or Game.has_flag("ch7_returned_to_supermarket")
 	var alive := 0

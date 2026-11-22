@@ -105,6 +105,22 @@ func rescue(title: String, hint: String, seconds: float, hold_id := "hs_hold") -
 	return _rescue_won
 
 
+## The click bar's fill (0-1) during a rescue(); the run along a set path (run_struggle.gd) reads it.
+func rescue_progress() -> float:
+	return _prog
+
+
+## Ends a running rescue() as a failure (the run was caught up).
+func abort_rescue() -> void:
+	if _rescue and active:
+		_rescue_won = false
+		active = false
+		_rescue = false
+		_ui.visible = false
+		_loop.stop()
+		_grip.stop()
+
+
 var rescue_peak := 0.0                  ## (tests)
 
 

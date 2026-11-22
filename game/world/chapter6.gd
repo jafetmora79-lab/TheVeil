@@ -507,11 +507,56 @@ func _hound_entrance(spot: Vector3) -> void:
 	if not is_instance_valid(h):
 		return
 	_play("impact", spot + Vector3(0, 0.3, 0), -6.0)
-	hound_ai.set_physics_process(true)                        # (from here the AI is its own: it notices and hunts as before)
 	hound_entered = true
+	if flee_enabled and scripted_chase:
+		_hound_struggle()                                     # review note #120: the chase is a click-to-run cinematic along the set escape route
+		return
+	hound_ai.set_physics_process(true)                        # (from here the AI is its own: it notices and hunts as before)
 
 
 var hound_entered := false
+var scripted_chase := true                                    ## the investigate chase is the click-to-run cinematic (off: the old free chase with the AI)
+
+
+## The Hound jumpscare as a click struggle (review note #120): the player runs the set route (the gap in the fence, the street, the supermarket) with the Hound right behind. Clicking
+## runs; too slow and it pounces: the bad-bite checkpoint (fade, the group at the edge of the encounter, the Hound back on patrol).
+func _hound_struggle() -> void:
+	var h := hound
+	var p0: Vector3 = player.global_position
+	var pts: Array = [p0]
+	for q in CHASE_ROUTE:
+		if q.x >= p0.x - 1.0 or pts.size() > 1:
+			pts.append(q)
+	if pts.size() == 1:
+		pts.append(CHASE_ROUTE[CHASE_ROUTE.size() - 1])
+	var ap := h.get_node_or_null(String(h.get_meta("animation_player", "Model/AnimationPlayer"))) as AnimationPlayer
+	if ap and ap.has_animation("Run"):
+		ap.play("Run", 0.1)
+	var away: Vector3 = h.global_position - p0
+	away.y = 0.0
+	var rs = load("res://game/encounters/run_struggle.gd").new()
+	add_child(rs)
+	_chase_leg = CHASE_ROUTE.size()                           # the marker is not needed: the route is the cinematic's
+	var r: Dictionary = await rs.run(world, pts, [h], {"from_dir": away.normalized() if away.length() > 0.5 else Vector3(-1, 0, 0), "lead": maxf(away.length(), 6.0),
+		"chase_speed": 4.6, "spacing": 3.0, "seconds": 10.0, "title": "RUN!  CLICK RAPIDLY", "hint": "LEFT CLICK, AGAIN AND AGAIN  -  GET TO THE STREET",
+		"cap_index": pts.size() - 1, "cap_gap": 2.5})
+	rs.queue_free()
+	player.set_physics_process(true)
+	if bool(r.get("won", false)):
+		player.set("controls_enabled", true)
+		_complete_encounter()
+		return
+	# caught: it pounces
+	if is_instance_valid(h):
+		if ap and ap.has_animation("Attack_Bite"):
+			ap.play("Attack_Bite", 0.05)
+		h.global_position = player.global_position + (-player.global_transform.basis.z) * -1.2 + Vector3(0, 0, 0)
+		_play("bark", h.global_position + Vector3(0, 1.0, 0), -2.0)
+	Sfx.play("hurt", player.global_position, 4.0)
+	world._shake(get_viewport().get_camera_3d(), 0.45, 0.06)
+	await get_tree().create_timer(0.7).timeout
+	await _checkpoint()
+	hound_ai.set_physics_process(true)
 var flee_enabled := true                                      ## (tests turn it off: they walk a fixed route)
 var _fled := false
 
