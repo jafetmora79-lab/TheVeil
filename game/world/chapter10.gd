@@ -45,6 +45,33 @@ const HOUND_PATH_PTS := [Vector3(-17.0, 0.0, -15.0), Vector3(-18.5, 0.0, -37.0),
 const CHOICE_X := -60.0
 const OUTSKIRTS_X := -76.0
 const HOUSE := "MILL_HOUSE"
+## ---- directed-moment markers (WORLD; y is found by probing the floor when used). Validated by game/tests/chapter10_staging_test.gd.
+const DRIVER_STAND := Vector3(-27.45, 0.15, 1.45)
+const TRUNK_STAND := Vector3(-31.95, 0.15, 3.9)
+const CAR_WAIT := {"Eddie": Vector3(-24.0, 0.15, 0.6), "Ruth": Vector3(-23.2, 0.15, -0.9), "Sarah": Vector3(-22.4, 0.15, 1.0), "Marcus": Vector3(-24.6, 0.15, -1.8)}
+const ROADBLOCK_VIEW := Vector3(-38.0, 0.15, 0.0)
+const GATE_APPROACH := Vector3(-42.4, 0.15, -13.2)
+const GATE_CLEAR := Vector3(-45.8, 0.15, -13.2)
+const REVEAL_AREA := Vector3(-48.0, 0.15, -13.2)
+const SARAH_POCKET := {"Player": Vector3(-60.5, 0.15, 1.2), "Sarah": Vector3(-62.0, 0.15, 2.5), "Ruth": Vector3(-61.2, 0.15, 2.8), "Eddie": Vector3(-63.2, 0.15, 1.2),
+	"Marcus": Vector3(-62.8, 0.15, -0.2)}
+const ENTRY_ORDER := ["Eddie", "Ruth", "Sarah", "Marcus"]
+const DOOR_LINE_Z := 4.0                                ## house-local: past this the whole body is inside the front door
+const WAKE_POS := Vector3(1.4, 0.61, 5.6)               ## house-local: where the player wakes (beside the rest spot)
+const WINDOW_VIEW := Vector3(-1.3, 0.61, 4.6)           ## house-local: a short walk from the bed to the front window
+
+## The directed moments (one owner at a time; normal travel is the player's). activation / actors / camera / input / completion / save-load:
+##  PLAN        Eddie talked to at the rendezvous / the group / the talk camera / talk / the plan said -> flag ch10_plan_done (a load before it replays the talk)
+##  CAR         E on the sedan after the plan / player + the companions parked at CAR_WAIT / the door, the dash, the glove box seen from OUTSIDE the car / E only (held between presses) / the necessary searches done and the group has spoken -> ch10_car_done (items granted once, flags set with the item)
+##  ROADBLOCK   car done + the player at ROADBLOCK_VIEW / the player / the van, pickup and barriers, then the side-route gap / none / both looks done -> ch10_roadblock_seen
+##  GATE        (not a scene: the player's) the gate opens before anyone crosses and stays open; the hound reveal waits until the companions are physically past it
+##  HOUND       the player in REVEAL_AREA + every companion past x -45.8 / the player, the hound / sound, turn, silhouette, behind the block / held until the hound is gone / seen for real -> ch10_creature_seen (set at the END; a load replays it)
+##  SKITTER     the hound reveal done + the player with a readable view west / the player, one skitter / the crossing / held / it has crossed -> ch10_skitter_seen
+##  SARAH       skitter done + the player at CHOICE_X + Sarah within reach / all the group walks into the roadside pocket / Sarah and Ruth / the choice (a skipped dialogue never answers) / the choice resolved -> ch10_choice_made (the cost is paid once: st().help_paid)
+##  OUTSKIRTS   choice made + x < OUTSKIRTS_X / none / none / a line -> ch10_building_seen
+##  ENTER       the player in the main room / the companions enter in order through the open door / the room / free / all inside, at their places, stopped (MEASURED door crossings) -> the refuge talk -> ch10_refuge_talk_done
+##  REST        E on the rest spot / the player / the window / E / the call has played and landed -> chapter_10_complete, then chapter 11 takes over
+enum Scene { NONE, PLAN, CAR, ROADBLOCK, HOUND, SKITTER, SARAH, OUTSKIRTS, ENTER, REST }
 # ---- house-local (RES_House_MillWorker: living room x -3..3, z 3.2..8.4, floor y 0.61; front door at x 0.6)
 const PORCH := Vector3(0.6, 0.0, 0.4)                  # in front of the porch steps (ground)
 const ROOM := [Vector3(0.0, 1.6, 6.0), Vector3(5.4, 2.0, 4.2)]
@@ -70,6 +97,11 @@ var car: Node3D
 var its := {}
 var report := {"creature_runs": 0, "rest_runs": 0, "car_items": 0}
 var _busy := {}
+var mover: Node
+var _owner: int = Scene.NONE
+var _look_target: Callable = Callable()
+var _look_rate := 5.0
+var _car_staged := false
 var _tick := 0.0
 var _route_i := 0
 var _room: Area3D
@@ -96,6 +128,10 @@ func begin(w: Node, chapter9: Node, restoring: bool) -> void:
 	if not Game.world_state.has(STATE):
 		Game.world_state[STATE] = {"roster": c9.roster(), "sarah": "", "choice": ""}
 	_streams["call"] = Sfx._make(4.0, _call_wave)
+	mover = load("res://game/world/scene_mover.gd").new()
+	mover.name = "Mover"
+	add_child(mover)
+	mover.setup(w, w.player)
 	_setup_npcs()
 	_setup_car()
 	_setup_roadblock()
@@ -106,6 +142,7 @@ func begin(w: Node, chapter9: Node, restoring: bool) -> void:
 	if fresh:
 		Game.set_flag("ch10_started")
 	_apply()
+	_apply_sarah_state()
 	if Game.has_flag("chapter_10_complete"):
 		_start_chapter11(true)
 	Game.refresh_objective()
@@ -207,10 +244,11 @@ func _setup_fence() -> void:
 	for kind in ["p", "p", "g", "p", "p", "p"]:
 		var at := Vector3(FENCE_X, 0.15, z)
 		if kind == "p":
-			_prop(CHAINLINK, "C10_Fence", at, yaw)
+			_prop(CHAINLINK, "C10_Fence", at, yaw).add_to_group("c10_seethrough")
 			z -= 2.5
 		else:
 			var g := _prop(GATE, "C10_Gate", at, yaw)
+			g.add_to_group("c10_seethrough")
 			var leaf := g.find_child("GateLeaf", true, false) as Node3D
 			var lcol := g.find_child("GateLeaf_Col", true, false) as Node3D
 			if leaf and lcol and not leaf.is_ancestor_of(lcol):
@@ -365,38 +403,86 @@ func _talk_eddie(_b: Node) -> void:
 
 
 # ------------------------------------------------------------------ scene 2: the abandoned vehicle
-func _use_driver(_b: Node) -> void:
-	if not Game.has_flag("ch10_plan_done") or _busy.get("car", false):
+## The player stands where the door can swing and the camera stays OUTSIDE the car (the asset has no interior shot); the companions are parked clear of the door, the trunk and the player until the
+## group has spoken. Each press is one directed beat with its feedback in sync (door sound with the door, the gauge when it is read, the pickup when the search is done), then the player is free.
+func _stage_car_group() -> void:
+	if _car_staged:
 		return
-	_busy["car"] = true
+	_car_staged = true
+	var acts: Array = []
+	for k in group():
+		var f: VeilCompanionFollow = c9.follows[k]
+		f.stop()
+		var a := _actor(k)
+		acts.append(a)
+		mover.go(a, _fl(CAR_WAIT[k]), 2.6)
+	var t := 0.0
+	while not mover.all_done(acts) and t < 8.0:
+		await get_tree().process_frame
+		t += get_process_delta_time()
+	for a in acts:
+		if not a["ok"]:
+			report["staging_failures"] = int(report.get("staging_failures", 0)) + 1
+		var an = a["anim"]
+		if an:
+			an.face_towards(car.global_position)
+
+
+func _stand_at(p: Vector3) -> void:
+	var pa := _player_actor()
+	var tgt := _fl(p)
+	if not mover.near(pa, tgt, 0.5):
+		if not await mover.move(pa, tgt, 3.2):
+			report["staging_failures"] = int(report.get("staging_failures", 0)) + 1
+
+
+func _use_driver(_b: Node) -> void:
+	if not Game.has_flag("ch10_plan_done") or Game.has_flag("ch10_car_done") or not _acquire(Scene.CAR):
+		return
+	await _stage_car_group()
+	await _stand_at(DRIVER_STAND)
+	var door_p: Vector3 = car.global_transform * Vector3(-1.2, 0.9, -0.55)
+	await _look(door_p, 6.0)
 	if not Game.has_flag("ch10_car_door"):
 		_open_driver_door(false)
-		Sfx.play("door_open", its["driver"].global_position, -4.0, 0.9)
+		Sfx.play("door_open", door_p, -4.0, 0.9)                         # with the door's movement
+		await get_tree().create_timer(0.7).timeout
 		Game.set_flag("ch10_car_door")
 	elif not Game.has_flag("ch10_car_fuel"):
+		await _look(car.global_transform * Vector3(-0.7, 1.15, -0.2), 6.0)   # the dash seen through the open door, from outside
+		await get_tree().create_timer(0.8).timeout
 		Game.set_flag("ch10_car_fuel")
 		st()["car_fuel"] = "empty"
 		Dialogue.say("c10_car_fuel", false, true)
 		_hint("Fuel gauge: empty. The engine won't turn over.")
 	elif not Game.has_flag("ch10_car_glove"):
-		Game.set_flag("ch10_car_glove")             # set with the item: the battery is found once
+		await _look(car.global_transform * Vector3(-0.4, 0.95, 0.1), 6.0)
+		await get_tree().create_timer(1.2).timeout                        # the search takes a moment
+		Game.set_flag("ch10_car_glove")                                  # set with the item: the battery is found once
 		p4._got_batteries(1)
 		report["car_items"] += 1
-		Sfx.play("pickup", its["driver"].global_position, -6.0, 0.9)
+		Sfx.play("pickup", door_p, -6.0, 0.9)
 		_hint("Glove compartment: a flashlight battery.")
-	_busy["car"] = false
+	_release(Scene.CAR)
 	_car_check()
 
 
 func _use_trunk(_b: Node) -> void:
-	if not Game.has_flag("ch10_plan_done") or Game.has_flag("ch10_car_trunk") or _busy.get("car", false):
+	if not Game.has_flag("ch10_plan_done") or Game.has_flag("ch10_car_trunk") or Game.has_flag("ch10_car_done") or not _acquire(Scene.CAR):
 		return
+	await _stage_car_group()
+	await _stand_at(TRUNK_STAND)
+	var trunk_p: Vector3 = car.global_transform * Vector3(0.0, 0.9, 2.2)
+	await _look(trunk_p, 6.0)
 	Game.set_flag("ch10_car_trunk")
 	_open_trunk(false)
+	Sfx.play("door_open", trunk_p, -4.0, 0.7)
+	await get_tree().create_timer(0.9).timeout
 	Game.add_item("water_bottle")
 	report["car_items"] += 1
-	Sfx.play("pickup", its["trunk"].global_position, -6.0, 0.9)
+	Sfx.play("pickup", trunk_p, -6.0, 0.9)
 	_hint("Trunk: one bottle of water.")
+	_release(Scene.CAR)
 	_car_check()
 
 
@@ -443,8 +529,125 @@ func _car_check() -> void:
 		await c9._talk_group("c10_car", [eddie, ruth])
 		Game.set_flag("ch10_car_done")
 		_busy["car_talk"] = false
+		_car_staged = false
+		_resume_follow()                                                     # they walk after the player from where they stood
 		_refresh_prompts()
 	_guide()
+
+
+# ================================================================ scene ownership, camera, staging
+func _acquire(sc: int, hold := true) -> bool:
+	if _owner != Scene.NONE:
+		return false
+	_owner = sc
+	st()["scene"] = sc
+	if hold:
+		_hold(true)
+	return true
+
+
+## Only the scene that owns the moment lets go of the controls and the camera.
+func _release(sc: int) -> void:
+	if _owner != sc:
+		return
+	_owner = Scene.NONE
+	_look_target = Callable()
+	st()["scene"] = 0
+	_hold(false)
+
+
+func _look(target: Variant, rate := 5.0, wait := true) -> void:
+	_look_rate = rate
+	if target is Callable:
+		_look_target = target
+	else:
+		var tp: Vector3 = target
+		_look_target = func() -> Vector3: return tp
+	if not wait:
+		return
+	var t := 0.0
+	while t < 1.4 and _look_error() > 0.06:
+		await get_tree().process_frame
+		t += get_process_delta_time()
+
+
+func _look_error() -> float:
+	if not _look_target.is_valid():
+		return 0.0
+	var tv: Variant = _look_target.call()
+	if not (tv is Vector3):
+		return 0.0
+	var v: Vector3 = ((tv as Vector3) - player.camera.global_position).normalized()
+	return acos(clampf((-player.camera.global_transform.basis.z).dot(v), -1.0, 1.0))
+
+
+func _track_camera(delta: float) -> void:
+	if _owner == Scene.NONE or not _look_target.is_valid():
+		return
+	var tv: Variant = _look_target.call()
+	if not (tv is Vector3):
+		return
+	var v: Vector3 = (tv as Vector3) - player.camera.global_position
+	if v.length() < 0.2:
+		return
+	v = v.normalized()
+	var k := 1.0 - exp(-_look_rate * delta)
+	player.set_yaw_pitch(lerp_angle(player.rotation.y, atan2(-v.x, -v.z), k), lerpf(player.head.rotation.x, clampf(asin(clampf(v.y, -1.0, 1.0)), -0.55, 0.4), k))
+
+
+func _fl(p: Vector3) -> Vector3:                      ## a marker on its real floor
+	return Vector3(p.x, _floor(p), p.z)
+
+
+## A house-local marker on the real floor (a raised floor, steps): probed within 0.45 m of its stated height, never a ray from above (the roof is up there).
+func _hfloor(local: Vector3) -> Vector3:
+	var w := hl(local)
+	var fy: float = mover.floor_at(w.x, w.z, w.y)
+	return Vector3(w.x, fy if fy != INF else w.y, w.z)
+
+
+func _actor(k: String) -> Dictionary:
+	return mover.actor(_node(k), world.animators.get(k), "person")
+
+
+func _player_actor() -> Dictionary:
+	return mover.actor(player, null, "player")
+
+
+## Line of sight that ignores the see-through chain-link fence and the gate (their collision is solid, the mesh is not).
+func _see(from_w: Vector3, to_w: Vector3) -> bool:
+	var q := PhysicsRayQueryParameters3D.create(from_w, to_w, 1)
+	var ex: Array[RID] = [player.get_rid()]
+	for n in get_tree().get_nodes_in_group("c10_seethrough"):
+		for co in (n as Node).find_children("*", "CollisionObject3D", true, false):
+			ex.append((co as CollisionObject3D).get_rid())
+	q.exclude = ex
+	return world.get_world_3d().direct_space_state.intersect_ray(q).is_empty()
+
+
+## Sarah's condition is read from the previous chapter's record every time (a reload never relies on what an animator remembers).
+func _apply_sarah_state() -> void:
+	var serious := _sarah_condition() == "serious"
+	var limp := 1.0 if serious else 0.7
+	var choice := String(st().get("choice", ""))
+	if choice == "help" and not serious:
+		limp = 0.4                                       # rested: the tiredness eases, a serious wound is never erased
+	elif choice == "push":
+		limp = 1.0 if serious else 0.85
+	var sa = world.animators.get("Sarah")
+	if sa:
+		sa.limp = limp
+	var f: VeilCompanionFollow = c9.follows.get("Sarah")
+	if f:
+		f.walk_speed = 1.8 if serious else (1.7 if choice == "push" else 2.2)
+		f.run_speed = 3.4 if serious else 4.2
+
+
+## Hand the companions back to the follower AI where they stand (no snapping): they walk after the player on their own.
+func _resume_follow() -> void:
+	for k in group():
+		c9._start_follow(k, false)
+	_apply_sarah_state()
 
 
 func _hint(t: String) -> void:
@@ -456,52 +659,89 @@ func _hint(t: String) -> void:
 
 
 # ------------------------------------------------------------------ scenes 3-4: the roadblock, the side route, the follower
+## A scene starts from its position AND its predecessor's completion, and only when nothing else owns the moment: one scene per update, never three at once.
 func _road_tick() -> void:
+	if _owner != Scene.NONE or _busy.get("choice", false) or world.conversing or Dialogue.is_busy():
+		return
 	var p := player.global_position
-	if Game.has_flag("ch10_plan_done") and not Game.has_flag("ch10_car_found") \
-			and p.distance_to(CAR_POS) < 12.0:
+	if Game.has_flag("ch10_plan_done") and not Game.has_flag("ch10_car_found") and p.distance_to(CAR_POS) < 12.0:
 		Game.set_flag("ch10_car_found")
-	if Game.has_flag("ch10_car_done") and not Game.has_flag("ch10_roadblock_seen") and p.x < BLOCK_X + 9.0 and absf(p.z) < 7.0:
-		Game.set_flag("ch10_roadblock_seen")
-		Dialogue.say("c10_roadblock", false, true)
-	if Game.has_flag("ch10_roadblock_seen") and not Game.has_flag("ch10_around_done") and p.x < FENCE_X - 0.8 and p.z < -7.6:
-		Game.set_flag("ch10_around_done")             # through the gate, behind the roadside building
+	elif Game.has_flag("ch10_car_done") and not Game.has_flag("ch10_roadblock_seen") and p.x < BLOCK_X + 9.0 and absf(p.z) < 7.0:
+		_roadblock_scene()
+	elif Game.has_flag("ch10_roadblock_seen") and not Game.has_flag("ch10_around_done") and p.x < FENCE_X - 0.8 and p.z < -7.6:
+		Game.set_flag("ch10_around_done")             # through the gate, behind the roadside building (the gate stays open: nobody is shut out)
+	elif Game.has_flag("ch10_around_done") and not Game.has_flag("ch10_creature_seen") and p.x < FENCE_X - 3.0 and p.z < -7.6 and _group_past_gate():
 		_followed()
-	if Game.has_flag("ch10_around_done") and not Game.has_flag("ch10_followed_done") and not _busy.get("creature", false) \
-			and p.x < BLOCK_X - 4.0 and p.z > -6.5:
+	elif Game.has_flag("ch10_creature_seen") and not Game.has_flag("ch10_followed_done") and p.x < BLOCK_X - 4.0 and p.z > -6.5:
 		Game.set_flag("ch10_followed_done")           # back on the road, west of the block
-	# purposeful pressure (survival expansion): back on the road, a Skitter darts across it ahead in the fog; the
-	# group picks up the pace for the rest of the way
-	if Game.has_flag("ch10_followed_done") and not Game.has_flag("ch10_skitter_seen") and p.x < BLOCK_X - 7.0:
-		Game.set_flag("ch10_skitter_seen")
-		if world.expedition:
-			world.expedition.skitter_crossing(Vector3(-70.0, 0.2, -18.0), Vector3(-72.0, 0.2, 20.0))
-		_hurry()
-	if Game.has_flag("ch10_followed_done") and not Game.has_flag("ch10_choice_made") and not _busy.get("choice", false) \
-			and p.x < CHOICE_X and not world.conversing and not Dialogue.is_busy():
+	elif Game.has_flag("ch10_followed_done") and not Game.has_flag("ch10_skitter_seen") and p.x < BLOCK_X - 7.0 and absf(p.z) < 8.0:
+		_skitter_scene()
+	elif Game.has_flag("ch10_skitter_seen") and not Game.has_flag("ch10_choice_made") and p.x < CHOICE_X and _sarah_near():
 		_sarah_stops()
-	if Game.has_flag("ch10_choice_made") and not Game.has_flag("ch10_building_seen") and p.x < OUTSKIRTS_X and not Dialogue.is_busy() \
-			and not _busy.get("choice", false):
+	elif Game.has_flag("ch10_choice_made") and not Game.has_flag("ch10_building_seen") and p.x < OUTSKIRTS_X:
 		Game.set_flag("ch10_building_seen")
 		Dialogue.say("c10_outskirts", false, true)
+	_assist_gate()
 
 
-## The group walks faster once something has been seen (no survivor dawdles while the player runs).
+## The gate opens when a companion is at it and shut: nobody is left on the wrong side of a closed gate (it is never closed again).
+func _assist_gate() -> void:
+	var g: Interactable = its.get("gate")
+	if g == null or g.is_open or not Game.has_flag("ch10_roadblock_seen"):
+		return
+	for k in group():
+		var c: Vector3 = _node(k).global_position
+		if c.x > FENCE_X and c.x < FENCE_X + 3.0 and c.z < FENCE_Z0 and c.z > -14.5:
+			g.set_open(true)
+			return
+
+
+## Every companion MEASURED past the gate (x < -45.8 on the far side), not assumed.
+func _group_past_gate() -> bool:
+	for k in group():
+		var c: Vector3 = _node(k).global_position
+		if not (c.x < GATE_CLEAR.x and c.z < FENCE_Z0):
+			return false
+	return true
+
+
+func _sarah_near() -> bool:
+	return sarah.global_position.distance_to(player.global_position) < 9.0
+
+
+## The group walks faster once something has been seen (no survivor dawdles while the player runs); Sarah keeps her own pace.
 func _hurry() -> void:
 	for k in group():
+		if k == "Sarah":
+			continue
 		var f: VeilCompanionFollow = c9.follows[k]
 		f.walk_speed = maxf(f.walk_speed, 2.6)
 		f.run_speed = maxf(f.run_speed, 4.8)
 
 
-## A sound behind them: the view turns, a Hound's silhouette crosses the fog and is gone behind the buildings.
-func _followed() -> void:
-	if Game.has_flag("ch10_creature_seen") or _busy.get("creature", false):
+## The roadblock: the view takes in the van, the pickup and the barriers (why the road is shut), then turns to the gap in the roadside building (the way on).
+func _roadblock_scene() -> void:
+	if not _acquire(Scene.ROADBLOCK):
 		return
-	_busy["creature"] = true
+	var block_mid := Vector3(BLOCK_X, 1.3, -0.3)
+	await _look(block_mid, 4.5)
+	var van := world.get_node_or_null("C10_Block_Van") as Node3D
+	if van and not _see_prop(player.camera.global_position, van):
+		report["view_failures"] = int(report.get("view_failures", 0)) + 1
+	Dialogue.say("c10_roadblock", false, true)
+	await get_tree().create_timer(2.6).timeout
+	await _look(Vector3(SIDE_ROUTE[0].x, 1.4, SIDE_ROUTE[0].z), 4.0)          # the way on: the gap behind the roadside building
+	await get_tree().create_timer(0.9).timeout
+	Game.set_flag("ch10_roadblock_seen")
+	_release(Scene.ROADBLOCK)
+	_guide()
+
+
+## A sound behind them: the view turns, a Hound's silhouette crosses the fog and is gone behind the buildings. The player is held through this short reveal.
+func _followed() -> void:
+	if Game.has_flag("ch10_creature_seen") or not _acquire(Scene.HOUND):
+		return
 	report["creature_runs"] += 1
-	Game.set_flag("ch10_creature_seen")
-	await get_tree().create_timer(0.8).timeout
 	var ps := load(VeilMeshyNpcs.monster_scene(HOUND_PATH)) as PackedScene
 	hound = ps.instantiate() as Node3D
 	hound.name = "C10_Follower"
@@ -513,11 +753,12 @@ func _followed() -> void:
 	var a: Vector3 = HOUND_PATH_PTS[0]
 	hound.global_position = Vector3(a.x, _floor(a), a.z)
 	VeilCreatureLook.apply_skitter(hound, hound.global_position.y)
-	c8._bark(hound.global_position + Vector3(0, 1.0, 0))
-	_hold(true)
-	await c8._turn_to(hound.global_position + Vector3(0, 0.8, 0), 0.7)
-	c8._hplay(hound, "Walk", 0.0)
+	c8._bark(hound.global_position + Vector3(0, 1.0, 0))                      # the sound behind the group
 	var h := hound
+	await _look(func() -> Vector3: return h.global_position + Vector3(0, 0.8, 0), 5.5)
+	c8._hplay(h, "Walk", 0.0)
+	var seen := 0.0
+	var said := false
 	for i in range(1, HOUND_PATH_PTS.size()):
 		if not is_instance_valid(h):
 			break
@@ -527,14 +768,70 @@ func _followed() -> void:
 		h.rotation.y = atan2(d.x, d.z)
 		var tw := h.create_tween()
 		tw.tween_property(h, "global_position", to, d.length() / 3.2)
-		if i == 1:
-			_hold(false)
+		if i == 1 and not said:
+			said = true
 			Dialogue.say("c10_followed", false, true)
-		await tw.finished
+		while tw.is_running():
+			await get_tree().process_frame
+			if _hound_visible():
+				seen += get_process_delta_time()
 	if is_instance_valid(h):
 		h.queue_free()
 	hound = null
-	_busy["creature"] = false
+	if seen < 0.8:
+		report["view_failures"] = int(report.get("view_failures", 0)) + 1            # reported: the silhouette was not seen long enough
+	Game.set_flag("ch10_creature_seen")
+	_release(Scene.HOUND)
+	_guide()
+
+
+## Can the camera see this prop? (the first thing the line hits is the prop itself, or nothing)
+func _see_prop(from_w: Vector3, prop: Node3D) -> bool:
+	var c: Vector3 = prop.global_transform * Interactable.aabb_of(prop).get_center()
+	var q := PhysicsRayQueryParameters3D.create(from_w, c, 1)
+	var ex: Array[RID] = [player.get_rid()]
+	for n in get_tree().get_nodes_in_group("c10_seethrough"):
+		for co in (n as Node).find_children("*", "CollisionObject3D", true, false):
+			ex.append((co as CollisionObject3D).get_rid())
+	q.exclude = ex
+	var h: Dictionary = world.get_world_3d().direct_space_state.intersect_ray(q)
+	return h.is_empty() or prop.is_ancestor_of(h["collider"] as Node)
+
+
+## A point out over the fields, seen through the window from `eye`: the first of a few near-level aims whose line really passes the opening (never a wall, frame or the porch deck).
+func window_target(eye: Vector3) -> Vector3:
+	var c := hl(WINDOW)
+	var out_dir := (hl(Vector3(WINDOW.x, 0.0, WINDOW.z - 1.0)) - hl(Vector3(WINDOW.x, 0.0, WINDOW.z))).normalized()
+	var best := eye + out_dir * 14.0
+	for y in [2.0, 1.7, 1.4, 1.1, 0.8]:
+		var tp: Vector3 = Vector3(c.x, eye.y - (2.25 - y) * 0.15, c.z) + out_dir * 14.0
+		tp = eye + (Vector3(c.x, eye.y, c.z) + out_dir * 14.0 - eye).normalized() * 14.0 + Vector3(0, y - 1.4, 0)
+		if _see(eye, tp):
+			return tp
+	return best
+
+
+func _hound_visible() -> bool:
+	if hound == null or not is_instance_valid(hound):
+		return false
+	var tp: Vector3 = hound.global_position + Vector3(0, 0.8, 0)
+	return player.camera.is_position_in_frustum(tp) and _see(player.camera.global_position, tp)
+
+
+## One skitter crosses the road ahead: a brief look, no chase; the group picks up its pace. Only after the hound reveal, and never with Sarah's conversation.
+func _skitter_scene() -> void:
+	if not _acquire(Scene.SKITTER):
+		return
+	await _look(Vector3(-70.0, 1.0, -8.0), 4.0)
+	var sk: Node3D = null
+	if world.expedition:
+		sk = world.expedition.skitter_crossing(Vector3(-70.0, 0.2, -18.0), Vector3(-72.0, 0.2, 20.0))
+	if sk != null:
+		_look(func() -> Vector3: return sk.global_position + Vector3(0, 0.4, 0) if is_instance_valid(sk) else Vector3(-71.0, 0.6, 0.0), 3.5, false)
+	await get_tree().create_timer(3.4).timeout
+	Game.set_flag("ch10_skitter_seen")
+	_hurry()
+	_release(Scene.SKITTER)
 	_guide()
 
 
@@ -544,10 +841,47 @@ func _sarah_condition() -> String:
 
 
 func _sarah_stops() -> void:
+	if not _acquire(Scene.SARAH):
+		return
 	_busy["choice"] = true
-	var id := "c10_sarah_" + _sarah_condition()
 	st()["sarah"] = "exhausted" if _sarah_condition() == "stable" else "wound_worse"
-	await c9._talk_group(id, [sarah, ruth])
+	# the group stops in a clear roadside pocket and WALKS into its places (nobody is snapped there)
+	var acts: Array = []
+	for k in group():
+		(c9.follows[k] as VeilCompanionFollow).stop()
+		var a := _actor(k)
+		acts.append(a)
+		mover.go(a, _fl(SARAH_POCKET[k]), 2.4 if k == "Sarah" else 2.9)
+	var pa := _player_actor()
+	mover.go(pa, _fl(SARAH_POCKET["Player"]), 2.6)
+	acts.append(pa)
+	var t := 0.0
+	while not mover.all_done(acts) and t < 12.0:
+		await get_tree().process_frame
+		t += get_process_delta_time()
+	for a in acts:
+		if not a["ok"]:
+			report["staging_failures"] = int(report.get("staging_failures", 0)) + 1
+	var sa = world.animators.get("Sarah")
+	var ra = world.animators.get("Ruth")
+	if sa:
+		sa.face_towards(ruth.global_position)
+	if ra:
+		ra.face_towards(sarah.global_position)                                 # Ruth attends to her
+	for k in ["Eddie", "Marcus"]:
+		if group().has(k) and world.animators.get(k):
+			world.animators[k].face_towards(player.global_position + Vector3(-6.0, 0, 0))
+	await _look(func() -> Vector3: return sarah.global_position.lerp(ruth.global_position, 0.5) + Vector3(0, 1.2, 0), 5.0)
+	_look_target = Callable()                                                  # the conversation takes the camera
+	await c9._talk_group("c10_sarah_" + _sarah_condition(), [sarah, ruth])
+	_hold(true)                                                                # still held: the choice below is the player's
+	t = 0.0
+	while not Game.has_flag("ch10_choice_made") and t < 600.0:                 # a skipped dialogue never answers for the player
+		await get_tree().process_frame
+		t += get_process_delta_time()
+	_release(Scene.SARAH)
+	_resume_follow()
+	_guide()
 
 
 func _on_choices(id: String, choices: Array) -> void:
@@ -562,28 +896,34 @@ func _on_choices(id: String, choices: Array) -> void:
 	var help := String(c["flag"]) == "ch10_choice_help"
 	st()["choice"] = "help" if help else "push"
 	await c5._say_wait(c["next"])
+	var sa = world.animators.get("Sarah")
 	if help:
-		# an hour by the road: she rests and drinks; it costs a water (or food) from the packs, or exposure
-		_hold(true)
+		# an hour by the road: she rests (lying down, Ruth beside her) and drinks; it costs a water (or food) from the packs, or exposure - paid ONCE
+		if sa:
+			sa.set_downed("side")
 		await hud.fade_to(1.0, 0.8)
-		var used := ""
-		for item in ["water_bottle", "canned_food", "cola_bottle", "energy_snack", "chocolate_bar"]:
-			if Game.has_item(item):
-				Game.remove_item(item)
-				used = item
-				break
-		st()["help_cost"] = used if used != "" else "exposure"
-		if used == "":
-			Game.set_flag("ch10_exposure")
+		if not st().get("help_paid", false):
+			st()["help_paid"] = true
+			var used := ""
+			for item in ["water_bottle", "canned_food", "cola_bottle", "energy_snack", "chocolate_bar"]:
+				if Game.has_item(item):
+					Game.remove_item(item)
+					used = item
+					break
+			st()["help_cost"] = used if used != "" else "exposure"
+			if used == "":
+				Game.set_flag("ch10_exposure")
 		st()["sarah"] = "rested"
 		Game.set_flag("ch10_sarah_rested")
 		hud.location_caption("AN HOUR LATER", 1.6)
 		await get_tree().create_timer(1.6).timeout
+		if sa:
+			sa.set_downed("")                          # she is up again (a serious wound stays: only the tiredness eased)
 		await hud.fade_to(0.0, 0.8)
-		_hold(false)
 	else:
-		Game.set_flag("ch10_sarah_exhausted")         # recorded for later chapters; she keeps going
+		Game.set_flag("ch10_sarah_exhausted")         # recorded for later chapters; she keeps going, visibly struggling
 	Game.set_flag("ch10_choice_made")
+	_apply_sarah_state()
 	_busy["choice"] = false
 	_guide()
 
@@ -604,38 +944,104 @@ func _house_tick() -> void:
 
 
 func _check_room() -> void:
+	if not _acquire(Scene.ENTER, false):
+		return
 	_busy["room"] = true
 	Game.set_flag("ch10_entrance_checked")
-	await get_tree().create_timer(1.5).timeout
+	await get_tree().create_timer(1.2).timeout
 	Dialogue.say("c10_house_clear", false, true)
 	Game.set_flag("ch10_refuge_checked")
 	_busy["room"] = false
+	_release_soft(Scene.ENTER)
 
 
-## Everyone comes in after the player (the followers use the open door), then stands in the living room.
+func _release_soft(sc: int) -> void:
+	if _owner == sc:
+		_owner = Scene.NONE
+		st()["scene"] = 0
+
+
+## The companions come in through the open door in a set order, one through the doorway at a time, each along a route over the real floor and steps; the next starts when the last has MEASURABLY crossed
+## the door line. Nothing is placed: a failure re-opens the door and re-routes, and is reported. The talk begins when everybody is inside, at their places, stopped.
 func _gather() -> void:
+	if not _acquire(Scene.ENTER, false):
+		return
 	_busy["gather"] = true
+	var door: Interactable = its.get("door")
+	if door and not door.is_open:
+		door.set_open(true)                                                    # the door stands open for them
+		await get_tree().create_timer(door.anim_time + 0.1).timeout
+	var crossed := {}
+	var acts := {}
+	for k in ENTRY_ORDER:
+		if group().has(k):
+			(c9.follows[k] as VeilCompanionFollow).stop()
+			acts[k] = _actor(k)
+	var prev := ""
+	for k in ENTRY_ORDER:
+		if not acts.has(k):
+			continue
+		if prev != "":
+			var tt := 0.0
+			while not crossed.get(prev, false) and tt < 12.0:                  # single file: the next goes when the last is through
+				_note_crossings(acts, crossed)
+				await get_tree().process_frame
+				tt += get_process_delta_time()
+			if not crossed.get(prev, false):
+				report["entry_failures"] = int(report.get("entry_failures", 0)) + 1
+		mover.go(acts[k], _hfloor(SPOTS[k]), 2.0 if k == "Sarah" else 2.6)
+		prev = k
 	var t := 0.0
-	while t < 14.0:
-		var inside := 0
-		for k in group():
-			if inside_room(_node(k)):
-				inside += 1
-		if inside == group().size():
+	var retried := {}
+	while t < 40.0:
+		_note_crossings(acts, crossed)
+		var all_in := true
+		for k in acts:
+			var a: Dictionary = acts[k]
+			if not (a["done"] and a["ok"] and crossed.get(k, false)):
+				all_in = false
+			if a["done"] and not a["ok"] and retried.get(k, 0) < 3:           # could not get in: the door state and a fresh route, not a teleport
+				retried[k] = retried.get(k, 0) + 1
+				if door:
+					door.set_open(true, true)
+				mover.go(a, _hfloor(SPOTS[k]), 2.4)
+				report["entry_failures"] = int(report.get("entry_failures", 0)) + 1
+		if all_in:
 			break
-		await get_tree().create_timer(0.25).timeout
-		t += 0.25
+		await get_tree().process_frame
+		t += get_process_delta_time()
+	if t >= 40.0:
+		report["entry_failures"] = int(report.get("entry_failures", 0)) + 100        # reported loudly: the scene does NOT pretend they arrived
+		for k in acts:
+			if not crossed.get(k, false):
+				push_warning("[chapter10] %s never crossed the front door" % k)
+		_busy["gather"] = false
+		_release_soft(Scene.ENTER)
+		return
+	for k in acts:
+		var an = world.animators.get(k)
+		if an:
+			an.walk_to([])
+			an.set_mood("calm")
+			an.face_towards(hl(Vector3(0.0, 1.5, 6.0)))
 	while Dialogue.is_busy():
 		await get_tree().process_frame
-	_place_inside()
 	var npcs: Array = [ruth, eddie]
 	if alive():
 		npcs.append(marcus)
 	await c9._talk_group("c10_refuge_alive" if alive() else "c10_refuge_lost", npcs)
 	Game.set_flag("ch10_refuge_talk_done")
 	_busy["gather"] = false
+	_release_soft(Scene.ENTER)
 	_refresh_prompts()
 	_guide()
+
+
+func _note_crossings(acts: Dictionary, crossed: Dictionary) -> void:
+	for k in acts:
+		var l := house.to_local((acts[k]["node"] as Node3D).global_position)
+		if l.z > DOOR_LINE_Z and absf(l.x - 0.6) < 2.6:
+			crossed[k] = true
 
 
 ## Inside the living room (house-local bounds; the room's trigger area only sees the player).
@@ -646,30 +1052,40 @@ func inside_room(n: Node3D) -> bool:
 
 
 func _rest(_b: Node) -> void:
-	if not Game.has_flag("ch10_refuge_talk_done") or Game.has_flag("chapter_10_complete") or _busy.get("rest", false):
+	if not Game.has_flag("ch10_refuge_talk_done") or Game.has_flag("chapter_10_complete") or not _acquire(Scene.REST):
 		return
 	_busy["rest"] = true
 	report["rest_runs"] += 1
 	_refresh_prompts()
-	_hold(true)
 	await hud.fade_to(1.0, 1.2)
 	player.heal(30.0)
 	Game.set_flag("ch10_refuge_rested")
 	hud.location_caption("A FEW HOURS LATER", 2.0)
 	await get_tree().create_timer(2.0).timeout
-	# the window: the fields barely there beyond the fog; something far off, unexplained
-	player.global_position = hl(Vector3(-1.2, 0.7, 5.0))
+	# black screen: the waking place is a valid spot beside the rest area, eyes level, looking along the room; then a short walk to the window
+	var wake := _hfloor(WAKE_POS)
+	player.global_position = wake
 	player.velocity = Vector3.ZERO
-	await hud.fade_to(0.0, 1.4)
-	await c8._turn_to(hl(WINDOW), 1.2)
+	player.set_physics_process(false)
+	var room_dir := hl(Vector3(0.0, 1.5, 6.0))
+	player.set_yaw_pitch(atan2(-(room_dir.x - wake.x), -(room_dir.z - wake.z)), 0.0)
+	await hud.fade_to(0.0, 1.6)
+	var pa := _player_actor()
+	var view := _hfloor(WINDOW_VIEW)
+	await mover.move(pa, view, 1.3)                                              # a slow, groggy walk
+	var out := window_target(player.camera.global_position)
+	await _look(out, 3.0)
+	if not _see(player.camera.global_position, out):
+		report["view_failures"] = int(report.get("view_failures", 0)) + 1
+	player.set_physics_process(true)
 	await get_tree().create_timer(1.2).timeout
 	_play_call()
-	await get_tree().create_timer(3.0).timeout
+	await get_tree().create_timer(3.4).timeout                                   # let it land
 	Game.set_flag("chapter_10_complete")             # the next chapter is NOT started here
 	st()["completed"] = {"roster": group(), "choice": st().get("choice", ""), "sarah": st().get("sarah", ""),
 		"refuge": HOUSE}
-	_hold(false)
 	_busy["rest"] = false
+	_release(Scene.REST)
 	_refresh_prompts()
 	_guide()
 	world.save_checkpoint("chapter11_end")             # its own file, never the player's save slot
@@ -715,6 +1131,9 @@ func _hold(on: bool) -> void:
 func _process(_delta: float) -> void:
 	if Game.has_flag("ch11_started"):
 		return                                    # the next chapter owns the group and the marker from here on
+	_track_camera(_delta)
+	if _owner != Scene.NONE and _owner != Scene.ENTER:
+		player.set("controls_enabled", false)    # only the scene that owns the moment gives the player back
 	_tick -= _delta
 	if _tick > 0.0 or player == null:
 		return
