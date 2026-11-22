@@ -216,6 +216,8 @@ func reload() -> void:
 	c5 = world.phase4.chapter5 if world.phase4 else null
 	p4 = world.phase4
 	c6 = c5.chapter6 if c5 else null
+	if c6:
+		c6.flee_enabled = false                         # (review note #37)
 
 
 
@@ -240,6 +242,7 @@ func restore(snap: Dictionary) -> void:
 	p4 = world.phase4
 	c5 = p4.chapter5
 	c6 = c5.chapter6
+	c6.flee_enabled = false                            # (review note #37: in play the group runs for the store; this test walks a fixed route)
 
 
 func _initialize() -> void:
@@ -372,8 +375,9 @@ func _run() -> void:
 	_eddie_prev = c5.eddie.global_position
 	ok("c6_walk_to_alley", await walk_world([Vector3(60.0, 0.2, -77.0), Vector3(53.5, 0.2, -77.0)]), str(world.player.global_position))
 	ok("c6_not_before_area", not game.has_flag("ch6_investigation_reached") and c6.hound == null)
-	ok("c6_reach_investigation_area", await walk_world([Vector3(48.5, 0.2, -77.0)]) and await wait_until(func(): return game.has_flag("ch6_investigation_reached"), 60 * 2)
-		and c6.hound != null and c6.hound_spawns == 1 and not world.hud.marker_visible)
+	var ww: bool = await walk_world([Vector3(48.5, 0.2, -77.0)])
+	var wf: bool = await wait_until(func(): return game.has_flag("ch6_investigation_reached"), 60 * 2)
+	ok("c6_reach_investigation_area", ww and wf and c6.hound != null and c6.hound_spawns == 1 and await wait_until(func(): return not world.hud.marker_visible, 120), "walk %s flag %s hound %s spawns %d marker %s" % [ww, wf, c6.hound, c6.hound_spawns, world.hud.marker_visible])
 	ok("c6_encounter_started", await wait_until(func(): return game.has_flag("ch6_hound_encounter_started"), 60 * 25)
 		and game.current_step().get("id", "") == "c6_avoid" and await wait_until(func(): return said.has("What the hell is that?"), 60 * 2))
 	ok("c6_hound_on_floor", is_instance_valid(c6.hound) and absf(c6.hound.global_position.y - 0.15) < 0.25, str(c6.hound.global_position))

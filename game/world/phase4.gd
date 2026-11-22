@@ -143,7 +143,7 @@ func _take_over_npcs(restoring: bool) -> void:
 		if restoring:
 			world.place_survivor(n, pair[2])
 		else:
-			world.npc_walk(pair[1], pair[2])
+			world.npc_walk(pair[1], pair[2], 3.8)             # still running: the fear has not gone (review note #28)
 		var it := Interactable.attach(n, {"kind": "custom", "label": pair[1], "prompt_text": "[E] Talk"})
 		it.used.connect(_talk)
 		its["npc_" + pair[1]] = it
@@ -553,6 +553,7 @@ func _apply() -> void:
 	its["breaker"].prompt_text = "" if Game.has_flag("p4_breaker") else "[E] Throw the Breaker"
 	its["loading"].prompt_text = "" if Game.has_flag("p4_loading_down") else "[E] Pull the Loading Door Down"
 	its["backdoor"].prompt_text = "" if Game.has_flag("p4_backexit_closed") else "[E] Close the Back Door"
+	_guide_diamonds()
 	for k in ["npc_Eddie", "npc_Marcus"]:
 		if its.has(k):
 			its[k].prompt_text = "" if Game.has_flag("p4_talk_done") else "[E] Talk"
@@ -564,6 +565,30 @@ func _apply() -> void:
 		var fl_on: bool = not Game.has_flag("p4_flashlight") and not (its["flashlight"] as Interactable).taken
 		hud.world_diamond("p4_flashlight", its["flashlight"] if fl_on else null)
 	world._clear_beacon("p4")
+
+
+## A diamond on the thing the night's next step needs: the flashlight, the breaker, the loading door handle, its pallets, the back door and its pallets, then Eddie (review note #28:
+## "proper pointers towards the light ... and towards the back"). One at a time; gone when the step is done.
+func _guide_diamonds() -> void:
+	var want := ""
+	if not Game.has_flag("p4_flashlight"):
+		want = "flashlight"
+	elif not Game.has_flag("p4_breaker"):
+		want = "breaker"
+	elif not Game.has_flag("p4_loading_down"):
+		want = "loading"
+	elif not Game.has_flag("p4_loading_secured"):
+		want = "pallet_loading"
+	elif not Game.has_flag("p4_backexit_closed"):
+		want = "backdoor"
+	elif not Game.has_flag("p4_backexit_secured"):
+		want = "pallet_back"
+	elif not Game.has_flag("p4_talk_done"):
+		want = "npc_Eddie"
+	for k in ["flashlight", "breaker", "loading", "pallet_loading", "backdoor", "pallet_back", "npc_Eddie"]:
+		var it = its.get(k)
+		var on: bool = k == want and it != null and is_instance_valid(it) and not bool(it.get("taken"))
+		hud.world_diamond("p4_" + k, it if on else null)
 
 
 func _set_power(on: bool) -> void:

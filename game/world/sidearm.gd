@@ -249,8 +249,18 @@ func fire() -> void:
 	var target := _target(cam)
 	if target:
 		_hit(target)
+	_gunshot_noise()
 	_practice_shot(cam)
 	_hint("HANDGUN  %d  |  %d" % [mag(), reserve()], 1.4)
+
+
+## Every shot is noise (review note #40): the creatures within earshot go to where it was fired, search there, and come for the player after 20 seconds.
+func _gunshot_noise() -> void:
+	var at: Vector3 = world.player.global_position
+	for ai in get_tree().get_nodes_in_group("veil_hunter"):
+		var b = ai.get("body")
+		if b is Node3D and (b as Node3D).is_visible_in_tree() and (b as Node3D).global_position.distance_to(at) < 70.0 and ai.has_method("investigate"):
+			ai.investigate(at, 6.0, 20.0)
 
 
 ## The creature the shot would hit: close to the aim line, in range, with nothing solid in between.
@@ -296,11 +306,14 @@ func _hit(n: Node3D) -> void:
 							ap.play(was))
 				break
 	var ai: Node = n.get_node_or_null("AI")
-	if ai and ai.get("voice"):
+	if ai and ai.has_method("shot"):
+		ai.shot()                                      # (review note #39) a Hound bolts after one, a Skitter after two, a Shellcrawler is only stung
+		report["driven_off"] += 1 if ai.get("flee") else 0
+	elif ai and ai.get("voice"):
 		ai.voice.pain()                                # its own yelp / shell crack
 	else:
 		Sfx.play("hurt", n.global_position + Vector3(0, 0.6, 0), 2.0, 0.6)
-	if String(n.name) in ROAMERS and ai and "state" in ai:
+	if not (ai and ai.has_method("shot")) and String(n.name) in ROAMERS and ai and "state" in ai:
 		ai.state = "RETURN"                            # it turns back and leaves (the expedition removes it unseen)
 		if ai.get("voice"):
 			get_tree().create_timer(0.4).timeout.connect(func():
@@ -495,7 +508,12 @@ func _auto_handover(delta: float) -> void:
 
 # ------------------------------------------------------------------ the handover and the practice
 ## Who gives the gun right now: "Sarah" once she lives in the shelter, "Marcus" when she never will, "" = not yet.
+var presenter_override := ""               ## who gives the gun right now, whatever the roster says (Ruth at the end of the voices chapter: review note #38)
+
+
 func presenter() -> String:
+	if presenter_override != "":
+		return presenter_override
 	if world == null or not world.has_method("shelter_roster"):
 		return ""
 	var roster: Array = world.shelter_roster()
@@ -555,6 +573,8 @@ func handover(choice: Node) -> void:
 			return
 	var c5 = world.phase4.chapter5 if world.phase4 and world.phase4.get("chapter5") else null
 	var id := "gun_%s_intro" % who.to_lower()
+	if not Dialogue.data.has(id):
+		id = "gun_sarah_intro"
 	if c5:
 		await c5._talk(id, npc)
 	else:

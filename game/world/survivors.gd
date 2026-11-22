@@ -539,7 +539,7 @@ func _companion_tick(delta: float) -> void:
 				c = loot.global_position
 			if c != Vector3.INF:
 				world.expedition._hint("Ruth: \"Over there - %s, maybe %d metres.\"" % [_dir_word(c), int(world.player.global_position.distance_to(c))])
-				_mark("sv_ruth", c, 20.0)
+				_mark("sv_ruth", c, 20.0, loot if (loot != null and c == loot.global_position) else null)
 		elif n == "Marcus":
 			var clue := _nearest_clue()
 			if clue != Vector3.INF:
@@ -926,7 +926,7 @@ func _search_many(n: String, count: int) -> void:
 
 
 ## A small diamond over what the companion pointed at, for a while (the HUD's own world markers).
-func _mark(key: String, at: Vector3, seconds: float) -> void:
+func _mark(key: String, at: Vector3, seconds: float, watch: Node = null) -> void:
 	var old := world.get_node_or_null(key) as Node3D
 	if old:
 		old.queue_free()
@@ -935,9 +935,18 @@ func _mark(key: String, at: Vector3, seconds: float) -> void:
 	world.add_child(m)
 	m.global_position = at
 	world.hud.world_diamond(key, m)
-	get_tree().create_timer(seconds).timeout.connect(func():
-		if is_instance_valid(m):
-			m.queue_free())
+	# it goes as soon as the thing is taken (or the player has stood on the spot): the marker used to hang in the air after the pickup (review note #40)
+	var t := 0.0
+	while t < seconds and is_instance_valid(m):
+		await get_tree().create_timer(0.3).timeout
+		t += 0.3
+		if watch != null and (not is_instance_valid(watch) or bool(watch.get("taken"))):
+			break
+		if is_instance_valid(m) and world.player.global_position.distance_to(at) < 1.4:
+			break
+	if is_instance_valid(m):
+		world.hud.world_diamond(key, null)
+		m.queue_free()
 
 
 func _nearest_cache() -> Vector3:

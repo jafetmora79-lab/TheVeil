@@ -523,6 +523,19 @@ func _build_inspect() -> void:
 	col.add_child(VeilUI.label("Click BACK (or press Esc) to return", 12, VeilUI.MUTED))
 
 
+## The paper shopping list, ticked off as the things are taken (review note #25).
+static func _list_text() -> String:
+	var world := (Engine.get_main_loop() as SceneTree).get_first_node_in_group("veil_world")
+	var lines := ["FRIDAY ERRANDS", ""]
+	if world != null and world.get("GROCERIES") != null:
+		for k in world.GROCERIES:
+			lines.append(("[x]  " if world._have_grocery(k) else "[  ]  ") + String(world.GROCERIES[k]))
+	lines.append("")
+	lines.append("then pay the cashier at lane 4")
+	return "
+".join(lines)
+
+
 ## Open the large view of the selected item: its model turns slowly; name and full description below.
 func inspect() -> void:
 	if _sel >= _ids.size():
@@ -531,6 +544,8 @@ func inspect() -> void:
 	var info := Game.item_info(id)
 	_insp_name.text = String(info.get("name", id)).to_upper()
 	_insp_desc.text = String(info.get("description", ""))
+	if id == "shopping_list":
+		_insp_desc.text = _list_text()
 	for c in _insp_vp.get_children():
 		c.queue_free()
 	_insp_pivot = null

@@ -669,17 +669,44 @@ func _skitter_guard() -> void:
 
 
 func _lunge(sk: Node3D) -> void:
+	# review note #45: the Skitter RUNS at the player (a fast scuttle), springs the last stretch (the lunge clip over a hop), bites at the contact, and is back at its place at once
+	var home: Vector3 = sk.global_position
 	var d := player.global_position - sk.global_position
+	d.y = 0.0
+	var dist := d.length()
 	sk.rotation.y = atan2(d.x, d.z)
-	var ap := VeilCreatureLook.skitter_anim(sk, "attack", 0.0, 0.05)
-	var dur := 0.8
-	if ap and ap.has_animation("Attack_Lunge"):
-		dur = ap.get_animation("Attack_Lunge").length
-	qa_report["lunge_anim"] = ap != null and ap.current_animation == "Attack_Lunge"
+	var dir := d.normalized() if dist > 0.01 else Vector3.FORWARD
+	var stop: Vector3 = player.global_position - dir * 1.6
+	stop.y = home.y
+	var ap_run := VeilCreatureLook.skitter_anim(sk, "scuttle", 9.0)
+	var ap := ap_run
+	var dur := 0.7
+	qa_report["lunge_anim"] = false
 	if _patrol.has(sk):
-		_patrol[sk]["busy"] = dur + 0.2
+		_patrol[sk]["busy"] = 6.0
 	Sfx.play("door_close", sk.global_position, -6.0, 1.8)
-	await get_tree().create_timer(dur * 0.45).timeout   # the contact moment of the lunge
+	var run_len := maxf(sk.global_position.distance_to(stop) - 2.4, 0.0)
+	if run_len > 0.2:
+		var mid: Vector3 = home + dir * run_len
+		var tr := sk.create_tween()
+		tr.tween_property(sk, "global_position", mid, run_len / 9.0)
+		await tr.finished
+	if not is_instance_valid(sk) or _skitters_done():
+		return
+	d = player.global_position - sk.global_position
+	d.y = 0.0
+	sk.rotation.y = atan2(d.x, d.z)
+	ap = VeilCreatureLook.skitter_anim(sk, "attack", 0.0, 0.05)
+	if ap and ap.has_animation("Attack_Lunge"):
+		dur = clampf(ap.get_animation("Attack_Lunge").length, 0.35, 0.8)
+	qa_report["lunge_anim"] = ap != null and ap.current_animation == "Attack_Lunge"
+	var from: Vector3 = sk.global_position
+	var to: Vector3 = player.global_position - d.normalized() * 1.1
+	to.y = from.y
+	var hop := sk.create_tween()
+	hop.tween_method(func(k: float):
+		sk.global_position = from.lerp(to, k) + Vector3(0, sin(k * PI) * 0.7, 0), 0.0, 1.0, dur * 0.55)
+	await get_tree().create_timer(dur * 0.5).timeout   # the contact moment of the lunge
 	if not is_instance_valid(sk) or _skitters_done():
 		return
 	if sk.global_position.distance_to(player.global_position) < 5.5:
@@ -687,6 +714,16 @@ func _lunge(sk: Node3D) -> void:
 		if player.has_method("damage") and hp != null:
 			player.damage(minf(10.0, maxf(float(hp) - 5.0, 0.0)), sk.global_position)
 		report_lunges += 1
+	await get_tree().create_timer(dur * 0.4).timeout
+	if not is_instance_valid(sk) or _skitters_done():
+		return
+	VeilCreatureLook.skitter_anim(sk, "scuttle", 9.0)                      # and scuttles straight back to its place
+	sk.rotation.y = atan2(home.x - sk.global_position.x, home.z - sk.global_position.z)
+	var back := sk.create_tween()
+	back.tween_property(sk, "global_position", home, maxf(sk.global_position.distance_to(home) / 9.0, 0.2))
+	await back.finished
+	if is_instance_valid(sk) and _patrol.has(sk):
+		_patrol[sk]["busy"] = 0.3
 
 
 var report_lunges := 0

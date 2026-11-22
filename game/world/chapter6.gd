@@ -460,6 +460,8 @@ func _spawn_hound() -> void:
 	hound_ai.setup(hound, player, pts)
 	hound_ai.noticed.connect(_on_noticed)
 	hound_ai.bit.connect(_on_bit)
+	if investigate:
+		_hound_entrance(INVESTIGATE_HOUND)                       # it comes over the fence line at a run and leaps in (review note #37), not out of nowhere
 	_growl = AudioStreamPlayer3D.new()
 	_growl.stream = _streams["growl"]
 	_growl.volume_db = -8.0
@@ -470,7 +472,77 @@ func _spawn_hound() -> void:
 	_growl.play()
 
 
+## The Hound's entrance (review note #37): it starts well back along the alley, sprints at the player and LEAPS (an arc, forelegs reaching) over the last stretch into the place it
+## used to appear at, barking, then the AI takes over and hunts.
+func _hound_entrance(spot: Vector3) -> void:
+	var h := hound
+	hound_ai.set_physics_process(false)
+	var from := spot + Vector3(-14.0, 0, 0)
+	h.global_position = from
+	h.visible = false
+	var ap := h.get_node_or_null(String(h.get_meta("animation_player", "Model/AnimationPlayer"))) as AnimationPlayer
+	# wait until the player is actually near (the area was reached when this spawns, but be sure it is not in view of nothing)
+	h.visible = true
+	if ap and ap.has_animation("Run"):
+		ap.play("Run", 0.1)
+	h.rotation.y = atan2(spot.x - from.x, spot.z - from.z)
+	_play("bark", from + Vector3(0, 1.0, 0), -2.0)
+	var run_to := spot + Vector3(-3.0, 0, 0)
+	var tw := h.create_tween()
+	tw.tween_property(h, "global_position", run_to, from.distance_to(run_to) / 8.0)
+	await tw.finished
+	if not is_instance_valid(h):
+		return
+	if ap and ap.has_animation("Attack_Bite"):
+		ap.play("Attack_Bite", 0.05)
+	var t := 0.0
+	var dur := 0.6
+	while t < dur and is_instance_valid(h):
+		t += get_process_delta_time()
+		var k := clampf(t / dur, 0.0, 1.0)
+		var p := run_to.lerp(spot, k)
+		p.y = run_to.y + sin(PI * k) * 1.3
+		h.global_position = p
+		await get_tree().process_frame
+	if not is_instance_valid(h):
+		return
+	_play("impact", spot + Vector3(0, 0.3, 0), -6.0)
+	hound_ai.set_physics_process(true)                        # (from here the AI is its own: it notices and hunts as before)
+	hound_entered = true
+
+
+var hound_entered := false
+var flee_enabled := true                                      ## (tests turn it off: they walk a fixed route)
+var _fled := false
+
+
+## The others run for the supermarket when the Hound comes (review note #37) and wait at the doors; they join the player again once they are close or it is over.
+func _group_flees() -> void:
+	if _fled or not flee_enabled:
+		return
+	_fled = true
+	var door: Vector3 = market.to_global(c5._door_spot())
+	for f in [c5.eddie_follow, ruth_follow, sarah_follow]:
+		if f == null or not is_instance_valid(f) or not f.active:
+			continue
+		f.stop()
+		var frame: Node3D = f.npc.get_parent_node_3d()
+		if f.anim and frame:
+			f.anim.set_mood("scared")
+			f.anim.walk_to([frame.to_local(door)], 4.4)
+
+
+func _group_returns() -> void:
+	if not _fled:
+		return
+	_fled = false
+	for f in [c5.eddie_follow, ruth_follow, sarah_follow]:
+		if f != null and is_instance_valid(f) and f.npc != null and f.npc.visible and String(st().get("eddie", "")) == "following":
+			f.start()
+
+
 func _on_noticed() -> void:
+	_group_flees()
 	_play("bark", hound.global_position + Vector3(0, 1.0, 0), 0.0)
 	Dialogue.say("c6_hound_noticed", false, true)
 	if Game.has_flag("ch6_voice_choice_investigate") and _chase_leg < 0:
@@ -489,6 +561,8 @@ var fence_jumps := 0
 
 
 func _chase_tick() -> void:
+	if _fled and (Game.has_flag("ch6_hound_encounter_complete") or (player != null and market != null and c5._away_from_store(market.to_local(player.global_position), 3.0) == false)):
+		_group_returns()                                  # (they are back with the player: at the doors, or it is over)
 	if _chase_leg < 0 or _chase_leg >= CHASE_ROUTE.size():
 		return
 	var p := player.global_position
@@ -727,6 +801,13 @@ func _report() -> void:
 	await c5._talk("c6_report_a", marcus)
 	await c5._say_wait("c6_report_" + String(st().get("ruth_sarah_choice", "leave")))
 	await c5._say_wait("c6_report_b")
+	# Ruth gives the gun right away (review note #38): no trip out first, no pulsing exit asking for one
+	var sa = world.get("sidearm")
+	if sa != null and ruth != null and String(st().get("ruth_sarah", "")) == "shelter" and not sa.has_gun() and not bool(sa.st().get("given", false)) and world.animators.has("Ruth"):
+		sa.presenter_override = "Ruth"
+		await sa.handover(p4.choice)
+		sa.presenter_override = ""
+		sa.st()["given"] = true
 	Game.set_flag("chapter_6_complete")              # Chapter 7 is NOT started here
 	_busy["report"] = false
 	_refresh_prompts()

@@ -75,7 +75,28 @@ var _recover_len := 0.0
 var _recover_mode := ""
 var _inv_at := Vector3.ZERO
 var _inv_t := 0.0
+var _inv_hunt := 0.0                ## > 0: after searching the noise's spot this long (seconds) it comes for the player wherever they are (review note #40)
+var _inv_search := 0.0
+var shots_taken := 0
 
+
+## The handgun hit it (review note #39): a Hound bolts after one shot (zigzags off, then runs home blind), a Skitter after two (the first only flinches it), a Shellcrawler is stung and
+## staggers but carries on. Nothing here kills it.
+func shot() -> void:
+	shots_taken += 1
+	if voice:
+		voice.pain()
+	if sound_kind == "crab":
+		recoil(0.7, "back")
+		return
+	if shots_taken >= (1 if sound_kind == "hound" else 2):
+		shots_taken = 0
+		flee = true
+		recoil(2.4, "flee")
+	elif state != "CHASE":
+		recoil(0.6, "back")
+	else:
+		recoil(0.8, "back")
 
 func setup(p_body: CharacterBody3D, p_player: CharacterBody3D, points: Array) -> void:
 	body = p_body
@@ -288,8 +309,14 @@ func _physics_process(delta: float) -> void:
 					_patrol_stuck = 0.0
 			else:
 				_inv_t -= delta
+				_inv_search += delta
 				_idle(delta, "Sniff")                 # looking about: short sniffing bursts, the paws planted
-				if _inv_t <= 0.0:
+				if _inv_hunt > 0.0 and _inv_search >= _inv_hunt:
+					_inv_hunt = 0.0
+					awareness = 1.0                    # the noise's spot is searched: it comes for the player, wherever they are now
+					_last_seen = _tp()
+					_start_chase()
+				elif _inv_t <= 0.0:
 					state = "RETURN"
 					awareness = 0.0
 		"SEARCH":
@@ -318,12 +345,14 @@ func recoil(seconds: float, mode: String) -> void:
 
 
 ## Go and look at a noise (`at`, world), staying `linger` seconds there; ignored mid-chase or while recovering.
-func investigate(at: Vector3, linger: float) -> bool:
+func investigate(at: Vector3, linger: float, hunt_after := 0.0) -> bool:
 	if hold or state in ["CHASE", "RECOVER"]:
 		return false
 	state = "INVESTIGATE"
 	_inv_at = at
-	_inv_t = linger
+	_inv_t = maxf(linger, hunt_after)
+	_inv_hunt = hunt_after
+	_inv_search = 0.0
 	_patrol_stuck = 0.0
 	_patrol_ref = body.global_position
 	awareness = minf(awareness, 0.3)

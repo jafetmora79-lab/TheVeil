@@ -127,7 +127,15 @@ func step(dir: int) -> void:
 	var from := selected if selected >= 0 else 0
 	selected = posmod(from + dir, N)
 	_gun(String(slots()[selected]))
+	_light(String(slots()[selected]))
 	refresh()
+
+
+## Landing on the flashlight's slot (the wheel) puts the light in the hand, switched on; landing anywhere else lowers it.
+func _light(id: String) -> void:
+	var fl := get_tree().get_first_node_in_group("veil_flashlight")
+	if fl != null and fl.has_method("set_on") and Game.has_item("flashlight"):
+		fl.set_on(id == "flashlight")
 
 
 func _gun(id: String) -> void:
@@ -143,18 +151,22 @@ var _auto := false
 
 ## The gun lands in the first free slot by itself when it is picked up.
 func _auto_slot() -> void:
-	if _auto or not Game.has_item("handgun") or "handgun" in slots():
+	if _auto:
 		return
 	_auto = true
-	var a := slots()
-	for k in N:
-		if String(a[k]) == "" or not Game.has_item(String(a[k])):
-			assign(k, "handgun")
-			var w := get_tree().get_first_node_in_group("veil_world")
-			var sa = w.get("sidearm") if w else null
-			if sa != null and sa.drawn():
-				selected = k                          # it comes into the hand with its slot selected
-			break
+	for item in ["flashlight", "handgun"]:                  # the flashlight is a held item too, always in a slot (review note #32): its slot selected = the light in the hand
+		if not Game.has_item(item) or item in slots():
+			continue
+		var a := slots()
+		for k in N:
+			if String(a[k]) == "" or not Game.has_item(String(a[k])):
+				assign(k, item)
+				if item == "handgun":
+					var w := get_tree().get_first_node_in_group("veil_world")
+					var sa = w.get("sidearm") if w else null
+					if sa != null and sa.drawn():
+						selected = k                          # it comes into the hand with its slot selected
+				break
 	_auto = false
 
 

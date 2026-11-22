@@ -91,19 +91,17 @@ func _reveal() -> void:
 	_spawn_trio()
 	world._shake(cam, 0.3, 0.04)
 	await p4._fp_face(cam, p4.ml(GAP_LOOK + Vector3(-0.8, 0.3, 0)), 0.25)
-	# all three at once, quick and overlapping (one at a time, slowly, read as weird, not frightening): the first shoves in, the others are on it a beat later
+	# one big one: it shoves in, feels about, lashes across where the player stands, again and again
 	_beat("A", "push", 0.35)
-	await get_tree().create_timer(0.3).timeout
-	_beat("B", "reach", 0.75)
-	await p4._fp_face(cam, p4.ml(Vector3(19.4, 0.5, float(trio["B"]["root"].z))), 0.2)
-	_beat("C", "lash", 0.75)
+	await get_tree().create_timer(0.45).timeout
+	await p4._fp_face(cam, p4.ml(Vector3(19.4, 0.5, float(trio["A"]["root"].z))), 0.2)
 	world._shake(cam, 0.3, 0.05)
-	await get_tree().create_timer(0.55).timeout
-	_beat("A", "sweep", 0.8)
-	Sfx.play("hurt", player.global_position, -10.0, 1.4)            # a gasp: it missed, just
-	await p4._fp_face(cam, p4.ml(Vector3(19.4, 0.45, float(trio["C"]["root"].z) - 0.4)), 0.2)
 	await get_tree().create_timer(0.5).timeout
-	report["revealed"] = trio.size() == 3
+	_beat("A", "sweep", 0.55)
+	Sfx.play("hurt", player.global_position, -10.0, 1.4)            # a gasp: it missed, just
+	await p4._fp_face(cam, p4.ml(Vector3(19.4, 0.45, float(trio["A"]["root"].z) - 0.4)), 0.2)
+	await get_tree().create_timer(0.5).timeout
+	report["revealed"] = trio.size() == 1
 	report["through_gap"] = _through_gap()
 	report["clearance_hits"] = _clearance()
 	# control back (move + look), then the timer
@@ -185,10 +183,9 @@ func _spawn_trio() -> void:
 	var left := span.x + 0.45                          # (from the bay, looking at the door: -z is the left)
 	var right := span.y - 0.45
 	# [root (market frame, outside), aim (into the bay), scale]
+	# review note #29: ONE big tentacle, writhing and feeling about for the player (three quick ones were not fast enough to read): it comes in under the door in the middle of the gap
 	var spec := {
-		"A": [Vector3(22.6, low, zc), Vector3(-1.0, 0.02, 0.0), 0.42],
-		"B": [Vector3(22.4, low * 0.85, left), Vector3(-1.0, 0.02, 0.25), 0.36],
-		"C": [Vector3(22.4, low, right), Vector3(-1.0, 0.02, -0.3), 0.36],
+		"A": [Vector3(22.6, low, zc), Vector3(-1.0, 0.02, 0.0), 0.62],
 	}
 	for k in spec:
 		var t := (load(VeilMeshyNpcs.monster_scene(TENTACLE)) as PackedScene).instantiate() as Node3D
@@ -208,8 +205,13 @@ func _spawn_trio() -> void:
 		if po:
 			po.straight = true                         # flat along its aim, under the door - not the rest pose's rear-up
 			po.apply()
+		var wg := VeilTentacleWiggle.attach(t)           # it never lies still: a continuous writhe along its length, feeling for the player
+		if wg:
+			wg.intensity = 1.1
+			wg.speed = 2.6
+			wg.amp = 0.07                                # (small enough that it stays inside the gap and off the door frame / walls)
 		trio[k] = {"node": t, "poser": po, "root": spec[k][0], "dir": (spec[k][1] as Vector3).normalized(),
-			"scale": float(spec[k][2]), "thick": THIN, "slide": -1.6, "yaw": 0.0, "busy": false, "fix": Basis()}
+			"scale": float(spec[k][2]), "thick": 0.62, "slide": -1.6, "yaw": 0.0, "busy": false, "fix": Basis()}
 		_apply(k)
 		# the model's chain is not along its own +Y (its root bone tilts it up into a rear): measure the straight
 		# chain's real axis in the model and turn the model so that axis lies along the aim
@@ -321,8 +323,8 @@ func _trio_tick(dt: float) -> void:
 	if _beat_t > 0.0:
 		return
 	var k := 1.0 - clampf(time_left / ESCAPE_S, 0.0, 1.0)
-	_beat_t = lerpf(1.2, 0.55, k)
-	var order := [["A", "sweep_back"], ["B", "reach"], ["C", "lash"], ["A", "sweep"]]
+	_beat_t = lerpf(0.5, 0.15, k)                      # fast: it is on them without a pause
+	var order := [["A", "sweep_back"], ["A", "reach"], ["A", "sweep"], ["A", "lash"]]
 	var step: Array = order[_beat_next % order.size()]
 	_beat_next += 1
 	_beat(step[0], step[1], lerpf(1.0, 0.7, k))

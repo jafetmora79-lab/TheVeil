@@ -62,7 +62,7 @@ func _run() -> void:
 	var started := await wait_until(func(): return g.running, 10.0)
 	ok("encounter_starts", started)
 	var shown := await wait_until(func(): return g.report.get("revealed", false), 25.0)
-	ok("three_tentacles", shown and g.trio.size() == 3, str(g.trio.keys()))
+	ok("one_big_tentacle", shown and g.trio.size() == 1, str(g.trio.keys()))
 	var mats_ok := true
 	var detail := []
 	for k in g.trio:
@@ -79,10 +79,8 @@ func _run() -> void:
 	var roots_out: bool = g.trio.values().all(func(d): return (d["root"] as Vector3).x > 20.6)
 	ok("roots_outside", roots_out)
 	var first5: Array = g.beat_log.slice(0, 5)
-	ok("beat_order", first5.slice(0, 3) == ["A:push", "B:reach", "C:lash"], str(g.beat_log))
+	ok("beat_order", first5.size() >= 2 and first5[0] == "A:push" and first5[1] == "A:sweep", str(g.beat_log))
 	ok("under_the_door", float(g.report.get("through_gap", -1.0)) > 0.05, "worst %.2f m under the door edge (gap %.2f m)" % [float(g.report.get("through_gap", -1.0)), float(g.report.get("gap_top", -1.0))])
-	var zs: Array = ["A", "B", "C"].map(func(k): return float(g.trio[k]["root"].z))
-	ok("left_centre_right", zs[1] < zs[0] and zs[0] < zs[2], str(zs))
 	ok("no_clipping_in_bay", (g.report.get("clearance_hits", ["?"]) as Array).is_empty(), str(g.report.get("clearance_hits", [])))
 	ok("control_back", await wait_until(func(): return pl.controls_enabled, 5.0))
 	await frames(60 * 3)

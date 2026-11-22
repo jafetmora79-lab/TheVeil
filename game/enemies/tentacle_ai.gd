@@ -30,12 +30,84 @@ var _far_t := 0.0
 var _hit_done := false
 var _locked_yaw := 0.0
 var _anim: AnimationPlayer
+## The octopus-arm attack (review notes #27 / #29): instead of the stiff Strike clip the arm COILS (curls up on itself), UNRAVELS toward the player along its whole length, GRIPS
+## (wraps round them and squeezes, writhing), then lets go and re-coils to try again. Built bone by bone with VeilTentaclePoser + VeilTentacleGrab; the clips still drive search / retract.
+var use_grab := true
+const OPEN_TIME := 0.36
+const WRAP_TIME := 0.38
+var _grab: VeilTentacleGrab
+var _poser: VeilTentaclePoser
+var _grip_t := -1.0                       ## seconds into the grip (drives the writhe while it holds)
 
 
 func _ready() -> void:
 	tentacle = get_parent() as Node3D
 	_anim = tentacle.find_child("AnimationPlayer", true, false) as AnimationPlayer
 	_measure_strike()
+	if use_grab:
+		contact_time = OPEN_TIME + WRAP_TIME * 0.7           # the grip closes round them: that is the contact
+		strike_len = OPEN_TIME + WRAP_TIME + 0.55            # open, wrap, squeeze, let go
+
+
+func _ensure_grab() -> bool:
+	if _grab != null and is_instance_valid(_grab):
+		return true
+	_poser = VeilTentaclePoser.attach(tentacle)
+	if _poser == null:
+		use_grab = false
+		return false
+	_poser.weight = 0.0
+	_grab = VeilTentacleGrab.attach(tentacle, _poser)
+	return _grab != null
+
+
+func _grab_point() -> Vector3:
+	return target.global_position + Vector3(0, 0.9, 0)
+
+
+func _grab_begin() -> void:
+	if not use_grab or not _ensure_grab():
+		return
+	_grab.begin(_grab_point, 0.4, 0.0)
+	_poser.weight = 1.0
+	_grab.ease_to("load_k", 1.0, windup_time * 0.9)          # the coil: curled up tight, tip tucked in
+
+
+func _grab_unravel() -> void:
+	if _grab == null or not _grab.active:
+		return
+	_grip_t = -1.0
+	await _grab.ease_to("open_k", 1.0, OPEN_TIME, Tween.TRANS_QUAD, Tween.EASE_OUT)       # unravels fast, whole length, toward them
+	if _grab == null or not _grab.active:
+		return
+	_grip_t = 0.0
+	await _grab.ease_to("wrap_k", 1.0, WRAP_TIME, Tween.TRANS_SINE, Tween.EASE_IN)         # and grips
+
+
+func _grab_release() -> void:
+	if _grab == null or not _grab.active:
+		return
+	_grip_t = -1.0
+	await _grab.ease_to("release_k", 1.0, 0.45)
+	if _grab == null or not _grab.active:
+		return
+	_grab.end()
+	_grab.load_k = 0.0
+	_grab.open_k = 0.0
+	_grab.wrap_k = 0.0
+	_grab.squeeze = 0.0
+	_grab.release_k = 0.0
+	if _poser:
+		var tw := create_tween()
+		tw.tween_property(_poser, "weight", 0.0, 0.3)           # back to the clip's own pose without a snap
+
+
+func _clear_to_target() -> bool:
+	## nothing solid between the tentacle's base and the player (a wall or the door they closed stops it: it never reaches through)
+	var space := tentacle.get_world_3d().direct_space_state
+	var a := tentacle.global_position + Vector3(0, 0.8, 0)
+	var q := PhysicsRayQueryParameters3D.create(a, target.global_position + Vector3(0, 0.9, 0), 1, [target.get_rid()])
+	return space.intersect_ray(q).is_empty()
 
 
 ## Sample the Strike clip: the frame with the tip farthest out horizontally = contact.
@@ -117,7 +189,10 @@ func _process(delta: float) -> void:
 			elif absf(wrapf(_yaw_to(target.global_position) - tentacle.rotation.y, -PI, PI)) < 0.25:
 				state = "windup"
 				_t = 0.0
-				_play("Coil", 0.2)
+				if use_grab and _ensure_grab():
+					_grab_begin()
+				else:
+					_play("Coil", 0.2)
 				Sfx.bank_at("te_wet", tentacle.global_position + Vector3(0, 1.0, 0), -6.0, 5.0)
 		"windup":
 			_turn_toward(target.global_position, 1.4, delta)          # still tracking, slower: readable tell
@@ -126,19 +201,29 @@ func _process(delta: float) -> void:
 				_t = 0.0
 				_hit_done = false
 				_locked_yaw = tentacle.rotation.y
-				_play("Strike", 0.1)
+				if _grab != null and _grab.active:
+					_grab_unravel()
+				else:
+					_play("Strike", 0.1)
 				Sfx.bank_at("te_strike", tentacle.global_position + Vector3(0, 1.0, 0), 0.0, 5.0)
 		"strike":
 			tentacle.rotation.y = _locked_yaw
 			if not _hit_done and _t >= contact_time:
 				_hit_done = true
 				Sfx.bank_at("te_ground", tentacle.global_position + Vector3(0, 0.5, 0), -3.0, 5.0)
-				if _target_in_strike():
+				if _target_in_strike() and _clear_to_target():
 					struck.emit(tentacle, damage)
+			if _grab != null and _grab.active and _grip_t >= 0.0:      # gripping: it writhes and squeezes
+				_grip_t += delta
+				_grab.squeeze = 0.5 + 0.5 * sin(_grip_t * 14.0)
+				tentacle.rotation.y = _locked_yaw + sin(_grip_t * 9.0) * 0.06
 			if _t >= strike_len:
 				state = "recover"
 				_t = 0.0
-				_play("Search", 0.35)
+				if _grab != null and _grab.active:
+					_grab_release()
+				else:
+					_play("Search", 0.35)
 		"recover":
 			if _t >= recover_time:
 				state = "search"

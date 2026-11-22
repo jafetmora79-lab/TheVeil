@@ -225,7 +225,7 @@ func _distract(at: Vector3) -> void:
 		if body == null or not (body is Node3D):
 			continue
 		if (body as Node3D).global_position.distance_to(at) <= HEARING and ai.has_method("investigate"):
-			if ai.investigate(at, LINGER):
+			if ai.investigate(at, LINGER, 20.0):
 				report["distracted"] += 1
 
 

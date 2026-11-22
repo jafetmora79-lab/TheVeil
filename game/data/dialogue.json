@@ -6840,6 +6840,39 @@
    }
   ]
  },
+ "gun_ruth_intro": {
+  "lines": [
+   {
+    "speaker": "Ruth",
+    "text": "Wait. You're going back out there, aren't you.",
+    "time": 2.4
+   },
+   {
+    "speaker": "Ruth",
+    "text": "Take this. It was in the manager's desk. Six rounds.",
+    "time": 2.8
+   },
+   {
+    "speaker": "Ruth",
+    "text": "You brought my girl and me in. I'm not sending you out with nothing.",
+    "time": 3.2
+   },
+   {
+    "speaker": "",
+    "text": "...Thanks.",
+    "time": 1.4
+   }
+  ]
+ },
+ "gun_ruth_skip": {
+  "lines": [
+   {
+    "speaker": "Ruth",
+    "text": "Then make them count.",
+    "time": 2.0
+   }
+  ]
+ },
  "gun_marcus_intro": {
   "lines": [
    {

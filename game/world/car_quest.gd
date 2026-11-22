@@ -273,6 +273,7 @@ func _place_battery(c: Dictionary, van: Node3D) -> void:
 	var top := _surface(van, van.global_transform * Vector3(lp.x, 2.0, lp.z))
 	bat.position = Vector3(lp.x, (top - van.global_position.y) - 0.04 if is_finite(top) else float(local[1]), lp.z)
 	bat.rotation.y = PI * 0.5                        # its terminals face the front of the van
+	_battery_tray(van, bat)
 	sites["car_battery"] = {"root": van, "battery": bat, "base": bat.transform}
 	var b := bat.position
 	_anchor("car_battery", van, b + Vector3(0, 0.25, 0))
@@ -352,6 +353,29 @@ func _unclamp(bat: Node3D, side: String, instant: bool) -> void:
 			tw.tween_property(m, "rotation", rot, 0.35)
 
 
+## The battery sits in a rusty steel tray with a hold-down bolt and a strap lying slack beside it (so it is plainly IN the engine bay, review note #44).
+func _battery_tray(van: Node3D, bat: Node3D) -> void:
+	var tray := Node3D.new()
+	tray.name = "CQ_BatteryTray"
+	van.add_child(tray)
+	tray.position = bat.position
+	tray.rotation.y = bat.rotation.y
+	var rust := StandardMaterial3D.new()
+	rust.albedo_color = Color(0.32, 0.2, 0.12)
+	rust.roughness = 0.95
+	var parts := [[Vector3(0, 0.0, 0), Vector3(0.36, 0.05, 0.26)], [Vector3(-0.17, 0.05, 0), Vector3(0.02, 0.1, 0.26)], [Vector3(0.17, 0.05, 0), Vector3(0.02, 0.1, 0.26)],
+		[Vector3(0, 0.05, -0.125), Vector3(0.36, 0.1, 0.02)], [Vector3(0, 0.05, 0.125), Vector3(0.36, 0.1, 0.02)], [Vector3(0.0, 0.03, 0.17), Vector3(0.05, 0.02, 0.14)]]
+	for p in parts:
+		var mi := MeshInstance3D.new()
+		var bm := BoxMesh.new()
+		bm.size = p[1]
+		bm.material = rust
+		mi.mesh = bm
+		mi.position = p[0]
+		tray.add_child(mi)
+	bat.position.y += 0.03                                                  # sitting down in the tray
+
+
 func _battery_pull() -> void:
 	var st := part_state("car_battery")
 	if busy or acquired("car_battery") or not (bool(st.get("neg", false)) and bool(st.get("pos", false))):
@@ -360,16 +384,26 @@ func _battery_pull() -> void:
 	_battery_steps()
 	var bat: Node3D = sites["car_battery"]["battery"]
 	await _peek(bat.global_position + Vector3(0, 0.2, 0), 0.7, 0.1)
-	var won: bool = await effort("CLICK REPEATEDLY — PULL BATTERY")
+	var base: Transform3D = sites["car_battery"]["base"]
+	var follow := func(p: float):                                       # it rises out of its tray as you pull, with a jerk and a tilt, and slips back when you let go
+		var lift := 0.34 * p
+		bat.position = base.origin + Vector3(0, lift, -0.12 * p) + Vector3(sin(Time.get_ticks_msec() * 0.03) * 0.006 * p, 0, 0)
+		bat.rotation = Vector3(deg_to_rad(-9.0) * p, base.basis.get_euler().y, deg_to_rad(4.0) * sin(Time.get_ticks_msec() * 0.02) * p)
+	var won: bool = await effort("CLICK REPEATEDLY — PULL BATTERY", follow, "battery")
 	if won:
-		var base: Transform3D = sites["car_battery"]["base"]
-		var tw := bat.create_tween().set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
-		tw.tween_property(bat, "position", base.origin + Vector3(0, 0.45, -0.25), 0.6)
-		await tw.finished
-		_snd("thud", bat.global_position, -6.0)
+		var up := bat.create_tween().set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
+		up.tween_property(bat, "position", base.origin + Vector3(0, 0.52, -0.3), 0.35)
+		up.tween_property(bat, "rotation", Vector3(deg_to_rad(-22.0), base.basis.get_euler().y, 0.0), 0.35)     # hauled up and over the lip of the bay
+		await up.finished
+		_snd("thud", bat.global_position, -4.0)
+		Sfx.play("pickup", bat.global_position, -6.0, 0.5)
 		bat.visible = false
 		_acquire("car_battery")
 	else:
+		var sink := bat.create_tween().set_trans(Tween.TRANS_SINE)
+		sink.tween_property(bat, "position", base.origin, 0.4)
+		sink.parallel().tween_property(bat, "rotation", Vector3(0, base.basis.get_euler().y, 0), 0.4)
+		_snd("thud", bat.global_position, -10.0)                           # it drops back into its tray
 		_say("Too heavy at this angle. Get a better grip.", 2.6)
 	await _peek_back()
 	busy = false
@@ -611,7 +645,7 @@ func set_off_alarm() -> void:
 	for cr in ex.creatures:
 		var ai = cr.get("ai")
 		if ai and is_instance_valid(ai) and ai.has_method("investigate") and (ai.body as Node3D).global_position.distance_to(noise) < 45.0:
-			ai.investigate(noise, 6.0)
+			ai.investigate(noise, 6.0, 20.0)
 	if int(q()["alarm_uses"]) == 1:
 		_say("That'll get its attention.", 2.4)
 	_save()
@@ -825,7 +859,13 @@ signal effort_done(won: bool)
 
 
 ## CLICK REPEATEDLY: true once the bar is full, false if the grip slips (time) or the player is hurt meanwhile.
-func effort(title: String) -> bool:
+var pull_cb: Callable = Callable()              ## called every frame with the pull (0..1): the thing being pulled follows it (the battery rises as you click, sinks when you slip)
+var pull_sound := ""                             ## a heavier struggle sound than the grunt, per click (the battery: metal scraping in its tray)
+
+
+func effort(title: String, cb := Callable(), snd := "") -> bool:
+	pull_cb = cb
+	pull_sound = snd
 	pull = 0.0
 	_pull_t = PULL_TIME
 	pulling = true
@@ -847,7 +887,14 @@ func click() -> void:
 	if not pulling:
 		return
 	pull = minf(pull + PULL_PER_CLICK, 1.0)
-	if randf() < 0.35:
+	if pull_sound == "battery":
+		var at: Vector3 = ex._player().global_position + Vector3(0, 0.9, 0)
+		Sfx.play("door_close", at, -7.0, randf_range(0.38, 0.5))                  # the case grating up out of its tray
+		if randf() < 0.5:
+			_snd("creak", at, -4.0)
+		if randf() < 0.3:
+			Sfx.bank_at("pl_effort", at + Vector3(0, 0.5, 0), -8.0, 4.0)
+	elif randf() < 0.35:
 		Sfx.bank_at("pl_effort", ex._player().global_position + Vector3(0, 1.4, 0), -8.0, 4.0)
 
 
@@ -864,6 +911,8 @@ func _pull_tick(delta: float) -> void:
 	_pull_t -= delta
 	pull = maxf(pull - PULL_DECAY * delta, 0.0)
 	_bar.size.x = 260.0 * pull
+	if pull_cb.is_valid():
+		pull_cb.call(pull)
 	if full or pull >= 1.0:
 		_end_pull(true)
 	elif _pull_t <= 0.0:

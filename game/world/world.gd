@@ -1120,6 +1120,8 @@ func _on_market_entered() -> void:
 		return
 	Dialogue.say("market_enter", true)
 	if not Game.has_flag("groceries_done"):
+		if not Game.has_item("shopping_list"):
+			Game.add_item("shopping_list")        # a paper list in the pocket: Tab, select it, READ (review note #25)
 		_grocery_hint()
 
 
@@ -1693,6 +1695,14 @@ func _setup_coolers() -> void:
 func _grocery_hint() -> void:
 	if Game.has_flag("groceries_done"):
 		return
+	if Game.has_item("shopping_list"):
+		var got := 0
+		for id in GROCERIES:
+			got += int(_have_grocery(id))
+		hud.set_hint("Shopping list: %d / 3  -  Tab, select the list and READ it" % got if got < 3 else "Everything is on the list  -  pay the cashier at lane 4, by the doors")
+		if got == 3 and cashier:
+			_glow(cashier, true, Color(0.55, 0.9, 0.6))
+		return
 	var parts := []
 	var n := 0
 	for id in GROCERIES:
@@ -1717,6 +1727,7 @@ func _checkout(_by: Node) -> void:
 		elif not Game.has_flag("groceries_done"):
 			converse(["market_need_items"], [cashier])
 		return
+	Game.remove_item("shopping_list")                              # the list is trashed once the shopping is paid for (review note #25)
 	_paid("market")
 	for k in need:                                                   # the three on the list are bought (one of each); extras go through the same till
 		for i in GROCERY_ITEMS[k]:
@@ -3993,7 +4004,7 @@ func _chase_start() -> void:
 		_chase_music.volume_db = -10.0
 		add_child(_chase_music)
 		_chase_music.finished.connect(func():
-			if Game.has_flag("p3_fled_together") and not Game.has_flag("p4_breaker"):
+			if Game.has_flag("p3_fled_together") and not Game.has_flag("p4_exits_secured"):
 				_chase_music.play())
 		_chase_music.play()
 
@@ -4010,7 +4021,7 @@ func _chase_end() -> void:
 func _chase_music_tick() -> void:
 	if _chase_music == null or not _chase_music.playing or _chase_music.has_meta("fading"):
 		return
-	if Game.has_flag("p4_breaker") and Game.has_flag("p3_doors_shut"):
+	if Game.has_flag("p4_exits_secured") and Game.has_flag("p3_doors_shut"):      # (the tense music stays until both exits are barricaded: review note #28)
 		_chase_music.set_meta("fading", true)
 		var tw := create_tween()
 		tw.tween_property(_chase_music, "volume_db", -40.0, 3.0)

@@ -43,6 +43,13 @@
    "model": "res://THE_VEIL_ASSETS_V2/08_Inventory/Food_And_Supplies/INV_EnergySnack.glb",
    "weight": 0.1
   },
+  "shopping_list": {
+   "name": "Shopping List",
+   "category": "note",
+   "description": "Any snack, any candy, any drink.",
+   "model": "res://THE_VEIL_ASSETS_V2/08_Inventory/Story_Items/INV_FoldedNote.glb",
+   "weight": 0.0
+  },
   "groceries": {
    "name": "Groceries",
    "category": "food",

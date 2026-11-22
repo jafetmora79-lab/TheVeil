@@ -338,7 +338,8 @@ func _run() -> void:
 	c7._lunge(c7.skitters[0])
 	await watch_frames(2)
 	var hp_now: float = world.player.health
-	ok("c7_lunge_anim", c7.qa_report.get("lunge_anim", false) and hp_now == hp0)
+	ok("c7_lunge_runs_first", hp_now == hp0)                                      # (review note #45: it runs at the player first, the bite lands at the end of the dash)
+	ok("c7_lunge_anim", await wait_until(func(): return c7.qa_report.get("lunge_anim", false), 60 * 6))
 	await watch_frames(90)
 	world.player.health = hp0
 	await walk_world([c7.ALARM_POS + Vector3(0.0, 0.05, -2.6)])          # walked back (no teleport: Marcus follows the trail)
