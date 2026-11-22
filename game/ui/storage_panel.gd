@@ -99,6 +99,22 @@ func setup(w: Node, phase4: Node) -> void:
 	_fit.call_deferred()
 
 
+var _sig := ""
+var _sig_t := 0.0
+
+
+## What is on screen can never go stale: if the stores or the pack changed behind the panel (a late-loaded state, another system), redraw.
+func _process(delta: float) -> void:
+	_sig_t += delta
+	if _sig_t < 0.2:
+		return
+	_sig_t = 0.0
+	var sig := str(Game.shelter_stock()) + str(Game.inventory)
+	if sig != _sig:
+		_sig = sig
+		refresh()
+
+
 func _fit() -> void:
 	var vs := get_viewport().get_visible_rect().size
 	var k := minf(1.0, minf(vs.x / 930.0, vs.y / 550.0))
