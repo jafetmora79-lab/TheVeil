@@ -157,8 +157,12 @@ func _slot(parent: GridContainer, side: int, idx: int, id: String, qty: int, tip
 			n.mouse_filter = Control.MOUSE_FILTER_IGNORE
 			b.add_child(n)
 		var qs := "x%d" % qty
-		var q := VeilUI.label(qs, 11)
-		q.position = Vector2(SLOT - 8 - 9 * qs.length(), SLOT - 17)
+		var q := VeilUI.label(qs, 10)
+		q.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
+		q.vertical_alignment = VERTICAL_ALIGNMENT_BOTTOM
+		q.custom_minimum_size = Vector2.ZERO
+		q.position = Vector2(2, SLOT - 24)
+		q.size = Vector2(SLOT - 8, 20)                 # inside the cell: right-aligned, clear of the border
 		q.mouse_filter = Control.MOUSE_FILTER_IGNORE
 		b.add_child(q)
 		b.gui_input.connect(func(e: InputEvent):
