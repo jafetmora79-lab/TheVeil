@@ -1665,8 +1665,9 @@ func record_night(transition: String) -> Dictionary:
 	return Game.record_shelter_night(transition, world.shelter_roster(), cfg.get("shelter_consumption", {}), extra)
 
 func _supply_report(report: Dictionary) -> String:
-	var text := "OVERNIGHT SUPPLY REPORT\nFood used: %d  |  Water used: %d\nFood remaining: %d  |  Water remaining: %d" % [
-		report.food_used, report.water_used, report.food_left, report.water_left]
+	# one line per resource: what is left, and what the night cost (it used to print "used" and "remaining" as four separate numbers)
+	var text := "OVERNIGHT SUPPLIES
+Food: %d left  (-%d)   |   Water: %d left  (-%d)" % [report.food_left, report.food_used, report.water_left, report.water_used]
 	if report.food_used < report.food_needed or report.water_used < report.water_needed:
 		text += "\nSupplies ran short overnight"
 	return text
