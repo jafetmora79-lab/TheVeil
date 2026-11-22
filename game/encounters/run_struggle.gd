@@ -139,20 +139,21 @@ func run(w: Node, pts: Array, chasers: Array, o := {}) -> Dictionary:
 
 
 ## Each ally keeps a slot beside and just behind the player and runs at the player's own speed (a little more when he has fallen back); now and then he throws a look back at the chasers.
-func _run_allies(allies: Array, u: float, v: float, dt: float, chasers: Array) -> void:
+func _run_allies(allies: Array, u: float, v: float, dt: float, _chasers: Array) -> void:
 	for al in allies:
 		var anim = al["anim"]
-		var pd := _at(u - 0.7)
-		var side := Vector3(-pd[1].z, 0.0, pd[1].x) * float(al.get("side", 1.3))
+		var pd := _at(u - float(al.get("behind", 1.3)))
+		var side := Vector3(-pd[1].z, 0.0, pd[1].x) * float(al.get("side", 0.9))
 		var slot: Vector3 = pd[0] + side
-		var me: Vector3 = (anim.root as Node3D).global_position
-		var d := Vector2(slot.x - me.x, slot.z - me.z).length()
-		anim.walk_speed = clampf(v + 2.5 * d, 0.0, v + 3.0)
-		anim.walk_to([slot + (pd[1] as Vector3) * 1.2])
+		var root := anim.root as Node3D
+		# placed exactly on the slot every frame (right behind the player, never lagging, never left outside); the animator is told he is running so the legs and arms go
+		anim.walk_speed = maxf(v, 4.5)
+		anim.walk_to([slot + (pd[1] as Vector3) * 1.0])
+		root.global_position = slot
 		al["react_t"] = float(al["react_t"]) - dt
 		if float(al["react_t"]) <= 0.0:
 			al["react_t"] = randf_range(1.0, 1.8)
-			anim.react(0.7, 1.0 if float(al.get("side", 1.3)) < 0.0 else -1.0)   # the glance goes back over the shoulder, towards the chasers
+			anim.react(0.7, 1.0 if float(al.get("side", 0.9)) < 0.0 else -1.0)   # the glance goes back over the shoulder, towards the chasers
 
 
 func _place_player(u: float, t: float, dt: float) -> void:

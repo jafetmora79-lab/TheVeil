@@ -600,7 +600,7 @@ func _pack_run_struggle() -> void:
 	if ma and marcus and is_instance_valid(marcus):
 		marcus_follow.stop()                                   # he runs the set path beside the player (the follower would fight the scene)
 		c5._reparent(marcus, world)
-		allies.append({"anim": ma, "side": 1.4})
+		allies.append({"anim": ma, "side": 0.9, "behind": 1.3})
 		_marcus_shout()
 	var r: Dictionary = await rs.run(world, pts, _pack, {"allies": allies, "music": "res://game/audio/library/music_skitter_chase_LOOP.wav", "from_dir": Vector3(-1, 0, 0), "lead": 34.0, "chase_speed": 5.0, "spacing": 3.0, "seconds": 12.0,
 		"title": "RUN!  CLICK RAPIDLY", "hint": "LEFT CLICK, AGAIN AND AGAIN  -  GET TO THE STORE", "cap_index": door_i, "cap_gap": 0.9})
