@@ -79,13 +79,15 @@ func _exit_tree() -> void:
 const RESCUE_PER_CLICK := 0.1           ## a fair rescue: ~2 clicks a second fill it in about 7 s
 const RESCUE_DECAY := 0.06
 var _rescue := false
+var _rescue_click := RESCUE_PER_CLICK
 var _rescue_won := false
 var rescue_clicks := 0                  ## (tests)
 
 
-func rescue(title: String, hint: String, seconds: float, hold_id := "hs_hold") -> bool:
+func rescue(title: String, hint: String, seconds: float, hold_id := "hs_hold", per_click := RESCUE_PER_CLICK) -> bool:
 	if active:
 		return false
+	_rescue_click = per_click
 	_rescue = true
 	_rescue_won = false
 	rescue_clicks = 0
@@ -179,7 +181,7 @@ func _process(delta: float) -> void:
 
 func _input(e: InputEvent) -> void:
 	if active and e is InputEventMouseButton and e.pressed and e.button_index == MOUSE_BUTTON_LEFT:
-		_prog = minf(_prog + (RESCUE_PER_CLICK if _rescue else PER_CLICK), 1.0)   # a press, never a held button
+		_prog = minf(_prog + (_rescue_click if _rescue else PER_CLICK), 1.0)   # a press, never a held button
 		rescue_clicks += 1
 		if _effort_t <= 0.0:
 			_effort_t = 0.22

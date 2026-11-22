@@ -38,8 +38,8 @@ func _at(u: float) -> Array:
 	return [_path[n - 1], Vector3.FORWARD]
 
 
-func _go(sg: Node, title: String, hint: String, seconds: float) -> void:
-	_won = await sg.rescue(title, hint, seconds)
+func _go(sg: Node, title: String, hint: String, seconds: float, per_click: float) -> void:
+	_won = await sg.rescue(title, hint, seconds, "hs_hold", per_click)
 	_over = true
 
 
@@ -75,7 +75,10 @@ func run(w: Node, pts: Array, chasers: Array, o := {}) -> Dictionary:
 	player.set_physics_process(false)
 	_over = false
 	_won = false
-	_go(sg, String(o.get("title", "RUN!  CLICK RAPIDLY")), String(o.get("hint", "LEFT CLICK, AGAIN AND AGAIN")), float(o.get("seconds", 12.0)))
+	# the player never runs faster than vmax (a hard sprint, not a flight): the bar is sized so that steady clicking (~2.6 a second) fills it in about the time the run takes at that speed
+	var vmax: float = float(o.get("max_speed", 6.5))
+	var t_run: float = (total - lead) / vmax
+	_go(sg, String(o.get("title", "RUN!  CLICK RAPIDLY")), String(o.get("hint", "LEFT CLICK, AGAIN AND AGAIN")), t_run * 1.45 + 2.0, 1.0 / (t_run * 2.6))
 	var u_p := lead
 	var t := 0.0
 	var caught := false
@@ -85,7 +88,7 @@ func run(w: Node, pts: Array, chasers: Array, o := {}) -> Dictionary:
 		t += dt
 		var prog: float = sg.rescue_progress()
 		var u_target := lead + prog * (total - lead)
-		u_p = maxf(u_p, lerpf(u_p, u_target, 1.0 - exp(-5.0 * dt)))
+		u_p = minf(maxf(u_p, lerpf(u_p, u_target, 1.0 - exp(-5.0 * dt))), u_p + vmax * dt)
 		_place_player(u_p, t, dt)
 		var front := minf(t * speed, cap_u)
 		for i in chasers.size():
@@ -107,7 +110,7 @@ func run(w: Node, pts: Array, chasers: Array, o := {}) -> Dictionary:
 			await get_tree().process_frame
 			var d2 := get_process_delta_time()
 			t += d2
-			u_p = minf(u_p + 9.0 * d2, total)
+			u_p = minf(u_p + vmax * d2, total)
 			_place_player(u_p, t, d2)
 	if player.get("camera") != null:
 		(player.camera as Camera3D).v_offset = 0.0
