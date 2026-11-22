@@ -361,7 +361,7 @@ func _run() -> void:
 	ok("c8_attack_no_talk_camera", await wait_until(func(): return said.has("Please tell me that's the wind."), 60 * 20)
 		and root.get_viewport().get_camera_3d() == world.player.camera)
 	ok("c8_barricade_gives_way", await wait_until(func(): return c8.st()["barricade"] == "broken", 60 * 20))
-	ok("c8_one_death", await wait_until(func(): return game.has_flag("ch8_temp_survivor_died"), 60 * 12) and c8.deaths == 1
+	ok("c8_one_death", await wait_until(func(): return game.has_flag("ch8_temp_survivor_died"), 60 * 25) and c8.deaths == 1
 		and not c8.temp.visible)
 	ok("c8_sarah_injured", game.has_flag("ch8_sarah_injured") and c8.sarah.visible and world.animators["Sarah"].seated)
 	ok("c8_named_alive", c8.eddie.visible and c8.marcus.visible and c8.ruth.visible and c8.sarah.visible)

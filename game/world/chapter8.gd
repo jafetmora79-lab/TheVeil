@@ -60,6 +60,7 @@ const SECURE_SCALE := Vector3(1.45, 1.0, 1.0)
 const PUSHER := Vector3(12.85, 0.04, 13.0)
 const POST_MARCUS := Vector3(13.4, 0.04, 11.6)
 const INJURED_BOX := Vector3(4.95, 0.04, 12.95)
+const TEMP_SAVED := Vector3(3.6, 0.04, 12.9)                  ## where the rescued cashier sits (beside the injured box)
 const RUTH_BY_SARAH := Vector3(5.95, 0.04, 12.8)
 # the aftermath (front of the store, by the customer-service counter)
 const FRONT_BOX := Vector3(2.4, 0.04, 6.4)
@@ -133,7 +134,7 @@ func begin(w: Node, chapter7: Node, restoring: bool) -> void:
 	if fresh:
 		_title.call_deferred()
 	# an attack cut off by a load before the death plays again from its start; a finished one never does
-	if Game.has_flag("ch8_attack_started") and not Game.has_flag("ch8_temp_survivor_died"):
+	if Game.has_flag("ch8_attack_started") and not _resolved():
 		_run_attack.call_deferred()
 
 
@@ -354,7 +355,7 @@ func _apply() -> void:
 	_place_npcs()
 	_apply_barricade()
 	_apply_lights()
-	var attack_open := Game.has_flag("ch8_temp_survivor_died") and not Game.has_flag("ch8_entrance_secured")
+	var attack_open := _resolved() and not Game.has_flag("ch8_entrance_secured")
 	_set_blocker(attack_open)
 	_secure_pallet.visible = Game.has_flag("ch8_attack_started") or Game.has_flag("ch8_entrance_secured")
 	_secure_pallet.position = SECURE_BLOCK if Game.has_flag("ch8_entrance_secured") else SECURE_START
@@ -407,9 +408,10 @@ func _show(n: Node3D, at: Vector3, toward: Vector3) -> void:
 ## barricade when the lights go) walks to his spot instead of being placed there.
 func _place_npcs(walk_marcus := false) -> void:
 	var died := Game.has_flag("ch8_temp_survivor_died")
+	var saved := Game.has_flag("ch8_temp_survivor_saved")
 	if Game.has_flag("ch8_survivor_helped"):
 		_gather_positions()
-	elif died:
+	elif died or saved:
 		_show(eddie, PRE_EDDIE, DOORWAY)
 		_show(marcus, POST_MARCUS, DOORWAY)
 		_show(ruth, RUTH_BY_SARAH, INJURED_BOX)
@@ -429,6 +431,11 @@ func _place_npcs(walk_marcus := false) -> void:
 		_show(ruth, RUTH_SPOT, Vector3(2.0, 1.5, 4.0))
 		_show(sarah, SARAH_SPOT, Vector3(8.6, 1.5, 6.8))
 		_show(temp, TEMP_SPOT, Vector3(0.0, 1.5, 4.0))
+	if saved:
+		_show(temp, TEMP_SAVED, INJURED_BOX)          # pulled free: hurt, shaken, sitting out of the way
+		var ts = world.animators.get("Survivor")
+		if ts:
+			ts.set_mood("scared")
 	if died:
 		temp.visible = false                          # caught in the attack: gone (no body, no gore)
 	for n in [eddie, marcus, ruth, sarah, temp]:
@@ -438,6 +445,8 @@ func _place_npcs(walk_marcus := false) -> void:
 
 
 func _gather_positions() -> void:
+	if Game.has_flag("ch8_temp_survivor_saved"):
+		_show(temp, GATHER_CENTRE + Vector3(-1.6, 0, 0.6), GATHER_CENTRE)
 	for k in GATHER:
 		var n: Node3D = {"Eddie": eddie, "Ruth": ruth, "Marcus": marcus}[k]
 		_show(n, GATHER[k], FRONT_BOX)
@@ -550,7 +559,7 @@ func _refresh_prompts() -> void:
 		if Game.has_flag("ch8_power_failed") and not Game.has_flag("ch8_power_restored"):
 			p = "[E] Reseat the Loose Cable" if Game.has_flag("ch8_panel_inspected") else "[E] Inspect the Panel"
 		its["panel"].prompt_text = p
-	var secure_on := Game.has_flag("ch8_temp_survivor_died") and not Game.has_flag("ch8_entrance_secured")
+	var secure_on := _resolved() and not Game.has_flag("ch8_entrance_secured")
 	its["secure"].prompt_text = "[E] Push the Pallets Across the Doorway" if secure_on else ""
 	its["secure"].collision_layer = 8 if secure_on else 0
 	var help_on := Game.has_flag("ch8_entrance_secured") and not Game.has_flag("ch8_survivor_helped")
@@ -602,7 +611,7 @@ func _guide() -> void:
 	elif Game.has_flag("ch8_power_restored") and not Game.has_flag("ch8_attack_started"):
 		t = ml(Vector3(8.2, 1.4, 10.0))
 		label = "THE OTHERS"
-	elif Game.has_flag("ch8_temp_survivor_died") and not Game.has_flag("ch8_entrance_secured") and not _busy.get("secure", false):
+	elif _resolved() and not Game.has_flag("ch8_entrance_secured") and not _busy.get("secure", false):
 		t = _secure_pallet.global_position + Vector3(0, 1.3, 0)
 		label = "PALLETS"
 	elif Game.has_flag("ch8_entrance_secured") and not Game.has_flag("ch8_survivor_helped"):
@@ -825,7 +834,7 @@ func _attack_tick() -> void:
 
 
 func _run_attack() -> void:
-	if _busy.get("attack", false) or Game.has_flag("ch8_temp_survivor_died"):
+	if _busy.get("attack", false) or _resolved():
 		return
 	_busy["attack"] = true
 	attack_runs += 1
@@ -931,20 +940,70 @@ func _hound_burst() -> void:
 	var ta = world.animators.get("Survivor")
 	if ta:
 		ta.set_mood("scared")
-	await get_tree().create_timer(0.35).timeout
-	# review note #109: no cut to black. The Hound drags the temporary survivor (down on the floor, screaming) back out through the breach in plain sight, no gore; everyone else keeps their place or WALKS
+	Engine.time_scale = 0.35                                   # the bite lands in slow motion (a beat, then back)
+	await get_tree().create_timer(0.2, true, false, true).timeout
+	Engine.time_scale = 1.0
+	# no cut to black. She goes down and the Hound DRAGS her slowly towards the breach, in plain sight. For a few seconds the player's hands are free: reach her and pull her out of its jaws, or watch.
 	if ta:
 		ta.walk_to([])
 		ta.set_seated(true, 0.06)
 	Sfx.play("hurt", ml(CAUGHT_AT + Vector3(0, 1.4, 0)), 4.0, 1.25)
 	p4._play("scrape", ml(Vector3(8.2, 0.4, 15.5)), 4.0)
+	Dialogue.say("c8_cashier_dragged", false, true)
 	var out_at := Vector3(8.2, 0.0, 17.6)
-	var drag := create_tween().set_parallel(true).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN)
+	var drag := create_tween().set_parallel(true)
 	if is_instance_valid(h):
-		drag.tween_property(h, "position", Vector3(out_at.x, h.position.y, out_at.z), 1.7)
-	drag.tween_property(temp, "position", Vector3(out_at.x, temp.position.y, out_at.z - 1.0), 1.7)
-	await drag.finished
-	_kill_temp()
+		drag.tween_property(h, "position", Vector3(out_at.x, h.position.y, out_at.z), 7.0)
+	drag.tween_property(temp, "position", Vector3(out_at.x, temp.position.y, out_at.z - 1.0), 7.0)
+	_hold(false)
+	hud.set_hint("SHE IS BEING DRAGGED OUT - RUN TO HER!")
+	var reached := false
+	var win_t := 0.0
+	while win_t < 6.6 and drag.is_running():
+		await get_tree().process_frame
+		win_t += get_process_delta_time()
+		if player.global_position.distance_to(temp.global_position) < 2.3:
+			reached = true
+			break
+	hud.set_hint("")
+	var saved := false
+	if reached:
+		drag.pause()
+		_hold(true)
+		await _turn_to(temp.global_position + Vector3(0, 0.6, 0), 0.25)
+		var sg = world.get_node_or_null("Struggle")
+		if sg == null:
+			sg = load("res://game/encounters/struggle.gd").new()
+			sg.name = "Struggle"
+			world.add_child(sg)
+			sg.setup(world)
+		saved = await sg.rescue("CLICK RAPIDLY  -  PULL HER FREE!", "LEFT CLICK, AGAIN AND AGAIN", 7.0)
+		if not saved:
+			drag.play()
+			await get_tree().create_timer(maxf(7.0 - win_t, 1.2)).timeout
+	else:
+		await drag.finished
+	st()["cashier_tried"] = reached
+	if saved:
+		drag.kill()
+		if is_instance_valid(h):
+			_hplay(h, "Hit_React", 0.0)
+			Sfx.bank_at("hound_yelp", h.global_position + Vector3.UP * 0.6, 2.0, 8.0)
+		p4._play("impact", temp.global_position + Vector3(0, 0.6, 0), 2.0)
+		world._shake(get_viewport().get_camera_3d(), 0.25, 0.04)
+		Game.set_flag("ch8_temp_survivor_saved")
+		st()["casualty"] = ""
+		st()["temp_saved"] = true
+		if ta:
+			ta.set_mood("scared")
+			ta.set_seated(false)
+		Dialogue.say("c8_cashier_saved", false, true)
+		world.npc_walk("Survivor", TEMP_SAVED, 1.1)           # she crawls up and limps to a spot out of the way
+	else:
+		_kill_temp()
+		if not reached:
+			Game.set_flag("ch8_cashier_abandoned")             # nobody even tried: the others saw it
+	_hold(true)
 	Game.set_flag("ch8_sarah_injured")
 	st()["injured"] = "sarah"
 	_set_blocker(true)
@@ -961,6 +1020,8 @@ func _hound_burst() -> void:
 		_hplay(h, "Run", 6.0)
 		await _hound_run(h, [HOUND_GUARD], 6.0)
 		_hplay(h, "Alert", 0.0)
+	if not saved:
+		Dialogue.say("c8_cashier_lost" if reached else "c8_cashier_abandoned", false, true)
 	await get_tree().create_timer(0.5).timeout
 	await _sarah_bite()                                # the Hound comes for Sarah: bite, rescue, barricade
 	_hold(false)
@@ -1183,7 +1244,7 @@ func _spawn_hound_guard() -> void:
 func _guard_tick(delta: float) -> void:
 	if hound == null or not is_instance_valid(hound) or _busy.get("secure", false) or _busy.get("attack", false):
 		return
-	if Game.has_flag("ch8_entrance_secured") or not Game.has_flag("ch8_temp_survivor_died"):
+	if Game.has_flag("ch8_entrance_secured") or not _resolved():
 		return
 	_bite_t = maxf(_bite_t - delta, 0.0)
 	_lunge_t -= delta
@@ -1218,7 +1279,7 @@ func _lunge() -> void:
 
 ## Push the pallet stack across the doorway: three shoves (Chapter 4's pallet push), first person.
 func _push_secure(_b: Node) -> void:
-	if not Game.has_flag("ch8_temp_survivor_died") or Game.has_flag("ch8_entrance_secured") or _busy.get("secure", false):
+	if not _resolved() or Game.has_flag("ch8_entrance_secured") or _busy.get("secure", false):
 		return
 	_busy["secure"] = true
 	its["secure"].prompt_text = ""
@@ -1347,8 +1408,13 @@ func _gather_tick() -> void:
 func _aftermath() -> void:
 	_busy["final"] = true
 	var speakers := [marcus, eddie, ruth]
-	var ok: bool = await world.converse(["c8_aftermath"], speakers)
+	# what the group says first depends on what the player did for the cashier (rescued / tried and failed / never moved)
+	var first := "c8_after_saved" if Game.has_flag("ch8_temp_survivor_saved") else ("c8_after_abandoned" if Game.has_flag("ch8_cashier_abandoned") else "c8_after_lost")
+	var ok: bool = await world.converse([first, "c8_aftermath"], speakers)
 	if not ok:
+		Dialogue.say(first, false, true)
+		while Dialogue.is_busy():
+			await get_tree().process_frame
 		Dialogue.say("c8_aftermath", false, true)
 	await get_tree().process_frame
 	while Dialogue.is_busy() or world.conversing:
@@ -1382,6 +1448,11 @@ func _on_rest(_id: String) -> void:
 
 
 # ------------------------------------------------------------------ first-person helpers
+## The temporary survivor's fate is settled: she died (not rescued) or was pulled free. Everything that waited for "the attack is over" waits for this.
+func _resolved() -> bool:
+	return Game.has_flag("ch8_temp_survivor_died") or Game.has_flag("ch8_temp_survivor_saved")
+
+
 func _hold(on: bool) -> void:
 	player.set("controls_enabled", not on)
 	player.velocity = Vector3.ZERO

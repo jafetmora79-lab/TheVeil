@@ -117,3 +117,13 @@ STILL OPEN (the owner has these in the notes file):
 - **Poles** (#113/#114): two utility poles moved off the road (007 to x=-9, 008 to x=41 so the back entrance is clear) in `Greyhaven_Core.tscn`.
 - *Needs the owner's visual test:* the thrown bottle and alarm, the returning pack and chase, the end-of-hunt question flow, the storage grids, the shop doors, Joan's camera, the breaker animation, the break-in scene without the cut, the fuse close-up (#111 is a guess: the cause of the "box" could not be rendered), the fuel door and the can, the moved poles. #26 needs a play session.
 - Pre-existing failures unchanged: `expedition_test` (5), `chapter7_test` / `chapter8_test` start with walk failures in headless; `living_town_test` (5), `car_quest_test` (2).
+
+## Update 2026-11-22 (night, 3): Chapter 9 cashier rescue branch (`chapter8.gd`)
+
+- The break-in is now a choice with consequences. The Hound bites the cashier (slow-motion beat), then DRAGS her slowly (7 s) towards the breach while the player's hands are free ("SHE IS BEING DRAGGED OUT - RUN TO HER!"). Reaching her (2.3 m) pauses the drag and starts the click struggle
+  (`Struggle.rescue`, 7 s). Outcomes:
+  - **Saved** (`ch8_temp_survivor_saved`): the Hound recoils, the cashier limps to `TEMP_SAVED` (and sits among the group later), the Hound turns on Sarah (Sarah's bite stays canon: Ruth shouts "SARAH, NO"); survivors.json: morale +5, Ruth +3 / Eddie +2 trust.
+  - **Tried and failed:** the drag resumes, she is gone (`ch8_temp_survivor_died`, morale -10, `c8_cashier_lost`).
+  - **Never went to her** (`ch8_cashier_abandoned`, plus died): Ruth blames the player (`c8_cashier_abandoned`, morale -5, Ruth -4 / Eddie -2 trust, memory `blamed_you`).
+- Everything that waited for "the cashier died" waits for `_resolved()` (died OR saved). The aftermath talk opens with an outcome line (`c8_after_saved / _lost / _abandoned`) then the usual `c8_aftermath`.
+- Not covered by a headless test (the chapter 8 test fails on its walking steps; a dev set-up overwrites the owner's save): *needs the owner's play-through of all three outcomes.*

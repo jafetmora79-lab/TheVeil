@@ -15,6 +15,26 @@
   "ch8_sarah_untreated": {
    "morale": -5
   },
+  "ch8_temp_survivor_saved": {
+   "trust": {
+    "Ruth": 3,
+    "Eddie": 2
+   },
+   "morale": 5,
+   "memory": {
+    "Ruth": "saw_you_save_her"
+   }
+  },
+  "ch8_cashier_abandoned": {
+   "trust": {
+    "Ruth": -4,
+    "Eddie": -2
+   },
+   "morale": -5,
+   "memory": {
+    "Ruth": "blamed_you"
+   }
+  },
   "ch8_temp_survivor_died": {
    "morale": -10,
    "memory": {
