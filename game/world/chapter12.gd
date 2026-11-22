@@ -204,7 +204,7 @@ func _box(parent: Node3D, n: String, at: Vector3, size: Vector3, mat: String, co
 	b.global_transform = Transform3D(basis, at)
 	var mi := MeshInstance3D.new()
 	var bm := BoxMesh.new()
-	bm.size = size
+	bm.size = size + Vector3(0.06, 0.06 if size.y > 0.5 else 0.0, 0.06)      # (neighbouring boxes overlap a hair: no light-gap seams between walls, floors and roofs)
 	mi.mesh = bm
 	mi.material_override = _mat(mat)
 	b.add_child(mi)
@@ -218,6 +218,20 @@ func _box(parent: Node3D, n: String, at: Vector3, size: Vector3, mat: String, co
 
 
 ## Wall along x (z = const) from x0 to x1, floor y0, height h (facility-local).
+## The facility's exit: a steel utility door in a painted frame, a push bar, a hazard stencil and an EXIT sign above it (review note #69: it was a flat brown block).
+func _exit_door() -> void:
+	var at: Vector3 = EXIT_DOOR + Vector3(0, -0.15, 0.06)
+	var steel := "concrete"
+	_box(fac, "ExitDoor", L(at), Vector3(1.0, 2.05, 0.07), "rust", false)                          # the leaf
+	for pair in [[Vector3(-0.56, 0.0, 0.0), Vector3(0.1, 2.2, 0.16)], [Vector3(0.56, 0.0, 0.0), Vector3(0.1, 2.2, 0.16)], [Vector3(0.0, 1.07, 0.0), Vector3(1.22, 0.1, 0.16)]]:
+		_box(fac, "ExitDoorFrame", L(at + pair[0]), pair[1], steel, false)                          # the frame
+	_box(fac, "ExitDoorBar", L(at + Vector3(0.0, -0.05, -0.07)), Vector3(0.8, 0.05, 0.05), "rust", false)   # the push bar
+	_box(fac, "ExitDoorStripe", L(at + Vector3(0.0, 0.55, -0.04)), Vector3(0.9, 0.12, 0.01), "concrete", false)
+	var par: Node3D = fac
+	VeilLoc.sign_quad(par, "exit", Vector2(0.5, 0.17), Transform3D(Basis(Vector3.UP, PI), L(at + Vector3(0, 1.3, -0.1))))
+	VeilLoc.sign_quad(par, "staff", Vector2(0.4, 0.15), Transform3D(Basis(Vector3.UP, PI), L(at + Vector3(0.0, 0.7, -0.06))))
+
+
 func _wz(z: float, x0: float, x1: float, y0: float, h: float, mat := "concrete") -> void:
 	_box(fac, "Wall", L(Vector3((x0 + x1) * 0.5, y0 + h * 0.5, z)), Vector3(absf(x1 - x0), h, 0.3), mat)
 
@@ -353,7 +367,7 @@ func _build_facility() -> void:
 		_wz(22.0, side, side * 3.0, 0.0, 3.2)
 		_wx(side * 3.0, 22.0, 28.0, 0.0, 3.2)
 		_wz(28.0, side, side * 3.0, 0.0, 3.2)
-	_box(fac, "ExitDoor", L(EXIT_DOOR + Vector3(0, -0.15, 0.06)), Vector3(1.1, 2.1, 0.08), "rust", false)
+	_exit_door()
 	# --- the ramp down (z 28..40, y 0 -> -6)
 	_wx(-1.15, 28.0, 40.0, -6.0, 9.2)
 	_wx(1.15, 28.0, 40.0, -6.0, 9.2)

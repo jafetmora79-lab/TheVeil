@@ -657,6 +657,7 @@ func _setup_town() -> void:
 	print("[World] market fixtures: ", load("res://game/world/market_fixes.gd").apply(market))       # review notes #14 / #15 / #18: fridges, freezers, produce rebuilt in Blender
 	if game_shop != null:
 		print("[World] shop fixtures: ", load("res://game/world/market_fixes.gd").apply_shop(game_shop))
+	_ground_fill()
 	print("[World] house doors: ", load("res://game/world/house_doors.gd").apply(self))                  # review note #58: the houses that cannot be searched say why
 	print("[World] store interiors: ", load("res://game/world/store_interiors.gd").apply(self))        # review notes #42 / #43: the gas station and the clothing stores furnished and lootable
 	market_merch.taken.connect(func(_g, i): _grocery_hint(); _note_unpaid("market", i))
@@ -2984,6 +2985,26 @@ func _tripod_watch(tc: VeilTripodColossus, wd: Vector3) -> void:
 		away.queue_free()
 		VeilGrimtalon.retire_all(_tc_birds, wd)
 		tc.queue_free())
+
+
+## A dark ground far below the town: where two ground / road / driveway pieces leave a hairline gap the player saw through to the bottom of the map (review notes #70 / #71: "a little crack where you can see
+## the bottom of the map"). It is under everything (y -0.5), wide enough for the whole map, and never seen otherwise.
+func _ground_fill() -> void:
+	if get_node_or_null("GroundFill") != null:
+		return
+	var mi := MeshInstance3D.new()
+	mi.name = "GroundFill"
+	var pm := PlaneMesh.new()
+	pm.size = Vector2(1400.0, 1400.0)
+	mi.mesh = pm
+	var m := StandardMaterial3D.new()
+	m.albedo_color = Color(0.13, 0.13, 0.14)
+	m.roughness = 1.0
+	mi.material_override = m
+	mi.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+	add_child(mi)
+	mi.global_position = Vector3(0, -0.12, 0)
+	mi.extra_cull_margin = 4000.0
 
 
 ## Health and stamina are part of the game from the first step out into the Veil on: whatever way the game was entered (Continue, a chapter picked from the menu, a dev set-up, a load mid-chapter),

@@ -110,6 +110,50 @@ func begin(w: Node, chapter14: Node, restoring: bool) -> void:
 	Game.refresh_objective()
 
 
+## The map on the table (review note #67: the prompt said "the map" but there was nothing to see): a large sheet of the town laid on the table at the plan spot, the route inked on it, pinned at the corners,
+## and a lamp over it. The sheet is drawn from the language table (make_chapter16_signs.py).
+func _map_sheet() -> void:
+	if get_node_or_null("C16_MapSheet") != null:
+		return
+	var at := F(Vector3(3.0, 0.0, 3.0))
+	var space: PhysicsDirectSpaceState3D = world.get_world_3d().direct_space_state
+	var hit := space.intersect_ray(PhysicsRayQueryParameters3D.create(at + Vector3(0, 3.0, 0), at - Vector3(0, 1.0, 0), 1))
+	var y: float = (hit["position"] as Vector3).y if not hit.is_empty() else at.y + 0.9
+	var root := Node3D.new()
+	root.name = "C16_MapSheet"
+	add_child(root)
+	root.global_position = Vector3(at.x, y + 0.012, at.z)
+	var q := MeshInstance3D.new()
+	var qm := QuadMesh.new()
+	qm.size = Vector2(0.96, 0.72)
+	var m := StandardMaterial3D.new()
+	m.albedo_texture = VeilLoc.tex("map")
+	m.texture_filter = BaseMaterial3D.TEXTURE_FILTER_NEAREST
+	m.roughness = 0.9
+	qm.material = m
+	q.mesh = qm
+	q.rotation = Vector3(-PI * 0.5, 0, 0)
+	root.add_child(q)
+	for cx in [-1.0, 1.0]:
+		for cz in [-1.0, 1.0]:
+			var pin := MeshInstance3D.new()
+			var sm := SphereMesh.new()
+			sm.radius = 0.02
+			sm.height = 0.04
+			var pm := StandardMaterial3D.new()
+			pm.albedo_color = Color(0.7, 0.1, 0.1)
+			sm.material = pm
+			pin.mesh = sm
+			pin.position = Vector3(cx * 0.44, 0.02, cz * 0.32)
+			root.add_child(pin)
+	var lamp := OmniLight3D.new()
+	lamp.light_color = Color(1.0, 0.85, 0.6)
+	lamp.light_energy = 0.9
+	lamp.omni_range = 4.0
+	root.add_child(lamp)
+	lamp.position = Vector3(0, 1.1, 0)
+
+
 func st() -> Dictionary:
 	return Game.world_state[STATE]
 
@@ -214,6 +258,7 @@ func _pickup(item: String, at: Vector3, key: String) -> void:
 
 
 func _setup_road() -> void:
+	_map_sheet.call_deferred()
 	for i in FINDS.size():
 		_pickup(FINDS[i][0], FINDS[i][1], "ch15/find%d" % i)
 	# cover: three cars between the road and the fields the Colossus crosses (west of each cover point)
@@ -235,7 +280,7 @@ func _setup_below() -> void:
 		thr.collision_layer = 0
 	its["gap"] = c10._spot("C15_Gap", UL(GAP + Vector3(0, 1.2, 0)), Vector3(2.4, 2.2, 1.0), _squeeze)
 	# the ancient passage (x 10..14, z 40..62), a mist pocket to its east (x 14..22, z 47..55)
-	_b(Vector3(12.0, -0.15, 79.0), Vector3(44.0, 0.3, 80.0), "stone")
+	_b(Vector3(12.0, -0.2, 79.0), Vector3(44.0, 0.3, 80.0), "stone")                # (its top a hair under the other floors: it flickered / z-fought with them, review note #78)
 	_b(Vector3(9.85, 1.6, 51.0), Vector3(0.3, 3.2, 22.0), "stone")
 	_b(Vector3(14.15, 1.6, 44.0), Vector3(0.3, 3.2, 8.0), "stone")
 	_b(Vector3(14.15, 1.6, 58.5), Vector3(0.3, 3.2, 7.0), "stone")
@@ -271,6 +316,7 @@ func _setup_below() -> void:
 	if sm:
 		sm.reparent(seal_slab, true)
 	_mdl("ANC_SealFrame.glb", UL(Vector3(12.0, 0.0, 84.6)), PI, Vector3(1.17, 0.74, 1.0))
+	_bh(Vector3(12.0, 3.0, 88.6), Vector3(8.0, 6.0, 6.6))                             # the structure is SOLID inside: nobody walks into the empty box the mist comes from (review note #85)
 	# the great chamber's carved pillars (collision under each)
 	for pp in [Vector3(1.0, 0.0, 67.0), Vector3(23.0, 0.0, 67.0), Vector3(1.0, 0.0, 77.0), Vector3(23.0, 0.0, 77.0), Vector3(1.0, 0.0, 86.0), Vector3(23.0, 0.0, 86.0)]:
 		_bh(pp + Vector3(0, 4.5, 0), Vector3(1.2, 9.0, 1.2))
@@ -400,6 +446,8 @@ func _apply() -> void:
 		_node(k).visible = k in present()
 	if Game.has_flag("ch15_gap_cleared"):
 		c13.collapse_block.global_position = UL(c13.COLLAPSE + Vector3(-1.6, 0, 0))
+	if Game.has_flag("ch15_in_passage") and below != null:
+		_build_rubble_wall()
 	if not Game.has_flag("ch15_set_out"):
 		_place_refuge()
 	elif Game.has_flag("ch15_chamber_reached"):
@@ -584,7 +632,7 @@ func _refresh_prompts() -> void:
 	for k in ["Eddie", "Ruth", "Sarah", "Marcus"]:
 		var on: bool = prep and k in present() and not st().get("talked", {}).get(k, false)
 		_setp("talk_" + k, ("[E] Talk to " + k) if on else "")
-	_setp("gap", "[E] Squeeze Through the Rubble" if Game.has_flag("ch15_in_passage") and not Game.has_flag("ch15_gap_cleared") else "")
+	_setp("gap", "")                                         # (no prompt: crouch through the hole; review note #75)
 	var ch := Game.has_flag("ch15_chamber_reached") and not Game.has_flag("ch15_decided")
 	var c: Dictionary = st().get("controls", {})
 	_setp("ctrl_A", "[E] Pull the Old Lever" if ch and not c.has("A") else "")
@@ -600,6 +648,17 @@ func _guide() -> void:
 	var t: Variant = null
 	var label := ""
 	var p := player.global_position
+	if Game.has_flag("ch15_decided") and _busy.get("final", false) and not Game.has_flag("ch15_ended"):
+		# after the choice there is always ONE marked thing to do (review note #86: nothing said what to do next, and the player was stuck)
+		if _busy.get("outer_open", false):
+			t = UL(OUTER_END + Vector3(0, 1.2, 0))
+			label = "SERVICE TUNNEL - GO"
+		elif _busy.get("seal_mode", false):
+			t = UL((CTRL_A if int(st().get("seal_steps", 0)) == 0 else CTRL_B) + Vector3(0, 1.2, 0))
+			label = "CONTROL - PULL IT" if int(st().get("seal_steps", 0)) == 0 else "CONTROL - TURN IT"
+		if hud.has_method("set_marker"):
+			hud.set_marker(t, label)
+		return
 	if not Game.has_flag("ch15_opening_done"):
 		pass
 	elif not Game.has_flag("ch15_plan_done"):
@@ -938,6 +997,7 @@ func _colossus_reveal() -> void:
 	c12._shake(2.0, 0.03)
 	Sfx.play("colossus_call", colossus.global_position + Vector3(0, 12, 0), 6.0, 0.8)
 	Sfx.play_music(Sfx.MUSIC_COLOSSUS, false, -6.0, 0.6, Sfx.MUSIC_GAMEPLAY)
+	_materialize(true)                                           # it shifts into this world out of its own (review note #72)
 	var cam: Camera3D = player.camera
 	var far0 := cam.far
 	cam.far = maxf(far0, 400.0)
@@ -994,6 +1054,7 @@ func _crossing_tick(delta: float) -> void:
 			_col_phase = "look"
 			_col_t = 5.0
 			_col_play("Alert")
+			_eye(true)                                                  # its light comes ON and sweeps the field: that is how you know it is looking (review note #73)
 			Sfx.play("colossus_step", colossus.global_position, 4.0, 0.6)
 			_hint("DOWN - it's looking!")
 	elif _col_phase == "look":
@@ -1005,6 +1066,7 @@ func _crossing_tick(delta: float) -> void:
 			_col_phase = "walk"
 			_col_t = 7.0
 			colossus.rotation.y = 0.0
+			_eye(false)
 			_col_play("Walk_Heavy")
 			_hint("Now - move!")
 	if _danger_t >= 0.0:
@@ -1016,13 +1078,72 @@ func _crossing_tick(delta: float) -> void:
 			_retry()
 
 
+## It does not simply appear: it SHIFTS between realities. Flickers in (a few frames visible, gone, visible, each longer, with a pulse of light and a low tone) and, leaving, flickers out.
+func _materialize(into: bool) -> void:
+	if colossus == null or not is_instance_valid(colossus):
+		return
+	var col := colossus
+	var flash := OmniLight3D.new()
+	flash.light_color = Color(0.7, 0.85, 1.0)
+	flash.omni_range = 120.0
+	flash.light_energy = 0.0
+	world.add_child(flash)
+	flash.global_position = col.global_position + Vector3(0, 30, 0)
+	var steps := [0.06, 0.1, 0.08, 0.16, 0.1, 0.26, 0.14, 0.5]
+	var vis := not into
+	Sfx.play("colossus_call", col.global_position + Vector3(0, 12, 0), 2.0, 1.5)
+	for i in steps.size():
+		vis = not vis
+		col.visible = vis if i < steps.size() - 1 else into
+		flash.light_energy = 6.0 if vis else 0.0
+		await get_tree().create_timer(float(steps[i])).timeout
+		if not is_instance_valid(col):
+			break
+	flash.queue_free()
+
+
+func _eye(on: bool) -> void:
+	if colossus != null and is_instance_valid(colossus) and colossus.has_meta("tripod"):
+		var tc: VeilTripodColossus = colossus.get_meta("tripod")
+		tc.eye.target = player.camera
+		tc.eye.max_angle = PI
+		tc.eye.level = 1.6 if on else 1.0
+		tc.eye.beam_on = on
+
+
+## Seen in the open = the end (review note #73): the light finds you, you stop, and it draws you up along the beam like in a trance, rising, until the screen goes.
+var instakill := true                          ## (tests turn it off to walk the old "back to the last cover" retry)
+
+
 func _detected() -> void:
+	if not instakill:
+		report["detections"] += 1
+		_danger_t = 3.0
+		_col_play("Attack_Heavy")
+		Sfx.play("colossus_call", colossus.global_position + Vector3(0, 12, 0), 8.0, 0.75)
+		c12._shake(1.4, 0.06)
+		_hint("IT SAW YOU - GET TO COVER!")
+		return
 	report["detections"] += 1
 	_danger_t = 3.0
+	_busy["colossus"] = true
+	_hold(true)
 	_col_play("Attack_Heavy")
+	_eye(true)
 	Sfx.play("colossus_call", colossus.global_position + Vector3(0, 12, 0), 8.0, 0.75)
 	c12._shake(1.4, 0.06)
-	_hint("IT SAW YOU - GET TO COVER!")
+	_hint("IT SAW YOU.")
+	var up_to: Vector3 = player.global_position + (colossus.global_position - player.global_position) * Vector3(1, 0, 1).normalized() * 6.0 + Vector3(0, 9.0, 0)
+	player.set_physics_process(false)
+	var cam: Camera3D = player.camera
+	var tw := create_tween().set_parallel(true)
+	tw.tween_property(player, "global_position", up_to, 3.6).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN)
+	tw.tween_method(func(k: float): player.set_yaw_pitch(player.rotation.y, lerpf(player.head.rotation.x, 0.9, k)), 0.0, 1.0, 2.4)
+	tw.tween_property(cam, "fov", cam.fov * 0.8, 3.0)
+	await tw.finished
+	await hud.fade_to(1.0, 0.7)
+	player.set_physics_process(true)
+	player.damage(9999.0, colossus.global_position)              # the death scene; RETRY loads the last checkpoint (the cover you reached)
 
 
 func _retry() -> void:
@@ -1050,9 +1171,12 @@ func _crossed() -> void:
 	Game.set_flag("ch15_crossed")
 	_hint("")
 	_col_play("Walk_Heavy")
-	var tw := create_tween()
-	tw.tween_property(colossus, "global_position", colossus.global_position + Vector3(0, 0, 80.0), 40.0)
-	tw.tween_callback(func(): if is_instance_valid(colossus): colossus.queue_free())    # far in the mist by then
+	# it turns WEST, out over the empty fields, and walks away (it used to keep going north over the houses and seemed to stop on them: review note #80)
+	var tw := create_tween().set_parallel(true)
+	tw.tween_property(colossus, "rotation:y", PI * 0.5, 4.0).set_trans(Tween.TRANS_SINE)
+	tw.tween_property(colossus, "global_position", colossus.global_position + Vector3(-320.0, 0, 20.0), 110.0)
+	tw.chain().tween_callback(func(): if is_instance_valid(colossus): colossus.queue_free())    # far in the mist by then
+	get_tree().create_timer(20.0).timeout.connect(func(): _materialize(false))                   # and it shifts OUT of this world before it is lost to sight (review note #72)
 	Sfx.play_music(Sfx.MUSIC_GAMEPLAY, true, -14.0, 3.0)
 	_district_pressure()
 	_guide()
@@ -1095,10 +1219,10 @@ func _passage_tick() -> void:
 		return
 	var it: Interactable = c13.its.get("passage")
 	if it:
-		it.prompt_text = "[E] Into the Passage"
-		it.collision_layer = 8
-		if not it.used.is_connected(_enter_passage):
-			it.used.connect(_enter_passage)
+		it.prompt_text = ""                              # no prompt: the dark mouth takes you in when you walk into it (review note #81)
+		it.collision_layer = 0
+		if player.global_position.distance_to(it.global_position) < 2.0 and player.controls_enabled:
+			_enter_passage(null)
 
 
 func _enter_passage(_b: Node) -> void:
@@ -1124,9 +1248,9 @@ func _enter_passage(_b: Node) -> void:
 	var ps := _free_spots(pn, pa, UL, [[c13.U_ENTRY + Vector3(0, 0, 3.4), 0.9]], 0.95, 2.0)
 	for k in pn:
 		world.place_survivor(_node(k), UL(ps[k]))
-	c13.collapse_block.visible = true
-	c13.collapse_block.collision_layer = 1
-	c13.collapse_block.global_position = UL(c13.COLLAPSE)
+	c13.collapse_block.visible = false                      # the old single block is replaced by a half-collapsed wall with a low hole (review note #75)
+	c13.collapse_block.collision_layer = 0
+	_build_rubble_wall()
 	_set_fog(false)
 	world.save_checkpoint("chapter16_passage")
 	await get_tree().create_timer(0.4).timeout
@@ -1136,6 +1260,53 @@ func _enter_passage(_b: Node) -> void:
 	await _tg(_pick("c15_entrance"), [_node(_second()), _node(voice())])
 	_refresh_prompts()
 	_guide()
+
+
+## A half-broken wall across the gallery with a hole low on the RIGHT: the player has to crouch to get through (they are held crouched inside it), no key press. Chunks of masonry and a pile
+## of rubble round the hole make it read as a collapse, not a box.
+var _rubble: Node3D
+
+
+func _build_rubble_wall() -> void:
+	if _rubble != null:
+		return
+	_rubble = Node3D.new()
+	_rubble.name = "C15_RubbleWall"
+	below.add_child(_rubble)
+	var z: float = c13.COLLAPSE.z
+	# corridor x 10.8 .. 13.2: the wall's solid left part, the low hole on the right (x 11.9 .. 13.2, 1.35 m high), a heavy lintel above it
+	var parts := [[Vector3(11.35, 1.5, z), Vector3(1.1, 3.0, 1.3)], [Vector3(12.55, 2.2, z), Vector3(1.3, 1.7, 1.3)]]
+	for p in parts:
+		c12._box(_rubble, "Rubble", UL(p[0]), p[1], "concrete")
+	# loose masonry: tilted chunks piled on both sides and in the hole's mouth (visual only)
+	var rng := RandomNumberGenerator.new()
+	rng.seed = 7
+	for i in 16:
+		var side := -1.0 if i % 2 == 0 else 1.0
+		var pos := Vector3(rng.randf_range(10.9, 13.1), rng.randf_range(0.08, 0.45), z + side * rng.randf_range(0.8, 1.4))
+		c12._box(_rubble, "Chunk", UL(pos), Vector3(rng.randf_range(0.25, 0.6), rng.randf_range(0.15, 0.4), rng.randf_range(0.25, 0.5)), "concrete", false,
+			Basis.from_euler(Vector3(rng.randf_range(-0.5, 0.5), rng.randf_range(0, 3.0), rng.randf_range(-0.5, 0.5))))
+	c13._play("scrape", UL(c13.COLLAPSE), 2.0)
+
+
+func _squeeze_tick() -> void:
+	if _rubble == null or Game.has_flag("ch15_gap_cleared"):
+		if player != null:
+			player.force_crouch = false
+		return
+	var l: Vector3 = player.global_position - c13.U
+	var inside: bool = absf(l.x - 12.55) < 0.7 and absf(l.z - c13.COLLAPSE.z) < 1.35
+	player.force_crouch = inside                           # held low while in the hole: the roof of it is 1.35 m
+	if l.z > c13.COLLAPSE.z + 1.5 and absf(l.x - 12.0) < 2.0:
+		player.force_crouch = false
+		Game.set_flag("ch15_gap_cleared")
+		# the others crawl through behind (they are put just beyond it, in a row)
+		var i := 0
+		for k in present():
+			world.place_survivor(_node(k), UL(c13.COLLAPSE + Vector3(-0.5 + 0.9 * (i % 2), 0.0, 2.2 + 0.9 * (i / 2))))
+			i += 1
+		_refresh_prompts()
+		_guide()
 
 
 func _squeeze(_b: Node) -> void:
@@ -1157,6 +1328,7 @@ func _squeeze(_b: Node) -> void:
 func _below_tick(delta: float) -> void:
 	if not Game.has_flag("ch15_in_passage") or Game.has_flag("ch15_ended"):
 		return
+	_squeeze_tick()
 	var l: Vector3 = player.global_position - c13.U
 	# the mist pocket: it hurts to stay in it (warned, avoidable)
 	var mp: Vector3 = MIST_POCKET[0]
@@ -1218,7 +1390,7 @@ func _control(_b: Node, k: String) -> void:
 		await _horror()
 	c[k] = true
 	st()["controls"] = c
-	_control_done_look(k)
+	await _control_done_look(k)                          # the lever / wheel moves first, then the runes light, and only THEN the chamber reacts (review note #84: it used to react first)
 	Sfx.play("door_open", player.global_position, 2.0, 0.4)
 	c12._shake(0.6, 0.04)
 	_busy["ctrl"] = false
@@ -1234,6 +1406,21 @@ func _control_done_look(k: String) -> void:
 	var m: Node3D = ctrl_models.get(k)
 	if m == null:
 		return
+	# 1. the control moves
+	if k == "C":
+		var w0 := m.find_child("Wheel", true, false) as Node3D
+		if w0:
+			var tw0 := create_tween()
+			tw0.tween_property(w0, "rotation:z", TAU * 2.0, 1.8).set_trans(Tween.TRANS_SINE)
+			await tw0.finished
+	else:
+		var lv0 := m.find_child("Lever", true, false) as Node3D
+		if lv0:
+			var tl0 := create_tween()
+			tl0.tween_property(lv0, "rotation:x", deg_to_rad(35.0), 0.7).set_trans(Tween.TRANS_BACK)
+			await tl0.finished
+	Sfx.play("pickup", player.global_position, -4.0, 0.6)
+	# 2. its runes light
 	var lamp := StandardMaterial3D.new()
 	lamp.albedo_color = Color(0.3, 0.7, 1.0)
 	lamp.emission_enabled = true
@@ -1243,16 +1430,7 @@ func _control_done_look(k: String) -> void:
 		var r := m.find_child("Rune%d" % (i + 1), true, false) as MeshInstance3D
 		if r:
 			r.material_override = lamp
-	if k == "C":
-		var w := m.find_child("Wheel", true, false) as Node3D
-		if w:
-			var tw := create_tween()
-			tw.tween_property(w, "rotation:z", TAU * 2.0, 1.8).set_trans(Tween.TRANS_SINE)
-	else:
-		var lv := m.find_child("Lever", true, false) as Node3D
-		if lv:
-			var tw := create_tween()
-			tw.tween_property(lv, "rotation:x", deg_to_rad(35.0), 0.7).set_trans(Tween.TRANS_BACK)
+	await get_tree().create_timer(0.5).timeout           # 3. a beat, then the world answers
 
 
 ## The seal: the camera drawn toward it, the flashlight flickers, a vast shadow moves behind the stone, the chamber
@@ -1410,9 +1588,10 @@ func _to_outer(and_player: bool) -> void:
 func _ending_a() -> void:
 	report["ending_runs"] += 1
 	_busy["final"] = true
-	_hint("Into the service tunnel. Everyone together.")
+	_hint("Ending A: LEAVE. Follow the marker into the service tunnel, everyone together.")
 	_busy["outer_open"] = true
 	_refresh_prompts()
+	_guide()
 	for k in present():
 		c9._start_follow(k)
 	while _busy.get("outer_open", false):
@@ -1440,7 +1619,7 @@ func _ending_b() -> void:
 		var f: VeilCompanionFollow = c9.follows[k]
 		f.stop()
 		world.npc_walk(k, UL(ts[k]), 2.6)                       # by the tunnel, out of its mouth, each at a clear spot
-	_hint("Back to the mechanism - close it!")
+	_hint("Ending B: SEAL IT. Back to the controls: pull the lever, then turn the wheel (follow the marker).")
 	st()["seal_steps"] = 0
 	var c: Dictionary = st().get("controls", {})
 	c.erase("A")
@@ -1458,9 +1637,10 @@ func _ending_b() -> void:
 	create_tween().tween_property(m, "albedo_color:a", 0.0, 2.0)
 	c12._shake(2.4, 0.06)
 	await tw.finished
-	_hint("RUN - the service tunnel!")
+	_hint("RUN - the service tunnel! Follow the marker.")
 	_busy["outer_open"] = true
 	_refresh_prompts()
+	_guide()
 	while _busy.get("outer_open", false):
 		await get_tree().process_frame
 	await _to_outer(true)
@@ -1476,6 +1656,7 @@ func _ending_b() -> void:
 
 
 func _refresh_seal_prompts() -> void:
+	_guide()
 	var s := int(st().get("seal_steps", 0))
 	_setp("ctrl_A", "[E] PULL THE LEVER" if _busy.get("seal_mode", false) and s == 0 else "")
 	_setp("ctrl_B", "[E] TURN THE WHEEL" if _busy.get("seal_mode", false) and s == 1 else "")
@@ -1508,7 +1689,7 @@ func _ending_c() -> void:
 	c.erase("B")
 	st()["controls"] = c
 	_busy["seal_mode"] = true
-	_hint("Hold it. Pull the lever, turn the wheel.")
+	_hint("Ending C: HOLD THE PASSAGE. Stay and work the controls: pull the lever, then turn the wheel (follow the marker).")
 	_refresh_seal_prompts()
 	while int(st().get("seal_steps", 0)) < 2:
 		await get_tree().process_frame

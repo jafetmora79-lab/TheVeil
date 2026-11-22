@@ -307,13 +307,31 @@ func _set_prompt(k: String, t: String) -> void:
 		it.collision_layer = 8 if t != "" else 0
 
 
+static var _soft_tex: GradientTexture2D
+
+
+func _soft_mist() -> Texture2D:
+	if _soft_tex == null:
+		var g := Gradient.new()
+		g.set_color(0, Color(1, 1, 1, 1))
+		g.set_color(1, Color(1, 1, 1, 0))
+		_soft_tex = GradientTexture2D.new()
+		_soft_tex.gradient = g
+		_soft_tex.fill = GradientTexture2D.FILL_RADIAL
+		_soft_tex.fill_from = Vector2(0.5, 0.5)
+		_soft_tex.fill_to = Vector2(1.0, 0.5)
+		_soft_tex.width = 128
+		_soft_tex.height = 128
+	return _soft_tex
+
+
 func _mist_quad(parent: Node3D, at: Vector3, size: Vector2, alpha: float, vertical := false) -> MeshInstance3D:
 	var mi := MeshInstance3D.new()
 	var q := PlaneMesh.new()
 	q.size = size
 	mi.mesh = q
 	var m := StandardMaterial3D.new()
-	m.albedo_texture = load(A + "01_Textures/Horror/T_Hor_GroundMistCorrupted.png")
+	m.albedo_texture = _soft_mist()                          # (a round soft fade: the square plane edges showed as hard-edged glitchy "blocks" of fog: review notes #74 / #77)
 	m.albedo_color = Color(0.82, 0.84, 0.86, alpha)
 	m.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
 	m.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
@@ -505,14 +523,12 @@ func _build_under() -> void:
 		c12._light(UL(p), 0.7, 8.0, Color(0.85, 0.9, 1.0))
 	for p in [[Vector3(12.0, 2.2, 39.78), Vector3(0, 0, -1), 2.0], [Vector3(19.83, 2.4, 28.0), Vector3(-1, 0, 0), 0.8],
 			[Vector3(4.17, 2.6, 37.0), Vector3(1, 0, 0), 0.6], [Vector3(10.95, 1.6, 22.0), Vector3(1, 0, 0), 0.4]]:
-		c12._decal(UL(p[0]), p[1], p[2], Color(0.07, 0.06, 0.05, 1))
-	var plaque := Label3D.new()
-	plaque.text = "GREYHAVEN PUBLIC WORKS\nSERVICE GALLERY 7  -  19##\nTHIS CHAMBER IS N"
-	plaque.font_size = 22
-	plaque.pixel_size = 0.004
-	plaque.modulate = Color(0.55, 0.5, 0.42)
-	under.add_child(plaque)
-	plaque.global_transform = Transform3D(Basis(Vector3.UP, -PI * 0.5), UL(PLAQUE))
+		var dec: MeshInstance3D = c12._decal(UL(p[0]), p[1], p[2], Color(0.07, 0.06, 0.05, 1))
+		if absf(float(p[0].z) - 39.78) < 0.01 and doorway_slab != null:
+			dec.reparent(doorway_slab, true)                       # the symbol on the door moves WITH the door (it floated in the air once the slab sank: review note #76)
+	# the plaque: a brass plate bolted flat to the wall (it was text floating in the air: review note #83); the words come from the language table (review note #68)
+	VeilLoc.sign_quad(under, "plaque", Vector2(0.9, 0.28), Transform3D(Basis(Vector3.UP, PI * 0.5), UL(PLAQUE) + Vector3(0.04, 0, 0)))
+	_gallery_dressing()
 	for p in [Vector3(9.0, 0.15, 36.0), Vector3(15.5, 0.2, 35.0), Vector3(13.0, 0.12, 30.5)]:
 		_ubox("Fragment", p, Vector3(0.6, 0.3, 0.45), "stone")
 	_prop("02_Town/Utilities/UT_JunctionBox.glb", "C13_Winch", UL(WINCH), -PI * 0.5)
@@ -525,6 +541,36 @@ func _build_under() -> void:
 	# low mist in the gallery
 	for m in [[Vector3(0, 0.25, 6.0), Vector2(2.3, 12.0)], [Vector3(6.0, 0.25, 12.0), Vector2(12.0, 2.3)], [Vector3(12.0, 0.3, 32.0), Vector2(15.0, 15.0)]]:
 		_mist_quad(under, UL(m[0]), m[1], 0.35)
+
+
+## The empty corridors are the old Public Works SERVICE GALLERIES (the plaque says so): pipe runs and a cable tray along the ceiling, stencilled gallery / valve / no-entry signs on the walls,
+## caged lamps, a drain grate in the floor (review note #82: they were bare tunnels with no reason to exist).
+func _gallery_dressing() -> void:
+	var pipe_m: Material = c12._mat("rust")
+	for run in [[Vector3(-0.7, 2.55, 0.5), 11.0, 0.0], [Vector3(0.7, 2.45, 0.5), 11.0, 0.0], [Vector3(1.0, 2.55, 12.0), 11.0, PI * 0.5], [Vector3(2.0, 2.45, 12.0), 11.0, PI * 0.5]]:
+		var mi := MeshInstance3D.new()
+		var cm := CylinderMesh.new()
+		cm.top_radius = 0.07
+		cm.bottom_radius = 0.07
+		cm.height = float(run[1])
+		cm.radial_segments = 8
+		mi.mesh = cm
+		mi.material_override = pipe_m
+		under.add_child(mi)
+		mi.global_position = UL(run[0] + Vector3(0, 0, 5.0) if float(run[2]) == 0.0 else run[0] + Vector3(5.0, 0, 0))
+		mi.rotation = Vector3(PI * 0.5, 0, 0) if float(run[2]) == 0.0 else Vector3(0, 0, PI * 0.5)
+	for sg in [["gallery7", Vector2(0.7, 0.26), Vector3(-1.04, 1.7, 3.0), PI * 0.5], ["valve", Vector2(0.5, 0.25), Vector3(1.04, 1.5, 7.0), -PI * 0.5],
+			["noentry", Vector2(0.7, 0.35), Vector3(-5.5, 1.6, 6.99), 0.0], ["gallery7", Vector2(0.7, 0.26), Vector3(6.0, 1.7, 11.0), 0.0],
+			["valve", Vector2(0.5, 0.25), Vector3(13.0, 1.5, 16.0), -PI * 0.5], ["noentry", Vector2(0.7, 0.35), Vector3(12.0, 1.7, 22.7), 0.0]]:
+		VeilLoc.sign_quad(under, String(sg[0]), sg[1], Transform3D(Basis(Vector3.UP, float(sg[3])), UL(sg[2])))
+	for gp in [Vector3(0.0, 0.01, 4.0), Vector3(6.0, 0.01, 12.0), Vector3(12.0, 0.01, 17.0)]:                  # drain grates
+		var g := MeshInstance3D.new()
+		var qm := BoxMesh.new()
+		qm.size = Vector3(0.8, 0.02, 0.5)
+		g.mesh = qm
+		g.material_override = c12._mat("damp")
+		under.add_child(g)
+		g.global_position = UL(gp)
 
 
 # ------------------------------------------------------------------ Mist Exposure (this chapter's hazard)

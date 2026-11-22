@@ -1,0 +1,5 @@
+{
+ "default": "en",
+ "languages": {"en": "English", "es": "Espanol"},
+ "note": "Baked-text pictures: game/tools/blender/make_chapter16_signs.py (one text table, one column per language). Dialogue / UI text: game/data/dialogue.json (to be keyed per language when the translation starts)."
+}

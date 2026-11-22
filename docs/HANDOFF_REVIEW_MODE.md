@@ -69,3 +69,17 @@ STILL OPEN (the owner has these in the notes file):
   `Performance` monitors during a long chapter 7 session.
 - **Pre-existing test failures** (not from these changes; `git stash` baseline runs gave the same): `car_quest_test` (struggle_won_recover, fit_once), `house_loot_test` (3), `expedition_test` (5), `chapter7_test` (early walks),
   `monsters_meshy_test` (hound_clips), `house_audit_test` (2 door checks), `chapter6_test` c6_rs_talk_camera.
+
+
+## Update 2026-11-22 (notes #26 - #86)
+
+- **Chapter 15 (`chapter14.gd`, "The Last Shelter"):** barricaded doors cannot be opened; the group is made visible / placed when the chapter is entered from the menu (`_ensure_present`); bracing the window and saving the survivor
+  at the door are now press-fast struggles with a visible count (`_mash`, E / click); the Hound mauls the survivor if you fail; everyone is put on their own spot before the way out (`_spread`); the survivor caught at the fence is first
+  SEEN surrounded (`_surround`), and leaving them is the tragic scene (`_tragedy`: you turn and run, a wall closes behind you). The window look has lit eyes in the street. The house is NOT enlarged (it is the shared mill-worker
+  house of chapters 10-15: scaling it breaks every `hl()` coordinate): if it is wanted, use a bigger pack house and re-measure the constants at the top of `chapter14.gd`.
+- **Chapter 16 (`chapter15.gd`, `chapter13.gd`, `chapter12.gd`):** soft round mist (no square "blocks"), the door symbol travels with the door slab, floor z-fight lowered, boxes overlap a hair (no seams: `chapter12._box`), a solid
+  block inside the sealed structure, the Colossus flickers in / out (`_materialize`) and walks off WEST, its light is on while it looks and being seen is the end (dragged up the beam), the passage mouth takes you in (no E), the rubble is a
+  half-collapsed wall with a low hole you crouch through (`Player.force_crouch`), levers move -> runes light -> the chamber reacts, and after the choice a marker / hint always says what to do (`_guide`).
+- **Words baked into pictures:** `game/tools/blender/make_chapter16_signs.py` draws every sign / stencil / the map from one text table with an `en` and an `es` column; `VeilLoc.tex(name)` (game/world/loc.gd) picks the file for
+  `Game.language`. Anything new with letters on it goes into that table.
+- **Still open:** #26 (the Colossus popping in before the Veil in chapter 3: needs a play session), #46 (the lag: not reproduced headless; the shelf picker scan was one real cause and is fixed).

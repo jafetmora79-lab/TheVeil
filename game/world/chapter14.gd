@@ -88,6 +88,7 @@ func begin(w: Node, chapter13: Node, restoring: bool) -> void:
 			"separated": "", "separation": "", "missing": [], "talked": {}, "run": ""}
 	_streams = c13._streams
 	_setup()
+	_ensure_present.call_deferred()
 	var fresh := not Game.has_flag("ch14_started")
 	if fresh:
 		Game.set_flag("ch14_started")
@@ -97,6 +98,19 @@ func begin(w: Node, chapter13: Node, restoring: bool) -> void:
 		if Game.has_flag("chapter_14_complete"):
 			_start_chapter15.call_deferred(true)
 	Game.refresh_objective()
+
+
+## Whoever is part of the group is in the house, seen and standing on clear floor, however the chapter was entered (review note #61: Ruth talked without being there when the chapter was
+## picked from the menu).
+func _ensure_present() -> void:
+	await get_tree().process_frame
+	for k in present():
+		var n := _node(k)
+		if n == null:
+			continue
+		n.visible = true
+		if n.global_position.distance_to(house.global_position) > 14.0 or n.global_position.y < -1.0:
+			world.place_survivor(n, hl(spot(k)))
 
 
 func st() -> Dictionary:
@@ -226,7 +240,7 @@ func _dress_house() -> void:
 ## Where each survivor stands in the house: spread over the living room and the kitchen (clear floor, not on the bed, the supplies, the table or a door),
 ## each near their own post, never closer than ~2 m to one another. Worked out once from the house's real collision.
 const CROWD_ANCHORS := {"Eddie": Vector3(-2.2, 0.61, 4.5), "Sarah": Vector3(2.2, 0.61, 4.7), "Ruth": Vector3(2.3, 0.61, 9.0),
-	"Marcus": Vector3(-1.6, 0.61, 10.6), "Noah": Vector3(-0.4, 0.61, 8.2)}
+	"Marcus": Vector3(-1.0, 0.61, 8.4), "Noah": Vector3(-0.4, 0.61, 7.0)}
 var _spots := {}
 
 
@@ -237,7 +251,7 @@ func spot(k: String) -> Vector3:
 
 
 func _compute_spots() -> void:
-	var keep := [[BED, 1.2], [SUPPLIES, 1.0], [TABLE, 1.2], [FRONT_IN, 1.1], [BACK_IN, 1.1], [Vector3(c10.WINDOW.x, 0.61, c10.WINDOW.z + 0.9), 0.9]]
+	var keep := [[BED, 1.2], [SUPPLIES, 1.0], [TABLE, 1.2], [FRONT_IN, 1.5], [BACK_IN, 1.5], [Vector3(c10.WINDOW.x, 0.61, c10.WINDOW.z + 0.9), 0.9]]
 	var space: PhysicsDirectSpaceState3D = world.get_world_3d().direct_space_state
 	var q := PhysicsShapeQueryParameters3D.new()
 	var cap := CapsuleShape3D.new()
@@ -355,6 +369,11 @@ func _refresh_prompts() -> void:
 	_setp("brace", "[E] BRACE THE WINDOW" if _busy.get("brace_open", false) else "")
 	_setp("shove", "[E] SHOVE THE TABLE ACROSS" if _rescue_left > 0.0 else "")
 	_setp("force", "[E] FORCE THE BACK DOOR OPEN" if _busy.get("force_open", false) else "")
+	# a barricaded door is not a door any more (review note #60: it could be opened straight through the planks and furniture)
+	for pair in [["front", c10.its.get("door")], ["back", its.get("INT_Door_Back")]]:
+		var dit = pair[1]
+		if dit != null and is_instance_valid(dit) and d.has(pair[0]) and not (dit as Interactable).is_open:
+			(dit as Interactable).collision_layer = 0
 	for k in ["Ruth", "Sarah", "Marcus", "Eddie"]:
 		var on: bool = prep and k in present() and _prep_done() and not st().get("talked", {}).get(k, false) and Dialogue.data.has(_talk_id(k))
 		_setp("talk_" + k, ("[E] Talk to " + k) if on else "")
@@ -453,7 +472,7 @@ func _window_scene() -> void:
 	_busy["window"] = true
 	_hold(true)
 	Game.set_flag("ch14_window_seen")
-	_set_fog(true, 0.5)
+	_set_fog(true, 0.2)                                              # (thin: there has to be something to SEE through the glass: review note #61)
 	# the window is small (0.8 m): the player is eased square behind it and the shape is put straight out through it,
 	# so the whole pass reads through the glass instead of past the frame
 	var view := hl(c10.WINDOW + Vector3(0.0, 0.0, 1.15))
@@ -472,12 +491,24 @@ func _window_scene() -> void:
 	var tz := create_tween()
 	tz.tween_property(cam, "fov", fov0 * 0.7, 1.4)
 	var m := shape.material_override as StandardMaterial3D
+	# pairs of pale eyes low in the fog and a flash of light behind the shape, so the street clearly holds something
+	var eyes := []
+	for i in 5:
+		var e := OmniLight3D.new()
+		e.light_color = Color(0.9, 0.95, 1.0)
+		e.light_energy = 1.4
+		e.omni_range = 5.0
+		world.add_child(e)
+		e.global_position = hl(c10.WINDOW + Vector3(-6.0 + i * 3.0, -0.2 + 0.4 * (i % 2), -9.0 - i * 2.0))
+		eyes.append(e)
 	var ts := create_tween()
-	ts.tween_property(m, "albedo_color:a", 0.55, 1.4)
+	ts.tween_property(m, "albedo_color:a", 0.85, 1.4)
 	ts.tween_property(shape, "global_position", shape.global_position + across, 3.0)
 	ts.parallel().tween_property(m, "albedo_color:a", 0.0, 3.0)
 	_play("deep", shape.global_position, 8.0)
 	await ts.finished
+	for e in eyes:
+		(e as Node).queue_free()
 	var tb := create_tween()
 	tb.tween_property(cam, "fov", fov0, 0.8)
 	await tb.finished
@@ -962,13 +993,48 @@ func _skitters() -> void:
 	Game.set_flag("ch14_skitters_done")
 
 
+var _mash_on := false
+var _mash_count := 0
+
+
+func _input(e: InputEvent) -> void:
+	if _mash_on and ((e.is_action_pressed("interact") and not e.is_echo()) or (e is InputEventMouseButton and e.pressed and (e as InputEventMouseButton).button_index == MOUSE_BUTTON_LEFT)):
+		_mash_count += 1
+		c12._shake(0.12, 0.012)
+		Sfx.play("door_close", player.global_position + Vector3(0, 1.0, 0), -8.0, randf_range(0.5, 0.8))
+		get_viewport().set_input_as_handled()
+
+
+## A struggle you can SEE the effect of: press E / click repeatedly, `need` presses in `secs` seconds, with the count on screen. Returns whether it was won.
+func _mash(label: String, need: int, secs: float) -> bool:
+	_mash_on = true
+	_mash_count = 0
+	var t := secs
+	while t > 0.0 and _mash_count < need:
+		_hint("%s   [%s%s]   E / CLICK, FAST   %d" % [label, "#".repeat(_mash_count), "-".repeat(maxi(need - _mash_count, 0)), ceili(t)])
+		await get_tree().process_frame
+		t -= get_process_delta_time()
+	_mash_on = false
+	_hint("")
+	return _mash_count >= need
+
+
 func _brace_window(_b: Node) -> void:
-	if not _busy.get("brace_open", false):
+	if not _busy.get("brace_open", false) or _busy.get("bracing", false):
 		return
-	_busy["brace_open"] = false
+	_busy["bracing"] = true
+	# hold the window: the plank goes across as you press (review note #63: a click used to do nothing at all)
 	Sfx.play("door_close", hl(c10.WINDOW), 2.0, 0.6)
-	if not props.has("def_window"):
-		_place_defense("window", true)
+	var ok := await _mash("BRACE THE WINDOW", 8, 7.0)
+	_busy["bracing"] = false
+	if ok:
+		_busy["brace_open"] = false
+		if not props.has("def_window"):
+			_place_defense("window", true)
+		Sfx.play("door_close", hl(c10.WINDOW), 6.0, 0.5)
+		c12._shake(0.3, 0.03)
+		_hint("It holds.")
+		get_tree().create_timer(2.0).timeout.connect(func(): _hint(""))
 	_refresh_prompts()
 
 
@@ -1042,22 +1108,41 @@ func _hounds() -> void:
 	Game.set_flag("ch14_hounds_done")
 
 
-## Ten seconds from the moment control is back: shove the table across the doorway.
+## Ten seconds from the moment control is back: shove the table across the doorway. The Hound is on the survivor, the survivor is shaken about; press E / click fast to heave the table
+## across (review note #64: there was no button, failing showed nothing).
 func _rescue(in_pt: Vector3, out_pt: Vector3) -> void:
 	report["rescue_runs"] += 1
 	var target := rescue_target()
 	_rescue_left = 10.0
-	(its["shove"] as Node3D).global_position = (player.global_position + in_pt) * 0.5 + Vector3(0, 0.9, 0)
+	_busy["shoved"] = false
 	_refresh_prompts()
-	while _rescue_left > 0.0:
-		_hint("SAVE %s  -  %d" % [target.to_upper(), ceili(_rescue_left)])
-		await get_tree().process_frame
-		_rescue_left -= get_process_delta_time()
-		if randf() < 0.03:
-			_play("claw", in_pt, 4.0)
-	_hint("")
-	var saved: bool = _busy.get("shoved", false)
+	var tn := _node(target)
+	var a0 = world.animators.get(target)
+	if a0:
+		a0.set_mood("scared")
+	var drag := create_tween().set_loops()
+	drag.tween_property(tn, "rotation:z", 0.25, 0.18)
+	drag.tween_property(tn, "rotation:z", -0.25, 0.18)
+	var won := await _mash("SAVE %s - HEAVE THE TABLE" % target.to_upper(), 12, 10.0)
+	drag.kill()
+	tn.rotation.z = 0.0
+	_busy["shoved"] = won
+	if won:
+		Sfx.play("door_close", player.global_position, 6.0, 0.5)
+		c12._shake(0.3, 0.04)
+		if hounds.size() > 0:
+			var pushed := create_tween()
+			pushed.tween_property(hounds[0], "global_position", hounds[0].global_position + (out_pt - in_pt).normalized() * 1.5, 0.3)
+	else:
+		_play("claw", in_pt, 8.0)                             # too slow: the Hound drags them down before it is driven off (hurt, never killed)
+		Sfx.play("hurt", tn.global_position + Vector3(0, 1, 0), 2.0)
+		var fall := create_tween()
+		fall.tween_property(tn, "rotation:x", -1.35, 0.35)
+		c12._shake(0.6, 0.06)
+		await get_tree().create_timer(1.2).timeout
+		tn.rotation.x = 0.0
 	_rescue_left = -1.0
+	var saved: bool = _busy.get("shoved", false)
 	_refresh_prompts()
 	if saved:
 		st()["rescue"] = "saved"
@@ -1168,6 +1253,8 @@ func _start_evac(restoring: bool) -> void:
 			else:
 				Game.flags.erase("ch14_separation")
 				st().erase("separated")
+	if not restoring:
+		_spread()                                                      # (review note #65: after the attack everyone stood in one kitchen corner, inside each other)
 	for k in present():
 		var f: VeilCompanionFollow = c9.follows[k]
 		c9._start_follow(k)
@@ -1224,6 +1311,70 @@ func _evac_tick() -> void:
 			st()["left_pending"] = ""
 
 
+## Two Hounds and a Skitter come out of the fog and close in on the one caught behind the fence: the ring tightens, they snap and lunge, the survivor backs against the fence.
+var _chasers: Array = []
+
+
+func _surround(k: String) -> void:
+	_hold(true)
+	var n := _node(k)
+	var c: Vector3 = n.global_position
+	await c8._turn_to(c + Vector3(0, 1.2, 0), 0.8)
+	var specs := [[HOUND_PATH, Vector3(9.0, 0, -4.0)], [HOUND_PATH, Vector3(-8.0, 0, -6.0)], [SKITTER_PATH, Vector3(1.0, 0, 10.0)]]
+	for i in specs.size():
+		var h := _make(VeilMeshyNpcs.monster_scene(String(specs[i][0])), "C14_Chaser%d" % i, c + specs[i][1])
+		_chasers.append(h)
+		_anim(h, "run" if i < 2 else "scuttle")
+		var ring: Vector3 = c + Vector3(cos(TAU * i / 3.0 + 0.6), 0, sin(TAU * i / 3.0 + 0.6)) * 1.5
+		_move(h, [ring], 6.5)
+	_play("claw", c, 4.0)
+	await get_tree().create_timer(1.6).timeout
+	for h in _chasers:
+		_anim(h, "attack")
+		h.look_at(Vector3(c.x, h.global_position.y, c.z), Vector3.UP)
+	var a = world.animators.get(k)
+	if a:
+		a.set_mood("scared")
+	c12._shake(0.8, 0.03)
+	_play("claw", c, 6.0)
+	await get_tree().create_timer(1.2).timeout
+	_hold(false)
+
+
+func _tragedy(k: String) -> void:
+	_hold(true)
+	var n := _node(k)
+	var c: Vector3 = n.global_position
+	# the player turns away from them and runs: the camera swings round, the screams carry on behind
+	var away := (player.global_position - c) * Vector3(1, 0, 1)
+	away = away.normalized() if away.length() > 0.1 else Vector3.BACK
+	await c8._turn_to(player.global_position + away * 8.0 + Vector3(0, 1.4, 0), 1.0)
+	for h in _chasers:
+		_anim(h, "attack")
+	var run_to: Vector3 = player.global_position + away * 7.0
+	var tw := create_tween()
+	tw.tween_property(player, "global_position", run_to, 2.4).set_trans(Tween.TRANS_SINE)
+	for i in 4:
+		_play("claw", c, 6.0 - i)
+		Sfx.play("hurt", c + Vector3(0, 1, 0), 3.0 - i, 0.8)
+		c12._shake(0.5, 0.03)
+		await get_tree().create_timer(0.6).timeout
+	await tw.finished
+	var cam := world.get_viewport().get_camera_3d()
+	var blk := StaticBody3D.new()                                   # no going back for them: the way is shut behind the player
+	blk.name = "C14_NoGoingBack"
+	var cs := CollisionShape3D.new()
+	var bx := BoxShape3D.new()
+	bx.size = Vector3(14.0, 4.0, 0.8)
+	cs.shape = bx
+	blk.add_child(cs)
+	world.add_child(blk)
+	blk.global_position = FENCE_AT + Vector3(0, 2.0, 0)
+	_hint("There is nothing you can do for them now.")
+	get_tree().create_timer(4.0).timeout.connect(func(): _hint(""))
+	_hold(false)
+
+
 func _separation() -> void:
 	var k := separation_target()
 	Game.set_flag("ch14_separation")
@@ -1245,6 +1396,7 @@ func _separation() -> void:
 	if a:
 		a.walk_to([])
 		a.set_mood("scared")
+	await _surround(k)                                              # review note #66: first SEE why they are left: monsters close in round them behind the fence
 	await c9._talk_group("c14_trapped_" + k, [_node(k)])
 	var i := -1
 	while i < 0 and is_inside_tree():
@@ -1264,6 +1416,7 @@ func _separation() -> void:
 		await c9._talk_group("c14_went_back", [_node(k)])
 	else:
 		st()["separation"] = "left"
+		await _tragedy(k)                                           # you turn your back and run; they are overwhelmed; and there is no going back
 		var miss: Array = st().get("missing", [])
 		if not (k in miss):
 			miss.append(k)

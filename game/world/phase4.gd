@@ -51,8 +51,10 @@ const BED_LEN := 1.6
 const BED_W := 0.8
 const CARDBOARD_MAT := "res://THE_VEIL_ASSETS_V2/Materials_Godot/Furniture/M_Furn_Cardboard.tres"
 const CARD_STACK := "res://THE_VEIL_ASSETS_V2/03_Residential/Furniture/RES_CardboardBox_Stack.glb"
-const COMPANION_BEDS := {"Eddie": [Vector3(-14.5, 0.04, 16.0), Vector3(-15.5, 0.04, 16.0), Vector3(-14.0, 0.04, 12.9)],
-	"Marcus": [Vector3(-16.0, 0.04, 15.6), Vector3(-13.5, 0.04, 13.2), Vector3(-15.2, 0.04, 13.7)]}
+## Eddie's and Marcus's beds go INSIDE the office / the back rooms with the player's own (review note #51: the second candidates were out in the open sales floor and a lone bed stood outside the office door).
+## Candidates are tried in order; the first clear patch of floor wins; none = no bed rather than one in the hall.
+const COMPANION_BEDS := {"Eddie": [Vector3(-14.5, 0.04, 16.0), Vector3(-15.5, 0.04, 16.0), Vector3(-17.5, 0.04, 17.4), Vector3(-15.2, 0.04, 17.6), Vector3(-18.0, 0.04, 18.4), Vector3(-14.8, 0.04, 18.4)],
+	"Marcus": [Vector3(-16.0, 0.04, 15.6), Vector3(-16.5, 0.04, 17.0), Vector3(-14.5, 0.04, 17.2), Vector3(-17.8, 0.04, 17.0), Vector3(-16.0, 0.04, 18.4), Vector3(-18.4, 0.04, 16.4)]}
 const EDDIE_POS := Vector3(6.2, 0.04, 4.05)
 const MARCUS_POS := Vector3(-2.0, 0.04, 6.9)
 const LOADING_GAP := 0.65                                   # metres the roll-up door is left open

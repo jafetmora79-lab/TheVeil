@@ -171,6 +171,10 @@ func _furnish() -> void:
 		holder.add_child(n)
 		var pos: Array = p["pos"]
 		n.transform = Transform3D(Basis(Vector3.UP, float(p.get("yaw", 0.0))), Vector3(pos[0], pos[1], pos[2]))
+		if model == "RES_Fridge_Retro":
+			_dress_fridge(n)
+		elif model == "RES_Toilet":
+			_dress_toilet(n)
 		var mv: Dictionary = moving.get(model, {})
 		for part in mv:
 			var node := n.find_child(part, true, false) as Node3D
@@ -193,6 +197,46 @@ func _furnish() -> void:
 			parts["%s#%d/%s" % [model, counts[model], part]] = it
 			if counts[model] == 1:
 				parts["%s/%s" % [model, part]] = it
+
+
+## What is INSIDE a fridge and a toilet (review note #47: "give them inside texture"): the fridge's shelves hold jars, cartons, a tray of eggs and a wilted head of lettuce, all gone off; the toilet has
+## water in the bowl. Built from simple primitives in the piece's own frame (front +Z); the pack's hollow body already has the shelves at y 0.76 and 1.16.
+func _dress_fridge(n: Node3D) -> void:
+	var root := Node3D.new()
+	root.name = "FridgeStock"
+	n.add_child(root)
+	var cols := [Color(0.75, 0.72, 0.6), Color(0.5, 0.2, 0.12), Color(0.2, 0.4, 0.2), Color(0.85, 0.85, 0.8), Color(0.55, 0.4, 0.15), Color(0.3, 0.3, 0.45)]
+	var items := [[Vector3(-0.22, 0.2, 0.0), Vector3(0.1, 0.22, 0.08)], [Vector3(-0.05, 0.84, -0.05), Vector3(0.09, 0.2, 0.09)], [Vector3(0.12, 0.86, -0.02), Vector3(0.12, 0.16, 0.12)],
+		[Vector3(0.24, 0.83, 0.05), Vector3(0.08, 0.22, 0.08)], [Vector3(-0.2, 0.85, 0.0), Vector3(0.14, 0.18, 0.14)], [Vector3(-0.15, 1.25, -0.05), Vector3(0.28, 0.07, 0.18)],
+		[Vector3(0.12, 1.3, 0.0), Vector3(0.12, 0.2, 0.12)], [Vector3(0.0, 0.28, -0.05), Vector3(0.18, 0.12, 0.18)], [Vector3(0.22, 1.28, -0.08), Vector3(0.1, 0.16, 0.1)]]
+	for i in items.size():
+		var mi := MeshInstance3D.new()
+		var bm := BoxMesh.new()
+		bm.size = items[i][1]
+		var m := StandardMaterial3D.new()
+		m.albedo_color = cols[i % cols.size()]
+		m.roughness = 0.9
+		bm.material = m
+		mi.mesh = bm
+		mi.position = items[i][0] + Vector3(0, items[i][1].y * 0.5 - 0.02, 0)
+		root.add_child(mi)
+
+
+func _dress_toilet(n: Node3D) -> void:
+	var w := MeshInstance3D.new()
+	w.name = "BowlWater"
+	var cm := CylinderMesh.new()
+	cm.top_radius = 0.13
+	cm.bottom_radius = 0.13
+	cm.height = 0.01
+	var m := StandardMaterial3D.new()
+	m.albedo_color = Color(0.3, 0.42, 0.38, 0.85)
+	m.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
+	m.roughness = 0.1
+	cm.material = m
+	w.mesh = cm
+	w.position = Vector3(0.0, 0.34, 0.1)
+	n.add_child(w)
 
 
 # ------------------------------------------------------------------ loot inside containers

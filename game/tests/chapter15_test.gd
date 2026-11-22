@@ -166,6 +166,8 @@ func _bind() -> void:
 	c13 = c12.chapter13 if c12 else null
 	c14 = c13.chapter14 if c13 else null
 	c15 = c14.chapter15 if c14 else null
+	if c15:
+		c15.instakill = false                          # (review note #73: in play being seen is the end; this test walks the old retry)
 
 
 func _initialize() -> void:
@@ -448,15 +450,17 @@ func _run() -> void:
 		D(Vector3(-9.0, 0.2, 52.0)), D(Vector3(-15.0, 0.2, 60.0)), D(Vector3(-14.0, 0.2, 72.0)), D(Vector3(-2.0, 0.2, 73.6))]), str(world.player.global_position - c13.D_ORIGIN))
 	ok("c15_pressure", said.has("Roof! Left side!"))
 	await wait_until(func(): return c15.present().all(func(k): return c15._node(k).global_position.distance_to(world.player.global_position) < 9.0), 60 * 8)
-	ok("c15_passage", await use(c13.its["passage"], [Vector3(0, 0, -1), Vector3(0.6, 0, -1), Vector3(-0.6, 0, -1)], 1.5)
-		and await wait_until(func(): return game.has_flag("ch15_in_passage") and world.player.global_position.y < -40.0, 300)
+	await aim_w(c13.its["passage"], [Vector3(0, 0, -1), Vector3(0.6, 0, -1), Vector3(-0.6, 0, -1)], 1.0)     # (review note #81: no E: walking into the mouth takes you in)
+	ok("c15_passage", await wait_until(func(): return game.has_flag("ch15_in_passage") and world.player.global_position.y < -40.0, 300)
 		and FileAccess.file_exists(game.checkpoint_path("chapter16_passage")) and c15.creatures.is_empty(),
 		"%s in %s focus %s" % [str(world.player.global_position - c13.D_ORIGIN), game.has_flag("ch15_in_passage"), world.player._focus])
 	ok("c15_entrance_talk", await wait_talk(func(): return said.has("I hate that we've gotten used to places like this."), 20.0))
 
 	# ---- below: the rubble, the doorway, the ancient passage, the chamber
 	ok("c15_walk_below", await walk_world([UL(Vector3(0, 0.2, 12.0)), UL(Vector3(12.0, 0.2, 12.0)), UL(Vector3(12.0, 0.2, 22.0))]), str(world.player.global_position - c13.U))
-	ok("c15_gap", await use(c15.its["gap"], [Vector3(0, 0, -1)], 1.0) and await wait_until(func(): return game.has_flag("ch15_gap_cleared") and world.player.controls_enabled, 300))
+	# review note #75: the rubble wall has a low hole on the right; the player is held crouched in it and walks through (no key press)
+	var hole_ok: bool = await walk_world([UL(Vector3(12.55, 0.2, 23.2)), UL(Vector3(12.55, 0.2, 25.2)), UL(Vector3(12.55, 0.2, 27.6))])
+	ok("c15_gap", hole_ok and await wait_until(func(): return game.has_flag("ch15_gap_cleared") and world.player.controls_enabled and not world.player.force_crouch, 300), str(world.player.global_position - c13.U))
 	ok("c15_walk_doorway", await walk_world([UL(Vector3(12.6, 0.2, 26.0)), UL(Vector3(12.0, 0.2, 34.0)), UL(Vector3(12.0, 0.2, 44.0)), UL(Vector3(12.0, 0.2, 60.0))]),
 		str(world.player.global_position - c13.U))
 	ok("c15_chamber", await wait_until(func(): return world.player.global_position.distance_to(UL(Vector3(12, 0, 60))) < 1.5, 10) and await walk_world([UL(Vector3(12.0, 0.2, 66.0))])

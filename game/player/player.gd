@@ -50,6 +50,7 @@ var capsule: CapsuleShape3D
 var controls_enabled := true
 var look_enabled := true
 var crouching := false
+var force_crouch := false              ## a scene holds the player crouched (a low gap in a wall: review note #75)
 var auto_sprint := false                ## a scene walking the player (auto_input) has them run
 var _pitch := 0.0
 var _bob_t := 0.0
@@ -130,7 +131,7 @@ func _physics_process(delta: float) -> void:
 	elif auto_input != Vector2.ZERO:
 		input = auto_input
 	# crouch (stand up only if there is head room)
-	var want_crouch := controls_enabled and Input.is_action_pressed("crouch")
+	var want_crouch := (controls_enabled and Input.is_action_pressed("crouch")) or force_crouch
 	if want_crouch != crouching:
 		if want_crouch or _can_stand():
 			crouching = want_crouch

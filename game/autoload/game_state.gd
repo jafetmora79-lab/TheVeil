@@ -1,4 +1,6 @@
 extends Node
+
+var language := "en"            ## the display language ("en", "es"): see game/world/loc.gd (baked-text pictures) and game/data/languages.json
 ## THE VEIL - game state (autoload "Game"): story flags, objectives, inventory, interaction states,
 ## save / load and settings. Data lives in game/data/*.json so gameplay code stays generic.
 
