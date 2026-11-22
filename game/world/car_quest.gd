@@ -20,7 +20,8 @@ const PARTS := "res://game/props/car_parts/"
 const GAS_CAN := preload("res://game/props/car_parts/GasCanister.tscn")
 const BATTERY := preload("res://game/props/car_parts/CarBattery.tscn")
 const FUSE_PANEL := preload("res://game/props/car_parts/FusePanel.tscn")
-const RELAY := preload("res://game/props/car_parts/StarterRelay.tscn")
+const RELAY := preload("res://game/props/car_parts/CAR_StarterRelay.glb")         # (Blender: a plastic relay with a printed label and brass blades; was a black cube)
+const RELAY_BOX_MODEL := preload("res://game/props/car_parts/CAR_RelayBox.glb")
 
 const CARDS := {
 	"fuel_can": ["GAS CANISTER ACQUIRED", "Contains enough fuel to get the car running."],
@@ -1123,6 +1124,14 @@ func _relay_box(parent: Node3D, nm: String, local: Vector3, filled: bool) -> Dic
 		bm.material = mat
 		shell.mesh = bm
 		shell.position = Vector3(0, 0, 0.05)
+		var parts := RELAY_BOX_MODEL.instantiate()
+		var sm := parts.find_child("Shell", true, false) as MeshInstance3D
+		var lm2 := parts.find_child("Lid", true, false) as MeshInstance3D
+		if sm and lm2:                                                          # the housing and the lid from Blender (ribs, sockets, fuses, a printed lid)
+			shell.mesh = sm.mesh
+			shell.position = Vector3(0, 0, 0.05)
+			shell.set_meta("model", true)
+		parts.free()
 		root.add_child(shell)
 		var hinge := Node3D.new()
 		hinge.name = "LidHinge"
@@ -1135,10 +1144,14 @@ func _relay_box(parent: Node3D, nm: String, local: Vector3, filled: bool) -> Dic
 		lm.material = mat
 		lid.mesh = lm
 		lid.position = Vector3(0, -0.085, 0)
+		if shell.has_meta("model"):
+			var parts2 := RELAY_BOX_MODEL.instantiate()
+			lid.mesh = (parts2.find_child("Lid", true, false) as MeshInstance3D).mesh
+			parts2.free()
 		hinge.add_child(lid)
 		var relay := RELAY.instantiate() as Node3D
 		relay.name = "Relay"
-		relay.scale = Vector3.ONE * 2.0
+		relay.scale = Vector3.ONE * 3.0
 		root.add_child(relay)
 		relay.position = Vector3(0, -0.06, 0.04)
 		relay.visible = filled

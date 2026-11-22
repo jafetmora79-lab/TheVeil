@@ -603,7 +603,7 @@ func _got_flashlight() -> void:
 	_attach_flashlight()
 	flashlight.set_on(true)
 	Dialogue.say("p4_flashlight", false, true)
-	hud.set_hint("Flashlight: F turns it on / off  ·  R puts in fresh batteries  ·  Tab: inventory")
+	hud.set_hint("Flashlight: F turns it on / off  ·  Tab: inventory")
 	get_tree().create_timer(6.0).timeout.connect(func(): if is_instance_valid(hud): hud.set_hint(""))
 
 

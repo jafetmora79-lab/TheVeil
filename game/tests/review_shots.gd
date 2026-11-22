@@ -85,7 +85,11 @@ func _run() -> void:
 	if "stockroom" in extra_flags:                  # note #12: the stock-room scene's seats, set up the way the cinematic does
 		w._p3_place_marcus_in_shop()
 		await process_frame
-		w._seat("Marcus", w.SEAT_DOCS, w.SEAT_DOCS_H, w.STOCK_CIRCLE)
+		var ch = (load(w.SEAT_CHAIR) as PackedScene).instantiate()
+		w.game_shop.add_child(ch)
+		ch.position = w.SEAT_DOCS
+		ch.rotation.y = -PI * 0.5
+		w._seat("Marcus", w.SEAT_DOCS + Vector3(-0.04, 0, 0), w.SEAT_DOCS_H, w.STOCK_CIRCLE)
 		if w.animators.has("Eddie"):
 			w.animators["Eddie"].walk_to([])
 			w.place_survivor(w.animators["Eddie"].root, w.EDDIE_STAND)

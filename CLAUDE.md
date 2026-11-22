@@ -165,6 +165,7 @@ The export filter skips `game/tools/build_*`, `game/tools/*.py` and `game/tests/
 
 
 ## Review mode - the owner's sticky notes (2026-11-21) - READ THIS WHEN THE OWNER SAYS "I LEFT NOTES"
+Full handoff (the loop, gotchas, what is done / open): `docs/HANDOFF_REVIEW_MODE.md`.
 In the game (also in the exported exe) F2 turns REVIEW MODE on: aim the crosshair, click, pick BUG / 3D ASSET / OTHER, type a line, SAVE NOTE.
 - Code: `game/review/review_mode.gd` (added to the world by `world.gd` as `ReviewMode`). Tests: `review_mode_test.gd`, `review_mode_ui_test.gd` (windowed).
 - The notes: `%APPDATA%\Godot\app_userdata\THE VEIL\veil_notes.json` (screenshots: `...\review\note_NNN.png`). Each note has: id, status (open / fixed / wontfix), type, the text, chapter, current

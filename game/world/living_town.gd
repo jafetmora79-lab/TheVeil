@@ -236,7 +236,7 @@ func _through_house(a: Vector3, b: Vector3) -> bool:
 
 ## The nearest spot to `p` a person can stand on: not on the road, nothing solid there (a parked car, a bin, a
 ## wall), never inside a house. Tries the spot itself, then rings round it out to 2.5 m. INF = none.
-func safe_point(p: Vector3) -> Vector3:
+func safe_point(p: Vector3, outdoors_only := false) -> Vector3:
 	var q := PhysicsShapeQueryParameters3D.new()
 	var cap := CapsuleShape3D.new()
 	cap.radius = 0.32
@@ -250,6 +250,8 @@ func safe_point(p: Vector3) -> Vector3:
 			var c: Vector3 = _ground(p + Vector3(cos(a), 0, sin(a)) * r)
 			if _on_road(c) or in_house(c):
 				continue
+			if outdoors_only and world.has_method("point_outdoors") and not world.point_outdoors(c, 0.8):
+				continue                                 # (review note #22b: people moved out of a shot were put behind the camera: inside the shop)
 			q.transform = Transform3D(Basis(), c + Vector3.UP * 0.95)
 			var clear := true
 			for h in _space().intersect_shape(q, 4):
@@ -982,7 +984,7 @@ func _frank() -> void:
 				fwd = f2
 				side = fwd.cross(Vector3.UP).normalized()
 				break
-	var pin := safe_point(_ground(world.player.global_position + fwd * 11.0))
+	var pin := safe_point(_ground(world.player.global_position + fwd * 11.0), true)
 	if not pin.is_finite():
 		pin = _ground(world.player.global_position + fwd * 11.0)
 	var start := _ground(pin + side * 13.0)
@@ -1509,7 +1511,7 @@ func clear_shot(cam_pos: Vector3, dirs: Array, radius := 16.0) -> Array:
 		var side := fwd.cross(Vector3.UP).normalized() * (1.0 if fwd.cross(Vector3.UP).dot(to) >= 0.0 else -1.0)
 		var spot := Vector3.INF
 		for c in [cam_pos - fwd * 3.0 + side * 2.5, cam_pos - fwd * 4.5 - side * 2.5, cam_pos - fwd * 6.0, cam_pos + side * 5.0 - fwd * 2.0]:
-			var s := safe_point(_ground(c))
+			var s := safe_point(_ground(c), true)
 			if s.is_finite():
 				spot = s
 				break

@@ -248,7 +248,7 @@ func _process(_d: float) -> void:
 		# locked lines and cinematic cameras: the hotbar steps aside (it comes back with control)
 		var w := get_tree().get_first_node_in_group("veil_world")
 		var cine = w.get("_cine") if w else null
-		var held: bool = hide_quick or on or (w != null and bool(w.get("conversing"))) or (cine != null and is_instance_valid(cine))
+		var held: bool = hide_quick or inv_panel.visible or on or (w != null and bool(w.get("conversing"))) or (cine != null and is_instance_valid(cine))
 		quick.modulate.a = move_toward(quick.modulate.a, 0.0 if held else 1.0, _d * 6.0)
 	confirm_l.visible = on
 	if on:

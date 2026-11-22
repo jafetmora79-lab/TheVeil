@@ -640,6 +640,16 @@ func _process(delta: float) -> void:
 		return                                    # Chapter 7 owns the doors and the marker from here on
 	_update_marker()
 	if not Game.has_flag("ch6_eddie_following"):
+		# the player walked out before answering "Head out with Eddie?" (review notes #35 / #36): Eddie comes along all the same
+		if Game.has_flag("ch6_eddie_ready") and not _busy.get("out", false) and c5._away_from_store(market.to_local(player.global_position), 3.0) 				and not Game.has_flag("ch6_returned_to_supermarket"):
+			_busy["out"] = true
+			c5._set_doors(true)
+			st()["eddie"] = "following"
+			c5._reparent(eddie, world)
+			c5.eddie_follow.start()
+			Game.set_flag("ch6_eddie_following")
+			_busy["out"] = false
+			_refresh_prompts()
 		return
 	var pl: Vector3 = market.to_local(player.global_position)
 	var el: Vector3 = market.to_local(eddie.global_position)

@@ -1613,6 +1613,15 @@ func _set_auto_doors(open: bool) -> void:
 	Sfx.play("door_open" if open else "door_close", market.global_transform * Vector3(0, 1.2, 0.2), -8.0, 0.8)
 
 
+## The supermarket's doors stand wide open at once (the run to the store: nobody waits for glass to slide, review note #23).
+func _force_doors_open() -> void:
+	_auto_open = true
+	for d in _auto_doors:
+		var leaf: Node3D = d[0]
+		var t: Transform3D = d[1]
+		leaf.transform = Transform3D(t.basis, t.origin + t.basis * d[2])
+
+
 ## Pick the hinge sign that swings the door toward `toward` (into the room).
 func _toward_deg(door: Node3D, deg: float, toward: Vector3) -> float:
 	var c := Interactable.aabb_of(door).get_center()
@@ -3518,8 +3527,9 @@ func _p3_reach_shop() -> void:
 const STOCK_DOOR_OUT := Vector3(-2.0, 0.04, 7.55)
 const STOCK_IN := Vector3(-2.0, 0.04, 9.45)
 const SEAT_BOX := Vector3(-0.6, 0.04, 9.3)
-const SEAT_DOCS := Vector3(-5.0, 0.04, 9.4)          ## on the visible stack's high step (top 0.58 at z 9.2..9.6; the old 0.80 floated, review note #12)
-const SEAT_DOCS_H := 0.58
+const SEAT_DOCS := Vector3(-4.35, 0.04, 9.7)          ## Marcus sits on a real chair, set against the boxes (review notes #12, #22)
+const SEAT_DOCS_H := 0.46
+const SEAT_CHAIR := "res://THE_VEIL_ASSETS_V2/03_Residential/Furniture/RES_DiningChair_Wood.glb"
 const STOCK_CIRCLE := Vector3(-2.7, 0.04, 9.6)
 const MARCUS_DOOR_WAIT := Vector3(-1.3, 0.04, 9.2)     ## inside, beside the door's free edge: where Marcus stands to pull it shut
 const EDDIE_STAND := Vector3(-2.6, 0.04, 10.4)
@@ -3679,7 +3689,12 @@ func _shop_seated_talk() -> void:
 	while t < 5.0 and ["Eddie", "Marcus"].any(func(k): return animators.has(k) and animators[k].is_walking()):
 		await get_tree().process_frame
 		t += get_process_delta_time()
-	_seat("Marcus", SEAT_DOCS, SEAT_DOCS_H, STOCK_CIRCLE)
+	var chair := (load(SEAT_CHAIR) as PackedScene).instantiate() as Node3D
+	chair.name = "StockRoomChair"
+	game_shop.add_child(chair)
+	chair.position = SEAT_DOCS
+	chair.rotation.y = -PI * 0.5                   # facing the room (+x)
+	_seat("Marcus", SEAT_DOCS + Vector3(-0.04, 0, 0), SEAT_DOCS_H, STOCK_CIRCLE)
 	if animators.has("Eddie"):
 		animators["Eddie"].walk_to([])
 		animators["Eddie"].face_towards(X * STOCK_CIRCLE)
@@ -3752,7 +3767,10 @@ func _shop_seated_talk() -> void:
 	cam3.queue_free()
 	if animators.has("Marcus"):
 		animators["Marcus"].set_seated(false)
-		place_survivor(animators["Marcus"].root, SEAT_DOCS + Vector3(0.75, 0, 0.1))   # stood up clear of the boxes (screen black)
+		place_survivor(animators["Marcus"].root, SEAT_DOCS + Vector3(0.75, 0, 0.1))
+		var ch := game_shop.get_node_or_null("StockRoomChair")
+		if ch:
+			ch.queue_free()   # stood up clear of the boxes (screen black)
 	cam.global_position = X * (SEAT_BOX + Vector3(-0.05, STAND_EYE, 0))
 	await hud.fade_to(0.0, 0.8)
 	await _fp_look(cam, X * (STOCK_IN + Vector3(0, 1.4, -0.8)), 0.6)
@@ -3919,6 +3937,7 @@ func _street_tentacle_to_chase(shot: Node) -> void:
 func _p3_flee_together() -> void:
 	_p3_npcs_moved = true
 	Game.set_flag("p3_fled_together")             # the run to the supermarket begins (chapter 4)
+	_force_doors_open()                           # (the run does not stop for the doors)
 	hud.chapter_start(4)
 	_chase_start()
 	for pair in [[eddie, 1.6], [marcus, 2.8]]:

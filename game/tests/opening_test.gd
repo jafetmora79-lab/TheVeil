@@ -113,17 +113,13 @@ func phase4_tests(game, ps: PackedScene) -> void:
 	bp.interact(player)
 	await frames(10)
 	ok("p4_batteries", p4.flashlight.spares == 2, "spares=%d" % p4.flashlight.spares)
-	var c0: float = p4.flashlight.charge
 	await frames(240)
-	var c1: float = p4.flashlight.charge
-	ok("p4_battery_drains", c1 < c0 and c1 > 0.95, "%.4f -> %.4f" % [c0, c1])
+	ok("p4_flashlight_infinite", p4.flashlight.charge == 1.0 and p4.flashlight.on)             # review note #30: it never runs out
 	p4.flashlight.set_on(false)
-	await frames(120)
-	ok("p4_no_drain_when_off", absf(p4.flashlight.charge - c1) < 1e-6 and not p4.flashlight.spot.visible)
-	p4.flashlight.charge = 0.05
-	ok("p4_battery_swap", p4.flashlight.reload() and p4.flashlight.charge == 1.0 and p4.flashlight.spares == 1)
+	await frames(30)
+	ok("p4_flashlight_off", not p4.flashlight.spot.visible)
+	ok("p4_no_swap", not p4.flashlight.reload())
 	p4.flashlight.set_on(true)
-	ok("p4_flashlight_saved", game.world_state.get("flashlight", {}).get("spares", -1) == 1)
 	# staff door into the back room
 	var staff: Interactable = p4.its["INT_Door_Staff"]
 	ok("p4_staff_door_reach", await aim_any(player, staff, mk, [-Z], 1.3))
@@ -201,7 +197,7 @@ func phase4_tests(game, ps: PackedScene) -> void:
 	p4 = world.phase4
 	mk = world.market
 	player = world.player
-	ok("p4_load_mid", p4 != null and p4.flashlight != null and p4.flashlight.spares == 1 and p4.threat_runs == 0
+	ok("p4_load_mid", p4 != null and p4.flashlight != null and p4.threat_runs == 0
 		and mk.get_node("Lights/Light_SALES_00").visible and p4._pallets["back"].position.distance_to(p4.BACK_PALLET[1]) < 0.01
 		and p4.its["fl" + "ashlight"].taken)
 	var veil: Node = world.atmos.get_node_or_null("Atmosphere") if world.atmos else null

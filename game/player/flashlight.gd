@@ -66,6 +66,8 @@ func set_on(v: bool) -> void:
 
 
 func reload() -> bool:
+	if true:                                            # (no batteries any more: review note #30)
+		return false
 	if spares <= 0 or charge >= 0.999:
 		return false
 	spares -= 1
@@ -176,23 +178,11 @@ func _process(delta: float) -> void:
 	if player == null:
 		return
 	_update_view(delta)
-	_ui.visible = player.visible and (on or charge < float(cfg["low_warning"]))
+	_ui.visible = false                                 # no charge bar: the flashlight never runs out (review note #30)
+	charge = 1.0
 	if not on:
 		return
-	charge = maxf(charge - delta / maxf(float(cfg["battery_seconds"]), 1.0), 0.0)
-	var e := float(cfg["energy"])
-	if charge <= 0.0:
-		set_on(false)
-		return
-	if charge < float(cfg["flicker_below"]):          # a dying battery sputters before it goes
-		_flick_t -= delta
-		if _flick_t <= 0.0:
-			_flick_t = _rng.randf_range(0.04, 0.4)
-			spot.light_energy = e * (_rng.randf_range(0.05, 0.6) if _rng.randf() < 0.5 else 1.0) * 0.6
-	else:
-		spot.light_energy = e * lerpf(0.55, 1.0, clampf(charge / 0.3, 0.0, 1.0))
-	if Engine.get_process_frames() % 30 == 0:
-		_store()
+	spot.light_energy = float(cfg["energy"])
 
 
 func _build_ui() -> void:

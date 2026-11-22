@@ -68,7 +68,7 @@ func _ready() -> void:
 	dim.color = Color(0, 0, 0, 0.55)
 	dim.set_anchors_preset(Control.PRESET_FULL_RECT)
 	add_child(dim)
-	var center := CenterContainer.new()
+	var center := Control.new()                      # (not a container: a Container resets its child's scale, so the fit-to-window scale did nothing: review notes #33 / #34)
 	center.set_anchors_preset(Control.PRESET_FULL_RECT)
 	add_child(center)
 	var panel := PanelContainer.new()
@@ -229,7 +229,10 @@ func _make_slot(i: int) -> Button:
 	b.add_child(q)
 	var n := VeilUI.label("", 10, VeilUI.MUTED)
 	n.name = "Letter"
-	n.position = Vector2(6, 4)
+	n.position = Vector2(5, 4)
+	n.size = Vector2(SLOT - 10, SLOT - 24)                  # a slot with no picture writes its name INSIDE the box, wrapped (review note #33)
+	n.autowrap_mode = TextServer.AUTOWRAP_ARBITRARY
+	n.clip_text = true
 	n.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	b.add_child(n)
 	b.pressed.connect(func(): select(i))
@@ -596,6 +599,9 @@ func _fit() -> void:
 	_main.custom_minimum_size = Vector2(side, side)
 	var vp := get_viewport_rect().size
 	var k := minf(1.0, minf(vp.x * 0.94 / side, vp.y * 0.94 / side))
+	_main.set_anchors_preset(Control.PRESET_TOP_LEFT)
+	_main.size = Vector2(side, side)
+	_main.position = (vp - Vector2(side, side)) * 0.5
 	_main.pivot_offset = Vector2(side, side) * 0.5
 	_main.scale = Vector2.ONE * k
 

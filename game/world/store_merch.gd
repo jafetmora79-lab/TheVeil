@@ -19,7 +19,7 @@ var mmi_count := 0
 
 const FOOD_DIR := "res://game/prototypes/food/"
 const REACH := 2.6                  ## how far the player can take a product off a shelf
-const PICK_R := 0.2                 ## ... within this distance of the view line
+const PICK_R := 0.27                ## ... within this distance of the view line
 static var _lib_cache: Dictionary = {}
 static var _names = null
 static var _layout_cache = null
@@ -182,6 +182,7 @@ var looted_hidden := 0
 var _pos := {}                      ## static variant -> PackedVector3Array of the instances' positions (store space)
 var _mm_of := {}                    ## static variant -> its MultiMeshInstance3D
 var _gone := {}                     ## "variant:i" -> true: taken, or raided away (not offered any more)
+var _hl: MeshInstance3D
 var _picker: Interactable
 var _pick_node: Node3D
 var _pick_at := ["", -1]
@@ -226,6 +227,8 @@ func remaining(gid: String) -> int:
 
 func _take(gid: String, by: Node) -> void:
 	var g: Dictionary = groups[gid]
+	if store_key == "supermarket" and Game.has_flag("groceries_done"):
+		return                                                   # (the shopping is over: review note #31)
 	if holds_kind(g["item"]):
 		Dialogue.say("merch_have_one", false, true)
 		return
@@ -254,6 +257,17 @@ func _make_picker() -> void:
 	_picker = Interactable.attach(_pick_node, {"kind": "custom", "label": "Product", "prompt_text": ""})
 	_picker.used.connect(func(by): _take_shelf())
 	_picker.collision_layer = 0                    # off until something is under the crosshair
+	_hl = MeshInstance3D.new()                    # the classic highlight on whatever is about to be taken (review note #24)
+	_hl.name = "ShelfHighlight"
+	var hm := StandardMaterial3D.new()
+	hm.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
+	hm.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
+	hm.blend_mode = BaseMaterial3D.BLEND_MODE_ADD
+	hm.albedo_color = Color(1.0, 0.85, 0.5, 0.45)
+	_hl.material_override = hm
+	_hl.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+	_hl.visible = false
+	add_child(_hl)
 
 
 func _process(delta: float) -> void:
@@ -264,12 +278,17 @@ func _process(delta: float) -> void:
 		return
 	_tick = 0.0
 	var cam := get_viewport().get_camera_3d()
+	if store_key == "supermarket" and Game.has_flag("groceries_done"):       # the shopping is over: the shelves are not for taking any more (review note #31)
+		_picker.collision_layer = 0
+		_hl.visible = false
+		return
 	if cam == null or not is_visible_in_tree() or cam.global_position.distance_to(global_position) > 60.0:
 		return
 	var hit := find_product(cam.global_position, -cam.global_transform.basis.z)
 	if hit.is_empty():
 		_picker.collision_layer = 0
 		_pick_at = ["", -1]
+		_hl.visible = false
 		return
 	_pick_at = [hit["variant"], hit["i"]]
 	var d: Vector3 = (_dims_of(hit["variant"]))
@@ -278,6 +297,10 @@ func _process(delta: float) -> void:
 	_picker.label = name_of(hit["variant"])
 	(_picker.get_child(0) as CollisionShape3D).shape = _box(d)
 	_picker.collision_layer = 8
+	var mm: MultiMesh = (_mm_of[hit["variant"]] as MultiMeshInstance3D).multimesh
+	_hl.mesh = meshes[hit["variant"]]
+	_hl.transform = Transform3D(mm.get_instance_transform(int(hit["i"])).basis * 1.05, (hit["pos"] as Vector3) + Vector3(0, 0.0, 0))
+	_hl.visible = true
 
 
 static var _dims_cache := {}
@@ -351,5 +374,6 @@ func _take_shelf() -> void:
 	if _pick_at[1] < 0:
 		return
 	take_product(String(_pick_at[0]), int(_pick_at[1]))
+	_hl.visible = false
 	_picker.collision_layer = 0
 	_pick_at = ["", -1]

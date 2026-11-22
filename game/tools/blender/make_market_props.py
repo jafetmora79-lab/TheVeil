@@ -50,9 +50,10 @@ class Acc:
             ax = max(range(3), key=lambda i: abs(n[i]))
             for l in f.loops:
                 p = l.vert.co
-                if front is not None and ax == 1 and n.y < 0:
+                if front is not None and ax == 1:
                     cx, cz, w, h = front
-                    l[uv].uv = ((p.x - (cx - w / 2)) / w, (p.z - (cz - h / 2)) / h)
+                    u = (p.x - (cx - w / 2)) / w
+                    l[uv].uv = (u if n.y < 0 else 1.0 - u, (p.z - (cz - h / 2)) / h)       # (the plate reads correctly from either side)
                 elif ax == 0:
                     l[uv].uv = (p.y / scale, p.z / scale)
                 elif ax == 1:
@@ -491,4 +492,5 @@ def main():
         P.export(fn)
 
 
-main()
+if __name__ == "__main__":
+    main()
