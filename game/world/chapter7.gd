@@ -172,11 +172,11 @@ func _setup_route() -> void:
 	var bs := BoxShape3D.new()
 	var out := Vector2(seat_pos.x - CAR_POS.x, seat_pos.z - CAR_POS.z).normalized()
 	var outward := Vector3(out.x, 0, out.y)
-	bs.size = Vector3(1.1, 0.9, 1.1)
+	bs.size = Vector3(2.6, 1.8, 2.6)                  # review note #115: aiming at the backpack or the open door is enough, from anywhere within reach
 	cs.shape = bs
 	it.add_child(cs)
 	world.add_child(it)
-	it.global_position = seat_pos + outward * 0.75 + Vector3(0, 0.3, 0)
+	it.global_position = seat_pos + outward * 0.9 + Vector3(0, 0.5, 0)
 	it.used.connect(_examine_backpack)
 	its["backpack"] = it
 	if Game.has_flag("ch7_backpack_found"):           # already taken (continue / load): gone from the seat
@@ -244,7 +244,7 @@ func _refresh_prompts() -> void:
 		and not Game.has_flag("ch7_backpack_found") else ""
 	if its.has("alarm"):
 		var on: bool = _alarm_ready() and not _skitters_done() and not _busy.get("alarm", false)
-		its["alarm"].prompt_text = "[E] Throw a Bottle at the Parked Car" if on else ""
+		its["alarm"].prompt_text = "[E] Pick Up the Bottle" if on else ""
 		its["alarm"].collision_layer = 8 if on else 0
 	if doors:
 		doors.prompt_text = "[E] Open the Doors" if _doors_wanted() and not c5._doors_open else ""
@@ -445,7 +445,7 @@ func _process(delta: float) -> void:
 	var following := String(st().get("marcus", "")) == "following"
 	# the front doors close by themselves once nobody of the group is at them (they are opened by hand)
 	var on_trip: bool = world.expedition != null and world.expedition.active()     # a supply run keeps them open
-	if c5._doors_open and not on_trip and not c5._near_doors(pl) and not (following and c5._near_doors(ml_)) and not c5._followers_near_doors():
+	if c5._doors_open and not on_trip and not _pack_on and not c5._near_doors(pl) and not (following and c5._near_doors(ml_)) and not c5._followers_near_doors():
 		c5._set_doors(false)
 	if following and not Game.has_flag("ch7_departure_complete") and c5._away_from_store(pl, 3.0):
 		Game.set_flag("ch7_departure_complete")
@@ -542,12 +542,129 @@ func _pack_cinematic() -> void:
 	if hud.has_method("set_hint"):
 		hud.set_hint("THEY'RE BACK - RUN FOR THE STORE!")
 	_busy["pack"] = false
+	_eddie_holds_door()
 
 
 var _pack_bite_t := 0.0
 
 
+## Eddie hears it and holds the doors open for them, standing just inside.
+func _eddie_holds_door() -> void:
+	c5._set_doors(true)
+	var ea = world.animators.get("Eddie")
+	if ea and eddie and is_instance_valid(eddie):
+		var dz: float = c5._door_spot().z
+		c5._reparent(eddie, market)
+		ea.walk_to([Vector3(1.5, 0.04, 3.0), Vector3(1.1, 0.04, 1.4), Vector3(2.3, 0.04, dz + 0.7)], 2.4)
+		Dialogue.say("c7_pack_eddie", false, true)
+
+
+## One chase step for a skitter: toward the player, but never through the glass line of the front doors.
+func _pack_step(sk: Node3D, d: Vector3, speed: float, delta: float) -> void:
+	var dz: float = c5._door_spot().z
+	var np: Vector3 = sk.global_position + d.normalized() * speed * delta
+	var l: Vector3 = market.to_local(np)
+	if l.z > dz - 0.6 and absf(l.x) < 9.0:
+		return
+	sk.global_position = np
+
+
+var _pack_cine := false
+
+
+## First person: the player sprints through the open doors with the pack at their heels, turns, and Eddie shuts the doors; they slam into the glass, then scatter.
+func _pack_door_cine() -> void:
+	_pack_cine = true
+	var dz: float = c5._door_spot().z
+	player.controls_enabled = false
+	player.auto_sprint = true
+	if hud.has_method("set_hint"):
+		hud.set_hint("")
+	c5._set_doors(true)
+	var door_w: Vector3 = market.to_global(Vector3(0, 0, dz))
+	var in_w: Vector3 = market.to_global(Vector3(0, 0, dz + 6.0))
+	var t := 0.0
+	while t < 6.0:
+		await get_tree().process_frame
+		var delta := get_process_delta_time()
+		t += delta
+		var pl: Vector3 = market.to_local(player.global_position)
+		var target: Vector3 = door_w if pl.z < dz - 1.2 else in_w
+		var dd: Vector3 = target - player.global_position
+		dd.y = 0.0
+		player.set_yaw_pitch(lerp_angle(player.rotation.y, atan2(-dd.x, -dd.z), minf(1.0, 8.0 * delta)), lerpf(player.head.rotation.x, 0.0, minf(1.0, 6.0 * delta)))
+		player.auto_input = Vector2(0, -1)
+		for sk in _pack:
+			if is_instance_valid(sk):
+				var d: Vector3 = player.global_position - sk.global_position
+				d.y = 0.0
+				sk.rotation.y = atan2(d.x, d.z)
+				VeilCreatureLook.skitter_anim(sk, "scuttle", 14.0)
+				if d.length() > 2.4:
+					_pack_step(sk, d, 6.8, delta)
+		if pl.z > dz + 2.8:
+			break
+	player.auto_input = Vector2.ZERO
+	player.auto_sprint = false
+	player.velocity = Vector3.ZERO
+	# turn round to face the doors
+	var y0: float = player.rotation.y
+	var dback: Vector3 = door_w - player.global_position
+	dback.y = 0.0
+	var tw := create_tween().set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
+	tw.tween_method(func(k: float): player.set_yaw_pitch(lerp_angle(y0, atan2(-dback.x, -dback.z), k), lerpf(player.head.rotation.x, 0.0, k)), 0.0, 1.0, 0.45)
+	var ea = world.animators.get("Eddie")
+	if ea:
+		ea.face_towards(door_w)
+	Dialogue.say("c7_pack_door", false, true)
+	await get_tree().create_timer(0.3).timeout
+	c5._set_doors(false)                         # Eddie shoves the doors shut
+	var t2 := 0.0
+	while t2 < 0.9:                              # they run up to the glass in the same second
+		await get_tree().process_frame
+		var delta2 := get_process_delta_time()
+		t2 += delta2
+		for sk in _pack:
+			if is_instance_valid(sk):
+				var d2: Vector3 = door_w - sk.global_position
+				d2.y = 0.0
+				sk.rotation.y = atan2(d2.x, d2.z)
+				_pack_step(sk, player.global_position - sk.global_position, 7.5, delta2)
+	for i in 3:                                  # the slams
+		for sk in _pack:
+			if is_instance_valid(sk):
+				VeilCreatureLook.skitter_anim(sk, "attack", 0.0, 0.05)
+		Sfx.play("impact", door_w + Vector3(0, 1.0, 0), 4.0, 0.8 + i * 0.1)
+		world._shake(get_viewport().get_camera_3d(), 0.3, 0.04)
+		await get_tree().create_timer(0.45).timeout
+	# scattering: away in all directions, gone once unseen
+	var k := 0
+	for sk in _pack:
+		if is_instance_valid(sk):
+			var ang := -PI * 0.5 + (k - 1) * 0.9
+			var away := market.to_global(Vector3(sin(ang) * 40.0, 0.0, -cos(ang) * 40.0))
+			away.y = sk.global_position.y
+			sk.rotation.y = atan2(away.x - sk.global_position.x, away.z - sk.global_position.z)
+			VeilCreatureLook.skitter_anim(sk, "scuttle", 12.0)
+			var mv: Tween = sk.create_tween()
+			mv.tween_property(sk, "global_position", away, 4.0)
+			mv.tween_callback(_leave_unseen.bind(sk))
+		k += 1
+	_pack.clear()
+	await get_tree().create_timer(0.6).timeout
+	player.controls_enabled = true
+	_pack_on = false
+	_pack_cine = false
+
+
 func _pack_run(delta: float) -> void:
+	if _pack_cine:
+		return
+	if not Game.has_flag("ch7_returned_to_supermarket") and not c5._in_store(market.to_local(player.global_position)):
+		var pl: Vector3 = market.to_local(player.global_position)
+		if pl.z > c5._door_spot().z - 9.0 and absf(pl.x) < 12.0 and player.controls_enabled:
+			_pack_door_cine()
+			return
 	_pack_bite_t = maxf(_pack_bite_t - delta, 0.0)
 	var done: bool = c5._in_store(market.to_local(player.global_position)) or Game.has_flag("ch7_returned_to_supermarket")
 	var alive := 0
@@ -570,7 +687,7 @@ func _pack_run(delta: float) -> void:
 			continue
 		sk.rotation.y = atan2(d.x, d.z)
 		if dist > 1.9:
-			sk.global_position += d.normalized() * 5.2 * delta           # just faster than the sprint (4.3 m/s): they only catch the player who dawdles or stops
+			_pack_step(sk, d, 5.2, delta)           # just faster than the sprint (4.3 m/s): they only catch the player who dawdles or stops
 		elif _pack_bite_t <= 0.0:
 			_pack_bite_t = 2.0
 			VeilCreatureLook.skitter_anim(sk, "attack", 0.0, 0.05)
@@ -654,11 +771,18 @@ func _setup_distraction() -> void:
 	var s := Node3D.new()
 	s.name = "C7_Alarm"
 	world.add_child(s)
-	s.global_position = THROW_POS + Vector3(0.0, 1.0, 0.0)
+	s.global_position = THROW_POS + Vector3(0.0, 0.6, 0.0)
+	_bottle_prop = _make_bottle()
+	world.add_child(_bottle_prop)
+	_bottle_prop.global_position = THROW_POS + Vector3(0.0, 0.05, 0.0)
+	_bottle_prop.rotation = Vector3(0.0, 0.6, PI * 0.5)       # lying on the road
+	_bottle_prop.visible = not _skitters_done()
+	_alarm_lights = _make_alarm_lights(c)
 	var it := Interactable.attach(s, {"kind": "custom", "label": "Car", "prompt_text": ""})
 	var cs := it.get_child(0) as CollisionShape3D
 	(cs.shape as BoxShape3D).size = Vector3(3.0, 1.6, 3.0)
 	cs.position = Vector3.ZERO
+	(cs.shape as BoxShape3D).size = Vector3(3.0, 1.4, 3.0)
 	it.used.connect(_set_off_alarm)
 	its["alarm"] = it
 	_alarm_stream = Sfx._make(0.5, func(t: float, _i: int) -> float: return sin(TAU * (880.0 if t < 0.25 else 660.0) * t) * 0.35, true)
@@ -841,35 +965,135 @@ var report_lunges := 0
 var qa_report := {}
 
 
-func _throw_bottle() -> void:
-	var b := MeshInstance3D.new()
-	var cm := CylinderMesh.new()
-	cm.top_radius = 0.035
-	cm.bottom_radius = 0.045
-	cm.height = 0.24
-	b.mesh = cm
+var _bottle_prop: Node3D
+var _alarm_lights: Array = []
+
+
+func _make_bottle() -> Node3D:
+	var b := Node3D.new()
+	b.name = "C7_Bottle"
 	var m := StandardMaterial3D.new()
-	m.albedo_color = Color(0.25, 0.4, 0.28)
+	m.albedo_color = Color(0.25, 0.42, 0.3, 0.9)
+	m.roughness = 0.2
+	var body := MeshInstance3D.new()
+	var cm := CylinderMesh.new()
+	cm.top_radius = 0.045
+	cm.bottom_radius = 0.045
+	cm.height = 0.2
 	cm.material = m
-	world.add_child(b)
-	var from: Vector3 = player.camera.global_position + Vector3(0, -0.2, 0)
-	var to: Vector3 = ALARM_POS + Vector3(0, 1.3, 0)
+	body.mesh = cm
+	b.add_child(body)
+	var neck := MeshInstance3D.new()
+	var nm := CylinderMesh.new()
+	nm.top_radius = 0.016
+	nm.bottom_radius = 0.035
+	nm.height = 0.1
+	nm.material = m
+	neck.mesh = nm
+	neck.position = Vector3(0, 0.15, 0)
+	b.add_child(neck)
+	return b
+
+
+## Four amber lights at the corners of the alarm car (off until the alarm goes).
+func _make_alarm_lights(car: Node3D) -> Array:
+	var out: Array = []
+	for sx in [-0.8, 0.8]:
+		for sz in [-2.1, 2.1]:
+			var l := OmniLight3D.new()
+			l.light_color = Color(1.0, 0.62, 0.15)
+			l.light_energy = 3.0
+			l.omni_range = 5.0
+			l.visible = false
+			car.add_child(l)
+			l.position = Vector3(sx, 0.75, sz)
+			var e := MeshInstance3D.new()
+			var bm := BoxMesh.new()
+			bm.size = Vector3(0.25, 0.14, 0.06)
+			var em := StandardMaterial3D.new()
+			em.albedo_color = Color(1.0, 0.7, 0.2)
+			em.emission_enabled = true
+			em.emission = Color(1.0, 0.6, 0.1)
+			em.emission_energy_multiplier = 4.0
+			bm.material = em
+			e.mesh = bm
+			e.visible = false
+			l.add_child(e)
+			out.append(l)
+	return out
+
+
+func _blink_alarm_lights(seconds: float) -> void:
+	var t := 0.0
+	while t < seconds and is_inside_tree():
+		var on := int(t / 0.35) % 2 == 0
+		for l in _alarm_lights:
+			if is_instance_valid(l):
+				l.visible = on
+				(l.get_child(0) as Node3D).visible = on
+		await get_tree().create_timer(0.1).timeout
+		t += 0.1
+	for l in _alarm_lights:
+		if is_instance_valid(l):
+			l.visible = false
+			(l.get_child(0) as Node3D).visible = false
+
+
+## The throw: Marcus points out the car, the bottle is picked up off the road, lifted, thrown in an arc with a spin and shatters on the car.
+func _throw_bottle() -> void:
+	var to: Vector3 = ALARM_POS + Vector3(0, 1.1, 0)
+	var b: Node3D = _bottle_prop
+	if b == null or not is_instance_valid(b):
+		return
+	# pick up: it rises from the road into the hand (in front of the camera)
+	var hand := func() -> Vector3: return player.camera.global_position + player.camera.global_transform.basis * Vector3(0.22, -0.25, -0.55)
+	var from0: Vector3 = b.global_position
+	var rise := create_tween().set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT)
+	rise.tween_method(func(k: float):
+		b.global_position = from0.lerp(hand.call(), k)
+		b.rotation = b.rotation.lerp(Vector3(0, b.rotation.y, 0), k), 0.0, 1.0, 0.6)
+	Sfx.play("pickup", from0, -6.0, 1.1)
+	await rise.finished
+	# the wind-up: the hand draws back, then the throw
+	var wind := create_tween()
+	wind.tween_method(func(k: float): b.global_position = hand.call() + player.camera.global_transform.basis * Vector3(0.1, 0.12, 0.2) * k, 0.0, 1.0, 0.3)
+	await wind.finished
+	var from: Vector3 = b.global_position
 	var tw := create_tween()
 	tw.tween_method(func(k: float):
 		b.global_position = from.lerp(to, k) + Vector3(0, sin(k * PI) * 3.0, 0)
-		b.rotation.x = k * 14.0, 0.0, 1.0, 0.8)
-	tw.tween_callback(func():
-		Sfx.play("impact", to, 2.0, 1.6)
-		b.queue_free())
+		b.rotation.x = k * 16.0, 0.0, 1.0, 0.85)
+	await tw.finished
+	Sfx.play("impact", to, 3.0, 2.2)
+	Sfx.play("impact", to, 0.0, 1.5)
+	b.visible = false
+	if _bottle_prop and is_instance_valid(_bottle_prop):
+		_bottle_prop.queue_free()
+	_bottle_prop = null
 
 
 func _set_off_alarm(_b: Node) -> void:
 	if _skitters_done() or not _alarm_ready() or _busy.get("alarm", false):
 		return
 	_busy["alarm"] = true
+	its["alarm"].prompt_text = ""
 	player.controls_enabled = false
-	_throw_bottle()                                  # the bottle flies to the car: glass, then the alarm (review note #97)
-	await get_tree().create_timer(0.9).timeout
+	# Marcus points at the sedan up the road
+	var ma = world.animators.get("Marcus")
+	if ma:
+		ma.face_towards(ALARM_POS)
+		ma.talk(5.0)
+	Dialogue.say("c7_throw", false, true)
+	await get_tree().create_timer(0.6).timeout
+	var cam_yaw0: float = player.rotation.y
+	var d: Vector3 = ALARM_POS - player.global_position
+	d.y = 0.0
+	var tw := create_tween().set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
+	tw.tween_method(func(k: float): player.set_yaw_pitch(lerp_angle(cam_yaw0, atan2(-d.x, -d.z), k), lerpf(player.head.rotation.x, -0.08, k)), 0.0, 1.0, 0.8)
+	await tw.finished
+	while Dialogue.is_busy():
+		await get_tree().process_frame
+	await _throw_bottle()                            # picked up, wound up, thrown: glass on the car, then the alarm (review notes #97, #116)
 	player.controls_enabled = true
 	var a := AudioStreamPlayer3D.new()
 	a.stream = _alarm_stream
@@ -878,7 +1102,8 @@ func _set_off_alarm(_b: Node) -> void:
 	world.add_child(a)
 	a.global_position = ALARM_POS + Vector3(0, 1.2, 0)
 	a.play()
-	get_tree().create_timer(7.0).timeout.connect(a.queue_free)
+	get_tree().create_timer(8.0).timeout.connect(a.queue_free)
+	_blink_alarm_lights(8.0)                         # the car flashes its lights like any alarm
 	_busy["fleeing"] = true                           # (QA-008) the car is clear only once they have gone to the noise
 	if hud.has_method("set_hint"):
 		hud.set_hint("")
@@ -892,15 +1117,15 @@ func _set_off_alarm(_b: Node) -> void:
 		VeilCreatureLook.skitter_anim(sk, "scuttle", 7.0)
 		var mid := ALARM_POS + Vector3(-2.0 + i * 1.5, 0.0, 1.0)
 		var out: Vector3 = SKITTER_EXIT[i % SKITTER_EXIT.size()]
-		var tw := sk.create_tween()
+		var tw2 := sk.create_tween()
 		sk.rotation.y = atan2(mid.x - sk.global_position.x, mid.z - sk.global_position.z)
-		tw.tween_property(sk, "global_position", mid, sk.global_position.distance_to(mid) / 7.0)
-		tw.tween_callback(func():
+		tw2.tween_property(sk, "global_position", mid, sk.global_position.distance_to(mid) / 7.0)
+		tw2.tween_callback(func():
 			_drawn_off()
 			if is_instance_valid(sk):
 				sk.rotation.y = atan2(out.x - mid.x, out.z - mid.z))
-		tw.tween_property(sk, "global_position", out, mid.distance_to(out) / 7.0)
-		tw.tween_callback(_leave_unseen.bind(sk))
+		tw2.tween_property(sk, "global_position", out, mid.distance_to(out) / 7.0)
+		tw2.tween_callback(_leave_unseen.bind(sk))
 	if skitters.is_empty():
 		_drawn_off()
 

@@ -127,3 +127,9 @@ STILL OPEN (the owner has these in the notes file):
   - **Never went to her** (`ch8_cashier_abandoned`, plus died): Ruth blames the player (`c8_cashier_abandoned`, morale -5, Ruth -4 / Eddie -2 trust, memory `blamed_you`).
 - Everything that waited for "the cashier died" waits for `_resolved()` (died OR saved). The aftermath talk opens with an outcome line (`c8_after_saved / _lost / _abandoned`) then the usual `c8_aftermath`.
 - Not covered by a headless test (the chapter 8 test fails on its walking steps; a dev set-up overwrites the owner's save): *needs the owner's play-through of all three outcomes.*
+
+## Notes #115-#117 (2026-11-22) - Chapter 8 backpack, bottle, pack at the doors
+- #115: the backpack interaction box is 2.6 x 1.8 x 2.6 (seat + 0.9 m outward), so aiming at the backpack or the open door is enough.
+- #116: a bottle lies on the road at THROW_POS (`_bottle_prop`). E: Marcus turns, points out the sedan (`c7_throw`), the player turns to the car, picks the bottle up, winds up and throws it (spin, arc), glass on the car, alarm + four amber lights blinking 8 s (`_alarm_lights`).
+- #117: when the pack chase starts Eddie walks to the doors and holds them open (`_eddie_holds_door`, `c7_pack_eddie`). Skitters can never cross the door line (`_pack_step`). Near the doors `_pack_door_cine`: first-person sprint through, turn, Eddie shuts the doors (`c7_pack_door`), three slams, they scatter and leave unseen.
+- All need the owner's visual / play test (timing, Eddie's walk to the door, light blink look). chapter7_test fails from the first walking steps headless as before.

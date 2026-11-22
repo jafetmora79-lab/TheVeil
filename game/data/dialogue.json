@@ -7317,6 +7317,38 @@
    }
   ]
  },
+ "c7_throw": {
+  "lines": [
+   {
+    "speaker": "Marcus",
+    "text": "That sedan, up the road. Its alarm still works, I saw the lights flicker.",
+    "time": 3.4
+   },
+   {
+    "speaker": "Marcus",
+    "text": "Pick up that bottle and put it through the window. Hard.",
+    "time": 3.0
+   }
+  ]
+ },
+ "c7_pack_eddie": {
+  "lines": [
+   {
+    "speaker": "Eddie",
+    "text": "I hear them! Run! I have the doors!",
+    "time": 2.2
+   }
+  ]
+ },
+ "c7_pack_door": {
+  "lines": [
+   {
+    "speaker": "Eddie",
+    "text": "IN, IN, IN! Get away from the glass!",
+    "time": 2.0
+   }
+  ]
+ },
  "shop_staff_only": {
   "lines": [
    {
