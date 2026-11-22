@@ -296,19 +296,41 @@ func _apply_inside() -> void:
 	_place_clerk()
 
 
-## Mid-escape (a load): the breach as it happened, the Hound inside, the group with the player.
+## Mid-escape (a load): the aisle across the doorway again, the front doors burst, Ruth and Sarah waiting in the lot, Walt gone, Marcus back on the floor if his moment was not decided.
 func _apply_fall() -> void:
 	_breach_state()
+	_aisle_set(0.0 if not Game.has_flag("ch9_marcus_saved") and not Game.has_flag("ch9_marcus_lost") else 0.0)
 	_place_clerk()
-	if hound_in == null or not is_instance_valid(hound_in):
-		hound_in = _make_hound(PROWL[0])
-		_prowl.call_deferred()
-	_front_threat()
+	c5._set_doors(true)
 	_set_rear(true)
-	for k in follows:
-		if k == "Marcus" and Game.has_flag("ch9_marcus_lost"):
-			continue
-		_start_follow(k)
+	var sa = world.animators.get("Sarah")
+	if sa:
+		sa.limp = 1.0
+		sa.set_downed("")
+	_out_waiting = ["Ruth", "Sarah"]
+	for i in 2:
+		var k: String = ["Ruth", "Sarah"][i]
+		var n: Node3D = ruth if k == "Ruth" else sarah
+		c5._reparent(n, market)
+		n.visible = true
+		world.place_survivor(n, OUT_WAIT[1 + i])
+		_start_follow(k, false)
+	_start_follow("Eddie")
+	if hound_in == null or not is_instance_valid(hound_in):
+		hound_in = _make_hound(MARCUS_DOWN + Vector3(-0.2, 0, -0.9))
+	if not Game.has_flag("ch9_marcus_saved") and not Game.has_flag("ch9_marcus_lost"):
+		c5._reparent(marcus, market)
+		world.place_survivor(marcus, MARCUS_DOWN)
+		var ma = world.animators.get("Marcus")
+		if ma:
+			ma.set_downed("side")
+		_busy["pinned"] = true
+		_busy["marcus_down"] = true
+		_pin_left = pin_window()
+		hound_in.rotation.y = atan2(MARCUS_DOWN.x - hound_in.position.x, MARCUS_DOWN.z - hound_in.position.z)
+		c8._hplay(hound_in, "Attack_Bite", 0.0)
+	elif not Game.has_flag("ch9_marcus_lost"):
+		_start_follow("Marcus")
 
 
 func _apply_outside() -> void:
@@ -343,7 +365,7 @@ func _place_clerk() -> void:
 	_show(cl, CLERK_SPOT, GROUP_CENTRE)
 
 
-func _start_follow(k: String) -> void:
+func _start_follow(k: String, snap := true) -> void:
 	var n: Node3D = {"Eddie": eddie, "Ruth": ruth, "Sarah": sarah, "Marcus": marcus}[k]
 	var a = world.animators.get(k)
 	if a:
@@ -355,7 +377,8 @@ func _start_follow(k: String) -> void:
 	if f.active:
 		return
 	c5._reparent(n, world)
-	f.recover_behind(f.gap)
+	if snap:
+		f.recover_behind(f.gap)
 	f.start()
 
 
@@ -391,8 +414,8 @@ func _set_rear(open: bool) -> void:
 func _breach_state() -> void:
 	var sp: Node3D = c8._secure_pallet
 	if sp:
-		sp.position = c8.SECURE_START                     # the aisle is back where it stood (the way out is clear)
-		sp.rotation.y = deg_to_rad(90.0)
+		sp.position = Vector3(AISLE_CLOSED_X, 0.0, AISLE_Z)       # the aisle across the back doorway (the group left by the staff door)
+		sp.rotation.y = 0.0
 	if c8._blocker:
 		c8._blocker.collision_layer = 0
 
@@ -724,136 +747,416 @@ func _assault_loop(h: Node3D, i: int) -> void:
 		await get_tree().create_timer(randf_range(0.15, 0.7)).timeout
 
 
-# ------------------------------------------------------------------ scene 4: the fall
+# ------------------------------------------------------------------ scene 4: the fall (review note #127, reworked)
+## One scripted sequence, nobody teleports, every line is spoken while the people do what it says:
+##  1. the group moves along set paths (Sarah gets up and limps): Eddie and Marcus to the east end of the aisle that blocks the back doorway, Ruth, Sarah and the clerk Walt wait by the doorway
+##  2. the ONLY click struggle: the player pulls the aisle clear (Eddie and Marcus pull with them)
+##  3. Ruth and Sarah run through the doorway and out the back; the front doors burst and the three hounds pour in; they take Walt (he froze)
+##  4. the player, Eddie and Marcus push the aisle back across the doorway behind them; half way a hound takes Marcus
+##  5. the player decides inside a countdown: leave him and run, or pull him free; then the aisle is finished (with him if saved) and everybody runs out through the staff door
+const AISLE_Z := 13.62
+const AISLE_CLOSED_X := 8.8                        ## centre of the aisle across the back doorway
+const AISLE_OPEN_X := 12.0                         ## slid east: the doorway is clear
+const AISLE_HALF := 2.12
+const MARCUS_DOWN := Vector3(10.2, 0.04, 11.7)     ## where the hound drags him: south-east of the aisle, in reach of the pushers
+
+
+func _aisle_set(s_: float) -> void:                ## 0 = closed (across the doorway), 1 = open (slid east)
+	var sp: Node3D = c8._secure_pallet
+	sp.position = Vector3(lerpf(AISLE_CLOSED_X, AISLE_OPEN_X, s_), 0.0, AISLE_Z)
+	sp.rotation.y = 0.0
+
+
+## Where a puller / pusher stands: just past the east end of the aisle at progress s_, dz across its depth.
+func _end_spot(s_: float, dz: float) -> Vector3:
+	return Vector3(lerpf(AISLE_CLOSED_X, AISLE_OPEN_X, s_) + AISLE_HALF + 0.6, 0.04, AISLE_Z + dz)
+
+
+## Send a character along a set path (market-local points), no collision, no placing.
+func _walk(n: Node3D, a, pts: Array, speed: float) -> void:
+	if a == null:
+		return
+	c5._reparent(n, market)
+	n.visible = true
+	a.free_walk = true
+	a.turn_to_face = true
+	a.set_mood("scared")
+	a.walk_to(pts, speed)
+
+
+func _wait_arrived(anims: Array, timeout: float) -> void:
+	var t := 0.0
+	while t < timeout:
+		var busy := false
+		for a in anims:
+			if a != null and a.is_walking():
+				busy = true
+		if not busy:
+			return
+		await get_tree().process_frame
+		t += get_process_delta_time()
+
+
+## The player runs a set path (market-local points) at a run, looking where they go. Physics stay off until the caller turns them on.
+func _player_walk(pts: Array, speed: float) -> void:
+	player.set_physics_process(false)
+	for q in pts:
+		var to: Vector3 = ml(q)
+		to.y = player.global_position.y
+		while player.global_position.distance_to(to) > 0.08:
+			var d: Vector3 = to - player.global_position
+			d.y = 0.0
+			var step := minf(speed * get_process_delta_time(), d.length())
+			player.global_position += d.normalized() * step
+			player.velocity = Vector3.ZERO
+			player.set_yaw_pitch(lerp_angle(player.rotation.y, atan2(-d.x, -d.z), minf(1.0, 9.0 * get_process_delta_time())), lerpf(player.head.rotation.x, 0.0, 0.1))
+			await get_tree().process_frame
+
+
+func _face_aisle(units: Array) -> void:
+	var c: Vector3 = c8._secure_pallet.global_position + Vector3(0, 0.9, 0)
+	for a in units:
+		if a != null:
+			a.face_towards(c)
+
+
 func _run_fall() -> void:
 	if Game.has_flag("ch9_fall_started"):
 		return
 	report["fall_runs"] += 1
-	# the way out is the back, and the aisle the group dragged over it is in the way: the player and Eddie pull it clear
+	_busy["fall"] = true
+	_aisle_shut = false
+	_busy["marcus_down"] = false
 	_hold(true)
-	for k in ["Marcus", "Ruth", "Sarah"]:
-		var a = world.animators.get(k)
-		if a:
-			a.set_downed("")
-			a.face_towards(ml(Vector3(8.4, 1.0, 13.6)))
 	if c8._blocker:
 		c8._blocker.collision_layer = 0
-	await c8._shove_aisle(1.0, 0.0, "CLICK RAPIDLY  -  PULL THE SHELVES CLEAR OF THE BACK DOOR!", "LEFT CLICK, AGAIN AND AGAIN  -  THEY ARE BREAKING THROUGH THE FRONT")
-	_set_rear(true)
+	var ea = world.animators.get("Eddie")
+	var ma = world.animators.get("Marcus")
+	var ra = world.animators.get("Ruth")
+	var sa = world.animators.get("Sarah")
+	var wa = world.animators.get("Cashier")
+	var clerk: Node3D = world.cashier
+	# 1. everybody moves at once along set paths; the lines are spoken while they run
+	Dialogue.say("c9_front_assault", false, true)
+	if sa:
+		sa.set_downed("")                                # Sarah gets up (the clip blends out of the floor)...
+		sa.limp = 1.0                                    # ...and runs with a limp
+	var lane := Vector3(8.0, 0.04, 7.2)
+	_walk(ruth, ra, [lane, Vector3(8.2, 0.04, 11.6)], 3.8)
+	_walk(sarah, sa, [lane + Vector3(0, 0, 0.6), Vector3(7.6, 0.04, 11.9)], 3.0)
+	if clerk and is_instance_valid(clerk) and wa and not Game.has_flag("ch9_clerk_dead"):
+		_walk(clerk, wa, [lane + Vector3(0.4, 0, 0.4), Vector3(9.4, 0.04, 11.4)], 3.2)
+	_walk(eddie, ea, [lane, Vector3(10.6, 0.04, 10.8), _end_spot(0.0, 0.42)], 4.2)
+	_walk(marcus, ma, [lane, Vector3(10.6, 0.04, 10.4), _end_spot(0.0, -0.42)], 4.2)
+	await _player_walk([lane, Vector3(10.6, 0.04, 10.6), _end_spot(0.0, 0.0)], 4.4)
+	await _wait_arrived([ea, ma], 2.5)
+	_face_aisle([ea, ma])
+	await c8._turn_to(c8._secure_pallet.global_position + Vector3(0, 0.9, 0), 0.4)
+	# 2. the only struggle: pull the aisle clear
+	await _pull_aisle()
 	Game.set_flag("ch9_fall_started")
-	# the front doors burst; they pour in. The group runs for the back with the pack on its heels (a click-to-run along a set path, nobody teleports)
-	await _front_burst_and_run()
+	_set_rear(true)
+	# 3. the way is open: Ruth and Sarah go through and out the back; the front doors burst; the hounds pour in
+	_pass_through(ra, sa)
+	await _front_burst()
+	await get_tree().create_timer(0.4).timeout
+	# 4. push the aisle back across the doorway behind them
+	await _push_back()
+
+
+## THE struggle: click to pull the aisle east off the back doorway. Eddie and Marcus pull beside the player; if the bar runs out it creeps back and they go again.
+func _pull_aisle() -> void:
+	var sg = world.get_node_or_null("Struggle")
+	if sg == null:
+		sg = load("res://game/encounters/struggle.gd").new()
+		sg.name = "Struggle"
+		world.add_child(sg)
+		sg.setup(world)
+	var s_ := 0.0
+	var won := false
+	while not won:
+		c8._push_over = false
+		c8._push_won = false
+		var base := s_
+		c8._shove_go(sg, "CLICK RAPIDLY  -  PULL THE SHELVES CLEAR OF THE BACK DOOR!", "LEFT CLICK, AGAIN AND AGAIN  -  EDDIE AND MARCUS PULL WITH YOU", 11.0, 0.075)
+		var t := 0.0
+		while not c8._push_over:
+			await get_tree().process_frame
+			var dt := get_process_delta_time()
+			t += dt
+			var pr: float = sg.rescue_progress()
+			s_ = lerpf(s_, base + (1.0 - base) * pr, 1.0 - exp(-6.0 * dt))
+			_pullers_at(s_, t)
+			if int(t * 2.0) != int((t - dt) * 2.0):
+				p4._play("scrape", ml(c8._secure_pallet.position), -6.0 + 3.0 * pr)
+				world._shake(get_viewport().get_camera_3d(), 0.1, 0.012)
+		won = c8._push_won
+		if not won:
+			p4._play("impact", ml(Vector3(0.0, 1.0, 0.3)), 6.0)              # the glass takes another blow: the shelves slide back a little
+			world._shake(get_viewport().get_camera_3d(), 0.35, 0.05)
+			var back_to := s_ * 0.75
+			var bk := create_tween()
+			bk.tween_method(func(v: float): _pullers_at(v, 0.0), s_, back_to, 0.5)
+			await bk.finished
+			s_ = back_to
+	_pullers_at(1.0, 0.0)
+
+
+## The three pullers / pushers placed at the east end of the aisle at progress s_, leaning into it (a slight bob while it moves).
+func _pullers_at(s_: float, t: float) -> void:
+	_aisle_set(s_)
+	var bob := sin(t * 9.0) * 0.03
+	player.global_position = ml(_end_spot(s_, 0.0) + Vector3(bob, 0, 0))
+	player.velocity = Vector3.ZERO
+	var c: Vector3 = c8._secure_pallet.global_position + Vector3(0, 0.9, 0)
+	var dv: Vector3 = c - player.global_position
+	dv.y = 0.0
+	player.set_yaw_pitch(lerp_angle(player.rotation.y, atan2(-dv.x, -dv.z), 0.2), -0.12)
+	if not _busy.get("marcus_down", false):
+		marcus.global_position = ml(_end_spot(s_, -0.42) + Vector3(-bob, 0, 0))
+	eddie.global_position = ml(_end_spot(s_, 0.42) + Vector3(bob, 0, 0))
+	var ea = world.animators.get("Eddie")
+	var ma = world.animators.get("Marcus")
+	if ea:
+		ea.face_towards(c)
+	if ma and not _busy.get("marcus_down", false):
+		ma.face_towards(c)
+
+
+## Ruth first, then Sarah (slower: the limp) through the doorway, the corridor and out of the rear exit to wait in the lot.
+func _pass_through(ra, sa) -> void:
+	Dialogue.say("c9_pass_through", false, true)
+	var route := [Vector3(8.4, 0.04, 12.8), Vector3(8.4, 0.04, 14.8), Vector3(8.1, 0.04, 16.3), Vector3(8.0, 0.04, 17.7)]
+	_walk(ruth, ra, route + [OUT_WAIT[1]], 4.2)
+	await get_tree().create_timer(0.5).timeout
+	_walk(sarah, sa, route + [OUT_WAIT[2]], 3.0)
+	_out_waiting = ["Ruth", "Sarah"]
+
+
+var _out_waiting: Array = []
+
+
+## The front doors give; the three come in at a run. The lead hound goes for Walt, who froze by the doorway.
+func _front_burst() -> void:
+	c5._set_doors(true)
+	p4._play("impact", ml(Vector3(0.0, 1.0, 0.3)), 9.0)
+	c8._dust(ml(Vector3(0.0, 2.4, 0.3)), 34)
+	world._shake(get_viewport().get_camera_3d(), 0.5, 0.06)
 	_assault_on = false
-	Dialogue.say("c9_marcus_order", false, true)
-	for k in ["Eddie", "Ruth", "Sarah", "Marcus"]:
-		_start_follow(k)
-	_hold(false)
+	var h0: Node3D = front_hounds[0] if front_hounds.size() > 0 else null
+	var clerk: Node3D = world.cashier
+	var walt_at := Vector3(9.4, 0.04, 11.4)
+	for i in front_hounds.size():
+		var h: Node3D = front_hounds[i]
+		if not is_instance_valid(h):
+			continue
+		c8._hplay(h, "Run", 6.2)
+		if i == 0:
+			_run_to_walt(h, clerk, walt_at)
+		else:
+			_hound_pace(h, i)
+	if clerk and is_instance_valid(clerk) and not Game.has_flag("ch9_clerk_dead"):
+		var wa = world.animators.get("Cashier")
+		if wa:
+			wa.face_towards(ml(Vector3(0, 0.9, 1.0)))
+		Dialogue.say("c9_walt_freeze", false, true)
+		while is_instance_valid(h0) and h0.position.z < walt_at.z - 2.6:
+			await get_tree().process_frame
+	await get_tree().create_timer(0.1).timeout
+
+
+func _run_to_walt(h: Node3D, clerk: Node3D, walt_at: Vector3) -> void:
+	await c8._hound_run(h, [Vector3(0.6, 0.0, 3.0), Vector3(5.0, 0.0, 8.5), Vector3(walt_at.x - 1.3, 0.0, walt_at.z - 1.0)], 6.2)
+	if not is_instance_valid(h) or clerk == null or not is_instance_valid(clerk) or Game.has_flag("ch9_clerk_dead"):
+		return
+	Game.set_flag("ch9_clerk_dead")
+	var wa = world.animators.get("Cashier")
+	c8._hplay(h, "Attack_Bite", 0.0)
+	Dialogue.say("c9_clerk_taken", false, true)
+	Sfx.play("hurt", clerk.global_position + Vector3(0, 1.3, 0), 6.0, 1.3)
+	world._shake(get_viewport().get_camera_3d(), 0.35, 0.05)
+	if wa:
+		wa.free_walk = true
+		wa.set_downed("back")                               # on his front, clawing at the floor, dragged
+	var away := clerk.position + Vector3(-5.5, 0, -2.0)
+	var tw := create_tween().set_parallel(true)
+	tw.tween_property(clerk, "position", away, 2.4).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_IN)
+	tw.tween_property(h, "position", away + Vector3(0.5, 0, 0.7), 2.4).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_IN)
+	await tw.finished
+	clerk.visible = false
+	if is_instance_valid(h):
+		hound_in = h
+		c8._hplay(h, "Run", 6.0)
+		await c8._hound_run(h, [Vector3(9.6, 0.0, 9.6)], 6.0)
+
+
+## The other two run to the west end of the aisle and throw themselves at it.
+func _hound_pace(h: Node3D, i: int) -> void:
+	await c8._hound_run(h, [Vector3(1.0 + i * 2.0, 0.0, 4.0), Vector3(4.5 + i * 1.4, 0.0, 10.0), Vector3(6.2 + i * 0.8, 0.0, 12.4)], 6.2)
+	while is_instance_valid(h) and not Game.has_flag("ch9_escaped") and not _aisle_shut:
+		c8._hplay(h, "Attack_Bite", 0.0)
+		p4._play("impact", ml(Vector3(6.4 + i * 0.6, 1.0, 13.0)), 4.0)
+		world._shake(get_viewport().get_camera_3d(), 0.18, 0.025)
+		await get_tree().create_timer(randf_range(0.7, 1.4)).timeout
+
+
+var _aisle_shut := false
+
+
+## The pushers drive the aisle back across the doorway; half way a hound takes Marcus (the decision), then it is finished.
+func _push_back() -> void:
+	Dialogue.say("c9_push_back", false, true)
+	var tw := create_tween()
+	var s_ := [1.0]
+	tw.tween_method(func(v: float):
+		s_[0] = v
+		_pullers_at(v, v * 14.0), 1.0, 0.5, 2.2)
+	await tw.finished
+	await _marcus_grabbed()
+
+
+## A hound comes round the end of the aisle and takes Marcus off his feet: he is dragged a few metres and pinned. The player has the pin window to decide.
+func _marcus_grabbed() -> void:
+	_busy["marcus_down"] = true
+	_busy["pinned"] = true
+	report["pin_runs"] += 1
+	var ma = world.animators.get("Marcus")
+	var h: Node3D = hound_in if is_instance_valid(hound_in) else (front_hounds[0] if front_hounds.size() > 0 else null)
+	if h and is_instance_valid(h):
+		h.reparent(market, true)
+		c8._hplay(h, "Run", 6.4)
+		await c8._hound_run(h, [Vector3(_end_spot(0.5, 0.0).x, 0.0, 12.4)], 6.4)
+		if is_instance_valid(h):
+			h.rotation.y = atan2(marcus.position.x - h.position.x, marcus.position.z - h.position.z)
+			c8._hplay(h, "Attack_Bite", 0.0)
+	Dialogue.say("c9_marcus_grabbed", false, true)
+	Sfx.play("hurt", marcus.global_position + Vector3(0, 1.3, 0), 6.0, 1.0)
+	world._shake(get_viewport().get_camera_3d(), 0.4, 0.05)
+	if ma:
+		ma.free_walk = true
+		ma.set_downed("back")
+		ma.set_mood("scared")
+	var tw := create_tween().set_parallel(true)
+	tw.tween_property(marcus, "position", MARCUS_DOWN, 1.6).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
+	if h and is_instance_valid(h):
+		tw.tween_property(h, "position", MARCUS_DOWN + Vector3(-0.2, 0, -0.9), 1.6).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
+	await tw.finished
+	if ma:
+		ma.set_downed("side")                                  # pinned, hurt, on the floor
+	if h and is_instance_valid(h):
+		h.rotation.y = atan2(MARCUS_DOWN.x - h.position.x, MARCUS_DOWN.z - h.position.z)
+		c8._hplay(h, "Attack_Bite", 0.0)
+		hound_in = h
+	_pin_left = pin_window()
+	st()["pin_window"] = _pin_left
+	player.set_physics_process(true)
+	_hold(false)                                               # the decision is the player's: run, or pull him free
+	_busy["fall"] = false
 	_refresh_prompts()
 	_guide()
+	# Eddie keeps leaning on the shelves, holding them half shut
+	var ea = world.animators.get("Eddie")
+	if ea:
+		ea.talk(8.0)
 
 
-## The doors give and the three come in; everybody runs the set path from the shelves to the back corridor, the clerk is taken on the way.
-func _front_burst_and_run() -> void:
-	var dz := 0.3
-	c5._set_doors(true)
-	p4._play("impact", ml(Vector3(0.0, 1.0, 0.3)), 8.0)
-	c8._dust(ml(Vector3(0.0, 2.4, 0.3)), 30)
-	world._shake(get_viewport().get_camera_3d(), 0.5, 0.06)
-	for k in ["Marcus", "Ruth", "Sarah"]:
-		var a = world.animators.get(k)
-		if a:
-			a.free_walk = true
-	var p0: Vector3 = player.global_position
-	var pts: Array = [p0, ml(Vector3(8.4, 0.04, 12.4)), ml(Vector3(8.4, 0.04, 14.9)), ml(Vector3(8.2, 0.04, 15.7))]
-	var allies: Array = []
-	for pair in [["Eddie", eddie, -0.9], ["Ruth", ruth, 1.7], ["Sarah", sarah, -1.8], ["Marcus", marcus, 0.9]]:
-		var a = world.animators.get(String(pair[0]))
-		if a == null:
-			continue
-		c5._reparent(pair[1] as Node3D, world)
-		allies.append({"anim": a, "side": pair[2], "behind": 1.3 + 0.2 * allies.size()})
-	var clerk_ally: Dictionary = {}
-	var cl = world.cashier
-	if cl and is_instance_valid(cl) and not Game.has_flag("ch9_clerk_dead") and world.animators.has("Cashier"):
-		c5._reparent(cl, world)
-		clerk_ally = {"anim": world.animators["Cashier"], "side": 2.6, "behind": 2.2}
-		allies.append(clerk_ally)
-	var to_door: Vector3 = ml(Vector3(0.0, 0.0, dz)) - p0
-	to_door.y = 0.0
-	var rs = load("res://game/encounters/run_struggle.gd").new()
-	add_child(rs)
-	var events: Array = []
-	if not clerk_ally.is_empty():
-		events.append({"at": 0.45, "call": func(): _clerk_taken(clerk_ally)})
-	var r: Dictionary = await rs.run(world, pts, front_hounds, {"allies": allies, "events": events, "from_dir": to_door.normalized(),
-		"lead": to_door.length() + 2.0, "chase_speed": 4.6, "spacing": 2.2, "min_time": 2.6, "max_speed": 6.0, "seconds": 8.0,
-		"title": "RUN!  CLICK RAPIDLY", "hint": "LEFT CLICK, AGAIN AND AGAIN  -  THE BACK DOOR!", "music": "res://game/audio/library/music_hound_chase_LOOP.wav"})
-	rs.queue_free()
-	player.set_physics_process(true)
-	for k in ["Marcus", "Ruth", "Sarah"]:
-		var a = world.animators.get(k)
-		if a:
-			a.free_walk = false
-	if not bool(r.get("won", false)):
-		await _caught_by_hounds()
+## E on Marcus within the window: the hound is driven off, he gets up, and they finish the push together.
+func _free_marcus(_b: Node) -> void:
+	if not _busy.get("pinned", false) or _busy.get("resolving", false):
 		return
-	for h in front_hounds:
-		if is_instance_valid(h):
-			c8._hplay(h, "Walk", 0.0)
-	for i in front_hounds.size():
-		_stalk(front_hounds[i], i)
-
-
-## The hounds that did not get the player pace inside the corridor entrance (the pin scene keeps hound_in, the first of them).
-func _stalk(h: Node3D, i: int) -> void:
-	if not is_instance_valid(h):
-		return
-	c8._hplay(h, "Run", 5.0)
-	var to: Array = [Vector3(8.4, 0.0, 12.0 - i * 0.9), Vector3(4.0 + i * 2.0, 0.0, 12.9)]
-	await c8._hound_run(h, to, 5.0)
-	if i > 0 and is_instance_valid(h):
-		h.queue_free()
-		hounds.erase(h)
-
-
-func _clerk_taken(ally: Dictionary) -> void:
-	ally["dead"] = true
-	Game.set_flag("ch9_clerk_dead")
-	var cl: Node3D = world.cashier
-	var a = ally["anim"]
-	var h: Node3D = front_hounds[front_hounds.size() - 1] if not front_hounds.is_empty() else null
-	Dialogue.say("c9_clerk_taken", false, true)
-	a.set_downed("back")
-	Sfx.play("hurt", cl.global_position + Vector3(0, 1.3, 0), 6.0, 1.3)
-	world._shake(get_viewport().get_camera_3d(), 0.35, 0.05)
-	var away := cl.global_position + (market.global_transform.basis * Vector3(1.0, 0, -1.0)).normalized() * 6.0
-	var tw := create_tween().set_parallel(true)
-	tw.tween_property(cl, "global_position", away, 2.0).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_IN)
-	tw.tween_callback(func():
-		cl.visible = false).set_delay(2.0)
+	_busy["resolving"] = true
+	its["pinned"].prompt_text = ""
+	hud.set_hint("")
+	_hold(true)
+	var ma = world.animators.get("Marcus")
+	var h := hound_in
+	await c8._turn_to(marcus.global_position + Vector3(0, 0.6, 0), 0.3)
+	Dialogue.say("c9_marcus_saved", false, true)
 	if h and is_instance_valid(h):
 		c8._hplay(h, "Attack_Bite", 0.0)
-		var tf := create_tween()
-		tf.tween_method(func(_v: float):
-			if is_instance_valid(h) and is_instance_valid(cl):
-				h.global_position = cl.global_position + (market.global_transform.basis * Vector3(-0.8, 0, 0.5)), 0.0, 1.0, 2.0)
-	# (the other hounds keep coming: the run goes on without him)
+		p4._play("impact", h.global_position + Vector3(0, 0.8, 0), 0.0)
+		var tw := h.create_tween()
+		tw.tween_property(h, "position", h.position + Vector3(-1.2, 0, -1.4), 0.5).set_trans(Tween.TRANS_SINE)
+	if ma:
+		ma.set_downed("")                                      # hauled up
+	Game.set_flag("ch9_marcus_saved")
+	st()["marcus_outcome"] = "survived"
+	_busy["marcus_down"] = false
+	_busy["pinned"] = false
+	# back to the shelves along a set path, then the last shoves
+	var spot0 := _end_spot(0.5, -0.42)
+	_walk(marcus, ma, [Vector3(spot0.x - 0.6, 0.04, 12.2), spot0], 4.4)
+	_walk(eddie, world.animators.get("Eddie"), [_end_spot(0.5, 0.42)], 4.0)
+	await _player_walk([_end_spot(0.5, 0.0)], 4.6)
+	await _wait_arrived([ma], 2.0)
+	await _finish_aisle(true)
+	_busy["resolving"] = false
+	_after_aisle()
 
 
-## Caught: they drag the player back into the dark of the store, black, YOU DIED, RETRY.
-func _caught_by_hounds() -> void:
-	var pp: Vector3 = player.global_position
-	Sfx.play("hurt", pp, 4.0)
-	var away := pp + (market.global_transform.basis * Vector3(0, 0, -1)).normalized() * 9.0
+## The window ran out: he is dragged off into the store (no cut to black), Eddie finishes the push alone.
+func _marcus_lost() -> void:
+	_busy["resolving"] = true
+	report["lost_runs"] += 1
+	its["pinned"].prompt_text = ""
+	hud.set_hint("")
+	var ma = world.animators.get("Marcus")
+	Dialogue.say("c9_marcus_lost", false, true)
+	Sfx.play("hurt", marcus.global_position + Vector3(0, 1.3, 0), 6.0, 0.95)
+	if ma:
+		ma.set_downed("back")
+	var h := hound_in
+	var away := marcus.position + Vector3(-6.0, 0, -2.5)
 	var tw := create_tween().set_parallel(true)
-	tw.tween_property(player, "global_position", away, 2.6).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_IN)
-	tw.tween_method(func(f: float): player.set_yaw_pitch(player.rotation.y, lerpf(player.head.rotation.x, -0.9, f)), 0.0, 1.0, 1.4)
-	for i in 5:
-		world._shake(get_viewport().get_camera_3d(), 0.4, 0.05)
-		await get_tree().create_timer(0.5).timeout
-	await hud.fade_to(1.0, 0.6)
+	tw.tween_property(marcus, "position", away, 2.6).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_IN)
+	if h and is_instance_valid(h):
+		tw.tween_property(h, "position", away + Vector3(0.4, 0, 0.8), 2.6).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_IN)
+	await tw.finished
+	marcus.visible = false
+	Game.set_flag("ch9_marcus_lost")
+	st()["marcus_outcome"] = "lost"
+	_busy["marcus_down"] = false
+	_busy["pinned"] = false
+	await _finish_aisle(false)
+	_busy["resolving"] = false
+	_after_aisle()
+
+
+## The last shoves: the aisle goes from half shut to across the doorway while the hounds hit the other side.
+func _finish_aisle(with_player: bool) -> void:
+	var tw := create_tween()
+	tw.tween_method(func(v: float):
+		_aisle_set(v)
+		var ea = world.animators.get("Eddie")
+		eddie.global_position = ml(_end_spot(v, 0.42))
+		if with_player:
+			player.global_position = ml(_end_spot(v, 0.0))
+			player.velocity = Vector3.ZERO
+			if not _busy.get("marcus_down", false) and not Game.has_flag("ch9_marcus_lost"):
+				marcus.global_position = ml(_end_spot(v, -0.42))
+		if ea:
+			ea.face_towards(c8._secure_pallet.global_position), 0.5, 0.0, 2.4)
+	for k in 3:
+		p4._play("scrape", ml(c8._secure_pallet.position), -4.0)
+		await get_tree().create_timer(0.7).timeout
+	await tw.finished
+	_aisle_shut = true
+	p4._play("door_close", ml(Vector3(AISLE_CLOSED_X, 1.0, AISLE_Z)), 2.0)
+	p4._play("impact", ml(Vector3(AISLE_CLOSED_X - 1.5, 1.0, AISLE_Z - 0.8)), 6.0)
+	world._shake(get_viewport().get_camera_3d(), 0.4, 0.05)
+
+
+## The aisle holds: everybody left runs out through the staff door (the player leads, the rest follow on their own feet).
+func _after_aisle() -> void:
 	player.set_physics_process(true)
-	player.damage(9999.0, away)
+	Dialogue.say("c9_marcus_order", false, true)
+	for k in ["Eddie", "Marcus"]:
+		if k == "Marcus" and Game.has_flag("ch9_marcus_lost"):
+			continue
+		_start_follow(k, false)
+	_hold(false)                                              # (Ruth and Sarah wait in the lot: they join once the player is out)
+	_refresh_prompts()
+	_guide()
 
 
 func _make_hound(at: Vector3) -> Node3D:
@@ -888,121 +1191,15 @@ func _front_threat() -> void:
 		hounds.append(p4.hound)
 
 
-# ------------------------------------------------------------------ scene 5: Marcus's moment
-func _pin_tick() -> void:
-	if not Game.has_flag("ch9_fall_started") or Game.has_flag("ch9_escaped") or Game.has_flag("ch9_marcus_saved") \
-			or Game.has_flag("ch9_marcus_lost") or _busy.get("pinned", false):
-		return
-	var pl: Vector3 = market.to_local(player.global_position)
-	if pl.z > 14.6 and pl.x < PIN_TRIGGER_X:
-		_pin_marcus()
-
-
-func _pin_marcus() -> void:
-	_pin_left = INF                                    # the countdown starts once he is down and the Hound is on him
-	_busy["pinned"] = true
-	report["pin_runs"] += 1
-	var f: VeilCompanionFollow = follows["Marcus"]
-	f.stop()
-	# the others go on out of the rear exit and wait in the lot
-	for i in 3:
-		var k: String = ["Eddie", "Ruth", "Sarah"][i]
-		(follows[k] as VeilCompanionFollow).stop()
-		world.npc_walk(k, ml(OUT_WAIT[i]), 2.4)
-	# Marcus, last in the line, goes down in the corridor; the Hound comes back through the doorway at him
-	c5._reparent(marcus, market)
-	# he gets there on his own feet (no pop into place): a short run, then he goes down
-	if marcus.global_position.distance_to(ml(MARCUS_PIN)) > 0.6:
-		world.npc_walk("Marcus", MARCUS_PIN, 3.2)
-		var ma0 = world.animators.get("Marcus")
-		var tw := 0.0
-		while tw < 3.0 and ma0 and ma0.is_walking():
-			await get_tree().process_frame
-			tw += get_process_delta_time()
-	world.place_survivor(marcus, MARCUS_PIN)
-	var ma = world.animators.get("Marcus")
-	if ma:
-		ma.set_downed("side")                          # hurt on the floor
-		ma.set_mood("scared")
-		ma.face_towards(ml(DOORWAY))
-	var h := hound_in
-	if h and is_instance_valid(h):
-		c8._hplay(h, "Run", 6.5)
-		await c8._hound_run(h, [Vector3(8.4, 0.0, 13.0), Vector3(8.6, 0.0, 14.7)], 6.5)
-		if is_instance_valid(h):
-			h.rotation.y = atan2(MARCUS_PIN.x - h.position.x, MARCUS_PIN.z - h.position.z)
-			c8._hplay(h, "Attack_Bite", 0.0)
-			c8._bark(h.global_position + Vector3(0, 1.0, 0))
-	_pin_left = pin_window()
-	st()["pin_window"] = _pin_left
-	_refresh_prompts()
-	_guide()
-
-
+# ------------------------------------------------------------------ scene 5: Marcus's moment (see _marcus_grabbed / _free_marcus / _marcus_lost above)
 func _pin_countdown(delta: float) -> void:
-	if not _busy.get("pinned", false) or _busy.get("resolving", false):
+	if not _busy.get("pinned", false) or _busy.get("resolving", false) or _pin_left == INF or _pin_left < 0.0:
 		return
 	_pin_left -= delta
 	if hud.has_method("set_hint"):
-		hud.set_hint("E - PULL MARCUS FREE   %d" % ceili(maxf(_pin_left, 0.0)) if _pin_left < INF else "E - PULL MARCUS FREE")
+		hud.set_hint("E - PULL MARCUS FREE   %d" % ceili(maxf(_pin_left, 0.0)))
 	if _pin_left <= 0.0:
 		_marcus_lost()
-
-
-func _free_marcus(_b: Node) -> void:
-	if not _busy.get("pinned", false) or _busy.get("resolving", false):
-		return
-	_busy["resolving"] = true
-	its["pinned"].prompt_text = ""
-	hud.set_hint("")
-	_hold(true)
-	await c8._turn_to(marcus.global_position + Vector3(0, 0.8, 0), 0.3)
-	# the protagonist hauls him up and back; the jaws close on empty air
-	var ma = world.animators.get("Marcus")
-	if ma:
-		ma.set_downed("")
-	var h := hound_in
-	if h and is_instance_valid(h):
-		c8._hplay(h, "Attack_Bite", 0.0)
-		p4._play("impact", h.global_position + Vector3(0, 0.8, 0), 0.0)
-		var tw := h.create_tween()
-		tw.tween_property(h, "position", h.position + Vector3(-0.3, 0, -0.9), 0.4).set_trans(Tween.TRANS_SINE)
-	world.place_survivor(marcus, MARCUS_PIN + Vector3(-1.1, 0, 0.0))
-	Game.set_flag("ch9_marcus_saved")
-	st()["marcus_outcome"] = "survived"
-	_busy["pinned"] = false
-	_busy["resolving"] = false
-	Dialogue.say("c9_marcus_saved", false, true)
-	_hold(false)
-	_start_follow("Marcus")
-	_refresh_prompts()
-	_guide()
-
-
-func _marcus_lost() -> void:
-	_busy["resolving"] = true
-	report["lost_runs"] += 1
-	its["pinned"].prompt_text = ""
-	hud.set_hint("")
-	# a hard cut to black: he is dragged back through the doorway (no gore on screen)
-	await hud.fade_to(1.0, 0.18)
-	p4._play("scrape", ml(DOORWAY + Vector3(0, 0.4, 0.4)), 4.0)
-	c8._bark(ml(DOORWAY + Vector3(0, 1.0, 0)))
-	marcus.visible = false
-	var ma = world.animators.get("Marcus")
-	if ma:
-		ma.walk_to([])
-	if hound_in and is_instance_valid(hound_in):
-		hound_in.queue_free()
-	Game.set_flag("ch9_marcus_lost")
-	st()["marcus_outcome"] = "lost"
-	Dialogue.say("c9_marcus_lost", false, true)
-	await get_tree().create_timer(1.0).timeout
-	await hud.fade_to(0.0, 0.6)
-	_busy["pinned"] = false
-	_busy["resolving"] = false
-	_refresh_prompts()
-	_guide()
 
 
 # ------------------------------------------------------------------ scene 6: out into the mist
@@ -1028,7 +1225,7 @@ func _escaped() -> void:
 	for k in ["Eddie", "Ruth", "Sarah", "Marcus"]:
 		if k == "Marcus" and Game.has_flag("ch9_marcus_lost"):
 			continue
-		_start_follow(k)
+		_start_follow(k, not (k in _out_waiting or (follows[k] as VeilCompanionFollow).active))
 	# the door is hauled shut behind them; something slams into it from inside
 	_set_rear(false)
 	p4._play("impact", ml(REAR_EXIT), 6.0)
@@ -1141,7 +1338,6 @@ func _process(delta: float) -> void:
 		return
 	_tick = 0.2
 	_check_bin()
-	_pin_tick()
 	_escape_tick()
 	_rendezvous_tick()
 	if not _busy.get("warning", false):

@@ -262,6 +262,23 @@ func set_downed(mode: String) -> void:
 		walk_to([])
 
 
+## A limp (0..1): the character runs / walks hobbling, the body dipping and canting to one side on every stride (Sarah after the bite). Works with the native clips and the procedural gait alike.
+var limp := 0.0
+var _limp_phase := 0.0
+func _update_limp(delta: float) -> void:
+	if _model == null or downed != "" or _down > 0.001:
+		return
+	if limp <= 0.001 or _speed < 0.35:
+		if limp <= 0.001 and _model.transform != _model_rest and _down <= 0.001 and _lying_native() == "":
+			_model.transform = _model_rest
+		return
+	_limp_phase += delta * _speed * 1.9
+	var f := _face_l if _face_l.length() > 0.5 else Vector3(0, 0, 1)
+	var cant := sin(_limp_phase) * 0.11 * limp
+	var dip := -absf(sin(_limp_phase)) * 0.06 * limp
+	_model.transform = Transform3D(Basis(f, cant), Vector3(0, dip, 0)) * _model_rest
+
+
 var _lift := 0.15
 func _update_downed(delta: float) -> void:
 	_down = move_toward(_down, 1.0 if downed != "" else 0.0, delta * 2.2)
@@ -358,6 +375,7 @@ func _process(delta: float) -> void:
 	_update_gestures(delta)
 	_update_react(delta)
 	_update_downed(delta)
+	_update_limp(delta)
 	_update_look(delta)
 	_sit = move_toward(_sit, 1.0 if seated else 0.0, delta * 1.7)
 	if _jump_t >= 0.0:

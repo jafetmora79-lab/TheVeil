@@ -48,5 +48,14 @@ func _run() -> void:
 	for i in 120: await process_frame
 	var again: Vector3 = a.skel.global_transform.basis.y
 	ok("gets_up", again.y > 0.95 and up.y > 0.95, str(again))
+	a.limp = 1.0
+	a.free_walk = true
+	a.walk_to([a.root.position + a.root.global_transform.basis * Vector3(0, 0, 4.0)], 2.6)
+	var seen := false
+	for i in 90:
+		await process_frame
+		if a._model != null and a._model.transform != a._model_rest:
+			seen = true
+	ok("limp_sways", seen)
 	print("RESULT %s (%d failures)" % ["PASS" if fails == 0 else "FAIL", fails])
 	quit()

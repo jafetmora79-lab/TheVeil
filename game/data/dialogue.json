@@ -7371,18 +7371,18 @@
   "lines": [
    {
     "speaker": "Marcus",
-    "text": "Three of them! The glass is going to break!",
-    "time": 2.4
+    "text": "Three of them! The glass will not hold!",
+    "time": 2.2
    },
    {
     "speaker": "Marcus",
-    "text": "The back door! Pull those shelves off it - NOW!",
-    "time": 2.6
+    "text": "The back door - the shelves are on it! Eddie, that end, with me!",
+    "time": 3.0
    },
    {
     "speaker": "Eddie",
-    "text": "I have this side! PULL!",
-    "time": 1.8
+    "text": "Coming! Sarah, Ruth, stay by the doorway!",
+    "time": 2.2
    }
   ]
  },
@@ -7397,6 +7397,57 @@
     "speaker": "Eddie",
     "text": "WALT! ...Don't stop! Keep running!",
     "time": 2.4
+   }
+  ]
+ },
+ "c9_pass_through": {
+  "lines": [
+   {
+    "speaker": "Eddie",
+    "text": "It's open - GO! Ruth, take Sarah! Out the back!",
+    "time": 2.6
+   },
+   {
+    "speaker": "Ruth",
+    "text": "Lean on me - come on, come ON!",
+    "time": 2.0
+   }
+  ]
+ },
+ "c9_walt_freeze": {
+  "lines": [
+   {
+    "speaker": "Eddie",
+    "text": "WALT! Move! The doorway - WALT!",
+    "time": 2.0
+   }
+  ]
+ },
+ "c9_push_back": {
+  "lines": [
+   {
+    "speaker": "Marcus",
+    "text": "Push it back across! Block it behind them!",
+    "time": 2.2
+   },
+   {
+    "speaker": "Eddie",
+    "text": "Shove! Put your back into it!",
+    "time": 1.8
+   }
+  ]
+ },
+ "c9_marcus_grabbed": {
+  "lines": [
+   {
+    "speaker": "Marcus",
+    "text": "AAAH - it's got my leg! Get it OFF!",
+    "time": 2.2
+   },
+   {
+    "speaker": "Eddie",
+    "text": "MARCUS!",
+    "time": 1.4
    }
   ]
  },
