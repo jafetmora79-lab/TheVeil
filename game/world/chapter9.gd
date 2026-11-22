@@ -104,8 +104,6 @@ func begin(w: Node, chapter8: Node, restoring: bool) -> void:
 	_setup_rest()
 	_rv_area = world._area("C9_Rendezvous", c6.hl(RV_LOCAL + Vector3(0, 1.4, 0)), Vector3(8.0, 3.4, 6.0), 2, func(_b): pass,
 		c6.rs_house.global_transform.basis)
-	if p4.flashlight and not p4.flashlight.changed.is_connected(_on_flashlight):
-		p4.flashlight.changed.connect(_on_flashlight)
 	var fresh := not Game.has_flag("ch9_started")
 	if fresh:
 		Game.set_flag("ch9_started")
@@ -204,6 +202,7 @@ func _setup_supplies() -> void:
 	_grow(it2)
 	it2.used.connect(_take_food_water)
 	its["food"] = it2
+	pack.visible = false                                  # review note #124: the shelter supply bin is the place; no stack of boxes
 	_settle.call_deferred([kit])
 
 
@@ -231,14 +230,7 @@ func _settle(nodes: Array) -> void:
 ## The store after the night: an overturned gondola lying between the group and the front doors, papers
 ## and spilled bags. Existing props only; the gondola keeps its own collision (tipped on its side).
 func _setup_debris() -> void:
-	var g := GONDOLA.instantiate() as Node3D
-	g.name = "C9_TippedShelf"
-	market.add_child(g)
-	g.position = Vector3.ZERO
-	g.rotation = Vector3(-PI * 0.5, 0.12, 0.0)          # on its back, across the way to the front doors
-	var bb: AABB = g.transform * Interactable.aabb_of(g)
-	g.position = TIPPED_SHELF - Vector3(bb.get_center().x, bb.position.y - TIPPED_SHELF.y, bb.get_center().z)
-	_props.append(g)
+	# (review note #123: the overturned gondola that stood between the group and the doors is gone: it was out of nowhere)
 	for spec in [[PAPERS, Vector3(9.6, 0.04, 6.4), 0.4], [BAGS, Vector3(1.6, 0.04, 12.9), 1.1], [PAPERS, Vector3(-6.0, 0.04, 7.0), 2.0]]:
 		var n := (spec[0] as PackedScene).instantiate() as Node3D
 		market.add_child(n)
@@ -422,9 +414,8 @@ func _refresh_prompts() -> void:
 	its["medical"].prompt_text = "[E] Take the Medical Supplies" if med_on else ""
 	its["medical"].collision_layer = 8 if med_on else 0
 	_kit.visible = not Game.has_flag("ch9_medical_done")
-	var food_on := prep and not Game.has_flag("ch9_food_done")
-	its["food"].prompt_text = "[E] Pack Food and Water" if food_on else ""
-	its["food"].collision_layer = 8 if food_on else 0
+	its["food"].prompt_text = ""
+	its["food"].collision_layer = 0
 	for k in ["npc_Marcus", "npc_Eddie"]:
 		its[k].collision_layer = 8 if its[k].prompt_text != "" else 0
 	var pin: bool = _busy.get("pinned", false)
@@ -435,7 +426,7 @@ func _refresh_prompts() -> void:
 func prep_done() -> Dictionary:
 	var talked: Dictionary = st().get("talked", {})
 	return {"medical": Game.has_flag("ch9_medical_done"), "food": Game.has_flag("ch9_food_done"),
-		"light": Game.has_flag("ch9_light_checked"),
+		"light": true,                                  # (review note #125: no flashlight check any more)
 		"talks": talked.get("Eddie", false) and talked.get("Ruth", false) and talked.get("Sarah", false)}
 
 
@@ -452,22 +443,14 @@ func _guide() -> void:
 			t = its["medical"].global_position + Vector3(0, 0.3, 0)
 			label = "MEDICAL SUPPLIES"
 		elif not p["food"]:
-			t = its["food"].global_position + Vector3(0, 0.9, 0)
-			label = "FOOD AND WATER"
+			t = ml(Vector3(7.8, 1.0, 6.05))
+			label = "EMPTY THE SUPPLY BIN"
 		elif not p["talks"]:
 			for k in ["Eddie", "Ruth", "Sarah"]:
 				if not talked.get(k, false):
 					t = {"Eddie": eddie, "Ruth": ruth, "Sarah": sarah}[k]
 					label = k.to_upper()
 					break
-		if hud.has_method("set_objective"):
-			var parts := []
-			for k in [["medical", "medical"], ["food", "food & water"], ["light", "flashlight"], ["talks", "the others"]]:
-				parts.append(("[x] " if p[k[0]] else "[ ] ") + k[1])
-			var txt := "Gather essential supplies  " + "  ".join(parts)
-			if txt != _obj_txt:
-				_obj_txt = txt
-				hud.set_objective(Game.current_goal(), txt)
 	elif Game.has_flag("ch9_fall_started") and not Game.has_flag("ch9_escaped") and not _busy.get("pinned", false):
 		var pl: Vector3 = market.to_local(player.global_position)
 		if pl.z < 14.0:
@@ -597,13 +580,17 @@ func _take_food_water(_b: Node) -> void:
 	_check_prepared()
 
 
-## Flashlight and batteries: switching the flashlight on during the preparation counts as the check.
-func _on_flashlight(_charge: float, spares: int, on: bool) -> void:
-	if not on or Game.has_flag("ch9_light_checked") or not Game.has_flag("ch9_marcus_talked"):
+## Review note #124: emptying the shelter supply bin (taking all its food and water into the pack) is the food-and-water step.
+func _check_bin() -> void:
+	if not Game.has_flag("ch9_marcus_talked") or Game.has_flag("ch9_food_done") or Game.has_flag("ch9_prepared"):
 		return
-	Game.set_flag("ch9_light_checked")
-	st()["spare_batteries"] = spares
-	_hint("Flashlight works. Spare batteries: %d" % spares)
+	var stock := Game.shelter_stock()
+	if int(stock.get("food", 0)) > 0 or int(stock.get("water", 0)) > 0:
+		return
+	st()["food_taken"] = Game.inventory.count("canned_food")
+	st()["water_taken"] = Game.inventory.count("water_bottle")
+	Game.set_flag("ch9_food_done")
+	_hint("The supply bin is empty: everything is in the pack")
 	_check_prepared()
 
 
@@ -616,13 +603,8 @@ func _hint(t: String) -> void:
 
 
 func _check_prepared() -> void:
-	if p4.flashlight == null and not Game.has_flag("ch9_light_checked"):
-		Game.set_flag("ch9_light_checked")             # no flashlight carried: nothing to check
-		_hint("No flashlight to check.")
 	_refresh_prompts()
 	var p := prep_done()
-	if not Game.has_flag("ch9_light_checked") and p["medical"] and p["food"] and p["talks"] and hud.has_method("set_hint"):
-		hud.set_hint("F - check the flashlight")
 	if p["medical"] and p["food"] and p["light"] and p["talks"] and not Game.has_flag("ch9_prepared"):
 		Game.set_flag("ch9_prepared")
 		_obj_txt = ""
@@ -997,6 +979,7 @@ func _process(delta: float) -> void:
 	if _tick > 0.0 or player == null:
 		return
 	_tick = 0.2
+	_check_bin()
 	_pin_tick()
 	_escape_tick()
 	_rendezvous_tick()

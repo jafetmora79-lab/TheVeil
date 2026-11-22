@@ -350,9 +350,10 @@ func _assist_pickup(ray_hit_d: float, ray_hit: Object) -> Interactable:
 		if along <= 0.0:
 			continue
 		var off := (to - fwd * along).length()
-		if to.normalized().dot(fwd) < ASSIST_COS and off > ASSIST_RADIUS:
-			continue
 		var own: Array[RID] = it.los_ignore
+		var cos_lim := ASSIST_COS if own.is_empty() else 0.94      # a pickup behind its container's glass / cabin (the backpack on the car seat): a wider cone (review note #121)
+		if to.normalized().dot(fwd) < cos_lim and off > (ASSIST_RADIUS if own.is_empty() else 0.45):
+			continue
 		var hit_own := ray_hit is CollisionObject3D and own.has((ray_hit as CollisionObject3D).get_rid())
 		if ray_hit_d < d - 0.35 and not hit_own and ray_hit != it.container:
 			continue                                   # something solid well in front of it on the view line

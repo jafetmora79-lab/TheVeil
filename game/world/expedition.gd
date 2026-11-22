@@ -145,7 +145,12 @@ func _follower_inside(f: Node) -> bool:
 
 
 func can_scavenge() -> bool:
-	return shelter() != "" and not active() and not emergency() and _c5() != null
+	return shelter() != "" and not active() and not emergency() and _c5() != null and not _after_attack()
+
+
+## Review note #122: once the break-in has happened (Chapter 9) nobody goes out again until the group has slept.
+func _after_attack() -> bool:
+	return Game.has_flag("ch8_attack_started") and not Game.has_flag("ch9_started")
 
 
 ## Things that make "active time outside" stop counting: not outside, menus, dialogue, cinematics.

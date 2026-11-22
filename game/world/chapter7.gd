@@ -298,6 +298,8 @@ func _guide() -> void:
 		label = "BACKPACK"
 	elif not Game.has_flag("noah_clue_backpack"):
 		t = null
+		if hud.has_method("set_hint") and not Game.has_flag("ch7_note_read"):
+			hud.set_hint("CHECK THE BAG:  TAB  -  select Noah's backpack  -  OPEN THE BACKPACK")      # review note #121: no pointer back to the shelter
 	elif not Game.has_flag("ch7_road_investigation_complete"):
 		t = ROAD_AREA[0] + Vector3(0, 0.3, 0)
 		label = "SERVICE ROAD"
