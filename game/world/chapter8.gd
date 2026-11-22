@@ -718,7 +718,8 @@ func _repair() -> void:
 			await get_tree().create_timer(0.28).timeout
 		await get_tree().create_timer(0.2).timeout
 	Game.remove_item("repair_boards")
-	Game.remove_item("duct_tape")                     # the hammer stays in the inventory
+	Game.remove_item("duct_tape")                     # tools are temporary: the hammer goes too once the job is done (review note #106)
+	Game.remove_item("hammer")
 	st()["barricade"] = "repaired"
 	_apply_barricade()
 	_hold(false)
@@ -766,6 +767,10 @@ func _use_panel(_b: Node) -> void:
 	_hold(true)
 	await _turn_to(ml(PANEL), 0.5)
 	if not Game.has_flag("ch8_panel_inspected"):
+		p4._bx_lever.rotation.x = deg_to_rad(-70.0)                              # it has TRIPPED: lever and main switch are back down (chapter 4 left them thrown up)
+		p4._bx_switch.rotation.x = deg_to_rad(-45.0)
+		Sfx.play("door_open", ml(PANEL), -2.0, 1.3)               # review note #108: the panel is opened properly (the Chapter 4 box: door, lever, switch)
+		await p4._bx_tween(p4._bx_door, "rotation:y", deg_to_rad(-105.0), 0.7)
 		_play("hum", ml(PANEL), -10.0)
 		if hud.has_method("set_hint"):
 			hud.set_hint("The main breaker has tripped. A cable has worked loose from its terminal.")
@@ -784,9 +789,21 @@ func _use_panel(_b: Node) -> void:
 		sp.position = PANEL + Vector3(0, 0.1, -0.12)
 		get_tree().create_timer(1.2).timeout.connect(sp.queue_free)
 	_play("spark", ml(PANEL), -2.0)
-	await get_tree().create_timer(0.7).timeout
-	Sfx.play("door_close", ml(PANEL), 2.0, 0.5)       # the breaker thrown back (Chapter 4's clunk)
-	await get_tree().create_timer(0.5).timeout
+	if absf(p4._bx_door.rotation.y) < 0.1:                         # (a load between the look and the fix: the door is shut again)
+		Sfx.play("door_open", ml(PANEL), -2.0, 1.3)
+		await p4._bx_tween(p4._bx_door, "rotation:y", deg_to_rad(-105.0), 0.7)
+	await get_tree().create_timer(0.6).timeout                     # the cable pushed back onto its terminal
+	Sfx.play("click", ml(PANEL), -2.0)
+	await get_tree().create_timer(0.4).timeout
+	Sfx.play("door_close", ml(PANEL), 3.0, 1.9)                    # the breaker lever thrown up: a hard clunk
+	await p4._bx_tween(p4._bx_lever, "rotation:x", deg_to_rad(10.0), 0.55, Tween.TRANS_BACK)
+	await get_tree().create_timer(0.35).timeout
+	await p4._bx_tween(p4._bx_switch, "rotation:x", deg_to_rad(30.0), 0.25)   # the main switch flipped
+	Sfx.play("pickup", ml(PANEL), 0.0, 1.5)
+	await get_tree().create_timer(0.4).timeout
+	await p4._bx_tween(p4._bx_door, "rotation:y", 0.0, 0.6)         # and the door shut
+	Sfx.play("door_close", ml(PANEL), 0.0, 1.1)
+	await get_tree().create_timer(0.4).timeout
 	Game.set_flag("ch8_power_restored")
 	_lights("partial")
 	p4._flicker_burst(0.8)
@@ -838,6 +855,7 @@ func _run_attack() -> void:
 	await get_tree().create_timer(0.8).timeout
 	# 3. the third: the barricade partly gives way (pallets shoved aside, boards down, the leaf forced open)
 	await _impact(1.0)
+	_secure_pallet.visible = true                              # (the stack is in the aisle before the Hound comes: it never pops in later)
 	_give_way()
 	# the others back away toward the front of the store
 	world.npc_walk("Eddie", PRE_EDDIE + Vector3(-0.8, 0, -1.0), 1.6)
@@ -914,30 +932,36 @@ func _hound_burst() -> void:
 	if ta:
 		ta.set_mood("scared")
 	await get_tree().create_timer(0.35).timeout
-	# a hard cut to black: the temporary survivor is dragged back through the doorway (no gore on screen)
-	await hud.fade_to(1.0, 0.18)
+	# review note #109: no cut to black. The Hound drags the temporary survivor (down on the floor, screaming) back out through the breach in plain sight, no gore; everyone else keeps their place or WALKS
+	if ta:
+		ta.walk_to([])
+		ta.set_seated(true, 0.06)
+	Sfx.play("hurt", ml(CAUGHT_AT + Vector3(0, 1.4, 0)), 4.0, 1.25)
 	p4._play("scrape", ml(Vector3(8.2, 0.4, 15.5)), 4.0)
+	var out_at := Vector3(8.2, 0.0, 17.6)
+	var drag := create_tween().set_parallel(true).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN)
+	if is_instance_valid(h):
+		drag.tween_property(h, "position", Vector3(out_at.x, h.position.y, out_at.z), 1.7)
+	drag.tween_property(temp, "position", Vector3(out_at.x, temp.position.y, out_at.z - 1.0), 1.7)
+	await drag.finished
 	_kill_temp()
-	# Sarah was knocked down in the panic: she ends up on a crate by the coolers, hurt
 	Game.set_flag("ch8_sarah_injured")
 	st()["injured"] = "sarah"
-	_injured_box.visible = true
-	_set_collision(_injured_box, true)
-	_place_npcs()
-	if is_instance_valid(h):
-		h.position = HOUND_GUARD
-		h.rotation.y = PI
-		_hplay(h, "Alert", 0.0)
 	_set_blocker(true)
-	_secure_pallet.visible = true
 	_set_collision(_secure_pallet, true)
 	var staff: Interactable = p4.its.get("INT_Door_Staff")
 	if staff:
 		staff.collision_layer = 0
 		if staff.is_open:
 			staff.set_open(false, true)
-	await get_tree().create_timer(1.1).timeout
-	await hud.fade_to(0.0, 0.7)
+	# the others fall back where they will stand next (they walk there) while the Hound comes back in for whoever is nearest: Sarah, backing away from the breach
+	world.npc_walk("Marcus", POST_MARCUS, 1.6)
+	world.npc_walk("Ruth", RUTH_BY_SARAH, 1.6)
+	if is_instance_valid(h):
+		_hplay(h, "Run", 6.0)
+		await _hound_run(h, [HOUND_GUARD], 6.0)
+		_hplay(h, "Alert", 0.0)
+	await get_tree().create_timer(0.5).timeout
 	await _sarah_bite()                                # the Hound comes for Sarah: bite, rescue, barricade
 	_hold(false)
 	_refresh_prompts()
@@ -988,10 +1012,13 @@ func _sarah_bite() -> void:
 	var sa = world.animators.get("Sarah")
 	if sarah.get_parent() != market:
 		c5._reparent(sarah, market)
-	world.place_survivor(sarah, BITE_SARAH_AT)
 	if sa:
 		sa.set_seated(false)
 		sa.set_mood("scared")
+	if sarah.global_position.distance_to(ml(BITE_SARAH_AT)) > 0.8:
+		world.npc_walk("Sarah", BITE_SARAH_AT, 1.4)           # she backs into the Hound's path on her own feet (never placed)
+		await get_tree().create_timer(1.5).timeout
+	if sa:
 		sa.face_towards(h.global_position)
 	await _turn_to(ml(BITE_SARAH_AT + Vector3(0, 1.0, 0)), 0.4)
 	# A. the lunge: straight at her, jaws onto her forearm
@@ -1382,6 +1409,7 @@ func _fp_move(to_local: Vector3, seconds: float) -> void:
 	var from: Vector3 = player.global_position
 	var to := ml(to_local)
 	to.y = from.y
+	seconds = maxf(seconds, from.distance_to(to) / 3.2)        # a real run, never a jump (review note #109)
 	player.set_physics_process(false)
 	var t := 0.0
 	while t < seconds:

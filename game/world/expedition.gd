@@ -362,11 +362,15 @@ var _door_open_t := 0.0
 func _door_watchdog(dt: float) -> void:
 	var c5 := _c5()
 	var p := _player()
-	if c5 == null or p == null or not c5._doors_open or active() or story_departure or _busy_menu or world.in_car or not _menu_allowed():
+	if c5 == null or p == null or not c5._doors_open or story_departure or _busy_menu or world.in_car or not _menu_allowed():
 		_door_open_t = 0.0
 		return
+	if active() and in_store():
+		_door_open_t = 0.0                           # coming back in: the end-of-hunt question decides (review notes #102 / #105)
+		return
 	var pl: Vector3 = world.market.to_local(p.global_position)
-	if c5._near_doors(pl) or c5._followers_near_doors() or not in_store():
+	# on a hunt the doors are shut again once nobody is at them (review note #102: they stood open the whole trip); outside they open with [E] / when a companion comes
+	if c5._near_doors(pl) or c5._followers_near_doors() or (not in_store() and not active()):
 		_door_open_t = 0.0
 		return
 	_door_open_t += dt
@@ -406,6 +410,7 @@ func start(kind: String, vehicle: bool) -> void:
 	if kind == "scavenge":
 		s["scavenged_day"] = _today()                # the next one waits for tomorrow
 	s["went_out"] = false
+	_truly_out = false
 	world._clear_beacon("supplies_hint")                # the green marker at the doors was for planning the trip: the trip has begun
 	s["started_at"] = Game.play_time
 	_encounter_t = 60.0
@@ -438,6 +443,7 @@ func secure() -> void:
 		if d > 0:
 			got[k] = d
 	s["collected"] = got
+	_truly_out = false
 	s["active"] = false
 	if world.survivors:
 		world.survivors.end_trip(got)
@@ -455,6 +461,7 @@ func secure() -> void:
 	_hint("Deposit what you found at the shelter supplies. Tonight: %d food, %d water needed (stored %d / %d)." % [need["need"], need["need"], need["food"], need["water"]])
 	world.save()
 	_refresh()
+	_trip_summary.call_deferred(got)
 
 
 func _use_outside(_b: Node) -> void:
@@ -1443,11 +1450,27 @@ func find_spawn(dmin: float, dmax: float, around := Vector3.INF) -> Vector3:
 	q.shape = cap
 	q.collision_mask = 1
 	var why := {}
-	for i in 32:
+	# review notes #26 / the hunts: a creature never appears where the player is looking. The front 110 degrees of the view are closed at ANY distance, and the first tries are
+	# behind or beside the player (the rear arc), so it comes out of the fog at their back, never out of nothing in front of them.
+	var look := Vector3.FORWARD
+	var eye := p
+	if cam:
+		look = -cam.global_basis.z
+		look.y = 0.0
+		look = look.normalized() if look.length() > 0.01 else Vector3.FORWARD
+		eye = cam.global_position
+	var base_a := atan2(-look.z, -look.x)                  # the direction straight behind the player
+	for i in 48:
 		var a := randf() * TAU
-		var d := randf_range(dmin, dmax)
+		if i < 24:
+			a = base_a + randf_range(-2.0, 2.0)            # the rear arc (about 230 degrees)
+		var d := maxf(randf_range(dmin, dmax), 32.0)
 		var c := p + Vector3(cos(a), 0.0, sin(a)) * d
-		if cam and cam.is_position_in_frustum(c + Vector3(0, 1.0, 0)) and c.distance_to(cam.global_position) < 60.0:
+		var to_c := Vector3(c.x - eye.x, 0.0, c.z - eye.z)
+		if cam and to_c.length() > 0.5 and look.angle_to(to_c.normalized()) < deg_to_rad(55.0):
+			why["in_gaze"] = int(why.get("in_gaze", 0)) + 1
+			continue
+		if cam and cam.is_position_in_frustum(c + Vector3(0, 1.0, 0)) and c.distance_to(cam.global_position) < 90.0:
 			why["in_view"] = int(why.get("in_view", 0)) + 1
 			continue
 		var hit: Dictionary = space.intersect_ray(PhysicsRayQueryParameters3D.create(c + Vector3(0, 20, 0), c - Vector3(0, 10, 0), 1, exl))
@@ -1479,7 +1502,7 @@ func find_spawn(dmin: float, dmax: float, around := Vector3.INF) -> Vector3:
 			why["boxed_in"] = int(why.get("boxed_in", 0)) + 1
 			continue
 		return g
-	_dbg("spawn rejected (32 tries around %s, %.0f-%.0f m): %s" % [_v(p), dmin, dmax, str(why)])
+	_dbg("spawn rejected (48 tries around %s, %.0f-%.0f m): %s" % [_v(p), dmin, dmax, str(why)])
 	return Vector3.INF
 
 
@@ -1982,13 +2005,54 @@ func _process(delta: float) -> void:
 		var c5 := _c5()
 		if not in_store():
 			st()["went_out"] = true
-		if c5 and bool(st().get("went_out", false)) and in_store() and not c5._doors_open:
+		var inside := in_store()
+		if not inside and c5 != null and c5._away_from_store(world.market.to_local(_player().global_position), 6.0):
+			_truly_out = true                       # properly away from the doors (not just the vestibule): only then does coming back ask the question
+		if inside and _truly_out and not _end_asking and _menu_allowed():
+			_truly_out = false
+			_ask_end_hunt()                        # review note #105: the hunt ends when you come back in, by your answer
+		_was_inside = inside
+		if c5 and bool(st().get("went_out", false)) and inside and not c5._doors_open and not _end_asking:
 			_closed_t += 0.25
 			if _closed_t > 3.0:
 				secure()
 		else:
 			_closed_t = 0.0
+	else:
+		_was_inside = true
 	_refresh()
+
+
+var _was_inside := true
+var _truly_out := false
+var _end_asking := false
+var summary_shown := false                   ## (tests) the last trip's summary was put up
+
+
+## Back inside on a hunt: "End the scavenging hunt?" Yes: the doors shut behind you, the companion goes back to their post, the summary of what you found, then the offer to sleep when nothing is left today.
+func _ask_end_hunt() -> void:
+	_end_asking = true
+	var p4 := _p4()
+	var i: int = await p4.choice.ask("END THE SCAVENGING HUNT?", ["Yes - secure the doors", "Not yet - back out"], _player())
+	if i == 0 and active():
+		secure()
+	_end_asking = false
+
+
+func _trip_summary(got: Dictionary) -> void:
+	var lines: Array = []
+	for k in got:
+		lines.append("%s x%d" % [Game.item_info(k).get("name", k), got[k]])
+	var text := "SCAVENGING HUNT COMPLETE\n" + ("Found:  " + ",  ".join(lines) if not lines.is_empty() else "Nothing found today.")
+	var p4 := _p4()
+	summary_shown = true
+	if p4 and not p4.choice.is_open():
+		await p4.choice.ask(text, ["Continue"], _player())
+	var rest = p4.get("rest") if p4 else null
+	if rest and sleep_available() and not scavenge_available() and not _busy_menu and p4 and not p4.choice.is_open():
+		var j: int = await p4.choice.ask("Nothing more can be done today. Go to sleep?", ["Sleep", "Not yet"], _player())
+		if j == 0:
+			rest.request()
 
 
 func _refresh() -> void:

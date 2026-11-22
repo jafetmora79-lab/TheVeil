@@ -1565,6 +1565,22 @@ var _supplies_open := false
 func _open_supplies() -> void:
 	if _supplies_open or choice.is_open():
 		return
+	if not world.get("use_text_supplies"):
+		_supplies_open = true                   # the two-grid chest screen (review note #99)
+		var pn := VeilStoragePanel.new()
+		add_child(pn)
+		pn.setup(world, self)
+		var group: bool = await pn.closed
+		_supplies_open = false
+		if group and world.survivors:
+			await world.survivors.open_panel(choice)
+		return
+	await _open_supplies_text()
+
+
+func _open_supplies_text() -> void:
+	if _supplies_open or choice.is_open():
+		return
 	_supplies_open = true
 	while is_inside_tree():
 		var stock := Game.shelter_stock()

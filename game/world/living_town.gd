@@ -1356,6 +1356,52 @@ func _police() -> void:
 	_end("police")
 
 
+## The cinematic camera for Joan's scene: on the forecourt, looking at the gas station door, then following her (smoothed) while it creeps closer; the player's own view returns afterwards.
+func _joan_camera(door: Vector3, target: Node3D, on: Array) -> Camera3D:
+	var pl = world.player
+	if pl == null or world.in_car or not pl.controls_enabled:
+		return null
+	var cine := Camera3D.new()
+	cine.name = "LT_JoanCam"
+	world.add_child(cine)
+	cine.fov = 58.0
+	cine.global_position = door + Vector3(-9.0, 1.7, 9.0)
+	cine.look_at(door + Vector3(0, 1.4, 0), Vector3.UP)
+	cine.make_current()
+	pl.controls_enabled = false
+	pl.set("look_enabled", false)
+	pl.velocity = Vector3.ZERO
+	var aim := [door + Vector3(0, 1.4, 0)]
+	var run := func() -> void:
+		while on[0] and is_instance_valid(cine):
+			await get_tree().process_frame
+			var dt := get_process_delta_time()
+			if is_instance_valid(target) and target.visible:
+				aim[0] = (aim[0] as Vector3).lerp(target.global_position + Vector3(0, 1.2, 0), clampf(dt * 3.5, 0.0, 1.0))
+				var to: Vector3 = target.global_position + Vector3(0, 1.7, 0) + (cine.global_position - target.global_position).normalized() * 9.0
+				cine.global_position = cine.global_position.move_toward(Vector3(to.x, 1.7, to.z), 1.2 * dt)
+			cine.look_at(aim[0], Vector3.UP)
+	run.call()
+	return cine
+
+
+func _joan_camera_end(cine: Camera3D, on: Array) -> void:
+	on[0] = false
+	if cine == null:
+		return
+	var pl = world.player
+	if world.hud:
+		await world.hud.fade_to(1.0, 0.3)
+	if is_instance_valid(cine):
+		cine.queue_free()
+	if pl != null and pl.camera != null:
+		pl.camera.make_current()
+		pl.controls_enabled = true
+		pl.set("look_enabled", true)
+	if world.hud:
+		await world.hud.fade_to(0.0, 0.5)
+
+
 # ------------------------------------------------------------------ 4. Joan and the Hound
 func _joan() -> void:
 	if _busy != "":
@@ -1367,6 +1413,8 @@ func _joan() -> void:
 	var jb: Node3D = p["body"]
 	var ja = p["anim"]
 	var door := _ground(Vector3(152.0, 0.2, -25.7))
+	var cam_on := [true]                                           # review note #101: a proper cinematic - the view is taken from the player and cut to a camera on the forecourt that follows the action
+	var cine := _joan_camera(door, jb, cam_on)
 	Sfx.play("door_close", door + Vector3.UP, 6.0, 0.8)           # a door slams
 	await get_tree().create_timer(0.6).timeout
 	jb.global_position = door
@@ -1395,7 +1443,7 @@ func _joan() -> void:
 		(co as CollisionObject3D).collision_layer = 0
 	if h is CollisionObject3D:
 		(h as CollisionObject3D).collision_layer = 0
-	var trail: Array = [door + Vector3(-7.0, 0, -3.0)]
+	var trail: Array = [door + Vector3(-6.0, 0, 6.5)]            # out on the forecourt, clear of the building (it used to start inside the wall and cut through it)
 	h.global_position = _ground(trail[0])
 	_clip(h, "Run", 1.3)
 	_snd("hound_bark", h.global_position + Vector3.UP, 4.0)
@@ -1422,6 +1470,7 @@ func _joan() -> void:
 	p["state"] = "gone"
 	_free_when_unseen(h, 20.0)
 	report["joan_route"] = route.size()
+	await _joan_camera_end(cine, cam_on)
 	_end("joan")
 
 

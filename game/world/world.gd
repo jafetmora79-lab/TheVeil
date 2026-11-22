@@ -56,6 +56,7 @@ var player: VeilPlayer
 var sedan: PlayerSedan
 var hud: VeilHUD
 var in_car := false
+var use_text_supplies := false          ## (tests) the old text menu for the shelter supplies instead of the two-grid chest screen (review note #99)
 var fog_zones: Node
 var world_edge: Node
 var town_destruction: Node

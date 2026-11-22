@@ -59,6 +59,7 @@ static func apply(world: Node) -> Dictionary:
 			holder.add_child(n)
 			_glass(n)
 			report["props"] += 1
+		_hinge_doors(world, b, bname, report)
 		var i := 0
 		for l in spec["loot"]:
 			var id: String = l[0]
@@ -74,6 +75,18 @@ static func apply(world: Node) -> Dictionary:
 			report["loot"] += 1
 			i += 1
 	return report
+
+
+## The shops' doors (review note #100: "the doors can't be opened"): every INT_Door_* of the building is a hinged door the player opens with [E] (swinging INTO the shop), state kept in the save.
+static func _hinge_doors(world: Node, b: Node3D, bname: String, report: Dictionary) -> void:
+	var inside: Vector3 = b.global_transform * Vector3(0.0, 1.0, 5.0)
+	for d in b.find_children("INT_Door_*", "MeshInstance3D", true, false):
+		if d.get_node_or_null("Interact") != null:
+			continue
+		var deg: float = world._toward_deg(d, 90.0, inside)
+		Interactable.attach(d, {"kind": "hinge", "label": world._label_for(String(d.name)), "open_deg": deg, "hinge_axis": Vector3.UP,
+			"state_key": "shopdoor/%s/%s" % [bname, d.name]})
+		report["doors"] = int(report.get("doors", 0)) + 1
 
 
 ## The prop's spot, or a nearby one (0.4 m steps, up to 1.2 m) where a 1.2 x 1.2 m footprint touches nothing solid; INF if there is none.

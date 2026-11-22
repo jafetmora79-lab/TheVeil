@@ -401,7 +401,7 @@ func talk(n: String) -> void:
 func companion_options() -> Array:
 	var out := []
 	for n in NAMES:
-		if _available(n) and health(n) != "serious":
+		if _available(n) and not (health(n) in ["serious", "injured"]):      # the hurt stay at the shelter (review note #110)
 			out.append(n)
 	return out
 

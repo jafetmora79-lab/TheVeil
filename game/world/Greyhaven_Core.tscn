@@ -1761,7 +1761,7 @@ transform = Transform3D(0, 0, 1, 0, 1, 0, -1, 0, 0, -50, 0.15, -45.3)
 metadata/tag = "LINES"
 
 [node name="UT_UtilityPole_007" parent="Static/Utilities" instance=ExtResource("120_UT_UtilityPole")]
-transform = Transform3D(0, 0, 1, 0, 1, 0, -1, 0, 0, 0, 0.15, -45.3)
+transform = Transform3D(0, 0, 1, 0, 1, 0, -1, 0, 0, -9, 0.15, -45.3)
 metadata/tag = "POLES"
 
 [node name="UT_PowerLine_Span25m_006" parent="Static/Utilities" instance=ExtResource("114_UT_PowerLine_Span25m")]
@@ -1773,7 +1773,7 @@ transform = Transform3D(0, 0, 1, 0, 1, 0, -1, 0, 0, -25, 0.15, -45.3)
 metadata/tag = "LINES"
 
 [node name="UT_UtilityPole_008" parent="Static/Utilities" instance=ExtResource("120_UT_UtilityPole")]
-transform = Transform3D(0, 0, 1, 0, 1, 0, -1, 0, 0, 25, 0.15, -45.3)
+transform = Transform3D(0, 0, 1, 0, 1, 0, -1, 0, 0, 41, 0.15, -45.3)
 metadata/tag = "POLES"
 
 [node name="UT_PowerLine_Span25m_007" parent="Static/Utilities" instance=ExtResource("114_UT_PowerLine_Span25m")]

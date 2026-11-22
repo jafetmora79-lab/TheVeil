@@ -838,6 +838,7 @@ func _peek(at: Vector3, closer: float, hold: float, dip := false) -> void:
 	if not _cam_lock:
 		_cam_base = cam.transform
 		_cam_lock = true
+	_clear_fuse_view(at)
 	_cam_from = cam.global_transform
 	var eye := _cam_from.origin
 	var d := at - eye
@@ -858,7 +859,22 @@ func _peek(at: Vector3, closer: float, hold: float, dip := false) -> void:
 	await tw.finished
 
 
+## Review note #111: a slab covered the fuse panel during the close-up. While the camera is near the fuse panel the wreck's driver door (hinged out in front of the opening) is hidden, and shown again when the camera is back.
+var _hidden_door: Node3D
+func _clear_fuse_view(at: Vector3) -> void:
+	if not sites.has("car_fuse"):
+		return
+	var panel: Node3D = sites["car_fuse"]["panel"]
+	var door: Node3D = sites["car_fuse"].get("door")
+	if is_instance_valid(panel) and is_instance_valid(door) and panel.global_position.distance_to(at) < 0.6 and door.visible:
+		door.visible = false
+		_hidden_door = door
+
+
 func _peek_back() -> void:
+	if _hidden_door != null and is_instance_valid(_hidden_door):
+		_hidden_door.visible = true
+	_hidden_door = null
 	var p: Node3D = ex._player()
 	var cam := p.get("camera") as Camera3D
 	if cam and _cam_lock:
@@ -1074,17 +1090,20 @@ func install(id: String) -> void:
 func _fit_fuel(car: Node3D) -> void:
 	var cap: Vector3 = car.global_transform * CAP
 	var out := -car.global_basis.x                                    # the filler's side of the car
+	var flap := _fuel_door(car)
 	await _walk_player(cap + out * 0.75 - car.global_basis.z * 0.25 + Vector3(0, -cap.y, 0) + Vector3(0, car.global_position.y, 0), cap)
 	await _peek(cap, 0.45, 0.05)
 	_snd("click", cap, -6.0)                                          # the cap off
+	if flap:
+		create_tween().tween_property(flap, "rotation:y", deg_to_rad(105.0), 0.35)          # the fuel door swings open
 	var can := GAS_CAN.instantiate() as Node3D
 	can.name = "CQ_PouringCan"
 	car.add_child(can)
 	# the can's spout (+X) points in at the car; tipping is a roll about its own Z
-	var face := Basis(Vector3.UP, car.global_rotation.y - PI * 0.5 + PI)
+	var face := Basis(Vector3.UP, car.global_rotation.y)                  # the spout points INTO the car (along the car's +X), so it tips away from the player, not sideways (review note #112)
 	var tip_local := Vector3(0.165, 0.445, 0.0)
 	var place := func(tilt: float, lift: float) -> void:
-		var b := face * Basis(Vector3.FORWARD, -tilt)
+		var b := face * Basis(Vector3.BACK, -tilt)                         # clockwise about Z: the spout (+X, up top) goes DOWN into the neck
 		var tip_to: Vector3 = cap + out * (0.05 + lift) + Vector3(0, lift * 0.5, 0)
 		can.global_transform = Transform3D(b, tip_to - b * tip_local)
 	place.call(0.0, 0.35)
@@ -1101,6 +1120,8 @@ func _fit_fuel(car: Node3D) -> void:
 	await tb.finished
 	can.queue_free()
 	_snd("click", cap, -6.0)                                          # the cap back on
+	if flap:
+		create_tween().tween_property(flap, "rotation:y", 0.0, 0.3)
 	await _peek_back()
 
 
@@ -1251,10 +1272,66 @@ func _relay_lid(bx: Dictionary, open: bool) -> void:
 
 ## What has been fitted stays fitted, after the scene and after a load: the battery, the fuse in its box, the relay
 ## in its box on the bumper.
+## The fuel door on the left rear quarter (review note #112: the car had no visible filler): a seam frame, the dark recess with the cap, and a hinged flap in the body's own colour that swings open
+## for the pour. Built once, a child of the car, flush with the side panel.
+func _fuel_door(car: Node3D) -> Node3D:
+	var ex_flap := car.get_node_or_null("CQ_FuelDoor")
+	if ex_flap != null:
+		return ex_flap.get_node_or_null("Flap") as Node3D
+	var root := Node3D.new()
+	root.name = "CQ_FuelDoor"
+	car.add_child(root)
+	root.position = CAP + Vector3(-0.012, 0.0, 0.0)            # on the panel (the filler is on the car's local -X side)
+	var body_col := Color(0.35, 0.37, 0.4)
+	var model := car.get("model") as Node3D
+	var body := model.find_child("Body", true, false) as MeshInstance3D if model else null
+	if body and body.mesh and body.mesh.get_surface_count() > 0:
+		var bm := body.mesh.surface_get_material(0) as StandardMaterial3D
+		if bm:
+			body_col = bm.albedo_color
+	var recess := MeshInstance3D.new()
+	var rm := BoxMesh.new()
+	rm.size = Vector3(0.01, 0.24, 0.3)
+	var rmat := StandardMaterial3D.new()
+	rmat.albedo_color = Color(0.03, 0.03, 0.035)
+	rm.material = rmat
+	recess.mesh = rm
+	root.add_child(recess)
+	var cap_m := MeshInstance3D.new()
+	var cm := CylinderMesh.new()
+	cm.top_radius = 0.045
+	cm.bottom_radius = 0.045
+	cm.height = 0.03
+	var cmat := StandardMaterial3D.new()
+	cmat.albedo_color = Color(0.08, 0.08, 0.09)
+	cm.material = cmat
+	cap_m.mesh = cm
+	cap_m.rotation.z = PI * 0.5
+	cap_m.position = Vector3(-0.012, 0.0, 0.0)
+	root.add_child(cap_m)
+	var hinge := Node3D.new()                                  # the flap turns about its front edge
+	hinge.name = "Flap"
+	hinge.position = Vector3(-0.008, 0.0, 0.15)
+	root.add_child(hinge)
+	var fl := MeshInstance3D.new()
+	var fm := BoxMesh.new()
+	fm.size = Vector3(0.012, 0.22, 0.28)
+	var fmat := StandardMaterial3D.new()
+	fmat.albedo_color = body_col
+	fmat.roughness = 0.45
+	fmat.metallic = 0.3
+	fm.material = fmat
+	fl.mesh = fm
+	fl.position = Vector3(0.0, 0.0, -0.14)
+	hinge.add_child(fl)
+	return hinge
+
+
 func fitted_props() -> void:
 	var car: Node3D = world.sedan
 	if car == null or ex == null:
 		return
+	_fuel_door(car)
 	if ex.installed("car_battery") and car.get_node_or_null("CQ_Fitted_car_battery") == null:
 		var bat := BATTERY.instantiate() as Node3D
 		bat.name = "CQ_Fitted_car_battery"

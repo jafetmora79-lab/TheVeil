@@ -25,10 +25,8 @@ static func prepare(game: Node, trust := 2, stock := {"food": 3, "water": 1, "me
 	game.flags["marcus_trust_search" if trust >= 2 else "marcus_cautious_search"] = true
 	game.world_state["ch8"] = {"barricade": "broken", "power": "partial", "injured": "sarah", "injured_condition": "stable",
 		"ruth_sarah_arrived": false, "casualty": "temporary_survivor"}
-	for k in ["repair_boards", "duct_tape", "painkillers"]:
+	for k in ["repair_boards", "duct_tape", "painkillers", "hammer"]:
 		game.inventory.erase(k)
-	if not "hammer" in game.inventory:
-		game.inventory.append("hammer")
 	game.world_state["shelter_stock"] = stock.duplicate()
 	game.save_game()
 	game.load_game()

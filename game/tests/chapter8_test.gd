@@ -328,7 +328,7 @@ func _run() -> void:
 	c8.its["barricade"].interact(world.player)
 	ok("c8_repaired", await wait_talk(func(): return game.has_flag("ch8_barricade_repaired"), 60.0) and said.has("I'd rather not find out.")
 		and c8._boards_up[0].visible and p4._pallets["back"].position.distance_to(c8.BACK_PALLET_BLOCK) < 0.05)
-	ok("c8_repair_consumes", not game.has_item("repair_boards") and not game.has_item("duct_tape") and game.has_item("hammer"))
+	ok("c8_repair_consumes", not game.has_item("repair_boards") and not game.has_item("duct_tape") and not game.has_item("hammer"))
 	ok("c8_power_fails", await wait_talk(func(): return game.has_flag("ch8_power_failed"), 30.0)
 		and c8.st()["power"] == "failed" and c8.report["lights_on"] <= 1 and game.current_step().get("id", "") == "c8_power")
 	ok("c8_power_lines", await wait_talk(func(): return said.has("There's a maintenance panel near the storage area."), 30.0))

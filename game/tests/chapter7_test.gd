@@ -330,7 +330,7 @@ func _run() -> void:
 		and c7.qa_report.get("intro_facing", 0.0) > 0.95 and said.has("Something loud. Away from the car.") and world.player.camera.fov > 60.0,
 		str(c7.qa_report))
 	ok("c7_vehicle_reached", game.has_flag("ch7_vehicle_reached") and game.current_step().get("id", "") == "c7_search")
-	ok("c7_marker_alarm", await wait_until(func(): return world.hud._mk_name == "CAR ALARM", 30))
+	ok("c7_marker_alarm", await wait_until(func(): return world.hud._mk_name == "THROW SPOT", 30))
 	ok("c7_backpack_not_auto", not game.has_flag("ch7_backpack_found") and not game.has_item("noahs_backpack"))
 	ok("c7_skitters_at_car", c7.skitters.size() == 2 and c7.its["backpack"].prompt_text == "" and c7.its["alarm"].prompt_text != "")
 	# (QA-006) a lunge: turns, Attack_Lunge, the bite lands at the contact moment, not at once
@@ -342,7 +342,7 @@ func _run() -> void:
 	ok("c7_lunge_anim", await wait_until(func(): return c7.qa_report.get("lunge_anim", false), 60 * 6))
 	await watch_frames(90)
 	world.player.health = hp0
-	await walk_world([c7.ALARM_POS + Vector3(0.0, 0.05, -2.6)])          # walked back (no teleport: Marcus follows the trail)
+	await walk_world([c7.THROW_POS + Vector3(0.0, 0.05, 1.0)])          # walked back (no teleport: Marcus follows the trail)
 	ok("c7_alarm_reach", await look(c7.its["alarm"]))
 	c7.its["alarm"].interact(world.player)
 	ok("c7_alarm_not_instant", not game.has_flag("ch7_skitters_gone") and c7.its["backpack"].prompt_text == "")
