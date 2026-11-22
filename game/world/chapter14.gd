@@ -100,6 +100,39 @@ func begin(w: Node, chapter13: Node, restoring: bool) -> void:
 	Game.refresh_objective()
 
 
+## The nearest bit of clear floor to `p` (house frame, up to 3 m away): a capsule check against the house's real collision.
+func _clear_floor_near(p: Vector3) -> Vector3:
+	var space: PhysicsDirectSpaceState3D = world.get_world_3d().direct_space_state
+	var q := PhysicsShapeQueryParameters3D.new()
+	var cap := CapsuleShape3D.new()
+	cap.radius = 0.4
+	cap.height = 1.7
+	q.shape = cap
+	q.collision_mask = 1
+	q.exclude = [player.get_rid()]
+	var best := hl(p)
+	var best_d := 1e9
+	var x := -3.0
+	while x <= 3.0:
+		var z := -3.0
+		while z <= 3.0:
+			var d := Vector2(x, z).length()
+			if d < best_d:
+				var pt := Vector3(p.x + x, p.y, p.z + z)
+				q.transform = Transform3D(Basis(), hl(pt + Vector3(0, 0.95, 0)))
+				var free := true
+				for h in space.intersect_shape(q, 6):
+					if not (h["collider"] is VeilSurvivorBody):
+						free = false
+						break
+				if free and _in_room(pt) and Vector2(pt.x, pt.z).distance_to(Vector2(FRONT_IN.x, FRONT_IN.z)) > 1.0:
+					best = hl(pt)
+					best_d = d
+			z += 0.25
+		x += 0.25
+	return best
+
+
 ## Whoever is part of the group is in the house, seen and standing on clear floor, however the chapter was entered (review note #61: Ruth talked without being there when the chapter was
 ## picked from the menu).
 func _ensure_present() -> void:
@@ -250,8 +283,13 @@ func spot(k: String) -> Vector3:
 	return _spots.get(k, c10.SPOTS.get(k, Vector3(0.0, 0.61, 7.0)))
 
 
+func _in_room(p: Vector3) -> bool:
+	var half: Vector3 = c10.ROOM[1] * 0.5
+	return absf(p.x - c10.ROOM[0].x) <= half.x - 0.45 and absf(p.z - c10.ROOM[0].z) <= half.z - 0.45
+
+
 func _compute_spots() -> void:
-	var keep := [[BED, 1.2], [SUPPLIES, 1.0], [TABLE, 1.2], [FRONT_IN, 1.5], [BACK_IN, 1.5], [Vector3(c10.WINDOW.x, 0.61, c10.WINDOW.z + 0.9), 0.9]]
+	var keep := [[BED, 1.2], [SUPPLIES, 1.0], [TABLE, 1.2], [FRONT_IN, 1.5], [BACK_IN, 2.2], [Vector3(-1.6, 0.61, 9.8), 1.4], [Vector3(-2.0, 0.61, 8.6), 1.2], [Vector3(c10.WINDOW.x, 0.61, c10.WINDOW.z + 0.9), 0.9]]
 	var space: PhysicsDirectSpaceState3D = world.get_world_3d().direct_space_state
 	var q := PhysicsShapeQueryParameters3D.new()
 	var cap := CapsuleShape3D.new()
@@ -265,7 +303,7 @@ func _compute_spots() -> void:
 		var z := 3.9
 		while z <= 11.2:
 			var pt := Vector3(x, 0.61, z)
-			var ok := true
+			var ok := _in_room(pt)                                   # (inside the room's real walls: some spots were outside it, so people stood in the wall, unseen)
 			for kp in keep:
 				if Vector2(pt.x - kp[0].x, pt.z - kp[0].z).length() < float(kp[1]):
 					ok = false
@@ -434,8 +472,10 @@ func _opening() -> void:
 	await hud.fade_to(1.0, 0.6)
 	c10._place_inside()
 	_spread()
+	for k in present():
+		_node(k).visible = true                                      # (everyone in the group is seen: Ruth was missing when the chapter was started from the menu)
 	_node("Marcus").visible = alive()
-	player.global_position = hl(BED + Vector3(0, 0.1, 0))
+	player.global_position = _clear_floor_near(BED) + Vector3(0, 0.1, 0)      # on clear floor, not on whatever stands where the bed was (the player appeared on top of a table)
 	player.velocity = Vector3.ZERO
 	player.set_yaw_pitch(0.0, -0.9)                  # lying down, looking at the ceiling
 	lamp.light_energy = 0.15
