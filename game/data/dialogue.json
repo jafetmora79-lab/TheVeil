@@ -7371,17 +7371,17 @@
   "lines": [
    {
     "speaker": "Marcus",
-    "text": "Three of them! The glass will not hold!",
-    "time": 2.2
+    "text": "Three of them! The glass will not hold! The back door - the shelves are on it!",
+    "time": 3.2
    },
    {
     "speaker": "Marcus",
-    "text": "The back door - the shelves are on it! Eddie, that end, with me!",
-    "time": 3.0
+    "text": "You and me, that end - we PULL!",
+    "time": 2.0
    },
    {
     "speaker": "Eddie",
-    "text": "Coming! Sarah, Ruth, stay by the doorway!",
+    "text": "Ruth, Sarah, with me. Stay behind us!",
     "time": 2.2
    }
   ]
@@ -7404,13 +7404,13 @@
   "lines": [
    {
     "speaker": "Eddie",
-    "text": "It's open - GO! Ruth, take Sarah! Out the back!",
+    "text": "It's open - GO! Ruth, take her arm! Out the back!",
     "time": 2.6
    },
    {
     "speaker": "Ruth",
-    "text": "Lean on me - come on, come ON!",
-    "time": 2.0
+    "text": "Come on, Sarah - one more step, COME ON!",
+    "time": 2.2
    }
   ]
  },
@@ -7427,13 +7427,8 @@
   "lines": [
    {
     "speaker": "Marcus",
-    "text": "Push it back across! Block it behind them!",
+    "text": "Shove it back across! Block it behind them!",
     "time": 2.2
-   },
-   {
-    "speaker": "Eddie",
-    "text": "Shove! Put your back into it!",
-    "time": 1.8
    }
   ]
  },
