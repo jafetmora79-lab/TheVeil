@@ -1035,6 +1035,7 @@ func _reset_director(el: float) -> void:
 	_next_hunt = maxf(60.0, el + 25.0)
 	_next_roam = maxf(20.0, el + 12.0)
 	_next_tent = maxf(160.0, el + 45.0)
+	_next_birds = maxf(120.0, el + 70.0)
 	_dir_t = 1.0
 
 
@@ -1061,6 +1062,8 @@ var _dir_t := 1.0
 var _next_hunt := 60.0           ## expedition seconds: the next hunter may come from then on
 var _next_roam := 20.0
 var _next_tent := 160.0
+var _next_birds := 120.0         ## review note #91: the next Grimtalon dive (expedition seconds)
+var _birds: Node
 var _tentacle: Node3D = null
 var _last_out := Vector3.INF     ## the player's last position outdoors (on foot or in the car)
 const DEBUG_ARG := "--veil-threat-log"
@@ -1317,12 +1320,31 @@ func _direct(lv: int) -> void:
 			_next_roam = el + _lvv("roam_cooldown_s", lv, [70, 55, 45, 40, 35])
 		else:
 			_next_roam = el + 4.0
+	# the flying monsters dive at an exposed player: crouch or be taken (review note #91)
+	if lv >= 2 and el >= _next_birds and not world.in_car:
+		if _birds == null:
+			_birds = load("res://game/world/bird_snatch.gd").new()
+			_birds.name = "BirdSnatch"
+			add_child(_birds)
+			_birds.setup(world)
+		if _birds.can_start() and _creatures_calm():
+			_next_birds = el + _lvv("birds_cooldown_s", lv, [999, 999, 150, 110, 80])
+			_birds.trigger()
+		else:
+			_next_birds = el + 6.0
 	# CRITICAL and up: the ground itself
 	if lv >= 3 and el >= _next_tent and (_tentacle == null or not is_instance_valid(_tentacle)) and not world.in_car:
 		if _spawn_tentacle():
 			_next_tent = el + _lvv("tentacle_cooldown_s", lv, [999, 999, 999, 55, 40])
 		else:
 			_next_tent = el + 5.0
+
+
+func _creatures_calm() -> bool:
+	for c in creatures:
+		if is_instance_valid(c.get("node")) and c["ai"] != null and is_instance_valid(c["ai"]) and c["ai"].get("state") != null and str(c["ai"].get("state")) in ["chase", "hunt", "attack"]:
+			return false
+	return true
 
 
 ## The chase gate: a trip creature may start hunting only if no other one is (otherwise it turns away and leaves).
