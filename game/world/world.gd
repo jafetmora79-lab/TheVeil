@@ -1920,6 +1920,7 @@ func point_outdoors(p: Vector3, margin := 0.0) -> bool:
 
 
 func _p3_tick(_delta: float) -> void:
+	_ensure_survival_bars()
 	_chase_music_tick()
 	if mist_ceiling:
 		var cam := get_viewport().get_camera_3d()
@@ -2982,6 +2983,27 @@ func _tripod_watch(tc: VeilTripodColossus, wd: Vector3) -> void:
 		away.queue_free()
 		VeilGrimtalon.retire_all(_tc_birds, wd)
 		tc.queue_free())
+
+
+## Health and stamina are part of the game from the first step out into the Veil on: whatever way the game was entered (Continue, a chapter picked from the menu, a dev set-up, a load mid-chapter),
+## the bars are on and the player is in survival mode. (They used to be switched on only by the encounter scene and by one load path, so they were missing or gone after a Continue / chapter skip.)
+var _bars_checked := 0.0
+
+
+func _ensure_survival_bars() -> void:
+	_bars_checked -= get_physics_process_delta_time()
+	if _bars_checked > 0.0 or player == null or hud == null:
+		return
+	_bars_checked = 0.5
+	if not Game.has_flag("p3_stepped_out"):
+		return
+	if not player.survival_active:
+		player.set_survival(true)
+	var inv_open: bool = hud.inv_panel != null and hud.inv_panel.visible
+	if not inv_open and (not hud.surv.visible or hud.surv.modulate.a < 0.95):
+		hud.set_survival_visible(true)
+		hud.set_health(player.health, player.MAX_HEALTH) if hud.has_method("set_health") else null
+		hud.set_stamina(player.stamina, player.MAX_STAMINA) if hud.has_method("set_stamina") else null
 
 
 ## Stage 7 of the Colossus encounter (either one): the survival HUD, the way back, the tentacles.
