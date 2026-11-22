@@ -2904,12 +2904,54 @@ func _pre_mist_start() -> void:
 	var ground := door_out.y
 	var near := _enc_mist(P, n, ground)
 	var entry := _enc_mist(P, n, ground, [[96.0, 150.0], [102.0, 170.0], [108.0, 190.0]])
+	_pre_mist_banks(P, n, ground)
 	var tw := create_tween().set_parallel(true)
 	_pre_mist = {"store": store, "near": near, "entry": entry, "tw": tw}
 	for c in near + entry:
 		var m := ((c as MeshInstance3D).mesh as QuadMesh).material as ShaderMaterial
 		m.set_shader_parameter("density", 0.0)
 		tw.tween_method(func(v: float): m.set_shader_parameter("density", v), 0.0, 0.97, 25.0).set_trans(Tween.TRANS_SINE)
+
+
+## Soft banks of fog standing down the street BEFORE anything walks out of them (review note #26: the monster kept appearing from nowhere): big round-faded mist sprites rising over ~25 s along the
+## road ahead, 50 - 130 m out, so the Colossus visibly emerges from a veil that was there all along. They thin away a couple of minutes later.
+func _pre_mist_banks(P: Vector3, n: Vector3, ground: float) -> void:
+	var g := Gradient.new()
+	g.set_color(0, Color(1, 1, 1, 1))
+	g.set_color(1, Color(1, 1, 1, 0))
+	var tex := GradientTexture2D.new()
+	tex.gradient = g
+	tex.fill = GradientTexture2D.FILL_RADIAL
+	tex.fill_from = Vector2(0.5, 0.5)
+	tex.fill_to = Vector2(1.0, 0.5)
+	tex.width = 128
+	tex.height = 128
+	var side := n.cross(Vector3.UP).normalized()
+	var banks: Array = []
+	for i in 9:
+		var d := 50.0 + 10.0 * i
+		var off := side * (float((i * 37) % 17) - 8.0) * 3.0
+		var mi := MeshInstance3D.new()
+		mi.name = "PreMistBank"
+		var q := QuadMesh.new()
+		q.size = Vector2(70.0, 38.0)
+		var m := StandardMaterial3D.new()
+		m.albedo_texture = tex
+		m.albedo_color = Color(0.62, 0.65, 0.68, 0.0)
+		m.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
+		m.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
+		m.billboard_mode = BaseMaterial3D.BILLBOARD_FIXED_Y
+		m.cull_mode = BaseMaterial3D.CULL_DISABLED
+		q.material = m
+		mi.mesh = q
+		mi.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+		add_child(mi)
+		mi.global_position = Vector3(P.x, ground + 16.0, P.z) + n * d + off
+		banks.append(mi)
+		var tw := create_tween()
+		tw.tween_method(func(v: float): m.albedo_color.a = v, 0.0, 0.5, 25.0).set_delay(0.5 * i)
+		tw.tween_method(func(v: float): m.albedo_color.a = v, 0.5, 0.0, 30.0).set_delay(120.0)
+		tw.tween_callback(mi.queue_free)
 
 
 ## The encounter takes the raised curtains (if they stand at the store the player really leaves by), or raises its own.

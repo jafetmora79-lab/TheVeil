@@ -83,3 +83,13 @@ STILL OPEN (the owner has these in the notes file):
 - **Words baked into pictures:** `game/tools/blender/make_chapter16_signs.py` draws every sign / stencil / the map from one text table with an `en` and an `es` column; `VeilLoc.tex(name)` (game/world/loc.gd) picks the file for
   `Game.language`. Anything new with letters on it goes into that table.
 - **Still open:** #26 (the Colossus popping in before the Veil in chapter 3: needs a play session), #46 (the lag: not reproduced headless; the shelf picker scan was one real cause and is fixed).
+
+## Update 2026-11-22 (late): notes #87 and the Chapter 15 start
+
+- **#87** the entrances are SHUT when Chapter 15 starts (`_start_shut`) and a door is shut before it is barricaded (`_shut_door` in `_place_defense`), so a barricade never stands in front of an open door.
+- **Chapter 15 from the menu:** the player starts on clear floor (`_clear_floor_near`), the group's standing spots are inside the room's real walls (`_in_room`), the player walks THROUGH the survivors in this chapter
+  (their collision layer is taken off the player's mask: they walled off the kitchen so the back door could not be barricaded), and the stairs are closed with an invisible block at their foot (a climb over the TV left the
+  player stuck upstairs). The house itself is still the shared mill-worker house (NOT scaled: see the chapter-15 notes above).
+- **#26** extra: soft fog banks (`world.gd::_pre_mist_banks`) rise down the street ahead of the Colossus over ~25 s, so it walks out of a veil that was already there. Needs a play session to judge.
+- **#46** not reproducible headless; the picker scan (the one measured hitch) is fixed. If the lag returns, capture `Performance` monitors during a long chapter 7 session.
+- `chapter14_test` keeps its pre-existing failures (11 before any of this work); `chapter15_test`, `opening_test` (229/0) and the rest of the suite pass.

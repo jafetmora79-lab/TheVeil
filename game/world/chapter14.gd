@@ -87,6 +87,19 @@ func begin(w: Node, chapter13: Node, restoring: bool) -> void:
 		Game.world_state[STATE] = {"roster": present(), "defenses": {}, "escape": "", "provisions": "", "rescue": "", "rescue_target": "",
 			"separated": "", "separation": "", "missing": [], "talked": {}, "run": ""}
 	_streams = c13._streams
+	_start_shut.call_deferred()
+	# the house is small and full of people: the player walks THROUGH them (they used to wall off the kitchen, so the back door could not be reached to barricade), and the stairs are closed
+	# (a climb over the TV onto the stairs left the player stuck upstairs)
+	player.collision_mask &= ~VeilSurvivorBody.LAYER
+	var stair := StaticBody3D.new()
+	stair.name = "C14_StairsClosed"
+	var scs := CollisionShape3D.new()
+	var sbox := BoxShape3D.new()
+	sbox.size = Vector3(1.4, 3.4, 0.3)
+	scs.shape = sbox
+	stair.add_child(scs)
+	house.add_child(stair)
+	stair.position = Vector3(-2.4, 1.7, 3.95)
 	_setup()
 	_ensure_present.call_deferred()
 	var fresh := not Game.has_flag("ch14_started")
@@ -778,9 +791,27 @@ func _barricade(kind: String, wall: Vector3, dirz: float, _width: float, bottom:
 	return root
 
 
+## When the chapter starts the entrances are shut (nobody wanders out through an open door before it is barricaded: review note #87).
+func _start_shut() -> void:
+	await get_tree().process_frame
+	if Game.has_flag("ch14_evac_started") or Game.has_flag("chapter_14_complete") or Game.has_flag("ch14_run_started") and not Game.has_flag("ch14_run_done"):
+		return
+	_shut_door("front")
+	_shut_door("back")
+
+
+## A door is SHUT before it is barricaded (review note #87: it could be left standing open behind its planks).
+func _shut_door(k: String) -> void:
+	var it: Interactable = c10.its.get("door") if k == "front" else (its.get("INT_Door_Back") if k == "back" else null)
+	if it != null and is_instance_valid(it) and it.is_open:
+		it.set_open(false, true)
+		_door_collision.call_deferred(it)
+
+
 func _place_defense(k: String, _instant: bool) -> void:
 	if props.has("def_" + k):
 		return
+	_shut_door(k)
 	var n: Node3D
 	match k:
 		"front":
@@ -1582,6 +1613,8 @@ func _set_fog(thick: bool, amount := 1.0) -> void:
 
 
 func _exit_tree() -> void:
+	if player != null and is_instance_valid(player):
+		player.collision_mask |= VeilSurvivorBody.LAYER
 	_set_fog(false)
 
 
