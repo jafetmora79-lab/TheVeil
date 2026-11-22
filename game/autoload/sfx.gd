@@ -207,6 +207,16 @@ func play_music(path: String, loop := true, db := -10.0, fade := 1.2, then_loop 
 	_music_tw.tween_property(_music, "volume_db", db + _music_duck, fade * 0.5)
 
 
+var _music_trim := 0.0
+
+
+## A temporary level offset for the music (dB), e.g. under essential speech; 0 = back to normal. Does not touch the duck or the track.
+func trim_music(db: float) -> void:
+	_music_trim = db
+	if _music != null and _music.playing:
+		create_tween().tween_property(_music, "volume_db", _music_db + _music_duck + db, 0.25)
+
+
 func stop_music(fade := 1.0) -> void:
 	if _music == null or not _music.playing:
 		return
