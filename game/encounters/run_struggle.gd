@@ -73,12 +73,21 @@ func run(w: Node, pts: Array, chasers: Array, o := {}) -> Dictionary:
 	player.set("auto_input", Vector2.ZERO)
 	player.velocity = Vector3.ZERO
 	player.set_physics_process(false)
+	var music := String(o.get("music", ""))
+	if music != "":
+		Sfx.play_music(music, true, -4.0, 0.5)                 # frantic chase music for the length of the run
+	var allies: Array = o.get("allies", [])                    # [{"anim": NpcAnimator, "side": 1.3}]: they run beside the player at the same speed
+	for al in allies:
+		al["anim"].free_walk = true
+		al["anim"].set_mood("scared")
+		al["react_t"] = 0.8
+	var v_now := 0.0
 	_over = false
 	_won = false
-	# the player never runs faster than vmax (a hard sprint, not a flight): the bar is sized so that steady clicking (~2.6 a second) fills it in about the time the run takes at that speed
+	# the player never runs faster than vmax (a hard sprint, not a flight): the bar is sized so that steady clicking (~3 a second) fills it in about the time the run takes at that speed
 	var vmax: float = float(o.get("max_speed", 6.5))
 	var t_run: float = (total - lead) / vmax
-	_go(sg, String(o.get("title", "RUN!  CLICK RAPIDLY")), String(o.get("hint", "LEFT CLICK, AGAIN AND AGAIN")), t_run * 1.45 + 2.0, 1.0 / (t_run * 2.6))
+	_go(sg, String(o.get("title", "RUN!  CLICK RAPIDLY")), String(o.get("hint", "LEFT CLICK, AGAIN AND AGAIN")), t_run * 1.45 + 2.0, 1.0 / (t_run * 3.1))
 	var u_p := lead
 	var t := 0.0
 	var caught := false
@@ -88,7 +97,10 @@ func run(w: Node, pts: Array, chasers: Array, o := {}) -> Dictionary:
 		t += dt
 		var prog: float = sg.rescue_progress()
 		var u_target := lead + prog * (total - lead)
+		var u_before := u_p
 		u_p = minf(maxf(u_p, lerpf(u_p, u_target, 1.0 - exp(-5.0 * dt))), u_p + vmax * dt)
+		v_now = (u_p - u_before) / maxf(dt, 0.001)
+		_run_allies(allies, u_p, v_now, dt, chasers)
 		_place_player(u_p, t, dt)
 		var front := minf(t * speed, cap_u)
 		for i in chasers.size():
@@ -112,9 +124,35 @@ func run(w: Node, pts: Array, chasers: Array, o := {}) -> Dictionary:
 			t += d2
 			u_p = minf(u_p + vmax * d2, total)
 			_place_player(u_p, t, d2)
+			_run_allies(allies, u_p, vmax, d2, chasers)
+	for al in allies:
+		al["anim"].walk_to([])
+		al["anim"].free_walk = false
 	if player.get("camera") != null:
 		(player.camera as Camera3D).v_offset = 0.0
+	if music != "":
+		if _won and not caught:
+			Sfx.play_music(Sfx.MUSIC_GAMEPLAY, true, -14.0, 3.0)   # safe: the soundtrack comes back
+		else:
+			Sfx.stop_music(1.0)
 	return {"won": _won and not caught, "caught": caught, "u": u_p}
+
+
+## Each ally keeps a slot beside and just behind the player and runs at the player's own speed (a little more when he has fallen back); now and then he throws a look back at the chasers.
+func _run_allies(allies: Array, u: float, v: float, dt: float, chasers: Array) -> void:
+	for al in allies:
+		var anim = al["anim"]
+		var pd := _at(u - 0.7)
+		var side := Vector3(-pd[1].z, 0.0, pd[1].x) * float(al.get("side", 1.3))
+		var slot: Vector3 = pd[0] + side
+		var me: Vector3 = (anim.root as Node3D).global_position
+		var d := Vector2(slot.x - me.x, slot.z - me.z).length()
+		anim.walk_speed = clampf(v + 2.5 * d, 0.0, v + 3.0)
+		anim.walk_to([slot + (pd[1] as Vector3) * 1.2])
+		al["react_t"] = float(al["react_t"]) - dt
+		if float(al["react_t"]) <= 0.0:
+			al["react_t"] = randf_range(1.0, 1.8)
+			anim.react(0.7, 1.0 if float(al.get("side", 1.3)) < 0.0 else -1.0)   # the glance goes back over the shoulder, towards the chasers
 
 
 func _place_player(u: float, t: float, dt: float) -> void:

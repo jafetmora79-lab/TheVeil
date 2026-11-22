@@ -537,7 +537,7 @@ func _hound_struggle() -> void:
 	var rs = load("res://game/encounters/run_struggle.gd").new()
 	add_child(rs)
 	_chase_leg = CHASE_ROUTE.size()                           # the marker is not needed: the route is the cinematic's
-	var r: Dictionary = await rs.run(world, pts, [h], {"from_dir": away.normalized() if away.length() > 0.5 else Vector3(-1, 0, 0), "lead": maxf(away.length(), 6.0),
+	var r: Dictionary = await rs.run(world, pts, [h], {"music": "res://game/audio/library/music_hound_chase_LOOP.wav", "from_dir": away.normalized() if away.length() > 0.5 else Vector3(-1, 0, 0), "lead": maxf(away.length(), 6.0),
 		"chase_speed": 4.6, "spacing": 3.0, "seconds": 10.0, "title": "RUN!  CLICK RAPIDLY", "hint": "LEFT CLICK, AGAIN AND AGAIN  -  GET TO THE STREET",
 		"cap_index": pts.size() - 1, "cap_gap": 2.5})
 	rs.queue_free()

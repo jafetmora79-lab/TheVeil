@@ -7349,6 +7349,24 @@
    }
   ]
  },
+ "c7_pack_marcus": {
+  "lines": [
+   {
+    "speaker": "Marcus",
+    "text": "They are right behind us! RUN, don't look back!",
+    "time": 2.6
+   }
+  ]
+ },
+ "c7_pack_marcus2": {
+  "lines": [
+   {
+    "speaker": "Marcus",
+    "text": "Keep going! Eddie has the doors!",
+    "time": 2.0
+   }
+  ]
+ },
  "shop_staff_only": {
   "lines": [
    {

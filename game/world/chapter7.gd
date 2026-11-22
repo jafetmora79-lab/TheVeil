@@ -595,13 +595,28 @@ func _pack_run_struggle() -> void:
 	pts.append(w.call(1.8, 6.5, iy))
 	var rs = load("res://game/encounters/run_struggle.gd").new()
 	add_child(rs)
-	var r: Dictionary = await rs.run(world, pts, _pack, {"from_dir": Vector3(-1, 0, 0), "lead": 34.0, "chase_speed": 5.0, "spacing": 3.0, "seconds": 12.0,
+	var allies: Array = []
+	var ma = world.animators.get("Marcus")
+	if ma and marcus and is_instance_valid(marcus):
+		marcus_follow.stop()                                   # he runs the set path beside the player (the follower would fight the scene)
+		c5._reparent(marcus, world)
+		allies.append({"anim": ma, "side": 1.4})
+		_marcus_shout()
+	var r: Dictionary = await rs.run(world, pts, _pack, {"allies": allies, "music": "res://game/audio/library/music_skitter_chase_LOOP.wav", "from_dir": Vector3(-1, 0, 0), "lead": 34.0, "chase_speed": 5.0, "spacing": 3.0, "seconds": 12.0,
 		"title": "RUN!  CLICK RAPIDLY", "hint": "LEFT CLICK, AGAIN AND AGAIN  -  GET TO THE STORE", "cap_index": door_i, "cap_gap": 0.9})
 	rs.queue_free()
 	if bool(r.get("won", false)):
 		await _pack_door_finish(dz)
 	else:
 		await _pack_caught()
+
+
+## Marcus sees them first and shouts; a second line half way.
+func _marcus_shout() -> void:
+	Dialogue.say("c7_pack_marcus", false, true)
+	await get_tree().create_timer(4.5).timeout
+	if _pack_cine and not Dialogue.is_busy():
+		Dialogue.say("c7_pack_marcus2", false, true)
 
 
 ## They catch up: they pile on, drag the player back into the mist, black, YOU DIED.
@@ -660,6 +675,10 @@ func _pack_door_finish(dz: float) -> void:
 	if ea:
 		ea.face_towards(door_w)
 		ea.talk(2.0)
+	var mam = world.animators.get("Marcus")
+	if mam:
+		mam.face_towards(door_w)
+		mam.react(0.9, 1.0)
 	Dialogue.say("c7_pack_door", false, true)
 	await get_tree().create_timer(0.5).timeout
 	c5._set_doors(false)                         # Eddie shoves the doors shut
