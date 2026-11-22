@@ -27,7 +27,7 @@ class FakeWorld extends Node:
 	var player: Node3D
 
 
-func _run(clicking: bool) -> Dictionary:
+func _run(clicking: bool, evs := []) -> Dictionary:
 	var w := FakeWorld.new()
 	var pl := FakePlayer.new()
 	w.player = pl
@@ -42,7 +42,7 @@ func _run(clicking: bool) -> Dictionary:
 	var rs = load("res://game/encounters/run_struggle.gd").new()
 	w.add_child(rs)
 	var res := [{}]
-	var task := func(): res[0] = await rs.run(w, pts, chasers, {"from_dir": Vector3(-1, 0, 0), "lead": 34.0, "chase_speed": 5.0, "seconds": 12.0, "cap_index": 3, "cap_gap": 1.0})
+	var task := func(): res[0] = await rs.run(w, pts, chasers, {"from_dir": Vector3(-1, 0, 0), "lead": 34.0, "chase_speed": 5.0, "seconds": 12.0, "cap_index": 3, "cap_gap": 1.0, "events": evs})
 	task.call()
 	var t := 0.0
 	while res[0].is_empty() and t < 20.0:
@@ -69,5 +69,8 @@ func _go() -> void:
 	ok("idle_caught", idle.get("caught", false) and not idle.get("won", true), str(idle))
 	var fast := await _run(true)
 	ok("clicking_wins", fast.get("won", false) and (fast["end"] as Vector3).distance_to(Vector3(36, 0, 10)) < 0.5, str(fast))
+	var fired := [0]
+	var ev := await _run(true, [{"at": 0.5, "call": func(): fired[0] += 1}])
+	ok("event_once", fired[0] == 1 and ev.get("won", false), str(fired))
 	print("RESULT %s (%d failures)" % ["PASS" if fails == 0 else "FAIL", fails])
 	quit()

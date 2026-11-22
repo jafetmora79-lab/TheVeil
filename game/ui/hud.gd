@@ -18,7 +18,7 @@ var sub: Label
 var confirm_l: Label         ## CLICK / E - CONTINUE  ·  HOLD E - SKIP while a line is up and the player is not free
 var speaker_l: Label         ## the speaker's name above every subtitle
 var caption_l: Label         ## location caption (arrival shot)
-const SPEAKER_NAMES := {"Distant voice": "UNKNOWN VOICE", "Survivor": "DAVID"}
+const SPEAKER_NAMES := {"Distant voice": "UNKNOWN VOICE", "Survivor": "DAVID", "Cashier": "WALT"}
 var _hold := 0.0
 const SKIP_HOLD := 0.8                  ## seconds E / the mouse button is held to skip the rest of a conversation
 var skip_progress := 0.0               ## 0..1 while holding to skip (tests)

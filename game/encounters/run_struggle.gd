@@ -86,7 +86,10 @@ func run(w: Node, pts: Array, chasers: Array, o := {}) -> Dictionary:
 	_won = false
 	# the player never runs faster than vmax (a hard sprint, not a flight): the bar is sized so that steady clicking (~3 a second) fills it in about the time the run takes at that speed
 	var vmax: float = float(o.get("max_speed", 6.5))
+	if o.has("min_time"):
+		vmax = minf(vmax, (total - lead) / float(o["min_time"]))      # a short path still takes a few seconds
 	var t_run: float = (total - lead) / vmax
+	var events: Array = o.get("events", [])                       # [{"at": 0..1 of the way, "call": Callable}]: fired once, in passing
 	_go(sg, String(o.get("title", "RUN!  CLICK RAPIDLY")), String(o.get("hint", "LEFT CLICK, AGAIN AND AGAIN")), t_run * 1.45 + 2.0, 1.0 / (t_run * 3.1))
 	var u_p := lead
 	var t := 0.0
@@ -101,6 +104,11 @@ func run(w: Node, pts: Array, chasers: Array, o := {}) -> Dictionary:
 		u_p = minf(maxf(u_p, lerpf(u_p, u_target, 1.0 - exp(-5.0 * dt))), u_p + vmax * dt)
 		v_now = (u_p - u_before) / maxf(dt, 0.001)
 		_run_allies(allies, u_p, v_now, dt, chasers)
+		var frac := (u_p - lead) / maxf(total - lead, 0.01)
+		for ev in events:
+			if not ev.get("fired", false) and frac >= float(ev["at"]):
+				ev["fired"] = true
+				(ev["call"] as Callable).call()
 		_place_player(u_p, t, dt)
 		var front := minf(t * speed, cap_u)
 		for i in chasers.size():
@@ -112,7 +120,7 @@ func run(w: Node, pts: Array, chasers: Array, o := {}) -> Dictionary:
 			var side := Vector3(-pd[1].z, 0.0, pd[1].x) * ((i % 3) - 1) * 0.9
 			var pp: Vector3 = pd[0] + side
 			ch.global_position = Vector3(pp.x, base_y[i], pp.z)
-			ch.rotation.y = atan2(pd[1].x, pd[1].z)
+			ch.global_rotation.y = atan2(pd[1].x, pd[1].z)
 		if front >= u_p - 1.6 and front < cap_u:
 			caught = true
 			sg.abort_rescue()
@@ -125,6 +133,11 @@ func run(w: Node, pts: Array, chasers: Array, o := {}) -> Dictionary:
 			u_p = minf(u_p + vmax * d2, total)
 			_place_player(u_p, t, d2)
 			_run_allies(allies, u_p, vmax, d2, chasers)
+			var frac2 := (u_p - lead) / maxf(total - lead, 0.01)
+			for ev in events:
+				if not ev.get("fired", false) and frac2 >= float(ev["at"]):
+					ev["fired"] = true
+					(ev["call"] as Callable).call()
 	for al in allies:
 		al["anim"].walk_to([])
 		al["anim"].free_walk = false
@@ -141,6 +154,8 @@ func run(w: Node, pts: Array, chasers: Array, o := {}) -> Dictionary:
 ## Each ally keeps a slot beside and just behind the player and runs at the player's own speed (a little more when he has fallen back); now and then he throws a look back at the chasers.
 func _run_allies(allies: Array, u: float, v: float, dt: float, _chasers: Array) -> void:
 	for al in allies:
+		if al.get("dead", false):
+			continue
 		var anim = al["anim"]
 		var pd := _at(u - float(al.get("behind", 1.3)))
 		var side := Vector3(-pd[1].z, 0.0, pd[1].x) * float(al.get("side", 0.9))

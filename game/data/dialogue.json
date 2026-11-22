@@ -7367,6 +7367,39 @@
    }
   ]
  },
+ "c9_front_assault": {
+  "lines": [
+   {
+    "speaker": "Marcus",
+    "text": "Three of them! The glass is going to break!",
+    "time": 2.4
+   },
+   {
+    "speaker": "Marcus",
+    "text": "The back door! Pull those shelves off it - NOW!",
+    "time": 2.6
+   },
+   {
+    "speaker": "Eddie",
+    "text": "I have this side! PULL!",
+    "time": 1.8
+   }
+  ]
+ },
+ "c9_clerk_taken": {
+  "lines": [
+   {
+    "speaker": "Cashier",
+    "text": "NO - no, please - HELP ME!",
+    "time": 2.0
+   },
+   {
+    "speaker": "Eddie",
+    "text": "WALT! ...Don't stop! Keep running!",
+    "time": 2.4
+   }
+  ]
+ },
  "shop_staff_only": {
   "lines": [
    {

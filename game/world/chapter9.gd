@@ -24,6 +24,9 @@ const BOX_STACK := preload("res://THE_VEIL_ASSETS_V2/03_Residential/Furniture/RE
 const GONDOLA := preload("res://THE_VEIL_ASSETS_V2/04_Commercial/Shared_Props/COM_Gondola_Shelf.glb")
 const PAPERS := preload("res://THE_VEIL_ASSETS_V2/09_Horror_Atmosphere/Abandoned_Props/ABN_ScatteredPapers.glb")
 const BAGS := preload("res://THE_VEIL_ASSETS_V2/09_Horror_Atmosphere/Abandoned_Props/ABN_GroceryBags_Spilled.glb")
+const FRONT_HOUNDS := [Vector3(-1.5, 0.0, -2.4), Vector3(0.2, 0.0, -2.8), Vector3(1.6, 0.0, -2.3)]     ## three of them at the front glass
+const CLERK_SPOT := Vector3(3.3, 0.04, 8.9)
+const CLERK_NAME := "WALT"
 const STATE := "ch9"
 const CHAPTER := 10                                    # displayed number (game/data/chapters.json)
 
@@ -287,14 +290,16 @@ func _apply_inside() -> void:
 	_show(marcus, MARCUS_SPOT, GROUP_CENTRE)
 	_show(eddie, EDDIE_SPOT, GROUP_CENTRE)
 	_show(ruth, RUTH_SPOT, GROUP_CENTRE)
-	# Sarah: on her crate as the previous chapter left her (hurt either way); she stands once the group moves
+	# Sarah: hurt on the floor as the previous chapter left her; she stands once the group moves
 	c8._seat_on(sarah, c8._front_box, FRONT_BOX, GROUP_CENTRE + Vector3(1.0, 0, 0))
 	_set_rear(false)
+	_place_clerk()
 
 
 ## Mid-escape (a load): the breach as it happened, the Hound inside, the group with the player.
 func _apply_fall() -> void:
 	_breach_state()
+	_place_clerk()
 	if hound_in == null or not is_instance_valid(hound_in):
 		hound_in = _make_hound(PROWL[0])
 		_prowl.call_deferred()
@@ -325,6 +330,17 @@ func _apply_outside() -> void:
 	# the supermarket is no longer a shelter: its rest point, supplies and doors are closed for good
 	if Game.has_flag("ch9_supermarket_lost"):
 		_close_store()
+
+
+## The clerk (named WALT): with the group in the store until the run, where he is taken. Never placed after he died.
+func _place_clerk() -> void:
+	var cl: Node3D = world.cashier
+	if cl == null or not is_instance_valid(cl):
+		return
+	if Game.has_flag("ch9_clerk_dead"):
+		cl.visible = false
+		return
+	_show(cl, CLERK_SPOT, GROUP_CENTRE)
 
 
 func _start_follow(k: String) -> void:
@@ -375,8 +391,8 @@ func _set_rear(open: bool) -> void:
 func _breach_state() -> void:
 	var sp: Node3D = c8._secure_pallet
 	if sp:
-		sp.position = BREACH_PALLET
-		sp.rotation.y = 0.75
+		sp.position = c8.SECURE_START                     # the aisle is back where it stood (the way out is clear)
+		sp.rotation.y = deg_to_rad(90.0)
 	if c8._blocker:
 		c8._blocker.collision_layer = 0
 
@@ -639,26 +655,73 @@ func _run_warning() -> void:
 	for k in 3:
 		p4._play("impact", ml(Vector3(-14.0 + k * 9.0, 2.0, -9.0)), -10.0 + k * 2.0)
 		await get_tree().create_timer(0.9 + k * 0.4).timeout
-	p4._play("scrape", ml(Vector3(8.4, 1.0, 15.0)), 2.0)
+	Sfx.play_music("res://game/audio/library/music_hound_chase_LOOP.wav", true, -6.0, 1.5)         # frantic from here to the rendezvous
+	p4._play("scrape", ml(Vector3(0.0, 1.0, 0.4)), 2.0)
 	await p4._flicker_burst(1.2)
-	# a shape in the fog beyond the storefront
-	p4._spawn_hound()
-	if p4.hound and is_instance_valid(p4.hound):
-		front_hound = p4.hound
-		hounds.append(p4.hound)
-	await c8._turn_to(ml(Vector3(-4.0, 1.6, -1.5)), 0.8)
+	# three of them at the FRONT glass, scratching and hitting it
+	await c8._turn_to(ml(Vector3(0.0, 1.5, 0.3)), 0.8)
+	_spawn_front_hounds()
 	Dialogue.say("c9_warning", false, true)
 	for n in [eddie, marcus, ruth, sarah]:
 		var a = world.animators.get(String(n.name))
 		if a:
-			a.face_towards(ml(Vector3(-4.0, 1.4, 0.0)))
+			a.face_towards(ml(Vector3(0.0, 1.4, 0.0)))
 	while Dialogue.is_busy():
 		await get_tree().process_frame
-	# a violent impact against the doorway barricade
-	await c8._turn_to(ml(Vector3(DOORWAY.x, 1.3, 13.4)), 0.5)
-	await c8._impact(1.2)
+	Dialogue.say("c9_front_assault", false, true)
+	while Dialogue.is_busy():
+		await get_tree().process_frame
 	_busy["warning"] = false
 	await _run_fall()
+
+
+## Three hounds at the front doors: they hurl themselves at the glass and claw at it until the group is out (review note #127).
+func _spawn_front_hounds() -> void:
+	_assault_on = true
+	for h in hounds:
+		if is_instance_valid(h):
+			h.queue_free()
+	hounds.clear()
+	front_hounds.clear()
+	for i in FRONT_HOUNDS.size():
+		var h: Node3D = c8._make_hound(FRONT_HOUNDS[i])
+		h.name = "C9_FrontHound_%d" % i
+		h.rotation.y = 0.0                                  # facing into the store, at the glass
+		hounds.append(h)
+		front_hounds.append(h)
+		_assault_loop(h, i)
+	hound_in = front_hounds[0]
+
+
+var front_hounds: Array = []
+var _assault_on := true
+
+
+func _assault_loop(h: Node3D, i: int) -> void:
+	await get_tree().create_timer(0.3 * i).timeout
+	var home: Vector3 = FRONT_HOUNDS[i]
+	while _assault_on and is_instance_valid(h):
+		c8._hplay(h, "Attack_Bite", 0.0)
+		var tw := h.create_tween()
+		tw.tween_property(h, "position", home + Vector3(0, 0, 1.5), 0.22).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_IN)
+		await tw.finished
+		if not is_instance_valid(h):
+			return
+		p4._play("impact", ml(Vector3(home.x, 1.0, 0.3)), 5.0)
+		var leaf_tw := create_tween()
+		for d in world._auto_doors:
+			var leaf: Node3D = d[0]
+			var t0: Transform3D = leaf.transform
+			leaf_tw.parallel().tween_property(leaf, "position:z", leaf.position.z + 0.04, 0.04)
+		await get_tree().create_timer(0.05).timeout
+		for d in world._auto_doors:
+			(d[0] as Node3D).transform = d[1]
+		if i == 1:
+			p4._play("scrape", ml(Vector3(home.x, 0.8, 0.4)), 0.0)
+		var back := h.create_tween()
+		back.tween_property(h, "position", home, 0.5).set_trans(Tween.TRANS_SINE)
+		await back.finished
+		await get_tree().create_timer(randf_range(0.15, 0.7)).timeout
 
 
 # ------------------------------------------------------------------ scene 4: the fall
@@ -666,33 +729,131 @@ func _run_fall() -> void:
 	if Game.has_flag("ch9_fall_started"):
 		return
 	report["fall_runs"] += 1
-	await get_tree().create_timer(0.8).timeout
-	# the barricade gives: the stack is forced into the aisle, a Hound comes through and heads away along the coolers
-	var sp: Node3D = c8._secure_pallet
-	var tw := create_tween().set_parallel(true)
-	tw.tween_property(sp, "position", BREACH_PALLET, 0.35).set_trans(Tween.TRANS_EXPO).set_ease(Tween.EASE_OUT)
-	tw.tween_property(sp, "rotation:y", 0.75, 0.35)
-	p4._play("impact", ml(DOORWAY + Vector3(0, 1.0, 0)), 6.0)
-	p4._play("scrape", ml(DOORWAY + Vector3(0, 0.4, -0.6)), 4.0)
-	c8._dust(ml(DOORWAY + Vector3(0, 2.4, 0)), 30)
-	await tw.finished
+	# the way out is the back, and the aisle the group dragged over it is in the way: the player and Eddie pull it clear
+	_hold(true)
+	for k in ["Marcus", "Ruth", "Sarah"]:
+		var a = world.animators.get(k)
+		if a:
+			a.set_downed("")
+			a.face_towards(ml(Vector3(8.4, 1.0, 13.6)))
 	if c8._blocker:
 		c8._blocker.collision_layer = 0
-	hound_in = _make_hound(HOUND_IN)
-	c8._hplay(hound_in, "Run", 6.0)
-	c8._bark(hound_in.global_position + Vector3(0, 1.0, 0))
-	await c8._hound_run(hound_in, [Vector3(8.4, 0.0, 13.0), PROWL[0]], 6.0)
-	_prowl()
-	# another one at the front doors
-	_front_threat()
-	Dialogue.say("c9_marcus_order", false, true)
-	Game.set_flag("ch9_fall_started")
+	await c8._shove_aisle(1.0, 0.0, "CLICK RAPIDLY  -  PULL THE SHELVES CLEAR OF THE BACK DOOR!", "LEFT CLICK, AGAIN AND AGAIN  -  THEY ARE BREAKING THROUGH THE FRONT")
 	_set_rear(true)
+	Game.set_flag("ch9_fall_started")
+	# the front doors burst; they pour in. The group runs for the back with the pack on its heels (a click-to-run along a set path, nobody teleports)
+	await _front_burst_and_run()
+	_assault_on = false
+	Dialogue.say("c9_marcus_order", false, true)
 	for k in ["Eddie", "Ruth", "Sarah", "Marcus"]:
 		_start_follow(k)
 	_hold(false)
 	_refresh_prompts()
 	_guide()
+
+
+## The doors give and the three come in; everybody runs the set path from the shelves to the back corridor, the clerk is taken on the way.
+func _front_burst_and_run() -> void:
+	var dz := 0.3
+	c5._set_doors(true)
+	p4._play("impact", ml(Vector3(0.0, 1.0, 0.3)), 8.0)
+	c8._dust(ml(Vector3(0.0, 2.4, 0.3)), 30)
+	world._shake(get_viewport().get_camera_3d(), 0.5, 0.06)
+	for k in ["Marcus", "Ruth", "Sarah"]:
+		var a = world.animators.get(k)
+		if a:
+			a.free_walk = true
+	var p0: Vector3 = player.global_position
+	var pts: Array = [p0, ml(Vector3(8.4, 0.04, 12.4)), ml(Vector3(8.4, 0.04, 14.9)), ml(Vector3(8.2, 0.04, 15.7))]
+	var allies: Array = []
+	for pair in [["Eddie", eddie, -0.9], ["Ruth", ruth, 1.7], ["Sarah", sarah, -1.8], ["Marcus", marcus, 0.9]]:
+		var a = world.animators.get(String(pair[0]))
+		if a == null:
+			continue
+		c5._reparent(pair[1] as Node3D, world)
+		allies.append({"anim": a, "side": pair[2], "behind": 1.3 + 0.2 * allies.size()})
+	var clerk_ally: Dictionary = {}
+	var cl = world.cashier
+	if cl and is_instance_valid(cl) and not Game.has_flag("ch9_clerk_dead") and world.animators.has("Cashier"):
+		c5._reparent(cl, world)
+		clerk_ally = {"anim": world.animators["Cashier"], "side": 2.6, "behind": 2.2}
+		allies.append(clerk_ally)
+	var to_door: Vector3 = ml(Vector3(0.0, 0.0, dz)) - p0
+	to_door.y = 0.0
+	var rs = load("res://game/encounters/run_struggle.gd").new()
+	add_child(rs)
+	var events: Array = []
+	if not clerk_ally.is_empty():
+		events.append({"at": 0.45, "call": func(): _clerk_taken(clerk_ally)})
+	var r: Dictionary = await rs.run(world, pts, front_hounds, {"allies": allies, "events": events, "from_dir": to_door.normalized(),
+		"lead": to_door.length() + 2.0, "chase_speed": 4.6, "spacing": 2.2, "min_time": 2.6, "max_speed": 6.0, "seconds": 8.0,
+		"title": "RUN!  CLICK RAPIDLY", "hint": "LEFT CLICK, AGAIN AND AGAIN  -  THE BACK DOOR!", "music": "res://game/audio/library/music_hound_chase_LOOP.wav"})
+	rs.queue_free()
+	player.set_physics_process(true)
+	for k in ["Marcus", "Ruth", "Sarah"]:
+		var a = world.animators.get(k)
+		if a:
+			a.free_walk = false
+	if not bool(r.get("won", false)):
+		await _caught_by_hounds()
+		return
+	for h in front_hounds:
+		if is_instance_valid(h):
+			c8._hplay(h, "Walk", 0.0)
+	for i in front_hounds.size():
+		_stalk(front_hounds[i], i)
+
+
+## The hounds that did not get the player pace inside the corridor entrance (the pin scene keeps hound_in, the first of them).
+func _stalk(h: Node3D, i: int) -> void:
+	if not is_instance_valid(h):
+		return
+	c8._hplay(h, "Run", 5.0)
+	var to: Array = [Vector3(8.4, 0.0, 12.0 - i * 0.9), Vector3(4.0 + i * 2.0, 0.0, 12.9)]
+	await c8._hound_run(h, to, 5.0)
+	if i > 0 and is_instance_valid(h):
+		h.queue_free()
+		hounds.erase(h)
+
+
+func _clerk_taken(ally: Dictionary) -> void:
+	ally["dead"] = true
+	Game.set_flag("ch9_clerk_dead")
+	var cl: Node3D = world.cashier
+	var a = ally["anim"]
+	var h: Node3D = front_hounds[front_hounds.size() - 1] if not front_hounds.is_empty() else null
+	Dialogue.say("c9_clerk_taken", false, true)
+	a.set_downed("back")
+	Sfx.play("hurt", cl.global_position + Vector3(0, 1.3, 0), 6.0, 1.3)
+	world._shake(get_viewport().get_camera_3d(), 0.35, 0.05)
+	var away := cl.global_position + (market.global_transform.basis * Vector3(1.0, 0, -1.0)).normalized() * 6.0
+	var tw := create_tween().set_parallel(true)
+	tw.tween_property(cl, "global_position", away, 2.0).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_IN)
+	tw.tween_callback(func():
+		cl.visible = false).set_delay(2.0)
+	if h and is_instance_valid(h):
+		c8._hplay(h, "Attack_Bite", 0.0)
+		var tf := create_tween()
+		tf.tween_method(func(_v: float):
+			if is_instance_valid(h) and is_instance_valid(cl):
+				h.global_position = cl.global_position + (market.global_transform.basis * Vector3(-0.8, 0, 0.5)), 0.0, 1.0, 2.0)
+	# (the other hounds keep coming: the run goes on without him)
+
+
+## Caught: they drag the player back into the dark of the store, black, YOU DIED, RETRY.
+func _caught_by_hounds() -> void:
+	var pp: Vector3 = player.global_position
+	Sfx.play("hurt", pp, 4.0)
+	var away := pp + (market.global_transform.basis * Vector3(0, 0, -1)).normalized() * 9.0
+	var tw := create_tween().set_parallel(true)
+	tw.tween_property(player, "global_position", away, 2.6).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_IN)
+	tw.tween_method(func(f: float): player.set_yaw_pitch(player.rotation.y, lerpf(player.head.rotation.x, -0.9, f)), 0.0, 1.0, 1.4)
+	for i in 5:
+		world._shake(get_viewport().get_camera_3d(), 0.4, 0.05)
+		await get_tree().create_timer(0.5).timeout
+	await hud.fade_to(1.0, 0.6)
+	player.set_physics_process(true)
+	player.damage(9999.0, away)
 
 
 func _make_hound(at: Vector3) -> Node3D:
@@ -761,7 +922,7 @@ func _pin_marcus() -> void:
 	world.place_survivor(marcus, MARCUS_PIN)
 	var ma = world.animators.get("Marcus")
 	if ma:
-		ma.set_seated(true, 0.12)
+		ma.set_downed("side")                          # hurt on the floor
 		ma.set_mood("scared")
 		ma.face_towards(ml(DOORWAY))
 	var h := hound_in
@@ -799,7 +960,7 @@ func _free_marcus(_b: Node) -> void:
 	# the protagonist hauls him up and back; the jaws close on empty air
 	var ma = world.animators.get("Marcus")
 	if ma:
-		ma.set_seated(false)
+		ma.set_downed("")
 	var h := hound_in
 	if h and is_instance_valid(h):
 		c8._hplay(h, "Attack_Bite", 0.0)

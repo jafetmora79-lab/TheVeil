@@ -1302,15 +1302,8 @@ func _pusher_spot(t: float, off_x: float) -> Vector3:
 	return Vector3(c.x + off_x, 0.04, c.z - half_z - 0.65)
 
 
-func _push_secure(_b: Node) -> void:
-	if not _resolved() or Game.has_flag("ch8_entrance_secured") or _busy.get("secure", false):
-		return
-	_busy["secure"] = true
-	its["secure"].prompt_text = ""
-	_hold(true)
-	hud.set_marker(null, "")
-	while _busy.get("lunge", false):
-		await get_tree().process_frame
+## The shove itself, either way: the aisle goes from t = from_t to t = to_t (0 = beside the door, 1 = across the doorway) while the player and Eddie click it along.
+func _shove_aisle(from_t: float, to_t: float, title: String, hint: String) -> void:
 	var sg = world.get_node_or_null("Struggle")
 	if sg == null:
 		sg = load("res://game/encounters/struggle.gd").new()
@@ -1322,28 +1315,29 @@ func _push_secure(_b: Node) -> void:
 		ea.free_walk = true
 		ea.set_mood("scared")
 	var pal := _secure_pallet
-	var pos_t := 0.0
-	var tries := 0
+	var pos_t := from_t
 	# the pair gets in position (player first, Eddie beside), turning to the aisle
-	await _fp_move(_pusher_spot(0.0, 0.9), 0.5)
+	await _fp_move(_pusher_spot(from_t, 0.9), 0.5)
 	await _turn_to(pal.global_position + Vector3(0, 0.9, 0), 0.35)
 	if ea:
-		world.place_survivor(eddie, _pusher_spot(0.0, -0.9))
+		world.place_survivor(eddie, _pusher_spot(from_t, -0.9))
 		ea.face_towards(pal.global_position)
 	var won := false
 	while not won:
-		tries += 1
 		_push_over = false
 		_push_won = false
 		var base := pos_t
-		_shove_go(sg, "CLICK RAPIDLY  -  SHOVE THE SHELVES ACROSS THE DOORWAY!", "LEFT CLICK, AGAIN AND AGAIN  -  EDDIE PUSHES WITH YOU", 11.0, 0.075)
+		_shove_go(sg, title, hint, 11.0, 0.075)
 		var t := 0.0
 		while not _push_over:
 			await get_tree().process_frame
 			var dt := get_process_delta_time()
 			t += dt
 			var pr: float = sg.rescue_progress()
-			pos_t = maxf(pos_t, lerpf(pos_t, base + (1.0 - base) * pr, 1.0 - exp(-6.0 * dt)))
+			var want := base + (to_t - base) * pr
+			pos_t = lerpf(pos_t, want, 1.0 - exp(-6.0 * dt))
+			if absf(to_t - from_t) > 0.0 and (to_t > from_t) == (want > pos_t):
+				pass
 			_aisle_pose(1.0, 0.0, pos_t)
 			var ps := _pusher_spot(pos_t, 0.9)
 			player.global_position = ml(ps)
@@ -1359,18 +1353,32 @@ func _push_secure(_b: Node) -> void:
 				world._shake(get_viewport().get_camera_3d(), 0.12, 0.012)
 		won = _push_won
 		if not won:
-			# it gives a little: the Hound hits the other side and the shelves are shoved back
+			# it gives a little: something hits the other side and the shelves slide back
 			p4._play("impact", ml(SECURE_BLOCK + Vector3(0, 0.8, 0.5)), 5.0)
 			world._shake(get_viewport().get_camera_3d(), 0.4, 0.05)
+			var back_to := pos_t + (from_t - pos_t) * 0.25
 			var back := create_tween()
-			back.tween_method(func(v: float): _aisle_pose(1.0, 0.0, v), pos_t, maxf(pos_t - 0.25, 0.0), 0.5)
+			back.tween_method(func(v: float): _aisle_pose(1.0, 0.0, v), pos_t, back_to, 0.5)
 			await back.finished
-			pos_t = maxf(pos_t - 0.25, 0.0)
-	_aisle_pose(1.0, 0.0, 1.0)
-	pal.position = SECURE_BLOCK
-	pal.rotation.y = 0.0
+			pos_t = back_to
+	_aisle_pose(1.0, 0.0, to_t)
 	if ea:
 		ea.free_walk = false
+
+
+func _push_secure(_b: Node) -> void:
+	if not _resolved() or Game.has_flag("ch8_entrance_secured") or _busy.get("secure", false):
+		return
+	_busy["secure"] = true
+	its["secure"].prompt_text = ""
+	_hold(true)
+	hud.set_marker(null, "")
+	while _busy.get("lunge", false):
+		await get_tree().process_frame
+	await _shove_aisle(0.0, 1.0, "CLICK RAPIDLY  -  SHOVE THE SHELVES ACROSS THE DOORWAY!", "LEFT CLICK, AGAIN AND AGAIN  -  EDDIE PUSHES WITH YOU")
+	var pal := _secure_pallet
+	pal.position = SECURE_BLOCK
+	pal.rotation.y = 0.0
 	Sfx.play("door_close", ml(SECURE_BLOCK), -2.0, 0.55)
 	# it hits the shelves once from the other side, then gives up and goes back out into the mist
 	var h := hound
