@@ -669,8 +669,9 @@ func _unhandled_input(e: InputEvent) -> void:
 			close_inspect()
 			get_viewport().set_input_as_handled()
 		return
-	if e.is_action_pressed("ui_cancel"):
+	if e.is_action_pressed("ui_cancel") or e.is_action_pressed("pause"):
 		close()
+		get_viewport().set_input_as_handled()                  # Esc closes the inventory and that is all (it used to close it AND open the pause menu: review note #59)
 	elif e.is_action_pressed("ui_right") or e.is_action_pressed("move_right"):
 		select(mini(_sel + 1, maxi(_ids.size() - 1, 0)))
 	elif e.is_action_pressed("ui_left") or e.is_action_pressed("move_left"):

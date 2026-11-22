@@ -36,10 +36,10 @@ var saved_position:= Vector3.ZERO
 ## animated foot touches it, every frame (the skinned mesh's padded AABB had left it floating).
 const CRAWL_NATIVE:= 0.472                       ## CRT_Skitter.tscn metadata: crawl / scuttle speed at speed_scale 1
 const SCUTTLE_NATIVE:= 2.588
-const ESCAPE_SPEED:= 12.0
-const HISS_S:= 1.4                                  ## the hiss at the player before it scatters
-const DROP_S:= 0.45                                 ## off the gable to the yard
-const RUSH_SPEED:= 9.0                              ## the run at the player, m/s
+const ESCAPE_SPEED:= 14.0
+const HISS_S:= 0.8                                  ## the hiss at the player before it scatters
+const DROP_S:= 0.32                                 ## off the gable to the yard
+const RUSH_SPEED:= 11.0                              ## the run at the player, m/s
 const LEAP_FROM:= 3.2                               ## it leaps from this far out
 const LEAP_S:= 0.42
 const CHEST_H:= 0.28                                ## the player's chest, lying down
@@ -333,15 +333,15 @@ func _encounter() -> void :
 
 	_play("Crawl")
 	var crawl_start:= _roof_at(11.0, 6.0) - Vector3.UP * feet_y
-	if animation: animation.speed_scale = clampf(crawl_start.distance_to(_roof_at(11.6, 2.5) - Vector3.UP * feet_y) / 2.8 / CRAWL_NATIVE, 0.5, 4.0)
+	if animation: animation.speed_scale = clampf(crawl_start.distance_to(_roof_at(11.6, 2.5) - Vector3.UP * feet_y) / 1.9 / CRAWL_NATIVE, 0.5, 4.0)
 	grounded = true
 	on_roof = true
 	report["roof_visible_frames"] = 0
 	creature.global_position = crawl_start
 	t = 0.0
-	while t < 2.8:
+	while t < 1.9:
 		t += get_process_delta_time()
-		var k:= clampf(t / 2.8, 0, 1)
+		var k:= clampf(t / 1.9, 0, 1)
 		creature.global_position = _roof_at(lerpf(11.0, 11.6, k), lerpf(6.0, 2.5, k)) - Vector3.UP * feet_y
 		_snap()
 		var visible_ray:= PhysicsRayQueryParameters3D.create(cam.global_position, creature.global_position + Vector3.UP * 0.4, 1)
@@ -516,7 +516,9 @@ func _encounter() -> void :
 	var facing := (cam.global_position - creature.global_position) * Vector3(1,0,1)
 	creature.rotation = Vector3(0, atan2(facing.x,facing.z), 0)
 	_play("Alert")
-	if animation: animation.seek(0.25, true)
+	if animation:
+		animation.seek(0.25, true)
+		animation.speed_scale = 0.0                  # the rear-up pose is HELD for the hiss (the clip kept playing and the head whipped about, distorted: review note #52)
 	report["front_legs_raised"] = animation != null and animation.has_animation("Alert")
 	sound.stream = HISS
 	sound.play()

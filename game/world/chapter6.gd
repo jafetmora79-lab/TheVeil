@@ -521,7 +521,8 @@ func _group_flees() -> void:
 	if _fled or not flee_enabled:
 		return
 	_fled = true
-	var door: Vector3 = market.to_global(c5._door_spot())
+	var door_out: Vector3 = (market.get_node("Doorways/Entrance_Outside") as Node3D).global_position
+	var door_spot: Vector3 = market.to_global(c5._door_spot())
 	for f in [c5.eddie_follow, ruth_follow, sarah_follow]:
 		if f == null or not is_instance_valid(f) or not f.active:
 			continue
@@ -529,7 +530,16 @@ func _group_flees() -> void:
 		var frame: Node3D = f.npc.get_parent_node_3d()
 		if f.anim and frame:
 			f.anim.set_mood("scared")
-			f.anim.walk_to([frame.to_local(door)], 4.4)
+			# a proper running line (review note #53): along the pavement in front of the stores to the entrance (the world's A* keeps them to open ground, never across the road or through fences / cars), then in to the doors to wait
+			var body := f.npc as VeilSurvivorBody
+			var pts: Array = []
+			if body != null:
+				var rt: Array = world.npc_route(market, market.to_local(f.npc.global_position), market.to_local(door_out), body)
+				for q in rt:
+					pts.append(frame.to_local(market.to_global(q)))
+			pts.append(frame.to_local(door_out))
+			pts.append(frame.to_local(door_spot))
+			f.anim.walk_to(pts, 4.6)
 
 
 func _group_returns() -> void:
@@ -729,10 +739,13 @@ func _process(delta: float) -> void:
 	var el: Vector3 = market.to_local(eddie.global_position)
 	var rs_following := String(st().get("ruth_sarah", "")) == "following"
 	# front doors: open while anyone of the group is at them, shut when everyone is clear
-	var near: bool = c5._near_doors(pl) or c5._near_doors(el) or c5._followers_near_doors()
+	# review note #54: once everyone is back the doors no longer open by themselves for the PLAYER (going out is a decision: the exit prompt); they still open for the group coming in / out, so nobody is
+	# left stuck outside when the player walks in well ahead of them
+	var back_in := Game.has_flag("ch6_returned_to_supermarket")
+	var near: bool = (c5._near_doors(pl) and not back_in) or c5._near_doors(el) or c5._followers_near_doors()
 	if rs_following:
 		near = near or c5._near_doors(market.to_local(ruth.global_position)) or c5._near_doors(market.to_local(sarah.global_position))
-	if near != c5._doors_open and (c5._near_doors(pl) or not near) and not (world.expedition != null and world.expedition.active()) \
+	if near != c5._doors_open and (c5._near_doors(pl) or back_in or not near) and not (world.expedition != null and world.expedition.active()) \
 			and not (near and world.expedition != null and world.expedition.doors_held()):
 		c5._set_doors(near)                       # (a supply run keeps them as the trip left them)
 	if not Game.has_flag("ch6_left_supermarket") and c5._away_from_store(pl, 3.0) and c5.eddie_follow.active:

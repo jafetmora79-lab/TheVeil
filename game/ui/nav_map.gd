@@ -356,7 +356,7 @@ func can_open() -> bool:
 	return true
 
 
-func _unhandled_input(e: InputEvent) -> void:
+func _input(e: InputEvent) -> void:                  # (_input, not _unhandled_input: Esc closes the map before the HUD's pause menu can take it: review note #59)
 	if not (e is InputEventKey and e.pressed and not e.echo):
 		return
 	var k := (e as InputEventKey).physical_keycode
@@ -501,6 +501,12 @@ func _on_map_input(e: InputEvent) -> void:
 		var z := _house_at(r, (e as InputEventMouseButton).position)
 		if z != "" or r.has_point((e as InputEventMouseButton).position):
 			selected = z
+			if z != "" and status(z) != "no_way_in":
+				# a click on a house IS the destination (review note #57): no second confirmation; the same house again clears it; another replaces it
+				if String(Game.world_state.get("map_dest", "")) == z:
+					Game.world_state.erase("map_dest")
+				else:
+					Game.world_state["map_dest"] = z
 			_layout()
 
 

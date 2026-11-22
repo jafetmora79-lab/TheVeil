@@ -231,7 +231,24 @@ func remaining(gid: String) -> int:
 	return mm.visible_instance_count if mm.visible_instance_count >= 0 else mm.instance_count
 
 
+var _veil_say := 0
+var _veil_prompts := false
+
+
+## After the Veil the supermarket's stock is not takeable (review note #50): it sat out in the mist. Examining it says why (a different reason each time).
+func veil_blocked() -> bool:
+	return store_key == "supermarket" and Game.has_flag("p3_mist")
+
+
+func _veil_refusal() -> void:
+	_veil_say += 1
+	Dialogue.say("store_veil_%d" % ((_veil_say % 3) + 1), false, true)
+
+
 func _take(gid: String, by: Node) -> void:
+	if veil_blocked():
+		_veil_refusal()
+		return
 	var g: Dictionary = groups[gid]
 	if store_key == "supermarket" and Game.has_flag("groceries_done"):
 		return                                                   # (the shopping is over: review note #31)
@@ -284,7 +301,11 @@ func _process(delta: float) -> void:
 		return
 	_tick = 0.0
 	var cam := get_viewport().get_camera_3d()
-	if store_key == "supermarket" and Game.has_flag("groceries_done"):       # the shopping is over: the shelves are not for taking any more (review note #31)
+	if veil_blocked() and not _veil_prompts:
+		_veil_prompts = true
+		for gid in groups:
+			(groups[gid]["it"] as Interactable).prompt_text = "[E] Check " + String(groups[gid]["label"])     # (not "Take": it cannot be taken now)
+	if store_key == "supermarket" and Game.has_flag("groceries_done") and not veil_blocked():       # the shopping is over: the shelves are not for taking any more (review note #31)
 		_picker.collision_layer = 0
 		_hl.visible = false
 		return
@@ -299,7 +320,7 @@ func _process(delta: float) -> void:
 	_pick_at = [hit["variant"], hit["i"]]
 	var d: Vector3 = (_dims_of(hit["variant"]))
 	_pick_node.position = (hit["pos"] as Vector3) + Vector3(0, d.y * 0.5, 0)
-	_picker.prompt_text = "[E] Take " + name_of(hit["variant"])
+	_picker.prompt_text = ("[E] Check " if veil_blocked() else "[E] Take ") + name_of(hit["variant"])
 	_picker.label = name_of(hit["variant"])
 	(_picker.get_child(0) as CollisionShape3D).shape = _box(d)
 	_picker.collision_layer = 8
@@ -386,6 +407,9 @@ func take_product(v: String, i: int) -> String:
 
 func _take_shelf() -> void:
 	if _pick_at[1] < 0:
+		return
+	if veil_blocked():
+		_veil_refusal()
 		return
 	take_product(String(_pick_at[0]), int(_pick_at[1]))
 	_hl.visible = false

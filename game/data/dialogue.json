@@ -6840,6 +6840,87 @@
    }
   ]
  },
+ "store_veil_1": {
+  "lines": [
+   {
+    "speaker": "",
+    "text": "Everything on these shelves sat out in the open while the mist came through. I'm not putting any of it in my mouth.",
+    "time": 3.4
+   }
+  ]
+ },
+ "store_veil_2": {
+  "lines": [
+   {
+    "speaker": "",
+    "text": "The seals are fogged from the inside. No.",
+    "time": 3.4
+   }
+  ]
+ },
+ "store_veil_3": {
+  "lines": [
+   {
+    "speaker": "",
+    "text": "It was all in the air when the Veil came down. Whatever's in these, I'd rather go without.",
+    "time": 3.4
+   }
+  ]
+ },
+ "house_locked_1": {
+  "lines": [
+   {
+    "speaker": "",
+    "text": "Jammed. The frame's swollen shut, or somebody barred it from the inside. Either way, it's not opening.",
+    "time": 3.6
+   }
+  ]
+ },
+ "house_locked_2": {
+  "lines": [
+   {
+    "speaker": "",
+    "text": "Still shut. Nobody's getting in this way without a crowbar and a lot of noise.",
+    "time": 3.6
+   }
+  ]
+ },
+ "house_wrecked_1": {
+  "lines": [
+   {
+    "speaker": "",
+    "text": "The whole front of the house has sagged. The ceiling's down behind this door. There's nothing in there worth burying myself for.",
+    "time": 3.6
+   }
+  ]
+ },
+ "house_wrecked_2": {
+  "lines": [
+   {
+    "speaker": "",
+    "text": "Half the roof is in the hallway. Not worth it.",
+    "time": 3.6
+   }
+  ]
+ },
+ "house_skitters_1": {
+  "lines": [
+   {
+    "speaker": "",
+    "text": "Something is moving in there. Lots of small, quick somethings. I'm not opening this door.",
+    "time": 3.6
+   }
+  ]
+ },
+ "house_skitters_2": {
+  "lines": [
+   {
+    "speaker": "",
+    "text": "Scratching, right behind the wood. No. Absolutely not.",
+    "time": 3.6
+   }
+  ]
+ },
  "gun_ruth_intro": {
   "lines": [
    {

@@ -657,6 +657,7 @@ func _setup_town() -> void:
 	print("[World] market fixtures: ", load("res://game/world/market_fixes.gd").apply(market))       # review notes #14 / #15 / #18: fridges, freezers, produce rebuilt in Blender
 	if game_shop != null:
 		print("[World] shop fixtures: ", load("res://game/world/market_fixes.gd").apply_shop(game_shop))
+	print("[World] house doors: ", load("res://game/world/house_doors.gd").apply(self))                  # review note #58: the houses that cannot be searched say why
 	print("[World] store interiors: ", load("res://game/world/store_interiors.gd").apply(self))        # review notes #42 / #43: the gas station and the clothing stores furnished and lootable
 	market_merch.taken.connect(func(_g, i): _grocery_hint(); _note_unpaid("market", i))
 	_setup_coolers()

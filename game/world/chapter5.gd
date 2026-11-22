@@ -570,6 +570,8 @@ func _use_radio(_b: Node) -> void:
 	await get_tree().create_timer(1.2).timeout      # the transmission stops: silence
 	await _talk("c5_radio_eddie", eddie)
 	Game.set_flag("c5_radio_done")
+	hud.set_hint("Someone was on the radio. Check the houses nearby for survivors.")
+	get_tree().create_timer(9.0).timeout.connect(func(): if is_instance_valid(hud) and hud.hint.text.begins_with("Someone was on the radio"): hud.set_hint(""))
 	world._beacon("c5", ml(Vector3(0, 3.0, -1.5)), Color(0.8, 0.9, 1.0))
 	_refresh_prompts()
 
@@ -583,6 +585,12 @@ func _on_line(speaker: String, text: String, _d: float) -> void:
 ## While the survivor can still be found: lamp on, movement sounds. Also re-checks the yard, so standing in it
 ## after the house was reached (or after a load) starts the encounter.
 func _survivor_cues() -> void:
+	# review note #49: the survivor's door is not the player's to open: it stays shut until the survivor opens it in the scene (a diamond on it, after the radio, says where to look)
+	var sdoor: Interactable = its.get("c5/%s/INT_Door_Front" % SURVIVOR_HOUSE)
+	if sdoor != null and is_instance_valid(sdoor):
+		sdoor.collision_layer = 8 if (_survivor_met() or sdoor.is_open or Game.has_flag("c5_returned")) else 0
+		var look := Game.has_flag("c5_radio_done") and not Game.has_flag("c5_house_reached") and not _survivor_met() and not Game.has_flag("c5_returned")
+		hud.world_diamond("c5_surv_house", sdoor if look else null)
 	var findable := Game.has_flag("c5_house_reached") and not Game.has_flag("c5_returned") and not _survivor_met()
 	_surv_lamp.light_energy = 0.9 if findable or (_survivor_met() and not Game.has_flag("c5_survivor_helped")) else 0.0
 	if findable and not _surv_sound.playing:

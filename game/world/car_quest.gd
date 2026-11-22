@@ -546,11 +546,34 @@ func _fuse_pull() -> void:
 	busy = true
 	_fuse_steps()
 	var good := (sites["car_fuse"]["panel"] as Node3D).get_node("Fuse_Good") as Node3D
-	await _peek(good.global_position, 0.85, 0.2)
-	_snd("click", good.global_position, -4.0)
-	var tw := good.create_tween()
-	tw.tween_property(good, "position", good.position + Vector3(0, 0, 0.05), 0.2)
-	await tw.finished
+	var base: Vector3 = good.position
+	var base_rot: Vector3 = good.rotation
+	await _peek(good.global_position, 0.7, 0.1)
+	# review notes #55 / #56: the fuse is STUCK in its slot (corroded): a tentative tug, a harder one that rocks it, then it works loose, a spark of rust, and it comes out into the hand
+	_snd("creak", good.global_position, -8.0)
+	for tug in [[0.012, 0.18], [0.022, 0.22]]:
+		var t1 := good.create_tween().set_trans(Tween.TRANS_SINE)
+		t1.tween_property(good, "position", base + Vector3(0, 0, tug[0]), float(tug[1]))
+		t1.tween_property(good, "position", base + Vector3(0, 0, tug[0] * 0.3), 0.12)        # it will not come: it slips back
+		await t1.finished
+		_snd("click", good.global_position, -6.0)
+	var t2 := good.create_tween().set_trans(Tween.TRANS_SINE)
+	for k in 4:                                                                           # rocked from side to side
+		t2.tween_property(good, "rotation", base_rot + Vector3(0, 0, deg_to_rad(8.0 if k % 2 == 0 else -8.0)), 0.07)
+		t2.parallel().tween_property(good, "position", base + Vector3(0, 0, 0.02 + 0.006 * k), 0.07)
+	await t2.finished
+	_snd("thud", good.global_position, -8.0)                                              # it gives
+	var t3 := good.create_tween().set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
+	t3.tween_property(good, "position", base + Vector3(0, 0, 0.09), 0.16)
+	t3.parallel().tween_property(good, "rotation", base_rot, 0.16)
+	await t3.finished
+	Sfx.play("pickup", good.global_position, -4.0, 1.5)
+	var cam := (ex._player() as Node3D).get("camera") as Camera3D
+	var t4 := good.create_tween().set_trans(Tween.TRANS_SINE)
+	if cam:
+		t4.tween_property(good, "global_position", cam.global_transform * Vector3(0.05, -0.16, -0.32), 0.4)      # up into the hand
+		await t4.finished
+		await get_tree().create_timer(0.35).timeout                                                           # a look at it
 	good.visible = false
 	_acquire("car_fuse")
 	await _peek_back()
