@@ -249,6 +249,49 @@ func set_seated(on: bool, seat_height := 0.48) -> void:
 		walk_to([])
 
 
+## HURT ON THE FLOOR (not a chair pose): the whole model lies down. "side" = curled on the floor, hurt, breathing hard; "back" = on the back, struggling (being dragged). "" = up again.
+var downed := ""
+var _down := 0.0
+var _model: Node3D
+var _model_rest := Transform3D.IDENTITY
+var _face_l := Vector3.ZERO
+func set_downed(mode: String) -> void:
+	downed = mode
+	if mode != "":
+		seated = false
+		walk_to([])
+
+
+func _update_downed(delta: float) -> void:
+	_down = move_toward(_down, 1.0 if downed != "" else 0.0, delta * 2.2)
+	if _model == null:
+		if skel == null:
+			return
+		_model = skel
+		while _model.get_parent() != root and _model.get_parent() != null:
+			_model = _model.get_parent() as Node3D
+		_model_rest = _model.transform
+	if _down <= 0.001 and _model.transform == _model_rest:
+		_face_l = (root.global_transform.basis.inverse() * world_forward()).normalized()      # measured while upright (lying down changes the skeleton's own facing)
+		return
+	if _down <= 0.001:
+		_model.transform = _model_rest
+		return
+	var f := _face_l if _face_l.length() > 0.5 else Vector3(0, 0, 1)                     # the way the face looks, in the character's own frame
+	var k := smoothstep(0.0, 1.0, _down)
+	var mode := downed if downed != "" else "side"
+	var basis_l := Basis.IDENTITY
+	if mode == "back":
+		var axis := f.cross(Vector3.UP).normalized()
+		basis_l = Basis(axis, PI * 0.5 * k)                                   # face to the ceiling
+		basis_l = Basis(Vector3.UP, sin(_t * 8.0) * 0.16 * k) * basis_l     # twisting, fighting it
+		basis_l = Basis(f, sin(_t * 6.0 + 1.3) * 0.12 * k) * basis_l
+	else:
+		basis_l = Basis(f, PI * 0.5 * k) * Basis(Vector3.UP, 0.0)             # on the side
+		basis_l = Basis(Vector3.RIGHT.cross(f).normalized() if absf(f.dot(Vector3.RIGHT)) < 0.9 else Vector3.UP, sin(_t * 2.2) * 0.04 * k) * basis_l   # the breathing
+	_model.transform = Transform3D(basis_l, Vector3(0, 0.15 * k, 0)) * _model_rest
+
+
 func set_mood(m: String) -> void:
 	mood = m
 
@@ -303,6 +346,7 @@ func _process(delta: float) -> void:
 	_update_turn(delta)
 	_update_gestures(delta)
 	_update_react(delta)
+	_update_downed(delta)
 	_update_look(delta)
 	_sit = move_toward(_sit, 1.0 if seated else 0.0, delta * 1.7)
 	if _jump_t >= 0.0:

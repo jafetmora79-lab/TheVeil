@@ -54,9 +54,9 @@ const CAUGHT_AT := Vector3(8.3, 0.04, 12.9)
 const ATTACK_TRIGGER_Z := 11.2                                # back down the aisle toward the front
 const HOUND_OUT := Vector3(8.0, 0.0, 19.4)
 const HOUND_GUARD := Vector3(8.4, 0.0, 15.6)
-const SECURE_START := Vector3(11.1, 0.04, 13.0)
-const SECURE_BLOCK := Vector3(8.4, 0.04, 13.62)              # 1.74 m wide (scaled stack) over the 1.6 m opening
-const SECURE_SCALE := Vector3(1.45, 1.0, 1.0)
+const SECURE_START := Vector3(9.5, 0.0, 10.0)                 # the supermarket aisle (gondola) beside the rear doorway, long side along z
+const SECURE_BLOCK := Vector3(8.8, 0.0, 13.62)               # across the rear doorway, long side along x (4.2 m: over the 1.6 m opening)
+const SECURE_SCALE := Vector3.ONE
 const PUSHER := Vector3(12.85, 0.04, 13.0)
 const POST_MARCUS := Vector3(13.4, 0.04, 11.6)
 const INJURED_BOX := Vector3(4.95, 0.04, 12.95)
@@ -312,12 +312,8 @@ func _setup_panel() -> void:
 
 func _setup_attack_props() -> void:
 	# the pallet stack the player pushes across the back doorway (starts in the aisle by the doorway)
-	_secure_pallet = PALLET.instantiate() as Node3D
-	_secure_pallet.name = "C8_SecurePallet"
-	market.add_child(_secure_pallet)
-	_secure_pallet.position = SECURE_START
-	_secure_pallet.scale = SECURE_SCALE
-	var it := Interactable.attach(_secure_pallet, {"kind": "custom", "label": "Pallets", "prompt_text": ""})
+	_secure_pallet = load("res://game/world/gondola_aisle.gd").detach(market, SECURE_START, 90.0)      # the real aisle next to the door, cut out of the building
+	var it := Interactable.attach(_secure_pallet, {"kind": "custom", "label": "Shelves", "prompt_text": ""})
 	it.used.connect(_push_secure)
 	its["secure"] = it
 	# while the Hound guards the opening, nobody walks into the back corridor through it
@@ -357,13 +353,15 @@ func _apply() -> void:
 	_apply_lights()
 	var attack_open := _resolved() and not Game.has_flag("ch8_entrance_secured")
 	_set_blocker(attack_open)
-	_secure_pallet.visible = Game.has_flag("ch8_attack_started") or Game.has_flag("ch8_entrance_secured")
-	_secure_pallet.position = SECURE_BLOCK if Game.has_flag("ch8_entrance_secured") else SECURE_START
-	_set_collision(_secure_pallet, _secure_pallet.visible)
-	_injured_box.visible = Game.has_flag("ch8_sarah_injured") and not Game.has_flag("ch8_survivor_helped")
-	_set_collision(_injured_box, _injured_box.visible)
-	_front_box.visible = Game.has_flag("ch8_survivor_helped")
-	_set_collision(_front_box, _front_box.visible)
+	_secure_pallet.visible = true                                   # it is the store's own aisle: always there
+	var moved := Game.has_flag("ch8_entrance_secured")
+	_secure_pallet.position = SECURE_BLOCK if moved else SECURE_START
+	_secure_pallet.rotation.y = 0.0 if moved else deg_to_rad(90.0)
+	_set_collision(_secure_pallet, true)
+	_injured_box.visible = false                                    # the hurt lie on the floor now (no seats)
+	_set_collision(_injured_box, false)
+	_front_box.visible = false
+	_set_collision(_front_box, false)
 	var staff: Interactable = p4.its.get("INT_Door_Staff")
 	if staff:
 		staff.collision_layer = 0 if attack_open else 8
@@ -398,6 +396,7 @@ func _show(n: Node3D, at: Vector3, toward: Vector3) -> void:
 	var a = world.animators.get(String(n.name))
 	if a:
 		a.set_seated(false)
+		a.set_downed("")
 		a.turn_to_face = true
 	world.place_survivor(n, at)
 	if a:
@@ -432,10 +431,11 @@ func _place_npcs(walk_marcus := false) -> void:
 		_show(sarah, SARAH_SPOT, Vector3(8.6, 1.5, 6.8))
 		_show(temp, TEMP_SPOT, Vector3(0.0, 1.5, 4.0))
 	if saved:
-		_show(temp, TEMP_SAVED, INJURED_BOX)          # pulled free: hurt, shaken, sitting out of the way
+		_show(temp, TEMP_SAVED, INJURED_BOX)          # pulled free: hurt, shaken, lying out of the way
 		var ts = world.animators.get("Survivor")
 		if ts:
 			ts.set_mood("scared")
+			ts.set_downed("side")
 	if died:
 		temp.visible = false                          # caught in the attack: gone (no body, no gore)
 	for n in [eddie, marcus, ruth, sarah, temp]:
@@ -463,18 +463,11 @@ func _seat_on(n: Node3D, box: Node3D, at: Vector3, toward: Vector3) -> void:
 		return
 	var to2 := toward - at
 	to2.y = 0.0
-	var top := 0.42
-	if box:
-		var bb := Interactable.aabb_of(box)
-		top = bb.end.y * box.scale.y
 	a.walk_to([])
-	_set_collision(box, false)                      # the seat's own collider would refuse the body on top of it
-	if not world.place_survivor(n, at + to2.normalized() * 0.18):
-		world.place_survivor(n, at + to2.normalized() * 0.6)
-	_set_collision(box, box.visible)
+	world.place_survivor(n, at)
 	a.turn_to_face = false
 	n.rotate_y(a.world_forward().signed_angle_to((market.global_transform.basis * to2).normalized(), Vector3.UP))
-	a.set_seated(true, top)
+	a.set_downed("side")                            # hurt on the floor, not on a chair
 	a.set_mood("scared")
 
 
@@ -853,6 +846,7 @@ func _run_attack() -> void:
 	await _impact(0.6)
 	await get_tree().create_timer(2.4).timeout
 	Dialogue.say("c8_impact", false, true)
+	Sfx.play_music("res://game/audio/library/music_hound_chase_LOOP.wav", true, -6.0, 1.5)      # the music turns frantic from here until the entrance holds
 	# 2. another one
 	await get_tree().create_timer(1.6).timeout
 	await _impact(0.8)
@@ -946,7 +940,7 @@ func _hound_burst() -> void:
 	# no cut to black. She goes down and the Hound DRAGS her slowly towards the breach, in plain sight. For a few seconds the player's hands are free: reach her and pull her out of its jaws, or watch.
 	if ta:
 		ta.walk_to([])
-		ta.set_seated(true, 0.06)
+		ta.set_downed("back")                                  # on her back, clawing at the floor, being dragged
 	Sfx.play("hurt", ml(CAUGHT_AT + Vector3(0, 1.4, 0)), 4.0, 1.25)
 	p4._play("scrape", ml(Vector3(8.2, 0.4, 15.5)), 4.0)
 	Dialogue.say("c8_cashier_dragged", false, true)
@@ -996,9 +990,13 @@ func _hound_burst() -> void:
 		st()["temp_saved"] = true
 		if ta:
 			ta.set_mood("scared")
-			ta.set_seated(false)
+			ta.set_downed("")
 		Dialogue.say("c8_cashier_saved", false, true)
-		world.npc_walk("Survivor", TEMP_SAVED, 1.1)           # she crawls up and limps to a spot out of the way
+		world.npc_walk("Survivor", TEMP_SAVED, 0.9)           # she gets up and limps to a spot out of the way, then lies down hurt
+		get_tree().create_timer(5.0).timeout.connect(func():
+			var tb = world.animators.get("Survivor")
+			if tb and Game.has_flag("ch8_temp_survivor_saved"):
+				tb.set_downed("side"))
 	else:
 		_kill_temp()
 		if not reached:
@@ -1096,7 +1094,7 @@ func _sarah_bite() -> void:
 	Sfx.play("hurt", sarah.global_position + Vector3(0, 1.5, 0), 4.0, 1.45)   # her scream
 	Dialogue.say("c8_sarah_bitten", false, true)
 	if sa:
-		sa.set_seated(true, 0.06)                        # down on the floor
+		sa.set_downed("side")                            # down on the floor, hurt
 	Game.set_flag("ch8_sarah_bitten")
 	# the bite held: its head kept on her arm (the body follows the head), a pull and a shake
 	var holding := [true]
@@ -1150,11 +1148,9 @@ func _sarah_bite() -> void:
 	_hold(false)
 	await _push_secure(null)
 	_hold(true)
-	# Sarah on her crate, hurt, as the chapter goes on
+	# Sarah lying hurt on the floor as the chapter goes on
 	if sa:
-		sa.set_seated(false)
-	_injured_box.visible = true
-	_set_collision(_injured_box, true)
+		sa.set_downed("")
 	_place_npcs()
 	bite_report["done"] = true
 
@@ -1277,7 +1273,35 @@ func _lunge() -> void:
 	_busy["lunge"] = false
 
 
-## Push the pallet stack across the doorway: three shoves (Chapter 4's pallet push), first person.
+## SHOVE THE AISLE across the rear doorway: the supermarket's own shelf aisle beside the door (cut out of the building: gondola_aisle.gd) is pushed over it as a click struggle, with Eddie
+## beside the player. The more they click the further it goes; let go and it creeps back. Failing the time slides it a little back and the Hound hits it: the bar starts again.
+var _push_won := false
+var _push_over := false
+
+
+func _shove_go(sg: Node, title: String, hint: String, seconds: float, per_click: float) -> void:
+	_push_won = await sg.rescue(title, hint, seconds, "hs_hold", per_click)
+	_push_over = true
+
+
+func _aisle_pose(k: float, from_k: float, to_k: float) -> void:
+	# k: 0..1 along the move (smoothed); the aisle slides from its place beside the door (long side along z) to across the doorway (long side along x)
+	var e := smoothstep(0.0, 1.0, k)
+	var c0 := SECURE_START
+	var c1 := SECURE_BLOCK
+	var t := lerpf(from_k, to_k, e)
+	_secure_pallet.position = c0.lerp(c1, t)
+	_secure_pallet.rotation.y = lerp_angle(deg_to_rad(90.0), 0.0, t)
+
+
+## Where the pusher stands for aisle progress t: just behind the aisle on its south side, shoulder to it.
+func _pusher_spot(t: float, off_x: float) -> Vector3:
+	var c := SECURE_START.lerp(SECURE_BLOCK, smoothstep(0.0, 1.0, t))
+	var th := lerp_angle(deg_to_rad(90.0), 0.0, smoothstep(0.0, 1.0, t))
+	var half_z := absf(sin(th)) * 2.12 + absf(cos(th)) * 0.5
+	return Vector3(c.x + off_x, 0.04, c.z - half_z - 0.65)
+
+
 func _push_secure(_b: Node) -> void:
 	if not _resolved() or Game.has_flag("ch8_entrance_secured") or _busy.get("secure", false):
 		return
@@ -1287,28 +1311,68 @@ func _push_secure(_b: Node) -> void:
 	hud.set_marker(null, "")
 	while _busy.get("lunge", false):
 		await get_tree().process_frame
-	# the protagonist gets behind the stack (a short step, never through it), shoulder to it
-	await _fp_move(PUSHER, 0.45)
-	await _turn_to(ml(Vector3(SECURE_BLOCK.x, 0.9, 13.2)), 0.35)
+	var sg = world.get_node_or_null("Struggle")
+	if sg == null:
+		sg = load("res://game/encounters/struggle.gd").new()
+		sg.name = "Struggle"
+		world.add_child(sg)
+		sg.setup(world)
+	var ea = world.animators.get("Eddie")
+	if ea:
+		ea.free_walk = true
+		ea.set_mood("scared")
 	var pal := _secure_pallet
-	var path := [SECURE_START, SECURE_START.lerp(Vector3(SECURE_BLOCK.x, 0.04, SECURE_START.z), 0.5),
-		Vector3(SECURE_BLOCK.x, 0.04, SECURE_START.z), SECURE_BLOCK]
-	for i in 3:
-		var a: Vector3 = path[i]
-		var b: Vector3 = path[i + 1]
-		p4._play("scrape", ml(a), -4.0 - 2.0 * i)
-		var tw := create_tween()
-		tw.tween_property(pal, "position", b, [0.6, 0.55, 0.45][i]).from(a).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
-		tw.parallel().tween_property(pal, "rotation:y", deg_to_rad([1.5, -1.0, 0.0][i]), 0.4)
-		await tw.finished
-		# the player follows the stack (one step behind it)
-		if i < 2:
-			await _fp_move(b + Vector3(1.75, 0, 0), 0.25)
-		await get_tree().create_timer(0.2).timeout
+	var pos_t := 0.0
+	var tries := 0
+	# the pair gets in position (player first, Eddie beside), turning to the aisle
+	await _fp_move(_pusher_spot(0.0, 0.9), 0.5)
+	await _turn_to(pal.global_position + Vector3(0, 0.9, 0), 0.35)
+	if ea:
+		world.place_survivor(eddie, _pusher_spot(0.0, -0.9))
+		ea.face_towards(pal.global_position)
+	var won := false
+	while not won:
+		tries += 1
+		_push_over = false
+		_push_won = false
+		var base := pos_t
+		_shove_go(sg, "CLICK RAPIDLY  -  SHOVE THE SHELVES ACROSS THE DOORWAY!", "LEFT CLICK, AGAIN AND AGAIN  -  EDDIE PUSHES WITH YOU", 11.0, 0.075)
+		var t := 0.0
+		while not _push_over:
+			await get_tree().process_frame
+			var dt := get_process_delta_time()
+			t += dt
+			var pr: float = sg.rescue_progress()
+			pos_t = maxf(pos_t, lerpf(pos_t, base + (1.0 - base) * pr, 1.0 - exp(-6.0 * dt)))
+			_aisle_pose(1.0, 0.0, pos_t)
+			var ps := _pusher_spot(pos_t, 0.9)
+			player.global_position = ml(ps)
+			player.velocity = Vector3.ZERO
+			var dirv: Vector3 = pal.global_position - player.global_position
+			dirv.y = 0.0
+			player.set_yaw_pitch(lerp_angle(player.rotation.y, atan2(-dirv.x, -dirv.z), minf(1.0, 8.0 * dt)), -0.12)
+			if ea:
+				eddie.global_position = ml(_pusher_spot(pos_t, -0.9))
+				ea.face_towards(pal.global_position)
+			if int(t * 2.0) != int((t - dt) * 2.0):
+				p4._play("scrape", ml(pal.position), -6.0 + 3.0 * pr)
+				world._shake(get_viewport().get_camera_3d(), 0.12, 0.012)
+		won = _push_won
+		if not won:
+			# it gives a little: the Hound hits the other side and the shelves are shoved back
+			p4._play("impact", ml(SECURE_BLOCK + Vector3(0, 0.8, 0.5)), 5.0)
+			world._shake(get_viewport().get_camera_3d(), 0.4, 0.05)
+			var back := create_tween()
+			back.tween_method(func(v: float): _aisle_pose(1.0, 0.0, v), pos_t, maxf(pos_t - 0.25, 0.0), 0.5)
+			await back.finished
+			pos_t = maxf(pos_t - 0.25, 0.0)
+	_aisle_pose(1.0, 0.0, 1.0)
 	pal.position = SECURE_BLOCK
 	pal.rotation.y = 0.0
+	if ea:
+		ea.free_walk = false
 	Sfx.play("door_close", ml(SECURE_BLOCK), -2.0, 0.55)
-	# it hits the stack once from the other side, then gives up and goes back out into the mist
+	# it hits the shelves once from the other side, then gives up and goes back out into the mist
 	var h := hound
 	if h and is_instance_valid(h):
 		_hplay(h, "Attack_Bite", 0.0)
@@ -1331,6 +1395,7 @@ func _push_secure(_b: Node) -> void:
 	if staff:
 		staff.collision_layer = 8
 	Game.set_flag("ch8_entrance_secured")
+	Sfx.play_music(Sfx.MUSIC_GAMEPLAY, true, -14.0, 3.0)         # the frantic music gives way: the entrance holds
 	_hold(false)
 	_busy["secure"] = false
 	_refresh_prompts()

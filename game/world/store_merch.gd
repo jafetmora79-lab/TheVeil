@@ -378,6 +378,24 @@ func find_product(eye_w: Vector3, fwd_w: Vector3) -> Dictionary:
 	return best
 
 
+## Lifts every static product inside `box` (store space) off the shelves: returns [[variant, transform], ...] and hides the originals (they are not offered any more, nothing is saved as taken).
+## A shelf unit that the story moves takes its products with it.
+func detach_region(box: AABB) -> Array:
+	var out: Array = []
+	for v in _pos.keys():
+		var m: MultiMeshInstance3D = _mm_of.get(v)
+		if m == null:
+			continue
+		var ps: PackedVector3Array = _pos[v]
+		for i in ps.size():
+			if _gone.has(v + ":" + str(i)) or not box.has_point(ps[i]):
+				continue
+			out.append([v, m.multimesh.get_instance_transform(i)])
+			m.multimesh.set_instance_transform(i, Transform3D(Basis.from_scale(Vector3.ONE * 0.001), Vector3(ps[i].x, -80.0, ps[i].z)))
+			_gone[v + ":" + str(i)] = true
+	return out
+
+
 func _hide_static(v: String, i: int) -> void:
 	var m: MultiMeshInstance3D = _mm_of.get(v)
 	if m == null or i >= m.multimesh.instance_count:
