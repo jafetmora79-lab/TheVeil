@@ -27,6 +27,11 @@ func _run() -> void:
 	for i in 90: await process_frame
 	var side_up: Vector3 = a.skel.global_transform.basis.y
 	ok("side_lies", absf(side_up.y) < 0.35, str(side_up))
+	var low := INF
+	for i in a.skel.get_bone_count():
+		low = minf(low, (a.skel.global_transform * a.skel.get_bone_global_pose(i)).origin.y)
+	var rel: float = low - a.root.global_position.y
+	ok("side_on_floor", rel > 0.0 and rel < 0.2, str(rel))
 	a.set_downed("back")
 	for i in 90: await process_frame
 	var back_up: Vector3 = a.skel.global_transform.basis.y

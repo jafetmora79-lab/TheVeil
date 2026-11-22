@@ -262,6 +262,7 @@ func set_downed(mode: String) -> void:
 		walk_to([])
 
 
+var _lift := 0.15
 func _update_downed(delta: float) -> void:
 	_down = move_toward(_down, 1.0 if downed != "" else 0.0, delta * 2.2)
 	if _model == null:
@@ -289,7 +290,14 @@ func _update_downed(delta: float) -> void:
 	else:
 		basis_l = Basis(f, PI * 0.5 * k) * Basis(Vector3.UP, 0.0)             # on the side
 		basis_l = Basis(Vector3.RIGHT.cross(f).normalized() if absf(f.dot(Vector3.RIGHT)) < 0.9 else Vector3.UP, sin(_t * 2.2) * 0.04 * k) * basis_l   # the breathing
-	_model.transform = Transform3D(basis_l, Vector3(0, 0.15 * k, 0)) * _model_rest
+	# rest it ON the floor: measure the lowest bone of the lying body and lift the model until that bone is 9 cm above the floor (bones run through the middle of the limbs)
+	var low := INF
+	var sk_xf := skel.global_transform
+	for i in skel.get_bone_count():
+		low = minf(low, (sk_xf * skel.get_bone_global_pose(i)).origin.y)
+	if low < INF:
+		_lift = clampf(_lift + (root.global_position.y + 0.09 - low) * minf(1.0, 14.0 * delta), 0.0, 1.2)
+	_model.transform = Transform3D(basis_l, Vector3(0, _lift * k, 0)) * _model_rest
 
 
 func set_mood(m: String) -> void:
