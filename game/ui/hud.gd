@@ -233,7 +233,7 @@ func _unhandled_input(e: InputEvent) -> void:
 	elif e.is_action_pressed("inventory") and not is_paused() and not _choice_open():
 		toggle_inventory()
 	elif e is InputEventMouseButton and e.pressed and not is_paused() and not end_panel.visible and not inv_panel.visible \
-			and Input.mouse_mode != Input.MOUSE_MODE_CAPTURED:
+			and not get_tree().paused and Input.mouse_mode != Input.MOUSE_MODE_CAPTURED:
 		Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
 
 

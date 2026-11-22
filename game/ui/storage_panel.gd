@@ -16,6 +16,7 @@ var _left: GridContainer
 var _right: GridContainer
 var _info: Label
 var _paused_by_me := false
+var _prev_mouse := Input.MOUSE_MODE_CAPTURED
 static var _mem_l: Array = []                   ## cell arrangement, kept between openings: stored kinds
 static var _mem_r: Array = []                   ## carried item ids
 
@@ -89,6 +90,8 @@ func setup(w: Node, phase4: Node) -> void:
 		_mem_r = _blank()
 	get_viewport().size_changed.connect(_fit)
 	_paused_by_me = not get_tree().paused
+	_prev_mouse = Input.mouse_mode
+	Input.mouse_mode = Input.MOUSE_MODE_VISIBLE      # the cursor is needed to drag
 	get_tree().paused = true
 	Game.inventory_changed.connect(refresh)
 	refresh()
@@ -309,6 +312,7 @@ func _close(group: bool) -> void:
 		Game.inventory_changed.disconnect(refresh)
 	if _paused_by_me:
 		get_tree().paused = false
+	Input.mouse_mode = _prev_mouse
 	closed.emit(group)
 	queue_free()
 
