@@ -8,77 +8,66 @@ from dsp import (SR, add_modes, bp, harmonic_source, hp, lp, n_of, osc_phase, re
                  smooth_curve, sstep, tv_bandpass, white)
 
 # ============================================================================ door_open (old wooden house door)
-DOOR = {
-    # short reluctant movement
-    1: dict(dur=1.15, m0=0.09, m1=0.92, f=(205.0, 330.0), catches=[0.50]),
-}
-
-
 def door_open(seed, variant=1):
-    p = DOOR[variant]
+    """What makes a door a door: the handle and latch (two metallic clacks), the seal letting go with a dull wooden
+    knock, the swing (a soft push of air and a low wooden groan), two or three hinge squeaks, and a small knock as
+    it comes to rest. (An earlier version was only a creak, and did not read as a door at all.)"""
     rng = rng_for(seed)
-    n = n_of(p["dur"])
+    n = n_of(1.45)
     t = np.arange(n) / SR
     out = np.zeros(n)
 
-    # 1. latch release: a small filtered-noise click, two quick spring ticks and three brief metallic resonances
-    nb = n_of(0.03)
-    tb = np.arange(nb) / SR
-    burst = bp(white(nb, rng), 1200, 6000) * np.exp(-tb / 0.003)
-    out[:nb] += 0.55 * burst
-    out[n_of(0.021):n_of(0.021) + nb] += 0.22 * burst
-    add_modes(out, 0.0, [rng.uniform(1900, 2500), rng.uniform(2900, 3700), rng.uniform(4300, 5200)],
-              [0.30, 0.20, 0.10], [0.012, 0.008, 0.005], rng)
+    def noise_hit(at, lo, hi, tau, amp, length=0.03):
+        i = n_of(at)
+        m = n_of(length)
+        out[i:i + m] += amp * bp(white(m, rng), lo, hi) * np.exp(-(np.arange(m) / SR) / tau)
 
-    # 2. hinge creak: a rough harmonic source whose fundamental wanders between 120 and 450 Hz, with a fast
-    #    small jitter for rasp, a glide down as the tension releases and a jump up after each catch
-    m0, m1 = p["m0"], p["m1"]
-    win = sstep((t - m0) / 0.07) * sstep((m1 - t) / 0.12)
-    lo, hi = p["f"]
-    f = lo + (hi - lo) * (0.5 + 0.28 * np.tanh(smooth_curve(n, 2.2, rng)))
-    f = f * (1.0 + 0.012 * smooth_curve(n, 35.0, rng))
-    f = f * (1.0 - 0.07 * sstep((t - (m1 - 0.2)) / 0.2))
-    for tc in p["catches"]:
-        f = f * (1.0 + 0.11 * np.exp(-np.clip(t - tc, 0, None) / 0.07) * (t >= tc))
-    f = np.clip(f, 120.0, 450.0)
-    # friction catching and releasing: an irregular activity curve, a dip before each catch and a burst as it lets go
-    act = np.clip(0.55 + 0.7 * smooth_curve(n, 9.0, rng), 0.0, 1.0) ** 1.4
-    for tc in p["catches"]:
-        act = act * (1.0 - 0.9 * np.exp(-0.5 * ((t - (tc - 0.035)) / 0.03) ** 2))
-        act = act + 0.9 * np.exp(-np.clip(t - tc, 0, None) / 0.025) * (t >= tc)
-    amp = win * act
-    # A creak is a stick-slip train of irregular pulses ringing a few fixed, inharmonic hinge modes. (The first version
-    # put a smooth buzz through moving resonances near 650 / 1350 / 2300 Hz: those are vowel formants, and it said "raaa".)
-    cyc = np.cumsum(f) / SR
-    cyc = np.maximum.accumulate(cyc + 0.22 * smooth_curve(n, 70.0, rng))            # timing jitter: the period is never steady
-    ticks = np.diff(np.floor(cyc), prepend=np.floor(cyc[0])) > 0
-    imp = ticks * rng.uniform(0.35, 1.6, n) * amp
-    kk = n_of(0.003)
-    kern = bp(white(kk, rng), 200, 3500) * np.exp(-(np.arange(kk) / SR) / 0.0009)
-    pulses = signal.fftconvolve(imp, kern)[:n]
-    creak = np.zeros(n)
-    for fc, g, q in [(287.0, 1.0, 16.0), (611.0, 0.9, 20.0), (1043.0, 0.45, 24.0), (1736.0, 0.16, 26.0)]:
-        drift = fc * (1.0 + 0.05 * np.tanh(smooth_curve(n, 1.5, rng)))              # each mode drifts on its own, with the load
-        creak += g * tv_bandpass(pulses, drift, q)
-    live = amp > 0.05
-    creak = creak * (0.13 / (creak[live].std() + 1e-12))
-    creak = creak + 0.3 * bp(white(n, rng), 300, 2200) * amp * 0.5                  # the grit of the friction itself
-    out += creak
+    # 1. the handle turns and the latch bolt retracts: a clack, then a smaller one as the spring lets it go
+    noise_hit(0.0, 1500, 6000, 0.003, 0.5)
+    add_modes(out, 0.0, [rng.uniform(2000, 2400), rng.uniform(3000, 3500)], [0.28, 0.16], [0.014, 0.009], rng)
+    add_modes(out, 0.0, [150.0, 230.0], [0.25, 0.15], [0.04, 0.03], rng)               # the handle plate and the lock body
+    noise_hit(0.065, 900, 4500, 0.004, 0.30)
+    add_modes(out, 0.065, [rng.uniform(1500, 1800), rng.uniform(2500, 2900)], [0.20, 0.10], [0.012, 0.008], rng)
 
-    # 3. the wood: door and frame modes excited by the latch, the catches and (quietly) by the movement
-    modes_f = [118.0, 176.0, 243.0]
-    add_modes(out, 0.0, modes_f, [0.12, 0.09, 0.07], [0.12, 0.09, 0.06], rng)
-    for tc in p["catches"]:
-        add_modes(out, tc, modes_f, [0.14, 0.10, 0.07], [0.10, 0.08, 0.05], rng)
-    lpn = lp(white(n, rng), 350)
-    wood = sum(g * resonator(lpn, fr, 14.0) for fr, g in zip(modes_f, [1.0, 0.7, 0.5]))
-    out += 1.0 * wood * win * act
+    # 2. the door comes off its seal: a dull wooden knock with a short soft rub
+    noise_hit(0.15, 250, 1800, 0.012, 0.20, 0.05)
+    add_modes(out, 0.15, [88.0, 135.0], [0.25, 0.15], [0.06, 0.045], rng)
 
-    # 4. a small release of tension, not a slam
-    add_modes(out, m1 + 0.02, [92.0, 140.0], [0.16, 0.09], [0.06, 0.045], rng)
-    i = n_of(m1 + 0.02)
-    nn = n_of(0.05)
-    out[i:i + nn] += 0.09 * bp(white(nn, rng), 200, 900) * np.exp(-np.arange(nn) / SR / 0.02)
+    # 3. the swing: a soft push of air under a low wooden groan
+    sw = sstep((t - 0.17) / 0.15) * sstep((1.2 - t) / 0.25)
+    bump = np.sin(np.pi * np.clip((t - 0.17) / 1.03, 0.0, 1.0))
+    out += 0.9 * lp(white(n, rng), 420) * sw * (0.35 + 0.65 * bump)
+    rate = 30.0 + 25.0 * (0.5 + 0.5 * np.tanh(smooth_curve(n, 1.2, rng)))
+    cyc = np.maximum.accumulate(np.cumsum(rate) / SR + 0.25 * smooth_curve(n, 40.0, rng))
+    ticks = (np.diff(np.floor(cyc), prepend=np.floor(cyc[0])) > 0) * rng.uniform(0.4, 1.5, n)
+    kk = n_of(0.006)
+    kern = lp(white(kk, rng), 700) * np.exp(-(np.arange(kk) / SR) / 0.002)
+    groan_in = signal.fftconvolve(ticks, kern)[:n]
+    groan = sum(g * resonator(groan_in, fr, 10.0) for fr, g in [(140.0, 1.0), (230.0, 0.7), (340.0, 0.4)])
+    gact = sw * np.clip(0.5 + 0.5 * np.tanh(smooth_curve(n, 6.0, rng)), 0.0, 1.0)
+    live = gact > 0.05
+    out += groan * gact * (0.05 / (np.std(groan[live] * gact[live]) + 1e-12))
+
+    # 4. the hinge squeaks: a metal tone gliding up or down, with the stick-slip flutter of a dry pin
+    def squeak(at, d, f0, f1, amp):
+        m = n_of(d)
+        i = n_of(at)
+        tt = np.arange(m) / SR
+        fq = np.linspace(f0, f1, m) * (1.0 + 0.008 * smooth_curve(m, 40.0, rng))
+        ph = osc_phase(fq)
+        src = np.sin(ph) + 0.38 * np.sin(2 * ph + 0.5) + 0.14 * np.sin(3 * ph + 1.1)
+        flutter = np.clip(0.75 + 0.35 * smooth_curve(m, 30.0, rng), 0.2, 1.3)
+        am = 1.0 - 0.3 * (0.5 + 0.5 * np.sin(2 * np.pi * rng.uniform(55, 95) * tt + rng.uniform(0, 6)))
+        env = np.hanning(m) ** 0.7
+        out[i:i + m] += amp * (src * flutter * am + 0.12 * bp(white(m, rng), 1200, 4500)) * env
+
+    squeak(0.30, 0.19, 640.0, 980.0, 0.20)
+    squeak(0.58, 0.29, 900.0, 1500.0, 0.18)
+    squeak(0.95, 0.12, 1250.0, 820.0, 0.14)
+
+    # 5. it comes to rest: a small, soft knock (restrained, not a slam)
+    add_modes(out, 1.22, [78.0, 118.0, 170.0], [0.30, 0.20, 0.12], [0.06, 0.05, 0.035], rng)
+    noise_hit(1.22, 200, 1200, 0.006, 0.12)
     return out
 
 
@@ -220,54 +209,53 @@ def drone_dark(seed, variant=1, T=30.0):
     return np.stack(chan, axis=1)
 
 
-# ============================================================================ skitter_chitter (variant 1: searching, then a quick answer)
+# ============================================================================ skitter_chitter (variant 1: searching, then a quick answer; leathery)
 def skitter_chitter(seed, variant=1):
+    """Leathery: dull snaps of taut hide (a soft tick on a membrane thump at 230 - 700 Hz), each followed by a short
+    rub of leather on leather (fast irregular stick-slip), and a few rough, low creaks. Nothing hard or glassy."""
     rng = rng_for(seed)
     n = n_of(1.75)
     out = np.zeros(n)
 
-    def click(at, amp):
+    def rub(at, d, amp):
+        m = n_of(d)
+        i = n_of(at)
+        tt = np.arange(m) / SR
+        rate = rng.uniform(55, 95) * (1.0 + 0.25 * smooth_curve(m, 20.0, rng))
+        slip = (0.5 + 0.5 * np.sin(osc_phase(np.clip(rate, 25.0, 200.0)))) ** 2
+        out[i:i + m] += amp * bp(white(m, rng), 700, 4200) * slip * np.exp(-tt / (d * 0.5)) * 1.6
+
+    def snap(at, amp):
         i0 = n_of(at)
-        nb = n_of(0.008)
+        nb = n_of(0.02)
         tb = np.arange(nb) / SR
-        out[i0:i0 + nb] += amp * 0.5 * bp(white(nb, rng), 2000, 7500) * np.exp(-tb / 0.0012)
-        d = n_of(0.03)
-        td = np.arange(d) / SR
-        fc = rng.uniform(2800, 4200)
-        out[i0:i0 + d] += amp * 0.45 * np.sin(osc_phase(fc * (1.0 + 0.15 * np.exp(-td / 0.005)))) * np.exp(-td / 0.007)
-        u = rng.uniform(0.9, 1.1)
-        add_modes(out, at, [820 * u, 1650 * u], [0.22, 0.10], [0.010, 0.006], rng, gain=amp)   # the carapace
+        out[i0:i0 + nb] += amp * 0.5 * bp(white(nb, rng), 450, 3000) * (1.0 - np.exp(-tb / 0.0008)) * np.exp(-tb / 0.006)
+        u = rng.uniform(0.85, 1.15)
+        add_modes(out, at, [230 * u, 410 * u, 690 * u], [0.28, 0.17, 0.08], [0.025, 0.018, 0.012], rng, gain=amp)
+        rub(at + 0.004, rng.uniform(0.025, 0.06), amp * 0.7)
 
     def cluster(at, size, gap, amp):
         tt = at
         for k in range(size):
-            click(tt, amp * (1.0 - 0.15 * k) * rng.uniform(0.85, 1.1))
+            snap(tt, amp * (1.0 - 0.15 * k) * rng.uniform(0.85, 1.1))
             tt += gap * rng.uniform(0.8, 1.2)
 
-    def grains(at, count, span):                     # restrained granular friction, only right after an event
-        for _ in range(count):
-            i = n_of(at + rng.uniform(0, span))
-            m = n_of(rng.uniform(0.002, 0.005))
-            out[i:i + m] += rng.uniform(0.05, 0.12) * bp(white(m, rng), 1500, 6000) * np.hanning(m)
-
-    def chirp(at, f0, f1, d, amp):
+    def creak(at, f0, f1, d, amp):                  # a short rough leather creak: strong timing jitter, a fast flutter
         m = n_of(d)
         i = n_of(at)
-        ff = np.linspace(f0, f1, m)
-        env = np.hanning(m) ** 0.8 * (0.6 + 0.4 * np.sin(2 * np.pi * 95.0 * np.arange(m) / SR))
-        out[i:i + m] += amp * np.sin(osc_phase(ff)) * env
+        tt = np.arange(m) / SR
+        fq = np.linspace(f0, f1, m) * (1.0 + 0.12 * smooth_curve(m, 120.0, rng))
+        src = harmonic_source(np.clip(fq, 50.0, 2000.0), kmax=8, ceil=2500.0)
+        am = 0.6 + 0.4 * np.sin(2 * np.pi * 70.0 * tt)
+        out[i:i + m] += amp * lp(src, 1800) * am * np.hanning(m) ** 0.8
 
-    # a few exploratory clicks ...
     for at, size, amp in [(0.12, 2, 0.5), (0.34, 3, 0.42), (0.57, 2, 0.35)]:
         at += rng.uniform(-0.02, 0.02)
-        cluster(at, size, 0.011, amp)
-        grains(at + 0.01, 4, 0.04)
-    # ... a pause ... then a faster, more insistent response
+        cluster(at, size, 0.016, amp)
     at = 1.0
     for k in range(7):
-        cluster(at, int(rng.integers(3, 5)), 0.009, 0.6)
-        grains(at + 0.01, 6, 0.04)
+        cluster(at, int(rng.integers(3, 5)), 0.013, 0.6)
         if k in (2, 5):
-            chirp(at + 0.03, 2500.0, 3600.0, 0.035, 0.22)
-        at += 0.095 - 0.007 * k
+            creak(at + 0.04, 900.0, 620.0, 0.05, 0.12)
+        at += 0.1 - 0.008 * k
     return out

@@ -1,7 +1,7 @@
 [
  {
   "file": "door_open_01.wav",
-  "duration_s": 1.15,
+  "duration_s": 1.45,
   "channels": 1,
   "seed": 1101,
   "use": "Old wooden house door opening: latch, hinge creak, wood resonance (short reluctant variant).",
@@ -9,18 +9,18 @@
   "checks": {
    "finite": true,
    "sample_peak_db": -13.0,
-   "true_peak_db": -12.98,
-   "rms_db": -30.81,
-   "dc": -1.32e-05,
+   "true_peak_db": -12.91,
+   "rms_db": -29.67,
+   "dc": -1e-05,
    "clipped_samples": 0,
    "silent": false,
-   "tail_vs_peak_db": -60.4,
+   "tail_vs_peak_db": -48.1,
    "energy_pct": {
-    "<30Hz": 0.03,
-    "30-150": 9.6,
-    "150-1k": 61.5,
-    "1k-4k": 28.2,
-    ">4k": 0.7
+    "<30Hz": 0.38,
+    "30-150": 36.0,
+    "150-1k": 52.5,
+    "1k-4k": 10.8,
+    ">4k": 0.3
    }
   }
  },
@@ -114,18 +114,18 @@
   "checks": {
    "finite": true,
    "sample_peak_db": -10.0,
-   "true_peak_db": -9.99,
-   "rms_db": -31.73,
-   "dc": 0.0,
+   "true_peak_db": -9.86,
+   "rms_db": -29.76,
+   "dc": 1e-07,
    "clipped_samples": 0,
    "silent": false,
-   "tail_vs_peak_db": -230.0,
+   "tail_vs_peak_db": -107.5,
    "energy_pct": {
-    "<30Hz": 0.0,
-    "30-150": 0.2,
-    "150-1k": 20.4,
-    "1k-4k": 45.4,
-    ">4k": 34.1
+    "<30Hz": 0.01,
+    "30-150": 1.6,
+    "150-1k": 52.3,
+    "1k-4k": 35.9,
+    ">4k": 10.2
    }
   }
  }
