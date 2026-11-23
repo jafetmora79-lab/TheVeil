@@ -4,35 +4,38 @@ Written 2026-11-23. Read this when you are asked to "get the game zip" onto a ne
 
 ## What "the zip" is
 
-`TheVeil_Windows.zip`, 251,730,501 bytes, SHA-256
-`c346d611905997a9cb1b60c970afe4b0b293d29686f06cce6aed878e6f968889` (built 2026-11-21 14:34 local time).
+`TheVeil_Windows.zip`, 260,810,322 bytes, SHA-256
+`07ce354f7fcf279040baa135036eb5d4de6d00fac04ea54f62e7e63c0c23cf3d` (built 2026-11-23 08:51 local time from commit
+`79763c80`, the head of the default branch; the `.exe`, `.bat` files and changelog are carried over from the 2026-11-21 zip).
+The previous zip (251,730,501 bytes, SHA-256 `c346d611905997a9cb1b60c970afe4b0b293d29686f06cce6aed878e6f968889`)
+is kept on the owner's PC as `C:\Users\Themo\Documents\TheVeil-builds\TheVeil_Windows_2026-11-21.zip`.
 It holds one folder, `TheVeil/`:
 
 | File | Size | What |
 |---|---|---|
 | `TheVeil.exe` | 84,214,784 | The stock Godot 4.3 Windows release template, renamed. Unchanged between builds. |
-| `TheVeil.pck` | 237,218,992 | The game (the only part that changes with the code). |
+| `TheVeil.pck` | 246,703,664 | The game (the only part that changes with the code). |
 | `TheVeil_TrailerMode.bat`, `Unlock_All_Chapters.bat`, `CHANGELOG.txt` | small | Launch helpers and the changelog. |
 
 Run `TheVeil.exe` on Windows (nothing to install). The `.pck` must sit next to the exe.
 
 **The zip is not in git.** It is 251 MB (GitHub refuses files over 100 MB) and `.gitignore` excludes
 `docs/download/*.zip`. A copy lives on the owner's PC at
-`C:\Users\Themo\Documents\TheVeil-meshy\docs\download\TheVeil_Windows.zip`. The 2026-11-21 zip is older than the
-latest code (audio, Chapter 10/11 work): a rebuild (below) gives the current game.
+`C:\Users\Themo\Documents\TheVeil-meshy\docs\download\TheVeil_Windows.zip` (also in `...\TheVeil-builds\`). It is current as of
+commit `79763c80`; if the code has moved on since, rebuild (below).
 
 ## Way 1: download it (needs one step from the owner, once)
 
 The repo `https://github.com/jafetmora79-lab/TheVeil` is public. A GitHub **Release** accepts files up to 2 GB, so the
 zip can be hosted there. The owner (or any session with `gh` and a login) does this once:
 
-1. GitHub > the repo > Releases > Draft a new release; tag e.g. `windows-build-2026-11-21`.
-2. Drag `TheVeil_Windows.zip` into the assets box and publish. (CLI: `gh release create windows-build-2026-11-21 docs/download/TheVeil_Windows.zip --repo jafetmora79-lab/TheVeil`.)
+1. GitHub > the repo > Releases > Draft a new release; tag e.g. `windows-build-2026-11-23`.
+2. Drag `TheVeil_Windows.zip` into the assets box and publish. (CLI: `gh release create windows-build-2026-11-23 docs/download/TheVeil_Windows.zip --repo jafetmora79-lab/TheVeil`.)
 
 Then anyone, on any device, downloads it with:
 
 ```powershell
-Invoke-WebRequest https://github.com/jafetmora79-lab/TheVeil/releases/download/windows-build-2026-11-21/TheVeil_Windows.zip -OutFile TheVeil_Windows.zip
+Invoke-WebRequest https://github.com/jafetmora79-lab/TheVeil/releases/download/windows-build-2026-11-23/TheVeil_Windows.zip -OutFile TheVeil_Windows.zip
 Get-FileHash TheVeil_Windows.zip -Algorithm SHA256   # must match the hash above
 Expand-Archive TheVeil_Windows.zip -DestinationPath .
 ```
@@ -67,8 +70,8 @@ Notes:
 - The two `.bat` helpers and `CHANGELOG.txt` are not stored in git. Take them from the old zip if you have it, or
   recreate: `TheVeil_TrailerMode.bat` runs `TheVeil.exe --trailer`; `Unlock_All_Chapters.bat` writes
   `{"all_chapters": true}` to `%APPDATA%\Godot\app_userdata\THE VEIL\veil_chapters.json`. The game runs without them.
-- A `.pck` built from this repo is not byte-identical to the 2026-11-21 one (the code has moved on), so its hash will
-  differ. Only the unchanged `TheVeil.exe` should match: `84,214,784` bytes.
+- A `.pck` rebuilt later will not be byte-identical to this one if the code has changed. `TheVeil.exe` is always
+  `84,214,784` bytes (the unchanged 4.3 template). The build above used `Godot_v4.3-stable_win64_console.exe`.
 - Windows owners can build natively too: same commands with `Godot_v4.3-stable_win64.exe`, and `Compress-Archive` for the zip.
 - Check a pack contains something you need: `grep -a "res://game/chapters/setups/dev_chapter5.gd" TheVeil.pck`.
 
