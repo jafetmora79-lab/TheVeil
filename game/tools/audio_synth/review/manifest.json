@@ -9,18 +9,18 @@
   "checks": {
    "finite": true,
    "sample_peak_db": -13.0,
-   "true_peak_db": -12.99,
-   "rms_db": -35.98,
-   "dc": -1.5e-05,
+   "true_peak_db": -12.98,
+   "rms_db": -30.81,
+   "dc": -1.32e-05,
    "clipped_samples": 0,
    "silent": false,
-   "tail_vs_peak_db": -59.4,
+   "tail_vs_peak_db": -60.4,
    "energy_pct": {
-    "<30Hz": 0.11,
-    "30-150": 39.2,
-    "150-1k": 44.3,
-    "1k-4k": 14.2,
-    ">4k": 2.2
+    "<30Hz": 0.03,
+    "30-150": 9.6,
+    "150-1k": 61.5,
+    "1k-4k": 28.2,
+    ">4k": 0.7
    }
   }
  },

@@ -47,15 +47,23 @@ def door_open(seed, variant=1):
         act = act * (1.0 - 0.9 * np.exp(-0.5 * ((t - (tc - 0.035)) / 0.03) ** 2))
         act = act + 0.9 * np.exp(-np.clip(t - tc, 0, None) / 0.025) * (t >= tc)
     amp = win * act
-    src = harmonic_source(f) * amp
-    # three moving resonances between 500 Hz and 3 kHz
-    c1 = 650 + 260 * np.tanh(smooth_curve(n, 1.7, rng))
-    c2 = 1350 + 520 * np.tanh(smooth_curve(n, 2.3, rng))
-    c3 = 2300 + 650 * np.tanh(smooth_curve(n, 2.9, rng))
-    creak = tv_bandpass(src, c1, 7.0) + 0.75 * tv_bandpass(src, c2, 9.0) + 0.4 * tv_bandpass(src, c3, 10.0)
-    creak = creak + 0.25 * lp(src, 1100)
-    creak = creak + 0.10 * bp(white(n, rng), 800, 3200) * amp
-    out += 0.45 * creak
+    # A creak is a stick-slip train of irregular pulses ringing a few fixed, inharmonic hinge modes. (The first version
+    # put a smooth buzz through moving resonances near 650 / 1350 / 2300 Hz: those are vowel formants, and it said "raaa".)
+    cyc = np.cumsum(f) / SR
+    cyc = np.maximum.accumulate(cyc + 0.22 * smooth_curve(n, 70.0, rng))            # timing jitter: the period is never steady
+    ticks = np.diff(np.floor(cyc), prepend=np.floor(cyc[0])) > 0
+    imp = ticks * rng.uniform(0.35, 1.6, n) * amp
+    kk = n_of(0.003)
+    kern = bp(white(kk, rng), 200, 3500) * np.exp(-(np.arange(kk) / SR) / 0.0009)
+    pulses = signal.fftconvolve(imp, kern)[:n]
+    creak = np.zeros(n)
+    for fc, g, q in [(287.0, 1.0, 16.0), (611.0, 0.9, 20.0), (1043.0, 0.45, 24.0), (1736.0, 0.16, 26.0)]:
+        drift = fc * (1.0 + 0.05 * np.tanh(smooth_curve(n, 1.5, rng)))              # each mode drifts on its own, with the load
+        creak += g * tv_bandpass(pulses, drift, q)
+    live = amp > 0.05
+    creak = creak * (0.13 / (creak[live].std() + 1e-12))
+    creak = creak + 0.3 * bp(white(n, rng), 300, 2200) * amp * 0.5                  # the grit of the friction itself
+    out += creak
 
     # 3. the wood: door and frame modes excited by the latch, the catches and (quietly) by the movement
     modes_f = [118.0, 176.0, 243.0]
