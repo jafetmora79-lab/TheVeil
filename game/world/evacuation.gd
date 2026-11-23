@@ -945,6 +945,7 @@ func _front_burst() -> void:
 	p4._play("impact", ml(Vector3(0.0, 1.0, 0.3)), 9.0)
 	c8._dust(ml(Vector3(0.0, 2.4, 0.3)), 34)
 	world._shake(player.camera, 0.4, 0.04)
+	Sfx.jumpscare("burst")
 	await get_tree().create_timer(1.0).timeout                 # the leaves reach a passable position before anybody crosses
 	_hound_role_a()
 	_hound_role_b()
@@ -1153,6 +1154,7 @@ func _marcus_attack_and_choice() -> bool:
 	c8._hplay(hound_c, "Attack_Bite", 0.0)
 	await get_tree().create_timer(0.3).timeout
 	_say("c9_marcus_grabbed")                                   # contact
+	Sfx.jumpscare("hound")
 	Sfx.play("hurt", c9.marcus.global_position + Vector3(0, 1.3, 0), 6.0, 1.0)
 	p4._play("impact", c9.marcus.global_position + Vector3(0, 1.0, 0), 2.0)
 	if ma["anim"]:

@@ -516,6 +516,7 @@ func _pack_cinematic() -> void:
 	var tw := create_tween().set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
 	tw.tween_method(func(k: float): player.set_yaw_pitch(lerp_angle(yaw0, yaw1, k), lerpf(pitch0, 0.0, k)), 0.0, 1.0, 0.9)
 	await tw.finished
+	Sfx.jumpscare("burst")
 	Sfx.play("colossus_call", p0 + Vector3(-30, 6, 0), 2.0, 1.9)
 	if ps:
 		for i in 3:

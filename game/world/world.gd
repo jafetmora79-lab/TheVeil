@@ -185,6 +185,14 @@ func _ready() -> void:
 	street_life.name = "StreetLife"
 	add_child(street_life)
 	street_life.setup.call_deferred(self)
+	var mailboxes = load("res://game/world/mailboxes.gd").new()                 # the street mailboxes can be checked (review note #133)
+	mailboxes.name = "Mailboxes"
+	add_child(mailboxes)
+	mailboxes.setup.call_deferred(self)
+	var car_lost = load("res://game/world/car_lost.gd").new()                   # the repaired car is lost for good once the supermarket has fallen (review note #128)
+	car_lost.name = "CarLost"
+	add_child(car_lost)
+	car_lost.setup.call_deferred(self)
 	_restore_crushed_lamp.call_deferred()
 	var review_mode = load("res://game/review/review_mode.gd").new()          # F2: sticky notes for the playtest (game/review/review_mode.gd)
 	review_mode.name = "ReviewMode"
@@ -3796,7 +3804,7 @@ func _shop_seated_talk() -> void:
 	chair.name = "StockRoomChair"
 	game_shop.add_child(chair)
 	chair.position = SEAT_DOCS
-	chair.rotation.y = -PI * 0.5                   # facing the room (+x)
+	chair.rotation.y = PI * 0.5                    # facing the room (review note #132: it faced the wall)
 	_seat("Marcus", SEAT_DOCS + Vector3(-0.04, 0, 0), SEAT_DOCS_H, STOCK_CIRCLE)
 	if animators.has("Eddie"):
 		animators["Eddie"].walk_to([])
@@ -4821,6 +4829,9 @@ func _finish() -> void:
 # ------------------------------------------------------------------ car
 func enter_car() -> void:
 	if in_car:
+		return
+	if Game.has_flag("ch9_supermarket_lost"):
+		Dialogue.say("car_lost", false, true)                   # review note #128: the car is gone for good, wherever it stands
 		return
 	if not Game.has_item("car_keys"):
 		Dialogue.say("need_keys", false, true)

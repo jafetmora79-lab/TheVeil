@@ -506,6 +506,7 @@ func _hound_entrance(spot: Vector3) -> void:
 		await get_tree().process_frame
 	if not is_instance_valid(h):
 		return
+	Sfx.jumpscare("hound")                                   # the leap lands: hush, boom, stinger, punch-in
 	_play("impact", spot + Vector3(0, 0.3, 0), -6.0)
 	hound_entered = true
 	if flee_enabled and scripted_chase:

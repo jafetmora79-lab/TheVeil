@@ -7,15 +7,42 @@ const RATE := 22050
 
 var _streams := {}
 var _ambience: AudioStreamPlayer
+var _score: Node
+
+
+## A creature lands on the player (or a door bursts): the hush, the boom + stinger + screech, the punch-in, the flash, the muffled world, the thundering heartbeat (game/audio/veil_score.gd).
+func jumpscare(kind := "generic") -> void:
+	if _score != null:
+		_score.jumpscare(kind)
+
+
+## A one-shot of a given stream at a point (a synthesised or loaded stream), low-passed with distance like everything in the fog.
+func play_stream_at(stream: AudioStream, at: Vector3, volume_db := 0.0, pitch := 1.0, unit := 6.0) -> AudioStreamPlayer3D:
+	var tree := get_tree()
+	if stream == null or tree.current_scene == null:
+		return null
+	var p := AudioStreamPlayer3D.new()
+	p.stream = stream
+	p.volume_db = volume_db
+	p.pitch_scale = pitch
+	p.unit_size = unit
+	p.attenuation_filter_db = -18.0
+	p.attenuation_filter_cutoff_hz = 3000.0
+	tree.current_scene.add_child(p)
+	p.global_position = at
+	p.finished.connect(p.queue_free)
+	p.play()
+	return p
 
 
 func _ready() -> void:
 	# a shoe on a hard floor: a dull heel thud, then the sole rolling down (a short gritty scuff ~45 ms later)
 	_streams["step"] = _make(0.2, func(t, i): return _step_wave(t, i, 1.0))
 	_streams["step_soft"] = _make(0.18, func(t, i): return _step_wave(t, i, 0.45))
-	_streams["door_open"] = _make(0.55, func(t, i): return sin(TAU * (210.0 + 90.0 * sin(t * 9.0)) * t) * 0.18 * exp(-t * 3.0) * (0.6 + 0.4 * sin(t * 140.0)) + _noise(i) * 0.05 * exp(-t * 6.0))
-	_streams["door_close"] = _make(0.25, func(t, i): return (_noise(i) * 0.5 + sin(TAU * 95.0 * t) * 0.6) * exp(-t * 28.0))
-	_streams["pickup"] = _make(0.18, func(t, i): return (sin(TAU * 1450.0 * t) + sin(TAU * 2210.0 * t) * 0.6) * exp(-t * 22.0) * 0.25)
+	# interaction sounds, LOW and soft (the old ones sat at 200 - 2200 Hz and were reported as shrill): a worn wooden door creaking open, a door thudding shut with a dull latch, a pickup that is a rustle and a soft tock
+	_streams["door_open"] = _make(0.75, func(t, i): return (sin(TAU * (88.0 + 26.0 * sin(t * 5.5) + 22.0 * t) * t) * 0.24 + _lp_noise(i, 12) * 0.13 * (0.5 + 0.5 * sin(t * 33.0))) * sin(PI * clampf(t / 0.75, 0.0, 1.0)) + sin(TAU * 70.0 * t) * 0.3 * exp(-t * 40.0))
+	_streams["door_close"] = _make(0.32, func(t, i): return (_lp_noise(i, 8) * 0.5 + sin(TAU * 62.0 * t) * 0.7) * exp(-t * 20.0) + (sin(TAU * 170.0 * (t - 0.07)) * exp(-(t - 0.07) * 55.0) * 0.28 if t > 0.07 else 0.0))
+	_streams["pickup"] = _make(0.2, func(t, i): return (_lp_noise(i, 7) * 0.34 * exp(-t * 26.0) + sin(TAU * 290.0 * t) * 0.3 * exp(-t * 24.0) + sin(TAU * 435.0 * t) * 0.1 * exp(-t * 30.0)))
 	_streams["fridge_hum"] = _make(1.0, _hum, true)
 	_streams["ambience"] = _make(3.0, _amb, true)
 	# once the Veil is here: the same wind without the high cricket chirps (they read as a shrill tense tone
@@ -32,6 +59,10 @@ func _ready() -> void:
 	_streams["colossus_step"] = _make(2.6, func(t, i): return (sin(TAU * 26.0 * t) * 0.9 + sin(TAU * 41.0 * t) * 0.5 + _noise(i) * 0.5 * exp(-t * 9.0)) * exp(-t * 1.6) * minf(t * 60.0, 1.0))
 	_streams["water_run"] = _make(2.2, func(t, i): return _noise(i) * 0.22 * (0.75 + 0.25 * sin(t * 37.0)) * minf(t * 8.0, 1.0) * minf((2.2 - t) * 4.0, 1.0))
 	_streams["splash"] = _make(0.45, func(t, i): return (_noise(i) * 0.5 + sin(TAU * 320.0 * t) * 0.08) * exp(-t * 9.0))
+	var score: Node = load("res://game/audio/veil_score.gd").new()
+	score.name = "Score"
+	add_child(score)
+	_score = score
 	_streams["hurt"] = _make(0.35, func(t, i): return (_noise(i) * 0.4 + sin(TAU * (140.0 - 120.0 * t) * t) * 0.5) * exp(-t * 9.0))
 
 

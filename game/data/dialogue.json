@@ -7446,6 +7446,15 @@
    }
   ]
  },
+ "car_lost": {
+  "lines": [
+   {
+    "speaker": "",
+    "text": "They are all over it. I guess I lost my car now.",
+    "time": 3.0
+   }
+  ]
+ },
  "shop_staff_only": {
   "lines": [
    {

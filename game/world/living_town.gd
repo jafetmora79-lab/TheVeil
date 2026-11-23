@@ -1150,8 +1150,8 @@ func _frank_taken_by_grimtalon(p: Dictionary, body: Node3D, a, pin: Vector3, fwd
 		# he walks from where he watched, across the street, to the spot - at the Walking clip's own pace (no sliding) - looking up at the sky
 		p["state"] = "event"
 		a.set_mood("scared")
-		a.walk_to([pin], 1.5)
-	while a.is_walking() and t < (10.0 if officer else 4.0):
+		a.walk_to([pin], 3.4)                              # review note #132: at a jog - the taking is immediate once the Colossus is in view
+	while a.is_walking() and t < (5.0 if officer else 4.0):
 		await get_tree().process_frame
 		t += get_process_delta_time()
 	a.walk_to([], 0.0)

@@ -934,6 +934,7 @@ func _hound_burst() -> void:
 	var ta = world.animators.get("Survivor")
 	if ta:
 		ta.set_mood("scared")
+	Sfx.jumpscare("hound")
 	Engine.time_scale = 0.35                                   # the bite lands in slow motion (a beat, then back)
 	await get_tree().create_timer(0.2, true, false, true).timeout
 	Engine.time_scale = 1.0

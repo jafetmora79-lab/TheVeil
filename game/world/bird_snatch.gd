@@ -93,6 +93,7 @@ func trigger(no_escape := false) -> void:
 		return
 	# the final blow: a bird takes you by the shoulders; first person, lifted and carried away into the mist
 	report["snatched"] += 1
+	Sfx.jumpscare("bird")
 	player.controls_enabled = false
 	player.velocity = Vector3.ZERO
 	player.set_physics_process(false)

@@ -209,6 +209,7 @@ func try_start(ai: Node) -> bool:
 	ai.hold = true
 	ai.body.velocity = Vector3.ZERO
 	ai.voice.quiet()
+	Sfx.jumpscare(kind)                                       # the hush, the boom, the stinger, the screech, the punch-in (veil_score.gd)
 	player.set("controls_enabled", false)
 	player.set("look_enabled", false)
 	player.set("velocity", Vector3.ZERO)

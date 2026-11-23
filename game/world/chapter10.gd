@@ -194,6 +194,18 @@ func _prop(scene: PackedScene, n: String, at: Vector3, yaw: float) -> Node3D:
 	return o
 
 
+## Fence and gate stand on the GROUND beside them (review note #129): the floor probe starts a metre above the ground, never from above the roofs, so they cannot end up floating.
+func _prop_ground(scene: PackedScene, n: String, at: Vector3, yaw: float) -> Node3D:
+	var o := scene.instantiate() as Node3D
+	o.name = n
+	world.add_child(o)
+	var q := PhysicsRayQueryParameters3D.create(Vector3(at.x, 1.0, at.z), Vector3(at.x, -1.5, at.z), 1)
+	var hit: Dictionary = world.get_world_3d().direct_space_state.intersect_ray(q)
+	var y: float = (hit["position"] as Vector3).y if not hit.is_empty() else 0.1
+	o.global_transform = Transform3D(Basis(Vector3.UP, yaw), Vector3(at.x, y, at.z))
+	return o
+
+
 func _spot(n: String, at: Vector3, size: Vector3, cb: Callable, basis := Basis()) -> Interactable:
 	var s := Node3D.new()
 	s.name = n
@@ -244,10 +256,10 @@ func _setup_fence() -> void:
 	for kind in ["p", "p", "g", "p", "p", "p"]:
 		var at := Vector3(FENCE_X, 0.15, z)
 		if kind == "p":
-			_prop(CHAINLINK, "C10_Fence", at, yaw).add_to_group("c10_seethrough")
+			_prop_ground(CHAINLINK, "C10_Fence", at, yaw).add_to_group("c10_seethrough")
 			z -= 2.5
 		else:
-			var g := _prop(GATE, "C10_Gate", at, yaw)
+			var g := _prop_ground(GATE, "C10_Gate", at, yaw)
 			g.add_to_group("c10_seethrough")
 			var leaf := g.find_child("GateLeaf", true, false) as Node3D
 			var lcol := g.find_child("GateLeaf_Col", true, false) as Node3D
@@ -672,7 +684,9 @@ func _road_tick() -> void:
 		Game.set_flag("ch10_around_done")             # through the gate, behind the roadside building (the gate stays open: nobody is shut out)
 	elif Game.has_flag("ch10_around_done") and not Game.has_flag("ch10_creature_seen") and p.x < FENCE_X - 3.0 and p.z < -7.6 and _group_past_gate():
 		_followed()
-	elif Game.has_flag("ch10_creature_seen") and not Game.has_flag("ch10_followed_done") and p.x < BLOCK_X - 4.0 and p.z > -6.5:
+	elif Game.has_flag("ch10_around_done") and not Game.has_flag("ch10_followed_done") and p.x < BLOCK_X - 4.0 and p.z > -6.5:
+		if not Game.has_flag("ch10_creature_seen"):
+			Game.set_flag("ch10_creature_seen")       # the reveal never started (the group lagged, the player went round): it is skipped, never a dead end (review note #130)
 		Game.set_flag("ch10_followed_done")           # back on the road, west of the block
 	elif Game.has_flag("ch10_followed_done") and not Game.has_flag("ch10_skitter_seen") and p.x < BLOCK_X - 7.0 and absf(p.z) < 8.0:
 		_skitter_scene()
