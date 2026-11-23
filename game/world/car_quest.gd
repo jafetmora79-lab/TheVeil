@@ -68,7 +68,23 @@ func setup(e: Node) -> void:
 	ex = e
 	world = e.world
 	name = "CarQuest"
-	_streams["click"] = Sfx._make(0.09, func(t: float, i: int) -> float: return (Sfx._noise(i) * 0.6 + sin(TAU * 2400.0 * t) * 0.4) * exp(-t * 70.0))
+	_streams["click"] = Sfx._make(0.1, func(t: float, i: int) -> float: return (Sfx._lp_noise(i, 4) * 0.5 + sin(TAU * 760.0 * t) * 0.45 + sin(TAU * 1130.0 * t) * 0.2) * exp(-t * 48.0))
+	# a car battery coming out: two dull metal clamp releases, a slow wet-rubber heave out of the tray with a faint slosh, then the weight landing and settling (low, nothing like the pallet drag or the pickup)
+	_streams["battery_pull"] = Sfx._make(1.7, func(t: float, i: int) -> float:
+		var s := 0.0
+		for ct in [0.0, 0.13]:
+			var d: float = t - ct
+			if d > 0.0:
+				s += (sin(TAU * 410.0 * d) + sin(TAU * 655.0 * d) * 0.6) * exp(-d * 42.0) * 0.3
+		var lift_env := smoothstep(0.2, 0.55, t) * (1.0 - smoothstep(0.95, 1.2, t))
+		s += Sfx._lp_noise(i, 18) * 0.28 * lift_env * (0.6 + 0.4 * sin(t * 21.0))
+		s += sin(TAU * (96.0 + 55.0 * t) * t) * 0.16 * lift_env
+		var slosh := Sfx._lp_noise(i / 3, 10) * 0.12 * smoothstep(0.6, 0.9, t) * (1.0 - smoothstep(1.2, 1.6, t)) * (0.5 + 0.5 * sin(t * 9.0))
+		s += slosh
+		var d2: float = t - 1.1
+		if d2 > 0.0:
+			s += (sin(TAU * 58.0 * d2) * 0.75 + Sfx._lp_noise(i, 6) * 0.3) * exp(-d2 * 9.0)
+		return s)
 	_streams["creak"] = Sfx._make(0.9, func(t: float, i: int) -> float: return sin(TAU * (160.0 + 70.0 * sin(t * 6.0)) * t) * 0.22 * (0.55 + 0.45 * sin(t * 95.0)) * minf(t * 8.0, 1.0) * exp(-t * 2.2) + Sfx._noise(i) * 0.03)
 	_streams["crank"] = Sfx._make(1.6, func(t: float, i: int) -> float: return (Sfx._noise(i) * 0.25 + sin(TAU * 52.0 * t) * 0.5) * (0.55 + 0.45 * sin(TAU * 7.5 * t)) * minf(t * 10.0, 1.0) * minf((1.6 - t) * 6.0, 1.0))
 	_streams["catch"] = Sfx._make(2.4, func(t: float, i: int) -> float: return (sin(TAU * 38.0 * t) * 0.55 + sin(TAU * 76.0 * t) * 0.25 + Sfx._noise(i) * 0.12) * minf(t * 3.0, 1.0) * (1.0 - 0.5 * clampf((t - 0.8) / 1.6, 0.0, 1.0)) * (1.0 + 0.3 * exp(-t * 4.0)))
@@ -395,8 +411,7 @@ func _battery_pull() -> void:
 		up.tween_property(bat, "position", base.origin + Vector3(0, 0.52, -0.3), 0.35)
 		up.tween_property(bat, "rotation", Vector3(deg_to_rad(-22.0), base.basis.get_euler().y, 0.0), 0.35)     # hauled up and over the lip of the bay
 		await up.finished
-		_snd("thud", bat.global_position, -4.0)
-		Sfx.play("pickup", bat.global_position, -6.0, 0.5)
+		_snd("battery_pull", bat.global_position, -2.0)                   # review note: a sound of its own (clamps, the heave, the weight settling)
 		bat.visible = false
 		_acquire("car_battery")
 	else:

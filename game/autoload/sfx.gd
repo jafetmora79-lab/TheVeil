@@ -35,7 +35,29 @@ func play_stream_at(stream: AudioStream, at: Vector3, volume_db := 0.0, pitch :=
 	return p
 
 
+## All the game's music (menu, intro, gameplay) goes through this bus: the top end is rolled off hard (the menu theme and the intro were reported as loud and high-pitched) and it sits lower.
+func _music_bus() -> void:
+	if AudioServer.get_bus_index("Music") >= 0:
+		return
+	var idx := AudioServer.bus_count
+	AudioServer.add_bus()
+	AudioServer.set_bus_name(idx, "Music")
+	AudioServer.set_bus_send(idx, "Master")
+	AudioServer.set_bus_volume_db(idx, -5.0)
+	var lp := AudioEffectLowPassFilter.new()
+	lp.cutoff_hz = 3000.0
+	AudioServer.add_bus_effect(idx, lp)
+	var eq := AudioEffectEQ10.new()
+	eq.set_band_gain_db(5, -2.0)            # 1 kHz
+	eq.set_band_gain_db(6, -5.0)            # 2 kHz
+	eq.set_band_gain_db(7, -9.0)            # 4 kHz
+	eq.set_band_gain_db(8, -14.0)           # 8 kHz
+	eq.set_band_gain_db(9, -20.0)           # 16 kHz
+	AudioServer.add_bus_effect(idx, eq)
+
+
 func _ready() -> void:
+	_music_bus()
 	# a shoe on a hard floor: a dull heel thud, then the sole rolling down (a short gritty scuff ~45 ms later)
 	_streams["step"] = _make(0.2, func(t, i): return _step_wave(t, i, 1.0))
 	_streams["step_soft"] = _make(0.18, func(t, i): return _step_wave(t, i, 0.45))
@@ -217,6 +239,7 @@ func play_music(path: String, loop := true, db := -10.0, fade := 1.2, then_loop 
 	if _music == null:
 		_music = AudioStreamPlayer.new()
 		_music.name = "Music"
+		_music.bus = "Music"
 		add_child(_music)
 		_music.finished.connect(func(): if _music_then != "": play_music(_music_then, true, _music_db, 2.0))
 	if _music.playing and _music.has_meta("path") and _music.get_meta("path") == path:

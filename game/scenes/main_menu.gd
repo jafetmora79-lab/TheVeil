@@ -18,7 +18,7 @@ func _ready() -> void:
 	Game.no_save = false                                      # (never left off by an interrupted trailer run)
 	if Game.has_meta("trailer_run") and get_tree().root.get_node_or_null("TrailerDirector") == null:
 		Game.remove_meta("trailer_run")
-	Sfx.play_music(Sfx.MUSIC_MENU, true, -8.0, 1.5)          # main menu theme (loops)
+	Sfx.play_music(Sfx.MUSIC_MENU, true, -14.0, 2.0)          # main menu theme (loops)
 	Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
 	get_tree().paused = false
 	set_anchors_preset(Control.PRESET_FULL_RECT)

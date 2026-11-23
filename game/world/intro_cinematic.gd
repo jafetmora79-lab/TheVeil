@@ -113,7 +113,7 @@ func play(w: Node) -> void:
 		var haze := wall_at + Vector3(0, 28, 0)
 		await _shot(roof, roof + Vector3(0, 0.5, 0), haze, haze, 2.6, 50.0, 0.015)
 		if not skipped:
-			Sfx.play_music(Sfx.MUSIC_COLOSSUS, false, -4.0, 1.5)    # the ominous turn, as the camera rises
+			Sfx.play_music(Sfx.MUSIC_COLOSSUS, false, -10.0, 1.5)    # the ominous turn, as the camera rises
 			Sfx.play("veil_rumble", car.global_position + dir * 60.0 + Vector3(0, 10, 0), 0.0)
 		await _shot(roof + Vector3(0, 0.5, 0), roof + Vector3(0, 24, 0) - dir * 6.0, haze, wall_at + Vector3(0, 30, 0), 6.5, 50.0, 0.0)
 		_creep_wall(dir, 30.0, 8.0)                             # it keeps coming

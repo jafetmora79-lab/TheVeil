@@ -1768,10 +1768,26 @@ func _slither_wave(t: float, i: int) -> float:
 ## A wooden pallet stack dragged over concrete: low, grainy friction (coarse noise, no tone) that catches and slips,
 ## under a dull body rumble. One shove's worth (0.65 s).
 func _drag_wave(t: float, i: int) -> float:
-	var env := sin(PI * clampf(t / 0.65, 0.0, 1.0))
-	var grain := Sfx._noise(i / 7) * 0.55 + Sfx._noise(i / 3) * 0.25          # coarse noise: low, woody
-	var catch := pow(absf(sin(TAU * 11.0 * t + sin(t * 23.0) * 1.5)), 3.0)   # stick-slip judder
-	return (grain * (0.35 + 0.65 * catch) + sin(TAU * 52.0 * t) * 0.18 * catch) * env
+	return _heavy_drag(t, i, 0.65)
+
+
+## Something heavy shoved over concrete: a low body rumble (a few sines between 45 and 250 Hz, no tone you could hum) that catches and slips in uneven pulses, with the odd dull knock of an edge.
+## Everything sits under ~400 Hz: no squeal, no hiss.
+func _heavy_drag(t: float, i: int, length: float) -> float:
+	var env := sin(PI * clampf(t / length, 0.0, 1.0))
+	var ph := t * 6.5 + 0.9 * sin(t * 2.3) + 0.6 * sin(t * 5.1 + 1.0)                   # a jittered stick-slip rate
+	var pulse := pow(maxf(0.0, sin(PI * fposmod(ph, 1.0))), 1.6)
+	var body := 0.0
+	var fr := [47.0, 63.0, 82.0, 109.0, 147.0, 191.0, 243.0]
+	for k in 7:
+		body += sin(TAU * fr[k] * t + float(k) * 1.9) * (0.5 + 0.5 * sin(TAU * (0.7 + 0.37 * k) * t + float(k))) * (0.22 - 0.02 * k)
+	var grit := Sfx._lp_noise(i, 14) * 0.18 * (0.3 + 0.7 * pulse)                       # the fine grain of the floor, kept dark
+	var knock := 0.0
+	for kt in [0.12, 0.47, 0.83, 1.31, 1.72, 2.2]:
+		var d: float = t - kt * length / 2.6
+		if d > 0.0 and d < 0.25:
+			knock += sin(TAU * 78.0 * d) * exp(-d * 26.0) * 0.5
+	return (body * (0.35 + 0.65 * pulse) + grit + knock) * env * 1.2
 
 
 ## The stack lands against the door: one short solid thud.
@@ -1780,8 +1796,7 @@ func _thud_wave(t: float, i: int) -> float:
 
 
 func _scrape_wave(t: float, i: int) -> float:
-	var env := sin(PI * clampf(t / 2.6, 0.0, 1.0))
-	return Sfx._noise(i) * 0.45 * env * (0.6 + 0.4 * sin(t * 37.0)) + sin(TAU * 140.0 * t + sin(t * 9.0) * 3.0) * 0.08 * env
+	return _heavy_drag(t, i, 2.6)
 
 
 func _impact_wave(t: float, i: int) -> float:
@@ -1804,7 +1819,7 @@ func _play(id: String, at: Vector3, db := 0.0) -> void:
 	p.stream = _streams[id]
 	p.volume_db = db
 	if id == "scrape":
-		p.pitch_scale = 0.55                          # a heavy object dragged, not a squeal
+		p.pitch_scale = 1.0                           # (the heavy drag is already low: no pitch-down needed)
 	elif id == "sting":
 		p.volume_db = db - 8.0                         # the sample is much louder than the old synthesized sting
 	p.unit_size = 8.0
