@@ -1,0 +1,132 @@
+[
+ {
+  "file": "door_open_01.wav",
+  "duration_s": 1.15,
+  "channels": 1,
+  "seed": 1101,
+  "use": "Old wooden house door opening: latch, hinge creak, wood resonance (short reluctant variant).",
+  "loops": false,
+  "checks": {
+   "finite": true,
+   "sample_peak_db": -13.0,
+   "true_peak_db": -12.99,
+   "rms_db": -35.98,
+   "dc": -1.5e-05,
+   "clipped_samples": 0,
+   "silent": false,
+   "tail_vs_peak_db": -59.4,
+   "energy_pct": {
+    "<30Hz": 0.11,
+    "30-150": 39.2,
+    "150-1k": 44.3,
+    "1k-4k": 14.2,
+    ">4k": 2.2
+   }
+  }
+ },
+ {
+  "file": "drag_heavy_01.wav",
+  "duration_s": 2.4,
+  "channels": 1,
+  "seed": 2101,
+  "use": "Loaded shelf or pallet dragged over a hard floor (rough scrape variant).",
+  "loops": false,
+  "checks": {
+   "finite": true,
+   "sample_peak_db": -9.0,
+   "true_peak_db": -8.47,
+   "rms_db": -32.88,
+   "dc": 2.7e-06,
+   "clipped_samples": 0,
+   "silent": false,
+   "tail_vs_peak_db": -59.1,
+   "energy_pct": {
+    "<30Hz": 0.38,
+    "30-150": 56.3,
+    "150-1k": 11.5,
+    "1k-4k": 25.2,
+    ">4k": 6.6
+   }
+  }
+ },
+ {
+  "file": "jumpscare_hit_01.wav",
+  "duration_s": 2.6,
+  "channels": 2,
+  "seed": 3101,
+  "use": "Accent for a scare: blunt pressure signature (stereo, cinematic).",
+  "loops": false,
+  "checks": {
+   "finite": true,
+   "sample_peak_db": -4.0,
+   "true_peak_db": -3.99,
+   "rms_db": -18.48,
+   "dc": -3.04e-05,
+   "clipped_samples": 0,
+   "silent": false,
+   "tail_vs_peak_db": -65.0,
+   "energy_pct": {
+    "<30Hz": 0.07,
+    "30-150": 73.3,
+    "150-1k": 26.1,
+    "1k-4k": 0.4,
+    ">4k": 0.2
+   },
+   "lr_correlation": 0.798,
+   "mono_sum_loss_db": -0.46
+  }
+ },
+ {
+  "file": "drone_dark_01.wav",
+  "duration_s": 30.0,
+  "channels": 2,
+  "seed": 4101,
+  "use": "Fog-pressure bed, seamless loop (stereo, non-positional).",
+  "loops": true,
+  "checks": {
+   "finite": true,
+   "sample_peak_db": -13.98,
+   "true_peak_db": -13.97,
+   "rms_db": -28.0,
+   "dc": -0.0,
+   "clipped_samples": 0,
+   "silent": false,
+   "tail_vs_peak_db": -16.0,
+   "energy_pct": {
+    "<30Hz": 0.73,
+    "30-150": 92.7,
+    "150-1k": 6.5,
+    "1k-4k": 0.0,
+    ">4k": 0.0
+   },
+   "lr_correlation": 0.614,
+   "mono_sum_loss_db": -0.93,
+   "loop_boundary_step_vs_p99_step": 0.203
+  }
+ },
+ {
+  "file": "skitter_chitter_01.wav",
+  "duration_s": 1.75,
+  "channels": 1,
+  "seed": 5101,
+  "use": "Skitter searching clicks, a pause, then a faster answer.",
+  "loops": false,
+  "checks": {
+   "finite": true,
+   "sample_peak_db": -10.0,
+   "true_peak_db": -9.99,
+   "rms_db": -31.73,
+   "dc": 0.0,
+   "clipped_samples": 0,
+   "silent": false,
+   "tail_vs_peak_db": -230.0,
+   "energy_pct": {
+    "<30Hz": 0.0,
+    "30-150": 0.2,
+    "150-1k": 20.4,
+    "1k-4k": 45.4,
+    ">4k": 34.1
+   }
+  }
+ }
+]
