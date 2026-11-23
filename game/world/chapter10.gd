@@ -977,20 +977,11 @@ func _gather() -> void:
 		if group().has(k):
 			(c9.follows[k] as VeilCompanionFollow).stop()
 			acts[k] = _actor(k)
-	var prev := ""
-	for k in ENTRY_ORDER:
+	for k in ENTRY_ORDER:                                                      # they all come in together, a short stagger apart (no queue: they pass one another, never a wall)
 		if not acts.has(k):
 			continue
-		if prev != "":
-			var tt := 0.0
-			while not crossed.get(prev, false) and tt < 12.0:                  # single file: the next goes when the last is through
-				_note_crossings(acts, crossed)
-				await get_tree().process_frame
-				tt += get_process_delta_time()
-			if not crossed.get(prev, false):
-				report["entry_failures"] = int(report.get("entry_failures", 0)) + 1
-		mover.go(acts[k], _hfloor(SPOTS[k]), 2.0 if k == "Sarah" else 2.6)
-		prev = k
+		mover.go(acts[k], _hfloor(SPOTS[k]), 3.4 if k == "Sarah" else 4.4)
+		await get_tree().create_timer(0.35).timeout
 	var t := 0.0
 	var retried := {}
 	while t < 40.0:

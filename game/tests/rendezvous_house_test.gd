@@ -35,10 +35,12 @@ func _run() -> void:
 	for i in 8: await physics_frame
 	# it lies on the way west: the store's rear lot is east of it, the next route anchor (4, -47) is north-west of it
 	var porch: Vector3 = c9._rv_porch()
-	ok("house_is_west_of_the_rear_lot", porch.x < 25.0 and porch.x > 4.0, str(porch))
 	var rear := Vector3(25.0, 0.15, -46.6)
-	var r: Array = mv.route(rear, Vector3(porch.x, mv.floor_at(porch.x, porch.z, 0.2), porch.z), 0.28, [0.5, 1.3], 20.0)
-	ok("route_rear_lot_to_porch", not r.is_empty(), "pts %d" % r.size())
+	ok("house_is_near_the_rear_lot", Vector2(porch.x - rear.x, porch.z - rear.z).length() < 25.0, str(porch))
+	var out_pt: Vector3 = c9.rv_house.to_global(Vector3(dl.x, 0.0, dl.z - 2.5))
+	out_pt.y = mv.floor_at(out_pt.x, out_pt.z, 0.2)
+	var r: Array = mv.route(rear, out_pt, 0.28, [0.5, 1.3], 20.0)
+	ok("route_rear_lot_to_the_door", not r.is_empty(), "pts %d y %s" % [r.size(), str(out_pt.y)])
 	var spots: Dictionary = c9._rv_spots()
 	ok("four_hall_places", spots.size() == 4, str(spots.keys()))
 	for k in spots:
@@ -49,9 +51,10 @@ func _run() -> void:
 		for j in range(i + 1, keys.size()):
 			worst = minf(worst, (spots[keys[i]] as Vector3).distance_to(spots[keys[j]]))
 	ok("places_apart", worst >= 1.0, "%.2f" % worst)
+	ok("spots_for_everyone", spots.size() >= 4)
 	# a survivor walks in from the porch: over the door line, to its place
 	var eddie: Node3D = w.eddie
-	eddie.global_position = Vector3(porch.x, mv.floor_at(porch.x, porch.z, 0.2), porch.z)
+	eddie.global_position = out_pt
 	var ea: Dictionary = mv.actor(eddie, w.animators.get("Eddie"), "person")
 	var res := [false, false]
 	var runner := func():

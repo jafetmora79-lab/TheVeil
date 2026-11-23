@@ -52,7 +52,7 @@ const OUT_WAIT := [Vector3(7.2, 0.04, 20.6), Vector3(8.8, 0.04, 21.2), Vector3(7
 const ESCAPED_Z := 18.5
 const LIGHTS_DEAD := ["Light_SALES_30", "Light_BACK_10"]  # more of them gone overnight
 # ---- the rendezvous is a house on the way the group goes NEXT (west along the back lots), not Ruth and Sarah's old house on the east side:
-const RV_HOUSE := "HOUSE_04"                           # its porch faces the back lots (north), 22 m west of the store's rear lot; the interior is south of the door (house-local +z)
+const RV_HOUSE := "HOUSE_05"                           # the big house (the survivor house of Chapter 5): the roomiest interior within reach of the store rear lot (19 m, about 90 roomy floor cells); its porch faces the back lots, the interior is south of the door (house-local +z)
 const RV_ORDER := ["Eddie", "Ruth", "Sarah", "Marcus"]
 # ---- (kept for old saves) the former rendezvous: Ruth and Sarah's front yard, house HOUSE_06, Chapter 7 house-local
 const RV_LOCAL := Vector3(2.6, 0.05, -1.6)              # yard ground level (the house floor is at 0.6)
@@ -923,18 +923,11 @@ func _rendezvous() -> void:
 		c5._reparent(n, world)
 		n.visible = true
 		acts[k] = mover.actor(n, world.animators.get(k), "person")
-	# one at a time through the door, each along a route over the real floor; the next goes when the last has crossed the door line; nobody is placed
+	# everybody runs in together (a short stagger, nobody waits for anybody: they pass one another and never pass through a wall), each along its own route over the real floor to its place; nobody is placed
 	var crossed := {}
-	var prev := ""
 	for k in acts:
-		if prev != "":
-			var tt := 0.0
-			while not crossed.get(prev, false) and tt < 10.0:
-				_rv_note(acts, crossed, dl)
-				await get_tree().process_frame
-				tt += get_process_delta_time()
-		mover.go(acts[k], spots[k], 2.2 if k == "Sarah" else 2.8)
-		prev = k
+		mover.go(acts[k], spots[k], 3.4 if k == "Sarah" else 4.6)
+		await get_tree().create_timer(0.35).timeout
 	var t := 0.0
 	var retried := {}
 	while t < 45.0:

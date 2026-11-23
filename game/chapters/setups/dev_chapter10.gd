@@ -29,7 +29,7 @@ static func prepare(game: Node, marcus_lost := false, sarah := "stable") -> void
 			game.inventory.erase(id)
 	for id in ["painkillers", "painkillers", "canned_food", "canned_food", "water_bottle"]:
 		game.inventory.append(id)
-	game.player_state = {"in_vehicle": false, "pos": [15.1, 0.3, -65.4], "yaw": 0.0, "health": 100.0}
+	game.player_state = {"in_vehicle": false, "pos": [31.3, 0.3, -65.4], "yaw": 0.0, "health": 100.0}
 	game.save_game()
 	game.load_game()
 	game.load_requested = true
