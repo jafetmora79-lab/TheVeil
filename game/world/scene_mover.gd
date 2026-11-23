@@ -71,10 +71,10 @@ func step_clear(from: Vector3, to: Vector3, radius: float, heights: Array) -> bo
 
 
 ## A route (world points on the floor) from `from` to `to`; [] when none. Grid search over probed floors, string-pulled with swept checks.
-func route(from: Vector3, to: Vector3, radius: float, heights: Array) -> Array:
-	var lo := Vector2(minf(from.x, to.x) - 5.0, minf(from.z, to.z) - 5.0)
-	var w := int((maxf(from.x, to.x) + 5.0 - lo.x) / CELL) + 1
-	var hg := int((maxf(from.z, to.z) + 5.0 - lo.y) / CELL) + 1
+func route(from: Vector3, to: Vector3, radius: float, heights: Array, margin := 5.0) -> Array:
+	var lo := Vector2(minf(from.x, to.x) - margin, minf(from.z, to.z) - margin)
+	var w := int((maxf(from.x, to.x) + margin - lo.x) / CELL) + 1
+	var hg := int((maxf(from.z, to.z) + margin - lo.y) / CELL) + 1
 	var ys := {}
 	var cell_pos := func(c: Vector2i) -> Vector2: return Vector2(lo.x + c.x * CELL, lo.y + c.y * CELL)
 	var cell_of := func(p: Vector3) -> Vector2i: return Vector2i(roundi((p.x - lo.x) / CELL), roundi((p.z - lo.y) / CELL))
@@ -102,7 +102,7 @@ func route(from: Vector3, to: Vector3, radius: float, heights: Array) -> Array:
 	var came := {}
 	var found := false
 	var it := 0
-	while not open.is_empty() and it < 60000:
+	while not open.is_empty() and it < 120000:
 		it += 1
 		var cur: Vector2i = s
 		var best := INF
@@ -210,6 +210,11 @@ func _leg(a: Dictionary, to: Vector3, speed: float) -> bool:
 	var n: Node3D = a["node"]
 	var anim = a["anim"]
 	var pts: Array = route(pos(a), to, a["radius"], a["heights"])
+	var waited := 0.0
+	while pts.is_empty() and waited < 1.2:                 # a door leaf or a shelf may still be moving out of the way
+		await get_tree().process_frame
+		waited += get_process_delta_time()
+		pts = route(pos(a), to, a["radius"], a["heights"])
 	if pts.is_empty():
 		note("no route for %s to %s" % [n.name, str(to)])
 		return false

@@ -1,0 +1,71 @@
+extends SceneTree
+## The new rendezvous (displayed Chapter 10 -> 11): a house on the way the group goes NEXT. From the store's rear lot there is a real route to its porch, the hall has four free places reachable from the
+## door, and a survivor walks from the porch through the door line to its place (measured), nobody placed.
+var fails := 0
+func ok(n: String, c: bool, d := "") -> void:
+	print("TEST %s %s %s" % [n, "PASS" if c else "FAIL", d])
+	if not c:
+		fails += 1
+func _initialize() -> void:
+	_run.call_deferred()
+	create_timer(170.0).timeout.connect(func():
+		print("RESULT FAIL (watchdog)")
+		quit(1))
+func _run() -> void:
+	var game = root.get_node("Game")
+	load("res://game/chapters/setups/dev_chapter5.gd").prepare(game)
+	var w = load("res://game/scenes/World.tscn").instantiate()
+	root.add_child(w)
+	for i in 60: await physics_frame
+	var mv = load("res://game/world/scene_mover.gd").new()
+	root.add_child(mv)
+	mv.setup(w, w.player)
+	var C9 = load("res://game/world/chapter9.gd")
+	var c9 = C9.new()
+	root.add_child(c9)
+	c9.world = w
+	c9.mover = mv
+	c9.rv_house = w.get_node("Residential/Houses/" + C9.RV_HOUSE)
+	w.clear_story_glass(c9.rv_house)
+	var fd := c9.rv_house.find_child("INT_Door_Front", true, false) as Node3D
+	var dl: Vector3 = c9.rv_house.to_local(fd.global_position)
+	var inside: Vector3 = c9.rv_house.to_global(Vector3(dl.x, 1.4, dl.z + 1.8))
+	var door := Interactable.attach(fd, {"kind": "hinge", "label": "Front Door", "open_deg": w._toward_deg(fd, 95.0, inside), "hinge_axis": Vector3.UP, "state_key": "test/rv_door"})
+	door.set_open(true, true)
+	for i in 8: await physics_frame
+	# it lies on the way west: the store's rear lot is east of it, the next route anchor (4, -47) is north-west of it
+	var porch: Vector3 = c9._rv_porch()
+	ok("house_is_west_of_the_rear_lot", porch.x < 25.0 and porch.x > 4.0, str(porch))
+	var rear := Vector3(25.0, 0.15, -46.6)
+	var r: Array = mv.route(rear, Vector3(porch.x, mv.floor_at(porch.x, porch.z, 0.2), porch.z), 0.28, [0.5, 1.3], 20.0)
+	ok("route_rear_lot_to_porch", not r.is_empty(), "pts %d" % r.size())
+	var spots: Dictionary = c9._rv_spots()
+	ok("four_hall_places", spots.size() == 4, str(spots.keys()))
+	for k in spots:
+		ok("place_free_" + k, mv.free_at(spots[k], 0.28, [0.5, 1.3]))
+	var keys: Array = spots.keys()
+	var worst := 99.0
+	for i in keys.size():
+		for j in range(i + 1, keys.size()):
+			worst = minf(worst, (spots[keys[i]] as Vector3).distance_to(spots[keys[j]]))
+	ok("places_apart", worst >= 1.0, "%.2f" % worst)
+	# a survivor walks in from the porch: over the door line, to its place
+	var eddie: Node3D = w.eddie
+	eddie.global_position = Vector3(porch.x, mv.floor_at(porch.x, porch.z, 0.2), porch.z)
+	var ea: Dictionary = mv.actor(eddie, w.animators.get("Eddie"), "person")
+	var res := [false, false]
+	var runner := func():
+		res[0] = await mv.move(ea, spots["Eddie"], 3.0)
+		res[1] = true
+	runner.call()
+	var crossed := false
+	var g := 0
+	while not res[1] and g < 1500:
+		await process_frame
+		g += 1
+		var l: Vector3 = c9.rv_house.to_local(eddie.global_position)
+		if l.z > dl.z + 0.5 and absf(l.x - dl.x) < 2.6:
+			crossed = true
+	ok("walker_goes_in_over_the_door_line", res[1] and res[0] and crossed, "frames %d fails %s" % [g, str(mv.failures.slice(-2))])
+	print("RESULT %s (%d failures)" % ["PASS" if fails == 0 else "FAIL", fails])
+	quit()

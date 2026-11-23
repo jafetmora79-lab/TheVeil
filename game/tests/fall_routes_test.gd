@@ -41,6 +41,10 @@ func _run() -> void:
 	ev.market = m
 	ev.player = w.player
 	ev.p4 = p4
+	var mvr = load("res://game/world/scene_mover.gd").new()
+	root.add_child(mvr)
+	mvr.setup(w, w.player)
+	ev.mover = mvr
 	var aisle: Node3D = load("res://game/world/gondola_aisle.gd").detach(m, Vector3(9.5, 0.0, 10.0), 90.0)
 	# the phase table covers every phase
 	var missing := 0
@@ -71,7 +75,7 @@ func _run() -> void:
 	ok("rear_passable", Quaternion(base.basis).angle_to(Quaternion(bd.transform.basis)) > deg_to_rad(70.0))
 	ok("staff_passable", Quaternion(staff._base.basis).angle_to(Quaternion(staff.target.transform.basis)) > deg_to_rad(staff.open_deg) * 0.8)
 	# markers free for the body that uses them
-	var person_marks := {"Q_EDDIE": EVAC.Q_EDDIE, "Q_RUTH": EVAC.Q_RUTH, "Q_SARAH": EVAC.Q_SARAH, "WALT_FREEZE": EVAC.WALT_FREEZE, "PLAYER_OPEN": EVAC.PLAYER_OPEN, "MARCUS_OPEN": EVAC.MARCUS_OPEN,
+	var person_marks := {"Q_EDDIE": EVAC.Q_EDDIE, "Q_RUTH": EVAC.Q_RUTH, "Q_SARAH": EVAC.Q_SARAH, "DAVID_FREEZE": EVAC.DAVID_FREEZE, "PLAYER_OPEN": EVAC.PLAYER_OPEN, "MARCUS_OPEN": EVAC.MARCUS_OPEN,
 		"MARCUS_DOWN": EVAC.MARCUS_DOWN, "PLAYER_RESCUE": EVAC.PLAYER_RESCUE, "STAFF_APPROACH": EVAC.STAFF_APPROACH, "STAFF_CLEAR": EVAC.STAFF_CLEAR, "REAR_INSIDE": EVAC.REAR_INSIDE,
 		"REAR_CLOSE_POS": EVAC.REAR_CLOSE_POS, "PLAYER_REGROUP": EVAC.PLAYER_REGROUP, "MARCUS_OUTSIDE": EVAC.MARCUS_OUTSIDE, "OPENING_APPROACH": EVAC.OPENING_APPROACH,
 		"OPENING_CLEAR": EVAC.OPENING_CLEAR, "VIEW_1": EVAC.VIEW_ROUTE[0], "VIEW_2": EVAC.VIEW_ROUTE[1], "MARCUS_VIEW": EVAC.MARCUS_VIEW}
@@ -118,7 +122,7 @@ func _run() -> void:
 	aisle.position = Vector3(EVAC.AISLE_OPEN_X, 0.0, EVAC.AISLE_Z)
 	for i in 6: await physics_frame
 	var eye := m.to_global(EVAC.VIEW_ROUTE[1] + Vector3(0, 1.62, 0))
-	ok("los_viewpoint_to_walt", ev._line_clear(eye, m.to_global(EVAC.WALT_FREEZE + Vector3(0, 1.1, 0))))
+	ok("los_viewpoint_to_walt", ev._line_clear(eye, m.to_global(EVAC.DAVID_FREEZE + Vector3(0, 1.1, 0))))
 	ok("los_viewpoint_to_hound_A", ev._line_clear(eye, m.to_global(EVAC.HOUND_A_POST + Vector3(0, 0.7, 0))))
 	var half := Vector3(10.4, 0.0, EVAC.AISLE_Z)
 	aisle.position = half

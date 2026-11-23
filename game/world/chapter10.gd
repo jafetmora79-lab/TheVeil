@@ -103,7 +103,7 @@ var _look_target: Callable = Callable()
 var _look_rate := 5.0
 var _car_staged := false
 var _tick := 0.0
-var _route_i := 0
+var _route_i := 2                                       ## the first two anchors lie behind the new rendezvous house (east); the way on starts at (4, -47)
 var _room: Area3D
 var _streams := {}
 var hound: Node3D

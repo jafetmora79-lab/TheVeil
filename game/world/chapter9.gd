@@ -26,7 +26,6 @@ const PAPERS := preload("res://THE_VEIL_ASSETS_V2/09_Horror_Atmosphere/Abandoned
 const BAGS := preload("res://THE_VEIL_ASSETS_V2/09_Horror_Atmosphere/Abandoned_Props/ABN_GroceryBags_Spilled.glb")
 const FRONT_HOUNDS := [Vector3(-1.5, 0.0, -2.4), Vector3(0.2, 0.0, -2.8), Vector3(1.6, 0.0, -2.3)]     ## three of them at the front glass
 const CLERK_SPOT := Vector3(3.3, 0.04, 8.9)
-const CLERK_NAME := "WALT"
 const STATE := "ch9"
 const CHAPTER := 10                                    # displayed number (game/data/chapters.json)
 
@@ -52,7 +51,10 @@ const PIN_TRIGGER_X := 10.0                             # the player near the re
 const OUT_WAIT := [Vector3(7.2, 0.04, 20.6), Vector3(8.8, 0.04, 21.2), Vector3(7.8, 0.04, 22.2)]
 const ESCAPED_Z := 18.5
 const LIGHTS_DEAD := ["Light_SALES_30", "Light_BACK_10"]  # more of them gone overnight
-# ---- world: the temporary rendezvous (Ruth and Sarah's front yard, house HOUSE_06, Chapter 7 house-local)
+# ---- the rendezvous is a house on the way the group goes NEXT (west along the back lots), not Ruth and Sarah's old house on the east side:
+const RV_HOUSE := "HOUSE_04"                           # its porch faces the back lots (north), 22 m west of the store's rear lot; the interior is south of the door (house-local +z)
+const RV_ORDER := ["Eddie", "Ruth", "Sarah", "Marcus"]
+# ---- (kept for old saves) the former rendezvous: Ruth and Sarah's front yard, house HOUSE_06, Chapter 7 house-local
 const RV_LOCAL := Vector3(2.6, 0.05, -1.6)              # yard ground level (the house floor is at 0.6)
 const RV_SPOTS := {"Eddie": Vector3(1.4, 0.05, -2.4), "Ruth": Vector3(3.6, 0.05, -2.6), "Sarah": Vector3(4.4, 0.05, -1.7),
 	"Marcus": Vector3(2.4, 0.05, -3.2)}
@@ -78,6 +80,10 @@ var report := {"pin_runs": 0, "lost_runs": 0, "warning_runs": 0, "fall_runs": 0}
 var _busy := {}
 var _tick := 0.0
 var _rv_area: Area3D
+var rv_house: Node3D
+var rv_door: Interactable
+var mover: Node
+var _rv_spot_cache := {}
 var _pin_left := -1.0
 var _props: Array = []
 var _kit: Node3D
@@ -105,8 +111,11 @@ func begin(w: Node, chapter8: Node, restoring: bool) -> void:
 	_setup_supplies()
 	_setup_debris()
 	_setup_rest()
-	_rv_area = world._area("C9_Rendezvous", c6.hl(RV_LOCAL + Vector3(0, 1.4, 0)), Vector3(8.0, 3.4, 6.0), 2, func(_b): pass,
-		c6.rs_house.global_transform.basis)
+	mover = load("res://game/world/scene_mover.gd").new()
+	mover.name = "Mover"
+	add_child(mover)
+	mover.setup(w, w.player)
+	_setup_rv_house()
 	var fresh := not Game.has_flag("ch9_started")
 	if fresh:
 		Game.set_flag("ch9_started")
@@ -340,15 +349,15 @@ func _apply_outside() -> void:
 		_close_store()
 
 
-## The clerk (named WALT): with the group in the store until the run, where he is taken. Never placed after he died.
+## David (the Chapter 5 survivor in the green apron) is with the group only when the player pulled him free in Chapter 9; otherwise there is no David here. Never shown after he died.
 func _place_clerk() -> void:
-	var cl: Node3D = world.cashier
-	if cl == null or not is_instance_valid(cl):
+	var n: Node3D = c8.temp
+	if n == null or not is_instance_valid(n):
 		return
-	if Game.has_flag("ch9_clerk_dead"):
-		cl.visible = false
+	if not Game.has_flag("ch8_temp_survivor_saved") or Game.has_flag("ch9_clerk_dead"):
+		n.visible = false
 		return
-	_show(cl, CLERK_SPOT, GROUP_CENTRE)
+	_show(n, CLERK_SPOT, GROUP_CENTRE)
 
 
 func _start_follow(k: String, snap := true) -> void:
@@ -368,7 +377,92 @@ func _start_follow(k: String, snap := true) -> void:
 	f.start()
 
 
-func _place_rendezvous() -> void:
+## The rendezvous house: its front door is openable, its hall is the arrival trigger.
+func _setup_rv_house() -> void:
+	rv_house = world.get_node("Residential/Houses/" + RV_HOUSE)
+	if world.has_method("clear_story_glass"):
+		world.clear_story_glass(rv_house)
+	var fd := rv_house.find_child("INT_Door_Front", true, false) as Node3D
+	var dl := rv_house.to_local(fd.global_position)
+	var inside := rv_house.to_global(Vector3(dl.x, 1.4, dl.z + 1.8))
+	var deg: float = world._toward_deg(fd, 95.0, inside)
+	rv_door = Interactable.attach(fd, {"kind": "hinge", "label": "Front Door", "open_deg": deg, "hinge_axis": Vector3.UP, "state_key": "ch9/%s/INT_Door_Front" % RV_HOUSE})
+	_rv_area = world._area("C9_Rendezvous", rv_house.to_global(Vector3(dl.x, 1.2, dl.z + 2.0)), Vector3(2.6, 2.4, 2.6), 2, func(_b): pass, rv_house.global_transform.basis)
+
+
+func _rv_door_local() -> Vector3:
+	var fd := rv_house.find_child("INT_Door_Front", true, false) as Node3D
+	return rv_house.to_local(fd.global_position)
+
+
+## In front of the door, on the porch side (the interior is house-local +z, the porch is -z).
+func _rv_porch() -> Vector3:
+	var dl := _rv_door_local()
+	return rv_house.to_global(Vector3(dl.x, 0.0, dl.z - 1.4))
+
+
+## Four places in the hall, found on the real floor (free for a body, reachable from the door, apart from each other), nearest the door first: Eddie, Ruth, Sarah, Marcus.
+func _rv_spots() -> Dictionary:
+	if not _rv_spot_cache.is_empty():
+		return _rv_spot_cache
+	var dl := _rv_door_local()
+	var floor_ref: float = rv_house.to_global(Vector3(0.0, 0.61, 0.0)).y
+	var start_w := rv_house.to_global(Vector3(dl.x, 0.61, dl.z + 1.0))
+	var sy: float = mover.floor_at(start_w.x, start_w.z, floor_ref)
+	if sy != INF:
+		start_w.y = sy
+	var cands: Array = []
+	for zi in range(0, 14):
+		for xi in range(-7, 8):
+			var lp := Vector3(dl.x + xi * 0.4, 0.61, dl.z + 1.4 + zi * 0.4)
+			var wp := rv_house.to_global(lp)
+			var fy: float = mover.floor_at(wp.x, wp.z, floor_ref)
+			if fy == INF:
+				continue
+			var fp := Vector3(wp.x, fy, wp.z)
+			var roomy: bool = mover.free_at(fp, 0.5, [0.5, 1.3])
+			if not roomy and not mover.free_at(fp, 0.28, [0.5, 1.3]):
+				continue
+			cands.append({"p": fp, "roomy": roomy, "d": Vector2(lp.x - dl.x, lp.z - dl.z).length()})
+	cands.sort_custom(func(a, b): return (0 if a["roomy"] else 1000.0) + a["d"] < (0 if b["roomy"] else 1000.0) + b["d"])
+	var chosen: Array = []
+	for c in cands:
+		var ok := true
+		for q in chosen:
+			if (c["p"] as Vector3).distance_to(q) < 1.1:
+				ok = false
+		if not ok or mover.route(start_w, c["p"], 0.28, [0.5, 1.3]).is_empty():
+			continue
+		chosen.append(c["p"])
+		if chosen.size() >= RV_ORDER.size():
+			break
+	for i in chosen.size():
+		_rv_spot_cache[RV_ORDER[i]] = chosen[i]
+	return _rv_spot_cache
+
+
+func _place_rendezvous() -> void:                      ## a LOAD / chapter start only (a safe zone): the hall places are found on the real floor
+	var spots := _rv_spots()
+	for k in RV_ORDER:
+		if k == "Marcus" and Game.has_flag("ch9_marcus_lost"):
+			continue
+		if not spots.has(k):
+			continue
+		var n: Node3D = {"Eddie": eddie, "Ruth": ruth, "Sarah": sarah, "Marcus": marcus}[k]
+		c5._reparent(n, world)
+		n.visible = true
+		var a = world.animators.get(k)
+		if a:
+			a.set_seated(false)
+			a.set_downed("")
+			a.turn_to_face = true
+			a.set_mood("calm")
+		world.place_survivor(n, spots[k])
+		if a:
+			a.face_towards(rv_house.to_global(Vector3(_rv_door_local().x, 1.4, _rv_door_local().z + 4.0)))
+
+
+func _place_rendezvous_old() -> void:
 	for k in RV_SPOTS:
 		if k == "Marcus" and Game.has_flag("ch9_marcus_lost"):
 			continue
@@ -488,7 +582,7 @@ func _guide() -> void:
 		t = marcus
 		label = "MARCUS"
 	elif Game.has_flag("ch9_escaped") and not Game.has_flag("ch9_rendezvous_reached") and Game.has_flag("ch9_lookback_done"):
-		t = c6.hl(RV_LOCAL + Vector3(0, 1.4, 0))
+		t = _rv_porch() + Vector3(0, 1.4, 0)
 		label = "RENDEZVOUS"
 	if hud.has_method("set_marker"):
 		hud.set_marker(t, label)
@@ -810,10 +904,59 @@ func _rendezvous_tick() -> void:
 func _rendezvous() -> void:
 	_busy["rv"] = true
 	Game.set_flag("ch9_rendezvous_reached")
+	_hold(true)
+	hud.set_marker(null, "")
 	for k in follows:
 		(follows[k] as VeilCompanionFollow).stop()
-	_place_rendezvous()
-	hud.set_marker(null, "")
+	if rv_door and not rv_door.is_open:
+		rv_door.set_open(true)
+		await get_tree().create_timer(rv_door.anim_time + 0.1).timeout
+	var spots := _rv_spots()
+	var dl := _rv_door_local()
+	var acts := {}
+	for k in RV_ORDER:
+		if k == "Marcus" and Game.has_flag("ch9_marcus_lost"):
+			continue
+		if not spots.has(k):
+			continue
+		var n: Node3D = {"Eddie": eddie, "Ruth": ruth, "Sarah": sarah, "Marcus": marcus}[k]
+		c5._reparent(n, world)
+		n.visible = true
+		acts[k] = mover.actor(n, world.animators.get(k), "person")
+	# one at a time through the door, each along a route over the real floor; the next goes when the last has crossed the door line; nobody is placed
+	var crossed := {}
+	var prev := ""
+	for k in acts:
+		if prev != "":
+			var tt := 0.0
+			while not crossed.get(prev, false) and tt < 10.0:
+				_rv_note(acts, crossed, dl)
+				await get_tree().process_frame
+				tt += get_process_delta_time()
+		mover.go(acts[k], spots[k], 2.2 if k == "Sarah" else 2.8)
+		prev = k
+	var t := 0.0
+	var retried := {}
+	while t < 45.0:
+		_rv_note(acts, crossed, dl)
+		var all_in := true
+		for k in acts:
+			var a: Dictionary = acts[k]
+			if not (a["done"] and a["ok"] and crossed.get(k, false)):
+				all_in = false
+			if a["done"] and not a["ok"] and retried.get(k, 0) < 3:
+				retried[k] = retried.get(k, 0) + 1
+				rv_door.set_open(true, true)
+				mover.go(a, spots[k], 2.6)
+		if all_in:
+			break
+		await get_tree().process_frame
+		t += get_process_delta_time()
+	for k in acts:
+		var an = world.animators.get(k)
+		if an:
+			an.walk_to([])
+			an.set_mood("calm")
 	var alive := not Game.has_flag("ch9_marcus_lost")
 	var npcs: Array = [marcus, eddie] if alive else [eddie, ruth]
 	await _talk_group("c9_road_alive" if alive else "c9_road_lost", npcs)
@@ -828,6 +971,13 @@ func _rendezvous() -> void:
 	_guide()
 	await hud.chapter_complete(CHAPTER)
 	_start_chapter10(false)                          # the road out of town starts at the rendezvous (displayed 11)
+
+
+func _rv_note(acts: Dictionary, crossed: Dictionary, dl: Vector3) -> void:
+	for k in acts:
+		var l := rv_house.to_local((acts[k]["node"] as Node3D).global_position)
+		if l.z > dl.z + 0.5 and absf(l.x - dl.x) < 2.6:
+			crossed[k] = true
 
 
 ## The next chapter (displayed CHAPTER 11 "No Safe Road", internally chapter10.gd) starts at the rendezvous.

@@ -21,7 +21,7 @@ const PHASES := {
 	Phase.WARNING: {"actors": "player, hounds", "doors": "", "input": "none", "camera": "front glass", "advance": "three hounds revealed at the glass"},
 	Phase.APPROACH: {"actors": "all", "doors": "", "input": "none", "camera": "route look-ahead", "advance": "player + Marcus at the pulling markers, stopped, facing the shelf; the queue formed; Sarah risen"},
 	Phase.PULL: {"actors": "player, Marcus, shelf", "doors": "", "input": "click struggle", "camera": "hands and shelf end", "advance": "shelf fully open"},
-	Phase.EVACUATE_AND_WALT: {"actors": "Eddie, Ruth, Sarah, Walt, hounds, player, Marcus", "doors": "rear exit, front doors", "input": "none", "camera": "Walt + hound A", "advance": "queue clear of the opening, Walt's attack done, hound C ready"},
+	Phase.EVACUATE_AND_WALT: {"actors": "Eddie, Ruth, Sarah, David, hounds, player, Marcus", "doors": "rear exit, front doors", "input": "none", "camera": "David + hound A", "advance": "queue clear of the opening, David's attack done, hound C ready"},
 	Phase.RETURN_TO_PUSH: {"actors": "player, Marcus", "doors": "", "input": "none", "camera": "route look-ahead", "advance": "both at the pushing markers, facing the shelf"},
 	Phase.HALF_PUSH: {"actors": "player, Marcus, shelf", "doors": "", "input": "none", "camera": "hands and shelf end", "advance": "shelf at half"},
 	Phase.MARCUS_ATTACK: {"actors": "Marcus, hound C", "doors": "", "input": "none", "camera": "contact, fall, pin", "advance": "Marcus pinned at MARCUS_DOWN, camera settled"},
@@ -41,7 +41,7 @@ const AISLE_HALF := 2.12
 const Q_EDDIE := Vector3(8.4, 0.04, 12.15)
 const Q_RUTH := Vector3(8.4, 0.04, 11.25)
 const Q_SARAH := Vector3(8.4, 0.04, 10.35)
-const WALT_FREEZE := Vector3(9.4, 0.04, 11.3)
+const DAVID_FREEZE := Vector3(9.4, 0.04, 11.3)
 const PLAYER_CLOSED := Vector3(11.52, 0.04, 13.78)
 const MARCUS_CLOSED := Vector3(11.52, 0.04, 13.12)
 const PLAYER_OPEN := Vector3(14.72, 0.04, 13.78)
@@ -60,14 +60,16 @@ const PLAYER_REGROUP := Vector3(8.0, 0.04, 19.6)
 const MARCUS_OUTSIDE := Vector3(9.8, 0.04, 20.6)
 const OPENING_APPROACH := Vector3(8.4, 0.04, 13.0)
 const OPENING_CLEAR := Vector3(8.4, 0.04, 15.0)
-const VIEW_ROUTE := [Vector3(14.8, 0.04, 12.55), Vector3(11.1, 0.04, 12.55)]    ## round the south-east end of the open shelf to where Walt's attack can be seen
+const VIEW_ROUTE := [Vector3(14.8, 0.04, 12.55), Vector3(11.1, 0.04, 12.55)]    ## round the south-east end of the open shelf to where David's attack can be seen
 const MARCUS_VIEW := Vector3(11.8, 0.04, 12.55)
 const RECOIL := Vector3(13.1, 0.04, 12.3)                                        ## the player steps back from the attack: from here the pinned Marcus is in plain view past the shelf end
 const FRONT_SPAWNS := [Vector3(-1.5, 0.0, -2.4), Vector3(0.2, 0.0, -2.8), Vector3(1.6, 0.0, -2.3)]
 const HOUND_B_POST := Vector3(6.6, 0.04, 12.6)                                   ## pressures the barricade area (west end of the shelf)
 const HOUND_C_LURK := Vector3(10.6, 0.04, 8.2)
-const HOUND_A_POST := Vector3(9.9, 0.04, 10.2)                                  ## south-east of Walt
-const WALT_DRAG_TO := Vector3(8.2, 0.04, 8.2)
+const HOUND_A_POST := Vector3(9.9, 0.04, 10.2)                                  ## south-east of David
+const DAVID_DRAG_TO := Vector3(8.2, 0.04, 8.2)
+const RUN_PERSON := 4.6                                                        ## a survivor's regular running speed (the companion follower's run speed)
+const RUN_PLAYER := 4.3                                                        ## the player's sprint
 const PERSON_R := 0.28
 const PLAYER_R := 0.28
 const HOUND_R := 0.4
@@ -101,6 +103,10 @@ var _st_won := false
 var _st_over := false
 var _shown_hint := ""
 var last_route_debug := {}
+var mover: Node
+var _c_engaged := false
+var _c_free := true
+var _watch_done := {}
 
 
 func setup(chapter9: Node) -> void:
@@ -112,6 +118,10 @@ func setup(chapter9: Node) -> void:
 	market = c9.market
 	player = c9.player
 	hud = c9.hud
+	mover = load("res://game/world/scene_mover.gd").new()
+	mover.name = "Mover"
+	add_child(mover)
+	mover.setup(world, player)
 
 
 func ml(p: Vector3) -> Vector3:
@@ -332,7 +342,25 @@ func _move(a: Dictionary, dest: Vector3, speed: float, via: Array = []) -> bool:
 	return true
 
 
+## A survivor runs its route with its own animator (a real run cycle at a real speed, following the floor); the route is swept for its size first and a stall is reported by the mover.
+func _person_leg(a: Dictionary, to_local: Vector3, speed: float) -> bool:
+	var wp := ml(to_local)
+	var fy: float = mover.floor_at(wp.x, wp.z, wp.y)
+	if fy != INF:
+		wp.y = fy
+	var ma: Dictionary = mover.actor(a["node"], a["anim"], "person")
+	ma["radius"] = a["radius"]
+	var anim = a["anim"]
+	anim.set_mood("scared")
+	var ok: bool = await mover.move(ma, wp, speed)
+	if not ok:
+		_report("walk failed: %s towards %s" % [a["node"].name, str(to_local)])
+	return ok
+
+
 func _leg(a: Dictionary, to: Vector3, speed: float) -> bool:
+	if a["kind"] == "person" and a["anim"] != null:
+		return await _person_leg(a, to, speed)
 	var n: Node3D = a["node"]
 	var kind: String = a["kind"]
 	var blocked := 0.0
@@ -435,20 +463,17 @@ func _report(msg: String) -> void:
 	push_warning("[evacuation] " + msg)
 
 
-## Recovery for an actor that did not make it: only moved when the camera cannot see it (never a visible teleport); otherwise it waits a little more first.
+## An actor that did not arrive is walked again (fresh route); it is NEVER placed: if it still cannot, that is reported and the sequence goes on from where it stands.
 func _recover(a: Dictionary, dest: Vector3) -> void:
 	if _near(a, dest, 0.6):
 		return
-	var tries := 0
-	while tries < 8:
-		var n: Node3D = a["node"]
-		var in_view: bool = player.camera.is_position_in_frustum(n.global_position + Vector3(0, 1.0, 0))
-		if not in_view or tries >= 7:
-			_report("recovered %s to %s" % [n.name, str(dest)])
-			_set_pos(a, dest)
+	var speed: float = RUN_PLAYER if a["kind"] == "player" else RUN_PERSON
+	for i in 2:
+		await _move(a, dest, speed)
+		if _near(a, dest, 0.6):
 			return
-		await get_tree().create_timer(0.5).timeout
-		tries += 1
+		await get_tree().create_timer(0.4).timeout
+	_report("%s did not reach %s" % [a["node"].name, str(dest)])
 
 
 # ================================================================ phases bookkeeping, speech, music
@@ -704,7 +729,7 @@ func start() -> void:
 	await _warning()
 	await _approach()
 	await _pull_phase()
-	await _evacuate_and_walt()
+	await _evacuate_and_david()
 	await _return_to_push()
 	await _half_push()
 	var helped := await _marcus_attack_and_choice()
@@ -775,6 +800,13 @@ func _assault(h: Node3D, i: int) -> void:
 		await get_tree().create_timer(randf_range(0.15, 0.7)).timeout
 
 
+func _david() -> Node3D:
+	if not Game.has_flag("ch8_temp_survivor_saved") or Game.has_flag("ch9_clerk_dead"):
+		return null
+	var n: Node3D = c8.temp
+	return n if n != null and is_instance_valid(n) else null
+
+
 func _approach() -> void:
 	_enter(Phase.APPROACH)
 	var injured_serious: bool = String(c9._injured()) == "serious"
@@ -783,10 +815,10 @@ func _approach() -> void:
 	var ea := _actor(c9.eddie, "person")
 	var ra := _actor(c9.ruth, "person")
 	var sa := _actor(c9.sarah, "person")
-	var clerk: Node3D = world.cashier
-	var wa: Dictionary = {}
-	if clerk and is_instance_valid(clerk) and not Game.has_flag("ch9_clerk_dead") and world.animators.has("Cashier"):
-		wa = _actor(clerk, "person")
+	var dn := _david()
+	var da: Dictionary = {}
+	if dn != null and world.animators.has("Survivor"):
+		da = _actor(dn, "person")
 	for a in [ma, ea, ra, sa]:
 		c5._reparent(a["node"], market)
 	# the assault instructions are spoken ONCE, as the movement begins
@@ -796,23 +828,26 @@ func _approach() -> void:
 	if sar:
 		sar.set_downed("")
 		sar.limp = 1.0 if injured_serious else 0.7
-	_go(ma, MARCUS_CLOSED, 4.4)
-	_go(ea, Q_EDDIE, 4.0)
-	_go(ra, Q_RUTH, 3.8)
-	if not wa.is_empty():
-		_go(wa, WALT_FREEZE, 3.2)
-	_rise_then_go(sa, Q_SARAH, 2.4 if injured_serious else 3.0)
-	_go(pa, PLAYER_CLOSED, 4.6)
+	_go(ma, MARCUS_CLOSED, RUN_PERSON)
+	_go(ea, Q_EDDIE, RUN_PERSON)
+	_go(ra, Q_RUTH, RUN_PERSON)
+	if not da.is_empty():
+		var dan = da["anim"]
+		if dan:
+			dan.set_downed("")
+			dan.limp = 0.9                                        # David is hurt: he gets up and runs, badly
+		_rise_then_go(da, DAVID_FREEZE, 3.4)
+	_rise_then_go(sa, Q_SARAH, 2.8 if injured_serious else 3.4)
+	_go(pa, PLAYER_CLOSED, RUN_PLAYER)
 	var group: Array = [pa, ma, ea, ra, sa]
-	if not wa.is_empty():
-		group.append(wa)
-	await _wait_until("approach arrivals", func(): return _all_done(group), 16.0)
-	# recovery for anyone who did not make it (reported; only out of sight)
+	if not da.is_empty():
+		group.append(da)
+	await _wait_until("approach arrivals", func(): return _all_done(group), 20.0)
 	var dests := {"Marcus": MARCUS_CLOSED, "Eddie": Q_EDDIE, "Ruth": Q_RUTH, "Sarah": Q_SARAH}
 	for a in [ma, ea, ra, sa]:
 		await _recover(a, dests[String(a["node"].name)])
-	if not wa.is_empty():
-		await _recover(wa, WALT_FREEZE)
+	if not da.is_empty():
+		await _recover(da, DAVID_FREEZE)
 	await _recover(pa, PLAYER_CLOSED)
 	# stopped, facing the shelf, hand contact ready
 	for a in [ma]:
@@ -822,8 +857,8 @@ func _approach() -> void:
 	for a in [ea, ra, sa]:
 		if a["anim"]:
 			a["anim"].face_towards(ml(Vector3(8.4, 1.0, 14.0)))
-	if not wa.is_empty() and wa["anim"]:
-		wa["anim"].face_towards(ml(Vector3(0.0, 1.0, 1.0)))
+	if not da.is_empty() and da["anim"]:
+		da["anim"].face_towards(ml(Vector3(0.0, 1.0, 1.0)))
 	await _look(func() -> Vector3: return _shelf_hands(), 7.0)
 	await _wait_until("facing the shelf", func(): return _look_error() < 0.12, 1.5)
 	await get_tree().create_timer(0.3).timeout
@@ -841,9 +876,27 @@ func _pull_phase() -> void:
 	await _pull()
 
 
-func _evacuate_and_walt() -> void:
+## A door opens as the first runner comes up to it (open in time, nobody waits at it); the doors' own leaves are opened by `_open_rear` / `_open_staff`.
+func _door_watch(door: String, actors: Array, dist: float) -> void:
+	if _watch_done.get(door, false):
+		return
+	_watch_done[door] = false
+	var center: Vector3 = REAR_DOOR if door == "rear" else STAFF_DOOR
+	while running and not _watch_done.get(door, false):
+		for a in actors:
+			var p: Vector3 = _pos(a)
+			if Vector2(p.x - center.x, p.z - center.z).length() < dist:
+				_watch_done[door] = true
+				if door == "rear":
+					await _open_rear()
+				else:
+					await _open_staff()
+				return
+		await get_tree().process_frame
+
+
+func _evacuate_and_david() -> void:
 	_enter(Phase.EVACUATE_AND_WALT)
-	await _open_rear()
 	var injured_serious: bool = String(c9._injured()) == "serious"
 	var ea := _actor(c9.eddie, "person")
 	var ra := _actor(c9.ruth, "person")
@@ -851,54 +904,31 @@ func _evacuate_and_walt() -> void:
 	var out: Array = c9.OUT_WAIT
 	c9._out_waiting = ["Eddie", "Ruth", "Sarah"]
 	_say("c9_pass_through")
-	# the bottleneck: one person in the opening at a time, released in order with spacing
-	var gate_free := func(a: Dictionary) -> bool:
-		var p: Vector3 = _pos(a)
-		return p.z > OPENING_CLEAR.z or p.z < 12.0
-	_go(ea, out[0], 3.6, [OPENING_APPROACH, OPENING_CLEAR])
+	_watch_done.erase("rear")
+	_door_watch("rear", [ea, ra, sa], 4.2)                     # the rear exit opens as the first of them reaches it
+	# one at a time through the opening, running; the others wait their turn
+	_go(ea, out[0], RUN_PERSON, [OPENING_APPROACH, OPENING_CLEAR, REAR_INSIDE])
 	# the player and Marcus take the short route round the shelf's south-east end to the viewing point (continuous, swept) and watch
 	var pa := _player_actor()
 	var ma := _actor(c9.marcus, "person")
-	_go(pa, VIEW_ROUTE[1], 4.4, [VIEW_ROUTE[0]])
-	_go(ma, MARCUS_VIEW, 4.4, [VIEW_ROUTE[0]])
+	_go(pa, VIEW_ROUTE[1], RUN_PLAYER, [VIEW_ROUTE[0]])
+	_go(ma, MARCUS_VIEW, RUN_PERSON, [VIEW_ROUTE[0]])
 	await _wait_until("Eddie through the opening", func(): return _pos(ea).z > OPENING_CLEAR.z, 8.0)
-	_go(ra, out[1], 3.6, [OPENING_APPROACH, OPENING_CLEAR])
+	_go(ra, out[1], RUN_PERSON, [OPENING_APPROACH, OPENING_CLEAR, REAR_INSIDE])
 	await _wait_until("Ruth through the opening", func(): return _pos(ra).z > OPENING_CLEAR.z, 8.0)
-	var sar = sa["anim"]
-	_go(sa, out[2], 2.3 if injured_serious else 3.0, [OPENING_APPROACH, OPENING_CLEAR])
+	_go(sa, out[2], 2.8 if injured_serious else 3.4, [OPENING_APPROACH, OPENING_CLEAR, REAR_INSIDE])
 	# the front doors give once the first of them is through
 	_burst_done = false
 	_front_burst()
-	await _wait_until("viewing point reached", func(): return pa["done"] and ma["done"], 14.0)
+	await _wait_until("viewing point reached", func(): return pa["done"] and ma["done"], 16.0)
 	await _recover(pa, VIEW_ROUTE[1])
 	await _wait_until("front doors burst", func(): return _burst_done, 6.0)
-	await _walt()
-	await _wait_until("queue clear of the opening", func(): return _pos(sa).z > OPENING_CLEAR.z + 0.5 and sa["done"], 14.0)
+	await _david_attack()
+	await _wait_until("queue clear of the opening", func(): return _pos(sa).z > OPENING_CLEAR.z + 0.5 and sa["done"], 20.0)
 	for a in [ea, ra, sa]:
-		await _recover(a, out[["Eddie", "Ruth", "Sarah"].find(String(a["node"].name))])
-	_assault_on = false
+		var i: int = ["Eddie", "Ruth", "Sarah"].find(String(a["node"].name))
+		await _recover(a, out[i])
 	await _hound_c_ready()
-
-
-## The front doors burst and the hounds come in, each by its own route and role: A takes Walt, B pressures the barricade, C lurks for Marcus.
-func _front_burst() -> void:
-	_assault_on = false
-	c5._set_doors(true)
-	p4._play("impact", ml(Vector3(0.0, 1.0, 0.3)), 9.0)
-	c8._dust(ml(Vector3(0.0, 2.4, 0.3)), 34)
-	world._shake(player.camera, 0.4, 0.04)
-	await get_tree().create_timer(1.0).timeout                 # the leaves reach a passable position before anybody crosses
-	var walt_at: Vector3 = WALT_FREEZE
-	_hound_role_a(walt_at)
-	_hound_role_b()
-	_hound_role_c()
-	_burst_done = true
-
-
-func _hound_role_a(_walt_at: Vector3) -> void:
-	var a := _actor(hound_a, "hound")
-	st()["evac_a"] = true
-	_hound_a_ready = await _move(a, HOUND_A_POST, 6.2, [Vector3(1.5, 0.04, 3.0)])
 
 
 var _burst_done := false
@@ -907,59 +937,138 @@ var _hound_b_ready := false
 var _hound_c_ready_flag := false
 
 
+## The front doors burst and the hounds come in at a run, each by its own route and role, and from then on they are always MOVING or in a stance: A closes on David (or circles the doorway when there is no David),
+## B throws itself at the barricade end again and again, C circles the south of the store waiting for its moment.
+func _front_burst() -> void:
+	_assault_on = false
+	c5._set_doors(true)
+	p4._play("impact", ml(Vector3(0.0, 1.0, 0.3)), 9.0)
+	c8._dust(ml(Vector3(0.0, 2.4, 0.3)), 34)
+	world._shake(player.camera, 0.4, 0.04)
+	await get_tree().create_timer(1.0).timeout                 # the leaves reach a passable position before anybody crosses
+	_hound_role_a()
+	_hound_role_b()
+	_hound_role_c()
+	_burst_done = true
+
+
+## Stance and lunge: crouched (Alert) facing the target, a beat, then a short lunge with the bite and back.
+func _hound_lunge(h: Node3D, at_local: Vector3) -> void:
+	if not is_instance_valid(h):
+		return
+	var d: Vector3 = at_local - h.position
+	d.y = 0.0
+	if d.length() < 0.2:
+		return
+	h.rotation.y = atan2(d.x, d.z)
+	c8._hplay(h, "Alert", 0.0)
+	await get_tree().create_timer(randf_range(0.5, 0.9)).timeout
+	if not is_instance_valid(h) or not running:
+		return
+	c8._hplay(h, "Attack_Bite", 0.0)
+	var from: Vector3 = h.position
+	var to: Vector3 = from + d.normalized() * minf(1.3, d.length() * 0.6)
+	if _step_clear(from, to, HOUND_R, HEIGHTS_HOUND):
+		var tw := h.create_tween()
+		tw.tween_property(h, "position", to, 0.18).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_IN)
+		await tw.finished
+		p4._play("impact", h.global_position + Vector3(0, 0.6, 0), 1.0)
+		if is_instance_valid(h):
+			var back := h.create_tween()
+			back.tween_property(h, "position", from, 0.4).set_trans(Tween.TRANS_SINE)
+			await back.finished
+	else:
+		await get_tree().create_timer(0.4).timeout
+
+
+## A hound that runs a loop of real routes (never stands still), in a stance with a lunge every other stop, until `stop` says so.
+func _hound_laps(h: Node3D, pts: Array, target_local: Vector3, stop: Callable) -> void:
+	var a := _actor(h, "hound")
+	var i := 0
+	while is_instance_valid(h) and running and not stop.call():
+		var ok: bool = await _move(a, pts[i % pts.size()], 6.0)
+		if not ok:
+			await get_tree().create_timer(0.6).timeout
+		i += 1
+		if stop.call() or not is_instance_valid(h):
+			break
+		if i % 2 == 0:
+			await _hound_lunge(h, target_local)
+		else:
+			c8._hplay(h, "Alert", 0.0)
+			var d: Vector3 = target_local - h.position
+			h.rotation.y = atan2(d.x, d.z)
+			await get_tree().create_timer(randf_range(0.3, 0.7)).timeout
+
+
+func _hound_role_a() -> void:
+	var a := _actor(hound_a, "hound")
+	_hound_a_ready = await _move(a, HOUND_A_POST, 6.2, [Vector3(1.5, 0.04, 3.0)])
+	# with David on the floor it closes in a stalking circle until its moment; without him it circles the doorway
+	var ring := [Vector3(8.0, 0.04, 9.4), HOUND_A_POST, Vector3(10.6, 0.04, 11.4), Vector3(8.6, 0.04, 8.2)]
+	var david_moment := func() -> bool: return _david() == null and Game.has_flag("ch9_clerk_dead") or phase >= Phase.RETURN_TO_PUSH
+	if _david() != null:
+		await _hound_laps(hound_a, [HOUND_A_POST, Vector3(9.0, 0.04, 9.0)], DAVID_FREEZE, func() -> bool: return Game.has_flag("ch9_clerk_dead") or phase >= Phase.RETURN_TO_PUSH)
+	await _hound_laps(hound_a, ring, Vector3(8.4, 0.04, 12.4), func() -> bool: return phase >= Phase.REAR_EXIT)
+
+
 func _hound_role_b() -> void:
 	var b := _actor(hound_b, "hound")
 	_hound_b_ready = await _move(b, HOUND_B_POST, 6.2, [Vector3(1.5, 0.04, 3.0)])
-	while is_instance_valid(hound_b) and running and phase < Phase.REAR_EXIT:
-		c8._hplay(hound_b, "Attack_Bite", 0.0)
-		p4._play("impact", ml(Vector3(6.8, 1.0, 13.2)), 4.0)
-		await get_tree().create_timer(randf_range(0.8, 1.5)).timeout
+	await _hound_laps(hound_b, [HOUND_B_POST, Vector3(5.2, 0.04, 10.4), Vector3(6.4, 0.04, 8.0), Vector3(6.8, 0.04, 12.6)], ml_inv_shelf_west(), func() -> bool: return phase >= Phase.REAR_EXIT)
+
+
+func ml_inv_shelf_west() -> Vector3:                     ## where hound B aims: the west end of the shelf, wherever it is now
+	return c8._secure_pallet.position + Vector3(-AISLE_HALF, 0.0, 0.0)
 
 
 func _hound_role_c() -> void:
 	var c := _actor(hound_c, "hound")
 	_hound_c_ready_flag = await _move(c, HOUND_C_LURK, 6.0, [Vector3(1.5, 0.04, 3.0)])
-	if is_instance_valid(hound_c):
-		c8._hplay(hound_c, "Alert", 0.0)
+	_c_free = false
+	await _hound_laps(hound_c, [HOUND_C_LURK, Vector3(12.4, 0.04, 8.6), Vector3(12.0, 0.04, 6.2), Vector3(9.0, 0.04, 6.6)], PLAYER_CLOSED, func() -> bool: return _c_engaged)
+	_c_free = true
 
 
 func _hound_c_ready() -> void:
 	await _wait_until("hound C ready", func(): return _hound_c_ready_flag, 8.0)
 
 
-## Walt froze on the sales floor; hound A takes him in front of the player (both are framed; the shelf's end is not in the way from the viewing point).
-func _walt() -> void:
-	var clerk: Node3D = world.cashier
-	if Game.has_flag("ch9_clerk_dead") or clerk == null or not is_instance_valid(clerk):
+## David (only when the player saved him in the previous chapter) is hurt and cannot run: hound A takes him in front of the player. Without him this beat does not exist: the next scene is Marcus's.
+func _david_attack() -> void:
+	var dn := _david()
+	if dn == null:
 		return
-	var wa = world.animators.get("Cashier")
-	_say("c9_walt_freeze")
+	var da = world.animators.get("Survivor")
+	_say("c9_david_freeze")
 	await _wait_until("hound A at the sales floor", func(): return _hound_a_ready or not is_instance_valid(hound_a), 8.0)
-	# both Walt and the hound in frame, with a clear line of sight to each
+	# both David and the hound in frame, with a clear line of sight to each
 	_look(func() -> Vector3:
-		var wp: Vector3 = clerk.global_position + Vector3(0, 1.1, 0)
+		var wp: Vector3 = dn.global_position + Vector3(0, 1.1, 0)
 		var hp: Vector3 = hound_a.global_position + Vector3(0, 0.7, 0) if is_instance_valid(hound_a) else wp
 		return wp.lerp(hp, 0.5), 5.0, false)
 	await get_tree().create_timer(0.7).timeout
-	var vis_ok := _line_clear(player.camera.global_position, clerk.global_position + Vector3(0, 1.1, 0)) and (not is_instance_valid(hound_a) or _line_clear(player.camera.global_position, hound_a.global_position + Vector3(0, 0.7, 0)))
+	var vis_ok := _line_clear(player.camera.global_position, dn.global_position + Vector3(0, 1.1, 0)) and (not is_instance_valid(hound_a) or _line_clear(player.camera.global_position, hound_a.global_position + Vector3(0, 0.7, 0)))
 	if not vis_ok:
-		_report("Walt's attack is partly hidden from the viewing point")
-	# contact: the lunge, the bite
-	var dir: Vector3 = (clerk.position - hound_a.position)
+		_report("David's attack is partly hidden from the viewing point")
+	# the hound runs in on him (a real route), the lunge, the bite
+	await _move(_actor(hound_a, "hound"), Vector3(dn.position.x + 1.3, 0.04, dn.position.z - 0.6), 6.4)
+	var dir: Vector3 = (dn.position - hound_a.position)
 	dir.y = 0.0
 	hound_a.rotation.y = atan2(dir.x, dir.z)
 	c8._hplay(hound_a, "Attack_Bite", 0.0)
 	await get_tree().create_timer(0.25).timeout
 	Game.set_flag("ch9_clerk_dead")
 	_say("c9_clerk_taken")
-	Sfx.play("hurt", clerk.global_position + Vector3(0, 1.3, 0), 6.0, 1.3)
-	p4._play("impact", clerk.global_position + Vector3(0, 1.0, 0), 2.0)
-	if wa:
-		wa.walk_to([])
-		wa.set_downed("back")
+	Sfx.play("hurt", dn.global_position + Vector3(0, 1.3, 0), 6.0, 1.3)
+	p4._play("impact", dn.global_position + Vector3(0, 1.0, 0), 2.0)
+	if da:
+		da.walk_to([])
+		da.limp = 0.0
+		da.set_downed("back")                                  # on his front, clawing at the floor
 	# dragged along the open lane (x ~8.2 between the shelves), a validated line, out of sight
-	await _drag(clerk, hound_a, [Vector3(WALT_DRAG_TO.x, 0.04, WALT_DRAG_TO.z)], 2.2, Vector3(0.9, 0, 0.5))
-	clerk.visible = false
+	await _drag(dn, hound_a, [Vector3(DAVID_DRAG_TO.x, 0.04, DAVID_DRAG_TO.z)], 2.2, Vector3(0.9, 0, 0.5))
+	dn.visible = false
 	if is_instance_valid(hound_a):
 		c8._hplay(hound_a, "Alert", 0.0)
 	await _look(ml(Vector3(9.0, 1.2, 11.0)), 5.0, false)
@@ -1029,6 +1138,8 @@ func _marcus_attack_and_choice() -> bool:
 	c9.report["pin_runs"] += 1
 	var ma := _actor(c9.marcus, "person")
 	var hc := _actor(hound_c, "hound")
+	_c_engaged = true
+	await _wait_until("hound C free", func(): return _c_free, 6.0)
 	_look(func() -> Vector3:
 		var mp: Vector3 = c9.marcus.global_position + Vector3(0, 1.0, 0)
 		var hp: Vector3 = hound_c.global_position + Vector3(0, 0.6, 0) if is_instance_valid(hound_c) else mp
@@ -1036,7 +1147,6 @@ func _marcus_attack_and_choice() -> bool:
 	var near_m := Vector3(ma["node"].position.x + 0.2, 0.04, ma["node"].position.z - 1.5)
 	if not await _move(hc, near_m, 6.4):
 		_report("hound C could not reach Marcus")
-		_set_pos(hc, near_m)
 	var dir: Vector3 = c9.marcus.position - hound_c.position
 	dir.y = 0.0
 	hound_c.rotation.y = atan2(dir.x, dir.z)
@@ -1064,19 +1174,11 @@ func _marcus_attack_and_choice() -> bool:
 	while _speaking or Dialogue.is_busy():                       # let the line finish: the player gets the whole window
 		await get_tree().process_frame
 	_enter(Phase.CHOICE)
-	var window: float = c9.pin_window() * 0.55                  # 3.85 / 5.5 / 7.15 s by trust
-	st()["pin_window"] = window
-	var left := window
-	var helped := false
-	while left > 0.0 and running:
-		hud.set_hint("E - HELP MARCUS   %d" % ceili(left))
-		await get_tree().process_frame
-		left -= get_process_delta_time()
-		if Input.is_action_just_pressed("interact"):
-			helped = true
-			break
+	# the choice itself (no timer, no key to hit): go back for him or keep running
 	hud.set_hint("")
-	return helped
+	var idx: int = await p4.choice.ask("MARCUS IS DOWN", ["Go back for Marcus", "Keep running - leave him"], player)
+	st()["marcus_choice"] = "help" if idx == 0 else "leave"
+	return idx == 0
 
 
 func _rescue() -> bool:
@@ -1151,23 +1253,19 @@ func _staff_exit(saved: bool) -> void:
 	_enter(Phase.STAFF_EXIT)
 	var pa := _player_actor()
 	var ma := _actor(c9.marcus, "person")
-	_claim("staff", Phase.STAFF_EXIT)
+	_watch_done.erase("staff")
 	if saved:
-		# Marcus reaches the staff door, opens it and crosses first; the player follows
-		await _move(ma, STAFF_APPROACH, 4.4)
-		await _look(ml(STAFF_DOOR + Vector3(0, 1.3, 0)), 6.0, false)
-		await _open_staff()
-		_go(ma, STAFF_CLEAR, 4.2)
-		await _move(pa, STAFF_APPROACH, 4.6)
-		await _wait_until("Marcus across the staff door", func(): return ma["done"], 5.0)
-		await _move(pa, STAFF_CLEAR, 4.6)
+		# Marcus runs ahead, opens the staff door as he reaches it and goes through first; the player is a few strides behind him
+		_door_watch("staff", [ma], 2.6)
+		_go(ma, STAFF_CLEAR, RUN_PERSON, [STAFF_APPROACH])
+		await get_tree().create_timer(0.7).timeout
+		await _move(pa, STAFF_CLEAR, RUN_PLAYER, [STAFF_APPROACH])
+		await _wait_until("Marcus across the staff door", func(): return ma["done"], 6.0)
+		await _look(ml(STAFF_DOOR + Vector3(0, 1.3, 0)), 6.0)          # turn back only after crossing, to see it shut
 		await _close_staff([pa, ma])
 	else:
-		await _move(pa, STAFF_APPROACH, 4.8)
-		await _look(ml(STAFF_DOOR + Vector3(0, 1.3, 0)), 6.0)
-		await _open_staff()
-		await _move(pa, STAFF_CLEAR, 4.8)
-		# turn back only after crossing, to see it shut
+		_door_watch("staff", [pa], 2.6)
+		await _move(pa, STAFF_CLEAR, RUN_PLAYER, [STAFF_APPROACH])
 		await _look(ml(STAFF_DOOR + Vector3(0, 1.3, 0)), 6.0)
 		await _close_staff([pa])
 	await _look(ml(REAR_INSIDE + Vector3(0, 1.4, 0.0)), 6.0, false)
@@ -1177,11 +1275,12 @@ func _rear_exit(saved: bool) -> void:
 	_enter(Phase.REAR_EXIT)
 	var pa := _player_actor()
 	var ma := _actor(c9.marcus, "person")
+	# the rear door is still open from the group's run (it opened as Eddie reached it); the corridor, the doorway, the lot
 	if saved:
-		_go(ma, MARCUS_OUTSIDE, 4.4, [REAR_INSIDE])
-	await _move(pa, REAR_CLOSE_POS, 4.8, [REAR_INSIDE])
+		_go(ma, MARCUS_OUTSIDE, RUN_PERSON, [REAR_INSIDE])
+	await _move(pa, REAR_CLOSE_POS, RUN_PLAYER, [REAR_INSIDE])
 	if saved:
-		await _wait_until("Marcus outside", func(): return ma["done"], 6.0)
+		await _wait_until("Marcus outside", func(): return ma["done"], 8.0)
 		await _recover(ma, MARCUS_OUTSIDE)
 	await _look(ml(REAR_DOOR + Vector3(0, 1.3, 0)), 6.0)
 	await _wait_until("everyone clear of the rear leaf", func(): return _pos(pa).z > REAR_DOOR.z + 0.9, 2.0)
@@ -1211,38 +1310,13 @@ func _regroup(saved: bool) -> void:
 
 
 # ================================================================ loads
-## A load while the evacuation had not finished: Marcus's outcome (and Walt) are never undone. With an outcome stored the sequence resumes at the staff door; otherwise it replays from the warning.
+## A load while the evacuation had not finished replays it from the warning, as the safe checkpoint had it: nobody is placed anywhere (the golden rule), so the outcomes that only exist because the
+## sequence got further (David taken, Marcus down) are cleared with it and decided again - never a half-finished scene with people teleported into it, never contradictory flags.
 func resume() -> void:
 	if running:
 		return
-	var saved := Game.has_flag("ch9_marcus_saved")
-	var lost := Game.has_flag("ch9_marcus_lost")
-	if saved and lost:                                   # contradictory flags can never survive a load: the later-written one is not knowable, so the safe reading is "saved"
-		Game.flags.erase("ch9_marcus_lost")
-		lost = false
-	if not (saved or lost):
-		start()
-		return
-	running = true
-	_own_player(true)
-	shelf_set(0.0 if saved else 0.5)
-	world.cashier.visible = false
-	var out: Array = c9.OUT_WAIT
-	for i in 3:
-		var n: Node3D = [c9.eddie, c9.ruth, c9.sarah][i]
-		c5._reparent(n, market)
-		n.visible = true
-		world.place_survivor(n, out[i])
-	_open_rear()
-	var pa := _player_actor()
-	_set_pos(pa, STAFF_APPROACH)
-	if saved:
-		c5._reparent(c9.marcus, market)
-		c9.marcus.visible = true
-		world.place_survivor(c9.marcus, STAFF_APPROACH + Vector3(0.6, 0, -0.4))
-	else:
-		c9.marcus.visible = false
-	_frenzy(true)
-	await _staff_exit(saved)
-	await _rear_exit(saved)
-	await _regroup(saved)
+	for f in ["ch9_marcus_saved", "ch9_marcus_lost", "ch9_clerk_dead"]:
+		Game.flags.erase(f)
+	st().erase("marcus_outcome")
+	st()["evac_marcus_down"] = false
+	start()

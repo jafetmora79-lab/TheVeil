@@ -7389,13 +7389,13 @@
  "c9_clerk_taken": {
   "lines": [
    {
-    "speaker": "Cashier",
-    "text": "NO - no, please - HELP ME!",
+    "speaker": "Survivor",
+    "text": "No - NO - not again - HELP ME!",
     "time": 2.0
    },
    {
     "speaker": "Eddie",
-    "text": "WALT! ...Don't stop! Keep running!",
+    "text": "DAVID! ...Keep moving! Don't look back!",
     "time": 2.4
    }
   ]
@@ -7414,12 +7414,12 @@
    }
   ]
  },
- "c9_walt_freeze": {
+ "c9_david_freeze": {
   "lines": [
    {
     "speaker": "Eddie",
-    "text": "WALT! Move! The doorway - WALT!",
-    "time": 2.0
+    "text": "David! You can't run on that leg - get behind us! DAVID!",
+    "time": 2.6
    }
   ]
  },
