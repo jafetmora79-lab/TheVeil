@@ -10,6 +10,7 @@ is in `docs/HANDOFF.md`; story and art direction are in `docs/THE_VEIL_MASTER_CO
   `codex/*` and `cline/*` branch has been merged into it, via `merge/everything`.
   - Start new work from it, on a new branch: `claude/<topic>`.
   - Don't merge into it without the owner's say-so.
+- **2026-11-23:** the owner asked for everything on `story/noah-rescue` to be put on the default branch (done, fast-forward). Getting the Windows zip onto another device: `docs/HANDOFF_DOWNLOAD.md`.
 - **Engine:** Godot **4.3 stable**, Compatibility renderer (GL). The repository root is the project root.
 - **Windows build:** `docs/download/TheVeil_Windows.zip` (it is also on the owner's PC).
   - Contents: `TheVeil.exe` (stock 4.3 template), `TheVeil.pck`, `TheVeil_TrailerMode.bat`,
