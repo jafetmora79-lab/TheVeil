@@ -53,14 +53,14 @@ func free_at(p: Vector3, radius: float, heights: Array) -> bool:
 	return _clear_at(Vector3(p.x, fy, p.z), radius, heights)
 
 
-func step_clear(from: Vector3, to: Vector3, radius: float, heights: Array) -> bool:
+func step_clear(from: Vector3, to: Vector3, radius: float, heights: Array, lift := -INF) -> bool:
 	var q := PhysicsShapeQueryParameters3D.new()
 	var sph := SphereShape3D.new()
 	sph.radius = radius
 	q.shape = sph
 	q.collision_mask = SOLID_MASK
 	q.exclude = [player.get_rid()]
-	var yb := maxf(from.y, to.y)                          # a step or a kerb is not a wall: the sweep runs level at the higher floor, so only things above the knee stop a body
+	var yb := maxf(maxf(from.y, to.y), lift)                          # a step or a kerb is not a wall: the sweep runs level at the higher floor, so only things above the knee stop a body
 	for h in heights:
 		q.transform = Transform3D(Basis(), Vector3(from.x, yb + h, from.z))
 		q.motion = Vector3(to.x - from.x, 0.0, to.z - from.z)
@@ -97,53 +97,67 @@ func route(from: Vector3, to: Vector3, radius: float, heights: Array, margin := 
 	if gy == INF:
 		return []
 	ys[g] = gy
-	var open := {s: 0.0}
-	var cost := {s: 0.0}
-	var came := {}
-	var found := false
-	var it := 0
-	while not open.is_empty() and it < 120000:
-		it += 1
-		var cur: Vector2i = s
-		var best := INF
-		for k in open:
-			if open[k] < best:
-				best = open[k]
-				cur = k
-		open.erase(cur)
-		if cur == g:
-			found = true
-			break
-		var cy: float = ys.get(cur, from.y)
-		for d in [Vector2i(1, 0), Vector2i(-1, 0), Vector2i(0, 1), Vector2i(0, -1), Vector2i(1, 1), Vector2i(1, -1), Vector2i(-1, 1), Vector2i(-1, -1)]:
-			var nb: Vector2i = cur + d
-			if nb.x < 0 or nb.y < 0 or nb.x >= w or nb.y >= hg:
-				continue
-			var ny: float = open_cell.call(nb, cy) if nb != g else gy
-			if ny == INF or absf(ny - cy) > STEP_UP:
-				continue
-			if d.x != 0 and d.y != 0:
-				var a_ok: float = open_cell.call(Vector2i(cur.x + d.x, cur.y), cy)
-				var b_ok: float = open_cell.call(Vector2i(cur.x, cur.y + d.y), cy)
-				if a_ok == INF or b_ok == INF:
-					continue
-			var nc: float = cost[cur] + (1.414 if d.x != 0 and d.y != 0 else 1.0)
-			if not cost.has(nb) or nc < cost[nb]:
-				cost[nb] = nc
-				came[nb] = cur
-				ys[nb] = ny
-				open[nb] = nc + Vector2(nb - g).length() * 1.25
-	if not found:
-		return []
-	var cells: Array = [g]
-	while cells[0] != s and came.has(cells[0]):
-		cells.push_front(came[cells[0]])
+	var bad := {}                                       # cell-to-cell edges a real sweep refused (a thin rail between two clear cells): banned, the search runs again
 	var pts: Array = []
-	for c in cells:
-		var pz: Vector2 = cell_pos.call(c)
-		pts.append(Vector3(pz.x, ys.get(c, from.y), pz.y))
-	pts[0] = from
-	pts[pts.size() - 1] = to
+	var attempt := 0
+	while attempt < 14:
+		attempt += 1
+		var open := {s: 0.0}
+		var cost := {s: 0.0}
+		var came := {}
+		var found := false
+		var it := 0
+		while not open.is_empty() and it < 120000:
+			it += 1
+			var cur: Vector2i = s
+			var best := INF
+			for k in open:
+				if open[k] < best:
+					best = open[k]
+					cur = k
+			open.erase(cur)
+			if cur == g:
+				found = true
+				break
+			var cy: float = ys.get(cur, from.y)
+			for d in [Vector2i(1, 0), Vector2i(-1, 0), Vector2i(0, 1), Vector2i(0, -1), Vector2i(1, 1), Vector2i(1, -1), Vector2i(-1, 1), Vector2i(-1, -1)]:
+				var nb: Vector2i = cur + d
+				if nb.x < 0 or nb.y < 0 or nb.x >= w or nb.y >= hg:
+					continue
+				var ny: float = open_cell.call(nb, cy) if nb != g else gy
+				if ny == INF or absf(ny - cy) > STEP_UP or bad.has("%d,%d>%d,%d" % [cur.x, cur.y, nb.x, nb.y]):
+					continue
+				if d.x != 0 and d.y != 0:
+					var a_ok: float = open_cell.call(Vector2i(cur.x + d.x, cur.y), cy)
+					var b_ok: float = open_cell.call(Vector2i(cur.x, cur.y + d.y), cy)
+					if a_ok == INF or b_ok == INF:
+						continue
+				var nc: float = cost[cur] + (1.414 if d.x != 0 and d.y != 0 else 1.0)
+				if not cost.has(nb) or nc < cost[nb]:
+					cost[nb] = nc
+					came[nb] = cur
+					ys[nb] = ny
+					open[nb] = nc + Vector2(nb - g).length() * 1.25
+		if not found:
+			return []
+		var cells: Array = [g]
+		while cells[0] != s and came.has(cells[0]):
+			cells.push_front(came[cells[0]])
+		pts = []
+		for c in cells:
+			var pz: Vector2 = cell_pos.call(c)
+			pts.append(Vector3(pz.x, ys.get(c, from.y), pz.y))
+		pts[0] = from
+		pts[pts.size() - 1] = to
+
+		var clean := true
+		for ei in range(cells.size() - 1):
+			if not step_clear(pts[ei], pts[ei + 1], radius, heights):
+				bad["%d,%d>%d,%d" % [cells[ei].x, cells[ei].y, cells[ei + 1].x, cells[ei + 1].y]] = true
+				bad["%d,%d>%d,%d" % [cells[ei + 1].x, cells[ei + 1].y, cells[ei].x, cells[ei].y]] = true
+				clean = false
+		if clean:
+			break
 	# string pulling, but only over level ground: a stretch that climbs keeps its cells (the steps are where they are)
 	var out: Array = []
 	var i := 0
@@ -249,7 +263,7 @@ func _leg(a: Dictionary, to: Vector3, speed: float) -> bool:
 		var fy := floor_at(nxt.x, nxt.z, cur.y)
 		if fy != INF:
 			nxt.y = fy
-		if step_clear(cur, nxt, a["radius"], a["heights"]):
+		if step_clear(cur, nxt, a["radius"], a["heights"], tgt.y):          # a climbing leg is swept level at its goal floor (the step ahead is not a wall)
 			blocked = 0.0
 			set_pos(a, nxt)
 			expected = nxt

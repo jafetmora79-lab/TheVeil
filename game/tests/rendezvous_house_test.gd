@@ -42,15 +42,25 @@ func _run() -> void:
 	var r: Array = mv.route(rear, out_pt, 0.28, [0.5, 1.3], 20.0)
 	ok("route_rear_lot_to_the_door", not r.is_empty(), "pts %d y %s" % [r.size(), str(out_pt.y)])
 	var spots: Dictionary = c9._rv_spots()
-	ok("four_hall_places", spots.size() == 4, str(spots.keys()))
+	ok("four_hall_places", spots.has("Eddie") and spots.has("Ruth") and spots.has("Sarah") and spots.has("Marcus"), str(spots.keys()))
 	for k in spots:
 		ok("place_free_" + k, mv.free_at(spots[k], 0.28, [0.5, 1.3]))
-	var keys: Array = spots.keys()
+	var keys: Array = ["Eddie", "Ruth", "Sarah", "Marcus"]
 	var worst := 99.0
 	for i in keys.size():
 		for j in range(i + 1, keys.size()):
 			worst = minf(worst, (spots[keys[i]] as Vector3).distance_to(spots[keys[j]]))
 	ok("places_apart", worst >= 1.0, "%.2f" % worst)
+	ok("the_player_has_a_living_room_place", spots.has("Player"))
+	if spots.has("Player"):
+		var pw: Vector3 = spots["Player"]
+		ok("player_place_free", mv.free_at(pw, 0.28, [0.5, 1.3]))
+		var far := 99.0
+		for k in ["Eddie", "Ruth", "Sarah", "Marcus"]:
+			far = minf(far, pw.distance_to(spots[k]))
+		ok("player_place_clear_of_the_others", far >= 1.2, "%.2f" % far)
+		var door_w: Vector3 = c9.rv_house.to_global(Vector3(dl.x, 0.0, dl.z))
+		ok("player_place_away_from_the_door", Vector2(pw.x - door_w.x, pw.z - door_w.z).length() >= 2.0)
 	ok("spots_for_everyone", spots.size() >= 4)
 	# a survivor walks in from the porch: over the door line, to its place
 	var eddie: Node3D = w.eddie
@@ -69,6 +79,20 @@ func _run() -> void:
 		var l: Vector3 = c9.rv_house.to_local(eddie.global_position)
 		if l.z > dl.z + 0.5 and absf(l.x - dl.x) < 2.6:
 			crossed = true
+	if spots.has("Player"):
+		var pres := [false, false]
+		var pa: Dictionary = mv.actor(w.player, null, "player")
+		w.player.global_position = out_pt
+		var prunner := func():
+			pres[0] = await mv.move(pa, spots["Player"], 3.6)
+			pres[1] = true
+		prunner.call()
+		var pg := 0
+		while not pres[1] and pg < 1500:
+			await process_frame
+			pg += 1
+		ok("player_walks_into_the_living_room", pres[1] and pres[0], "frames %d fails %s" % [pg, str(mv.failures.slice(-1))])
+		eddie.global_position = out_pt
 	ok("walker_goes_in_over_the_door_line", res[1] and res[0] and crossed, "frames %d fails %s" % [g, str(mv.failures.slice(-2))])
 	print("RESULT %s (%d failures)" % ["PASS" if fails == 0 else "FAIL", fails])
 	quit()

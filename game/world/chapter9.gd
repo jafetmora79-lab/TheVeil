@@ -438,6 +438,24 @@ func _rv_spots() -> Dictionary:
 			break
 	for i in chosen.size():
 		_rv_spot_cache[RV_ORDER[i]] = chosen[i]
+	# the player gets a place deeper in the living room, clear of the door, the stairs and the others: the most open cell (0.7 m clearance) 2.6 - 6 m from the door and as far from the companions as it goes
+	var best: Variant = null
+	var best_score := -1.0
+	for tier in [[0.7, 2.6, 6.0], [0.55, 2.2, 7.5], [0.28, 2.0, 9.0]]:                  # as roomy and as deep as the house allows
+		for c in cands:
+			var d: float = c["d"]
+			if d < tier[1] or d > tier[2] or not mover.free_at(c["p"], tier[0], [0.5, 1.3]):
+				continue
+			var m := 99.0
+			for q in chosen:
+				m = minf(m, (c["p"] as Vector3).distance_to(q))
+			if m > best_score and not mover.route(start_w, c["p"], 0.28, [0.5, 1.3]).is_empty():
+				best_score = m
+				best = c["p"]
+		if best != null:
+			break
+	if best != null:
+		_rv_spot_cache["Player"] = best
 	return _rv_spot_cache
 
 
@@ -923,6 +941,10 @@ func _rendezvous() -> void:
 		c5._reparent(n, world)
 		n.visible = true
 		acts[k] = mover.actor(n, world.animators.get(k), "person")
+	# the player first walks on into the living room, out of the doorway (otherwise the others run into them at the door), and turns to the door
+	if spots.has("Player"):
+		await mover.move(mover.actor(player, null, "player"), spots["Player"], 3.6)
+		await c8._turn_to(rv_house.to_global(Vector3(dl.x, 1.4, dl.z)), 0.6)
 	# everybody runs in together (a short stagger, nobody waits for anybody: they pass one another and never pass through a wall), each along its own route over the real floor to its place; nobody is placed
 	var crossed := {}
 	for k in acts:
@@ -945,6 +967,27 @@ func _rendezvous() -> void:
 			break
 		await get_tree().process_frame
 		t += get_process_delta_time()
+	# the last one in shuts the door behind them all (once nobody is in its swing)
+	var door_w := rv_house.to_global(Vector3(dl.x, 0.0, dl.z))
+	var tc := 0.0
+	while tc < 6.0:
+		var clear := true
+		for k in acts:
+			var cp: Vector3 = (acts[k]["node"] as Node3D).global_position
+			if Vector2(cp.x - door_w.x, cp.z - door_w.z).length() < 1.7:
+				clear = false
+		if clear:
+			break
+		await get_tree().process_frame
+		tc += get_process_delta_time()
+	if rv_door:
+		var last_k: String = acts.keys()[acts.size() - 1]
+		var lan = world.animators.get(last_k)
+		if lan:
+			lan.face_towards(door_w + Vector3(0, 1.2, 0))
+		Sfx.play("door_close", door_w + Vector3(0, 1.0, 0), -2.0, 0.8)
+		rv_door.set_open(false)
+		await get_tree().create_timer(rv_door.anim_time + 0.2).timeout
 	for k in acts:
 		var an = world.animators.get(k)
 		if an:
