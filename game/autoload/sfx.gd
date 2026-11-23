@@ -62,8 +62,8 @@ func _ready() -> void:
 	_streams["step"] = _make(0.2, func(t, i): return _step_wave(t, i, 1.0))
 	_streams["step_soft"] = _make(0.18, func(t, i): return _step_wave(t, i, 0.45))
 	# interaction sounds, LOW and soft (the old ones sat at 200 - 2200 Hz and were reported as shrill): a worn wooden door creaking open, a door thudding shut with a dull latch, a pickup that is a rustle and a soft tock
-	_streams["door_open"] = _make(0.75, func(t, i): return (sin(TAU * (88.0 + 26.0 * sin(t * 5.5) + 22.0 * t) * t) * 0.24 + _lp_noise(i, 12) * 0.13 * (0.5 + 0.5 * sin(t * 33.0))) * sin(PI * clampf(t / 0.75, 0.0, 1.0)) + sin(TAU * 70.0 * t) * 0.3 * exp(-t * 40.0))
-	_streams["door_close"] = _make(0.32, func(t, i): return (_lp_noise(i, 8) * 0.5 + sin(TAU * 62.0 * t) * 0.7) * exp(-t * 20.0) + (sin(TAU * 170.0 * (t - 0.07)) * exp(-(t - 0.07) * 55.0) * 0.28 if t > 0.07 else 0.0))
+	_streams["door_open"] = _make(0.75, func(t, i): return 0.8 * (sin(TAU * (88.0 + 26.0 * sin(t * 5.5) + 22.0 * t) * t) * 0.24 + _lp_noise(i, 12) * 0.13 * (0.5 + 0.5 * sin(t * 33.0))) * sin(PI * clampf(t / 0.75, 0.0, 1.0)) + sin(TAU * 70.0 * t) * 0.3 * exp(-t * 40.0))
+	_streams["door_close"] = _make(0.32, func(t, i): return 0.55 * (_lp_noise(i, 8) * 0.5 + sin(TAU * 62.0 * t) * 0.7) * exp(-t * 20.0) + (sin(TAU * 170.0 * (t - 0.07)) * exp(-(t - 0.07) * 55.0) * 0.28 if t > 0.07 else 0.0))
 	_streams["pickup"] = _make(0.2, func(t, i): return (_lp_noise(i, 7) * 0.34 * exp(-t * 26.0) + sin(TAU * 290.0 * t) * 0.3 * exp(-t * 24.0) + sin(TAU * 435.0 * t) * 0.1 * exp(-t * 30.0)))
 	_streams["fridge_hum"] = _make(1.0, _hum, true)
 	_streams["ambience"] = _make(3.0, _amb, true)

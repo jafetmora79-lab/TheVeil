@@ -1787,7 +1787,7 @@ func _heavy_drag(t: float, i: int, length: float) -> float:
 		var d: float = t - kt * length / 2.6
 		if d > 0.0 and d < 0.25:
 			knock += sin(TAU * 78.0 * d) * exp(-d * 26.0) * 0.5
-	return (body * (0.35 + 0.65 * pulse) + grit + knock) * env * 1.2
+	return (body * (0.35 + 0.65 * pulse) + grit + knock) * env * 0.5          # (low sounds read louder than they measure: kept well under the old squeal)
 
 
 ## The stack lands against the door: one short solid thud.

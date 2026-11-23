@@ -84,7 +84,7 @@ func setup(e: Node) -> void:
 		var d2: float = t - 1.1
 		if d2 > 0.0:
 			s += (sin(TAU * 58.0 * d2) * 0.75 + Sfx._lp_noise(i, 6) * 0.3) * exp(-d2 * 9.0)
-		return s)
+		return s * 0.5)
 	_streams["creak"] = Sfx._make(0.9, func(t: float, i: int) -> float: return sin(TAU * (160.0 + 70.0 * sin(t * 6.0)) * t) * 0.22 * (0.55 + 0.45 * sin(t * 95.0)) * minf(t * 8.0, 1.0) * exp(-t * 2.2) + Sfx._noise(i) * 0.03)
 	_streams["crank"] = Sfx._make(1.6, func(t: float, i: int) -> float: return (Sfx._noise(i) * 0.25 + sin(TAU * 52.0 * t) * 0.5) * (0.55 + 0.45 * sin(TAU * 7.5 * t)) * minf(t * 10.0, 1.0) * minf((1.6 - t) * 6.0, 1.0))
 	_streams["catch"] = Sfx._make(2.4, func(t: float, i: int) -> float: return (sin(TAU * 38.0 * t) * 0.55 + sin(TAU * 76.0 * t) * 0.25 + Sfx._noise(i) * 0.12) * minf(t * 3.0, 1.0) * (1.0 - 0.5 * clampf((t - 0.8) / 1.6, 0.0, 1.0)) * (1.0 + 0.3 * exp(-t * 4.0)))

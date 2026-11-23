@@ -57,6 +57,9 @@ func _master_fx() -> void:
 	_lp.cutoff_hz = 20500.0
 	AudioServer.add_bus_effect(bus, _lp)
 	_lp_idx = AudioServer.get_bus_effect_count(bus) - 1
+	var trim := AudioEffectAmplify.new()           # a little headroom overall (the low, warm sounds felt louder than they measured)
+	trim.volume_db = -3.0
+	AudioServer.add_bus_effect(bus, trim)
 	var lim := AudioEffectLimiter.new()
 	lim.ceiling_db = -1.0
 	AudioServer.add_bus_effect(bus, lim)
